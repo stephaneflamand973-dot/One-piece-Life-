@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ONE PIECE LIFE" />
   <meta name="description" content="ONE PIECE LIFE, simulateur mobile-first de destin, carrière et aventure dans un monde pirate vivant." />
-  <title>ONE PIECE LIFE — V1.2</title>
+  <title>ONE PIECE LIFE — V1.3</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="styles.css" />
@@ -28,10 +28,10 @@
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V1.2 • Bounties & Justice • iPhone & PWA</span>
+        <span class="eyebrow">V1.3 • Influence & Territories • iPhone & PWA</span>
         <h2>Une vie. Un monde qui n’attend pas ton arrivée.</h2>
-        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.2 transforme primes, recherches, arrestations et chasse aux criminels en véritables systèmes : chaleur régionale, poursuites, prison, évasion et contrats de chasse.</p>
-        <div class="feature-pills"><span>RNG seedé</span><span>Primes dynamiques</span><span>Poursuites</span><span>Autosave</span></div>
+        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.3 transforme réputation, titres et contrôle territorial en pouvoir concret : influence mondiale, domaines, revenus, réseaux alliés et reconnaissance émergente.</p>
+        <div class="feature-pills"><span>RNG seedé</span><span>Influence mondiale</span><span>Territoires</span><span>Autosave</span></div>
       </section>
 
       <section id="localFileWarning" class="paper-card compatibility-card">
@@ -128,6 +128,12 @@
           <div class="section-heading compact justice-subhead"><div><span class="eyebrow">Dossier</span><h3>Historique judiciaire</h3></div></div>
           <div id="crimeHistory" class="crime-history"></div>
         </section>
+        <section class="paper-card influence-card">
+          <div class="section-heading compact"><div><span class="eyebrow">Statut mondial</span><h3>Influence & titres</h3></div><span id="influenceBadge" class="badge"></span></div>
+          <div id="publicStanding" class="influence-summary"></div>
+          <div id="titleList" class="title-list"></div>
+          <div id="influenceActions" class="action-grid influence-actions"></div>
+        </section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Mobilité</span><h3>Opportunités de carrière</h3></div><span class="badge">Conséquences réelles</span></div><div id="careerActions" class="action-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Ambition</span><h3>Direction personnelle</h3></div><span class="badge">Dynamique</span></div><div id="ambitionCard" class="career-card"></div><div id="ambitionOptions" class="action-grid ambition-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Missions</span><h3>Opportunités actuelles</h3></div><span class="badge">Contexte réel</span></div><div id="missionBoard" class="mission-grid"></div></section>
@@ -176,6 +182,13 @@
         <section class="paper-card world-pulse-card"><div class="section-heading compact"><div><span class="eyebrow">Simulation mondiale</span><h3>État du monde</h3></div><span id="worldPulseBadge" class="badge"></span></div><div id="worldPulse" class="world-pulse-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Présences régionales</span><h3>Acteurs repérés</h3></div><span class="badge">Autonomes</span></div><div id="localActors" class="actor-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Territoires</span><h3>Contrôle des lieux connus</h3></div><span id="territoryBadge" class="badge"></span></div><div id="territoryList" class="territory-list"></div></section>
+        <section class="paper-card domain-card">
+          <div class="section-heading compact"><div><span class="eyebrow">Domaine personnel</span><h3>Présence dans le monde</h3></div><span id="domainBadge" class="badge"></span></div>
+          <div id="domainSummary" class="domain-summary"></div>
+          <div id="domainList" class="domain-list"></div>
+          <div class="section-heading compact domain-subhead"><div><span class="eyebrow">Réseau</span><h3>Forces affiliées</h3></div><span id="affiliateBadge" class="badge"></span></div>
+          <div id="affiliateList" class="affiliate-list"></div>
+        </section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Conflits</span><h3>Affrontements en cours</h3></div><span id="conflictBadge" class="badge"></span></div><div id="conflictList" class="conflict-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Équipages autonomes</span><h3>Forces émergentes</h3></div><span id="crewWorldBadge" class="badge"></span></div><div id="autonomousCrews" class="world-crew-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Diplomatie</span><h3>Relations entre puissances</h3></div></div><div id="diplomacyGrid" class="diplomacy-grid"></div></section>
