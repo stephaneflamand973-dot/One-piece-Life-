@@ -159,7 +159,9 @@ var ACHIEVEMENTS=[
  {id:'social',name:'Un nom que l’on connaît',desc:'Entretenir huit relations importantes.'},
  {id:'divergence',name:'Faiseur d’histoire',desc:'Faire dépasser 10% de divergence historique.'},
  {id:'longevity',name:'Longue vie',desc:'Atteindre 60 ans.'},
- {id:'legacy',name:'La volonté transmise',desc:'Continuer la partie avec un héritier.'}
+ {id:'legacy',name:'La volonté transmise',desc:'Continuer la partie avec un héritier.'},
+ {id:'commander',name:'Sous ton pavillon',desc:'Diriger une organisation avec au moins six membres actifs.'},
+ {id:'flagship',name:'Navire de commandement',desc:'Commander une Frégate ou un Galion.'}
 ];
 function normalizeRelation(g,r,i){
  r=r||{};var base=H(String(g.seed||1)+':rel:'+String(r.name||i));
@@ -341,7 +343,7 @@ function achievementCondition(id){
  if(id==='newworld')return p.visited.some(function(x){return infStatic(x).region==='New World'});if(id==='haki')return Object.keys(p.haki).some(function(k){return p.haki[k]>0});
  if(id==='fruit')return !!p.fruit;if(id==='family')return p.children.length>0;if(id==='marriage')return p.life.relationshipStatus==='Marié';if(id==='wealth')return nw>=1000000;
  if(id==='veteran')return p.wins>=20;if(id==='bounty')return p.highestBounty>=100000000;if(id==='social')return game.relations.length>=8;
- if(id==='divergence')return w.divergence>=10;if(id==='longevity')return p.ageMonths>=720;if(id==='legacy')return game.dynasty.generation>=2;return false
+ if(id==='divergence')return w.divergence>=10;if(id==='longevity')return p.ageMonths>=720;if(id==='legacy')return game.dynasty.generation>=2;if(id==='commander')return p.organization&&p.organization.authority==='leader'&&p.organization.members.filter(function(m){return m.status==='active'}).length>=6;if(id==='flagship')return p.organization&&p.organization.ship&&(p.organization.ship.tier||0)>=2;return false
 }
 function checkAchievements(silent){
  var u=game.achievements.unlocked;ACHIEVEMENTS.forEach(function(a){if(!u[a.id]&&achievementCondition(a.id)){u[a.id]={age:age(),generation:game.dynasty.generation};if(!silent)tl('Achievement : '+a.name,a.desc,'major')}});saveMeta()
