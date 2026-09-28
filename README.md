@@ -1,164 +1,191 @@
-# ONE PIECE LIFE — V1.3 Influence, Titles & Territories
+# ONE PIECE LIFE — V1.4 Wars, Alliances & Grand Strategy
 
 Simulateur mobile-first de vie, carrière, aventure et héritage dans un monde One Piece vivant.
 
-## V1.3 — Influence, Titles & Territories
+## V1.4 — Wars, Alliances & Grand Strategy
 
-La V1.3 transforme la réputation accumulée en pouvoir réel sur le monde.
+La V1.4 transforme les anciens conflits locaux en véritables campagnes stratégiques persistantes.
 
-### Influence mondiale
+### Guerres persistantes
 
-Le personnage possède maintenant trois dimensions distinctes :
+Une guerre possède désormais :
 
-- **renommée** : réputation positive, exploits, victoires, achievements et carrière ;
-- **infamie** : prime, crimes attribués, évasions et conquêtes ;
-- **influence** : synthèse de la puissance, de la réputation, du rang, de l'organisation, des territoires et du réseau.
+- attaquant principal ;
+- défenseur principal ;
+- coalition attaquante ;
+- coalition défensive ;
+- objectif ;
+- territoire cible ;
+- région principale ;
+- durée ;
+- score de guerre ;
+- fatigue des deux camps ;
+- fronts actifs ;
+- historique des batailles ;
+- résultat final.
 
-L'image publique peut évoluer entre discret, connu, admiré, redouté ou incontournable.
+Les conflits locaux V0.8 deviennent des fronts à l'intérieur de ces guerres.
 
-### Titres dynamiques
+### Plusieurs fronts
 
-Les titres ne sont pas choisis manuellement.
+Une campagne peut générer plusieurs affrontements dans une même région.
 
-Ils apparaissent lorsque les conditions du monde et du personnage sont réellement remplies.
+Chaque bataille influence :
 
-Exemples :
-
-- Nom montant ;
-- Figure des mers ;
-- Supernova ;
-- Capitaine du Nouveau Monde ;
-- Seigneur pirate ;
-- Officier renommé ;
-- Candidat au haut commandement ;
-- Cadre de la Révolution ;
-- Agent d'élite ;
-- Chasseur renommé ;
-- Légende des primes ;
-- Magnat des mers ;
-- Puissance du Nouveau Monde.
-
-Le titre principal correspond au dernier statut important reconnu par le monde.
-
-### Empereur des mers
-
-Le titre d'Empereur n'est pas une simple barre d'XP.
-
-Il nécessite notamment :
-
-- une partie suffisamment avancée ;
-- une divergence mondiale réelle ;
-- plusieurs territoires ;
-- plusieurs équipages affiliés ;
-- une prime extrêmement élevée ;
-- une puissance de combat exceptionnelle ;
-- une influence mondiale proche du maximum.
-
-Même lorsque toutes les conditions sont réunies, la reconnaissance se produit comme un événement mondial plutôt que comme une promotion administrative.
-
-### Domaines
-
-Un chef d'organisation suffisamment influent peut établir une présence durable sur l'île où il se trouve.
-
-La forme dépend de la faction :
-
-- Pirates : territoire sous protection ;
-- Marine : zone de commandement ;
-- Révolutionnaires : réseau révolutionnaire ;
-- Gouvernement : district administré ;
-- Chasseurs de primes : zone de chasse ;
-- Civils : comptoir commercial.
-
-Une implantation pacifique est possible dans un environnement favorable.
-
-Une implantation hostile peut exiger un combat contre les forces locales.
-
-### Contrôle territorial
-
-Chaque domaine suit :
-
-- niveau de contrôle ;
+- score de guerre ;
+- fatigue ;
+- contrôle territorial ;
 - stabilité ;
-- faction associée ;
-- date d'établissement ;
-- revenus produits ;
-- état de conflit.
+- tension mondiale.
 
-Une zone mal contrôlée peut être perdue.
+Une victoire locale ne termine donc plus automatiquement une guerre.
 
-### Revenus territoriaux
+### Score de guerre
 
-Les domaines produisent des revenus en fonction de :
+Le score varie entre un avantage défensif et un avantage offensif.
 
-- stabilité ;
-- prospérité régionale ;
-- danger local ;
-- niveau de contrôle.
+Une bataille sur l'objectif principal pèse davantage.
 
-Les revenus alimentent la caisse de l'organisation lorsqu'elle existe.
+Les guerres peuvent se terminer par :
 
-### Défense
+- victoire de l'attaquant ;
+- victoire du défenseur ;
+- paix négociée.
 
-Un domaine bénéficie du soutien combiné :
+### Fatigue de guerre
 
-- de son niveau de contrôle ;
-- de l'organisation du joueur ;
-- des forces affiliées présentes dans la région.
+Les deux camps accumulent progressivement de la fatigue.
 
-Les conflits du monde vivant peuvent donc réellement renforcer ou détruire l'empire du joueur.
+Une guerre prolongée devient donc difficile à maintenir, même sans victoire militaire totale.
 
-### Réseau pirate
+### Conditions de paix
 
-Un capitaine pirate suffisamment influent peut convaincre certains équipages procéduraux de reconnaître son pavillon.
+La fin de guerre peut :
 
-Le succès dépend notamment :
+- confirmer une conquête ;
+- restaurer un territoire ;
+- faire perdre un domaine personnel ;
+- réduire la tension mondiale ;
+- créer une trêve temporaire.
 
-- de l'influence ;
-- de la renommée de l'organisation ;
-- de la puissance du joueur ;
-- de la prime ;
-- de la puissance de l'équipage ciblé.
+### Trêves
 
-Les équipages restent autonomes dans le WorldState.
+Une guerre terminée crée automatiquement une période de trêve.
 
-Ils peuvent voyager, combattre et même disparaître.
+La même paire de factions ne peut pas immédiatement relancer une campagne comme si les soldats avaient simplement oublié qu'ils venaient de combattre pendant huit mois.
 
-Un moral extrêmement faible peut aussi provoquer la rupture de l'alliance.
+### Alliances
 
-### Changement de faction
+La V1.4 introduit des traités persistants.
 
-Les territoires ne suivent plus automatiquement un changement de camp.
+Le lien Marine ↔ Gouvernement est représenté comme une alliance structurelle.
 
-Une désertion entre factions hostiles réduit fortement le contrôle local.
+D'autres alliances peuvent émerger lorsque les relations diplomatiques deviennent suffisamment fortes.
 
-Les zones insuffisamment loyales peuvent être perdues.
+Lorsqu'une guerre commence, les alliés compatibles peuvent rejoindre une coalition.
 
-Les équipages pirates affiliés rompent leur lien si le joueur abandonne la piraterie.
+Le moteur empêche désormais un même allié d'apparaître simultanément dans les deux camps.
 
-### Héritage
+### Guerres autonomes
 
-Les territoires et affiliations sont liés à la dynastie du monde plutôt qu'au simple nom du personnage.
+Le monde peut déclencher une guerre sans intervention du joueur lorsque :
 
-Un héritier peut donc reprendre un monde dans lequel sa famille possède déjà une influence territoriale, sans hériter automatiquement des titres personnels de son parent.
+- la tension mondiale est élevée ;
+- deux factions sont extrêmement hostiles ;
+- aucune trêve n'est active ;
+- aucune guerre ne les oppose déjà.
 
-### Achievements V1.3
+### Campagnes du joueur
 
-Nouveaux achievements :
+Un chef d'organisation suffisamment influent peut lancer une guerre territoriale.
 
-- **Mon pavillon ici** : établir un premier domaine ;
-- **Puissance régionale** : contrôler trois zones ;
-- **Flotte sous influence** : rallier trois équipages ;
-- **Au sommet des mers** : être reconnu comme Empereur des mers.
+Conditions principales :
 
-## Correction importante
+- adulte ;
+- libre ;
+- chef de son organisation ;
+- influence élevée ;
+- organisation puissante ;
+- faction capable de mener une guerre ;
+- cible hostile dans la région ;
+- aucune trêve active.
 
-La V1.3 corrige également un ancien problème de liaison des boutons dynamiques : plusieurs listes utilisaient un sélecteur d'élément unique au lieu du sélecteur multiple.
+Une campagne coûte :
 
-Le validateur vérifie désormais ce type d'erreur.
+- 30 000 B ;
+- 12% de provisions ;
+- une action stratégique.
+
+### Soutien stratégique
+
+Si ton camp participe à une guerre, tu peux engager des ressources pour influencer son score.
+
+Le soutien coûte de l'argent et des provisions.
+
+La puissance de l'organisation et l'influence du joueur déterminent l'impact.
+
+### Intervention directe
+
+Si un front de guerre existe dans ta région, tu peux rejoindre directement le combat.
+
+Le résultat personnel influence alors le score stratégique du conflit.
+
+### Négociation
+
+Après plusieurs mois de guerre, un personnage très influent peut proposer une paix.
+
+Les chances dépendent notamment :
+
+- fatigue des camps ;
+- équilibre du score ;
+- influence personnelle.
+
+Une tentative peut être rejetée.
+
+### Pirates et guerres
+
+La faction Pirates reste décentralisée.
+
+Un personnage pirate n'est pas automatiquement considéré comme engagé dans chaque guerre impliquant des pirates ailleurs dans le monde.
+
+Il devient directement impliqué si :
+
+- il a lancé la campagne ;
+- son propre domaine est visé.
+
+### Domaines V1.3
+
+Les domaines participent maintenant réellement aux guerres.
+
+Leur défense tient compte de :
+
+- contrôle local ;
+- organisation du joueur ;
+- forces affiliées présentes dans la région.
+
+Une défaite militaire ou une paix défavorable peut faire perdre un domaine.
+
+### Achievements V1.4
+
+Deux nouveaux achievements :
+
+- **Tambours de guerre** : lancer sa première campagne stratégique ;
+- **Stratège des mers** : remporter trois guerres impliquant son camp.
+
+## Correction de stabilité
+
+La V1.4 corrige également une régression de sélecteurs dynamiques apparue lors de la V1.3.
+
+Le validateur bloque désormais :
+
+- l'utilisation de `$().forEach` sur une liste ;
+- toute occurrence accidentelle de `$$$()`.
 
 ## Systèmes conservés
 
-V1.2 : primes, chaleur régionale, poursuites, prison, évasion et chasse aux primes.
+V1.3 : influence, titres, domaines, revenus territoriaux et réseaux affiliés.
+
+V1.2 : primes, poursuites, prison, évasion et chasse aux primes.
 
 V1.1 : organisations, équipages, membres, navires et commandement.
 
@@ -166,13 +193,13 @@ V1.0 : canon causal, content pack et Fruits persistants.
 
 V0.9 : relations, famille, économie et héritage.
 
-V0.8 : monde autonome, territoires globaux, conflits et diplomatie.
+V0.8 : monde autonome, territoires, conflits et diplomatie.
 
 ## Sauvegardes
 
-Les sauvegardes V0.5 à V1.2 sont migrées automatiquement vers V1.3.
+Les sauvegardes V0.5 à V1.3 sont migrées automatiquement vers V1.4.
 
-La migration interne passe à la version 13.
+La migration interne passe à la version 14.
 
 ## iPhone / PWA
 
