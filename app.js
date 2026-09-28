@@ -38,6 +38,58 @@ var PL={
 'Wano':['New World',82,['Zou','Whole Cake Island','Egghead']],
 'Egghead':['New World',68,['Wano']]};
 var CH=[['Garp','Marine','East Blue',90],['Shanks','Pirates','East Blue',95],['Rayleigh','Pirates','Grand Line',92],['Mihawk','Indépendant','Grand Line',90],['Dragon','Révolutionnaires','Grand Line',98],['Kaido','Pirates','New World',99],['Big Mom','Pirates','New World',99],['Barbe Blanche','Pirates','New World',100]];
+
+var ACTOR_TEMPLATES=[
+ {name:'Garp',faction:'Marine',region:'East Blue',base:92,peak:97,growth:1,importance:98,goal:'Former la prochaine génération'},
+ {name:'Shanks',faction:'Pirates',region:'East Blue',base:28,peak:96,growth:16,importance:100,goal:'Tracer sa propre route'},
+ {name:'Rayleigh',faction:'Pirates',region:'Grand Line',base:95,peak:91,growth:22,importance:94,goal:'Observer la nouvelle ère'},
+ {name:'Mihawk',faction:'Indépendant',region:'Grand Line',base:34,peak:94,growth:16,importance:96,goal:'Chercher des adversaires dignes'},
+ {name:'Dragon',faction:'Révolutionnaires',region:'Grand Line',base:58,peak:98,growth:14,importance:100,goal:'Étendre le réseau révolutionnaire'},
+ {name:'Kaido',faction:'Pirates',region:'New World',base:84,peak:99,growth:10,importance:99,goal:'Accroître sa domination'},
+ {name:'Big Mom',faction:'Pirates',region:'New World',base:95,peak:99,growth:8,importance:99,goal:'Étendre son territoire'},
+ {name:'Barbe Blanche',faction:'Pirates',region:'New World',base:100,peak:96,growth:22,importance:100,goal:'Protéger sa famille'}
+];
+var REGION_LINKS={
+ 'East Blue':['Grand Line'],'North Blue':['Grand Line'],'West Blue':['Grand Line'],'South Blue':['Grand Line'],
+ 'Grand Line':['East Blue','North Blue','West Blue','South Blue','New World'],'New World':['Grand Line']
+};
+var CREW_A=['Crimson','Brume','Tempête','Écume','Cendre','Aube','Foudre','Corail','Marée','Fer','Sillage','Astre'];
+var CREW_B=['Mantas','Ravens','Sharks','Drakes','Foxes','Wolves','Blades','Corsairs','Comets','Serpents','Bulls','Vultures'];
+var WORLD_FACTIONS=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];
+function det(g,k){return (H(String(g.seed||1)+':'+k)%100000)/100000}
+function pairKey(a,b){return[a,b].sort().join('|')}
+function initDiplomacy(){
+ var d={};
+ function set(a,b,v){d[pairKey(a,b)]=v}
+ set('Marine','Gouvernement',78);set('Marine','Pirates',-90);set('Marine','Révolutionnaires',-58);set('Marine','Civil',28);set('Marine','Chasseur de primes',18);
+ set('Gouvernement','Pirates',-96);set('Gouvernement','Révolutionnaires',-100);set('Gouvernement','Civil',16);set('Gouvernement','Chasseur de primes',12);
+ set('Pirates','Révolutionnaires',4);set('Pirates','Civil',-22);set('Pirates','Chasseur de primes',-62);
+ set('Révolutionnaires','Civil',14);set('Révolutionnaires','Chasseur de primes',-6);set('Civil','Chasseur de primes',22);
+ return d
+}
+function territorySeed(g,name){
+ var region=infStatic(name).region,r=det(g,'territory:'+name),controller='Civil';
+ if(['East Blue','North Blue','West Blue','South Blue'].indexOf(region)>=0)controller=r<.56?'Marine':r<.88?'Civil':'Pirates';
+ else if(region==='Grand Line')controller=r<.30?'Marine':r<.58?'Civil':r<.89?'Pirates':'Gouvernement';
+ else controller=r<.56?'Pirates':r<.76?'Gouvernement':r<.90?'Civil':'Révolutionnaires';
+ return{controller:controller,influence:Math.round(48+det(g,'influence:'+name)*34),stability:Math.round(38+det(g,'stability:'+name)*50),contested:false,lastChange:null}
+}
+function infStatic(n){var p=PL[n]||['East Blue',10,[]];return{region:p[0],danger:p[1],routes:p[2]}}
+function makeWorldCrew(g,i){
+ var alignment=det(g,'crew:f:'+i),f=alignment<.72?'Pirates':alignment<.87?'Chasseur de primes':'Révolutionnaires',
+ region=REG[Math.floor(det(g,'crew:r:'+i)*REG.length)],name=CREW_A[Math.floor(det(g,'crew:a:'+i)*CREW_A.length)]+' '+CREW_B[Math.floor(det(g,'crew:b:'+i)*CREW_B.length)];
+ return{id:'crew-'+i,name:name,faction:f,region:region,power:Math.round(14+det(g,'crew:p:'+i)*54),members:Math.round(4+det(g,'crew:m:'+i)*28),morale:Math.round(42+det(g,'crew:o:'+i)*48),bounty:f==='Pirates'?Math.round((8+det(g,'crew:q:'+i)*90)*1000000):0,status:'active',ageMonths:Math.round(det(g,'crew:age:'+i)*90),victories:0,defeats:0}
+}
+function initLivingWorld(g,w){
+ w.factions=w.factions||{};if(w.factions.Civil==null)w.factions.Civil=62;if(w.factions['Chasseur de primes']==null)w.factions['Chasseur de primes']=44;
+ w.diplomacy=w.diplomacy||initDiplomacy();w.territories=w.territories||{};Object.keys(PL).forEach(function(n){if(!w.territories[n])w.territories[n]=territorySeed(g,n)});
+ w.actors=w.actors||ACTOR_TEMPLATES.map(function(a,i){return{name:a.name,faction:a.faction,region:a.region,base:a.base,peak:a.peak,growth:a.growth,importance:a.importance,goal:a.goal,status:'active',woundMonths:0,influence:Math.round(60+det(g,'actor:i:'+i)*35),actions:0}});
+ w.crews=w.crews||Array.from({length:10},function(_,i){return makeWorldCrew(g,i)});
+ w.conflicts=w.conflicts||[];w.worldHistory=w.worldHistory||[];w.simRemainder=w.simRemainder||0;w.nextCrewId=w.nextCrewId||w.crews.length;w.globalTension=w.globalTension==null?34:w.globalTension;
+ return w
+}
+function diplomacy(a,b){if(a===b)return 100;if(a==='Indépendant'||b==='Indépendant')return 0;return game.world.diplomacy[pairKey(a,b)]||0}
+function actorPower(a){var y=game.world.year||0,t=cl(y/Math.max(1,a.growth),0,1);return a.base+(a.peak-a.base)*t}
 var FACTION_KEYS=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];
 var CAREERS={
 Civil:{label:'Civil',salary:2800,specs:['Marchand','Médecin','Navigateur','Scientifique','Artisan','Cuisinier'],ranks:[
@@ -107,7 +159,7 @@ function key(){return P+slot}
 function save(){if(game)localStorage.setItem(key(),JSON.stringify(game))}
 function migrate(g){
  if(!g)return null;var p=g.player||{},w=g.world||{};
- g.version=7;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};
+ g.version=8;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};
  p.techniques=p.techniques||[];p.techniqueMastery=p.techniqueMastery||{};p.fruitMastery=p.fruitMastery||0;p.fruitAwakened=!!p.fruitAwakened;p.heldFruit=p.heldFruit||null;p.combatXP=p.combatXP||0;p.hakiApplications=p.hakiApplications||{Observation:[],Armement:[],Conquérant:[]};
  p.haki=p.haki||{Observation:0,Armement:0,Conquérant:0};p.latent=p.latent||{Observation:40,Armement:40,Conquérant:0};p.conditions=p.conditions||[];
  p.factionRep=p.factionRep||{Civil:10,Marine:0,Pirates:0,'Chasseur de primes':0,Révolutionnaires:0,Gouvernement:0};
@@ -117,7 +169,7 @@ function migrate(g){
  if(p.careerRecords[p.faction]){p.rank=p.careerRecords[p.faction].rank||p.rank;p.specialization=p.careerRecords[p.faction].specialization||p.specialization}
  w.fruits=w.fruits||['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi'];w.fruitRegistry=w.fruitRegistry||{};
  w.fruits.forEach(function(n){if(!w.fruitRegistry[n])w.fruitRegistry[n]={status:p.fruit===n?'consumed':'available',holder:p.fruit===n?p.name:null}});
- g.player=p;g.world=w;return g
+ w=initLivingWorld(g,w);g.player=p;g.world=w;return g
 }
 function load(i){try{return migrate(JSON.parse(localStorage.getItem(P+i)||'null'))}catch(x){return null}}
 function tl(t,d,y){game.timeline.unshift({age:age(),title:t,desc:d,type:y||''});game.timeline=game.timeline.slice(0,100)}
@@ -125,7 +177,7 @@ function news(t,d){game.news.unshift({title:t,desc:d});game.news=game.news.slice
 function press(){var o={};REG.forEach(function(r){o[r]={Piraterie:20+R('w')*25,Marine:30+R('w')*35,Criminalité:15+R('w')*30,Révolution:5+R('w')*20,Prospérité:40+R('w')*35,Instabilité:10+R('w')*25}});return o}
 function make(){
  var seed=Number($('#seedInput').value)||Math.floor(Math.random()*2147483647),origin=mode==='custom'?$('#originInput').value:pk(ORIG,'b');
- game={version:7,seed:seed,rng:{},alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
+ game={version:8,seed:seed,rng:{},alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
  game=migrate(game);var homes=Object.keys(PL).filter(function(n){return PL[n][0]===origin});game.player.island=pk(homes,'b');game.player.visited=[game.player.island];game.codex.places=[game.player.island];game.world.pressures=press();
  ST.forEach(function(k){game.player.stats[k]=8+R('b')*12;game.player.caps[k]=68+R('c')*25});SK.forEach(function(k){game.player.skills[k]=2+R('b')*8;game.player.caps[k]=68+R('c')*25});
  syncPowers();tl('Naissance','Tu nais à '+game.player.island+', dans '+origin+'.','major');news('Grande Ère de la Piraterie','Le monde entre dans une période de bouleversements.');save();return game}
