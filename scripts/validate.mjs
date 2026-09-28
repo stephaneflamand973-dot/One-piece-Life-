@@ -10,7 +10,7 @@ JSON.parse(manifest);
 if(!html.includes('V0.7')) throw new Error('index.html does not expose V0.7');
 if(!app.includes('version:7') || !app.includes('g.version=7')) throw new Error('game state is not V0.7');
 
-const dynamicIds=new Set(['eatHeldFruit','challengeBtn','martialTrainBtn']);
+const dynamicIds=new Set(['eatHeldFruit','challengeBtn','martialTrainBtn','changeCareerBtn','careerRecordBtn']);
 const ids=[...app.matchAll(/\$\('#([^']+)'\)/g)].map(m=>m[1]);
 const missing=[...new Set(ids)].filter(id=>!dynamicIds.has(id)&&!html.includes('id="'+id+'"'));
 if(missing.length) throw new Error('Missing HTML ids: '+missing.join(', '));
