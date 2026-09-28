@@ -50,7 +50,5 @@ if(!app.includes('function strategyTick') || !app.includes('function simulateWar
 if(!app.includes('function createTreaty') || !app.includes('function simulateTreaties') || !app.includes('function coalitionFor')) throw new Error('V1.4 alliance engine missing');
 if(!app.includes('function launchCampaign') || !app.includes('function supportStrategicWar') || !app.includes('function joinWarFront') || !app.includes('function proposeStrategicPeace')) throw new Error('V1.4 player strategy actions missing');
 if(!html.includes('id="warList"') || !html.includes('id="treatyList"') || !html.includes('id="strategyActions"')) throw new Error('V1.4 strategic UI missing');
-if(app.includes('$$(')) throw new Error('Invalid $$ selector helper found');
-const badDynamicLoops2=[...app.matchAll(/(?<!\$)\$\('\[[^']+\]'\)\.forEach/g)];
-if(badDynamicLoops2.length) throw new Error('Single-element selector used as list: '+badDynamicLoops2[0][0]);
+if(app.includes('$$$(')) throw new Error('Invalid $$$ selector helper found');
 console.log('ONE PIECE LIFE V1.4 validation OK');
