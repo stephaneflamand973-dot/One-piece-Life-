@@ -8,7 +8,7 @@
   "orientation": "portrait-primary",
   "background_color": "#f4ecd8",
   "theme_color": "#f4ecd8",
-  "description": "Simulateur mobile-first de destin dans un monde pirate vivant.",
+  "description": "V0.6 — simulateur mobile-first de destin, combat et pouvoirs dans un monde pirate vivant.",
   "icons": [
     {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ]
