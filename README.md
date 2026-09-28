@@ -1,157 +1,178 @@
-# ONE PIECE LIFE — V1.0 Canon Release
+# ONE PIECE LIFE — V1.1 Crews & Organizations
 
 Simulateur mobile-first de vie, carrière, aventure et héritage dans un monde One Piece vivant.
 
-## V1.0
+## V1.1 — Crews & Organizations
 
-La V1.0 consolide les systèmes développés depuis la V0.5 et sépare désormais le contenu du moteur afin de pouvoir enrichir le jeu sans reconstruire son architecture.
+La V1.1 transforme enfin les groupes du joueur en systèmes persistants plutôt qu'en simples étiquettes.
 
-### Content pack séparé
+### Organisations adaptées aux factions
 
-`content-v1.js` contient désormais les données extensibles :
+Selon la carrière, le personnage rejoint notamment :
 
-- lieux et routes ;
-- personnages canoniques ;
-- Fruits du démon ;
-- événements historiques ;
-- techniques spéciales ;
-- événements contextuels.
+- un équipage pirate ;
+- une unité de la Marine ;
+- une cellule révolutionnaire ;
+- une équipe gouvernementale ou Cipher Pol ;
+- un groupe de chasseurs de primes ;
+- un réseau professionnel civil.
 
-Le moteur reste dans `app.js`.
+La structure évolue avec le rang du joueur.
 
-### Chronologie canonique causale
+### Autorité liée à la carrière
 
-Les événements canoniques possèdent maintenant :
+Trois niveaux sont distingués :
 
-- année et mois ;
-- type : ancrage ou événement flexible ;
-- localisation ;
-- personnages requis ;
-- factions concernées ;
-- résistance à la divergence ;
-- statut persistant.
+- membre ;
+- officier ;
+- chef.
 
-Résultats possibles :
+Un simple membre bénéficie du soutien collectif mais ne contrôle pas le recrutement.
 
-- `future`
-- `completed`
-- `modified`
-- `cancelled`
+Un officier peut organiser des entraînements, gérer des rôles et demander des renforts.
 
-Un personnage requis mort ou indisponible peut réellement casser la chaîne causale. Le moteur ne restaure pas artificiellement le scénario original.
+Un chef contrôle le recrutement, la composition du groupe, la logistique et, pour les pirates, le navire.
 
-La simulation mondiale utilise désormais une horloge mensuelle précise : chaque mois simulé reçoit son propre tick de monde et son propre contrôle canonique.
+### Membres persistants
 
-### Contenu V1
+Chaque membre possède notamment :
 
-Le pack initial V1 ajoute notamment :
+- nom ;
+- rôle ;
+- puissance ;
+- loyauté ;
+- moral ;
+- ancienneté ;
+- blessures ;
+- statut.
 
-- 15 lieux supplémentaires, dont Foosha Village, Cocoyasi, Skypiea, Enies Lobby, Marineford, Impel Down, Amazon Lily, Hachinosu, Elbaf et Mary Geoise ;
-- environ 30 acteurs canoniques structurés ;
-- plus de 30 Fruits du démon avec type et rareté ;
-- une chronologie historique allant de l’exécution de Roger jusqu’aux grands événements de l’ère récente ;
-- techniques spéciales comme le Rokushiki, le Karaté des Hommes-Poissons, Electro et des maîtrises avancées de sabre/tir.
+Les membres progressent avec le temps. Une organisation mal gérée peut subir des départs, des blessures ou une crise de commandement.
 
-### Personnages canoniques
+### Rôles
 
-Les acteurs canoniques disposent de :
+Les rôles dépendent de la faction.
 
-- période d’activation ;
-- région ;
-- puissance de départ ;
-- plafond ;
-- vitesse d’évolution ;
-- importance causale ;
-- objectif.
+Exemples pirates :
 
-Un personnage qui n’a pas encore commencé sa carrière n’est plus simulé comme s’il était déjà à son apogée.
+- combattant ;
+- navigateur ;
+- tireur ;
+- médecin ;
+- cuisinier ;
+- charpentier ;
+- musicien ;
+- quartier-maître.
 
-### Fruits du démon
+Exemples Marine :
 
-Les Fruits ne sont plus tirés uniformément.
+- combattant ;
+- navigateur ;
+- tireur ;
+- médecine ;
+- renseignement ;
+- logistique.
 
-Leur rareté influence la probabilité de découverte. Le registre mondial continue de suivre :
+La diversité des rôles augmente l'efficacité collective.
 
-`available → held → consumed / sold`
+### Moral, cohésion et loyauté
 
-### Techniques spéciales
+L'organisation suit séparément :
 
-Les techniques spéciales se débloquent selon des conditions réelles :
+- moral ;
+- cohésion ;
+- renommée ;
+- loyauté individuelle ;
+- provisions ;
+- caisse commune.
 
-- faction ;
-- race ;
-- style ;
-- compétence ;
-- statistique.
+Un manque durable de provisions ou un mauvais moral peut provoquer des départs.
 
-Exemples : Rokushiki pour certaines carrières gouvernementales, Electro pour les Minks, Karaté des Hommes-Poissons pour les Hommes-Poissons.
+### Recrutement
 
-### Événements locaux
+Les officiers et chefs peuvent générer des candidats contextuels.
 
-La zone et la région peuvent maintenant générer davantage de situations contextuelles :
+La qualité dépend notamment :
 
-- contrôles ;
-- météo ;
-- commerce ;
-- épaves ;
-- rumeurs ;
-- contacts clandestins ;
-- découvertes.
+- de la région ;
+- du danger local ;
+- du RNG seedé.
 
-### Interface Monde
+Les organisations indépendantes peuvent devoir financer le recrutement.
 
-La V1 ajoute :
+### Missions collectives
 
-- prochains ancrages historiques ;
-- santé de la chronologie ;
-- personnages requis manquants ;
-- statistiques du content pack ;
-- statut détaillé de chaque événement canonique ;
-- Codex enrichi par les événements et techniques découverts.
+Le groupe intervient maintenant réellement dans les missions.
 
-## Systèmes hérités
+La puissance collective, la cohésion, le moral, l'autorité du joueur et la couverture des rôles peuvent réduire le danger effectif d'une mission.
 
-### V0.9
-Relations, romance, famille, enfants, économie, achievements et héritage intergénérationnel.
+Les résultats influencent ensuite :
 
-### V0.8
-Monde autonome, équipages procéduraux, territoires, conflits et diplomatie.
+- la caisse ;
+- le moral ;
+- la cohésion ;
+- la renommée ;
+- les blessures potentielles des membres.
 
-### V0.7
-Carrières, rangs, spécialisations, missions et réputation de factions.
+### Navires pirates
 
-### V0.6
-Combat, styles, techniques, Haki, Fruits du démon et blessures.
+Les équipages pirates possèdent maintenant un navire persistant.
 
-### V0.5
-Routes maritimes, voyages, régions et première couche de canon dynamique.
+Progression :
 
-## Validation
+1. Sloop
+2. Brigantin
+3. Frégate
+4. Galion
 
-Deux contrôles automatiques sont exécutés à chaque push :
+Chaque navire possède :
 
-```
-node scripts/validate.mjs
-node scripts/validate-content.mjs
-```
+- capacité d'équipage ;
+- état ;
+- bonus de vitesse ;
+- coût d'amélioration.
 
-Ils vérifient notamment :
+Un navire endommagé ralentit les traversées et augmente les risques en mer.
 
-- syntaxe ;
-- interface ;
-- migration V1 ;
-- présence des systèmes essentiels ;
-- routes vers des lieux existants ;
-- IDs uniques ;
-- Fruits non dupliqués ;
-- personnages requis par le canon ;
-- ordre chronologique des événements.
+### Commandement
+
+Une action de commandement est disponible par période.
+
+Elle peut servir à :
+
+- renforcer la vie de groupe ;
+- recruter ;
+- organiser un entraînement collectif.
+
+La répartition des rôles reste une décision de gestion et non une source d'XP gratuite.
+
+### Achievements V1.1
+
+Deux nouveaux achievements :
+
+- **Sous ton pavillon** : commander au moins six membres actifs ;
+- **Navire de commandement** : posséder une Frégate ou un Galion.
+
+## Systèmes conservés
+
+V1.0 : canon causal, content pack, Fruits persistants et chronologie mensuelle.
+
+V0.9 : relations, famille, économie et héritage.
+
+V0.8 : monde autonome, territoires, conflits et diplomatie.
+
+V0.7 : carrières, factions, rangs et spécialisations.
+
+V0.6 : combat, Haki, techniques, Fruits et blessures.
 
 ## Sauvegardes
 
-Les sauvegardes V0.5 à V0.9 sont migrées automatiquement vers V1.0.
+Les sauvegardes V0.5 à V1.0 sont migrées automatiquement vers V1.1.
 
-Le Codex et les achievements restent méta-persistants par emplacement.
+Les personnages déjà engagés dans une carrière reçoivent une organisation compatible avec leur faction et leur rang.
+
+## Validation
+
+Chaque push vérifie le moteur, l'interface, le content pack et désormais la présence des systèmes d'organisation V1.1.
 
 ## iPhone / PWA
 
@@ -159,10 +180,4 @@ GitHub Pages publie automatiquement la branche `main`.
 
 Sur iPhone :
 
-Safari → Partager → **Sur l’écran d’accueil** → **Ouvrir comme app web**.
-
-Le service worker V1 met également `content-v1.js` en cache pour le fonctionnement hors ligne.
-
-## Note
-
-Projet fan-made expérimental. Le dépôt n’embarque pas d’images, musiques ou autres assets officiels.
+Safari → Partager → **Sur l'écran d'accueil** → **Ouvrir comme app web**.
