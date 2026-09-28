@@ -163,7 +163,11 @@ var ACHIEVEMENTS=[
  {id:'commander',name:'Sous ton pavillon',desc:'Diriger une organisation avec au moins six membres actifs.'},
  {id:'flagship',name:'Navire de commandement',desc:'Commander une Frégate ou un Galion.'},
  {id:'escape',name:'Les murs ne suffisent pas',desc:'Réussir une évasion de prison.'},
- {id:'hunter',name:'Chasseur confirmé',desc:'Capturer cinq cibles recherchées.'}
+ {id:'hunter',name:'Chasseur confirmé',desc:'Capturer cinq cibles recherchées.'},
+ {id:'domain',name:'Mon pavillon ici',desc:'Établir un premier domaine personnel.'},
+ {id:'regional-power',name:'Puissance régionale',desc:'Contrôler au moins trois zones.'},
+ {id:'fleet',name:'Flotte sous influence',desc:'Rallier trois équipages autonomes.'},
+ {id:'emperor',name:'Au sommet des mers',desc:'Être reconnu comme Empereur des mers.'}
 ];
 function normalizeRelation(g,r,i){
  r=r||{};var base=H(String(g.seed||1)+':rel:'+String(r.name||i));
@@ -345,7 +349,7 @@ function achievementCondition(id){
  if(id==='newworld')return p.visited.some(function(x){return infStatic(x).region==='New World'});if(id==='haki')return Object.keys(p.haki).some(function(k){return p.haki[k]>0});
  if(id==='fruit')return !!p.fruit;if(id==='family')return p.children.length>0;if(id==='marriage')return p.life.relationshipStatus==='Marié';if(id==='wealth')return nw>=1000000;
  if(id==='veteran')return p.wins>=20;if(id==='bounty')return p.highestBounty>=100000000;if(id==='social')return game.relations.length>=8;
- if(id==='divergence')return w.divergence>=10;if(id==='longevity')return p.ageMonths>=720;if(id==='legacy')return game.dynasty.generation>=2;if(id==='commander')return p.organization&&p.organization.authority==='leader'&&p.organization.members.filter(function(m){return m.status==='active'}).length>=6;if(id==='flagship')return p.organization&&p.organization.ship&&(p.organization.ship.tier||0)>=2;if(id==='escape')return p.justice&&p.justice.escapes>=1;if(id==='hunter')return p.justice&&p.justice.captures>=5;return false
+ if(id==='divergence')return w.divergence>=10;if(id==='longevity')return p.ageMonths>=720;if(id==='legacy')return game.dynasty.generation>=2;if(id==='commander')return p.organization&&p.organization.authority==='leader'&&p.organization.members.filter(function(m){return m.status==='active'}).length>=6;if(id==='flagship')return p.organization&&p.organization.ship&&(p.organization.ship.tier||0)>=2;if(id==='escape')return p.justice&&p.justice.escapes>=1;if(id==='hunter')return p.justice&&p.justice.captures>=5;if(id==='domain')return p.influence&&p.influence.domains.length>=1;if(id==='regional-power')return p.influence&&p.influence.domains.length>=3;if(id==='fleet')return p.influence&&p.influence.affiliates.length>=3;if(id==='emperor')return p.influence&&p.influence.recognizedTitle==='Empereur des mers';return false
 }
 function checkAchievements(silent){
  var u=game.achievements.unlocked;ACHIEVEMENTS.forEach(function(a){if(!u[a.id]&&achievementCondition(a.id)){u[a.id]={age:age(),generation:game.dynasty.generation};if(!silent)tl('Achievement : '+a.name,a.desc,'major')}});saveMeta()
@@ -601,7 +605,7 @@ function addTitle(t){
  var x=migrateInfluence(game.player);if(x.titles.indexOf(t)>=0)return false;x.titles.push(t);x.primaryTitle=t;x.history.unshift({age:age(),title:t});x.history=x.history.slice(0,30);tl('Nouveau titre',game.player.name+' est désormais connu comme « '+t+' ».','major');news('Un nouveau nom circule',game.player.name+' gagne le titre « '+t+' ».','major');return true
 }
 function evaluateTitles(){
- var p=game.player,x=influenceMetrics(),org=p.organization,ageY=p.ageMonths/12,rank=p.rank||'';
+ var p=game.player,x=influenceMetrics(),org=p.organization,ageY=p.ageMonths/12,rank=p.rank||'';if(p.ageMonths<180)return x;
  if(x.fame>=22)addTitle('Nom montant');
  if(x.score>=48)addTitle('Figure des mers');
  if(p.faction==='Pirates'&&ageY<=30&&(p.bounty||0)>=100000000&&p.visited.indexOf('Sabaody')>=0)addTitle('Supernova');
@@ -622,7 +626,7 @@ function claimEligibility(){
  var p=game.player,x=influenceMetrics(),o=p.organization,t=game.world.territories[p.island];if(p.ageMonths<216)return[false,'Il faut être adulte.'];if(p.justice&&p.justice.detained)return[false,'Impossible depuis une prison.'];if(!o||o.authority!=='leader')return[false,'Il faut diriger ton organisation.'];if(!t)return[false,'Territoire indisponible.'];if(t.playerControl&&t.playerControl.ownerKey===dynastyKey())return[false,'Ta dynastie contrôle déjà cette zone.'];if(x.score<48)return[false,'Influence 48 requise.'];if(organizationPower()<38)return[false,'Puissance d’organisation 38 requise.'];return[true,'']}
 function establishDomain(){
  var p=game.player,x=influenceMetrics(),q=claimEligibility();if(!q[0])return toast(q[1]);if(!useInfluenceAction())return;var t=game.world.territories[p.island],friendly=t.controller===p.faction||t.controller==='Civil',mode=friendly?'influence':'conquest';
- function success(){t.playerControl={ownerKey:dynastyKey(),ownerName:p.name,faction:p.faction,label:domainLabel(p.faction),control:Math.round(cl(48+x.score*.28+organizationPower()*.18,45,86)),sinceYear:game.world.year,sinceMonth:Math.floor(game.world.month),mode:mode,income:0};if(mode==='conquest'&&['Pirates','Marine','Révolutionnaires','Gouvernement'].indexOf(p.faction)>=0){var old=t.controller;t.controller=p.faction;t.influence=cl(t.influence-8,38,78);t.stability=cl(t.stability-9,10,100);if((p.faction==='Pirates'||p.faction==='Révolutionnaires')&&(old==='Marine'||old==='Gouvernement'))registerCrime('Prise de contrôle de '+p.island,5,true)}x.domains.push(p.island);x.domains=x.domains.filter(function(v,i,a){return a.indexOf(v)===i});x.score=cl(x.score+5,0,100);if(p.organization)p.organization.renown=cl(p.organization.renown+6,0,100);tl('Domaine établi',domainLabel(p.faction)+' établi à '+p.island+'.','major');news('Nouvelle puissance locale',p.name+' établit son influence à '+p.island+'.','major');checkAchievements();save();render()}
+ function success(){t.playerControl={ownerKey:dynastyKey(),ownerName:p.name,faction:p.faction,label:domainLabel(p.faction),control:Math.round(cl(48+x.score*.28+organizationPower()*.18,45,86)),sinceYear:game.world.year,sinceMonth:Math.floor(game.world.month),mode:mode,income:0};if(mode==='conquest'&&['Pirates','Marine','Révolutionnaires','Gouvernement'].indexOf(p.faction)>=0){var old=t.controller;t.controller=p.faction;t.influence=cl(t.influence-8,38,78);t.stability=cl(t.stability-9,10,100);if((p.faction==='Pirates'||p.faction==='Révolutionnaires')&&(old==='Marine'||old==='Gouvernement'))registerCrime('Prise de contrôle de '+p.island,5,true)}x.domains.push(p.island);x.domains=x.domains.filter(function(v,i,a){return a.indexOf(v)===i});x.score=cl(x.score+5,0,100);if(p.organization)p.organization.renown=cl(p.organization.renown+6,0,100);tl('Domaine établi',domainLabel(p.faction)+' établi à '+p.island+'.','major');news('Nouvelle puissance locale',p.name+' établit son influence à '+p.island+'.','major');evaluateTitles();checkAchievements();save();render()}
  if(friendly){success();return}
  var d=cl(inf().danger*.7+t.influence*.36+12,25,95),ok=fight(d,'Prise d’influence à '+p.island);if(!game.alive)return;if(ok)success();else{t.stability=cl(t.stability-3,0,100);tl('Expansion repoussée','Les forces locales empêchent ton implantation.','danger')}save();render()
 }
@@ -635,7 +639,7 @@ function affiliateCandidates(){
 function recruitAffiliate(id){
  var p=game.player,x=influenceMetrics(),c=game.world.crews.find(function(y){return y.id===id}),o=p.organization;if(!c||c.status!=='active'||c.region!==p.region||c.affiliation)return toast('Cet équipage n’est plus disponible.');if(!o||o.authority!=='leader'||p.faction!=='Pirates')return toast('Réservé aux capitaines pirates.');if(!useInfluenceAction())return;
  var leverage=x.score*.36+(o.renown||0)*.22+power()*.18+(p.bounty?Math.log10(p.bounty+1)*2:0)-c.power*.42,ch=cl(.28+leverage/100,.08,.9);
- if(R('influence')<ch){c.affiliation={ownerKey:dynastyKey(),ownerName:p.name,orgId:o.id,sinceYear:game.world.year};x.affiliates.push(c.id);x.affiliates=x.affiliates.filter(function(v,i,a){return a.indexOf(v)===i});o.renown=cl(o.renown+4,0,100);tl('Alliance pirate',c.name+' reconnaît ton pavillon et rejoint ton réseau.','major');news('Flotte en expansion',c.name+' se place sous l’influence de '+p.name+'.','major')}
+ if(R('influence')<ch){c.affiliation={ownerKey:dynastyKey(),ownerName:p.name,orgId:o.id,sinceYear:game.world.year};x.affiliates.push(c.id);x.affiliates=x.affiliates.filter(function(v,i,a){return a.indexOf(v)===i});o.renown=cl(o.renown+4,0,100);tl('Alliance pirate',c.name+' reconnaît ton pavillon et rejoint ton réseau.','major');news('Flotte en expansion',c.name+' se place sous l’influence de '+p.name+'.','major');evaluateTitles()}
  else{c.morale=cl(c.morale+2,0,100);tl('Alliance refusée',c.name+' refuse de se placer sous ton influence.')}
  save();render()
 }
@@ -653,12 +657,12 @@ function influenceTick(m){
  x.domains.slice().forEach(function(name){var t=game.world.territories[name];if(!t||!t.playerControl||t.playerControl.ownerKey!==dynastyKey())return;total+=domainIncome(t,name,m);t.playerControl.control=cl(t.playerControl.control+(t.stability-45)*.008*m+(R('influence')-.5)*1.1*m,0,100);if(t.playerControl.control<12)loseDomain(name,'autorité locale effondrée');else if(R('influence')<.012*m*(1+game.world.globalTension/90)){var hostile=pk(hostileCandidates(t.controller),'influence');spawnConflict(name,hostile,t.controller,35+R('influence')*35,'domain')}}
  );
  if(total){x.totalDomainIncome+=total;if(p.organization)p.organization.treasury+=total;else p.money+=total}
- x.affiliates=x.affiliates.filter(function(id){var c=game.world.crews.find(function(y){return y.id===id});return c&&c.status==='active'&&c.affiliation&&c.affiliation.ownerKey===dynastyKey()});
+ x.affiliates=x.affiliates.filter(function(id){var c=game.world.crews.find(function(y){return y.id===id});if(!c||c.status!=='active'||!c.affiliation||c.affiliation.ownerKey!==dynastyKey())return false;if(c.morale<18&&R('influence')<.025*m){delete c.affiliation;tl('Alliance rompue',c.name+' cesse de reconnaître ton réseau.','danger');return false}return true});
  evaluateTitles();
  if(p.faction==='Pirates'&&!x.recognizedTitle&&game.world.year>=20&&game.world.divergence>=18&&x.domains.length>=4&&x.affiliates.length>=3&&(p.bounty||0)>=1000000000&&power()>=90&&x.score>=90&&R('influence')<.035*m){x.recognizedTitle='Empereur des mers';addTitle('Empereur des mers');game.world.divergence=cl(game.world.divergence+3,0,100);news('Nouvel Empereur',p.name+' est désormais reconnu comme l’une des puissances dominantes du Nouveau Monde.','war')}
 }
 function renderInfluence(){
- var p=game.player,x=evaluateTitles(),img=publicImage(),badge=$('#influenceBadge');badge.textContent=Math.round(x.score)+'/100';badge.className='badge '+(x.score>=75?'influence-critical':x.score>=45?'influence-major':'');
+ var p=game.player,x=influenceMetrics(),img=publicImage(),badge=$('#influenceBadge');badge.textContent=Math.round(x.score)+'/100';badge.className='badge '+(x.score>=75?'influence-critical':x.score>=45?'influence-major':'');
  $('#publicStanding').innerHTML='<div><span>Influence</span><strong>'+Math.round(x.score)+'</strong></div><div><span>Image publique</span><strong>'+e(img)+'</strong></div><div><span>Renommée</span><strong>'+Math.round(x.fame)+'</strong></div><div><span>Infamie</span><strong>'+Math.round(x.infamy)+'</strong></div>';
  $('#titleList').innerHTML=(x.titles.length?x.titles.slice().reverse().map(function(t,i){return '<span class="title-chip '+(i===0?'primary':'')+'">'+e(t)+'</span>'}).join(''):'<span class="title-chip">Aucun titre majeur</span>')+(x.recognizedTitle?'<div class="world-title-banner"><strong>'+e(x.recognizedTitle)+'</strong><span>Reconnaissance mondiale</span></div>':'');
  var q=claimEligibility(),t=game.world.territories[p.island],owned=t&&t.playerControl&&t.playerControl.ownerKey===dynastyKey(),actions='';
@@ -737,11 +741,12 @@ function spawnConflict(location,attacker,defender,intensity,source){
 function resolveConflict(c){
  var w=game.world,t=w.territories[c.location];if(!t)return;
  var ap=(w.factions[c.attacker]||48)+(c.source&&String(c.source).indexOf('crew-')===0?(w.crews.find(function(x){return x.id===c.source})||{power:0}).power*.45:0)+R('world')*24+c.intensity*.12;
- var dp=(w.factions[c.defender]||48)+t.influence*.34+R('world')*24;
- var winner=ap>dp?c.attacker:c.defender,loser=winner===c.attacker?c.defender:c.attacker,margin=Math.abs(ap-dp);
+ var dp=(w.factions[c.defender]||48)+t.influence*.34+R('world')*24+playerDomainDefense(c.location);
+ var winner=ap>dp?c.attacker:c.defender,loser=winner===c.attacker?c.defender:c.attacker,margin=Math.abs(ap-dp),pc=t.playerControl&&t.playerControl.ownerKey===dynastyKey()?t.playerControl:null;
  c.status='resolved';c.winner=winner;c.months=Math.max(1,c.months);
  if(winner!==t.controller){var old=t.controller;t.controller=winner;t.influence=Math.round(cl(48+margin*.45,42,76));t.stability=Math.round(cl(t.stability-12-R('world')*16,8,100));t.lastChange='Année '+w.year+', mois '+(Math.floor(w.month)+1);w.divergence=cl(w.divergence+(c.intensity/100)*1.5,0,100);news('Changement de contrôle',winner+' prend le contrôle de '+c.location+' au détriment de '+old+'.','major')}
  else{t.influence=cl(t.influence+5+margin*.12,0,100);t.stability=cl(t.stability+3-R('world')*4,0,100);news('Offensive repoussée',c.defender+' conserve '+c.location+' face à '+c.attacker+'.','war')}
+ if(pc){if(winner===pc.faction)pc.control=cl(pc.control+5+margin*.08,0,100);else if(diplomacy(winner,pc.faction)<-20){pc.control=cl(pc.control-(18+margin*.22),0,100);if(pc.control<=20)loseDomain(c.location,'défaite militaire')}}
  t.contested=false;w.globalTension=cl(w.globalTension-1,0,100);
  w.worldHistory.unshift({year:w.year,month:Math.floor(w.month),type:'conflict',location:c.location,winner:winner,loser:loser});w.worldHistory=w.worldHistory.slice(0,80)
 }
@@ -810,8 +815,8 @@ function event(m){if(R('e')>.18+m*.02)return;var p=game.player,x=pk(['relation',
 }
 function die(c){releasePlayerFruits();game.alive=false;game.death={cause:c};game.player.health=0;tl('Mort',c,'danger')}
 function advance(){if(!game||!game.alive||game.pending)return;var p=game.player,j=migrateJustice(p),m=j.detained&&j.prison?Math.min(1,j.prison.remaining):p.ageMonths<72?6:p.ageMonths<180?3:game.mission?Math.min(1,game.mission.remaining):p.travel?Math.min(1,p.travel.remaining):1+R('time')*2;m=Math.max(.5,Math.round(m*2)/2);p.ageMonths+=m;world(m);p.conditions.forEach(function(c){c.months-=m});p.conditions=p.conditions.filter(function(c){return c.months>0});
- if(j.detained){lifeTick(m);if(!game.alive){save();render();deathModal();return}prisonTick(m);p.danger='Détenu';checkAchievements();save();render();return}
- p.health=cl(p.health+m*2,0,100);p.energy=cl(p.energy+m*4,0,100);careerTick(m);lifeTick(m);if(!game.alive){save();render();deathModal();return}justiceTick(m);if(!game.alive){save();render();deathModal();return}if(j.detained){save();render();return}
+ if(j.detained){lifeTick(m);influenceTick(m);if(!game.alive){save();render();deathModal();return}prisonTick(m);p.danger='Détenu';checkAchievements();save();render();return}
+ p.health=cl(p.health+m*2,0,100);p.energy=cl(p.energy+m*4,0,100);careerTick(m);lifeTick(m);if(!game.alive){save();render();deathModal();return}justiceTick(m);influenceTick(m);if(!game.alive){save();render();deathModal();return}if(j.detained){save();render();return}
  if(p.travel)travel(m);else if(game.mission){game.mission.remaining-=m;train(m);if(game.mission.remaining<=0)resolveMission()}else{train(m);event(m)}if(!game.alive){save();render();deathModal();return}if(p.ageMonths>=72&&p.situation==='Enfance'){p.situation='Formation';p.activity='Études';tl('Formation','Tu commences une formation structurée.','major')}if(p.ageMonths>=180&&p.career==='Aucune'&&!game.pending)career();p.danger=p.conditions.length?'Moyen':inf().danger>45?'Élevé':inf().danger>20?'Moyen':'Faible';checkAchievements();save();render()}
 function rep(){var r=game.player.reputation;return r>75?'Célèbre':r>40?'Reconnu':r>15?'Connu':'Inconnu'}
 function slots(){var b=$('#saveSlots');b.innerHTML='';for(var i=1;i<=3;i++){(function(i){var s=load(i),x=document.createElement('button');x.className='save-slot'+(s?'':' empty');x.innerHTML=s?'<strong>'+e(s.player.name)+'</strong><small>'+Math.floor(s.player.ageMonths/12)+' ans • '+e(s.player.faction)+'<br>'+e(s.player.island)+'</small>':'<strong>＋ Nouvelle vie</strong><small>Emplacement '+i+'</small>';x.onclick=function(){slot=i;if(s){game=s;syncCanonicalFruits();render()}else $('#creationCard').classList.remove('hidden')};b.appendChild(x)})(i)}}
