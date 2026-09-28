@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ONE PIECE LIFE" />
   <meta name="description" content="ONE PIECE LIFE, simulateur mobile-first de destin, carrière et aventure dans un monde pirate vivant." />
-  <title>ONE PIECE LIFE — V1.4</title>
+  <title>ONE PIECE LIFE — V1.5</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="styles.css" />
@@ -28,10 +28,10 @@
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V1.4 • Wars & Alliances • iPhone & PWA</span>
+        <span class="eyebrow">V1.5 • Economy & Trade • iPhone & PWA</span>
         <h2>Une vie. Un monde qui n’attend pas ton arrivée.</h2>
-        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.4 transforme les conflits locaux en guerres persistantes : campagnes, fronts, objectifs, coalitions, fatigue de guerre, soutien logistique et paix négociée.</p>
-        <div class="feature-pills"><span>RNG seedé</span><span>Guerres persistantes</span><span>Coalitions</span><span>Autosave</span></div>
+        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.5 donne enfin une économie au monde vivant : marchés locaux, prix dynamiques, cargaisons, pénuries, routes commerciales, blocus et contrebande.</p>
+        <div class="feature-pills"><span>RNG seedé</span><span>Marchés dynamiques</span><span>Commerce maritime</span><span>Autosave</span></div>
       </section>
 
       <section id="localFileWarning" class="paper-card compatibility-card">
@@ -150,7 +150,10 @@
           <div class="section-heading compact organization-subhead"><div><span class="eyebrow">Commandement</span><h3>Actions</h3></div><span id="organizationActionBadge" class="badge"></span></div>
           <div id="organizationActions" class="action-grid organization-actions"></div>
         </section>
-        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Patrimoine</span><h3>Économie personnelle</h3></div><span id="netWorthBadge" class="badge"></span></div><div id="economySummary" class="economy-grid"></div><div id="housingCard" class="career-card housing-card"></div><div id="economyActions" class="action-grid economy-actions"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Patrimoine</span><h3>Économie personnelle</h3></div><span id="netWorthBadge" class="badge"></span></div><div id="economySummary" class="economy-grid"></div><div id="housingCard" class="career-card housing-card"></div><div id="economyActions" class="action-grid economy-actions"></div>
+          <div class="section-heading compact trade-subhead"><div><span class="eyebrow">Cargaison</span><h3>Marchandises transportées</h3></div><span id="cargoBadge" class="badge"></span></div>
+          <div id="cargoSummary" class="trade-summary"></div><div id="cargoList" class="cargo-list"></div>
+        </section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Achievements</span><h3>Accomplissements</h3></div><span id="achievementBadge" class="badge"></span></div><div id="achievementList" class="achievement-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Équipement</span><h3>Inventaire</h3></div></div><div id="equipmentList" class="chip-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Sauvegarde</span><h3>Transfert & sécurité</h3></div><span id="storageStatus" class="badge">Autosave</span></div><p class="helper-text">L’autosave reste actif. Sur iPhone, tu peux aussi copier une sauvegarde texte pour la conserver ailleurs.</p><div class="action-grid"><button id="exportSaveBtn" class="action-card"><strong>Exporter</strong><small>Copier une sauvegarde portable</small></button><button id="importSaveBtn" class="action-card"><strong>Importer</strong><small>Restaurer une sauvegarde texte</small></button></div></section>
@@ -178,6 +181,17 @@
         <section class="paper-card world-hero"><span class="eyebrow">Monde vivant</span><h2 id="worldHeadline">Grande Ère de la Piraterie</h2><p id="worldSubhead"></p><div id="worldMeta" class="feature-pills"></div></section>
         <section class="paper-card location-card"><div class="section-heading compact"><div><span class="eyebrow">Zone actuelle</span><h3 id="placeName">Lieu</h3></div><span id="placeDanger" class="badge"></span></div><p id="placeDescription" class="helper-text"></p><div id="placeTags" class="chip-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Exploration</span><h3>Routes maritimes</h3></div><span id="travelStatus" class="badge"></span></div><div id="travelOptions" class="action-grid"></div></section>
+        <section class="paper-card market-card">
+          <div class="section-heading compact"><div><span class="eyebrow">Économie locale</span><h3>Marché de <span id="marketPlaceName">la zone</span></h3></div><span id="marketStatusBadge" class="badge"></span></div>
+          <div id="marketSummary" class="market-summary"></div>
+          <div id="marketGoods" class="market-goods"></div>
+          <div class="section-heading compact market-subhead"><div><span class="eyebrow">Routes commerciales</span><h3>Opportunités connues</h3></div><span id="tradeRouteBadge" class="badge"></span></div>
+          <div id="tradeRoutes" class="trade-route-list"></div>
+          <div id="blackMarketSection" class="hidden">
+            <div class="section-heading compact market-subhead"><div><span class="eyebrow">Marché noir</span><h3>Transactions clandestines</h3></div><span id="blackMarketBadge" class="badge"></span></div>
+            <div id="blackMarketGoods" class="market-goods"></div>
+          </div>
+        </section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Carte du monde</span><h3>Régions connues</h3></div><span class="badge">Progression géographique</span></div><div id="regionMap" class="region-grid"></div></section>
         <section class="paper-card world-pulse-card"><div class="section-heading compact"><div><span class="eyebrow">Simulation mondiale</span><h3>État du monde</h3></div><span id="worldPulseBadge" class="badge"></span></div><div id="worldPulse" class="world-pulse-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Présences régionales</span><h3>Acteurs repérés</h3></div><span class="badge">Autonomes</span></div><div id="localActors" class="actor-list"></div></section>
