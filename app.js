@@ -250,19 +250,19 @@ function key(){return P+slot}
 function save(){if(game){localStorage.setItem(key(),JSON.stringify(game));saveMeta()}}
 function migrate(g){
  if(!g)return null;var p=g.player||{},w=g.world||{};
- g.version=13;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};
+ g.version=14;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};
  p.techniques=p.techniques||[];p.techniqueMastery=p.techniqueMastery||{};p.fruitMastery=p.fruitMastery||0;p.fruitAwakened=!!p.fruitAwakened;p.heldFruit=p.heldFruit||null;p.combatXP=p.combatXP||0;p.hakiApplications=p.hakiApplications||{Observation:[],Armement:[],Conquérant:[]};
  p.haki=p.haki||{Observation:0,Armement:0,Conquérant:0};p.latent=p.latent||{Observation:40,Armement:40,Conquérant:0};p.conditions=p.conditions||[];
  p.life=p.life||defaultLife();p.life.assets=p.life.assets||{property:0,business:0,ship:0,treasure:0};p.children=p.children||[];p.children=p.children.map(function(c,i){c.id=c.id||('child-'+i+'-'+H(String(g.seed)+':child:'+i));c.name=c.name||PEOPLE_NAMES[H(String(g.seed)+':childname:'+i)%PEOPLE_NAMES.length];c.ageMonths=c.ageMonths||0;c.birthplace=c.birthplace||p.island||'';c.birthRegion=c.birthRegion||p.region||p.origin;c.race=c.race||p.race||'Humain';c.status=c.status||'active';return c});
  g.codex=g.codex||{people:[],places:[],factions:['Civil'],fruits:[]};['people','places','factions','fruits','events','techniques'].forEach(function(k){g.codex[k]=g.codex[k]||[]});g.relations=(g.relations||[]).map(function(r,i){return normalizeRelation(g,r,i)});g.socialSeq=g.socialSeq||g.relations.length;g.achievements=g.achievements||{unlocked:{}};g.achievements.unlocked=g.achievements.unlocked||{};g.dynasty=g.dynasty||{generation:1,ancestors:[]};
  p.factionRep=p.factionRep||{Civil:10,Marine:0,Pirates:0,'Chasseur de primes':0,Révolutionnaires:0,Gouvernement:0};
  FACTION_KEYS.forEach(function(k){if(p.factionRep[k]==null)p.factionRep[k]=0});
- p.careerRecords=p.careerRecords||{};p.specialization=p.specialization||null;p.careerHistory=p.careerHistory||[];p.salaryTotal=p.salaryTotal||0;p.deserterFrom=p.deserterFrom||[];migrateOrganization(g,p);migrateJustice(p);migrateInfluence(p);
+ p.careerRecords=p.careerRecords||{};p.specialization=p.specialization||null;p.careerHistory=p.careerHistory||[];p.salaryTotal=p.salaryTotal||0;p.deserterFrom=p.deserterFrom||[];migrateOrganization(g,p);migrateJustice(p);migrateInfluence(p);migrateStrategy(p);
  if(p.career&&p.career!=='Aucune'&&!p.careerRecords[p.faction])p.careerRecords[p.faction]={xp:p.careerXP||0,months:p.serviceMonths||0,rank:p.rank||firstRank(p.faction),specialization:p.specialization||null,successes:0,failures:0};
  if(p.careerRecords[p.faction]){p.rank=p.careerRecords[p.faction].rank||p.rank;p.specialization=p.careerRecords[p.faction].specialization||p.specialization}
  w.fruits=w.fruits||['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi'];w.fruitRegistry=w.fruitRegistry||{};
  w.fruits.forEach(function(n){if(!w.fruitRegistry[n])w.fruitRegistry[n]={status:p.fruit===n?'consumed':'available',holder:p.fruit===n?p.name:null}});
- w=initLivingWorld(g,w);var dk=String(g.seed),ix=migrateInfluence(p);ix.domains=Object.keys(w.territories).filter(function(n){var pc=w.territories[n].playerControl;return pc&&pc.ownerKey===dk});ix.affiliates=w.crews.filter(function(c){return c.affiliation&&c.affiliation.ownerKey===dk&&c.status==='active'}).map(function(c){return c.id});g.player=p;g.world=w;return g
+ w=initGrandStrategy(initLivingWorld(g,w));var dk=String(g.seed),ix=migrateInfluence(p);ix.domains=Object.keys(w.territories).filter(function(n){var pc=w.territories[n].playerControl;return pc&&pc.ownerKey===dk});ix.affiliates=w.crews.filter(function(c){return c.affiliation&&c.affiliation.ownerKey===dk&&c.status==='active'}).map(function(c){return c.id});g.player=p;g.world=w;return g
 }
 function load(i){try{return migrate(JSON.parse(localStorage.getItem(P+i)||'null'))}catch(x){return null}}
 function tl(t,d,y){game.timeline.unshift({age:age(),title:t,desc:d,type:y||''});game.timeline=game.timeline.slice(0,100)}
@@ -270,7 +270,7 @@ function news(t,d,type){game.news.unshift({title:t,desc:d,type:type||''});game.n
 function press(){var o={};REG.forEach(function(r){o[r]={Piraterie:20+R('w')*25,Marine:30+R('w')*35,Criminalité:15+R('w')*30,Révolution:5+R('w')*20,Prospérité:40+R('w')*35,Instabilité:10+R('w')*25}});return o}
 function make(){
  var seed=Number($('#seedInput').value)||Math.floor(Math.random()*2147483647),origin=mode==='custom'?$('#originInput').value:pk(ORIG,'b');
- game={version:13,seed:seed,rng:{},alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
+ game={version:14,seed:seed,rng:{},alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
  game=applyMeta(migrate(game));syncCanonicalFruits();var homes=Object.keys(PL).filter(function(n){return PL[n][0]===origin});game.player.island=pk(homes,'b');game.player.visited=[game.player.island];game.codex.places=[game.player.island];game.world.pressures=press();
  ST.forEach(function(k){game.player.stats[k]=8+R('b')*12;game.player.caps[k]=68+R('c')*25});SK.forEach(function(k){game.player.skills[k]=2+R('b')*8;game.player.caps[k]=68+R('c')*25});
  syncPowers();tl('Naissance','Tu nais à '+game.player.island+', dans '+origin+'.','major');news('Grande Ère de la Piraterie','Le monde entre dans une période de bouleversements.');save();return game}
@@ -368,7 +368,7 @@ function estateValue(){return Math.max(0,netWorth())}
 function buildHeir(child){
  var old=game.player,partner=partnerRelation(),estate=estateValue(),heirs=Math.max(1,old.children.length+(partner?1:0)),share=Math.round(estate/heirs),ancestor={name:old.name,age:age(),career:old.career,rank:old.rank,cause:game.death?game.death.cause:'',estate:estate,bounty:old.highestBounty,generation:game.dynasty.generation};
  game.dynasty.ancestors.push(ancestor);game.dynasty.generation++;
- var parentCaps=old.caps||{},p={name:child.name,difficulty:old.difficulty,ageMonths:child.ageMonths,race:child.race||old.race,origin:child.birthRegion||old.origin,region:old.region,island:old.island,situation:child.ageMonths<180?'Enfance':'Nouvelle génération',activity:child.ageMonths<72?'Grandir':'Études',faction:'Civil',career:'Aucune',rank:child.ageMonths<180?'Enfant':'Sans carrière',money:share,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:Math.round(old.reputation*.12),ambition:'Survivre',wins:0,losses:0,travel:null,visited:[old.island],style:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'heir'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('heir')*60,Armement:20+R('heir')*60,Conquérant:R('heir')<.04?90:0},stats:{},skills:{},caps:{},factionRep:{Civil:10,Marine:0,Pirates:0,'Chasseur de primes':0,Révolutionnaires:0,Gouvernement:0},careerRecords:{},specialization:null,careerHistory:[],salaryTotal:0,deserterFrom:[],organization:null,organizationHistory:[],justice:defaultJustice(),influence:defaultInfluence(),life:defaultLife(),children:[]};
+ var parentCaps=old.caps||{},p={name:child.name,difficulty:old.difficulty,ageMonths:child.ageMonths,race:child.race||old.race,origin:child.birthRegion||old.origin,region:old.region,island:old.island,situation:child.ageMonths<180?'Enfance':'Nouvelle génération',activity:child.ageMonths<72?'Grandir':'Études',faction:'Civil',career:'Aucune',rank:child.ageMonths<180?'Enfant':'Sans carrière',money:share,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:Math.round(old.reputation*.12),ambition:'Survivre',wins:0,losses:0,travel:null,visited:[old.island],style:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'heir'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('heir')*60,Armement:20+R('heir')*60,Conquérant:R('heir')<.04?90:0},stats:{},skills:{},caps:{},factionRep:{Civil:10,Marine:0,Pirates:0,'Chasseur de primes':0,Révolutionnaires:0,Gouvernement:0},careerRecords:{},specialization:null,careerHistory:[],salaryTotal:0,deserterFrom:[],organization:null,organizationHistory:[],justice:defaultJustice(),influence:defaultInfluence(),strategy:defaultStrategy(),life:defaultLife(),children:[]};
  ST.forEach(function(k){var inherited=parentCaps[k]||75;p.caps[k]=cl(inherited*.55+40+R('heir')*15,55,98);p.stats[k]=cl(7+Math.min(25,child.ageMonths/24)+R('heir')*5,5,p.caps[k])});
  SK.forEach(function(k){var inherited=parentCaps[k]||75;p.caps[k]=cl(inherited*.5+42+R('heir')*14,55,98);p.skills[k]=cl(2+Math.min(18,child.ageMonths/36)+R('heir')*4,1,p.caps[k])});
  game.player=p;game.alive=true;game.death=null;game.pending=null;game.mission=null;game.lastCombat=null;game.timeline=[];game.relations=[];
@@ -733,11 +733,126 @@ function hostileCandidates(defender){
  var map={Marine:['Pirates','Révolutionnaires'],Gouvernement:['Pirates','Révolutionnaires'],Pirates:['Marine','Gouvernement','Chasseur de primes'],Révolutionnaires:['Gouvernement','Marine'],Civil:['Pirates'], 'Chasseur de primes':['Pirates']};
  return map[defender]||['Pirates','Marine']
 }
-function spawnConflict(location,attacker,defender,intensity,source){
+
+function defaultStrategy(){return{actions:1,campaignsLed:0,warsWon:0,warsLost:0,frontsJoined:0,supportSpent:0,lastWarId:null}}
+function migrateStrategy(p){p.strategy=p.strategy||defaultStrategy();var x=p.strategy;x.actions=x.actions==null?1:x.actions;x.campaignsLed=x.campaignsLed||0;x.warsWon=x.warsWon||0;x.warsLost=x.warsLost||0;x.frontsJoined=x.frontsJoined||0;x.supportSpent=x.supportSpent||0;x.lastWarId=x.lastWarId||null;return x}
+function initGrandStrategy(w){
+ w.wars=w.wars||[];w.treaties=w.treaties||[];w.warHistory=w.warHistory||[];w.nextWarId=w.nextWarId||1;w.nextTreatyId=w.nextTreatyId||1;
+ if(!w.treaties.some(function(t){return t.status==='active'&&t.type==='alliance'&&pairKey(t.a,t.b)===pairKey('Marine','Gouvernement')}))w.treaties.push({id:'treaty-foundation',type:'alliance',a:'Marine',b:'Gouvernement',status:'active',monthsLeft:null,sinceYear:w.year||0,reason:'Structure institutionnelle'});
+ w.wars.forEach(function(war){war.attackerCoalition=war.attackerCoalition||[war.attacker];war.defenderCoalition=war.defenderCoalition||[war.defender];war.score=war.score||0;war.exhaustionA=war.exhaustionA||0;war.exhaustionD=war.exhaustionD||0;war.months=war.months||0;war.fronts=war.fronts||[];war.history=war.history||[];war.status=war.status||'active';war.goal=war.goal||'Pression stratégique'});
+ return w
+}
+function activeTreaty(a,b,type){
+ var k=pairKey(a,b);return game.world.treaties.find(function(t){return t.status==='active'&&pairKey(t.a,t.b)===k&&(!type||t.type===type)})||null
+}
+function createTreaty(a,b,type,months,reason){
+ var w=game.world;if(a===b)return null;var old=activeTreaty(a,b,type);if(old){if(months!=null)old.monthsLeft=Math.max(old.monthsLeft||0,months);return old}
+ var t={id:'treaty-'+(w.nextTreatyId++),type:type,a:a,b:b,status:'active',monthsLeft:months==null?null:months,sinceYear:w.year,sinceMonth:Math.floor(w.month),reason:reason||''};w.treaties.push(t);
+ if(type==='alliance')w.diplomacy[pairKey(a,b)]=cl(Math.max(w.diplomacy[pairKey(a,b)]||0,62),-100,100);if(type==='truce')w.diplomacy[pairKey(a,b)]=cl(Math.max(w.diplomacy[pairKey(a,b)]||0,-15),-100,100);
+ news(type==='alliance'?'Nouvelle alliance':'Accord diplomatique',a+' et '+b+' concluent '+(type==='alliance'?'une alliance':'une trêve')+(months?' pour '+months+' mois':'')+'.','major');return t
+}
+function alliancePartners(faction){
+ return game.world.treaties.filter(function(t){return t.status==='active'&&t.type==='alliance'&&(t.a===faction||t.b===faction)}).map(function(t){return t.a===faction?t.b:t.a})
+}
+function coalitionFor(faction,opponent){
+ var out=[faction];alliancePartners(faction).forEach(function(a){if(a!==opponent&&diplomacy(a,opponent)<25&&out.indexOf(a)<0)out.push(a)});return out
+}
+function sideContains(war,side,f){return(side==='attacker'?war.attackerCoalition:war.defenderCoalition).indexOf(f)>=0}
+function warBetween(a,b){
+ return game.world.wars.find(function(w){return w.status==='active'&&((w.attackerCoalition.indexOf(a)>=0&&w.defenderCoalition.indexOf(b)>=0)||(w.attackerCoalition.indexOf(b)>=0&&w.defenderCoalition.indexOf(a)>=0))})||null
+}
+function warGoalLabel(goal){return goal==='territory'?'Conquête territoriale':goal==='liberation'?'Libération':goal==='suppression'?'Écrasement du réseau':goal==='blockade'?'Blocus':'Pression stratégique'}
+function canStartStrategicWar(a,b){
+ if(!a||!b||a===b)return false;if(warBetween(a,b))return false;if(activeTreaty(a,b,'truce'))return false;if(activeTreaty(a,b,'alliance'))return false;return diplomacy(a,b)<=-35
+}
+function pickWarTarget(defender,region){
+ var names=Object.keys(game.world.territories).filter(function(n){var t=game.world.territories[n];return t.controller===defender&&(!region||infStatic(n).region===region)});if(!names.length)names=Object.keys(game.world.territories).filter(function(n){return game.world.territories[n].controller===defender});return names.length?pk(names,'strategy'):null
+}
+function startStrategicWar(attacker,defender,goal,target,source){
+ var w=game.world;if(!canStartStrategicWar(attacker,defender))return null;target=target||pickWarTarget(defender,null);if(!target)return null;
+ var war={id:'war-'+(w.nextWarId++),name:attacker+' vs '+defender,attacker:attacker,defender:defender,attackerCoalition:coalitionFor(attacker,defender),defenderCoalition:coalitionFor(defender,attacker),goal:goal||'territory',target:target,region:infStatic(target).region,months:0,score:0,exhaustionA:0,exhaustionD:0,status:'active',source:source||'world',fronts:[],history:[],playerLed:source==='player',playerContribution:0};
+ w.wars.push(war);w.globalTension=cl(w.globalTension+8,0,100);war.attackerCoalition.forEach(function(f){war.defenderCoalition.forEach(function(g){w.diplomacy[pairKey(f,g)]=cl((w.diplomacy[pairKey(f,g)]||0)-8,-100,100)})});
+ news('GUERRE : '+attacker+' contre '+defender,warGoalLabel(war.goal)+' autour de '+target+'.','war');if(source==='player'){migrateStrategy(game.player).campaignsLed++;migrateStrategy(game.player).lastWarId=war.id;tl('Campagne lancée','Ton organisation ouvre une campagne contre '+defender+' pour '+target+'.','major')}
+ spawnConflict(target,attacker,defender,45+R('strategy')*25,source==='player'?'player-campaign':'war',war.id);return war
+}
+function warSideForPlayer(war){
+ var p=game.player;if(sideContains(war,'attacker',p.faction))return'attacker';if(sideContains(war,'defender',p.faction))return'defender';
+ var domains=(p.influence&&p.influence.domains)||[];if(domains.indexOf(war.target)>=0){var t=game.world.territories[war.target];if(t&&t.playerControl&&sideContains(war,'defender',t.playerControl.faction))return'defender'}return null
+}
+function recordWarBattle(c,winner){
+ if(!c.warId)return;var war=game.world.wars.find(function(w){return w.id===c.warId&&w.status==='active'});if(!war)return;var attackWin=sideContains(war,'attacker',winner),delta=6+c.intensity*.08+(c.location===war.target?5:0);war.score=cl(war.score+(attackWin?delta:-delta),-100,100);if(attackWin)war.exhaustionD=cl(war.exhaustionD+4+c.intensity*.04,0,120);else war.exhaustionA=cl(war.exhaustionA+4+c.intensity*.04,0,120);war.history.unshift({month:war.months,location:c.location,winner:winner,delta:Math.round(delta)});war.history=war.history.slice(0,20)
+}
+function strategicFrontLocations(war){
+ var regions=[war.region],names=Object.keys(game.world.territories).filter(function(n){var t=game.world.territories[n];return regions.indexOf(infStatic(n).region)>=0&&(sideContains(war,'attacker',t.controller)||sideContains(war,'defender',t.controller))});if(war.target&&names.indexOf(war.target)<0)names.unshift(war.target);return names
+}
+function spawnWarFront(war){
+ var locations=strategicFrontLocations(war);if(!locations.length)return null;var loc=pk(locations,'strategy'),t=game.world.territories[loc],def=t.controller,att;
+ if(sideContains(war,'defender',def))att=pk(war.attackerCoalition,'strategy');else if(sideContains(war,'attacker',def))att=pk(war.defenderCoalition,'strategy');else{def=war.defender;att=war.attacker}
+ var c=spawnConflict(loc,att,def,32+R('strategy')*48,'war-front',war.id);if(c&&war.fronts.indexOf(c.id)<0)war.fronts.push(c.id);return c
+}
+function resolveWar(war,outcome){
+ var w=game.world;if(war.status!=='active')return;war.status='resolved';war.outcome=outcome;war.endYear=w.year;war.endMonth=Math.floor(w.month);
+ var attackerWon=outcome==='attacker',defenderWon=outcome==='defender',target=w.territories[war.target];
+ if(attackerWon&&target){target.controller=war.attacker;target.influence=cl(Math.max(48,target.influence),0,100);target.stability=cl(target.stability-8,0,100);target.lastChange='Paix, année '+w.year}
+ if(defenderWon&&target&&sideContains(war,'attacker',target.controller)){target.controller=war.defender;target.influence=cl(Math.max(45,target.influence),0,100)}
+ createTreaty(war.attacker,war.defender,'truce',12+Math.round(R('strategy')*12),'Fin de guerre');w.globalTension=cl(w.globalTension-8,0,100);
+ var text=attackerWon?war.attacker+' impose ses conditions à '+war.defender+'.':defenderWon?war.defender+' repousse '+war.attacker+'.':'Les deux camps acceptent une paix sans victoire décisive.';
+ news('Fin de guerre',text,'major');w.warHistory.unshift({name:war.name,outcome:outcome,months:war.months,target:war.target,score:Math.round(war.score),year:w.year});w.warHistory=w.warHistory.slice(0,30);
+ var ps=warSideForPlayer(war),st=migrateStrategy(game.player);if(ps){var won=(ps==='attacker'&&attackerWon)||(ps==='defender'&&defenderWon);if(won)st.warsWon++;else if(outcome!=='negotiated')st.warsLost++;if(war.playerLed)tl('Campagne terminée',text,won?'major':'danger')}
+}
+function simulateTreaties(){
+ var w=game.world;w.treaties.forEach(function(t){if(t.status!=='active'||t.monthsLeft==null)return;t.monthsLeft--;if(t.monthsLeft<=0){t.status='expired';news('Fin d’accord',t.a+' et '+t.b+' voient leur '+(t.type==='truce'?'trêve':'accord')+' arriver à terme.','')}});
+ var keys=Object.keys(w.diplomacy);if(R('strategy')<.025){var k=pk(keys,'strategy'),parts=k.split('|'),v=w.diplomacy[k];if(v>=72&&!activeTreaty(parts[0],parts[1])&&canStartStrategicWar(parts[0],parts[1])===false&&!activeTreaty(parts[0],parts[1],'truce'))createTreaty(parts[0],parts[1],'alliance',18+Math.round(R('strategy')*24),'Convergence stratégique')}
+ w.treaties=w.treaties.filter(function(t){return t.status==='active'||(t.monthsLeft!=null&&t.monthsLeft>-6)})
+}
+function simulateWars(){
+ var w=game.world;w.wars.filter(function(war){return war.status==='active'}).forEach(function(war){
+  war.months++;var activeFronts=w.conflicts.filter(function(c){return c.status==='active'&&c.warId===war.id});war.fronts=activeFronts.map(function(c){return c.id});
+  var pressure=.8+activeFronts.length*.65+w.globalTension*.006;war.exhaustionA=cl(war.exhaustionA+pressure*(.8+R('strategy')*.7),0,120);war.exhaustionD=cl(war.exhaustionD+pressure*(.8+R('strategy')*.7),0,120);
+  if(activeFronts.length<2&&R('strategy')<.48)spawnWarFront(war);
+  if(war.score>=72||war.exhaustionD>=100)resolveWar(war,'attacker');else if(war.score<=-72||war.exhaustionA>=100)resolveWar(war,'defender');else if(war.months>=8&&war.exhaustionA+war.exhaustionD>=150&&Math.abs(war.score)<45)resolveWar(war,'negotiated');else if(war.months>=22)resolveWar(war,war.score>18?'attacker':war.score<-18?'defender':'negotiated')
+ });
+ if(w.wars.filter(function(x){return x.status==='active'}).length<3&&w.globalTension>48&&R('strategy')<.045){var pairs=Object.keys(w.diplomacy).filter(function(k){var p=k.split('|');return w.diplomacy[k]<=-70&&canStartStrategicWar(p[0],p[1])});if(pairs.length){var pair=pk(pairs,'strategy').split('|'),a=pair[0],b=pair[1],target=pickWarTarget(b,null)||pickWarTarget(a,null);if(target)startStrategicWar(a,b,'territory',target,'world')}}
+}
+function strategyTick(){
+ migrateStrategy(game.player).actions=1;simulateTreaties();simulateWars()
+}
+function useStrategyAction(){
+ var st=migrateStrategy(game.player);if(st.actions<1){toast('Tu as déjà utilisé ton action stratégique pour cette période.');return false}st.actions--;return true
+}
+function campaignEligibility(){
+ var p=game.player,x=influenceMetrics(),o=p.organization,j=migrateJustice(p);if(p.ageMonths<216)return[false,'Il faut être adulte.'];if(j.detained)return[false,'Impossible en détention.'];if(!o||o.authority!=='leader')return[false,'Il faut diriger une organisation.'];if(x.score<68)return[false,'Influence 68 requise.'];if(organizationPower()<52)return[false,'Puissance d’organisation 52 requise.'];if(p.faction==='Civil'||p.faction==='Chasseur de primes')return[false,'Ta faction ne mène pas de guerre territoriale directe.'];return[true,'']
+}
+function campaignTargets(){
+ var p=game.player,q=campaignEligibility();if(!q[0])return[];return Object.keys(game.world.territories).filter(function(n){var t=game.world.territories[n];return infStatic(n).region===p.region&&t.controller!==p.faction&&diplomacy(p.faction,t.controller)<=-35&&!warBetween(p.faction,t.controller)&&!activeTreaty(p.faction,t.controller,'truce')}).sort(function(a,b){return infStatic(a).danger-infStatic(b).danger}).slice(0,8)
+}
+function launchCampaign(target){
+ var p=game.player,o=p.organization,t=game.world.territories[target],q=campaignEligibility();if(!q[0])return toast(q[1]);if(!t)return toast('Cible invalide.');if(!useStrategyAction())return;var cost=30000,supply=12;if(o.treasury+p.money<cost||o.supplies<supply){migrateStrategy(p).actions++;return toast('Campagne : 30 000 B et 12% de provisions requis.')}var from=Math.min(o.treasury,cost);o.treasury-=from;p.money-=cost-from;o.supplies-=supply;migrateStrategy(p).supportSpent+=cost;var war=startStrategicWar(p.faction,t.controller,'territory',target,'player');if(!war){migrateStrategy(p).actions++;o.supplies+=supply;o.treasury+=from;p.money+=cost-from;return toast('Impossible d’ouvrir cette campagne actuellement.')}save();render()
+}
+function supportStrategicWar(id){
+ var p=game.player,war=game.world.wars.find(function(w){return w.id===id&&w.status==='active'}),side=war&&warSideForPlayer(war),o=p.organization;if(!war||!side)return toast('Tu n’es pas engagé dans cette guerre.');if(!useStrategyAction())return;var cost=10000,supply=6;if(!o||o.treasury+p.money<cost||o.supplies<supply){migrateStrategy(p).actions++;return toast('Soutien : organisation, 10 000 B et 6% de provisions requis.')}var from=Math.min(o.treasury,cost);o.treasury-=from;p.money-=cost-from;o.supplies-=supply;var impact=3+organizationPower()*.055+influenceMetrics().score*.025+R('strategy')*5;war.score=cl(war.score+(side==='attacker'?impact:-impact),-100,100);war.playerContribution=(war.playerContribution||0)+impact;migrateStrategy(p).supportSpent+=cost;tl('Soutien stratégique','Ton organisation renforce le camp '+(side==='attacker'?war.attacker:war.defender)+' dans '+war.name+'.','major');save();render()
+}
+function joinWarFront(id){
+ var p=game.player,war=game.world.wars.find(function(w){return w.id===id&&w.status==='active'}),side=war&&warSideForPlayer(war);if(!war||!side)return toast('Tu n’es pas engagé dans cette guerre.');if(p.justice&&p.justice.detained)return toast('Impossible en détention.');var fronts=game.world.conflicts.filter(function(c){return c.status==='active'&&c.warId===war.id&&c.region===p.region});if(!fronts.length)return toast('Aucun front accessible dans ta région.');if(!useStrategyAction())return;var c=pk(fronts,'strategy'),enemy=side==='attacker'?c.defender:c.attacker,d=cl(c.intensity*.72+(game.world.factions[enemy]||45)*.35,20,96),ok=fight(d,'Front de guerre : '+c.location);if(!game.alive)return;if(ok){var impact=8+power()*.05;war.score=cl(war.score+(side==='attacker'?impact:-impact),-100,100);c.intensity=cl(c.intensity+6,15,100);migrateStrategy(p).frontsJoined++;tl('Intervention décisive','Ton action influence le front de '+c.location+'.','major')}else{var loss=5+power()*.025;war.score=cl(war.score+(side==='attacker'?-loss:loss),-100,100);tl('Intervention repoussée','Ton camp perd du terrain après ton intervention.','danger')}save();render()
+}
+function proposeStrategicPeace(id){
+ var p=game.player,war=game.world.wars.find(function(w){return w.id===id&&w.status==='active'}),side=war&&warSideForPlayer(war),x=influenceMetrics();if(!war||!side||war.months<3)return toast('Aucune paix crédible à proposer.');if(x.score<76)return toast('Influence 76 requise pour peser sur les négociations.');if(!useStrategyAction())return;var exhaustion=(war.exhaustionA+war.exhaustionD)/2,ch=cl(.18+exhaustion/150+Math.abs(war.score)<22?.12:0,.12,.88);if(R('strategy')<ch){resolveWar(war,'negotiated');tl('Négociation réussie','Une trêve met fin à la campagne.','major')}else tl('Négociation rejetée','Les camps refusent encore de mettre fin à la guerre.','danger');save();render()
+}
+function renderStrategy(){
+ var p=game.player,w=game.world,st=migrateStrategy(p),active=w.wars.filter(function(x){return x.status==='active'}),involved=active.filter(function(x){return !!warSideForPlayer(x)}),treaties=w.treaties.filter(function(t){return t.status==='active'});
+ $('#warBadge').textContent=active.length+' guerre'+(active.length>1?'s':'');$('#warOverview').innerHTML='<div><span>Guerres actives</span><strong>'+active.length+'</strong></div><div><span>Ton camp impliqué</span><strong>'+involved.length+'</strong></div><div><span>Campagnes menées</span><strong>'+st.campaignsLed+'</strong></div><div><span>Victoires stratégiques</span><strong>'+st.warsWon+'</strong></div>';
+ $('#warList').innerHTML=active.length?active.map(function(war){var side=warSideForPlayer(war),aw=cl(Math.max(0,war.score),0,100)/2,dw=cl(Math.max(0,-war.score),0,100)/2,fronts=w.conflicts.filter(function(c){return c.status==='active'&&c.warId===war.id});return '<div class="war-card '+(war.months>=8?'hot ':'')+(side?'player-war':'')+'"><div class="war-head"><strong>'+e(war.name)+'</strong><span>'+e(warGoalLabel(war.goal))+'</span></div><div class="war-meta">'+e(war.attackerCoalition.join(' + '))+' ↔ '+e(war.defenderCoalition.join(' + '))+' • cible '+e(war.target)+' • '+war.months+' mois</div><div class="war-score"><div class="attack" style="width:'+aw+'%"></div><div class="defend" style="width:'+dw+'%"></div></div><div class="war-exhaustion"><span>Attaquant : '+Math.round(war.exhaustionA)+' fatigue</span><span>Score '+Math.round(war.score)+'</span><span>Défenseur : '+Math.round(war.exhaustionD)+' fatigue</span></div><div class="war-fronts">'+(fronts.length?fronts.map(function(c){return '<span>'+e(c.location)+' • '+Math.round(c.intensity)+'</span>'}).join(''):'<span>Aucun front actif</span>')+'</div>'+(side?'<div class="relation-actions-mini"><button data-war-support="'+e(war.id)+'">Soutenir</button><button data-war-front="'+e(war.id)+'">Rejoindre un front</button>'+(war.months>=3?'<button data-war-peace="'+e(war.id)+'">Proposer une paix</button>':'')+'</div>':'')+'</div>'}).join(''):'<p class="helper-text">Aucune guerre stratégique active.</p>';
+ $('#treatyBadge').textContent=treaties.length+' actif'+(treaties.length>1?'s':'');$('#treatyList').innerHTML=treaties.length?treaties.map(function(t){return '<div class="treaty-card '+(t.type==='alliance'?'alliance':'')+'"><div class="treaty-head"><strong>'+e(t.a)+' ↔ '+e(t.b)+'</strong><span>'+e(t.type)+'</span></div><div class="treaty-meta">'+e(t.reason||'Accord diplomatique')+(t.monthsLeft!=null?' • '+t.monthsLeft+' mois restants':' • durée indéterminée')+'</div></div>'}).join(''):'<p class="helper-text">Aucun accord actif.</p>';
+ var q=campaignEligibility(),targets=campaignTargets(),actions='';if(q[0]&&targets.length)actions+='<button id="launchCampaignBtn" class="action-card strategy-warning"><strong>Lancer une campagne</strong><small>'+targets.length+' cible(s) disponible(s) dans '+e(p.region)+'.</small></button>';if(!actions)actions='<div class="career-card"><p>Dirige une organisation puissante et augmente ton influence pour initier des campagnes. Les guerres auxquelles ta faction participe restent accessibles ci-dessus.</p></div>';
+ $('#strategyActionBadge').textContent=st.actions+' action';$('#strategyActions').innerHTML=actions;var lc=$('#launchCampaignBtn');if(lc)lc.onclick=function(){var ts=campaignTargets(),choices=ts.map(function(n){var t=w.territories[n];return[n,e(t.controller)+' • danger '+infStatic(n).danger+' • stabilité '+Math.round(t.stability),function(){launchCampaign(n)}]});choices.push(['Annuler','Ne rien engager.',function(){}]);decision('Ouvrir une campagne','Une guerre mobilise argent, provisions et influence. La paix ne sera pas immédiate.',choices)};
+ $('[data-war-support]').forEach(function(b){b.onclick=function(){supportStrategicWar(b.dataset.warSupport)}});$('[data-war-front]').forEach(function(b){b.onclick=function(){joinWarFront(b.dataset.warFront)}});$('[data-war-peace]').forEach(function(b){b.onclick=function(){proposeStrategicPeace(b.dataset.warPeace)}})
+}
+
+function spawnConflict(location,attacker,defender,intensity,source,warId){
  var w=game.world;if(!location||attacker===defender)return null;
  var existing=w.conflicts.find(function(c){return c.location===location&&c.status==='active'});
  if(existing){existing.intensity=cl(existing.intensity+8,15,100);return existing}
- var c={id:'conf-'+w.year+'-'+Math.floor(w.month)+'-'+Math.floor(R('world')*99999),location:location,region:infStatic(location).region,attacker:attacker,defender:defender,intensity:Math.round(intensity||45),months:0,status:'active',source:source||'world'};
+ var linked=warId||((warBetween(attacker,defender)||{}).id||null),c={id:'conf-'+w.year+'-'+Math.floor(w.month)+'-'+Math.floor(R('world')*99999),location:location,region:infStatic(location).region,attacker:attacker,defender:defender,intensity:Math.round(intensity||45),months:0,status:'active',source:source||'world',warId:linked};
  w.conflicts.push(c);w.globalTension=cl(w.globalTension+3,0,100);var t=w.territories[location];if(t)t.contested=true;
  news('Conflit à '+location,attacker+' conteste le contrôle de '+defender+'.','war');
  if(game.player.island===location)tl('Conflit territorial',attacker+' et '+defender+' s’affrontent autour de '+location+'.','danger');
@@ -753,7 +868,7 @@ function resolveConflict(c){
  else{t.influence=cl(t.influence+5+margin*.12,0,100);t.stability=cl(t.stability+3-R('world')*4,0,100);news('Offensive repoussée',c.defender+' conserve '+c.location+' face à '+c.attacker+'.','war')}
  if(pc){if(winner===pc.faction)pc.control=cl(pc.control+5+margin*.08,0,100);else if(diplomacy(winner,pc.faction)<-20){pc.control=cl(pc.control-(18+margin*.22),0,100);if(pc.control<=20)loseDomain(c.location,'défaite militaire')}}
  t.contested=false;w.globalTension=cl(w.globalTension-1,0,100);
- w.worldHistory.unshift({year:w.year,month:Math.floor(w.month),type:'conflict',location:c.location,winner:winner,loser:loser});w.worldHistory=w.worldHistory.slice(0,80)
+ w.worldHistory.unshift({year:w.year,month:Math.floor(w.month),type:'conflict',location:c.location,winner:winner,loser:loser});w.worldHistory=w.worldHistory.slice(0,80);recordWarBattle(c,winner)
 }
 function simulateConflicts(){
  var w=game.world;
@@ -806,7 +921,7 @@ function resolveCanonEvent(c){
  if(game.codex.events.indexOf(c.title)<0)game.codex.events.push(c.title);w.canonHistory.push({id:c.id,status:c.status,year:w.year,month:w.month});w.canonHistory=w.canonHistory.slice(-80)
 }
 function processCanonEvents(){var w=game.world,now=w.year*12+Math.floor(w.month);syncActorAvailability();w.canon.forEach(function(c){if(c.status==='future'&&now>=canonMonth(c))resolveCanonEvent(c)})}
-function worldMonthStep(){syncActorAvailability();fruitMarketTick();syncCanonicalFruits();processCanonEvents();simulateTerritories();simulateCrews();simulateActors();simulateConflicts();simulateDiplomacy();var w=game.world;w.globalTension=cl(w.globalTension+(R('world')-.5)*2,0,100);REG.forEach(function(r){var rp=w.pressures[r];if(!rp)return;Object.keys(rp).forEach(function(k){rp[k]=cl(rp[k]+(R('world')-.5)*2.2,0,100)})})}
+function worldMonthStep(){syncActorAvailability();fruitMarketTick();syncCanonicalFruits();processCanonEvents();simulateTerritories();simulateCrews();simulateActors();simulateConflicts();simulateDiplomacy();strategyTick();var w=game.world;w.globalTension=cl(w.globalTension+(R('world')-.5)*2,0,100);REG.forEach(function(r){var rp=w.pressures[r];if(!rp)return;Object.keys(rp).forEach(function(k){rp[k]=cl(rp[k]+(R('world')-.5)*2.2,0,100)})})}
 function world(m){var w=game.world;if(!w.v1ClockMigrated){var frac=(w.month||0)%1;w.month=Math.floor(w.month||0);w.simRemainder=(w.simRemainder||0)+frac;w.v1ClockMigrated=true}w.simRemainder=(w.simRemainder||0)+m;while(w.simRemainder>=1){w.simRemainder-=1;w.month++;if(w.month>=12){w.month=0;w.year++;if(R('world')<.55)news('Bilan annuel',pk(['La Marine réorganise plusieurs bases.','De nouveaux équipages se font un nom.','Des réseaux clandestins gagnent du terrain.','Plusieurs routes commerciales changent de mains.'],'world'),'')}worldMonthStep()}}
 function runLocalEvent(){var p=game.player,candidates=LOCAL_EVENTS.filter(function(x){return x.regions.indexOf(p.region)>=0});if(!candidates.length)return false;var ev=pk(candidates,'local');if(ev.kind==='economy'){var v=1200+Math.round(R('local')*9000);if(R('local')<.58){p.money-=Math.min(Math.max(0,p.money),v);tl(ev.title,'Une transaction locale te coûte '+v.toLocaleString('fr-FR')+' B.')}else{p.money+=v;tl(ev.title,'Une opportunité commerciale te rapporte '+v.toLocaleString('fr-FR')+' B.')}}else if(ev.kind==='danger'){fight(inf().danger+8+R('local')*24,ev.title)}else if(ev.kind==='faction'){adjustRep(p.faction,1+R('local')*2);tl(ev.title,'Tes activités attirent l’attention des organisations présentes dans la zone.')}else if(ev.kind==='world'){news(ev.title,'Une information circule dans '+p.region+' et modifie les rumeurs locales.','');tl(ev.title,'Tu obtiens de nouvelles informations sur les forces locales.')}else if(ev.kind==='discovery'){var gain=500+Math.round(R('local')*6500);p.money+=gain;tl(ev.title,'Ton exploration te rapporte une découverte estimée à '+gain.toLocaleString('fr-FR')+' B.')}return true}
 function event(m){if(R('e')>.18+m*.02)return;var p=game.player,x=pk(['relation','money','danger','meet','haki','fruit','crew','life','local','local'],'e');
