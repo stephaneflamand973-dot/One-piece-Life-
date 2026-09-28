@@ -1,103 +1,168 @@
-# ONE PIECE LIFE — V0.9 Life Simulator
+# ONE PIECE LIFE — V1.0 Canon Release
 
-Prototype mobile-first d’un simulateur procédural de vie, carrière et aventure dans un monde pirate vivant.
+Simulateur mobile-first de vie, carrière, aventure et héritage dans un monde One Piece vivant.
 
-## V0.9 — Life Simulator
+## V1.0
 
-La V0.9 approfondit la vie personnelle et intergénérationnelle.
+La V1.0 consolide les systèmes développés depuis la V0.5 et sépare désormais le contenu du moteur afin de pouvoir enrichir le jeu sans reconstruire son architecture.
 
-### Relations profondes
-- chaque relation suit désormais affection, respect, confiance, peur, loyauté, rivalité et attirance ;
-- ancienneté de la relation ;
-- interactions volontaires limitées par période ;
-- temps passé ensemble ;
-- relations qui évoluent naturellement au fil du temps ;
-- mentors, amis, rivaux, collègues et connaissances restent différenciés.
+### Content pack séparé
 
-### Romance
-- romance réservée aux personnages adultes ;
-- attirance non garantie ;
-- approche romantique pouvant réussir ou échouer ;
-- relation de couple persistante ;
-- confiance, affection et loyauté évolutives ;
-- tensions possibles ;
-- séparation volontaire ou émergente ;
-- mariage après une relation suffisamment solide.
+`content-v1.js` contient désormais les données extensibles :
 
-### Famille
-- possibilité d’accueillir des enfants ;
-- enfants nommés, liés à un lieu de naissance et à une génération ;
-- vieillissement synchronisé avec la chronologie ;
-- lien familial qui évolue ;
-- héritier prioritaire visible.
+- lieux et routes ;
+- personnages canoniques ;
+- Fruits du démon ;
+- événements historiques ;
+- techniques spéciales ;
+- événements contextuels.
 
-### Économie personnelle
-- coût de vie mensuel ;
-- dépenses liées au logement et aux enfants ;
-- dette possible ;
-- logements progressifs ;
-- immobilier ;
-- investissements commerciaux ;
-- revenus passifs simples ;
-- patrimoine net et pic de richesse suivis.
+Le moteur reste dans `app.js`.
 
-### Héritage
-La mort ne termine plus forcément la partie.
+### Chronologie canonique causale
 
-Si le personnage possède au moins un enfant :
-- le bilan de vie calcule le patrimoine ;
-- l’héritier prioritaire peut reprendre la partie ;
-- le monde V0.8 reste exactement dans son état actuel ;
-- territoires, conflits, acteurs majeurs et chronologie continuent ;
-- une part du patrimoine est transmise ;
-- les capacités sont recréées à partir d’un mélange d’héritage potentiel et de RNG ;
-- les proches survivants peuvent devenir les relations familiales de la génération suivante ;
-- la dynastie conserve ses ancêtres.
+Les événements canoniques possèdent maintenant :
 
-### Achievements
-Première série intégrée :
-- Premier horizon ;
-- Au-delà de Reverse Mountain ;
-- Nouveau Monde ;
-- Volonté éveillée ;
-- Pouvoir interdit ;
-- Une autre génération ;
-- Engagement ;
-- Millionnaire ;
-- Vétéran ;
-- Menace mondiale ;
-- Un nom que l’on connaît ;
-- Faiseur d’histoire ;
-- Longue vie ;
-- La volonté transmise.
+- année et mois ;
+- type : ancrage ou événement flexible ;
+- localisation ;
+- personnages requis ;
+- factions concernées ;
+- résistance à la divergence ;
+- statut persistant.
 
-Les achievements et le Codex sont méta-persistants entre plusieurs vies d’un même emplacement, sans donner de bonus absurdes aux nouveaux personnages.
+Résultats possibles :
 
-### Vieillissement
-À partir d’un âge avancé :
-- récupération plus difficile ;
-- santé progressivement moins stable ;
-- possibilité de décès naturel ;
-- longévité restant variable selon le RNG et l’état du personnage.
+- `future`
+- `completed`
+- `modified`
+- `cancelled`
 
-## Héritage des versions précédentes
+Un personnage requis mort ou indisponible peut réellement casser la chaîne causale. Le moteur ne restaure pas artificiellement le scénario original.
 
-V0.8 : monde autonome, équipages, territoires, conflits, diplomatie et acteurs majeurs.
+La simulation mondiale utilise désormais une horloge mensuelle précise : chaque mois simulé reçoit son propre tick de monde et son propre contrôle canonique.
 
-V0.7 : carrières, rangs, spécialisations, salaires et réputation de factions.
+### Contenu V1
 
-V0.6 : combat multidimensionnel, techniques, Haki, Fruits du démon et blessures.
+Le pack initial V1 ajoute notamment :
 
-V0.5 : routes maritimes, voyages, régions et canon dynamique.
+- 15 lieux supplémentaires, dont Foosha Village, Cocoyasi, Skypiea, Enies Lobby, Marineford, Impel Down, Amazon Lily, Hachinosu, Elbaf et Mary Geoise ;
+- environ 30 acteurs canoniques structurés ;
+- plus de 30 Fruits du démon avec type et rareté ;
+- une chronologie historique allant de l’exécution de Roger jusqu’aux grands événements de l’ère récente ;
+- techniques spéciales comme le Rokushiki, le Karaté des Hommes-Poissons, Electro et des maîtrises avancées de sabre/tir.
+
+### Personnages canoniques
+
+Les acteurs canoniques disposent de :
+
+- période d’activation ;
+- région ;
+- puissance de départ ;
+- plafond ;
+- vitesse d’évolution ;
+- importance causale ;
+- objectif.
+
+Un personnage qui n’a pas encore commencé sa carrière n’est plus simulé comme s’il était déjà à son apogée.
+
+### Fruits du démon
+
+Les Fruits ne sont plus tirés uniformément.
+
+Leur rareté influence la probabilité de découverte. Le registre mondial continue de suivre :
+
+`available → held → consumed / sold`
+
+### Techniques spéciales
+
+Les techniques spéciales se débloquent selon des conditions réelles :
+
+- faction ;
+- race ;
+- style ;
+- compétence ;
+- statistique.
+
+Exemples : Rokushiki pour certaines carrières gouvernementales, Electro pour les Minks, Karaté des Hommes-Poissons pour les Hommes-Poissons.
+
+### Événements locaux
+
+La zone et la région peuvent maintenant générer davantage de situations contextuelles :
+
+- contrôles ;
+- météo ;
+- commerce ;
+- épaves ;
+- rumeurs ;
+- contacts clandestins ;
+- découvertes.
+
+### Interface Monde
+
+La V1 ajoute :
+
+- prochains ancrages historiques ;
+- santé de la chronologie ;
+- personnages requis manquants ;
+- statistiques du content pack ;
+- statut détaillé de chaque événement canonique ;
+- Codex enrichi par les événements et techniques découverts.
+
+## Systèmes hérités
+
+### V0.9
+Relations, romance, famille, enfants, économie, achievements et héritage intergénérationnel.
+
+### V0.8
+Monde autonome, équipages procéduraux, territoires, conflits et diplomatie.
+
+### V0.7
+Carrières, rangs, spécialisations, missions et réputation de factions.
+
+### V0.6
+Combat, styles, techniques, Haki, Fruits du démon et blessures.
+
+### V0.5
+Routes maritimes, voyages, régions et première couche de canon dynamique.
+
+## Validation
+
+Deux contrôles automatiques sont exécutés à chaque push :
+
+```
+node scripts/validate.mjs
+node scripts/validate-content.mjs
+```
+
+Ils vérifient notamment :
+
+- syntaxe ;
+- interface ;
+- migration V1 ;
+- présence des systèmes essentiels ;
+- routes vers des lieux existants ;
+- IDs uniques ;
+- Fruits non dupliqués ;
+- personnages requis par le canon ;
+- ordre chronologique des événements.
 
 ## Sauvegardes
 
-Les sauvegardes V0.5 à V0.8 sont migrées automatiquement vers V0.9.
+Les sauvegardes V0.5 à V0.9 sont migrées automatiquement vers V1.0.
 
-Trois emplacements locaux sont disponibles. Le Codex et les achievements persistent également entre plusieurs vies d’un même emplacement.
+Le Codex et les achievements restent méta-persistants par emplacement.
 
-## Déploiement
+## iPhone / PWA
 
-Chaque push sur `main` est validé puis publié sur GitHub Pages.
+GitHub Pages publie automatiquement la branche `main`.
 
-Sur iPhone : Safari → Partager → **Sur l’écran d’accueil** → **Ouvrir comme app web**.
+Sur iPhone :
+
+Safari → Partager → **Sur l’écran d’accueil** → **Ouvrir comme app web**.
+
+Le service worker V1 met également `content-v1.js` en cache pour le fonctionnement hors ligne.
+
+## Note
+
+Projet fan-made expérimental. Le dépôt n’embarque pas d’images, musiques ou autres assets officiels.
