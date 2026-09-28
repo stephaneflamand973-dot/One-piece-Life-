@@ -15,3 +15,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate static game
         run: node scripts/validate.mjs
+      - name: Validate V1 content pack
+        run: node scripts/validate-content.mjs
