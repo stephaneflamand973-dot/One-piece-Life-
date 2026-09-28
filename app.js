@@ -49,13 +49,14 @@ var ACTOR_TEMPLATES=[
  {name:'Big Mom',faction:'Pirates',region:'New World',base:95,peak:99,growth:8,importance:99,goal:'Étendre son territoire'},
  {name:'Barbe Blanche',faction:'Pirates',region:'New World',base:100,peak:96,growth:22,importance:100,goal:'Protéger sa famille'}
 ];
-var CONTENT=window.OPV1_CONTENT||{locations:{},actors:[],fruits:[],canonEvents:[],specialTechniques:[],localEvents:[]};
+var CONTENT=window.OPV1_CONTENT||{locations:{},actors:[],fruits:[],fruitAssignments:[],canonEvents:[],specialTechniques:[],localEvents:[]};
 Object.keys(CONTENT.locations||{}).forEach(function(n){PL[n]=CONTENT.locations[n]});
 Object.keys(PL).forEach(function(n){var routes=PL[n][2]||[];routes.forEach(function(d){if(PL[d]&&PL[d][2].indexOf(n)<0)PL[d][2].push(n)})});
 if(CONTENT.actors&&CONTENT.actors.length)ACTOR_TEMPLATES=CONTENT.actors.slice();
 var CANON_EVENTS=(CONTENT.canonEvents||[]).slice();
 var SPECIAL_TECHNIQUES=(CONTENT.specialTechniques||[]).slice();
 var LOCAL_EVENTS=(CONTENT.localEvents||[]).slice();
+var FRUIT_ASSIGNMENTS=(CONTENT.fruitAssignments||[]).slice();
 var FRUIT_INFO={};(CONTENT.fruits||[]).forEach(function(x){FRUIT_INFO[x[0]]={type:x[1],rarity:x[2]}});
 function fruitMeta(n){return FRUIT_INFO[n]||{type:'Inconnu',rarity:70}}
 function pickFruit(list){var total=0,weights=list.map(function(n){var m=fruitMeta(n),w=Math.max(2,108-(m.rarity||70));total+=w;return w}),r=R('fruit')*total;for(var i=0;i<list.length;i++){r-=weights[i];if(r<=0)return list[i]}return list[list.length-1]}
@@ -66,6 +67,24 @@ function initCanonState(w){
  var source=CANON_EVENTS.length?CANON_EVENTS:[{id:'roger-execution',year:0,month:0,title:'Exécution de Gol D. Roger',type:'anchor',resistance:100,location:'Loguetown',required:[],factions:['Marine','Pirates'],description:'La Grande Ère de la Piraterie commence.'}];
  w.canon=source.map(function(c){var x=Object.assign({},c);x.required=(c.required||[]).slice();x.factions=(c.factions||[]).slice();x.status=previous[x.title]||x.status||(canonMonth(x)===0?'completed':'future');return x});
  w.canonHistory=w.canonHistory||[];return w
+}
+function fruitAssignmentMonth(a){return(a.year||0)*12+(a.month||0)}
+function syncCanonicalFruits(){
+ var w=game.world,now=w.year*12+Math.floor(w.month);
+ FRUIT_ASSIGNMENTS.forEach(function(a){
+  if(now<fruitAssignmentMonth(a))return;
+  var reg=w.fruitRegistry[a.fruit]||(w.fruitRegistry[a.fruit]={status:'available',holder:null}),actor=w.actors.find(function(x){return x.name===a.holder});
+  if(actor&&actor.status==='dead'){
+   if(reg.holder===a.holder){reg.status='available';reg.holder=null;news('Fruit réapparu',a.fruit+' réapparaît quelque part dans le monde après la mort de '+a.holder+'.','major')}
+   return
+  }
+  if(reg.status==='available'||reg.status==='sold'){
+   reg.status='consumed';reg.holder=a.holder;return
+  }
+  if(reg.holder!==a.holder&&!reg.canonBlocked){
+   reg.canonBlocked=true;w.divergence=cl(w.divergence+2.5,0,100);news('Divergence liée à un Fruit',a.holder+' ne peut pas obtenir '+a.fruit+' car son état mondial a déjà changé.','war')
+  }
+ })
 }
 var REGION_LINKS={
  'East Blue':['Grand Line'],'North Blue':['Grand Line'],'West Blue':['Grand Line'],'South Blue':['Grand Line'],
@@ -237,7 +256,7 @@ function press(){var o={};REG.forEach(function(r){o[r]={Piraterie:20+R('w')*25,M
 function make(){
  var seed=Number($('#seedInput').value)||Math.floor(Math.random()*2147483647),origin=mode==='custom'?$('#originInput').value:pk(ORIG,'b');
  game={version:10,seed:seed,rng:{},alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
- game=applyMeta(migrate(game));var homes=Object.keys(PL).filter(function(n){return PL[n][0]===origin});game.player.island=pk(homes,'b');game.player.visited=[game.player.island];game.codex.places=[game.player.island];game.world.pressures=press();
+ game=applyMeta(migrate(game));syncCanonicalFruits();var homes=Object.keys(PL).filter(function(n){return PL[n][0]===origin});game.player.island=pk(homes,'b');game.player.visited=[game.player.island];game.codex.places=[game.player.island];game.world.pressures=press();
  ST.forEach(function(k){game.player.stats[k]=8+R('b')*12;game.player.caps[k]=68+R('c')*25});SK.forEach(function(k){game.player.skills[k]=2+R('b')*8;game.player.caps[k]=68+R('c')*25});
  syncPowers();tl('Naissance','Tu nais à '+game.player.island+', dans '+origin+'.','major');news('Grande Ère de la Piraterie','Le monde entre dans une période de bouleversements.');save();return game}
 function diff(){return game.player.difficulty==='Casual'?[1.2,.75]:game.player.difficulty==='Ironman'?[.9,1.55]:[1,1]}
@@ -468,7 +487,7 @@ function resolveCanonEvent(c){
  if(game.codex.events.indexOf(c.title)<0)game.codex.events.push(c.title);w.canonHistory.push({id:c.id,status:c.status,year:w.year,month:w.month});w.canonHistory=w.canonHistory.slice(-80)
 }
 function processCanonEvents(){var w=game.world,now=w.year*12+Math.floor(w.month);syncActorAvailability();w.canon.forEach(function(c){if(c.status==='future'&&now>=canonMonth(c))resolveCanonEvent(c)})}
-function worldMonthStep(){processCanonEvents();simulateTerritories();simulateCrews();simulateActors();simulateConflicts();simulateDiplomacy();var w=game.world;w.globalTension=cl(w.globalTension+(R('world')-.5)*2,0,100);REG.forEach(function(r){var rp=w.pressures[r];if(!rp)return;Object.keys(rp).forEach(function(k){rp[k]=cl(rp[k]+(R('world')-.5)*2.2,0,100)})})}
+function worldMonthStep(){syncActorAvailability();syncCanonicalFruits();processCanonEvents();simulateTerritories();simulateCrews();simulateActors();simulateConflicts();simulateDiplomacy();var w=game.world;w.globalTension=cl(w.globalTension+(R('world')-.5)*2,0,100);REG.forEach(function(r){var rp=w.pressures[r];if(!rp)return;Object.keys(rp).forEach(function(k){rp[k]=cl(rp[k]+(R('world')-.5)*2.2,0,100)})})}
 function world(m){var w=game.world;if(!w.v1ClockMigrated){var frac=(w.month||0)%1;w.month=Math.floor(w.month||0);w.simRemainder=(w.simRemainder||0)+frac;w.v1ClockMigrated=true}w.simRemainder=(w.simRemainder||0)+m;while(w.simRemainder>=1){w.simRemainder-=1;w.month++;if(w.month>=12){w.month=0;w.year++;if(R('world')<.55)news('Bilan annuel',pk(['La Marine réorganise plusieurs bases.','De nouveaux équipages se font un nom.','Des réseaux clandestins gagnent du terrain.','Plusieurs routes commerciales changent de mains.'],'world'),'')}worldMonthStep()}}
 function runLocalEvent(){var p=game.player,candidates=LOCAL_EVENTS.filter(function(x){return x.regions.indexOf(p.region)>=0});if(!candidates.length)return false;var ev=pk(candidates,'local');if(ev.kind==='economy'){var v=1200+Math.round(R('local')*9000);if(R('local')<.58){p.money-=Math.min(Math.max(0,p.money),v);tl(ev.title,'Une transaction locale te coûte '+v.toLocaleString('fr-FR')+' B.')}else{p.money+=v;tl(ev.title,'Une opportunité commerciale te rapporte '+v.toLocaleString('fr-FR')+' B.')}}else if(ev.kind==='danger'){fight(inf().danger+8+R('local')*24,ev.title)}else if(ev.kind==='faction'){adjustRep(p.faction,1+R('local')*2);tl(ev.title,'Tes activités attirent l’attention des organisations présentes dans la zone.')}else if(ev.kind==='world'){news(ev.title,'Une information circule dans '+p.region+' et modifie les rumeurs locales.','');tl(ev.title,'Tu obtiens de nouvelles informations sur les forces locales.')}else if(ev.kind==='discovery'){var gain=500+Math.round(R('local')*6500);p.money+=gain;tl(ev.title,'Ton exploration te rapporte une découverte estimée à '+gain.toLocaleString('fr-FR')+' B.')}return true}
 function event(m){if(R('e')>.18+m*.02)return;var p=game.player,x=pk(['relation','money','danger','meet','haki','fruit','crew','life','local','local'],'e');
