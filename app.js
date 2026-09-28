@@ -299,13 +299,13 @@ function createRelation(role){
  game.relations.push(r);return r
 }
 function netWorth(){
- var p=game.player,a=p.life.assets||{};return Math.round(p.money+(a.property||0)+(a.business||0)+(a.ship||0)+(a.treasure||0))
+ var p=game.player,a=p.life.assets||{};return Math.round(p.money+(a.property||0)+(a.business||0)+(a.ship||0)+(a.treasure||0)+cargoBookValue())
 }
 function livingCostPerMonth(){
  var p=game.player;if(p.ageMonths<180)return 0;var h=HOUSING[p.life.housingLevel||0]||HOUSING[0],base=h.monthly+(p.children||[]).length*850;
  if(p.life.relationshipStatus!=='Célibataire')base+=350;return Math.round(base)
 }
-function businessIncomePerMonth(){return Math.round(((game.player.life.assets||{}).business||0)*.008)}
+function businessIncomePerMonth(){var p=game.player,asset=(p.life.assets||{}).business||0;if(!asset)return 0;var rp=game.world.pressures[p.region]||{},m=game.world.markets&&game.world.markets[p.island],mult=.72+(rp.Prospérité||50)/180;if(m&&m.blockade)mult*=.58;return Math.round(asset*.008*mult)}
 function useSocialAction(){
  var l=game.player.life;if((l.socialActions||0)<1){toast('Tu as déjà consacré assez de temps à ta vie sociale pendant cette période.');return false}
  l.socialActions--;return true
@@ -471,7 +471,7 @@ function fundOrganization(){
  var p=game.player,o=ensureOrganization(),amount=10000;if(p.money<amount)return toast('Il te faut 10 000 B disponibles.');p.money-=amount;o.treasury+=amount;tl('Caisse commune','Tu verses 10 000 B à '+o.name+'.');save();renderChar()
 }
 function buyOrganizationSupplies(){
- var p=game.player,o=ensureOrganization(),cost=5000;if(o.treasury+p.money<cost)return toast('Il faut 5 000 B pour le ravitaillement.');var t=Math.min(o.treasury,cost);o.treasury-=t;p.money-=cost-t;o.supplies=cl(o.supplies+24,0,100);o.morale=cl(o.morale+1,0,100);tl('Ravitaillement','Les provisions de '+o.name+' sont renouvelées.');save();renderChar()
+ var p=game.player,o=ensureOrganization(),m=game.world.markets[p.island],unit=marketPrice(p.island,'provisions',true),qty=5,cost=unit*qty;if(!m||m.goods.provisions.stock<qty)return toast('Le marché local manque de provisions.');if(o.treasury+p.money<cost)return toast('Ravitaillement actuel : '+cost.toLocaleString('fr-FR')+' B.');var t=Math.min(o.treasury,cost);o.treasury-=t;p.money-=cost-t;m.goods.provisions.stock-=qty;m.tradeActivity+=cost;o.supplies=cl(o.supplies+24,0,100);o.morale=cl(o.morale+1,0,100);tl('Ravitaillement','Les provisions de '+o.name+' sont renouvelées pour '+cost.toLocaleString('fr-FR')+' B.');save();render()
 }
 function supportOrganization(){
  var o=ensureOrganization();if(!o||!useOrganizationAction())return;o.morale=cl(o.morale+2+R('org')*2,0,100);o.cohesion=cl(o.cohesion+1+R('org')*2,0,100);o.members.forEach(function(m){if(m.status==='active')m.loyalty=cl(m.loyalty+.4+R('org')*.8,0,100)});tl('Vie de groupe','Tu consacres du temps à renforcer '+o.name+'.');save();renderChar()
@@ -646,7 +646,7 @@ function recruitAffiliate(id){
  save();render()
 }
 function domainIncome(t,name,m){
- var p=game.player,rp=game.world.pressures[infStatic(name).region]||{},pc=t.playerControl;if(!pc)return 0;var base=350+t.stability*12+(rp.Prospérité||40)*9+pc.control*8+infStatic(name).danger*4,amount=Math.round(base*m);pc.income=(pc.income||0)+amount;return amount
+ var p=game.player,rp=game.world.pressures[infStatic(name).region]||{},pc=t.playerControl,market=game.world.markets&&game.world.markets[name];if(!pc)return 0;var trade=market?Math.min(1.45,.75+(market.tradeActivity||0)/50000):1,block=market&&market.blockade?.55:1,base=350+t.stability*12+(rp.Prospérité||40)*9+pc.control*8+infStatic(name).danger*4,amount=Math.round(base*trade*block*m);pc.income=(pc.income||0)+amount;return amount
 }
 function playerDomainDefense(location){
  var p=game.player,t=game.world.territories[location],pc=t&&t.playerControl;if(!pc||pc.ownerKey!==dynastyKey())return 0;var aff=game.world.crews.filter(function(c){return c.status==='active'&&c.affiliation&&c.affiliation.ownerKey===dynastyKey()&&c.region===infStatic(location).region}).reduce(function(a,c){return a+c.power},0),org=p.organization&&p.region===infStatic(location).region?organizationPower():0;return pc.control*.18+aff*.08+org*.1
@@ -840,7 +840,7 @@ function resolveMission(){var m=game.mission,p=game.player,rec=careerRecord(),ef
 
 function req(d){var r=inf(d).region,p=game.player;if(r==='Grand Line'&&p.skills.Navigation<18)return[false,'Navigation 18'];if(r==='New World'&&(p.skills.Navigation<35||power()<35))return[false,'Navigation 35 + puissance 35'];return[true,'']}
 function go(d){var q=req(d);if(!q[0])return toast('Accès verrouillé : '+q[1]);var p=game.player,z=inf(d).danger,mo=.6+z/35+R('t')*.8,o=p.organization;if(o&&o.ship){var st=SHIP_TIERS[o.ship.tier||0]||SHIP_TIERS[0];mo*=1-st.speed;if(o.ship.condition<40)mo*=1.18}mo=Math.max(.5,Math.round(mo*10)/10);decision('Prendre la mer','Voyager vers '+d+' prendra environ '+mo+' mois.',[['Partir','Danger '+z+'/100',function(){p.travel={from:p.island,destination:d,remaining:mo,danger:z};p.situation='Navigation';p.activity='Navigation';tl('Départ en mer','Cap sur '+d+'.','major')}],['Rester','Annuler.',function(){}]])}
-function travel(m){var p=game.player,t=p.travel,o=p.organization;t.remaining-=m;var incident=.18;if(o&&o.ship){incident+=o.ship.condition<35?.09:o.ship.condition>80?-.04:0;incident+=o.supplies<10?.06:0}if(R('t')<cl(incident,.05,.35))fight(t.danger*.75,'Incident en mer');if(!game.alive)return;if(t.remaining<=0){p.island=t.destination;p.region=inf(t.destination).region;p.travel=null;p.situation='Arrivée';p.activity='Explorer';if(p.visited.indexOf(p.island)<0)p.visited.push(p.island);if(game.codex.places.indexOf(p.island)<0)game.codex.places.push(p.island);tl('Nouvelle destination','Tu arrives à '+p.island+'.','major')}}
+function travel(m){var p=game.player,t=p.travel,o=p.organization;t.remaining-=m;var incident=.18;if(o&&o.ship){incident+=o.ship.condition<35?.09:o.ship.condition>80?-.04:0;incident+=o.supplies<10?.06:0}if(R('t')<cl(incident,.05,.35))fight(t.danger*.75,'Incident en mer');if(!game.alive)return;if(t.remaining<=0){p.island=t.destination;p.region=inf(t.destination).region;p.travel=null;p.situation='Arrivée';p.activity='Explorer';if(p.visited.indexOf(p.island)<0)p.visited.push(p.island);if(game.codex.places.indexOf(p.island)<0)game.codex.places.push(p.island);inspectSmugglingAtArrival(p.island);tl('Nouvelle destination','Tu arrives à '+p.island+'.','major')}}
 function hostileCandidates(defender){
  var map={Marine:['Pirates','Révolutionnaires'],Gouvernement:['Pirates','Révolutionnaires'],Pirates:['Marine','Gouvernement','Chasseur de primes'],Révolutionnaires:['Gouvernement','Marine'],Civil:['Pirates'], 'Chasseur de primes':['Pirates']};
  return map[defender]||['Pirates','Marine']
@@ -1035,7 +1035,7 @@ function resolveCanonEvent(c){
  if(game.codex.events.indexOf(c.title)<0)game.codex.events.push(c.title);w.canonHistory.push({id:c.id,status:c.status,year:w.year,month:w.month});w.canonHistory=w.canonHistory.slice(-80)
 }
 function processCanonEvents(){var w=game.world,now=w.year*12+Math.floor(w.month);syncActorAvailability();w.canon.forEach(function(c){if(c.status==='future'&&now>=canonMonth(c))resolveCanonEvent(c)})}
-function worldMonthStep(){syncActorAvailability();fruitMarketTick();syncCanonicalFruits();processCanonEvents();simulateTerritories();simulateCrews();simulateActors();simulateConflicts();simulateDiplomacy();strategyTick();var w=game.world;w.globalTension=cl(w.globalTension+(R('world')-.5)*2,0,100);REG.forEach(function(r){var rp=w.pressures[r];if(!rp)return;Object.keys(rp).forEach(function(k){rp[k]=cl(rp[k]+(R('world')-.5)*2.2,0,100)})})}
+function worldMonthStep(){syncActorAvailability();fruitMarketTick();syncCanonicalFruits();processCanonEvents();simulateTerritories();simulateCrews();simulateActors();simulateConflicts();simulateDiplomacy();strategyTick();simulateEconomy();var w=game.world;w.globalTension=cl(w.globalTension+(R('world')-.5)*2,0,100);REG.forEach(function(r){var rp=w.pressures[r];if(!rp)return;Object.keys(rp).forEach(function(k){rp[k]=cl(rp[k]+(R('world')-.5)*2.2,0,100)})})}
 function world(m){var w=game.world;if(!w.v1ClockMigrated){var frac=(w.month||0)%1;w.month=Math.floor(w.month||0);w.simRemainder=(w.simRemainder||0)+frac;w.v1ClockMigrated=true}w.simRemainder=(w.simRemainder||0)+m;while(w.simRemainder>=1){w.simRemainder-=1;w.month++;if(w.month>=12){w.month=0;w.year++;if(R('world')<.55)news('Bilan annuel',pk(['La Marine réorganise plusieurs bases.','De nouveaux équipages se font un nom.','Des réseaux clandestins gagnent du terrain.','Plusieurs routes commerciales changent de mains.'],'world'),'')}worldMonthStep()}}
 function runLocalEvent(){var p=game.player,candidates=LOCAL_EVENTS.filter(function(x){return x.regions.indexOf(p.region)>=0});if(!candidates.length)return false;var ev=pk(candidates,'local');if(ev.kind==='economy'){var v=1200+Math.round(R('local')*9000);if(R('local')<.58){p.money-=Math.min(Math.max(0,p.money),v);tl(ev.title,'Une transaction locale te coûte '+v.toLocaleString('fr-FR')+' B.')}else{p.money+=v;tl(ev.title,'Une opportunité commerciale te rapporte '+v.toLocaleString('fr-FR')+' B.')}}else if(ev.kind==='danger'){fight(inf().danger+8+R('local')*24,ev.title)}else if(ev.kind==='faction'){adjustRep(p.faction,1+R('local')*2);tl(ev.title,'Tes activités attirent l’attention des organisations présentes dans la zone.')}else if(ev.kind==='world'){news(ev.title,'Une information circule dans '+p.region+' et modifie les rumeurs locales.','');tl(ev.title,'Tu obtiens de nouvelles informations sur les forces locales.')}else if(ev.kind==='discovery'){var gain=500+Math.round(R('local')*6500);p.money+=gain;tl(ev.title,'Ton exploration te rapporte une découverte estimée à '+gain.toLocaleString('fr-FR')+' B.')}return true}
 function event(m){if(R('e')>.18+m*.02)return;var p=game.player,x=pk(['relation','money','danger','meet','haki','fruit','crew','life','local','local'],'e');
