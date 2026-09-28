@@ -1,44 +1,47 @@
-# ONE PIECE LIFE — V0.6 Combat & Powers
+# ONE PIECE LIFE — V0.7 Careers & Factions
 
 Prototype mobile-first d’un simulateur procédural de vie, carrière et aventure dans un monde pirate vivant.
 
-## V0.6 — Combat & Powers
+## V0.7 — Careers & Factions
 
-La V0.6 conserve la World Expansion et approfondit les systèmes de puissance :
+Cette version transforme les factions en véritables parcours de carrière.
 
-- moteur de combat multidimensionnel ;
-- styles et matchups ;
-- influence du terrain ;
-- techniques débloquées par niveau réel de compétence ;
-- maîtrise progressive des techniques ;
-- Haki d’Observation, Armement et Conquérant indépendants ;
-- applications avancées du Haki selon la maîtrise ;
-- entraînements spécifiques du Haki ;
-- Fruits du démon avec maîtrise 0–100 ;
-- possibilité d’éveil du Fruit à très haute maîtrise ;
-- Fruits trouvés physiquement : manger, conserver ou vendre ;
-- registre mondial de l’état des Fruits ;
-- blessures persistantes de gravité variable ;
-- santé et énergie influençant les combats ;
-- rapport détaillé du dernier affrontement ;
-- défis locaux cohérents avec le danger de la zone ;
-- migration automatique des sauvegardes V0.5 vers V0.6 ;
-- PWA iPhone et autosave local conservés.
+### Systèmes de carrière
+- six voies principales : Civil, Marine, Pirates, chasseurs de primes, Révolutionnaires et Gouvernement Mondial ;
+- arbres de rangs propres à chaque voie ;
+- XP de carrière séparée de la puissance de combat ;
+- ancienneté, missions réussies et échecs suivis ;
+- promotions conditionnées par XP, réputation de faction et puissance ;
+- salaires institutionnels quand la faction en verse réellement ;
+- revenus à la mission pour pirates et chasseurs de primes ;
+- historique des changements de carrière.
 
-## Monde
+### Spécialisations
+- Marine : combat, navigation, renseignement, médecine ;
+- Pirates : combattant, navigateur, tireur, médecin, quartier-maître ;
+- Chasseurs : traqueur, duelliste, tireur, investigateur ;
+- Révolutionnaires : combat, infiltration, renseignement, logistique ;
+- Gouvernement : administration, renseignement, Cipher Pol ;
+- Civils : marchand, médecin, navigateur, scientifique, artisan, cuisinier.
 
-La V0.5 reste intégrée : routes maritimes, voyages réels, six régions, pressions régionales, acteurs canoniques, factions, missions et canon dynamique.
+La spécialisation modifie les missions disponibles et certaines progressions. Une réorientation coûte une partie de l’XP de carrière.
+
+### Réputation de factions
+Chaque faction possède désormais sa propre opinion du personnage. Une mission peut améliorer une réputation et en détériorer une autre. Déserter la Marine ou le Gouvernement pour rejoindre les Pirates ou les Révolutionnaires peut créer une prime.
+
+### Cipher Pol
+Le Cipher Pol n’est plus un simple bouton. Il nécessite des compétences minimales en combat et discrétion ainsi qu’une réputation suffisante auprès du Gouvernement. Sa carrière possède ensuite sa propre progression jusqu’au statut de candidat CP0.
+
+### V0.6 conservée
+Le moteur de combat multidimensionnel, les techniques, le Haki, les Fruits du démon, les blessures persistantes et les rapports de combat restent intégrés.
+
+### Monde V0.5 conservé
+Routes maritimes, voyages, six régions, pressions régionales, acteurs canoniques, actualités et canon dynamique restent actifs.
 
 ## Tester
 
-Le site est publié automatiquement par GitHub Pages à chaque push sur `main`.
+GitHub Pages déploie automatiquement chaque push sur `main`.
 
-Sur iPhone : ouvrir l’URL dans Safari → **Partager → Sur l’écran d’accueil → Ouvrir comme app web**.
+Sur iPhone : Safari → Partager → **Sur l’écran d’accueil** → **Ouvrir comme app web**.
 
-## Sauvegardes
-
-Trois emplacements locaux. Les anciennes sauvegardes V0.5 sont migrées au chargement. Export/import texte toujours disponible.
-
-## Note
-
-Projet fan-made expérimental. Aucun asset officiel de l’œuvre n’est embarqué dans le dépôt.
+Les sauvegardes V0.5/V0.6 sont migrées automatiquement vers V0.7.
