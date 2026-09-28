@@ -1,0 +1,22 @@
+name: V1.5 Professional QA
+
+on:
+  push:
+    branches: [qa-v15-professional-test]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static production validator
+        run: node scripts/validate.mjs
+      - name: V1 content validator
+        run: node scripts/validate-content.mjs
+      - name: Full V1.5 systems QA
+        run: node scripts/qa-v15.mjs
