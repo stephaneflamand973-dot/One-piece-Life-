@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f4ecd8" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="ONE PIECE LIFE" />
+  <meta name="description" content="ONE PIECE LIFE, simulateur mobile-first de destin, carrière et aventure dans un monde pirate vivant." />
+  <title>ONE PIECE LIFE — V0.5</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app" class="app-shell">
+  <header class="topbar">
+    <button id="homeBtn" class="icon-btn hidden" aria-label="Retour aux sauvegardes">☰</button>
+    <div class="brand-wrap">
+      <div class="brand-mark">☠</div>
+      <div><h1>ONE PIECE LIFE</h1><p>Destin • Carrière • Monde vivant</p></div>
+    </div>
+    <button id="devToggle" class="icon-btn" aria-label="Mode développeur">⚙</button>
+  </header>
+
+  <main>
+    <section id="startScreen" class="screen active">
+      <section class="hero-card paper-card">
+        <span class="eyebrow">V0.5 • World Expansion • iPhone & PWA</span>
+        <h2>Une vie. Un monde qui n’attend pas ton arrivée.</h2>
+        <p>Tu nais au début de la Grande Ère de la Piraterie. La V0.5 ajoute des routes maritimes persistantes, des régions réellement distinctes, des voyages simulés, davantage d’acteurs du monde et de nouvelles voies de faction.</p>
+        <div class="feature-pills"><span>RNG seedé</span><span>Routes maritimes</span><span>6 régions</span><span>Autosave</span></div>
+      </section>
+
+      <section id="localFileWarning" class="paper-card compatibility-card">
+        <span class="eyebrow">iPhone • Important</span>
+        <h3>Le jeu doit être ouvert depuis une vraie adresse web</h3>
+        <p>Si tu lis ceci dans l’app Fichiers / Coup d’œil, le moteur JavaScript peut ne pas démarrer. Utilise la version hébergée en HTTPS dans Safari, puis ajoute-la à l’écran d’accueil.</p>
+      </section>
+
+      <section id="iosInstallCard" class="paper-card compatibility-card hidden">
+        <span class="eyebrow">Installation iPhone</span>
+        <h3>Transformer le site en app</h3>
+        <p>Dans Safari : <strong>Partager → Sur l’écran d’accueil → Ouvrir comme app web</strong>. La sauvegarde reste locale à cet iPhone.</p>
+      </section>
+
+      <section class="paper-card">
+        <div class="section-heading"><div><span class="eyebrow">Sauvegardes</span><h3>Choisir une vie</h3></div><span class="badge">3 emplacements</span></div>
+        <div id="saveSlots" class="save-grid"></div>
+      </section>
+
+      <section id="creationCard" class="paper-card setup-card hidden">
+        <div class="section-heading"><div><span class="eyebrow">Nouvelle vie</span><h3>Création du personnage</h3></div><button id="cancelCreate" class="text-btn">Annuler</button></div>
+        <div class="mode-grid">
+          <button class="mode-card selected" data-mode="destiny"><strong>Mode Destin</strong><span>Le RNG décide de tes fondations. L’expérience principale.</span></button>
+          <button class="mode-card" data-mode="custom"><strong>Mode Personnalisé</strong><span>Choisis ton origine et ton orientation initiale.</span></button>
+        </div>
+        <label class="field"><span>Nom</span><input id="nameInput" maxlength="28" value="Kael Maren" /></label>
+        <div class="form-row">
+          <label class="field"><span>Difficulté</span><select id="difficultyInput"><option>Casual</option><option selected>Standard</option><option>Grand Line</option><option>New World</option><option>Ironman</option></select></label>
+          <label class="field"><span>Seed</span><input id="seedInput" inputmode="numeric" placeholder="Aléatoire" /></label>
+        </div>
+        <div id="customFields" class="custom-fields hidden">
+          <div class="form-row">
+            <label class="field"><span>Mer d’origine</span><select id="originInput"><option>East Blue</option><option>North Blue</option><option>West Blue</option><option>South Blue</option></select></label>
+            <label class="field"><span>Race</span><select id="raceInput"><option>Humain</option><option>Homme-poisson</option><option>Mink</option><option>Long-bras</option><option>Long-jambes</option></select></label>
+          </div>
+          <label class="field"><span>Style naturel</span><select id="styleInput"><option>Équilibré</option><option>Corps-à-corps</option><option>Sabreur</option><option>Tireur</option><option>Mobile / esquive</option></select></label>
+        </div>
+        <button id="newLifeBtn" class="primary-btn">Commencer cette vie</button>
+      </section>
+    </section>
+
+    <section id="gameScreen" class="screen">
+      <section class="status-strip">
+        <div><span class="tiny-label">Âge</span><strong id="ageLabel">0 mois</strong></div>
+        <div><span class="tiny-label">Lieu</span><strong id="locationLabel">East Blue</strong></div>
+        <div><span class="tiny-label">Berry</span><strong id="moneyLabel">0 B</strong></div>
+      </section>
+
+      <section id="lifePanel" class="tab-panel active" data-panel="life">
+        <section class="profile-banner paper-card">
+          <div class="avatar-ring"><span id="avatarInitial">K</span></div>
+          <div class="profile-copy"><span id="lifeStatus" class="eyebrow">Naissance</span><h2 id="playerName">Kael Maren</h2><p id="playerSubtitle">Humain • East Blue • Civil</p></div>
+          <div id="repPill" class="reputation-pill">Inconnu</div>
+        </section>
+
+        <section class="paper-card current-situation">
+          <div class="section-heading compact"><div><span class="eyebrow">Situation actuelle</span><h3 id="situationTitle">Enfance</h3></div><span id="dangerBadge" class="danger-badge low">Faible</span></div>
+          <div class="situation-grid">
+            <div><span>Activité</span><strong id="activityValue">Grandir</strong></div><div><span>Faction</span><strong id="factionValue">Civil</strong></div>
+            <div><span>Santé</span><strong id="healthValue">100%</strong></div><div><span>Énergie</span><strong id="energyValue">100%</strong></div>
+          </div>
+          <div id="conditionChips" class="chip-list compact-list"></div>
+        </section>
+
+        <section id="attentionCard" class="paper-card attention-card hidden"><span class="eyebrow">À décider</span><h3 id="attentionTitle"></h3><p id="attentionText"></p><button id="attentionBtn" class="primary-btn small">Voir les choix</button></section>
+
+        <section class="timeline-card paper-card">
+          <div class="section-heading compact"><div><span class="eyebrow">Histoire</span><h3>Timeline</h3></div><button id="timelineFilter" class="text-btn">Événements majeurs</button></div>
+          <div id="timeline" class="timeline"></div>
+        </section>
+
+        <div class="advance-dock"><button id="advanceBtn" class="advance-btn"><span class="advance-icon">➤</span><span><strong>AVANCER</strong><small id="advanceHint">Le moteur choisit la durée adaptée</small></span></button></div>
+      </section>
+
+      <section id="characterPanel" class="tab-panel" data-panel="character">
+        <section class="paper-card"><span class="eyebrow">Personnage</span><h2>Identité & carrière</h2><div id="identityGrid" class="info-grid"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Carrière</span><h3>Situation professionnelle</h3></div></div><div id="careerCard" class="career-card"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Ambition</span><h3>Direction personnelle</h3></div><span class="badge">Dynamique</span></div><div id="ambitionCard" class="career-card"></div><div id="ambitionOptions" class="action-grid ambition-grid"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Missions</span><h3>Opportunités actuelles</h3></div><span class="badge">Contexte réel</span></div><div id="missionBoard" class="mission-grid"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Orientation</span><h3>Activité principale</h3></div><span class="badge">Influence AVANCER</span></div><div id="activityOptions" class="action-grid"></div></section>
+        <section id="crewSection" class="paper-card hidden"><div class="section-heading compact"><div><span class="eyebrow">Équipage</span><h3 id="crewName">Aucun équipage</h3></div><span id="crewMorale" class="badge"></span></div><div id="crewDetails"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Équipement</span><h3>Inventaire</h3></div></div><div id="equipmentList" class="chip-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Sauvegarde</span><h3>Transfert & sécurité</h3></div><span id="storageStatus" class="badge">Autosave</span></div><p class="helper-text">L’autosave reste actif. Sur iPhone, tu peux aussi copier une sauvegarde texte pour la conserver ailleurs.</p><div class="action-grid"><button id="exportSaveBtn" class="action-card"><strong>Exporter</strong><small>Copier une sauvegarde portable</small></button><button id="importSaveBtn" class="action-card"><strong>Importer</strong><small>Restaurer une sauvegarde texte</small></button></div></section>
+      </section>
+
+      <section id="abilitiesPanel" class="tab-panel" data-panel="abilities">
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Capacités</span><h2>Attributs physiques & mentaux</h2></div><span id="powerEstimate" class="badge"></span></div><div id="statsList" class="stats-list"></div></section>
+        <section class="paper-card"><span class="eyebrow">Compétences</span><h3>Maîtrises</h3><div id="skillsList" class="stats-list"></div></section>
+        <section class="paper-card split-card"><div><span class="eyebrow">Haki</span><h3>Éveils</h3><div id="hakiList" class="ability-list"></div></div><div><span class="eyebrow">Fruit</span><h3>Fruit du démon</h3><div id="fruitCard" class="fruit-card"></div></div></section>
+        <section class="paper-card"><span class="eyebrow">Combat</span><h3>Style actuel</h3><div id="combatStyleCard" class="career-card"></div></section>
+      </section>
+
+      <section id="relationsPanel" class="tab-panel" data-panel="relations"><section class="paper-card"><span class="eyebrow">Relations</span><h2>Personnes importantes</h2><div id="relationsList" class="relations-list"></div></section></section>
+
+      <section id="worldPanel" class="tab-panel" data-panel="world">
+        <section class="paper-card world-hero"><span class="eyebrow">Monde vivant</span><h2 id="worldHeadline">Grande Ère de la Piraterie</h2><p id="worldSubhead"></p><div id="worldMeta" class="feature-pills"></div></section>
+        <section class="paper-card location-card"><div class="section-heading compact"><div><span class="eyebrow">Zone actuelle</span><h3 id="placeName">Lieu</h3></div><span id="placeDanger" class="badge"></span></div><p id="placeDescription" class="helper-text"></p><div id="placeTags" class="chip-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Exploration</span><h3>Routes maritimes</h3></div><span id="travelStatus" class="badge"></span></div><div id="travelOptions" class="action-grid"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Carte du monde</span><h3>Régions connues</h3></div><span class="badge">Progression géographique</span></div><div id="regionMap" class="region-grid"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Présences régionales</span><h3>Acteurs repérés</h3></div></div><div id="localActors" class="actor-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Puissances</span><h3>Équilibre des factions</h3></div></div><div id="factionOverview" class="faction-grid"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Pressions régionales</span><h3 id="regionTitle">East Blue</h3></div></div><div id="pressureBars" class="stats-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Actualités</span><h3>Journal du monde</h3></div></div><div id="worldNews" class="news-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Canon dynamique</span><h3>Événements historiques</h3></div><span id="divergenceBadge" class="badge"></span></div><div id="canonList" class="canon-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Codex</span><h3>Découvertes</h3></div></div><div id="codexList" class="chip-list"></div></section>
+      </section>
+
+      <section id="developerPanel" class="dev-panel hidden"><div class="dev-head"><strong>Mode développeur</strong><button id="closeDev" class="icon-btn">×</button></div><pre id="devOutput"></pre></section>
+    </section>
+  </main>
+
+  <nav id="bottomNav" class="bottom-nav hidden" aria-label="Navigation principale">
+    <button class="nav-item active" data-tab="life"><span>⌁</span><small>Vie</small></button>
+    <button class="nav-item" data-tab="character"><span>◉</span><small>Personnage</small></button>
+    <button class="nav-item" data-tab="abilities"><span>✦</span><small>Capacités</small></button>
+    <button class="nav-item" data-tab="relations"><span>♟</span><small>Relations</small></button>
+    <button class="nav-item" data-tab="world"><span>◎</span><small>Monde</small></button>
+  </nav>
+</div>
+
+<div id="decisionModal" class="modal-backdrop hidden" role="dialog" aria-modal="true"><div class="modal-card"><span class="eyebrow">Décision</span><h3 id="decisionTitle">Une décision t’attend</h3><p id="decisionText"></p><div id="decisionChoices" class="decision-choices"></div></div></div>
+<div id="deathModal" class="modal-backdrop hidden" role="dialog" aria-modal="true"><div class="modal-card death-card"><span class="eyebrow">Bilan de vie</span><h2 id="deathTitle">Ta vie s’achève</h2><div id="deathSummary" class="death-summary"></div><button id="deathNewBtn" class="primary-btn">Nouvelle vie sur cet emplacement</button><button id="deathHomeBtn" class="secondary-btn" style="margin-top:8px">Retour aux sauvegardes</button></div></div>
+<div id="backupModal" class="modal-backdrop hidden" role="dialog" aria-modal="true"><div class="modal-card"><span class="eyebrow">Sauvegarde portable</span><h3 id="backupTitle">Exporter</h3><p id="backupHelp" class="helper-text"></p><textarea id="backupText" class="backup-text" spellcheck="false"></textarea><div class="modal-actions"><button id="backupPrimaryBtn" class="primary-btn">Copier</button><button id="backupCloseBtn" class="secondary-btn">Fermer</button></div></div></div>
+<div id="toast" class="toast hidden"></div>
+<script src="app.js"></script>
+</body>
+</html>
