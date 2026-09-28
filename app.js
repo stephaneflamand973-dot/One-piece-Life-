@@ -82,7 +82,7 @@ function makeWorldCrew(g,i){
 }
 function initLivingWorld(g,w){
  w.factions=w.factions||{};if(w.factions.Civil==null)w.factions.Civil=62;if(w.factions['Chasseur de primes']==null)w.factions['Chasseur de primes']=44;
- w.diplomacy=w.diplomacy||initDiplomacy();w.territories=w.territories||{};Object.keys(PL).forEach(function(n){if(!w.territories[n])w.territories[n]=territorySeed(g,n)});
+ w.diplomacy=w.diplomacy||initDiplomacy();w.pressures=w.pressures||{};REG.forEach(function(r){if(!w.pressures[r])w.pressures[r]={Piraterie:20+det(g,'pressure:p:'+r)*25,Marine:30+det(g,'pressure:m:'+r)*35,Criminalité:15+det(g,'pressure:c:'+r)*30,Révolution:5+det(g,'pressure:r:'+r)*20,Prospérité:40+det(g,'pressure:o:'+r)*35,Instabilité:10+det(g,'pressure:i:'+r)*25}});w.territories=w.territories||{};Object.keys(PL).forEach(function(n){if(!w.territories[n])w.territories[n]=territorySeed(g,n)});
  w.actors=w.actors||ACTOR_TEMPLATES.map(function(a,i){return{name:a.name,faction:a.faction,region:a.region,base:a.base,peak:a.peak,growth:a.growth,importance:a.importance,goal:a.goal,status:'active',woundMonths:0,influence:Math.round(60+det(g,'actor:i:'+i)*35),actions:0}});
  w.crews=w.crews||Array.from({length:10},function(_,i){return makeWorldCrew(g,i)});
  w.conflicts=w.conflicts||[];w.worldHistory=w.worldHistory||[];w.simRemainder=w.simRemainder||0;w.nextCrewId=w.nextCrewId||w.crews.length;w.globalTension=w.globalTension==null?34:w.globalTension;
@@ -303,7 +303,6 @@ function simulateDiplomacy(){
 }
 function worldMonthStep(){simulateTerritories();simulateCrews();simulateActors();simulateConflicts();simulateDiplomacy();var w=game.world;w.globalTension=cl(w.globalTension+(R('world')-.5)*2,0,100);REG.forEach(function(r){var rp=w.pressures[r];if(!rp)return;Object.keys(rp).forEach(function(k){rp[k]=cl(rp[k]+(R('world')-.5)*2.2,0,100)})})}
 function world(m){var w=game.world;w.month+=m;w.simRemainder=(w.simRemainder||0)+m;while(w.simRemainder>=1){w.simRemainder-=1;worldMonthStep()}while(w.month>=12){w.month-=12;w.year++;if(R('world')<.55)news('Bilan annuel',pk(['La Marine réorganise plusieurs bases.','De nouveaux équipages se font un nom.','Des réseaux clandestins gagnent du terrain.','Plusieurs routes commerciales changent de mains.'],'world'),'')}w.canon.forEach(function(c){if(c[2]==='future'&&w.year>=c[1]){c[2]=w.divergence>70&&R('world')<.4?'modified':'completed';tl(c[0],c[2]==='modified'?'Le monde diverge fortement.':'Un événement historique a lieu.','canon')}})}
-}
 function event(m){if(R('e')>.18+m*.02)return;var p=game.player,x=pk(['relation','money','danger','meet','haki','fruit','crew'],'e');
  if(x==='relation'){var n=pk(['Mira','Doran','Seline','Rook','Nessa','Toma'],'r'),r={name:n,role:pk(['ami','rival','mentor','collègue'],'r'),affection:30+R('r')*50,respect:25+R('r')*55,trust:20+R('r')*55};game.relations.push(r);tl('Nouvelle rencontre',n+' devient '+r.role+'.','major')}
  else if(x==='money'){var z=1000+Math.floor(R('e')*12000);p.money+=z;tl('Bonne affaire','Tu gagnes '+z.toLocaleString('fr-FR')+' B.')}
