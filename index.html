@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ONE PIECE LIFE" />
   <meta name="description" content="ONE PIECE LIFE, simulateur mobile-first de destin, carrière et aventure dans un monde pirate vivant." />
-  <title>ONE PIECE LIFE — V0.5</title>
+  <title>ONE PIECE LIFE — V0.6</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="styles.css" />
@@ -28,10 +28,10 @@
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V0.5 • World Expansion • iPhone & PWA</span>
+        <span class="eyebrow">V0.6 • Combat & Powers • iPhone & PWA</span>
         <h2>Une vie. Un monde qui n’attend pas ton arrivée.</h2>
-        <p>Tu nais au début de la Grande Ère de la Piraterie. La V0.5 ajoute des routes maritimes persistantes, des régions réellement distinctes, des voyages simulés, davantage d’acteurs du monde et de nouvelles voies de faction.</p>
-        <div class="feature-pills"><span>RNG seedé</span><span>Routes maritimes</span><span>6 régions</span><span>Autosave</span></div>
+        <p>Tu nais au début de la Grande Ère de la Piraterie. La V0.6 approfondit les combats, les techniques, le Haki et les Fruits du démon tout en conservant le monde vivant et les routes maritimes de la V0.5.</p>
+        <div class="feature-pills"><span>RNG seedé</span><span>Combat tactique</span><span>Haki évolutif</span><span>Autosave</span></div>
       </section>
 
       <section id="localFileWarning" class="paper-card compatibility-card">
@@ -121,7 +121,11 @@
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Capacités</span><h2>Attributs physiques & mentaux</h2></div><span id="powerEstimate" class="badge"></span></div><div id="statsList" class="stats-list"></div></section>
         <section class="paper-card"><span class="eyebrow">Compétences</span><h3>Maîtrises</h3><div id="skillsList" class="stats-list"></div></section>
         <section class="paper-card split-card"><div><span class="eyebrow">Haki</span><h3>Éveils</h3><div id="hakiList" class="ability-list"></div></div><div><span class="eyebrow">Fruit</span><h3>Fruit du démon</h3><div id="fruitCard" class="fruit-card"></div></div></section>
-        <section class="paper-card"><span class="eyebrow">Combat</span><h3>Style actuel</h3><div id="combatStyleCard" class="career-card"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Techniques</span><h3>Répertoire de combat</h3></div><span id="techniqueCount" class="badge"></span></div><div id="techniqueList" class="technique-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Haki</span><h3>Applications maîtrisées</h3></div></div><div id="hakiApplications" class="ability-list"></div></section>
+        <section class="paper-card"><span class="eyebrow">Fruit du démon</span><h3>Maîtrise du pouvoir</h3><div id="fruitMasteryCard" class="career-card"></div></section>
+        <section class="paper-card"><span class="eyebrow">Combat</span><h3>Style actuel</h3><div id="combatStyleCard" class="career-card"></div><div id="combatActions" class="action-grid combat-actions"></div></section>
+        <section id="combatReportSection" class="paper-card hidden"><div class="section-heading compact"><div><span class="eyebrow">Dernier affrontement</span><h3>Rapport de combat</h3></div><span id="combatOutcome" class="badge"></span></div><div id="combatReport" class="combat-report"></div></section>
       </section>
 
       <section id="relationsPanel" class="tab-panel" data-panel="relations"><section class="paper-card"><span class="eyebrow">Relations</span><h2>Personnes importantes</h2><div id="relationsList" class="relations-list"></div></section></section>
