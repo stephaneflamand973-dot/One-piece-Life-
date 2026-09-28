@@ -1,189 +1,209 @@
-# ONE PIECE LIFE — V1.4 Wars, Alliances & Grand Strategy
+# ONE PIECE LIFE — V1.5 Economy, Trade & Black Market
 
 Simulateur mobile-first de vie, carrière, aventure et héritage dans un monde One Piece vivant.
 
-## V1.4 — Wars, Alliances & Grand Strategy
+## V1.5 — Economy, Trade & Black Market
 
-La V1.4 transforme les anciens conflits locaux en véritables campagnes stratégiques persistantes.
+La V1.5 ajoute une économie mondiale persistante reliée aux voyages, guerres, domaines, organisations et systèmes judiciaires.
 
-### Guerres persistantes
+### Marchés locaux
 
-Une guerre possède désormais :
+Chaque lieu possède désormais son propre marché avec :
 
-- attaquant principal ;
-- défenseur principal ;
-- coalition attaquante ;
-- coalition défensive ;
-- objectif ;
-- territoire cible ;
-- région principale ;
-- durée ;
-- score de guerre ;
-- fatigue des deux camps ;
-- fronts actifs ;
-- historique des batailles ;
-- résultat final.
+- stock ;
+- demande ;
+- activité commerciale ;
+- prix locaux ;
+- éventuelle pénurie ;
+- éventuel blocus.
 
-Les conflits locaux V0.8 deviennent des fronts à l'intérieur de ces guerres.
+Les prix ne sont pas globaux.
 
-### Plusieurs fronts
+Ils dépendent notamment :
 
-Une campagne peut générer plusieurs affrontements dans une même région.
+- de la région ;
+- de l'offre et de la demande ;
+- de la stabilité du territoire ;
+- de la prospérité ;
+- de l'instabilité ;
+- de la criminalité ;
+- des conflits ;
+- des guerres et blocus.
 
-Chaque bataille influence :
+### Marchandises
 
-- score de guerre ;
-- fatigue ;
-- contrôle territorial ;
+Le système initial contient :
+
+- provisions ;
+- médicaments ;
+- matériaux ;
+- produits de luxe ;
+- armes ;
+- Dials ;
+- Kairouseki.
+
+Les Dials sont des biens exotiques mais légaux.
+
+Les armes et le Kairouseki passent par les circuits clandestins dans le système de jeu.
+
+### Spécialisation régionale
+
+Chaque région dispose de profils économiques différents.
+
+Exemples :
+
+- certaines Blues produisent plus facilement nourriture ou matériaux ;
+- Grand Line bénéficie d'un meilleur accès aux Dials ;
+- le Nouveau Monde dispose d'un meilleur accès au Kairouseki ;
+- les zones dangereuses et instables paient généralement plus cher les biens essentiels.
+
+Skypiea reçoit un bonus structurel de production de Dials.
+
+Wano reçoit un bonus structurel de disponibilité du Kairouseki.
+
+### Cargaison
+
+Le personnage possède maintenant une cargaison persistante.
+
+Chaque marchandise conserve :
+
+- quantité ;
+- coût moyen d'achat ;
+- poids ;
+- valeur comptable.
+
+La capacité dépend :
+
+- du personnage ;
+- de la Navigation ;
+- surtout du navire de l'organisation lorsqu'il existe.
+
+Un navire chargé ralentit légèrement les voyages.
+
+### Commerce
+
+Le joueur peut acheter et vendre directement dans les ports.
+
+Le moteur suit :
+
+- volume échangé ;
+- nombre de transactions ;
+- profit commercial cumulé ;
+- meilleur profit ;
+- cargaison actuelle.
+
+Les personnages civils gagnent également un peu de progression de carrière lors des opérations commerciales réellement rentables.
+
+### Routes commerciales
+
+Les routes maritimes voisines affichent les écarts commerciaux les plus intéressants.
+
+Le moteur compare les prix actuels entre les ports connectés.
+
+Les flux autonomes transportent également des marchandises entre marchés lorsqu'un écart de prix devient important.
+
+Ces échanges tendent progressivement à réduire les écarts.
+
+### Blocus
+
+Un conflit intense ou une guerre visant directement une île peut provoquer un blocus économique.
+
+Conséquences :
+
+- hausse immédiate des prix ;
+- baisse des stocks ;
+- augmentation de la demande de biens essentiels ;
+- interruption des flux commerciaux autonomes ;
+- réduction des revenus territoriaux.
+
+Les guerres V1.4 ont donc maintenant une conséquence économique concrète.
+
+### Pénuries et chocs
+
+Chaque mois, les marchés évoluent.
+
+Des événements rares peuvent créer :
+
+- pénurie ;
+- arrivage exceptionnel.
+
+Ils apparaissent dans les actualités du monde.
+
+L'interface affiche également :
+
+- indice des prix local ;
+- indice mondial ;
+- nombre de pénuries ;
+- prospérité régionale ;
+- activité commerciale.
+
+### Logistique des organisations
+
+Le bouton de ravitaillement V1.1 n'utilise plus un tarif fixe arbitraire.
+
+Le coût dépend désormais du véritable prix des provisions dans le port actuel.
+
+Il faut également que le marché local dispose réellement du stock nécessaire.
+
+Une organisation en guerre dans une région en pénurie peut donc rencontrer de vrais problèmes logistiques.
+
+### Entreprises et domaines
+
+Les revenus d'une activité commerciale personnelle dépendent maintenant de la prospérité locale et peuvent chuter sous blocus.
+
+Les revenus des domaines V1.3 utilisent également :
+
 - stabilité ;
-- tension mondiale.
+- activité commerciale locale ;
+- état de blocus.
 
-Une victoire locale ne termine donc plus automatiquement une guerre.
+Un territoire riche et connecté vaut donc davantage qu'une île ruinée par une guerre.
 
-### Score de guerre
+### Marché noir
 
-Le score varie entre un avantage défensif et un avantage offensif.
+Le marché noir peut devenir accessible selon :
 
-Une bataille sur l'objectif principal pèse davantage.
+- faction ;
+- Discrétion ;
+- niveau de criminalité régional.
 
-Les guerres peuvent se terminer par :
+Les transactions clandestines comportent un risque d'identification.
 
-- victoire de l'attaquant ;
-- victoire du défenseur ;
-- paix négociée.
+Une opération découverte utilise directement le système judiciaire V1.2.
 
-### Fatigue de guerre
+### Contrebande maritime
 
-Les deux camps accumulent progressivement de la fatigue.
+Transporter une cargaison interdite entre deux ports crée maintenant un véritable risque douanier.
 
-Une guerre prolongée devient donc difficile à maintenir, même sans victoire militaire totale.
+À l'arrivée, le contrôle dépend notamment :
 
-### Conditions de paix
+- de la présence Marine ;
+- du contrôleur du territoire ;
+- de la chaleur judiciaire ;
+- de la Discrétion du personnage.
 
-La fin de guerre peut :
+Une interception peut entraîner :
 
-- confirmer une conquête ;
-- restaurer un territoire ;
-- faire perdre un domaine personnel ;
-- réduire la tension mondiale ;
-- créer une trêve temporaire.
+- saisie de la cargaison ;
+- amende ;
+- crime enregistré ;
+- hausse de chaleur ;
+- nouvelle prime.
 
-### Trêves
+Un passage réussi améliore légèrement la Discrétion et alimente les statistiques de contrebande.
 
-Une guerre terminée crée automatiquement une période de trêve.
-
-La même paire de factions ne peut pas immédiatement relancer une campagne comme si les soldats avaient simplement oublié qu'ils venaient de combattre pendant huit mois.
-
-### Alliances
-
-La V1.4 introduit des traités persistants.
-
-Le lien Marine ↔ Gouvernement est représenté comme une alliance structurelle.
-
-D'autres alliances peuvent émerger lorsque les relations diplomatiques deviennent suffisamment fortes.
-
-Lorsqu'une guerre commence, les alliés compatibles peuvent rejoindre une coalition.
-
-Le moteur empêche désormais un même allié d'apparaître simultanément dans les deux camps.
-
-### Guerres autonomes
-
-Le monde peut déclencher une guerre sans intervention du joueur lorsque :
-
-- la tension mondiale est élevée ;
-- deux factions sont extrêmement hostiles ;
-- aucune trêve n'est active ;
-- aucune guerre ne les oppose déjà.
-
-### Campagnes du joueur
-
-Un chef d'organisation suffisamment influent peut lancer une guerre territoriale.
-
-Conditions principales :
-
-- adulte ;
-- libre ;
-- chef de son organisation ;
-- influence élevée ;
-- organisation puissante ;
-- faction capable de mener une guerre ;
-- cible hostile dans la région ;
-- aucune trêve active.
-
-Une campagne coûte :
-
-- 30 000 B ;
-- 12% de provisions ;
-- une action stratégique.
-
-### Soutien stratégique
-
-Si ton camp participe à une guerre, tu peux engager des ressources pour influencer son score.
-
-Le soutien coûte de l'argent et des provisions.
-
-La puissance de l'organisation et l'influence du joueur déterminent l'impact.
-
-### Intervention directe
-
-Si un front de guerre existe dans ta région, tu peux rejoindre directement le combat.
-
-Le résultat personnel influence alors le score stratégique du conflit.
-
-### Négociation
-
-Après plusieurs mois de guerre, un personnage très influent peut proposer une paix.
-
-Les chances dépendent notamment :
-
-- fatigue des camps ;
-- équilibre du score ;
-- influence personnelle.
-
-Une tentative peut être rejetée.
-
-### Pirates et guerres
-
-La faction Pirates reste décentralisée.
-
-Un personnage pirate n'est pas automatiquement considéré comme engagé dans chaque guerre impliquant des pirates ailleurs dans le monde.
-
-Il devient directement impliqué si :
-
-- il a lancé la campagne ;
-- son propre domaine est visé.
-
-### Domaines V1.3
-
-Les domaines participent maintenant réellement aux guerres.
-
-Leur défense tient compte de :
-
-- contrôle local ;
-- organisation du joueur ;
-- forces affiliées présentes dans la région.
-
-Une défaite militaire ou une paix défavorable peut faire perdre un domaine.
-
-### Achievements V1.4
+### Achievements V1.5
 
 Deux nouveaux achievements :
 
-- **Tambours de guerre** : lancer sa première campagne stratégique ;
-- **Stratège des mers** : remporter trois guerres impliquant son camp.
-
-## Correction de stabilité
-
-La V1.4 corrige également une régression de sélecteurs dynamiques apparue lors de la V1.3.
-
-Le validateur bloque désormais :
-
-- l'utilisation de `$().forEach` sur une liste ;
-- toute occurrence accidentelle de `$$$()`.
+- **Marchand des mers** : cumuler 100 000 B de profit commercial ;
+- **Sous le nez de la Marine** : réussir trois passages de contrebande.
 
 ## Systèmes conservés
 
-V1.3 : influence, titres, domaines, revenus territoriaux et réseaux affiliés.
+V1.4 : guerres, fronts, coalitions, trêves et campagnes.
+
+V1.3 : influence, titres, domaines et réseaux affiliés.
 
 V1.2 : primes, poursuites, prison, évasion et chasse aux primes.
 
@@ -191,15 +211,28 @@ V1.1 : organisations, équipages, membres, navires et commandement.
 
 V1.0 : canon causal, content pack et Fruits persistants.
 
-V0.9 : relations, famille, économie et héritage.
-
-V0.8 : monde autonome, territoires, conflits et diplomatie.
+V0.9 : relations, famille, économie personnelle et héritage.
 
 ## Sauvegardes
 
-Les sauvegardes V0.5 à V1.3 sont migrées automatiquement vers V1.4.
+Les sauvegardes V0.5 à V1.4 sont migrées automatiquement vers V1.5.
 
-La migration interne passe à la version 14.
+La migration interne passe à la version 15.
+
+## Validation
+
+Chaque push vérifie notamment :
+
+- syntaxe du moteur ;
+- interface ;
+- migration V1.5 ;
+- marchés mondiaux ;
+- cargaison ;
+- commerce ;
+- marché noir ;
+- contrebande ;
+- sélecteurs dynamiques ;
+- content pack canonique.
 
 ## iPhone / PWA
 
