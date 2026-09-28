@@ -1,55 +1,44 @@
-# ONE PIECE LIFE — V0.5 World Expansion
+# ONE PIECE LIFE — V0.6 Combat & Powers
 
-Prototype mobile-first d’un life simulator procédural dans un monde pirate vivant.
+Prototype mobile-first d’un simulateur procédural de vie, carrière et aventure dans un monde pirate vivant.
 
-## V0.5 — World Expansion
+## V0.6 — Combat & Powers
 
-Cette version transforme l’exploration en système persistant plutôt qu’en téléportation entre menus.
+La V0.6 conserve la World Expansion et approfondit les systèmes de puissance :
 
-- réseau de routes maritimes entre les lieux ;
-- voyages qui consomment réellement du temps ;
-- incidents possibles pendant une traversée ;
-- 6 grandes régions simulées séparément ;
-- pressions régionales distinctes : piraterie, Marine, criminalité, révolution, prospérité et instabilité ;
-- davantage de lieux de Grand Line et du Nouveau Monde ;
-- carte de progression géographique ;
-- acteurs canoniques dotés d’une région dynamique ;
-- équipages procéduraux régionaux ;
-- vue des principales puissances mondiales ;
-- nouvelles fenêtres d’événements canoniques ;
-- carrières Révolutionnaires et Gouvernement / Cipher Pol ;
-- missions propres à ces deux nouvelles voies ;
-- migration automatique des sauvegardes V0.4 vers V0.5 ;
-- compatibilité iPhone/PWA conservée ;
-- déploiement GitHub Pages automatisé.
+- moteur de combat multidimensionnel ;
+- styles et matchups ;
+- influence du terrain ;
+- techniques débloquées par niveau réel de compétence ;
+- maîtrise progressive des techniques ;
+- Haki d’Observation, Armement et Conquérant indépendants ;
+- applications avancées du Haki selon la maîtrise ;
+- entraînements spécifiques du Haki ;
+- Fruits du démon avec maîtrise 0–100 ;
+- possibilité d’éveil du Fruit à très haute maîtrise ;
+- Fruits trouvés physiquement : manger, conserver ou vendre ;
+- registre mondial de l’état des Fruits ;
+- blessures persistantes de gravité variable ;
+- santé et énergie influençant les combats ;
+- rapport détaillé du dernier affrontement ;
+- défis locaux cohérents avec le danger de la zone ;
+- migration automatique des sauvegardes V0.5 vers V0.6 ;
+- PWA iPhone et autosave local conservés.
 
-## Tester avec GitHub Pages
+## Monde
 
-Le dépôt contient un workflow `.github/workflows/pages.yml`.
+La V0.5 reste intégrée : routes maritimes, voyages réels, six régions, pressions régionales, acteurs canoniques, factions, missions et canon dynamique.
 
-Après publication sur GitHub :
+## Tester
 
-1. ouvrir **Settings → Pages** ;
-2. dans **Build and deployment**, choisir **GitHub Actions** ;
-3. pousser sur la branche `main` ;
-4. l’action publie automatiquement le site ;
-5. ouvrir l’URL GitHub Pages dans Safari sur iPhone ;
-6. **Partager → Sur l’écran d’accueil → Ouvrir comme app web**.
+Le site est publié automatiquement par GitHub Pages à chaque push sur `main`.
 
-Aucun build npm n’est nécessaire. Le projet est un site statique HTML/CSS/JavaScript.
-
-## Lancement local
-
-```bash
-python -m http.server 8000
-```
-
-Puis ouvrir `http://localhost:8000`.
+Sur iPhone : ouvrir l’URL dans Safari → **Partager → Sur l’écran d’accueil → Ouvrir comme app web**.
 
 ## Sauvegardes
 
-Trois emplacements locaux sont disponibles. IndexedDB est utilisé en priorité, avec repli vers `localStorage`. Les sauvegardes peuvent également être exportées et réimportées sous forme de texte portable.
+Trois emplacements locaux. Les anciennes sauvegardes V0.5 sont migrées au chargement. Export/import texte toujours disponible.
 
-## Note fan project
+## Note
 
-Ce prototype n’embarque pas d’images, musiques ou autres assets officiels de l’œuvre. L’interface et les éléments graphiques sont originaux. Les noms et références d’univers servent uniquement au prototype de simulation fan-made.
+Projet fan-made expérimental. Aucun asset officiel de l’œuvre n’est embarqué dans le dépôt.
