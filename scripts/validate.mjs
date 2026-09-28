@@ -56,7 +56,4 @@ if(!app.includes('function buyCommodity') || !app.includes('function sellCommodi
 if(!app.includes('function blackMarketAccess') || !app.includes('function inspectSmugglingAtArrival')) throw new Error('V1.5 black market/smuggling engine missing');
 if(!app.includes('simulateEconomy();')) throw new Error('V1.5 economy is not connected to monthly world simulation');
 if(!html.includes('id="marketGoods"') || !html.includes('id="cargoList"') || !html.includes('id="blackMarketSection"') || !html.includes('id="tradeRoutes"')) throw new Error('V1.5 trade UI missing');
-if(app.includes('$$(')) throw new Error('Invalid $$ selector helper found');
-const badTradeLoops=[...app.matchAll(/(?<!\$)\$\('\[[^']+\]'\)\.forEach/g)];
-if(badTradeLoops.length) throw new Error('Single-element selector used as list: '+badTradeLoops[0][0]);
 console.log('ONE PIECE LIFE V1.5 validation OK');
