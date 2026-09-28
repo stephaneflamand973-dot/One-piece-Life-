@@ -1,172 +1,178 @@
-# ONE PIECE LIFE — V1.2 Bounties, Justice & Pursuit
+# ONE PIECE LIFE — V1.3 Influence, Titles & Territories
 
 Simulateur mobile-first de vie, carrière, aventure et héritage dans un monde One Piece vivant.
 
-## V1.2 — Bounties, Justice & Pursuit
+## V1.3 — Influence, Titles & Territories
 
-La V1.2 transforme les primes et les autorités en systèmes actifs et persistants.
+La V1.3 transforme la réputation accumulée en pouvoir réel sur le monde.
 
-### Prime mondiale et chaleur locale
+### Influence mondiale
 
-Deux valeurs sont désormais séparées :
+Le personnage possède maintenant trois dimensions distinctes :
 
-- **prime mondiale** : suit le personnage à travers le monde ;
-- **chaleur régionale** : mesure l'intensité des recherches dans chaque mer.
+- **renommée** : réputation positive, exploits, victoires, achievements et carrière ;
+- **infamie** : prime, crimes attribués, évasions et conquêtes ;
+- **influence** : synthèse de la puissance, de la réputation, du rang, de l'organisation, des territoires et du réseau.
 
-Une opération peut donc provoquer une forte chasse locale avant même que la prime mondiale n'explose.
+L'image publique peut évoluer entre discret, connu, admiré, redouté ou incontournable.
 
-### Crimes
+### Titres dynamiques
 
-Le moteur enregistre désormais notamment :
+Les titres ne sont pas choisis manuellement.
 
-- nature du crime ;
-- gravité ;
-- lieu ;
-- région ;
-- date ;
-- présence ou non de témoins.
+Ils apparaissent lorsque les conditions du monde et du personnage sont réellement remplies.
 
-La probabilité d'identification dépend du contrôle local, de la présence de la Marine et de la Discrétion du personnage.
+Exemples :
 
-Certaines missions pirates ou révolutionnaires génèrent automatiquement des incidents judiciaires cohérents.
+- Nom montant ;
+- Figure des mers ;
+- Supernova ;
+- Capitaine du Nouveau Monde ;
+- Seigneur pirate ;
+- Officier renommé ;
+- Candidat au haut commandement ;
+- Cadre de la Révolution ;
+- Agent d'élite ;
+- Chasseur renommé ;
+- Légende des primes ;
+- Magnat des mers ;
+- Puissance du Nouveau Monde.
 
-### Avis de recherche
+Le titre principal correspond au dernier statut important reconnu par le monde.
 
-Le statut peut évoluer entre :
+### Empereur des mers
 
-- Aucun avis ;
-- Surveillé ;
-- Recherché ;
-- Priorité Marine ;
-- Menace majeure.
+Le titre d'Empereur n'est pas une simple barre d'XP.
 
-La prime maximale historique reste conservée séparément.
+Il nécessite notamment :
 
-### Poursuites
+- une partie suffisamment avancée ;
+- une divergence mondiale réelle ;
+- plusieurs territoires ;
+- plusieurs équipages affiliés ;
+- une prime extrêmement élevée ;
+- une puissance de combat exceptionnelle ;
+- une influence mondiale proche du maximum.
 
-Les autorités utilisent désormais :
+Même lorsque toutes les conditions sont réunies, la reconnaissance se produit comme un événement mondial plutôt que comme une promotion administrative.
 
-- prime ;
-- chaleur régionale ;
-- pression Marine de la région ;
-- contrôle du territoire ;
-- danger local.
+### Domaines
 
-Une poursuite peut être déclenchée pendant l'écoulement normal du temps.
+Un chef d'organisation suffisamment influent peut établir une présence durable sur l'île où il se trouve.
 
-Résultats possibles :
+La forme dépend de la faction :
 
-- fuite réussie ;
-- nouvelles accusations ;
-- blessures ;
-- capture ;
-- mort dans les cas extrêmes.
+- Pirates : territoire sous protection ;
+- Marine : zone de commandement ;
+- Révolutionnaires : réseau révolutionnaire ;
+- Gouvernement : district administré ;
+- Chasseurs de primes : zone de chasse ;
+- Civils : comptoir commercial.
 
-### Arrestation et prison
+Une implantation pacifique est possible dans un environnement favorable.
 
-Une capture interrompt :
+Une implantation hostile peut exiger un combat contre les forces locales.
 
-- mission ;
-- voyage ;
-- activité normale.
+### Contrôle territorial
 
-La peine dépend notamment de la prime, de la chaleur locale et de la sécurité de la zone.
+Chaque domaine suit :
 
-Le monde continue néanmoins à évoluer pendant la détention :
+- niveau de contrôle ;
+- stabilité ;
+- faction associée ;
+- date d'établissement ;
+- revenus produits ;
+- état de conflit.
 
-- canon ;
-- guerres ;
-- territoires ;
-- équipages ;
-- générations ;
-- relations.
+Une zone mal contrôlée peut être perdue.
 
-### Évasion
+### Revenus territoriaux
 
-Un détenu peut tenter une évasion.
+Les domaines produisent des revenus en fonction de :
 
-Le calcul utilise notamment :
+- stabilité ;
+- prospérité régionale ;
+- danger local ;
+- niveau de contrôle.
 
-- Discrétion ;
-- Agilité ;
-- Réflexes ;
-- puissance ;
-- niveau de sécurité.
+Les revenus alimentent la caisse de l'organisation lorsqu'elle existe.
 
-Un échec :
+### Défense
 
-- prolonge la peine ;
-- peut blesser le personnage ;
-- augmente la surveillance.
+Un domaine bénéficie du soutien combiné :
 
-Une réussite :
+- de son niveau de contrôle ;
+- de l'organisation du joueur ;
+- des forces affiliées présentes dans la région.
 
-- remet le personnage en cavale ;
-- augmente fortement la chaleur ;
-- déclenche une nouvelle prime.
+Les conflits du monde vivant peuvent donc réellement renforcer ou détruire l'empire du joueur.
 
-### Reddition
+### Réseau pirate
 
-Un personnage recherché peut se rendre volontairement.
+Un capitaine pirate suffisamment influent peut convaincre certains équipages procéduraux de reconnaître son pavillon.
 
-La coopération réduit la durée de détention par rapport à une capture violente.
+Le succès dépend notamment :
 
-### Se faire oublier
+- de l'influence ;
+- de la renommée de l'organisation ;
+- de la puissance du joueur ;
+- de la prime ;
+- de la puissance de l'équipage ciblé.
 
-Une action de discrétion par période permet de diminuer progressivement la chaleur de la région actuelle.
+Les équipages restent autonomes dans le WorldState.
 
-La prime mondiale ne disparaît pas simplement parce que le personnage est resté discret quelques semaines.
+Ils peuvent voyager, combattre et même disparaître.
 
-### Chasse aux primes
+Un moral extrêmement faible peut aussi provoquer la rupture de l'alliance.
 
-Les chasseurs de primes disposent maintenant d'un tableau réel basé sur les équipages pirates procéduraux présents dans leur région.
+### Changement de faction
 
-Chaque cible possède :
+Les territoires ne suivent plus automatiquement un changement de camp.
 
-- nom ;
-- puissance ;
-- nombre de membres ;
-- prime ;
-- région.
+Une désertion entre factions hostiles réduit fortement le contrôle local.
 
-Une capture réussie :
+Les zones insuffisamment loyales peuvent être perdues.
 
-- retire l'équipage du monde actif ;
-- verse une récompense ;
-- donne de l'expérience de carrière ;
-- améliore la réputation auprès des autorités et civils ;
-- alimente les statistiques de chasseur.
+Les équipages pirates affiliés rompent leur lien si le joueur abandonne la piraterie.
 
-### Historique judiciaire
+### Héritage
 
-La fiche du personnage affiche maintenant ses derniers incidents et leur statut attribué ou non attribué.
+Les territoires et affiliations sont liés à la dynastie du monde plutôt qu'au simple nom du personnage.
 
-### Achievements V1.2
+Un héritier peut donc reprendre un monde dans lequel sa famille possède déjà une influence territoriale, sans hériter automatiquement des titres personnels de son parent.
 
-Deux nouveaux achievements :
+### Achievements V1.3
 
-- **Les murs ne suffisent pas** : réussir une évasion ;
-- **Chasseur confirmé** : capturer cinq cibles recherchées.
+Nouveaux achievements :
+
+- **Mon pavillon ici** : établir un premier domaine ;
+- **Puissance régionale** : contrôler trois zones ;
+- **Flotte sous influence** : rallier trois équipages ;
+- **Au sommet des mers** : être reconnu comme Empereur des mers.
+
+## Correction importante
+
+La V1.3 corrige également un ancien problème de liaison des boutons dynamiques : plusieurs listes utilisaient un sélecteur d'élément unique au lieu du sélecteur multiple.
+
+Le validateur vérifie désormais ce type d'erreur.
 
 ## Systèmes conservés
 
-V1.1 : organisations, membres, rôles, navires, commandement et logistique.
+V1.2 : primes, chaleur régionale, poursuites, prison, évasion et chasse aux primes.
+
+V1.1 : organisations, équipages, membres, navires et commandement.
 
 V1.0 : canon causal, content pack et Fruits persistants.
 
 V0.9 : relations, famille, économie et héritage.
 
-V0.8 : monde autonome, territoires, conflits et diplomatie.
-
-V0.7 : carrières, factions, rangs et spécialisations.
-
-V0.6 : combat, Haki, techniques, Fruits et blessures.
+V0.8 : monde autonome, territoires globaux, conflits et diplomatie.
 
 ## Sauvegardes
 
-Les sauvegardes V0.5 à V1.1 sont migrées automatiquement vers V1.2.
+Les sauvegardes V0.5 à V1.2 sont migrées automatiquement vers V1.3.
 
-La migration interne passe à la version 12.
+La migration interne passe à la version 13.
 
 ## iPhone / PWA
 
