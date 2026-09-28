@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ONE PIECE LIFE" />
   <meta name="description" content="ONE PIECE LIFE, simulateur mobile-first de destin, carrière et aventure dans un monde pirate vivant." />
-  <title>ONE PIECE LIFE — V0.7</title>
+  <title>ONE PIECE LIFE — V0.8</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="styles.css" />
@@ -28,10 +28,10 @@
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V0.7 • Careers & Factions • iPhone & PWA</span>
+        <span class="eyebrow">V0.8 • Living World • iPhone & PWA</span>
         <h2>Une vie. Un monde qui n’attend pas ton arrivée.</h2>
-        <p>Tu nais au début de la Grande Ère de la Piraterie. La V0.7 transforme chaque faction en véritable parcours de carrière : rangs, réputation interne, spécialisations, salaires, missions hiérarchisées, promotions et changements de voie.</p>
-        <div class="feature-pills"><span>RNG seedé</span><span>6 voies de carrière</span><span>Promotions</span><span>Autosave</span></div>
+        <p>Tu nais au début de la Grande Ère de la Piraterie. La V0.8 fait vivre le monde indépendamment du joueur : équipages autonomes, territoires, conflits, diplomatie et personnages majeurs poursuivent désormais leurs propres trajectoires.</p>
+        <div class="feature-pills"><span>RNG seedé</span><span>Monde autonome</span><span>Territoires dynamiques</span><span>Autosave</span></div>
       </section>
 
       <section id="localFileWarning" class="paper-card compatibility-card">
@@ -138,7 +138,12 @@
         <section class="paper-card location-card"><div class="section-heading compact"><div><span class="eyebrow">Zone actuelle</span><h3 id="placeName">Lieu</h3></div><span id="placeDanger" class="badge"></span></div><p id="placeDescription" class="helper-text"></p><div id="placeTags" class="chip-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Exploration</span><h3>Routes maritimes</h3></div><span id="travelStatus" class="badge"></span></div><div id="travelOptions" class="action-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Carte du monde</span><h3>Régions connues</h3></div><span class="badge">Progression géographique</span></div><div id="regionMap" class="region-grid"></div></section>
-        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Présences régionales</span><h3>Acteurs repérés</h3></div></div><div id="localActors" class="actor-list"></div></section>
+        <section class="paper-card world-pulse-card"><div class="section-heading compact"><div><span class="eyebrow">Simulation mondiale</span><h3>État du monde</h3></div><span id="worldPulseBadge" class="badge"></span></div><div id="worldPulse" class="world-pulse-grid"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Présences régionales</span><h3>Acteurs repérés</h3></div><span class="badge">Autonomes</span></div><div id="localActors" class="actor-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Territoires</span><h3>Contrôle des lieux connus</h3></div><span id="territoryBadge" class="badge"></span></div><div id="territoryList" class="territory-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Conflits</span><h3>Affrontements en cours</h3></div><span id="conflictBadge" class="badge"></span></div><div id="conflictList" class="conflict-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Équipages autonomes</span><h3>Forces émergentes</h3></div><span id="crewWorldBadge" class="badge"></span></div><div id="autonomousCrews" class="world-crew-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Diplomatie</span><h3>Relations entre puissances</h3></div></div><div id="diplomacyGrid" class="diplomacy-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Puissances</span><h3>Équilibre des factions</h3></div></div><div id="factionOverview" class="faction-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Pressions régionales</span><h3 id="regionTitle">East Blue</h3></div></div><div id="pressureBars" class="stats-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Actualités</span><h3>Journal du monde</h3></div></div><div id="worldNews" class="news-list"></div></section>
