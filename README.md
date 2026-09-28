@@ -1,47 +1,77 @@
-# ONE PIECE LIFE — V0.7 Careers & Factions
+# ONE PIECE LIFE — V0.8 Living World
 
 Prototype mobile-first d’un simulateur procédural de vie, carrière et aventure dans un monde pirate vivant.
 
-## V0.7 — Careers & Factions
+## V0.8 — Living World
 
-Cette version transforme les factions en véritables parcours de carrière.
+La V0.8 transforme l’état du monde en simulation persistante indépendante du joueur.
 
-### Systèmes de carrière
-- six voies principales : Civil, Marine, Pirates, chasseurs de primes, Révolutionnaires et Gouvernement Mondial ;
-- arbres de rangs propres à chaque voie ;
-- XP de carrière séparée de la puissance de combat ;
-- ancienneté, missions réussies et échecs suivis ;
-- promotions conditionnées par XP, réputation de faction et puissance ;
-- salaires institutionnels quand la faction en verse réellement ;
-- revenus à la mission pour pirates et chasseurs de primes ;
-- historique des changements de carrière.
+### Monde autonome
+- simulation mondiale mensuelle ;
+- équipages procéduraux qui naissent, se déplacent, gagnent en puissance et peuvent disparaître ;
+- personnages majeurs dotés d’un état, d’une localisation, d’un objectif et d’une activité autonome ;
+- déplacements des acteurs majeurs entre régions ;
+- blessures temporaires des personnages lors de confrontations importantes ;
+- disparition hors écran extrêmement protégée par l’importance causale et la divergence accumulée.
 
-### Spécialisations
-- Marine : combat, navigation, renseignement, médecine ;
-- Pirates : combattant, navigateur, tireur, médecin, quartier-maître ;
-- Chasseurs : traqueur, duelliste, tireur, investigateur ;
-- Révolutionnaires : combat, infiltration, renseignement, logistique ;
-- Gouvernement : administration, renseignement, Cipher Pol ;
-- Civils : marchand, médecin, navigateur, scientifique, artisan, cuisinier.
+### Territoires
+- chaque lieu possède désormais un contrôleur ;
+- influence et stabilité sont simulées séparément ;
+- les territoires peuvent devenir contestés ;
+- les conflits peuvent changer durablement le contrôle d’une île ;
+- les résultats sont conservés dans l’historique mondial.
 
-La spécialisation modifie les missions disponibles et certaines progressions. Une réorientation coûte une partie de l’XP de carrière.
+### Conflits
+- affrontements entre Marine, Gouvernement, Pirates, Révolutionnaires et autres forces ;
+- intensité et durée propres à chaque conflit ;
+- résolution basée sur la puissance globale, l’influence locale, les équipages impliqués et le RNG seedé ;
+- les conflits peuvent être générés par le monde ou provoqués indirectement par les actions du joueur.
 
-### Réputation de factions
-Chaque faction possède désormais sa propre opinion du personnage. Une mission peut améliorer une réputation et en détériorer une autre. Déserter la Marine ou le Gouvernement pour rejoindre les Pirates ou les Révolutionnaires peut créer une prime.
+### Diplomatie
+- relations persistantes entre grandes factions ;
+- alliances, coopération, neutralité, tension et hostilité ;
+- certaines oppositions fondamentales restent beaucoup plus stables ;
+- des évolutions diplomatiques peuvent apparaître dans les actualités mondiales.
 
-### Cipher Pol
-Le Cipher Pol n’est plus un simple bouton. Il nécessite des compétences minimales en combat et discrétion ainsi qu’une réputation suffisante auprès du Gouvernement. Sa carrière possède ensuite sa propre progression jusqu’au statut de candidat CP0.
+### Impact du joueur
+- les missions de carrière influencent désormais le territoire où elles se déroulent ;
+- une mission importante peut renforcer une faction, fragiliser un contrôle local ou déclencher un conflit ;
+- les interventions de haut niveau peuvent augmenter la divergence historique.
 
-### V0.6 conservée
-Le moteur de combat multidimensionnel, les techniques, le Haki, les Fruits du démon, les blessures persistantes et les rapports de combat restent intégrés.
+### Équipages autonomes
+Chaque équipage possède notamment :
+- faction ;
+- région ;
+- puissance ;
+- nombre de membres ;
+- moral ;
+- prime éventuelle ;
+- victoires / défaites ;
+- statut actif ou détruit.
 
-### Monde V0.5 conservé
-Routes maritimes, voyages, six régions, pressions régionales, acteurs canoniques, actualités et canon dynamique restent actifs.
+### Interface Monde
+La section Monde affiche maintenant :
+- tension globale ;
+- conflits actifs ;
+- territoires contestés ;
+- personnages présents dans la région ;
+- contrôleurs des lieux visités ;
+- équipages émergents ;
+- diplomatie entre factions ;
+- actualités produites par de vrais changements d’état.
 
-## Tester
+## Héritage des versions précédentes
 
-GitHub Pages déploie automatiquement chaque push sur `main`.
+V0.7 : carrières, rangs, spécialisations, salaires, réputation de faction et changements de voie.
 
-Sur iPhone : Safari → Partager → **Sur l’écran d’accueil** → **Ouvrir comme app web**.
+V0.6 : combat multidimensionnel, styles, techniques, Haki, Fruits du démon, blessures et rapports de combat.
 
-Les sauvegardes V0.5/V0.6 sont migrées automatiquement vers V0.7.
+V0.5 : routes maritimes, voyages, régions et canon dynamique.
+
+## Sauvegardes
+
+Les sauvegardes V0.5 à V0.7 sont migrées automatiquement vers V0.8.
+
+## Déploiement
+
+Chaque push sur `main` est validé puis publié sur GitHub Pages. Sur iPhone : Safari → Partager → **Sur l’écran d’accueil** → **Ouvrir comme app web**.
