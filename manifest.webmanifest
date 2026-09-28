@@ -1,0 +1,15 @@
+{
+  "name": "ONE PIECE LIFE",
+  "short_name": "OP LIFE",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f4ecd8",
+  "theme_color": "#f4ecd8",
+  "description": "Simulateur mobile-first de destin dans un monde pirate vivant.",
+  "icons": [
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
