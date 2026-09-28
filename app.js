@@ -167,7 +167,9 @@ var ACHIEVEMENTS=[
  {id:'domain',name:'Mon pavillon ici',desc:'Établir un premier domaine personnel.'},
  {id:'regional-power',name:'Puissance régionale',desc:'Contrôler au moins trois zones.'},
  {id:'fleet',name:'Flotte sous influence',desc:'Rallier trois équipages autonomes.'},
- {id:'emperor',name:'Au sommet des mers',desc:'Être reconnu comme Empereur des mers.'}
+ {id:'emperor',name:'Au sommet des mers',desc:'Être reconnu comme Empereur des mers.'},
+ {id:'campaign',name:'Tambours de guerre',desc:'Lancer une première campagne stratégique.'},
+ {id:'strategist',name:'Stratège des mers',desc:'Remporter trois guerres auxquelles ton camp a participé.'}
 ];
 function normalizeRelation(g,r,i){
  r=r||{};var base=H(String(g.seed||1)+':rel:'+String(r.name||i));
@@ -349,7 +351,7 @@ function achievementCondition(id){
  if(id==='newworld')return p.visited.some(function(x){return infStatic(x).region==='New World'});if(id==='haki')return Object.keys(p.haki).some(function(k){return p.haki[k]>0});
  if(id==='fruit')return !!p.fruit;if(id==='family')return p.children.length>0;if(id==='marriage')return p.life.relationshipStatus==='Marié';if(id==='wealth')return nw>=1000000;
  if(id==='veteran')return p.wins>=20;if(id==='bounty')return p.highestBounty>=100000000;if(id==='social')return game.relations.length>=8;
- if(id==='divergence')return w.divergence>=10;if(id==='longevity')return p.ageMonths>=720;if(id==='legacy')return game.dynasty.generation>=2;if(id==='commander')return p.organization&&p.organization.authority==='leader'&&p.organization.members.filter(function(m){return m.status==='active'}).length>=6;if(id==='flagship')return p.organization&&p.organization.ship&&(p.organization.ship.tier||0)>=2;if(id==='escape')return p.justice&&p.justice.escapes>=1;if(id==='hunter')return p.justice&&p.justice.captures>=5;if(id==='domain')return p.influence&&p.influence.domains.length>=1;if(id==='regional-power')return p.influence&&p.influence.domains.length>=3;if(id==='fleet')return p.influence&&p.influence.affiliates.length>=3;if(id==='emperor')return p.influence&&p.influence.recognizedTitle==='Empereur des mers';return false
+ if(id==='divergence')return w.divergence>=10;if(id==='longevity')return p.ageMonths>=720;if(id==='legacy')return game.dynasty.generation>=2;if(id==='commander')return p.organization&&p.organization.authority==='leader'&&p.organization.members.filter(function(m){return m.status==='active'}).length>=6;if(id==='flagship')return p.organization&&p.organization.ship&&(p.organization.ship.tier||0)>=2;if(id==='escape')return p.justice&&p.justice.escapes>=1;if(id==='hunter')return p.justice&&p.justice.captures>=5;if(id==='domain')return p.influence&&p.influence.domains.length>=1;if(id==='regional-power')return p.influence&&p.influence.domains.length>=3;if(id==='fleet')return p.influence&&p.influence.affiliates.length>=3;if(id==='emperor')return p.influence&&p.influence.recognizedTitle==='Empereur des mers';if(id==='campaign')return p.strategy&&p.strategy.campaignsLed>=1;if(id==='strategist')return p.strategy&&p.strategy.warsWon>=3;return false
 }
 function checkAchievements(silent){
  var u=game.achievements.unlocked;ACHIEVEMENTS.forEach(function(a){if(!u[a.id]&&achievementCondition(a.id)){u[a.id]={age:age(),generation:game.dynasty.generation};if(!silent)tl('Achievement : '+a.name,a.desc,'major')}});saveMeta()
@@ -770,7 +772,7 @@ function pickWarTarget(defender,region){
 }
 function startStrategicWar(attacker,defender,goal,target,source){
  var w=game.world;if(!canStartStrategicWar(attacker,defender))return null;target=target||pickWarTarget(defender,null);if(!target)return null;
- var war={id:'war-'+(w.nextWarId++),name:attacker+' vs '+defender,attacker:attacker,defender:defender,attackerCoalition:coalitionFor(attacker,defender),defenderCoalition:coalitionFor(defender,attacker),goal:goal||'territory',target:target,region:infStatic(target).region,months:0,score:0,exhaustionA:0,exhaustionD:0,status:'active',source:source||'world',fronts:[],history:[],playerLed:source==='player',playerContribution:0};
+ var ac=coalitionFor(attacker,defender),dc=coalitionFor(defender,attacker).filter(function(f){return ac.indexOf(f)<0});var war={id:'war-'+(w.nextWarId++),name:attacker+' vs '+defender,attacker:attacker,defender:defender,attackerCoalition:ac,defenderCoalition:dc,goal:goal||'territory',target:target,region:infStatic(target).region,months:0,score:0,exhaustionA:0,exhaustionD:0,status:'active',source:source||'world',fronts:[],history:[],playerLed:source==='player',playerContribution:0};
  w.wars.push(war);w.globalTension=cl(w.globalTension+8,0,100);war.attackerCoalition.forEach(function(f){war.defenderCoalition.forEach(function(g){w.diplomacy[pairKey(f,g)]=cl((w.diplomacy[pairKey(f,g)]||0)-8,-100,100)})});
  news('GUERRE : '+attacker+' contre '+defender,warGoalLabel(war.goal)+' autour de '+target+'.','war');if(source==='player'){migrateStrategy(game.player).campaignsLed++;migrateStrategy(game.player).lastWarId=war.id;tl('Campagne lancée','Ton organisation ouvre une campagne contre '+defender+' pour '+target+'.','major')}
  spawnConflict(target,attacker,defender,45+R('strategy')*25,source==='player'?'player-campaign':'war',war.id);return war
