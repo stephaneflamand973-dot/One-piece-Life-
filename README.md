@@ -1,160 +1,158 @@
-# ONE PIECE LIFE — V1.1 Crews & Organizations
+# ONE PIECE LIFE — V1.2 Bounties, Justice & Pursuit
 
 Simulateur mobile-first de vie, carrière, aventure et héritage dans un monde One Piece vivant.
 
-## V1.1 — Crews & Organizations
+## V1.2 — Bounties, Justice & Pursuit
 
-La V1.1 transforme enfin les groupes du joueur en systèmes persistants plutôt qu'en simples étiquettes.
+La V1.2 transforme les primes et les autorités en systèmes actifs et persistants.
 
-### Organisations adaptées aux factions
+### Prime mondiale et chaleur locale
 
-Selon la carrière, le personnage rejoint notamment :
+Deux valeurs sont désormais séparées :
 
-- un équipage pirate ;
-- une unité de la Marine ;
-- une cellule révolutionnaire ;
-- une équipe gouvernementale ou Cipher Pol ;
-- un groupe de chasseurs de primes ;
-- un réseau professionnel civil.
+- **prime mondiale** : suit le personnage à travers le monde ;
+- **chaleur régionale** : mesure l'intensité des recherches dans chaque mer.
 
-La structure évolue avec le rang du joueur.
+Une opération peut donc provoquer une forte chasse locale avant même que la prime mondiale n'explose.
 
-### Autorité liée à la carrière
+### Crimes
 
-Trois niveaux sont distingués :
+Le moteur enregistre désormais notamment :
 
-- membre ;
-- officier ;
-- chef.
+- nature du crime ;
+- gravité ;
+- lieu ;
+- région ;
+- date ;
+- présence ou non de témoins.
 
-Un simple membre bénéficie du soutien collectif mais ne contrôle pas le recrutement.
+La probabilité d'identification dépend du contrôle local, de la présence de la Marine et de la Discrétion du personnage.
 
-Un officier peut organiser des entraînements, gérer des rôles et demander des renforts.
+Certaines missions pirates ou révolutionnaires génèrent automatiquement des incidents judiciaires cohérents.
 
-Un chef contrôle le recrutement, la composition du groupe, la logistique et, pour les pirates, le navire.
+### Avis de recherche
 
-### Membres persistants
+Le statut peut évoluer entre :
 
-Chaque membre possède notamment :
+- Aucun avis ;
+- Surveillé ;
+- Recherché ;
+- Priorité Marine ;
+- Menace majeure.
+
+La prime maximale historique reste conservée séparément.
+
+### Poursuites
+
+Les autorités utilisent désormais :
+
+- prime ;
+- chaleur régionale ;
+- pression Marine de la région ;
+- contrôle du territoire ;
+- danger local.
+
+Une poursuite peut être déclenchée pendant l'écoulement normal du temps.
+
+Résultats possibles :
+
+- fuite réussie ;
+- nouvelles accusations ;
+- blessures ;
+- capture ;
+- mort dans les cas extrêmes.
+
+### Arrestation et prison
+
+Une capture interrompt :
+
+- mission ;
+- voyage ;
+- activité normale.
+
+La peine dépend notamment de la prime, de la chaleur locale et de la sécurité de la zone.
+
+Le monde continue néanmoins à évoluer pendant la détention :
+
+- canon ;
+- guerres ;
+- territoires ;
+- équipages ;
+- générations ;
+- relations.
+
+### Évasion
+
+Un détenu peut tenter une évasion.
+
+Le calcul utilise notamment :
+
+- Discrétion ;
+- Agilité ;
+- Réflexes ;
+- puissance ;
+- niveau de sécurité.
+
+Un échec :
+
+- prolonge la peine ;
+- peut blesser le personnage ;
+- augmente la surveillance.
+
+Une réussite :
+
+- remet le personnage en cavale ;
+- augmente fortement la chaleur ;
+- déclenche une nouvelle prime.
+
+### Reddition
+
+Un personnage recherché peut se rendre volontairement.
+
+La coopération réduit la durée de détention par rapport à une capture violente.
+
+### Se faire oublier
+
+Une action de discrétion par période permet de diminuer progressivement la chaleur de la région actuelle.
+
+La prime mondiale ne disparaît pas simplement parce que le personnage est resté discret quelques semaines.
+
+### Chasse aux primes
+
+Les chasseurs de primes disposent maintenant d'un tableau réel basé sur les équipages pirates procéduraux présents dans leur région.
+
+Chaque cible possède :
 
 - nom ;
-- rôle ;
 - puissance ;
-- loyauté ;
-- moral ;
-- ancienneté ;
-- blessures ;
-- statut.
+- nombre de membres ;
+- prime ;
+- région.
 
-Les membres progressent avec le temps. Une organisation mal gérée peut subir des départs, des blessures ou une crise de commandement.
+Une capture réussie :
 
-### Rôles
+- retire l'équipage du monde actif ;
+- verse une récompense ;
+- donne de l'expérience de carrière ;
+- améliore la réputation auprès des autorités et civils ;
+- alimente les statistiques de chasseur.
 
-Les rôles dépendent de la faction.
+### Historique judiciaire
 
-Exemples pirates :
+La fiche du personnage affiche maintenant ses derniers incidents et leur statut attribué ou non attribué.
 
-- combattant ;
-- navigateur ;
-- tireur ;
-- médecin ;
-- cuisinier ;
-- charpentier ;
-- musicien ;
-- quartier-maître.
-
-Exemples Marine :
-
-- combattant ;
-- navigateur ;
-- tireur ;
-- médecine ;
-- renseignement ;
-- logistique.
-
-La diversité des rôles augmente l'efficacité collective.
-
-### Moral, cohésion et loyauté
-
-L'organisation suit séparément :
-
-- moral ;
-- cohésion ;
-- renommée ;
-- loyauté individuelle ;
-- provisions ;
-- caisse commune.
-
-Un manque durable de provisions ou un mauvais moral peut provoquer des départs.
-
-### Recrutement
-
-Les officiers et chefs peuvent générer des candidats contextuels.
-
-La qualité dépend notamment :
-
-- de la région ;
-- du danger local ;
-- du RNG seedé.
-
-Les organisations indépendantes peuvent devoir financer le recrutement.
-
-### Missions collectives
-
-Le groupe intervient maintenant réellement dans les missions.
-
-La puissance collective, la cohésion, le moral, l'autorité du joueur et la couverture des rôles peuvent réduire le danger effectif d'une mission.
-
-Les résultats influencent ensuite :
-
-- la caisse ;
-- le moral ;
-- la cohésion ;
-- la renommée ;
-- les blessures potentielles des membres.
-
-### Navires pirates
-
-Les équipages pirates possèdent maintenant un navire persistant.
-
-Progression :
-
-1. Sloop
-2. Brigantin
-3. Frégate
-4. Galion
-
-Chaque navire possède :
-
-- capacité d'équipage ;
-- état ;
-- bonus de vitesse ;
-- coût d'amélioration.
-
-Un navire endommagé ralentit les traversées et augmente les risques en mer.
-
-### Commandement
-
-Une action de commandement est disponible par période.
-
-Elle peut servir à :
-
-- renforcer la vie de groupe ;
-- recruter ;
-- organiser un entraînement collectif.
-
-La répartition des rôles reste une décision de gestion et non une source d'XP gratuite.
-
-### Achievements V1.1
+### Achievements V1.2
 
 Deux nouveaux achievements :
 
-- **Sous ton pavillon** : commander au moins six membres actifs ;
-- **Navire de commandement** : posséder une Frégate ou un Galion.
+- **Les murs ne suffisent pas** : réussir une évasion ;
+- **Chasseur confirmé** : capturer cinq cibles recherchées.
 
 ## Systèmes conservés
 
-V1.0 : canon causal, content pack, Fruits persistants et chronologie mensuelle.
+V1.1 : organisations, membres, rôles, navires, commandement et logistique.
+
+V1.0 : canon causal, content pack et Fruits persistants.
 
 V0.9 : relations, famille, économie et héritage.
 
@@ -166,13 +164,9 @@ V0.6 : combat, Haki, techniques, Fruits et blessures.
 
 ## Sauvegardes
 
-Les sauvegardes V0.5 à V1.0 sont migrées automatiquement vers V1.1.
+Les sauvegardes V0.5 à V1.1 sont migrées automatiquement vers V1.2.
 
-Les personnages déjà engagés dans une carrière reçoivent une organisation compatible avec leur faction et leur rang.
-
-## Validation
-
-Chaque push vérifie le moteur, l'interface, le content pack et désormais la présence des systèmes d'organisation V1.1.
+La migration interne passe à la version 12.
 
 ## iPhone / PWA
 
