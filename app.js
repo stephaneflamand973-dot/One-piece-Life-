@@ -125,6 +125,7 @@ function defaultLife(){return{relationshipStatus:'Célibataire',partnerId:null,h
 function metaKey(){return P+'meta-'+slot}
 function loadMeta(){try{return JSON.parse(localStorage.getItem(metaKey())||'null')}catch(x){return null}}
 function saveMeta(){if(!game)return;localStorage.setItem(metaKey(),JSON.stringify({codex:game.codex,achievements:game.achievements,dynasty:game.dynasty}))}
+function applyMeta(g){var m=loadMeta();if(!m)return g;if(m.codex){['people','places','factions','fruits'].forEach(function(k){g.codex[k]=[].concat(g.codex[k]||[],m.codex[k]||[]).filter(function(v,i,a){return a.indexOf(v)===i})})}if(m.achievements)g.achievements=m.achievements;if(m.dynasty)g.dynasty=m.dynasty;return g}
 var FACTION_KEYS=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];
 var CAREERS={
 Civil:{label:'Civil',salary:2800,specs:['Marchand','Médecin','Navigateur','Scientifique','Artisan','Cuisinier'],ranks:[
@@ -215,7 +216,7 @@ function press(){var o={};REG.forEach(function(r){o[r]={Piraterie:20+R('w')*25,M
 function make(){
  var seed=Number($('#seedInput').value)||Math.floor(Math.random()*2147483647),origin=mode==='custom'?$('#originInput').value:pk(ORIG,'b');
  game={version:9,seed:seed,rng:{},alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
- game=migrate(game);var homes=Object.keys(PL).filter(function(n){return PL[n][0]===origin});game.player.island=pk(homes,'b');game.player.visited=[game.player.island];game.codex.places=[game.player.island];game.world.pressures=press();
+ game=applyMeta(migrate(game));var homes=Object.keys(PL).filter(function(n){return PL[n][0]===origin});game.player.island=pk(homes,'b');game.player.visited=[game.player.island];game.codex.places=[game.player.island];game.world.pressures=press();
  ST.forEach(function(k){game.player.stats[k]=8+R('b')*12;game.player.caps[k]=68+R('c')*25});SK.forEach(function(k){game.player.skills[k]=2+R('b')*8;game.player.caps[k]=68+R('c')*25});
  syncPowers();tl('Naissance','Tu nais à '+game.player.island+', dans '+origin+'.','major');news('Grande Ère de la Piraterie','Le monde entre dans une période de bouleversements.');save();return game}
 function diff(){return game.player.difficulty==='Casual'?[1.2,.75]:game.player.difficulty==='Ironman'?[.9,1.55]:[1,1]}
@@ -228,6 +229,99 @@ function trainFruit(m){var p=game.player;if(!p.fruit)return;p.fruitMastery=cl(p.
 function learnMastery(m){var p=game.player;(p.techniques||[]).forEach(function(id){p.techniqueMastery[id]=cl((p.techniqueMastery[id]||1)+m*(.4+R('p')*.5),0,100)});syncPowers()}
 function gain(k,n){var p=game.player,b=p.stats[k]!=null?p.stats:p.skills,z=b[k],cap=p.caps[k]||90;if(z>=cap)return 0;var g=n*diff()[0]*cl(1-Math.pow(z/110,1.7),.12,1);b[k]=cl(z+g,0,cap);return g}
 function train(m){var p=game.player;if(p.activity==='Haki Observation'){trainHaki('Observation',m);learnMastery(m);return}if(p.activity==='Haki Armement'){trainHaki('Armement',m);learnMastery(m);return}if(p.activity==='Haki Conquérant'){trainHaki('Conquérant',m);learnMastery(m);return}if(p.activity==='Maîtrise du Fruit'){trainFruit(m);learnMastery(m);return}var map={Grandir:['Endurance','Réflexes'],Études:['Discipline','Science'],Entraînement:['Force','Combat'],Navigation:['Navigation','Endurance'],Sabre:['Sabre','Réflexes'],'Formation Marine':['Discipline','Combat'],'Formation Pirates':['Combat','Navigation'],'Formation Révolutionnaires':['Discrétion','Commandement'],'Formation Gouvernement':['Discipline','Discrétion'],Médecine:['Médecine','Discipline'],Explorer:['Réflexes','Navigation']},ks=map[p.activity]||[pk(ST,'p'),pk(SK,'p')];ks.forEach(function(k){gain(k,m*(.5+R('p')*.8))});if(p.fruit&&R('fruit')<.5)trainFruit(m*.35);if(p.haki.Observation&&R('h')<.35)trainHaki('Observation',m*.25);if(p.haki.Armement&&R('h')<.35)trainHaki('Armement',m*.25);learnMastery(m)}
+
+function relationById(id){return game.relations.find(function(r){return r.id===id})||null}
+function partnerRelation(){var id=game.player.life.partnerId;return id?relationById(id):null}
+function createRelation(role){
+ var p=game.player,i=game.socialSeq++,name=pk(PEOPLE_NAMES,'r'),tries=0;
+ while(game.relations.some(function(r){return r.name===name})&&tries++<12)name=pk(PEOPLE_NAMES,'r');
+ var r=normalizeRelation(game,{id:'rel-'+i+'-'+Math.floor(R('r')*99999),name:name,role:role||pk(['ami','rival','mentor','collègue','connaissance'],'r'),faction:pk([p.faction,'Civil','Marine','Pirates'],'r'),location:p.island,monthsKnown:0},i);
+ if(r.role==='rival'){r.rivalry=45+R('r')*35;r.affection*=.7}
+ if(r.role==='mentor'){r.respect=Math.max(r.respect,62);r.trust=Math.max(r.trust,50)}
+ game.relations.push(r);return r
+}
+function netWorth(){
+ var p=game.player,a=p.life.assets||{};return Math.round(p.money+(a.property||0)+(a.business||0)+(a.ship||0)+(a.treasure||0))
+}
+function livingCostPerMonth(){
+ var p=game.player;if(p.ageMonths<180)return 0;var h=HOUSING[p.life.housingLevel||0]||HOUSING[0],base=h.monthly+(p.children||[]).length*850;
+ if(p.life.relationshipStatus!=='Célibataire')base+=350;return Math.round(base)
+}
+function businessIncomePerMonth(){return Math.round(((game.player.life.assets||{}).business||0)*.008)}
+function useSocialAction(){
+ var l=game.player.life;if((l.socialActions||0)<1){toast('Tu as déjà consacré assez de temps à ta vie sociale pendant cette période.');return false}
+ l.socialActions--;return true
+}
+function spendTime(id){
+ var r=relationById(id),p=game.player;if(!r||r.status!=='active'||!useSocialAction())return;
+ var cost=p.ageMonths>=180?300+Math.round(R('life')*700):0;if(p.money<cost)return toast('Tu n’as pas assez de Berry pour cette sortie.');
+ p.money-=cost;r.affection=cl(r.affection+2+R('life')*5,0,100);r.trust=cl(r.trust+1+R('life')*4,0,100);r.respect=cl(r.respect+R('life')*2,0,100);if(p.ageMonths>=216)r.attraction=cl(r.attraction+R('life')*3,0,100);
+ tl('Temps partagé','Tu passes du temps avec '+r.name+'.');save();renderRel();renderChar()
+}
+function pursueRomance(id){
+ var p=game.player,r=relationById(id);if(!r||p.ageMonths<216)return toast('La romance est réservée aux personnages adultes.');if(p.life.partnerId)return toast('Tu es déjà engagé dans une relation.');if(!useSocialAction())return;
+ var score=r.affection*.35+r.trust*.25+r.attraction*.4,ch=cl((score-32)/70,.08,.92);
+ if(R('life')<ch){p.life.partnerId=r.id;p.life.relationshipStatus='En couple';r.type='partner';r.role='partenaire';r.relationshipMonths=0;r.affection=cl(r.affection+8,0,100);r.trust=cl(r.trust+6,0,100);tl('Nouvelle relation',r.name+' et toi commencez une relation.','major')}
+ else{r.attraction=cl(r.attraction-6,0,100);r.trust=cl(r.trust-2,0,100);tl('Sentiments non partagés',r.name+' ne souhaite pas aller plus loin.')}
+ save();render()
+}
+function marryPartner(){
+ var p=game.player,r=partnerRelation();if(!r||p.life.relationshipStatus!=='En couple')return toast('Aucun partenaire avec qui se marier.');if(r.relationshipMonths<12||r.trust<62||r.affection<65)return toast('Votre relation n’est pas encore assez solide.');
+ if(!useSocialAction())return;p.life.relationshipStatus='Marié';r.role='conjoint';r.loyalty=cl(r.loyalty+10,0,100);r.trust=cl(r.trust+7,0,100);tl('Mariage','Tu épouses '+r.name+'.','major');checkAchievements();save();render()
+}
+function breakup(){
+ var p=game.player,r=partnerRelation();if(!r)return;decision('Mettre fin à la relation','Rompre avec '+r.name+' aura des conséquences sur votre relation.',[
+  ['Se séparer','Mettre fin au couple.',function(){r.role='ex-partenaire';r.type='social';r.affection=cl(r.affection-22,0,100);r.trust=cl(r.trust-30,0,100);r.rivalry=cl(r.rivalry+8,0,100);p.life.partnerId=null;p.life.relationshipStatus='Célibataire';tl('Séparation','Ta relation avec '+r.name+' prend fin.','major')}],
+  ['Rester ensemble','Ne rien changer.',function(){}]
+ ])}
+function welcomeChild(){
+ var p=game.player,r=partnerRelation();if(!r||p.ageMonths<216)return toast('Il faut être adulte et en couple.');if(r.trust<50||r.affection<55)return toast('Votre relation n’est pas assez stable.');if((p.children||[]).length>=5)return toast('Ta famille est déjà très nombreuse.');if(!useSocialAction())return;
+ var i=p.children.length,name=pk(PEOPLE_NAMES,'family'),child={id:'child-'+game.dynasty.generation+'-'+Date.now()+'-'+i,name:name,ageMonths:0,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:55+R('family')*30};
+ p.children.push(child);p.money-=Math.min(p.money,2500);tl('Nouvelle génération',name+' rejoint ta famille à '+p.island+'.','major');checkAchievements();save();render()
+}
+function upgradeHousing(){
+ var p=game.player,l=p.life,n=(l.housingLevel||0)+1;if(n>=HOUSING.length)return toast('Tu possèdes déjà le meilleur logement disponible.');var h=HOUSING[n];if(p.money<h.buy)return toast('Il te faut '+h.buy.toLocaleString('fr-FR')+' B.');
+ p.money-=h.buy;l.housingLevel=n;l.assets.property=Math.max(l.assets.property||0,h.asset);tl('Nouveau logement','Tu t’installes dans : '+h.name+'.','major');save();renderChar()
+}
+function investBusiness(){
+ var p=game.player,l=p.life,cost=50000;if(p.money<cost)return toast('Il te faut 50 000 B pour investir.');if((l.assets.business||0)>=240000)return toast('Ton activité commerciale est déjà très développée.');
+ p.money-=cost;l.assets.business=(l.assets.business||0)+40000;tl('Investissement','Tu investis dans une activité commerciale locale.','major');save();renderChar()
+}
+function achievementCondition(id){
+ var p=game.player,w=game.world,nw=netWorth();
+ if(id==='voyage')return p.visited.length>=2;if(id==='grandline')return p.visited.some(function(x){return infStatic(x).region==='Grand Line'});
+ if(id==='newworld')return p.visited.some(function(x){return infStatic(x).region==='New World'});if(id==='haki')return Object.keys(p.haki).some(function(k){return p.haki[k]>0});
+ if(id==='fruit')return !!p.fruit;if(id==='family')return p.children.length>0;if(id==='marriage')return p.life.relationshipStatus==='Marié';if(id==='wealth')return nw>=1000000;
+ if(id==='veteran')return p.wins>=20;if(id==='bounty')return p.highestBounty>=100000000;if(id==='social')return game.relations.length>=8;
+ if(id==='divergence')return w.divergence>=10;if(id==='longevity')return p.ageMonths>=720;if(id==='legacy')return game.dynasty.generation>=2;return false
+}
+function checkAchievements(silent){
+ var u=game.achievements.unlocked;ACHIEVEMENTS.forEach(function(a){if(!u[a.id]&&achievementCondition(a.id)){u[a.id]={age:age(),generation:game.dynasty.generation};if(!silent)tl('Achievement : '+a.name,a.desc,'major')}});saveMeta()
+}
+function lifeTick(m){
+ var p=game.player,l=p.life;l.socialActions=2;
+ (p.children||[]).forEach(function(c){if(c.status==='active')c.ageMonths+=m});
+ game.relations.forEach(function(r){if(r.status!=='active')return;r.monthsKnown+=m;if(r.id===l.partnerId){r.relationshipMonths+=m;r.affection=cl(r.affection+(R('life')-.42)*m*.9,0,100);r.trust=cl(r.trust+(R('life')-.44)*m*.7,0,100);r.loyalty=cl(r.loyalty+(R('life')-.45)*m*.5,0,100)}else{var near=!r.location||r.location===p.island;r.affection=cl(r.affection+(near?(R('life')-.49)*m*.35:-m*.08),0,100);r.trust=cl(r.trust+(R('life')-.5)*m*.2,0,100)}});
+ if(p.ageMonths>=180){var cost=livingCostPerMonth()*m,income=businessIncomePerMonth()*m;p.money+=income-cost;l.livingCostsPaid+=cost;l.totalBusinessIncome+=income;l.lastExpense=cost;if(p.money<0){l.debtPeak=Math.min(l.debtPeak||0,p.money);p.energy=cl(p.energy-m*.7,0,100)}}
+ var nw=netWorth();l.netWorthPeak=Math.max(l.netWorthPeak||0,nw);
+ var partner=partnerRelation();if(partner&&R('life')<.018*m){if(R('life')<.66){partner.affection=cl(partner.affection+4,0,100);partner.trust=cl(partner.trust+3,0,100);tl('Moment important','Ta relation avec '+partner.name+' se renforce.')}else{partner.affection=cl(partner.affection-6,0,100);partner.trust=cl(partner.trust-5,0,100);tl('Tension dans le couple','Un désaccord fragilise ta relation avec '+partner.name+'.')}}
+ var years=p.ageMonths/12;if(years>55){p.health=cl(p.health-m*(years-55)/70,0,100);if(years>72&&R('life')<Math.pow((years-70)/35,2)*.006*m){die('Décès naturel à '+Math.floor(years)+' ans.');return}}
+ checkAchievements()
+}
+function estateValue(){return Math.max(0,netWorth())}
+function buildHeir(child){
+ var old=game.player,partner=partnerRelation(),estate=estateValue(),heirs=Math.max(1,old.children.length+(partner?1:0)),share=Math.round(estate/heirs),ancestor={name:old.name,age:age(),career:old.career,rank:old.rank,cause:game.death?game.death.cause:'',estate:estate,bounty:old.highestBounty,generation:game.dynasty.generation};
+ game.dynasty.ancestors.push(ancestor);game.dynasty.generation++;
+ var parentCaps=old.caps||{},p={name:child.name,difficulty:old.difficulty,ageMonths:child.ageMonths,race:child.race||old.race,origin:child.birthRegion||old.origin,region:old.region,island:old.island,situation:child.ageMonths<180?'Enfance':'Nouvelle génération',activity:child.ageMonths<72?'Grandir':'Études',faction:'Civil',career:'Aucune',rank:child.ageMonths<180?'Enfant':'Sans carrière',money:share,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:Math.round(old.reputation*.12),ambition:'Survivre',wins:0,losses:0,travel:null,visited:[old.island],style:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'heir'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('heir')*60,Armement:20+R('heir')*60,Conquérant:R('heir')<.04?90:0},stats:{},skills:{},caps:{},factionRep:{Civil:10,Marine:0,Pirates:0,'Chasseur de primes':0,Révolutionnaires:0,Gouvernement:0},careerRecords:{},specialization:null,careerHistory:[],salaryTotal:0,deserterFrom:[],life:defaultLife(),children:[]};
+ ST.forEach(function(k){var inherited=parentCaps[k]||75;p.caps[k]=cl(inherited*.55+40+R('heir')*15,55,98);p.stats[k]=cl(7+Math.min(25,child.ageMonths/24)+R('heir')*5,5,p.caps[k])});
+ SK.forEach(function(k){var inherited=parentCaps[k]||75;p.caps[k]=cl(inherited*.5+42+R('heir')*14,55,98);p.skills[k]=cl(2+Math.min(18,child.ageMonths/36)+R('heir')*4,1,p.caps[k])});
+ game.player=p;game.alive=true;game.death=null;game.pending=null;game.mission=null;game.lastCombat=null;game.timeline=[];game.relations=[];
+ if(partner)game.relations.push(normalizeRelation(game,{name:partner.name,role:'parent',type:'family',affection:Math.max(65,partner.affection),trust:Math.max(60,partner.trust),respect:65,loyalty:70,attraction:0,location:old.island,faction:partner.faction},0));
+ old.children.filter(function(c){return c.id!==child.id}).forEach(function(c,i){game.relations.push(normalizeRelation(game,{name:c.name,role:'frère / sœur',type:'family',affection:55+(c.bond||0)*.3,trust:55,respect:45,loyalty:60,attraction:0,location:old.island,faction:'Civil'},i+1))});
+ game.socialSeq=game.relations.length;syncPowers();tl('HÉRITAGE','Après la mort de '+old.name+', tu poursuis la vie de la famille en tant que '+child.name+'. Patrimoine reçu : '+share.toLocaleString('fr-FR')+' B.','major');checkAchievements();save();return game
+}
+function continueWithHeir(){var kids=(game.player.children||[]).filter(function(c){return c.status==='active'}).sort(function(a,b){return b.ageMonths-a.ageMonths});if(!kids.length)return toast('Aucun héritier disponible.');var c=kids[0];buildHeir(c);$('#deathModal').classList.add('hidden');render()}
+
 function decision(t,txt,ch){game.pending={title:t,text:txt,choices:ch};save();render();showDecision()}
 function showDecision(){if(!game.pending)return;$('#decisionTitle').textContent=game.pending.title;$('#decisionText').textContent=game.pending.text;$('#decisionChoices').innerHTML=game.pending.choices.map(function(c,i){return '<button class="choice-btn" data-c="'+i+'"><strong>'+e(c[0])+'</strong><small>'+e(c[1])+'</small></button>'}).join('');$$('[data-c]').forEach(function(b){b.onclick=function(){var c=game.pending.choices[+b.dataset.c];c[2]();game.pending=null;$('#decisionModal').classList.add('hidden');save();render()}});$('#decisionModal').classList.remove('hidden')}
 function careerTrack(f,spec){return f==='Gouvernement'&&spec==='Cipher Pol'?CP_RANKS:(CAREERS[f]?CAREERS[f].ranks:CAREERS.Civil.ranks)}
@@ -340,17 +434,17 @@ function simulateDiplomacy(){
 }
 function worldMonthStep(){simulateTerritories();simulateCrews();simulateActors();simulateConflicts();simulateDiplomacy();var w=game.world;w.globalTension=cl(w.globalTension+(R('world')-.5)*2,0,100);REG.forEach(function(r){var rp=w.pressures[r];if(!rp)return;Object.keys(rp).forEach(function(k){rp[k]=cl(rp[k]+(R('world')-.5)*2.2,0,100)})})}
 function world(m){var w=game.world;w.month+=m;w.simRemainder=(w.simRemainder||0)+m;while(w.simRemainder>=1){w.simRemainder-=1;worldMonthStep()}while(w.month>=12){w.month-=12;w.year++;if(R('world')<.55)news('Bilan annuel',pk(['La Marine réorganise plusieurs bases.','De nouveaux équipages se font un nom.','Des réseaux clandestins gagnent du terrain.','Plusieurs routes commerciales changent de mains.'],'world'),'')}w.canon.forEach(function(c){if(c[2]==='future'&&w.year>=c[1]){c[2]=w.divergence>70&&R('world')<.4?'modified':'completed';tl(c[0],c[2]==='modified'?'Le monde diverge fortement.':'Un événement historique a lieu.','canon')}})}
-function event(m){if(R('e')>.18+m*.02)return;var p=game.player,x=pk(['relation','money','danger','meet','haki','fruit','crew'],'e');
- if(x==='relation'){var n=pk(['Mira','Doran','Seline','Rook','Nessa','Toma'],'r'),r={name:n,role:pk(['ami','rival','mentor','collègue'],'r'),affection:30+R('r')*50,respect:25+R('r')*55,trust:20+R('r')*55};game.relations.push(r);tl('Nouvelle rencontre',n+' devient '+r.role+'.','major')}
+function event(m){if(R('e')>.18+m*.02)return;var p=game.player,x=pk(['relation','money','danger','meet','haki','fruit','crew','life'],'e');
+ if(x==='relation'){var r=createRelation();tl('Nouvelle rencontre',r.name+' entre dans ta vie comme '+r.role+'.','major')}
  else if(x==='money'){var z=1000+Math.floor(R('e')*12000);p.money+=z;tl('Bonne affaire','Tu gagnes '+z.toLocaleString('fr-FR')+' B.')}
  else if(x==='danger')fight(inf().danger+10+R('e')*35,'Confrontation imprévue');
  else if(x==='meet'){var a=game.world.actors.filter(function(c){return c.region===p.region&&c.status!=='dead'});if(a.length){var c=pk(a,'e');if(game.codex.people.indexOf(c.name)<0)game.codex.people.push(c.name);tl('Rencontre canonique','Tu croises '+c.name+' ('+c.faction+'). Sa trajectoire actuelle : '+c.goal+'.','canon')}}
- else if(x==='crew'){var cs=game.world.crews.filter(function(c){return c.region===p.region&&c.status==='active'});if(cs.length){var cr=pk(cs,'e');tl('Équipage aperçu',cr.name+' est signalé dans '+p.region+' — puissance estimée '+Math.round(cr.power)+'.',diplomacy(p.faction,cr.faction)<-40?'danger':'')}}
+ else if(x==='crew'){var cs=game.world.crews.filter(function(c){return c.region===p.region&&c.status==='active'});if(cs.length){var cr=pk(cs,'e');tl('Équipage aperçu',cr.name+' est signalé dans '+p.region+' — puissance estimée '+Math.round(cr.power)+'.',diplomacy(p.faction,cr.faction)<-40?'danger':'')}} else if(x==='life'){if(p.ageMonths>=180&&R('life')<.55){var expense=800+Math.round(R('life')*6500);p.money-=expense;tl('Dépense imprévue','Un imprévu te coûte '+expense.toLocaleString('fr-FR')+' B.')}else if(p.ageMonths>=180){var gainLife=1000+Math.round(R('life')*9000);p.money+=gainLife;tl('Petit coup de chance','Une opportunité te rapporte '+gainLife.toLocaleString('fr-FR')+' B.')}}
  else if(x==='haki'){var k=pk(['Observation','Armement','Conquérant'],'h');if(p.latent[k]>55&&p.haki[k]===0){p.haki[k]=1;syncPowers();tl('Éveil du Haki','Ton Haki de '+k+' s’éveille.','major')}else if(p.haki[k]){trainHaki(k,.6);syncPowers();tl('Instinct affûté','Ton Haki de '+k+' progresse légèrement.')}}
  else if(x==='fruit'&&!p.fruit&&!p.heldFruit&&R('e')<.32){var av=game.world.fruits.filter(function(n){return !game.world.fruitRegistry[n]||game.world.fruitRegistry[n].status==='available'});if(av.length){var fr=pk(av,'e');decision('Un Fruit du démon','Tu découvres '+fr+'. Rien ne t’oblige à le consommer.',[['Le manger','Obtenir son pouvoir, mais perdre la capacité de nager.',function(){p.fruit=fr;p.fruitMastery=1;game.world.fruitRegistry[fr]={status:'consumed',holder:p.name};if(game.codex.fruits.indexOf(fr)<0)game.codex.fruits.push(fr);tl('Fruit du démon','Tu consommes le '+fr+'.','major')}],['Le conserver','Le garder pour plus tard.',function(){p.heldFruit=fr;game.world.fruitRegistry[fr]={status:'held',holder:p.name};tl('Fruit découvert','Tu conserves le '+fr+'.','major')}],['Le vendre','Transformer cette rareté en Berry.',function(){var val=40000+Math.round(R('fruit')*110000);p.money+=val;game.world.fruitRegistry[fr]={status:'sold',holder:null};tl('Vente exceptionnelle','Tu vends le '+fr+' pour '+val.toLocaleString('fr-FR')+' B.','major')}]])}}
 }
 function die(c){game.alive=false;game.death={cause:c};game.player.health=0;tl('Mort',c,'danger')}
-function advance(){if(!game||!game.alive||game.pending)return;var p=game.player,m=p.ageMonths<72?6:p.ageMonths<180?3:game.mission?Math.min(1,game.mission.remaining):p.travel?Math.min(1,p.travel.remaining):1+R('time')*2;m=Math.max(.5,Math.round(m*2)/2);p.ageMonths+=m;world(m);p.health=cl(p.health+m*2,0,100);p.energy=cl(p.energy+m*4,0,100);p.conditions.forEach(function(c){c.months-=m});p.conditions=p.conditions.filter(function(c){return c.months>0});careerTick(m);if(p.travel)travel(m);else if(game.mission){game.mission.remaining-=m;train(m);if(game.mission.remaining<=0)resolveMission()}else{train(m);event(m)}if(!game.alive){save();render();deathModal();return}if(p.ageMonths>=72&&p.situation==='Enfance'){p.situation='Formation';p.activity='Études';tl('Formation','Tu commences une formation structurée.','major')}if(p.ageMonths>=180&&p.career==='Aucune'&&!game.pending)career();p.danger=p.conditions.length?'Moyen':inf().danger>45?'Élevé':inf().danger>20?'Moyen':'Faible';save();render()}
+function advance(){if(!game||!game.alive||game.pending)return;var p=game.player,m=p.ageMonths<72?6:p.ageMonths<180?3:game.mission?Math.min(1,game.mission.remaining):p.travel?Math.min(1,p.travel.remaining):1+R('time')*2;m=Math.max(.5,Math.round(m*2)/2);p.ageMonths+=m;world(m);p.health=cl(p.health+m*2,0,100);p.energy=cl(p.energy+m*4,0,100);p.conditions.forEach(function(c){c.months-=m});p.conditions=p.conditions.filter(function(c){return c.months>0});careerTick(m);lifeTick(m);if(!game.alive){save();render();deathModal();return}if(p.travel)travel(m);else if(game.mission){game.mission.remaining-=m;train(m);if(game.mission.remaining<=0)resolveMission()}else{train(m);event(m)}if(!game.alive){save();render();deathModal();return}if(p.ageMonths>=72&&p.situation==='Enfance'){p.situation='Formation';p.activity='Études';tl('Formation','Tu commences une formation structurée.','major')}if(p.ageMonths>=180&&p.career==='Aucune'&&!game.pending)career();p.danger=p.conditions.length?'Moyen':inf().danger>45?'Élevé':inf().danger>20?'Moyen':'Faible';checkAchievements();save();render()}
 function rep(){var r=game.player.reputation;return r>75?'Célèbre':r>40?'Reconnu':r>15?'Connu':'Inconnu'}
 function slots(){var b=$('#saveSlots');b.innerHTML='';for(var i=1;i<=3;i++){(function(i){var s=load(i),x=document.createElement('button');x.className='save-slot'+(s?'':' empty');x.innerHTML=s?'<strong>'+e(s.player.name)+'</strong><small>'+Math.floor(s.player.ageMonths/12)+' ans • '+e(s.player.faction)+'<br>'+e(s.player.island)+'</small>':'<strong>＋ Nouvelle vie</strong><small>Emplacement '+i+'</small>';x.onclick=function(){slot=i;if(s){game=s;render()}else $('#creationCard').classList.remove('hidden')};b.appendChild(x)})(i)}}
 function bar(o){return Object.keys(o).map(function(k){var v=o[k];return '<div class="stat-row"><span>'+e(k)+'</span><div class="stat-bar"><div class="stat-fill" style="width:'+cl(v,0,100)+'%"></div></div><span class="stat-value">'+Math.round(v)+'</span></div>'}).join('')}
