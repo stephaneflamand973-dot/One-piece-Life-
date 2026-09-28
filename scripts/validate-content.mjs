@@ -14,6 +14,7 @@ const actors=c.actors||[];
 const fruits=c.fruits||[];
 const canon=c.canonEvents||[];
 const special=c.specialTechniques||[];
+const assignments=c.fruitAssignments||[];
 
 const baseLocations=[
 'Loguetown','Shells Town','Orange Town','Goa','Shimotsuki','Syrup Village','Baratie',
@@ -45,4 +46,12 @@ for(let i=1;i<canon.length;i++){
 for(const f of fruits){
   if(!f[0]||!f[1]||typeof f[2]!=='number'||f[2]<1||f[2]>100) throw new Error('Invalid fruit row: '+JSON.stringify(f));
 }
-console.log('V1 content validation OK:',Object.keys(locations).length,'new locations,',actors.length,'actors,',fruits.length,'fruits,',canon.length,'canon events');
+const fruitNames=new Set(fruits.map(f=>f[0]));
+for(const a of assignments){
+  if(!fruitNames.has(a.fruit)) throw new Error('Fruit assignment references unknown fruit '+a.fruit);
+  if(!actorNames.has(a.holder)) throw new Error('Fruit assignment references unknown actor '+a.holder);
+  if(typeof a.year!=='number'||typeof a.month!=='number') throw new Error('Invalid fruit assignment date for '+a.fruit);
+}
+unique(assignments.map(a=>a.fruit+'@'+a.year+':'+a.month),'fruit assignment');
+
+console.log('V1 content validation OK:',Object.keys(locations).length,'new locations,',actors.length,'actors,',fruits.length,'fruits,',canon.length,'canon events,',assignments.length,'fruit assignments');
