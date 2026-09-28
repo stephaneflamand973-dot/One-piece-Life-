@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ONE PIECE LIFE" />
   <meta name="description" content="ONE PIECE LIFE, simulateur mobile-first de destin, carrière et aventure dans un monde pirate vivant." />
-  <title>ONE PIECE LIFE — V1.1</title>
+  <title>ONE PIECE LIFE — V1.2</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="styles.css" />
@@ -28,10 +28,10 @@
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V1.1 • Crews & Organizations • iPhone & PWA</span>
+        <span class="eyebrow">V1.2 • Bounties & Justice • iPhone & PWA</span>
         <h2>Une vie. Un monde qui n’attend pas ton arrivée.</h2>
-        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.1 transforme équipages, unités et cellules en organisations persistantes avec membres, rôles, loyauté, cohésion, ressources, navires et conséquences internes.</p>
-        <div class="feature-pills"><span>RNG seedé</span><span>Organisations vivantes</span><span>Équipages persistants</span><span>Autosave</span></div>
+        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.2 transforme primes, recherches, arrestations et chasse aux criminels en véritables systèmes : chaleur régionale, poursuites, prison, évasion et contrats de chasse.</p>
+        <div class="feature-pills"><span>RNG seedé</span><span>Primes dynamiques</span><span>Poursuites</span><span>Autosave</span></div>
       </section>
 
       <section id="localFileWarning" class="paper-card compatibility-card">
@@ -111,6 +111,23 @@
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Carrière</span><h3>Situation professionnelle</h3></div><span id="careerStandingBadge" class="badge"></span></div><div id="careerCard" class="career-card"></div><div id="careerProgressCard" class="career-progress"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Spécialisation</span><h3>Rôle dans ta voie</h3></div><span id="specializationBadge" class="badge"></span></div><div id="specializationCard" class="career-card"></div><div id="specializationOptions" class="action-grid specialization-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Réputation</span><h3>Position auprès des factions</h3></div><span class="badge">Asymétrique</span></div><div id="factionStanding" class="standing-list"></div></section>
+        <section class="paper-card justice-card">
+          <div class="section-heading compact"><div><span class="eyebrow">Justice & recherche</span><h3>Avis de recherche</h3></div><span id="wantedBadge" class="badge"></span></div>
+          <div id="wantedPoster" class="wanted-poster"></div>
+          <div id="justiceSummary" class="justice-summary"></div>
+          <div id="justiceActions" class="action-grid justice-actions"></div>
+          <div id="prisonSection" class="hidden">
+            <div class="section-heading compact justice-subhead"><div><span class="eyebrow">Détention</span><h3 id="prisonTitle">Prison</h3></div><span id="prisonBadge" class="badge"></span></div>
+            <div id="prisonCard" class="career-card"></div>
+            <div id="prisonActions" class="action-grid"></div>
+          </div>
+          <div id="bountyHunterSection" class="hidden">
+            <div class="section-heading compact justice-subhead"><div><span class="eyebrow">Contrats</span><h3>Tableau des primes</h3></div><span id="bountyHunterBadge" class="badge"></span></div>
+            <div id="bountyTargets" class="bounty-target-list"></div>
+          </div>
+          <div class="section-heading compact justice-subhead"><div><span class="eyebrow">Dossier</span><h3>Historique judiciaire</h3></div></div>
+          <div id="crimeHistory" class="crime-history"></div>
+        </section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Mobilité</span><h3>Opportunités de carrière</h3></div><span class="badge">Conséquences réelles</span></div><div id="careerActions" class="action-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Ambition</span><h3>Direction personnelle</h3></div><span class="badge">Dynamique</span></div><div id="ambitionCard" class="career-card"></div><div id="ambitionOptions" class="action-grid ambition-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Missions</span><h3>Opportunités actuelles</h3></div><span class="badge">Contexte réel</span></div><div id="missionBoard" class="mission-grid"></div></section>
