@@ -8,7 +8,7 @@
   "orientation": "portrait-primary",
   "background_color": "#f4ecd8",
   "theme_color": "#f4ecd8",
-  "description": "V1.4 — simulateur mobile-first de destin avec guerres, coalitions, territoires, influence et monde One Piece persistant.",
+  "description": "V1.5 — simulateur mobile-first de destin avec marchés dynamiques, commerce maritime, guerres et monde One Piece persistant.",
   "icons": [
     {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ]
