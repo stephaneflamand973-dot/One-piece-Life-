@@ -68,6 +68,26 @@ window.OPV1_CONTENT={
     ['Hito Hito no Mi, modèle Daibutsu','Mythique',98],['Neko Neko no Mi, modèle Léopard','Zoan',84]
   ],
 
+  fruitAssignments:[
+    {fruit:'Gura Gura no Mi',holder:'Edward Newgate',year:0,month:0},
+    {fruit:'Hie Hie no Mi',holder:'Kuzan',year:0,month:0},
+    {fruit:'Pika Pika no Mi',holder:'Borsalino',year:0,month:0},
+    {fruit:'Magu Magu no Mi',holder:'Sakazuki',year:0,month:0},
+    {fruit:'Suna Suna no Mi',holder:'Crocodile',year:0,month:0},
+    {fruit:'Ito Ito no Mi',holder:'Donquixote Doflamingo',year:0,month:0},
+    {fruit:'Tori Tori no Mi, modèle Phénix',holder:'Marco',year:0,month:0},
+    {fruit:'Uo Uo no Mi, modèle Seiryu',holder:'Kaido',year:0,month:0},
+    {fruit:'Hito Hito no Mi, modèle Daibutsu',holder:'Sengoku',year:0,month:0},
+    {fruit:'Ope Ope no Mi',holder:'Trafalgar Law',year:8,month:0},
+    {fruit:'Mero Mero no Mi',holder:'Boa Hancock',year:10,month:0},
+    {fruit:'Gomu Gomu no Mi',holder:'Monkey D. Luffy',year:12,month:0},
+    {fruit:'Moku Moku no Mi',holder:'Smoker',year:14,month:0},
+    {fruit:'Neko Neko no Mi, modèle Léopard',holder:'Rob Lucci',year:14,month:0},
+    {fruit:'Jiki Jiki no Mi',holder:'Eustass Kid',year:18,month:0},
+    {fruit:'Mera Mera no Mi',holder:'Portgas D. Ace',year:19,month:0},
+    {fruit:'Yami Yami no Mi',holder:'Marshall D. Teach',year:21,month:0}
+  ],
+
   canonEvents:[
     {id:'roger-execution',year:0,month:0,title:'Exécution de Gol D. Roger',type:'anchor',resistance:100,location:'Loguetown',required:[],factions:['Gouvernement','Marine','Pirates'],description:'L’exécution de Roger ouvre la Grande Ère de la Piraterie.'},
     {id:'ohara',year:2,month:0,title:'Destruction d’Ohara',type:'anchor',resistance:94,location:'Ohara',required:[],factions:['Gouvernement','Marine'],description:'Le Gouvernement détruit Ohara après les recherches sur le Siècle oublié.'},
