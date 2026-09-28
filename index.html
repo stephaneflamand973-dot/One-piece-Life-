@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ONE PIECE LIFE" />
   <meta name="description" content="ONE PIECE LIFE, simulateur mobile-first de destin, carrière et aventure dans un monde pirate vivant." />
-  <title>ONE PIECE LIFE — V1.3</title>
+  <title>ONE PIECE LIFE — V1.4</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="styles.css" />
@@ -28,10 +28,10 @@
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V1.3 • Influence & Territories • iPhone & PWA</span>
+        <span class="eyebrow">V1.4 • Wars & Alliances • iPhone & PWA</span>
         <h2>Une vie. Un monde qui n’attend pas ton arrivée.</h2>
-        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.3 transforme réputation, titres et contrôle territorial en pouvoir concret : influence mondiale, domaines, revenus, réseaux alliés et reconnaissance émergente.</p>
-        <div class="feature-pills"><span>RNG seedé</span><span>Influence mondiale</span><span>Territoires</span><span>Autosave</span></div>
+        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.4 transforme les conflits locaux en guerres persistantes : campagnes, fronts, objectifs, coalitions, fatigue de guerre, soutien logistique et paix négociée.</p>
+        <div class="feature-pills"><span>RNG seedé</span><span>Guerres persistantes</span><span>Coalitions</span><span>Autosave</span></div>
       </section>
 
       <section id="localFileWarning" class="paper-card compatibility-card">
@@ -190,6 +190,15 @@
           <div id="affiliateList" class="affiliate-list"></div>
         </section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Conflits</span><h3>Affrontements en cours</h3></div><span id="conflictBadge" class="badge"></span></div><div id="conflictList" class="conflict-list"></div></section>
+        <section class="paper-card strategy-card">
+          <div class="section-heading compact"><div><span class="eyebrow">Grande stratégie</span><h3>Guerres & campagnes</h3></div><span id="warBadge" class="badge"></span></div>
+          <div id="warOverview" class="strategy-summary"></div>
+          <div id="warList" class="war-list"></div>
+          <div class="section-heading compact strategy-subhead"><div><span class="eyebrow">Coalitions</span><h3>Accords actifs</h3></div><span id="treatyBadge" class="badge"></span></div>
+          <div id="treatyList" class="treaty-list"></div>
+          <div class="section-heading compact strategy-subhead"><div><span class="eyebrow">Intervention</span><h3>Actions stratégiques</h3></div><span id="strategyActionBadge" class="badge"></span></div>
+          <div id="strategyActions" class="action-grid strategy-actions"></div>
+        </section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Équipages autonomes</span><h3>Forces émergentes</h3></div><span id="crewWorldBadge" class="badge"></span></div><div id="autonomousCrews" class="world-crew-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Diplomatie</span><h3>Relations entre puissances</h3></div></div><div id="diplomacyGrid" class="diplomacy-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Puissances</span><h3>Équilibre des factions</h3></div></div><div id="factionOverview" class="faction-grid"></div></section>
