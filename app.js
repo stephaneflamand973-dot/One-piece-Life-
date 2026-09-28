@@ -252,19 +252,19 @@ function key(){return P+slot}
 function save(){if(game){localStorage.setItem(key(),JSON.stringify(game));saveMeta()}}
 function migrate(g){
  if(!g)return null;var p=g.player||{},w=g.world||{};
- g.version=14;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};
+ g.version=15;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};
  p.techniques=p.techniques||[];p.techniqueMastery=p.techniqueMastery||{};p.fruitMastery=p.fruitMastery||0;p.fruitAwakened=!!p.fruitAwakened;p.heldFruit=p.heldFruit||null;p.combatXP=p.combatXP||0;p.hakiApplications=p.hakiApplications||{Observation:[],Armement:[],Conquérant:[]};
  p.haki=p.haki||{Observation:0,Armement:0,Conquérant:0};p.latent=p.latent||{Observation:40,Armement:40,Conquérant:0};p.conditions=p.conditions||[];
  p.life=p.life||defaultLife();p.life.assets=p.life.assets||{property:0,business:0,ship:0,treasure:0};p.children=p.children||[];p.children=p.children.map(function(c,i){c.id=c.id||('child-'+i+'-'+H(String(g.seed)+':child:'+i));c.name=c.name||PEOPLE_NAMES[H(String(g.seed)+':childname:'+i)%PEOPLE_NAMES.length];c.ageMonths=c.ageMonths||0;c.birthplace=c.birthplace||p.island||'';c.birthRegion=c.birthRegion||p.region||p.origin;c.race=c.race||p.race||'Humain';c.status=c.status||'active';return c});
  g.codex=g.codex||{people:[],places:[],factions:['Civil'],fruits:[]};['people','places','factions','fruits','events','techniques'].forEach(function(k){g.codex[k]=g.codex[k]||[]});g.relations=(g.relations||[]).map(function(r,i){return normalizeRelation(g,r,i)});g.socialSeq=g.socialSeq||g.relations.length;g.achievements=g.achievements||{unlocked:{}};g.achievements.unlocked=g.achievements.unlocked||{};g.dynasty=g.dynasty||{generation:1,ancestors:[]};
  p.factionRep=p.factionRep||{Civil:10,Marine:0,Pirates:0,'Chasseur de primes':0,Révolutionnaires:0,Gouvernement:0};
  FACTION_KEYS.forEach(function(k){if(p.factionRep[k]==null)p.factionRep[k]=0});
- p.careerRecords=p.careerRecords||{};p.specialization=p.specialization||null;p.careerHistory=p.careerHistory||[];p.salaryTotal=p.salaryTotal||0;p.deserterFrom=p.deserterFrom||[];migrateOrganization(g,p);migrateJustice(p);migrateInfluence(p);migrateStrategy(p);
+ p.careerRecords=p.careerRecords||{};p.specialization=p.specialization||null;p.careerHistory=p.careerHistory||[];p.salaryTotal=p.salaryTotal||0;p.deserterFrom=p.deserterFrom||[];migrateOrganization(g,p);migrateJustice(p);migrateInfluence(p);migrateStrategy(p);migrateTrade(p);
  if(p.career&&p.career!=='Aucune'&&!p.careerRecords[p.faction])p.careerRecords[p.faction]={xp:p.careerXP||0,months:p.serviceMonths||0,rank:p.rank||firstRank(p.faction),specialization:p.specialization||null,successes:0,failures:0};
  if(p.careerRecords[p.faction]){p.rank=p.careerRecords[p.faction].rank||p.rank;p.specialization=p.careerRecords[p.faction].specialization||p.specialization}
  w.fruits=w.fruits||['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi'];w.fruitRegistry=w.fruitRegistry||{};
  w.fruits.forEach(function(n){if(!w.fruitRegistry[n])w.fruitRegistry[n]={status:p.fruit===n?'consumed':'available',holder:p.fruit===n?p.name:null}});
- w=initGrandStrategy(initLivingWorld(g,w));var dk=String(g.seed),ix=migrateInfluence(p);ix.domains=Object.keys(w.territories).filter(function(n){var pc=w.territories[n].playerControl;return pc&&pc.ownerKey===dk});ix.affiliates=w.crews.filter(function(c){return c.affiliation&&c.affiliation.ownerKey===dk&&c.status==='active'}).map(function(c){return c.id});g.player=p;g.world=w;return g
+ w=initWorldEconomy(g,initGrandStrategy(initLivingWorld(g,w)));var dk=String(g.seed),ix=migrateInfluence(p);ix.domains=Object.keys(w.territories).filter(function(n){var pc=w.territories[n].playerControl;return pc&&pc.ownerKey===dk});ix.affiliates=w.crews.filter(function(c){return c.affiliation&&c.affiliation.ownerKey===dk&&c.status==='active'}).map(function(c){return c.id});g.player=p;g.world=w;return g
 }
 function load(i){try{return migrate(JSON.parse(localStorage.getItem(P+i)||'null'))}catch(x){return null}}
 function tl(t,d,y){game.timeline.unshift({age:age(),title:t,desc:d,type:y||''});game.timeline=game.timeline.slice(0,100)}
@@ -272,7 +272,7 @@ function news(t,d,type){game.news.unshift({title:t,desc:d,type:type||''});game.n
 function press(){var o={};REG.forEach(function(r){o[r]={Piraterie:20+R('w')*25,Marine:30+R('w')*35,Criminalité:15+R('w')*30,Révolution:5+R('w')*20,Prospérité:40+R('w')*35,Instabilité:10+R('w')*25}});return o}
 function make(){
  var seed=Number($('#seedInput').value)||Math.floor(Math.random()*2147483647),origin=mode==='custom'?$('#originInput').value:pk(ORIG,'b');
- game={version:14,seed:seed,rng:{},alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
+ game={version:15,seed:seed,rng:{},alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
  game=applyMeta(migrate(game));syncCanonicalFruits();var homes=Object.keys(PL).filter(function(n){return PL[n][0]===origin});game.player.island=pk(homes,'b');game.player.visited=[game.player.island];game.codex.places=[game.player.island];game.world.pressures=press();
  ST.forEach(function(k){game.player.stats[k]=8+R('b')*12;game.player.caps[k]=68+R('c')*25});SK.forEach(function(k){game.player.skills[k]=2+R('b')*8;game.player.caps[k]=68+R('c')*25});
  syncPowers();tl('Naissance','Tu nais à '+game.player.island+', dans '+origin+'.','major');news('Grande Ère de la Piraterie','Le monde entre dans une période de bouleversements.');save();return game}
@@ -370,7 +370,7 @@ function estateValue(){return Math.max(0,netWorth())}
 function buildHeir(child){
  var old=game.player,partner=partnerRelation(),estate=estateValue(),heirs=Math.max(1,old.children.length+(partner?1:0)),share=Math.round(estate/heirs),ancestor={name:old.name,age:age(),career:old.career,rank:old.rank,cause:game.death?game.death.cause:'',estate:estate,bounty:old.highestBounty,generation:game.dynasty.generation};
  game.dynasty.ancestors.push(ancestor);game.dynasty.generation++;
- var parentCaps=old.caps||{},p={name:child.name,difficulty:old.difficulty,ageMonths:child.ageMonths,race:child.race||old.race,origin:child.birthRegion||old.origin,region:old.region,island:old.island,situation:child.ageMonths<180?'Enfance':'Nouvelle génération',activity:child.ageMonths<72?'Grandir':'Études',faction:'Civil',career:'Aucune',rank:child.ageMonths<180?'Enfant':'Sans carrière',money:share,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:Math.round(old.reputation*.12),ambition:'Survivre',wins:0,losses:0,travel:null,visited:[old.island],style:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'heir'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('heir')*60,Armement:20+R('heir')*60,Conquérant:R('heir')<.04?90:0},stats:{},skills:{},caps:{},factionRep:{Civil:10,Marine:0,Pirates:0,'Chasseur de primes':0,Révolutionnaires:0,Gouvernement:0},careerRecords:{},specialization:null,careerHistory:[],salaryTotal:0,deserterFrom:[],organization:null,organizationHistory:[],justice:defaultJustice(),influence:defaultInfluence(),strategy:defaultStrategy(),life:defaultLife(),children:[]};
+ var parentCaps=old.caps||{},p={name:child.name,difficulty:old.difficulty,ageMonths:child.ageMonths,race:child.race||old.race,origin:child.birthRegion||old.origin,region:old.region,island:old.island,situation:child.ageMonths<180?'Enfance':'Nouvelle génération',activity:child.ageMonths<72?'Grandir':'Études',faction:'Civil',career:'Aucune',rank:child.ageMonths<180?'Enfant':'Sans carrière',money:share,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:Math.round(old.reputation*.12),ambition:'Survivre',wins:0,losses:0,travel:null,visited:[old.island],style:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'heir'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('heir')*60,Armement:20+R('heir')*60,Conquérant:R('heir')<.04?90:0},stats:{},skills:{},caps:{},factionRep:{Civil:10,Marine:0,Pirates:0,'Chasseur de primes':0,Révolutionnaires:0,Gouvernement:0},careerRecords:{},specialization:null,careerHistory:[],salaryTotal:0,deserterFrom:[],organization:null,organizationHistory:[],justice:defaultJustice(),influence:defaultInfluence(),strategy:defaultStrategy(),trade:defaultTrade(),life:defaultLife(),children:[]};
  ST.forEach(function(k){var inherited=parentCaps[k]||75;p.caps[k]=cl(inherited*.55+40+R('heir')*15,55,98);p.stats[k]=cl(7+Math.min(25,child.ageMonths/24)+R('heir')*5,5,p.caps[k])});
  SK.forEach(function(k){var inherited=parentCaps[k]||75;p.caps[k]=cl(inherited*.5+42+R('heir')*14,55,98);p.skills[k]=cl(2+Math.min(18,child.ageMonths/36)+R('heir')*4,1,p.caps[k])});
  game.player=p;game.alive=true;game.death=null;game.pending=null;game.mission=null;game.lastCombat=null;game.timeline=[];game.relations=[];
@@ -683,6 +683,116 @@ function renderDomains(){
  $('#domainBadge').textContent=domains.length+' zone'+(domains.length>1?'s':'');$('#domainSummary').innerHTML='<div><span>Zones sous influence</span><strong>'+domains.length+'</strong></div><div><span>Revenu cumulé</span><strong>'+Math.round(x.totalDomainIncome).toLocaleString('fr-FR')+' B</strong></div><div><span>Forces affiliées</span><strong>'+aff.length+'</strong></div><div><span>Pic d’influence</span><strong>'+Math.round(x.peak)+'</strong></div>';
  $('#domainList').innerHTML=domains.length?domains.map(function(d){var pc=d.t.playerControl,threat=game.world.conflicts.some(function(c){return c.location===d.name&&c.status==='active'});return '<div class="domain-row '+(threat?'domain-threat':'domain-owned')+'"><strong>'+e(d.name)+'</strong><span>'+e(pc.label)+' • contrôle '+Math.round(pc.control)+'%</span><small>'+e(infStatic(d.name).region)+' • stabilité '+Math.round(d.t.stability)+'% • revenus cumulés '+Math.round(pc.income||0).toLocaleString('fr-FR')+' B'+(threat?' • CONFLIT EN COURS':'')+'</small><div class="domain-control-meter"><div style="width:'+cl(pc.control,0,100)+'%"></div></div></div>'}).join(''):'<p class="helper-text">Aucun domaine personnel établi.</p>';
  $('#affiliateBadge').textContent=aff.length+' allié'+(aff.length>1?'s':'');$('#affiliateList').innerHTML=aff.length?aff.map(function(c){return '<div class="affiliate-row"><strong>'+e(c.name)+'</strong><span>'+e(c.region)+' • puissance '+Math.round(c.power)+'</span><small>'+c.members+' membres • prime '+Math.round(c.bounty).toLocaleString('fr-FR')+' B • moral '+Math.round(c.morale)+'%</small></div>'}).join(''):'<p class="helper-text">Aucune force autonome n’a encore reconnu ton réseau.</p>'
+}
+
+
+var TRADE_GOODS=[
+ {id:'provisions',name:'Provisions',base:900,weight:1,restricted:false},
+ {id:'medicine',name:'Médicaments',base:1900,weight:1,restricted:false},
+ {id:'materials',name:'Matériaux',base:1450,weight:2,restricted:false},
+ {id:'luxury',name:'Produits de luxe',base:3600,weight:1,restricted:false},
+ {id:'weapons',name:'Armes',base:4800,weight:2,restricted:true},
+ {id:'dials',name:'Dials',base:5700,weight:1,restricted:true},
+ {id:'seastone',name:'Kairouseki',base:9200,weight:1,restricted:true}
+];
+var TRADE_BIAS={
+ 'East Blue':{provisions:.86,medicine:1.02,materials:.94,luxury:1.08,weapons:1.15,dials:1.55,seastone:1.70},
+ 'North Blue':{provisions:1.02,medicine:.92,materials:.90,luxury:1.04,weapons:.82,dials:1.45,seastone:1.58},
+ 'West Blue':{provisions:.95,medicine:.96,materials:.88,luxury:.83,weapons:1.05,dials:1.42,seastone:1.55},
+ 'South Blue':{provisions:.88,medicine:1.00,materials:.96,luxury:.96,weapons:1.10,dials:1.48,seastone:1.62},
+ 'Grand Line':{provisions:1.08,medicine:1.08,materials:1.04,luxury:1.12,weapons:1.00,dials:.72,seastone:1.22},
+ 'New World':{provisions:1.22,medicine:1.20,materials:1.10,luxury:1.18,weapons:.96,dials:1.12,seastone:.74}
+};
+function goodById(id){return TRADE_GOODS.find(function(g){return g.id===id})||null}
+function defaultTrade(){return{cargo:[],profit:0,volume:0,trades:0,smugglingRuns:0,seizures:0,marketActions:0,bestProfit:0,lastPort:null}}
+function migrateTrade(p){p.trade=p.trade||defaultTrade();var t=p.trade;t.cargo=t.cargo||[];t.cargo=t.cargo.filter(function(c){return goodById(c.good)&&c.qty>0}).map(function(c){c.qty=Math.max(0,c.qty||0);c.avgCost=Math.max(0,c.avgCost||0);return c});t.profit=t.profit||0;t.volume=t.volume||0;t.trades=t.trades||0;t.smugglingRuns=t.smugglingRuns||0;t.seizures=t.seizures||0;t.marketActions=t.marketActions||0;t.bestProfit=t.bestProfit||0;t.lastPort=t.lastPort||null;return t}
+function initialMarket(g,name){
+ var region=infStatic(name).region,bias=TRADE_BIAS[region]||{},goods={};
+ TRADE_GOODS.forEach(function(x,i){var b=bias[x.id]||1,rare=x.id==='seastone'||x.id==='dials',stock=(rare?9:34)+(1/b)*22+det(g,'market:stock:'+name+':'+x.id)*32,demand=32+b*18+det(g,'market:demand:'+name+':'+x.id)*28;if(name==='Skypiea'&&x.id==='dials')stock+=55;if(name==='Wano'&&x.id==='seastone')stock+=50;goods[x.id]={stock:Math.round(cl(stock,2,120)),demand:Math.round(cl(demand,12,100)),activity:0,lastPrice:x.base}});
+ return{goods:goods,tradeActivity:0,blockade:false,shock:null,lastShockMonth:null}
+}
+function initWorldEconomy(g,w){
+ w.markets=w.markets||{};Object.keys(PL).forEach(function(n){if(!w.markets[n])w.markets[n]=initialMarket(g,n);else{w.markets[n].goods=w.markets[n].goods||{};TRADE_GOODS.forEach(function(x){if(!w.markets[n].goods[x.id])w.markets[n].goods[x.id]=initialMarket(g,n).goods[x.id]})}});
+ w.economy=w.economy||{priceIndex:100,tradeVolume:0,monthlyVolume:0,shortages:0,shocks:[],month:0};w.economy.shocks=w.economy.shocks||[];return w
+}
+function marketBlockade(name){
+ var w=game.world;if(w.conflicts.some(function(c){return c.status==='active'&&c.location===name&&c.intensity>=45}))return true;
+ return(w.wars||[]).some(function(war){return war.status==='active'&&war.target===name&&war.months>=1})
+}
+function regionalBias(region,id){var b=TRADE_BIAS[region]||{};return b[id]||1}
+function marketPrice(name,id,buy){
+ var g=goodById(id),m=game.world.markets[name],x=m&&m.goods[id];if(!g||!x)return 0;var region=infStatic(name).region,rp=game.world.pressures[region]||{},terr=game.world.territories[name]||{stability:55},bias=regionalBias(region,id),scarcity=cl(1+(x.demand-x.stock)/115,.55,2.15),instability=1+cl((50-(terr.stability||50))/220,-.12,.32),war=m.blockade?1.32:1,pressure=1;
+ if(id==='provisions'||id==='medicine')pressure*=1+cl((rp.Instabilité||20)/380,0,.28);
+ if(id==='luxury')pressure*=.83+(rp.Prospérité||50)/290;
+ if(g.restricted)pressure*=.92+(rp.Criminalité||20)/220;
+ var price=g.base*bias*scarcity*instability*war*pressure,spread=buy?1.06:.94;return Math.max(50,Math.round(price*spread/10)*10)
+}
+function marketPriceIndex(name){
+ var vals=TRADE_GOODS.filter(function(g){return !g.restricted}).map(function(g){return marketPrice(name,g.id,true)/g.base});return Math.round((vals.reduce(function(a,b){return a+b},0)/Math.max(1,vals.length))*100)
+}
+function cargoItem(id){return migrateTrade(game.player).cargo.find(function(c){return c.good===id})||null}
+function cargoUsed(){
+ return migrateTrade(game.player).cargo.reduce(function(a,c){var g=goodById(c.good);return a+(g?g.weight*c.qty:0)},0)
+}
+function cargoCapacity(){
+ var p=game.player,o=p.organization;if(o&&o.ship){var tier=o.ship.tier||0;return[10,20,36,60][tier]||10}return 5+Math.floor((p.skills.Navigation||0)/25)
+}
+function cargoBookValue(){return Math.round(migrateTrade(game.player).cargo.reduce(function(a,c){return a+c.qty*c.avgCost},0))}
+function blackMarketAccess(){
+ var p=game.player,rp=game.world.pressures[p.region]||{};return p.faction==='Pirates'||p.faction==='Révolutionnaires'||(p.skills.Discrétion||0)>=28||(rp.Criminalité||0)>=38
+}
+function blackMarketRisk(){
+ var p=game.player,rp=game.world.pressures[p.region]||{},t=game.world.territories[p.island],official=t&&(t.controller==='Marine'||t.controller==='Gouvernement'),heat=currentHeat?currentHeat():0;return cl(.08+(rp.Marine||25)/230+(official?.10:0)+heat/400-(p.skills.Discrétion||0)/300,.04,.58)
+}
+function transactBlackMarketRisk(good,qty){
+ if(!good.restricted)return;if(R('trade')<blackMarketRisk()){registerCrime('Transaction clandestine : '+good.name,good.id==='seastone'?3:2,true);if(game.player.faction==='Marine'||game.player.faction==='Gouvernement')adjustRep(game.player.faction,-8)}else gain('Discrétion',.12+qty*.03)
+}
+function buyCommodity(id,qty,black){
+ var p=game.player,t=migrateTrade(p),g=goodById(id),m=game.world.markets[p.island],x=m&&m.goods[id];qty=Math.max(1,Math.floor(qty||1));if(!g||!x)return;if(g.restricted&&!black)return toast('Cette marchandise n’est pas vendue légalement ici.');if(black&&!blackMarketAccess())return toast('Tu n’as pas accès au marché noir local.');var maxByStock=Math.floor(x.stock),maxByCapacity=Math.floor((cargoCapacity()-cargoUsed())/g.weight),price=marketPrice(p.island,id,true),maxByMoney=Math.floor(Math.max(0,p.money)/price),n=Math.min(qty,maxByStock,maxByCapacity,maxByMoney);if(n<1)return toast('Stock, argent ou capacité de cargaison insuffisant.');
+ var cost=price*n,item=cargoItem(id);p.money-=cost;x.stock-=n;x.activity+=n;m.tradeActivity+=cost;t.volume+=cost;t.trades++;if(item){item.avgCost=(item.avgCost*item.qty+cost)/(item.qty+n);item.qty+=n}else t.cargo.push({good:id,qty:n,avgCost:price});if(black)transactBlackMarketRisk(g,n);tl('Achat commercial',n+' × '+g.name+' pour '+cost.toLocaleString('fr-FR')+' B.');save();render()
+}
+function sellCommodity(id,qty,black){
+ var p=game.player,t=migrateTrade(p),g=goodById(id),m=game.world.markets[p.island],x=m&&m.goods[id],item=cargoItem(id);qty=Math.max(1,Math.floor(qty||1));if(!g||!x||!item||item.qty<1)return;if(g.restricted&&!black)return toast('Cette marchandise exige un acheteur clandestin.');if(black&&!blackMarketAccess())return toast('Aucun intermédiaire clandestin disponible.');var n=Math.min(qty,item.qty),price=marketPrice(p.island,id,false),revenue=price*n,profit=Math.round((price-item.avgCost)*n);p.money+=revenue;x.stock=cl(x.stock+n,0,150);x.activity+=n;m.tradeActivity+=revenue;t.volume+=revenue;t.trades++;t.profit+=profit;t.bestProfit=Math.max(t.bestProfit,profit);item.qty-=n;if(item.qty<=0)t.cargo=t.cargo.filter(function(c){return c!==item});if(black)transactBlackMarketRisk(g,n);if(p.faction==='Civil'&&profit>0){adjustRep('Civil',Math.min(2,profit/30000));careerRecord().xp+=Math.min(3,profit/18000)}tl('Vente commerciale',n+' × '+g.name+' pour '+revenue.toLocaleString('fr-FR')+' B ('+(profit>=0?'+':'')+profit.toLocaleString('fr-FR')+' B).',profit>=10000?'major':'');checkAchievements();save();render()
+}
+function tradeRouteOpportunities(){
+ var p=game.player,routes=inf().routes||[],out=[];routes.forEach(function(dest){TRADE_GOODS.filter(function(g){return !g.restricted}).forEach(function(g){var buy=marketPrice(p.island,g.id,true),sell=marketPrice(dest,g.id,false),margin=buy?((sell-buy)/buy)*100:0;if(margin>4)out.push({dest:dest,good:g,margin:margin,buy:buy,sell:sell})})});return out.sort(function(a,b){return b.margin-a.margin}).slice(0,6)
+}
+function inspectSmugglingAtArrival(destination){
+ var p=game.player,t=migrateTrade(p),restricted=t.cargo.filter(function(c){var g=goodById(c.good);return g&&g.restricted&&c.qty>0});if(!restricted.length)return;var rp=game.world.pressures[infStatic(destination).region]||{},terr=game.world.territories[destination],official=terr&&(terr.controller==='Marine'||terr.controller==='Gouvernement'),chance=cl(.09+(rp.Marine||25)/210+(official?.13:0)+currentHeat()/450-(p.skills.Discrétion||0)/280,.04,.72);
+ if(R('trade')<chance){var seized=0,value=0;restricted.forEach(function(c){var g=goodById(c.good);seized+=c.qty;value+=Math.round(c.qty*c.avgCost);c.qty=0});t.cargo=t.cargo.filter(function(c){return c.qty>0});t.seizures++;var fine=Math.min(Math.max(0,p.money),Math.round(value*.22));p.money-=fine;registerCrime('Contrebande maritime',cl(2+Math.floor(seized/4),2,5),true);tl('Contrôle douanier','Les autorités saisissent '+seized+' unité(s) de cargaison interdite et imposent '+fine.toLocaleString('fr-FR')+' B d’amende.','danger')}
+ else{t.smugglingRuns++;gain('Discrétion',.35+restricted.length*.08);tl('Passage discret','Ta cargaison clandestine franchit le contrôle de '+destination+'.','major');checkAchievements()}
+}
+function marketMonthlyTarget(name,id){
+ var g=goodById(id),region=infStatic(name).region,rp=game.world.pressures[region]||{},terr=game.world.territories[name]||{stability:50},bias=regionalBias(region,id),target=55/bias;
+ if(id==='provisions')target+=((rp.Prospérité||50)-40)*.18;if(id==='medicine')target-=((rp.Instabilité||20))*0.12;if(g.restricted)target+=((rp.Criminalité||20)-25)*.25;if(name==='Skypiea'&&id==='dials')target+=55;if(name==='Wano'&&id==='seastone')target+=50;
+ if(marketBlockade(name))target*=.58;target*=.7+(terr.stability||50)/165;return cl(target,4,125)
+}
+function simulateTradeRoutes(){
+ var w=game.world,seen={};Object.keys(PL).forEach(function(a){(PL[a][2]||[]).forEach(function(b){if(!w.markets[b])return;var key=[a,b].sort().join('|');if(seen[key])return;seen[key]=1;var good=pk(TRADE_GOODS.filter(function(g){return !g.restricted}),'economy'),pa=marketPrice(a,good.id,false),pb=marketPrice(b,good.id,false),from=pa<pb?a:b,to=from===a?b:a,mf=w.markets[from].goods[good.id],mt=w.markets[to].goods[good.id],gap=Math.abs(pa-pb)/Math.max(1,Math.min(pa,pb));if(gap>.12&&mf.stock>10){var qty=Math.min(mf.stock-8,1+Math.floor(R('economy')*4));mf.stock-=qty;mt.stock=cl(mt.stock+qty,0,150);w.economy.monthlyVolume+=Math.round(qty*Math.min(pa,pb))}})})
+}
+function simulateEconomy(){
+ var w=game.world,econ=w.economy;econ.month++;econ.monthlyVolume=0;var indices=[],shortages=0;
+ Object.keys(w.markets).forEach(function(name){var m=w.markets[name],terr=w.territories[name]||{stability:50},rp=w.pressures[infStatic(name).region]||{};m.blockade=marketBlockade(name);m.tradeActivity*=.82;
+  TRADE_GOODS.forEach(function(g){var x=m.goods[g.id],target=marketMonthlyTarget(name,g.id),warDemand=m.blockade&&(g.id==='provisions'||g.id==='medicine'||g.id==='materials')?8:0;x.demand=cl(x.demand+(target-x.demand)*.08+(R('economy')-.5)*3+warDemand,8,120);x.stock=cl(x.stock+(target-x.stock)*.11+(rp.Prospérité||40)/80+(R('economy')-.5)*4-(m.blockade?2.5:0),0,150);x.activity*=.78;x.lastPrice=marketPrice(name,g.id,true);if(x.stock<8&&x.demand>50)shortages++});
+  if(R('economy')<.012){var shockGood=pk(TRADE_GOODS,'economy'),sx=m.goods[shockGood.id],short=R('economy')<.58;if(short){sx.stock=cl(sx.stock-(12+R('economy')*22),0,150);sx.demand=cl(sx.demand+10+R('economy')*14,0,120)}else sx.stock=cl(sx.stock+15+R('economy')*28,0,150);m.shock=(short?'Pénurie : ':'Arrivage : ')+shockGood.name;m.lastShockMonth=econ.month;econ.shocks.unshift({place:name,good:shockGood.id,type:short?'shortage':'surplus',year:w.year,month:w.month});econ.shocks=econ.shocks.slice(0,30);news(short?'Pénurie locale':'Arrivage commercial',name+' connaît '+(short?'une pénurie de ':'un afflux de ')+shockGood.name+'.',short?'major':'')};
+  indices.push(marketPriceIndex(name))
+ });
+ simulateTradeRoutes();econ.tradeVolume+=econ.monthlyVolume;econ.shortages=shortages;econ.priceIndex=Math.round(indices.reduce(function(a,b){return a+b},0)/Math.max(1,indices.length))
+}
+function localMarketStatus(){
+ var p=game.player,m=game.world.markets[p.island],idx=marketPriceIndex(p.island);if(m.blockade)return'Blocus';if(TRADE_GOODS.some(function(g){var x=m.goods[g.id];return x.stock<8&&x.demand>50}))return'Pénurie';if(idx<88)return'Marché favorable';if(idx>128)return'Prix élevés';return'Stable'
+}
+function renderCargo(){
+ var p=game.player,t=migrateTrade(p),used=cargoUsed(),cap=cargoCapacity(),value=cargoBookValue();$('#cargoBadge').textContent=used+'/'+cap+' capacité';$('#cargoSummary').innerHTML='<div><span>Valeur comptable</span><strong>'+value.toLocaleString('fr-FR')+' B</strong></div><div><span>Profit commercial</span><strong class="'+(t.profit>=0?'trade-profit':'trade-loss')+'">'+(t.profit>=0?'+':'')+Math.round(t.profit).toLocaleString('fr-FR')+' B</strong></div><div><span>Transactions</span><strong>'+t.trades+'</strong></div><div><span>Passages clandestins</span><strong>'+t.smugglingRuns+'</strong></div><div style="grid-column:1/-1"><span>Capacité utilisée</span><div class="cargo-capacity"><div style="width:'+cl(used/Math.max(1,cap)*100,0,100)+'%"></div></div></div>';
+ $('#cargoList').innerHTML=t.cargo.length?t.cargo.map(function(c){var g=goodById(c.good),here=marketPrice(p.island,c.good,false),delta=here-c.avgCost;return '<div class="cargo-row"><div class="cargo-head"><strong>'+e(g.name)+'</strong><span>'+c.qty+' unité'+(c.qty>1?'s':'')+'</span></div><div class="cargo-meta">Coût moyen '+Math.round(c.avgCost).toLocaleString('fr-FR')+' B • vente locale '+here.toLocaleString('fr-FR')+' B • <span class="'+(delta>=0?'trade-profit':'trade-loss')+'">'+(delta>=0?'+':'')+Math.round(delta).toLocaleString('fr-FR')+' B/u</span></div></div>'}).join(''):'<p class="helper-text">Aucune marchandise transportée.</p>'
+}
+function renderMarket(){
+ var p=game.player,m=game.world.markets[p.island],status=localMarketStatus(),idx=marketPriceIndex(p.island),rp=game.world.pressures[p.region]||{},used=cargoUsed(),cap=cargoCapacity();$('#marketPlaceName').textContent=p.island;var badge=$('#marketStatusBadge');badge.textContent=status;badge.className='badge '+(status==='Blocus'||status==='Pénurie'?'market-crisis':status==='Marché favorable'?'market-boom':'');
+ $('#marketSummary').innerHTML='<div><span>Indice des prix</span><strong>'+idx+'</strong></div><div><span>Prospérité régionale</span><strong>'+Math.round(rp.Prospérité||0)+'%</strong></div><div><span>Activité commerciale</span><strong>'+Math.round(m.tradeActivity).toLocaleString('fr-FR')+' B</strong></div><div><span>Cargaison</span><strong>'+used+'/'+cap+'</strong></div>';
+ function cards(restricted){return TRADE_GOODS.filter(function(g){return !!g.restricted===restricted}).map(function(g){var x=m.goods[g.id],buy=marketPrice(p.island,g.id,true),sell=marketPrice(p.island,g.id,false),owned=(cargoItem(g.id)||{qty:0}).qty,scarce=x.stock<10;return '<div class="market-good '+(g.restricted?'restricted ':'')+(scarce?'scarce':'')+'"><div class="market-good-head"><strong>'+e(g.name)+'</strong><span>'+Math.floor(x.stock)+' en stock</span></div><div class="market-good-meta">Acheter '+buy.toLocaleString('fr-FR')+' B • vendre '+sell.toLocaleString('fr-FR')+' B • demande '+Math.round(x.demand)+'/100'+(owned?' • tu en as '+owned:'')+'</div><div class="market-good-actions"><button data-buy-good="'+g.id+'" data-buy-qty="1">Acheter 1</button><button data-buy-good="'+g.id+'" data-buy-qty="5">Acheter 5</button>'+(owned?'<button data-sell-good="'+g.id+'" data-sell-qty="1">Vendre 1</button><button data-sell-good="'+g.id+'" data-sell-qty="5">Vendre 5</button>':'')+'</div></div>'}).join('')}
+ $('#marketGoods').innerHTML=cards(false);var access=blackMarketAccess();$('#blackMarketSection').classList.toggle('hidden',!access);if(access){$('#blackMarketBadge').textContent='Risque '+Math.round(blackMarketRisk()*100)+'%';$('#blackMarketGoods').innerHTML=cards(true)}
+ var routes=tradeRouteOpportunities();$('#tradeRouteBadge').textContent=routes.length+' piste'+(routes.length>1?'s':'');$('#tradeRoutes').innerHTML=routes.length?routes.map(function(r){return '<div class="trade-route"><div class="trade-route-head"><strong>'+e(r.dest)+'</strong><span>'+Math.round(r.margin)+'% estimé</span></div><div class="trade-route-meta">'+e(r.good.name)+' • achat ici '+r.buy.toLocaleString('fr-FR')+' B • vente actuelle là-bas '+r.sell.toLocaleString('fr-FR')+' B</div></div>'}).join(''):'<p class="helper-text">Aucun écart commercial intéressant sur les routes immédiates.</p>';
+ $('[data-buy-good]').forEach(function(b){b.onclick=function(){buyCommodity(b.dataset.buyGood,+b.dataset.buyQty,goodById(b.dataset.buyGood).restricted)}});$('[data-sell-good]').forEach(function(b){b.onclick=function(){sellCommodity(b.dataset.sellGood,+b.dataset.sellQty,goodById(b.dataset.sellGood).restricted)}})
 }
 
 function careerTrack(f,spec){return f==='Gouvernement'&&spec==='Cipher Pol'?CP_RANKS:(CAREERS[f]?CAREERS[f].ranks:CAREERS.Civil.ranks)}
