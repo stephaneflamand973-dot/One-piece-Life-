@@ -10,13 +10,13 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('V1.0')) throw new Error('index.html does not expose V1.0');
-if(!app.includes('version:10') || !app.includes('g.version=10')) throw new Error('game state is not V1.0 migration version 10');
+if(!html.includes('V1.1')) throw new Error('index.html does not expose V1.1');
+if(!app.includes('version:11') || !app.includes('g.version=11')) throw new Error('game state is not V1.1 migration version 10');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
 if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include content-v1.js');
 
-const dynamicIds=new Set(['eatHeldFruit','challengeBtn','martialTrainBtn','changeCareerBtn','careerRecordBtn','upgradeHousingBtn','investBusinessBtn','partnerTimeBtn','marryBtn','breakupBtn','welcomeChildBtn']);
+const dynamicIds=new Set(['eatHeldFruit','challengeBtn','martialTrainBtn','changeCareerBtn','careerRecordBtn','upgradeHousingBtn','investBusinessBtn','partnerTimeBtn','marryBtn','breakupBtn','welcomeChildBtn','orgBondBtn','orgRecruitBtn','orgTrainBtn','orgFundBtn','orgSupplyBtn','orgRepairBtn','orgUpgradeBtn']);
 const ids=[...app.matchAll(/\$\('#([^']+)'\)/g)].map(m=>m[1]);
 const missing=[...new Set(ids)].filter(id=>!dynamicIds.has(id)&&!html.includes('id="'+id+'"'));
 if(missing.length) throw new Error('Missing HTML ids: '+missing.join(', '));
@@ -30,4 +30,4 @@ if(!app.includes('relationshipStatus') || !app.includes('children') || !app.incl
 if(!app.includes('factionRep') || !app.includes('Cipher Pol')) throw new Error('faction systems missing');
 if(!app.includes('canonForecast') || !app.includes('contentStats')) throw new Error('V1 canon UI missing');
 
-console.log('ONE PIECE LIFE V1.0 validation OK');
+console.log('ONE PIECE LIFE V1.1 validation OK');
