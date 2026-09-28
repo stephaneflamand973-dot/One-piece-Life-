@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ONE PIECE LIFE" />
   <meta name="description" content="ONE PIECE LIFE, simulateur mobile-first de destin, carrière et aventure dans un monde pirate vivant." />
-  <title>ONE PIECE LIFE — V0.8</title>
+  <title>ONE PIECE LIFE — V0.9</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="styles.css" />
@@ -28,10 +28,10 @@
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V0.8 • Living World • iPhone & PWA</span>
+        <span class="eyebrow">V0.9 • Life Simulator • iPhone & PWA</span>
         <h2>Une vie. Un monde qui n’attend pas ton arrivée.</h2>
-        <p>Tu nais au début de la Grande Ère de la Piraterie. La V0.8 fait vivre le monde indépendamment du joueur : équipages autonomes, territoires, conflits, diplomatie et personnages majeurs poursuivent désormais leurs propres trajectoires.</p>
-        <div class="feature-pills"><span>RNG seedé</span><span>Monde autonome</span><span>Territoires dynamiques</span><span>Autosave</span></div>
+        <p>Tu nais au début de la Grande Ère de la Piraterie. La V0.9 approfondit enfin la vie privée : relations, romance, couple, famille, enfants, patrimoine, dépenses, achievements et héritage intergénérationnel.</p>
+        <div class="feature-pills"><span>RNG seedé</span><span>Relations profondes</span><span>Héritage</span><span>Autosave</span></div>
       </section>
 
       <section id="localFileWarning" class="paper-card compatibility-card">
@@ -116,6 +116,8 @@
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Missions</span><h3>Opportunités actuelles</h3></div><span class="badge">Contexte réel</span></div><div id="missionBoard" class="mission-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Orientation</span><h3>Activité principale</h3></div><span class="badge">Influence AVANCER</span></div><div id="activityOptions" class="action-grid"></div></section>
         <section id="crewSection" class="paper-card hidden"><div class="section-heading compact"><div><span class="eyebrow">Équipage</span><h3 id="crewName">Aucun équipage</h3></div><span id="crewMorale" class="badge"></span></div><div id="crewDetails"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Patrimoine</span><h3>Économie personnelle</h3></div><span id="netWorthBadge" class="badge"></span></div><div id="economySummary" class="economy-grid"></div><div id="housingCard" class="career-card housing-card"></div><div id="economyActions" class="action-grid economy-actions"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Achievements</span><h3>Accomplissements</h3></div><span id="achievementBadge" class="badge"></span></div><div id="achievementList" class="achievement-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Équipement</span><h3>Inventaire</h3></div></div><div id="equipmentList" class="chip-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Sauvegarde</span><h3>Transfert & sécurité</h3></div><span id="storageStatus" class="badge">Autosave</span></div><p class="helper-text">L’autosave reste actif. Sur iPhone, tu peux aussi copier une sauvegarde texte pour la conserver ailleurs.</p><div class="action-grid"><button id="exportSaveBtn" class="action-card"><strong>Exporter</strong><small>Copier une sauvegarde portable</small></button><button id="importSaveBtn" class="action-card"><strong>Importer</strong><small>Restaurer une sauvegarde texte</small></button></div></section>
       </section>
@@ -131,7 +133,12 @@
         <section id="combatReportSection" class="paper-card hidden"><div class="section-heading compact"><div><span class="eyebrow">Dernier affrontement</span><h3>Rapport de combat</h3></div><span id="combatOutcome" class="badge"></span></div><div id="combatReport" class="combat-report"></div></section>
       </section>
 
-      <section id="relationsPanel" class="tab-panel" data-panel="relations"><section class="paper-card"><span class="eyebrow">Relations</span><h2>Personnes importantes</h2><div id="relationsList" class="relations-list"></div></section></section>
+      <section id="relationsPanel" class="tab-panel" data-panel="relations">
+        <section class="paper-card relation-hero"><div class="section-heading compact"><div><span class="eyebrow">Vie sociale</span><h2>Relations & famille</h2></div><span id="socialStatusBadge" class="badge"></span></div><div id="socialSummary" class="social-summary"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Couple</span><h3>Vie sentimentale</h3></div><span id="romanceBadge" class="badge"></span></div><div id="romanceCard" class="career-card"></div><div id="romanceActions" class="action-grid relation-actions"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Famille</span><h3>Enfants & héritiers</h3></div><span id="familyBadge" class="badge"></span></div><div id="familyList" class="family-list"></div><div id="familyActions" class="action-grid relation-actions"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Relations</span><h3>Personnes importantes</h3></div><span id="relationCountBadge" class="badge"></span></div><div id="relationsList" class="relations-list"></div></section>
+      </section>
 
       <section id="worldPanel" class="tab-panel" data-panel="world">
         <section class="paper-card world-hero"><span class="eyebrow">Monde vivant</span><h2 id="worldHeadline">Grande Ère de la Piraterie</h2><p id="worldSubhead"></p><div id="worldMeta" class="feature-pills"></div></section>
@@ -165,7 +172,7 @@
 </div>
 
 <div id="decisionModal" class="modal-backdrop hidden" role="dialog" aria-modal="true"><div class="modal-card"><span class="eyebrow">Décision</span><h3 id="decisionTitle">Une décision t’attend</h3><p id="decisionText"></p><div id="decisionChoices" class="decision-choices"></div></div></div>
-<div id="deathModal" class="modal-backdrop hidden" role="dialog" aria-modal="true"><div class="modal-card death-card"><span class="eyebrow">Bilan de vie</span><h2 id="deathTitle">Ta vie s’achève</h2><div id="deathSummary" class="death-summary"></div><button id="deathNewBtn" class="primary-btn">Nouvelle vie sur cet emplacement</button><button id="deathHomeBtn" class="secondary-btn" style="margin-top:8px">Retour aux sauvegardes</button></div></div>
+<div id="deathModal" class="modal-backdrop hidden" role="dialog" aria-modal="true"><div class="modal-card death-card"><span class="eyebrow">Bilan de vie</span><h2 id="deathTitle">Ta vie s’achève</h2><div id="deathSummary" class="death-summary"></div><div id="legacyCard" class="legacy-card"></div><button id="continueHeirBtn" class="primary-btn hidden">Continuer avec un héritier</button><button id="deathNewBtn" class="secondary-btn" style="margin-top:8px">Nouvelle vie sur cet emplacement</button><button id="deathHomeBtn" class="secondary-btn" style="margin-top:8px">Retour aux sauvegardes</button></div></div>
 <div id="backupModal" class="modal-backdrop hidden" role="dialog" aria-modal="true"><div class="modal-card"><span class="eyebrow">Sauvegarde portable</span><h3 id="backupTitle">Exporter</h3><p id="backupHelp" class="helper-text"></p><textarea id="backupText" class="backup-text" spellcheck="false"></textarea><div class="modal-actions"><button id="backupPrimaryBtn" class="primary-btn">Copier</button><button id="backupCloseBtn" class="secondary-btn">Fermer</button></div></div></div>
 <div id="toast" class="toast hidden"></div>
 <script src="app.js"></script>
