@@ -8,7 +8,7 @@
   "orientation": "portrait-primary",
   "background_color": "#f4ecd8",
   "theme_color": "#f4ecd8",
-  "description": "V0.9 — simulateur mobile-first de destin, relations, famille, patrimoine et héritage dans un monde vivant.",
+  "description": "V1.0 — simulateur mobile-first de destin dans un monde One Piece vivant, causal et persistant.",
   "icons": [
     {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ]
