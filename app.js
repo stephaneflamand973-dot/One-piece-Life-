@@ -125,7 +125,7 @@ function defaultLife(){return{relationshipStatus:'Célibataire',partnerId:null,h
 function metaKey(){return P+'meta-'+slot}
 function loadMeta(){try{return JSON.parse(localStorage.getItem(metaKey())||'null')}catch(x){return null}}
 function saveMeta(){if(!game)return;localStorage.setItem(metaKey(),JSON.stringify({codex:game.codex,achievements:game.achievements,dynasty:game.dynasty}))}
-function applyMeta(g){var m=loadMeta();if(!m)return g;if(m.codex){['people','places','factions','fruits'].forEach(function(k){g.codex[k]=[].concat(g.codex[k]||[],m.codex[k]||[]).filter(function(v,i,a){return a.indexOf(v)===i})})}if(m.achievements)g.achievements=m.achievements;if(m.dynasty)g.dynasty=m.dynasty;return g}
+function applyMeta(g){var m=loadMeta();if(!m)return g;if(m.codex){['people','places','factions','fruits'].forEach(function(k){g.codex[k]=[].concat(g.codex[k]||[],m.codex[k]||[]).filter(function(v,i,a){return a.indexOf(v)===i})})}if(m.achievements)g.achievements=m.achievements;return g}
 var FACTION_KEYS=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];
 var CAREERS={
 Civil:{label:'Civil',salary:2800,specs:['Marchand','Médecin','Navigateur','Scientifique','Artisan','Cuisinier'],ranks:[
@@ -280,11 +280,11 @@ function welcomeChild(){
  p.children.push(child);p.money-=Math.min(p.money,2500);tl('Nouvelle génération',name+' rejoint ta famille à '+p.island+'.','major');checkAchievements();save();render()
 }
 function upgradeHousing(){
- var p=game.player,l=p.life,n=(l.housingLevel||0)+1;if(n>=HOUSING.length)return toast('Tu possèdes déjà le meilleur logement disponible.');var h=HOUSING[n];if(p.money<h.buy)return toast('Il te faut '+h.buy.toLocaleString('fr-FR')+' B.');
+ var p=game.player;if(p.ageMonths<216)return toast('Tu dois être adulte pour acheter un logement.');var l=p.life,n=(l.housingLevel||0)+1;if(n>=HOUSING.length)return toast('Tu possèdes déjà le meilleur logement disponible.');var h=HOUSING[n];if(p.money<h.buy)return toast('Il te faut '+h.buy.toLocaleString('fr-FR')+' B.');
  p.money-=h.buy;l.housingLevel=n;l.assets.property=Math.max(l.assets.property||0,h.asset);tl('Nouveau logement','Tu t’installes dans : '+h.name+'.','major');save();renderChar()
 }
 function investBusiness(){
- var p=game.player,l=p.life,cost=50000;if(p.money<cost)return toast('Il te faut 50 000 B pour investir.');if((l.assets.business||0)>=240000)return toast('Ton activité commerciale est déjà très développée.');
+ var p=game.player;if(p.ageMonths<216)return toast('Tu dois être adulte pour investir.');var l=p.life,cost=50000;if(p.money<cost)return toast('Il te faut 50 000 B pour investir.');if((l.assets.business||0)>=240000)return toast('Ton activité commerciale est déjà très développée.');
  p.money-=cost;l.assets.business=(l.assets.business||0)+40000;tl('Investissement','Tu investis dans une activité commerciale locale.','major');save();renderChar()
 }
 function achievementCondition(id){
@@ -300,11 +300,11 @@ function checkAchievements(silent){
 }
 function lifeTick(m){
  var p=game.player,l=p.life;l.socialActions=2;
- (p.children||[]).forEach(function(c){if(c.status==='active')c.ageMonths+=m});
+ (p.children||[]).forEach(function(c){if(c.status==='active'){c.ageMonths+=m;c.bond=cl((c.bond||60)+(R('family')-.48)*m*.45,0,100)}});
  game.relations.forEach(function(r){if(r.status!=='active')return;r.monthsKnown+=m;if(r.id===l.partnerId){r.relationshipMonths+=m;r.affection=cl(r.affection+(R('life')-.42)*m*.9,0,100);r.trust=cl(r.trust+(R('life')-.44)*m*.7,0,100);r.loyalty=cl(r.loyalty+(R('life')-.45)*m*.5,0,100)}else{var near=!r.location||r.location===p.island;r.affection=cl(r.affection+(near?(R('life')-.49)*m*.35:-m*.08),0,100);r.trust=cl(r.trust+(R('life')-.5)*m*.2,0,100)}});
  if(p.ageMonths>=180){var cost=livingCostPerMonth()*m,income=businessIncomePerMonth()*m;p.money+=income-cost;l.livingCostsPaid+=cost;l.totalBusinessIncome+=income;l.lastExpense=cost;if(p.money<0){l.debtPeak=Math.min(l.debtPeak||0,p.money);p.energy=cl(p.energy-m*.7,0,100)}}
  var nw=netWorth();l.netWorthPeak=Math.max(l.netWorthPeak||0,nw);
- var partner=partnerRelation();if(partner&&R('life')<.018*m){if(R('life')<.66){partner.affection=cl(partner.affection+4,0,100);partner.trust=cl(partner.trust+3,0,100);tl('Moment important','Ta relation avec '+partner.name+' se renforce.')}else{partner.affection=cl(partner.affection-6,0,100);partner.trust=cl(partner.trust-5,0,100);tl('Tension dans le couple','Un désaccord fragilise ta relation avec '+partner.name+'.')}}
+ var partner=partnerRelation();if(partner&&R('life')<.018*m){if(R('life')<.66){partner.affection=cl(partner.affection+4,0,100);partner.trust=cl(partner.trust+3,0,100);tl('Moment important','Ta relation avec '+partner.name+' se renforce.')}else{partner.affection=cl(partner.affection-6,0,100);partner.trust=cl(partner.trust-5,0,100);tl('Tension dans le couple','Un désaccord fragilise ta relation avec '+partner.name+'.')}}if(partner&&partner.affection<12&&partner.trust<12){partner.role='ex-partenaire';partner.type='social';l.partnerId=null;l.relationshipStatus='Célibataire';tl('Rupture',partner.name+' met fin à votre relation après une longue dégradation.','major')}
  var years=p.ageMonths/12;if(years>55){p.health=cl(p.health-m*(years-55)/70,0,100);if(years>72&&R('life')<Math.pow((years-70)/35,2)*.006*m){die('Décès naturel à '+Math.floor(years)+' ans.');return}}
  checkAchievements()
 }
