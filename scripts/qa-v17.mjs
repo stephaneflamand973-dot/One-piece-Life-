@@ -119,7 +119,7 @@ test('Static: unique HTML ids',()=>{
 });
 test('Static: no broken dynamic selector pattern',()=>{
   assert(!appSource.includes('$$$('),'contains $$$(');
-  const bad=[...appSource.matchAll(/(?<!\$)\$\('\[[^']+\]'\)\.forEach/g)];
+  const bad=[...appSource.matchAll(/(?<!\$)\$\([^;\n]*?\)\.forEach/g)];
   assert(!bad.length,'single-element selector used as list: '+bad.map(x=>x[0]).join(','));return 'selectors clean'
 });
 test('Creation: Custom mode initializes full V1.7 state',()=>{
