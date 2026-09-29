@@ -8,7 +8,7 @@
   "orientation": "portrait-primary",
   "background_color": "#f4ecd8",
   "theme_color": "#f4ecd8",
-  "description": "V1.5.1 — mise à jour de stabilité et d’équilibrage du simulateur : RNG déterministe, organisations réparées, guerres, commerce et économie rééquilibrés.",
+  "description": "V1.6 — simulateur de vie avec rivaux persistants, mentors, personnages canoniques relationnels, trajectoires autonomes et recrutement social.",
   "icons": [
     {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ]
