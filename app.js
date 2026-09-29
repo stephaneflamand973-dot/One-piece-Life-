@@ -354,13 +354,26 @@ function relationGrowthRate(r){
 function moveNpc(r){
  var cur=npcRegion(r),links=REGION_LINKS[cur]||[];if(!links.length)return;var next=pk(links,'npc'),places=Object.keys(PL).filter(function(n){return PL[n][0]===next});r.region=next;r.location=places.length?pk(places,'npc'):null;addRelationMemory(r,'Part pour '+next+'.','travel');if(next===game.player.region&&r.monthsKnown>=6){r.trust=cl(r.trust+1,0,100);addRelationMemory(r,'Vos routes se croisent à nouveau dans '+next+'.','reunion');tl('Retrouvailles',r.name+' réapparaît dans ta région.','major')}
 }
+function chooseNpcIntent(r){
+ var a=String(r.npcAmbition||'').toLowerCase(),choices=[];
+ if(/fort/.test(a))choices.push('S’entraîner');if(/explorer/.test(a))choices.push('Explorer');if(/fortune/.test(a))choices.push('S’enrichir');if(/faction/.test(a))choices.push('Faire carrière');if(/proches/.test(a))choices.push('Protéger ses proches');
+ choices.push('Faire carrière','Explorer');r.npcIntent=pk(choices,'npc');r.npcIntentMonths=5+Math.floor(R('npc')*10);return r.npcIntent
+}
+function npcIntentTick(r,m){
+ if(!r.npcIntent||r.npcIntentMonths<=0)chooseNpcIntent(r);r.npcIntentMonths-=m;
+ if(r.npcIntent==='S’entraîner')r.npcPower=cl(r.npcPower+m*.025*(1+Math.max(0,r.npcPotential-r.npcPower)/35),1,r.npcPotential);
+ else if(r.npcIntent==='S’enrichir')r.npcWealth=Math.max(0,(r.npcWealth||0)+m*(120+R('npc')*480)*(1+(r.careerLevel||0)*.12));
+ else if(r.npcIntent==='Faire carrière'&&r.npcAgeMonths>=180&&R('npc')<.012*m&&r.careerLevel<6){r.careerLevel++;addRelationMemory(r,'Son objectif personnel accélère sa carrière : '+npcCareerRank(r)+'.','career')}
+ else if(r.npcIntent==='Explorer'&&r.npcAgeMonths>=180&&R('npc')<.022*m)moveNpc(r);
+ else if(r.npcIntent==='Protéger ses proches'&&npcNearby(r)){r.loyalty=cl(r.loyalty+.05*m,0,100);r.trust=cl(r.trust+.035*m,0,100)}
+}
 function npcTick(m){
  var p=game.player;
  game.relations.forEach(function(r){
   r=normalizeRelation(game,r,0);if(r.status==='dead')return;r.npcAgeMonths+=m;
   if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a){var was=r.status;r.faction=a.faction;r.region=a.region;r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';if(was!=='dead'&&r.status==='dead')addRelationMemory(r,'Sa trajectoire s’achève dans le monde vivant.','death')}return}
   if(r.injuryMonths>0){r.injuryMonths-=m;if(r.injuryMonths<=0){r.injuryMonths=0;r.status='active';addRelationMemory(r,'Se remet de ses blessures.','recovery')}return}
-  if(r.status!=='active')return;
+  if(r.status!=='active')return;npcIntentTick(r,m);
   if(r.id===p.life.partnerId){r.region=p.region;r.location=p.island}
   if(r.joinedOrganization){var org=p.organization,mem=org&&org.members.find(function(m){return m.linkedRelationId===r.id});if(mem&&mem.status==='active'){r.region=p.region;r.location=p.island;r.npcPower=cl(Math.max(r.npcPower,mem.power),1,100);mem.power=r.npcPower;r.injuryMonths=mem.injuryMonths||0;return}else{r.joinedOrganization=false;if(r.type==='organization')r.type='social';addRelationMemory(r,'N’appartient plus à ton organisation.','organization')}}
   var gap=Math.max(0,r.npcPotential-r.npcPower),ageFactor=r.npcAgeMonths<144?.42:r.npcAgeMonths<180?.68:1,growth=gap/100*relationGrowthRate(r)*m*5*ageFactor;r.npcPower=cl(r.npcPower+growth,1,r.npcPotential);
@@ -1697,31 +1710,42 @@ function simulateConflicts(){
  if(w.conflicts.length<4&&R('world')<.10+w.globalTension/900){var names=Object.keys(w.territories),loc=pk(names,'world'),t=w.territories[loc],att=pk(hostileCandidates(t.controller),'world');spawnConflict(loc,att,t.controller,32+R('world')*42,'world')}
 }
 function simulateCrews(){
- var w=game.world,active=w.crews.filter(function(c){return c.status==='active'});
+ var w=game.world,active=w.crews.filter(function(c){return c.status==='active'});migrateWorldIntelligence(game,w);
  active.forEach(function(c){
-  c.ageMonths++;c.power=cl(c.power+(R('world')-.35)*1.15,6,96);c.morale=cl(c.morale+(R('world')-.5)*5,8,100);
-  if(c.faction==='Pirates')c.bounty=Math.max(0,c.bounty+Math.round((c.power*.12+R('world')*5)*100000));
-  if(R('world')<.13){var links=REGION_LINKS[c.region]||[];if(links.length)c.region=pk(links,'world')}
+  c.ageMonths++;if(!c.intent||c.intentMonths<=0)chooseCrewIntent(c);c.intentMonths--;c.morale=cl(c.morale+(R('world')-.48)*3,8,100);
+  if(c.intent==='Se réorganiser'){c.resources=cl(c.resources+1.8+R('world')*2,0,100);c.morale=cl(c.morale+2,0,100);c.power=cl(c.power+.08,6,96)}
+  else if(c.intent==='Recruter'){if(R('world')<.24){c.members=cl(c.members+1+Math.floor(R('world')*3),2,80);c.recruits++;c.resources=cl(c.resources-1.5,0,100)}}
+  else if(c.intent==='Explorer'){if(R('world')<.22){var links=REGION_LINKS[c.region]||[];if(links.length)c.region=pk(links,'world')}}
+  else if(c.intent==='Mener un raid'){c.resources=cl(c.resources+(.5+R('world')*2),0,100);c.morale=cl(c.morale+(R('world')-.35)*2,8,100)}
+  else if(c.intent==='Traquer une cible'){c.power=cl(c.power+.12+.18*R('world'),6,96)}
+  else if(c.intent==='Développer un réseau'){c.resources=cl(c.resources+.45,0,100);if(w.factions[c.faction]!=null)w.factions[c.faction]=cl(w.factions[c.faction]+.08,0,100)}
+  c.power=cl(c.power+(R('world')-.42)*.65,6,96);if(c.faction==='Pirates')c.bounty=Math.max(0,c.bounty+Math.round((c.power*.08+R('world')*3)*100000));
   var terrs=Object.keys(w.territories).filter(function(n){return infStatic(n).region===c.region}),loc=terrs.length?pk(terrs,'world'):null,t=loc&&w.territories[loc];
-  if(t&&c.power>42&&c.faction!==t.controller&&diplomacy(c.faction,t.controller)<-20&&R('world')<.045)spawnConflict(loc,c.faction,t.controller,35+c.power*.45,c.id);
-  if(R('world')<.008+Math.max(0,25-c.morale)/2500){c.status='destroyed';c.defeats++;news(c.name+' disparaît',c.name+' est détruit ou dissous dans '+c.region+'.','major')}
+  var aggressive=c.intent==='Mener un raid'||c.intent==='Chercher un territoire'||c.intent==='Traquer une cible';if(t&&aggressive&&c.power>38&&c.faction!==t.controller&&diplomacy(c.faction,t.controller)<-20&&R('world')<.065)spawnConflict(loc,c.faction,t.controller,32+c.power*.48,c.id);
+  if(R('world')<.006+Math.max(0,22-c.morale)/2800+Math.max(0,12-c.resources)/2400){c.status='destroyed';c.defeats++;intelligenceEvent(c.name+' disparaît',c.name+' est détruit ou dissous dans '+c.region+'.','major',c.id)}
  });
- if(w.crews.filter(function(c){return c.status==='active'}).length<8){var nc=makeWorldCrew(game,w.nextCrewId++);w.crews.push(nc);news('Nouvel équipage',nc.name+' apparaît dans '+nc.region+'.','')}
+ if(w.crews.filter(function(c){return c.status==='active'}).length<8){var nc=makeWorldCrew(game,w.nextCrewId++);migrateWorldIntelligence(game,w);w.crews.push(nc);intelligenceEvent('Nouvel équipage',nc.name+' apparaît dans '+nc.region+'.','',nc.id)}
  w.crews=w.crews.slice(-28)
 }
 function syncActorAvailability(){
  var w=game.world;w.actors.forEach(function(a){if(a.status==='inactive'&&w.year>=(a.activeFrom||0)){a.status='active';a.region=a.startRegion||a.region;news('Nouvel acteur sur les mers',a.name+' commence à faire parler de lui dans '+a.region+'.',a.importance>=98?'major':'')}})
 }
 function simulateActors(){
- var w=game.world;syncActorAvailability();
+ var w=game.world;syncActorAvailability();migrateWorldIntelligence(game,w);
  w.actors.forEach(function(a){
-  if(a.status==='dead'||a.status==='inactive')return;if(a.status==='wounded'){a.woundMonths--;if(a.woundMonths<=0){a.status='active';a.woundMonths=0;news(a.name+' réapparaît',a.name+' reprend ses activités dans '+a.region+'.','')}return}
-  a.actions++;if(R('world')<.08){var links=REGION_LINKS[a.region]||[];if(links.length){a.region=pk(links,'world');if(a.importance>=98&&R('world')<.20)news('Déplacement majeur',a.name+' est signalé dans '+a.region+'.','major')}}
-  if(w.factions[a.faction]!=null&&R('world')<.30)w.factions[a.faction]=cl(w.factions[a.faction]+(R('world')-.38)*.5,0,100);
-  if(a.faction!=='Indépendant'&&R('world')<.10){var ts=Object.keys(w.territories).filter(function(n){return infStatic(n).region===a.region});if(ts.length){var t=w.territories[pk(ts,'world')];if(t.controller===a.faction)t.influence=cl(t.influence+1.4,0,100)}}
+  if(a.status==='dead'||a.status==='inactive')return;if(a.status==='wounded'){a.woundMonths--;if(a.woundMonths<=0){a.status='active';a.woundMonths=0;intelligenceEvent(a.name+' réapparaît',a.name+' reprend ses activités dans '+a.region+'.','',a.name)}return}
+  a.actions++;actorIntentTick(a);
+  if(R('world')<.035){var links=REGION_LINKS[a.region]||[];if(links.length&&a.intent!=='Protéger sa zone'&&a.intent!=='Stabiliser une zone')a.region=pk(links,'world')}
+  if(w.factions[a.faction]!=null&&R('world')<.22)w.factions[a.faction]=cl(w.factions[a.faction]+(R('world')-.40)*.38,0,100);
  });
  var byRegion={};w.actors.filter(function(a){return a.status==='active'}).forEach(function(a){(byRegion[a.region]||(byRegion[a.region]=[])).push(a)});
- Object.keys(byRegion).forEach(function(r){var a=byRegion[r];if(a.length<2||R('world')>.045)return;var one=pk(a,'world'),opps=a.filter(function(x){return x!==one&&diplomacy(one.faction,x.faction)<-40});if(!opps.length)return;var two=pk(opps,'world'),p1=actorPower(one)+R('world')*16,p2=actorPower(two)+R('world')*16,loser=p1>=p2?two:one,winner=loser===one?two:one,margin=Math.abs(p1-p2);loser.status='wounded';loser.woundMonths=Math.round(2+R('world')*5);news('Affrontement majeur',winner.name+' prend l’avantage sur '+loser.name+' dans '+r+'.','major');var deathChance=(w.divergence/100)*.006*Math.max(.04,1-loser.importance/108);if(margin>20&&R('world')<deathChance){loser.status='dead';loser.woundMonths=0;w.divergence=cl(w.divergence+loser.importance*.18,0,100);news('DIVERGENCE HISTORIQUE',loser.name+' disparaît lors d’un affrontement contre '+winner.name+'.','war')}})
+ Object.keys(byRegion).forEach(function(r){
+  var actors=byRegion[r];for(var i=0;i<actors.length;i++)for(var j=i+1;j<actors.length;j++){var one=actors[i],two=actors[j],dip=diplomacy(one.faction,two.faction),delta=one.faction===two.faction?.25:dip>35?.12:dip<-35?-.28:(R('world')-.5)*.08;adjustActorLink(one,two,delta)}
+  if(actors.length<2)return;var first=pk(actors,'world'),opps=actors.filter(function(x){return x!==first&&(diplomacy(first.faction,x.faction)<-40||actorLink(first,x)<-45)});if(!opps.length)return;
+  var aggression=(first.intent==='Chercher un adversaire'||first.intent==='Mener un raid'?.075:.025)+Math.max(0,-Math.min.apply(null,opps.map(function(x){return actorLink(first,x)})))/1800;if(R('world')>aggression)return;
+  var second=pk(opps,'world'),p1=actorPower(first)+R('world')*16,p2=actorPower(second)+R('world')*16,loser=p1>=p2?second:first,winner=loser===first?second:first,margin=Math.abs(p1-p2);winner.victories=(winner.victories||0)+1;loser.defeats=(loser.defeats||0)+1;adjustActorLink(winner,loser,-12);loser.status='wounded';loser.woundMonths=Math.round(2+R('world')*5);intelligenceEvent('Affrontement majeur',winner.name+' prend l’avantage sur '+loser.name+' dans '+r+'.','major',winner.name);
+  var deathChance=(w.divergence/100)*.006*Math.max(.04,1-loser.importance/108);if(margin>20&&R('world')<deathChance){loser.status='dead';loser.woundMonths=0;w.divergence=cl(w.divergence+loser.importance*.18,0,100);intelligenceEvent('DIVERGENCE HISTORIQUE',loser.name+' disparaît lors d’un affrontement contre '+winner.name+'.','war',loser.name)}
+ })
 }
 function simulateTerritories(){
  var w=game.world;Object.keys(w.territories).forEach(function(n){var t=w.territories[n];t.stability=cl(t.stability+(R('world')-.48)*2.8,0,100);if(t.stability<30)t.influence=cl(t.influence-(30-t.stability)*.025,20,100);t.contested=t.contested||t.influence<45});
