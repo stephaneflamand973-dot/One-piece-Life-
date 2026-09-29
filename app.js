@@ -1299,7 +1299,7 @@ function renderPanel(name){
  if(SECTION_UI[name])applySectionGroup(name,sectionState[name]||SECTION_UI[name].groups[0].id,false)
 }
 function activateTab(name,scroll){
- activeTab=name||'life';$('.nav-item').forEach(function(x){x.classList.toggle('active',x.dataset.tab===activeTab)});$('.tab-panel').forEach(function(x){x.classList.toggle('active',x.dataset.panel===activeTab)});renderPanel(activeTab);if(scroll!==false)scrollTo(0,0)
+ activeTab=name||'life';$$('.nav-item').forEach(function(x){x.classList.toggle('active',x.dataset.tab===activeTab)});$$('.tab-panel').forEach(function(x){x.classList.toggle('active',x.dataset.panel===activeTab)});renderPanel(activeTab);if(scroll!==false)scrollTo(0,0)
 }
 function renderDevOutput(){
  var panel=$('#developerPanel');if(!game||!panel||panel.classList.contains('hidden'))return;$('#devOutput').textContent=JSON.stringify({seed:game.seed,power:power(),player:game.player,world:game.world},null,2)
@@ -1427,7 +1427,7 @@ function bind(){
  $$('.mode-card').forEach(function(b){b.onclick=function(){mode=b.dataset.mode;$$('.mode-card').forEach(function(x){x.classList.toggle('selected',x===b)});$('#customFields').classList.toggle('hidden',mode!=='custom')}});
  $('#newLifeBtn').onclick=function(){make();$('#creationCard').classList.add('hidden');render()};$('#cancelCreate').onclick=function(){$('#creationCard').classList.add('hidden')};$('#advanceBtn').onclick=advance;$('#attentionBtn').onclick=showDecision;$('#homeBtn').onclick=showStart;
  $('#deathHomeBtn').onclick=function(){$('#deathModal').classList.add('hidden');showStart()};$('#continueHeirBtn').onclick=continueWithHeir;$('#deathNewBtn').onclick=function(){localStorage.removeItem(key());$('#deathModal').classList.add('hidden');showStart();$('#creationCard').classList.remove('hidden')};
- $('#timelineFilter').onclick=function(){majorOnly=!majorOnly;renderTimeline()};$('.nav-item').forEach(function(b){b.onclick=function(){activateTab(b.dataset.tab,true)}});
+ $('#timelineFilter').onclick=function(){majorOnly=!majorOnly;renderTimeline()};$$('.nav-item').forEach(function(b){b.onclick=function(){activateTab(b.dataset.tab,true)}});
  $('#devToggle').onclick=function(){if(game){$('#developerPanel').classList.remove('hidden');renderDevOutput()}};$('#closeDev').onclick=function(){$('#developerPanel').classList.add('hidden')};$('#exportSaveBtn').onclick=function(){backup('export')};$('#importSaveBtn').onclick=function(){backup('import')};$('#backupCloseBtn').onclick=function(){$('#backupModal').classList.add('hidden')};
  $('#backupPrimaryBtn').onclick=function(){if(backupMode==='export'){if(navigator.clipboard)navigator.clipboard.writeText($('#backupText').value);toast('Sauvegarde copiée ou prête à copier.')}else try{game=migrate(JSON.parse(decodeURIComponent(escape(atob($('#backupText').value.trim())))));syncCanonicalFruits();save();$('#backupModal').classList.add('hidden');render()}catch(x){toast('Sauvegarde invalide.')}};
  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')save()});window.addEventListener('pagehide',save)
