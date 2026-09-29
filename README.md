@@ -1,3 +1,115 @@
+# ONE PIECE LIFE — V2.4 Flow Engine
+
+La V2.4 part d'un constat simple : V2.3 avait réduit la micro-gestion, mais le jeu demandait encore trop de clics et rendait trop de contenu invisible.
+
+## Objectif
+
+**Même profondeur, moins d'effort pour y accéder.**
+
+## Temps plus fluide
+
+AVANCER utilise désormais des fenêtres plus longues quand rien ne justifie une interruption :
+
+- vie calme : **4 à 6 mois** ;
+- carrière : **2,5 à 4,5 mois** ;
+- exploration : **1,5 à 3 mois** ;
+- formation : **2,5 à 4,5 mois** ;
+- danger, détention et blessures restent volontairement plus fins ;
+- missions et voyages avancent par blocs plus larges jusqu'à leur prochaine étape utile.
+
+Le focus de progression n'impose plus artificiellement un rythme de 1 à 2 mois à toute vie adulte.
+
+## Focus AUTO
+
+Le mode **Auto** devient la manière la plus simple de progresser.
+
+Il choisit dynamiquement entre Combat, Forme, Carrière, Pouvoirs ou Équilibre selon :
+
+- santé et énergie ;
+- ambition ;
+- spécialisation ;
+- expertise ;
+- Haki ;
+- Fruit ;
+- style de combat.
+
+Les focus manuels restent disponibles.
+
+## Activité et focus
+
+Les événements de progression utilisent maintenant le **focus réel** plutôt que l'activité temporaire.
+
+Une mission, une exploration ou une routine ne fait donc plus disparaître les événements liés à la progression choisie.
+
+## Rendu à la demande
+
+Les écrans complexes ne construisent plus systématiquement tout leur contenu caché.
+
+- Monde rend indépendamment **Explorer / Monde / Histoire** ;
+- Progression rend indépendamment **Progresser / Pouvoirs / Détails** ;
+- Carrière rend indépendamment **Profil / Carrière / Situation** ;
+- Liens rend indépendamment **Proches / Réseau**.
+
+## Relations simplifiées
+
+Le réseau social affiche les relations prioritaires et un seul bouton **Interagir** par personne.
+
+Les actions disponibles sont proposées ensuite dans une décision contextuelle.
+
+Le réseau complet reste accessible.
+
+## Feedback AVANCER
+
+Après une période, le rapport indique les progressions principales réellement obtenues, par exemple :
+
+**Focus Combat : Sabre +0,8 • Réflexes +0,5**
+
+## Interface Vie
+
+La Timeline normale est limitée aux **5 derniers événements**. L'historique étendu reste accessible.
+
+Les compteurs détaillés des fils narratifs sont retirés de la boucle principale ; seuls les fils actifs et décisions utiles restent visibles.
+
+## Compatibilité
+
+Le GameState passe en **version interne 24**.
+
+Les sauvegardes V2.3 sont migrées sans perdre statistiques, relations, histoires, monde, économie ou progression.
+
+
+## QA V2.4
+
+La release candidate passe **149/149 scénarios fonctionnels**.
+
+Les garde-fous spécifiques à la fluidité vérifient notamment :
+
+- focus **Auto** dynamique sans écraser le choix du joueur ;
+- effet réel des cinq ambitions ;
+- vie calme par fenêtres de **4 à 6 mois** ;
+- carrière par fenêtres de **2,5 à 4,5 mois** ;
+- simulation segmentée qui s’interrompt sur décision, événement majeur, arrivée ou fin de mission ;
+- événements de progression branchés sur le focus réel ;
+- feedback détaillé après AVANCER ;
+- vrai lazy rendering des sous-sections Monde et Progression ;
+- réseau relationnel limité à six personnes visibles avec un seul bouton contextuel par relation ;
+- un seul scan d’achievements par AVANCER ;
+- Timeline limitée à cinq entrées avant développement.
+
+Mesures V2.4 de référence :
+
+- **5,28 AVANCER/an** sur le parcours adulte simulé, sous l’objectif ≤ 5,5 ;
+- **43,3 AVANCER** en moyenne pour atteindre 15 ans, contre environ 48 en V2.3 ;
+- **0,66 moment notable par clic** pendant l’enfance ;
+- puissance moyenne à 25 ans : **34,9** ;
+- exploration après 36 mois : **60,4 %** de familiarité et **3 découvertes** en moyenne ;
+- narration adulte sur dix ans : **6,7 fils commencés**, maximum **2 simultanés** ;
+- monde sur trente ans : divergence moyenne **35 %**, indice des prix **103,4**, environ **8 équipages actifs**.
+
+La fluidité progresse donc sans supprimer la profondeur ni accélérer artificiellement les simulations mensuelles internes.
+
+
+---
+
 # ONE PIECE LIFE — V2.3 Fluid Life
 
 La V2.3 simplifie l’expérience sans supprimer les systèmes profonds développés jusqu’à V2.2.

@@ -8,7 +8,7 @@
   "orientation": "portrait-primary",
   "background_color": "#f4ecd8",
   "theme_color": "#f4ecd8",
-  "description": "V2.3 — Fluid Life : progression simplifiée, interface allégée, choix contextuels et profondeur automatique sous le capot.",
+  "description": "V2.4 — Flow Engine : focus AUTO, périodes de vie plus longues, rendu paresseux réel et interactions contextuelles.",
   "icons": [
     {
       "src": "icon.svg",
