@@ -592,9 +592,138 @@ function renderCodexExploration(){
  var p=game.player,x=migrateExploration(p),disc=game.codex.discoveries||[],sites=Object.keys(x.sites),mastered=sites.filter(function(n){return x.sites[n].familiarity>=85}).length;$('#codexProgressBadge').textContent=disc.length+' découverte'+(disc.length>1?'s':'');$('#codexSummary').innerHTML='<div><span>Îles connues</span><strong>'+p.visited.length+'</strong></div><div><span>Îles maîtrisées</span><strong>'+mastered+'</strong></div><div><span>Découvertes</span><strong>'+disc.length+'</strong></div><div><span>Trésors</span><strong>'+x.treasures+'</strong></div>';$('#codexDiscoveries').innerHTML=disc.length?disc.slice(-8).reverse().map(function(d){return'<div class="codex-entry"><strong>'+e(d.name)+'</strong><small>'+e(d.place)+' • '+e(d.type)+'</small></div>'}).join(''):'<div class="codex-entry"><small>Explore le monde pour enrichir le Codex.</small></div>'
 }
 
+
+function defaultStoryEngine(){
+ return{seq:0,active:[],history:[],stats:{started:0,resolved:0,failed:0,choices:0},lastStartAge:-999}
+}
+function migrateStoryEngine(g){
+ g.story=g.story||defaultStoryEngine();var st=g.story;st.seq=st.seq||0;st.active=Array.isArray(st.active)?st.active:[];st.history=Array.isArray(st.history)?st.history.slice(0,30):[];st.stats=st.stats||{};['started','resolved','failed','choices'].forEach(function(k){st.stats[k]=st.stats[k]||0});st.lastStartAge=st.lastStartAge==null?-999:st.lastStartAge;
+ st.active=st.active.filter(function(x){return x&&x.id&&x.type}).map(function(x){x.status=x.status||'active';x.stage=x.stage||0;x.awaiting=!!x.awaiting;x.createdAge=x.createdAge==null?(g.player&&g.player.ageMonths||0):x.createdAge;x.nextAge=x.nextAge==null?x.createdAge+1:x.nextAge;x.deadlineAge=x.deadlineAge==null?x.createdAge+10:x.deadlineAge;x.data=x.data||{};return x});
+ return st
+}
+function activeStories(){return migrateStoryEngine(game).active.filter(function(s){return s.status==='active'})}
+function awaitingStory(){return activeStories().find(function(s){return s.awaiting})||null}
+function storyRelation(story){return story&&story.participantId?relationById(story.participantId):null}
+function storyEligibleTypes(){
+ var p=game.player,types=[],active=activeStories(),used=active.map(function(s){return s.type}),rels=game.relations.filter(function(r){return r.status==='active'&&(r.location===p.island||r.region===p.region)}),rivals=rels.filter(function(r){return r.role==='rival'}),site=explorationSite(p.island),j=migrateJustice(p);
+ function add(id,w){if(used.indexOf(id)<0&&w>0)types.push({id:id,weight:w})}
+ if(p.ageMonths>=72&&p.ageMonths<180&&rels.length)add('youth-promise',1.6);
+ if(p.ageMonths>=144&&!p.travel&&site.familiarity>=20)add('island-secret',1.35+(p.activity==='Explorer'?.55:0));
+ if(p.ageMonths>=180&&rels.length)add('social-favor',1.05);
+ if(p.ageMonths>=180&&p.career!=='Aucune')add('career-crossroads',1.1);
+ if(p.ageMonths>=180&&((j.regionalHeat[p.region]||0)>=25||p.bounty>0))add('justice-shadow',.8+(j.regionalHeat[p.region]||0)/100);
+ if(p.ageMonths>=180&&rivals.length)add('rival-challenge',.85);
+ if(p.ageMonths>=180&&p.organization&&(p.organization.morale<72||p.organization.supplies<30))add('organization-crisis',1.05);
+ return types
+}
+function pickStoryType(types){
+ var total=types.reduce(function(a,x){return a+x.weight},0),r=R('story')*total;for(var i=0;i<types.length;i++){r-=types[i].weight;if(r<=0)return types[i].id}return types.length?types[types.length-1].id:null
+}
+function storyBase(type){
+ var p=game.player,rels=game.relations.filter(function(r){return r.status==='active'&&(r.location===p.island||r.region===p.region)}),rivals=rels.filter(function(r){return r.role==='rival'}),site=explorationSite(p.island),profile=islandProfile(p.island),o=p.organization,j=migrateJustice(p),r=null,title='',summary='',data={};
+ if(type==='youth-promise'){r=pk(rels,'story');title='Une promesse avec '+r.name;summary='Un lien de jeunesse commence à devenir plus important qu’une simple rencontre.';data.focus=pk(['Discipline','Réflexes','Combat'],'story')}
+ else if(type==='island-secret'){title='Une piste à '+p.island;summary='Un détail revient dans plusieurs indices locaux : '+profile.signature+'.';data.familiarity=site.familiarity;data.signature=profile.signature}
+ else if(type==='social-favor'){r=pk(rels,'story');title=r.name+' a besoin de toi';summary='Une relation importante te demande une aide qui pourrait laisser une trace durable.';data.cost=Math.min(Math.max(500,Math.round(800+R('story')*4500)),Math.max(500,Math.round(p.money*.18)))}
+ else if(type==='career-crossroads'){title='Un choix dans ta carrière';summary='Une opportunité plus risquée que ton travail habituel se présente dans '+p.region+'.';data.danger=cl(inf().danger+15+R('story')*25,20,95)}
+ else if(type==='justice-shadow'){title='La pression se rapproche';summary='Des signes indiquent que les autorités s’intéressent davantage à tes mouvements.';data.heat=j.regionalHeat[p.region]||0}
+ else if(type==='rival-challenge'){r=pk(rivals,'story');title='Le défi de '+r.name;summary='Ta rivalité avec '+r.name+' réclame une réponse concrète.';data.rivalPower=relationPower(r)}
+ else if(type==='organization-crisis'){title='Tensions dans '+o.name;summary=o.supplies<30?'Les provisions deviennent un problème sérieux pour le groupe.':'Le moral du groupe commence à se fissurer.';data.cost=5000+Math.round(R('story')*10000)}
+ return{title:title,summary:summary,participant:r,data:data}
+}
+function startStory(type){
+ var p=game.player,eng=migrateStoryEngine(game),base=storyBase(type);if(!base.title)return null;var id='story-'+(++eng.seq)+'-'+Math.floor(R('story')*99999),story={id:id,type:type,title:base.title,summary:base.summary,status:'active',stage:0,awaiting:false,createdAge:p.ageMonths,nextAge:p.ageMonths+1+R('story')*2,deadlineAge:p.ageMonths+8+R('story')*6,location:p.island,region:p.region,participantId:base.participant?base.participant.id:null,participantName:base.participant?base.participant.name:null,data:base.data||{},choice:null,lastBeat:'Ouverture'};
+ eng.active.push(story);eng.stats.started++;eng.lastStartAge=p.ageMonths;tl('Nouveau fil — '+story.title,story.summary,'major');return story
+}
+function maybeStartStory(m){
+ var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;return!!startStory(pickStoryType(types))
+}
+function storyPrompt(story){
+ if(story.type==='youth-promise')return story.participantName+' te propose de vous fixer un objectif commun pour les mois qui viennent.';
+ if(story.type==='island-secret')return'Les indices autour de "'+story.data.signature+'" deviennent assez précis pour justifier une vraie recherche.';
+ if(story.type==='social-favor')return story.participantName+' te demande une aide concrète. Cela pourrait te coûter environ '+Math.round(story.data.cost||0).toLocaleString('fr-FR')+' B.';
+ if(story.type==='career-crossroads')return'Ta hiérarchie ou ton réseau te propose une voie plus risquée, mais potentiellement plus profitable.';
+ if(story.type==='justice-shadow')return'La pression des autorités augmente. Tu dois choisir comment réagir avant qu’elles ne décident pour toi.';
+ if(story.type==='rival-challenge')return story.participantName+' veut régler une partie de votre rivalité face à face.';
+ if(story.type==='organization-crisis')return'Ton groupe attend une réponse avant que la situation ne se détériore.';
+ return story.summary
+}
+function storyChoices(story){
+ if(story.type==='youth-promise')return[{id:'commit',label:'Faire la promesse',desc:'T’investir et voir où ce lien vous mène.'},{id:'distance',label:'Garder tes distances',desc:'Ne pas transformer ce lien en engagement.'}];
+ if(story.type==='island-secret')return[{id:'investigate',label:'Suivre la piste',desc:'Consacrer du temps et prendre le risque de te tromper.'},{id:'leave',label:'Laisser tomber',desc:'Ne pas poursuivre cette histoire.'}];
+ if(story.type==='social-favor')return[{id:'help',label:'L’aider',desc:'Dépenser des ressources et renforcer potentiellement votre lien.'},{id:'refuse',label:'Refuser',desc:'Préserver tes ressources mais assumer la réaction.'}];
+ if(story.type==='career-crossroads')return[{id:'bold',label:'Prendre le risque',desc:'Plus de potentiel, mais une vraie possibilité d’échec.'},{id:'steady',label:'Rester méthodique',desc:'Récompense plus modeste mais risque limité.'}];
+ if(story.type==='justice-shadow')return[{id:'hide',label:'Disparaître quelque temps',desc:'Miser sur la discrétion pour faire retomber la pression.'},{id:'defy',label:'Ne rien céder',desc:'Assumer publiquement la pression et renforcer ta réputation.'}];
+ if(story.type==='rival-challenge')return[{id:'accept',label:'Accepter le duel',desc:'Mettre votre progression à l’épreuve.'},{id:'decline',label:'Refuser cette fois',desc:'Reporter la confrontation, avec un coût relationnel.'}];
+ if(story.type==='organization-crisis')return[{id:'fund',label:'Financer une solution',desc:'Utiliser tes Berry pour stabiliser rapidement la situation.'},{id:'rally',label:'Rallier le groupe',desc:'Miser sur ton Commandement plutôt que sur l’argent.'}];
+ return[]
+}
+function setStoryAwaiting(story){
+ story.awaiting=true;story.lastBeat='Décision';story.summary=storyPrompt(story);tl('Décision — '+story.title,story.summary,'major')
+}
+function closeStory(story,outcome,text,failed){
+ var eng=migrateStoryEngine(game);story.status=failed?'failed':'resolved';story.awaiting=false;story.outcome=outcome;story.result=text;story.resolvedAge=game.player.ageMonths;eng.active=eng.active.filter(function(s){return s.id!==story.id});eng.history.unshift({id:story.id,type:story.type,title:story.title,outcome:outcome,result:text,resolvedAge:story.resolvedAge,generation:game.dynasty?game.dynasty.generation:1});eng.history=eng.history.slice(0,30);if(failed)eng.stats.failed++;else eng.stats.resolved++;game.codex.events=game.codex.events||[];var label='Fil narratif : '+story.title;if(game.codex.events.indexOf(label)<0)game.codex.events.push(label);tl((failed?'Fil rompu — ':'Fil résolu — ')+story.title,text,failed?'danger':'major')
+}
+function storyResolve(story){
+ var p=game.player,r=storyRelation(story),site=explorationSite(story.location),success=false,text='',rec=null,o=p.organization,j=migrateJustice(p);
+ if(story.type==='youth-promise'){
+  if(!r||r.status!=='active')return closeStory(story,'interrompu','Le lien disparaît avant que votre promesse puisse réellement prendre forme.',true);
+  var g=gain(story.data.focus||'Discipline',.4+.5*R('story'));r.trust=cl(r.trust+6,0,100);r.respect=cl(r.respect+4,0,100);r.affection=cl(r.affection+4,0,100);addRelationMemory(r,'Vous avez tenu une promesse de jeunesse ensemble.','story');text='Votre engagement tient. '+r.name+' devient un souvenir structurant de ta jeunesse'+(g?' • '+story.data.focus+' +'+g.toFixed(1):'')+'.';return closeStory(story,'promesse tenue',text,false)
+ }
+ if(story.type==='island-secret'){
+  if(p.island!==story.location)return closeStory(story,'piste perdue','Tu quittes '+story.location+' avant d’avoir pu aller au bout de la piste.',true);
+  var score=(p.skills.Navigation||0)*.35+(p.stats.Discipline||0)*.25+(p.haki.Observation||0)*.15+site.familiarity*.35,target=35+infStatic(story.location).danger*.35,ok=R('story')<cl(.35+(score-target)/120,.12,.9);if(ok){site.familiarity=cl(site.familiarity+8,0,100);var found=discoverByKnowledge(story.location),value=1200+Math.round(R('story')*(3000+infStatic(story.location).danger*100));p.money+=value;text='La piste mène quelque part. '+(found?'Une nouvelle découverte entre dans ton Codex. ':'Tu confirmes un détail que peu de gens connaissent. ')+'Tu récupères aussi '+value.toLocaleString('fr-FR')+' B.';return closeStory(story,'secret éclairci',text,false)}p.energy=cl(p.energy-8,0,100);return closeStory(story,'fausse piste','La piste s’effondre après plusieurs recherches. Tu en ressors surtout plus prudent.',true)
+ }
+ if(story.type==='social-favor'){
+  if(!r||r.status!=='active')return closeStory(story,'occasion perdue','La situation change avant que tu puisses réellement aider '+story.participantName+'.',true);
+  r.trust=cl(r.trust+7,0,100);r.loyalty=cl(r.loyalty+5,0,100);r.affection=cl(r.affection+3,0,100);r.favorBalance=cl((r.favorBalance||0)+1,-5,5);addRelationMemory(r,'Tu réponds présent dans une période difficile.','story');return closeStory(story,'lien renforcé',story.participantName+' n’oublie pas ton aide. Votre relation gagne en confiance et une dette sociale apparaît.',false)
+ }
+ if(story.type==='career-crossroads'){
+  rec=careerRecord();var bold=story.choice==='bold',careerScore=power()+(p.stats.Discipline||0)*.35+(rec.xp||0)*.02,danger=story.data.danger||50;success=!bold||R('story')<cl(.38+(careerScore-danger)/100,.16,.88);if(success){var xp=bold?12+Math.round(R('story')*16):6+Math.round(R('story')*7);rec.xp+=xp;p.reputation+=bold?4:2;text='Tu transformes ce choix en progression concrète : +'+xp+' XP carrière.';return closeStory(story,bold?'pari réussi':'progression sûre',text,false)}p.reputation=Math.max(0,p.reputation-2);p.health=cl(p.health-(3+R('story')*8),1,100);return closeStory(story,'pari manqué','L’opportunité se retourne contre toi. Tu conserves ton poste, mais l’échec laisse des traces.',true)
+ }
+ if(story.type==='justice-shadow'){
+  var heat=j.regionalHeat[p.region]||0;if(story.choice==='hide'){var hideScore=(p.skills.Discrétion||0)*.8+(p.stats.Discipline||0)*.2,okHide=R('story')<cl(.35+(hideScore-heat)/110,.15,.9);if(okHide){j.regionalHeat[p.region]=cl(heat-18,0,100);j.notoriety=cl(j.notoriety-5,0,100);return closeStory(story,'pression évitée','Tu changes suffisamment tes habitudes pour faire retomber une partie de la pression.',false)}j.regionalHeat[p.region]=cl(heat+9,0,100);return closeStory(story,'repéré','Tes efforts pour disparaître attirent finalement davantage l’attention.',true)}
+  p.reputation+=3;j.regionalHeat[p.region]=cl(heat+12,0,100);if(p.faction==='Pirates'||p.faction==='Révolutionnaires')issueBounty(4000+Math.round(heat*220),'Défi aux autorités');return closeStory(story,'défi assumé','Tu refuses de te cacher. Ta réputation augmente, mais les autorités resserrent leur attention.',false)
+ }
+ if(story.type==='rival-challenge'){
+  if(!r||r.status!=='active')return closeStory(story,'duel impossible','Ton rival n’est plus disponible pour cette confrontation.',true);var rp=relationPower(r),chance=cl(.5+(power()-rp)/85,.12,.88),win=R('story')<chance;if(win){p.wins++;r.rivalWins=(r.rivalWins||0)+1;r.rivalry=cl(r.rivalry+5,0,100);r.respect=cl(r.respect+6,0,100);addRelationMemory(r,'Tu remportes un duel important dans votre rivalité.','story');return closeStory(story,'duel remporté','Tu prends l’avantage sur '+r.name+'. La rivalité gagne en respect autant qu’en intensité.',false)}p.losses++;r.rivalLosses=(r.rivalLosses||0)+1;r.rivalry=cl(r.rivalry+6,0,100);r.respect=cl(r.respect+3,0,100);p.health=cl(p.health-(3+R('story')*7),1,100);addRelationMemory(r,'Te bat lors d’un duel important.','story');return closeStory(story,'duel perdu',r.name+' prend l’avantage cette fois. La rivalité, elle, ne disparaît pas.',false)
+ }
+ if(story.type==='organization-crisis'){
+  if(!o)return closeStory(story,'groupe disparu','Ton organisation n’existe plus lorsque vient le moment de résoudre la crise.',true);if(story.choice==='fund'){o.morale=cl(o.morale+10,0,100);o.supplies=cl(o.supplies+18,0,100);o.cohesion=cl(o.cohesion+4,0,100);return closeStory(story,'crise financée','L’investissement stabilise les ressources et le moral du groupe.',false)}var cmd=p.skills.Commandement||0,okCmd=R('story')<cl(.35+cmd/130,.2,.9);if(okCmd){o.morale=cl(o.morale+12,0,100);o.cohesion=cl(o.cohesion+8,0,100);return closeStory(story,'groupe rallié','Ton autorité suffit à ressouder le groupe sans achat massif.',false)}o.morale=cl(o.morale-7,0,100);o.cohesion=cl(o.cohesion-5,0,100);return closeStory(story,'crise aggravée','Ton discours ne convainc pas assez. La tension interne augmente.',true)
+ }
+}
+function storyChoice(storyId,choiceId){
+ var eng=migrateStoryEngine(game),story=eng.active.find(function(s){return s.id===storyId});if(!story||!story.awaiting)return false;story.choice=choiceId;story.awaiting=false;eng.stats.choices++;
+ if(story.type==='youth-promise'&&choiceId==='distance'){var yr=storyRelation(story);if(yr)yr.trust=cl(yr.trust-2,0,100);return closeStory(story,'distance gardée','Tu choisis de ne pas transformer ce lien en promesse durable.',false)}
+ if(story.type==='island-secret'&&choiceId==='leave')return closeStory(story,'piste abandonnée','Tu décides que cette piste ne mérite pas davantage de temps.',false);
+ if(story.type==='social-favor'&&choiceId==='refuse'){var sr=storyRelation(story);if(sr){sr.trust=cl(sr.trust-5,0,100);sr.affection=cl(sr.affection-2,0,100);addRelationMemory(sr,'Tu refuses de l’aider lors d’un moment important.','story')}return closeStory(story,'aide refusée','Tu protèges tes ressources, mais '+story.participantName+' retient ton refus.',false)}
+ if(story.type==='social-favor'&&choiceId==='help'){var cost=Math.min(game.player.money,story.data.cost||0);game.player.money-=cost;story.data.paid=cost}
+ if(story.type==='rival-challenge'&&choiceId==='decline'){var rr=storyRelation(story);if(rr){rr.rivalry=cl(rr.rivalry+3,0,100);rr.respect=cl(rr.respect-3,0,100)}return closeStory(story,'duel reporté','Tu refuses cette confrontation. Ton rival ne l’oublie pas.',false)}
+ if(story.type==='organization-crisis'&&choiceId==='fund'){var need=story.data.cost||5000;if(game.player.money<need){story.choice='rally'}else game.player.money-=need}
+ story.stage=1;story.nextAge=game.player.ageMonths+1+R('story')*3;story.deadlineAge=Math.max(story.deadlineAge,story.nextAge+4);story.lastBeat='Conséquence en attente';story.summary='Ta décision est prise. Il faut maintenant laisser la situation évoluer.';tl('Choix — '+story.title,storyChoices(story).find(function(x){return x.id===choiceId})?.label||choiceId);return true
+}
+function storyTick(m){
+ var p=game.player,eng=migrateStoryEngine(game),list=activeStories().slice();for(var i=0;i<list.length;i++){var story=list[i];if(story.awaiting)continue;if(p.ageMonths>story.deadlineAge){closeStory(story,'échéance dépassée','La situation se referme avant que tu puisses aller au bout.',true);continue}if(p.ageMonths<story.nextAge)continue;
+  if(story.stage===0){setStoryAwaiting(story);continue}
+  if(story.stage===1)storyResolve(story)
+ }
+ if(!awaitingStory())maybeStartStory(m)
+}
+function showStoryDecision(id){
+ var story=id?activeStories().find(function(s){return s.id===id}):awaitingStory();if(!story||!story.awaiting)return false;var choices=storyChoices(story).map(function(c){return[c.label,c.desc,function(){storyChoice(story.id,c.id)}]});if(!choices.length)return false;decision(story.title,storyPrompt(story),choices);return true
+}
+function showAttention(){
+ if(game&&game.pending)return showDecision();var s=awaitingStory();if(s)return showStoryDecision(s.id)
+}
+function renderStories(){
+ var eng=migrateStoryEngine(game),active=activeStories(),awaiting=awaitingStory();$('#storyEngineBadge').textContent=active.length?active.length+' actif'+(active.length>1?'s':''):'Aucun fil';$('#storySummary').innerHTML='<div><span>Démarrés</span><strong>'+eng.stats.started+'</strong></div><div><span>Résolus</span><strong>'+eng.stats.resolved+'</strong></div><div><span>Échecs</span><strong>'+eng.stats.failed+'</strong></div><div><span>Choix</span><strong>'+eng.stats.choices+'</strong></div>';
+ $('#activeStories').innerHTML=active.length?active.map(function(s){var wait=s.awaiting,remaining=Math.max(0,s.deadlineAge-game.player.ageMonths);return'<div class="story-thread '+(wait?'awaiting':'')+'"><div class="story-thread-head"><strong>'+e(s.title)+'</strong><span>'+(wait?'Décision':'Étape '+(s.stage+1))+'</span></div><p>'+e(s.summary)+'</p><div class="story-thread-meta"><span>'+e(s.region||'')+'</span><span>'+durationText(remaining)+' avant échéance</span>'+(s.participantName?'<span>'+e(s.participantName)+'</span>':'')+'</div>'+(wait?'<div class="story-thread-actions"><button data-story-decision="'+e(s.id)+'">Voir les choix</button></div>':'')+'</div>'}).join(''):'<p class="helper-text">Aucun fil narratif actif. Les situations naissent naturellement des relations, de la carrière, de l’exploration et du monde.</p>';
+ $('[data-story-decision]').forEach(function(b){b.onclick=function(){showStoryDecision(b.dataset.storyDecision)}});
+ $('#storyHistory').innerHTML=eng.history.length?'<span class="tiny-label">Fils récents</span>'+eng.history.slice(0,5).map(function(h){var cls=h.outcome&&(/manqué|perdue|rompu|aggravée|repéré|fausse|impossible|perdue/i.test(h.outcome))?'story-outcome-failed':'story-outcome-success';return'<div class="story-history-item '+cls+'"><strong>'+e(h.title)+' • '+e(h.outcome||'résolu')+'</strong>'+e(h.result||'')+'</div>'}).join(''):''
+}
+
 function migrate(g){
  if(!g)return null;var p=g.player||{},w=g.world||{};
- g.version=19;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};migrateLifeLoop(g);migrateExploration(p);if(g.pending&&!pendingIsExecutable(g.pending))g.pending=null;
+ g.version=20;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};migrateLifeLoop(g);migrateExploration(p);migrateStoryEngine(g);if(g.pending&&!pendingIsExecutable(g.pending))g.pending=null;
  p.techniques=p.techniques||[];p.techniqueMastery=p.techniqueMastery||{};p.fruitMastery=p.fruitMastery||0;p.fruitAwakened=!!p.fruitAwakened;p.heldFruit=p.heldFruit||null;p.combatXP=p.combatXP||0;p.hakiApplications=p.hakiApplications||{Observation:[],Armement:[],Conquérant:[]};
  p.haki=p.haki||{Observation:0,Armement:0,Conquérant:0};p.latent=p.latent||{Observation:40,Armement:40,Conquérant:0};p.conditions=p.conditions||[];
  p.life=p.life||defaultLife();p.life.assets=p.life.assets||{property:0,business:0,ship:0,treasure:0};p.children=p.children||[];p.children=p.children.map(function(c,i){c.id=c.id||('child-'+i+'-'+H(String(g.seed)+':child:'+i));c.name=c.name||PEOPLE_NAMES[H(String(g.seed)+':childname:'+i)%PEOPLE_NAMES.length];c.ageMonths=c.ageMonths||0;c.birthplace=c.birthplace||p.island||'';c.birthRegion=c.birthRegion||p.region||p.origin;c.race=c.race||p.race||'Humain';c.status=c.status||'active';return c});
@@ -614,7 +743,7 @@ function news(t,d,type){game.news.unshift({title:t,desc:d,type:type||''});game.n
 function press(){var o={};REG.forEach(function(r){o[r]={Piraterie:20+R('w')*25,Marine:30+R('w')*35,Criminalité:15+R('w')*30,Révolution:5+R('w')*20,Prospérité:40+R('w')*35,Instabilité:10+R('w')*25}});return o}
 function make(){
  var seed=Number($('#seedInput').value)||Math.floor(Math.random()*2147483647);game={seed:seed,rng:{}};var origin=mode==='custom'?$('#originInput').value:pk(ORIG,'b');
- game={version:19,seed:seed,rng:game.rng,alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[],discoveries:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
+ game={version:20,seed:seed,rng:game.rng,alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[],discoveries:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
  game=applyMeta(migrate(game));syncCanonicalFruits();var homes=Object.keys(PL).filter(function(n){return PL[n][0]===origin});game.player.island=pk(homes,'b');game.player.visited=[game.player.island];game.codex.places=[game.player.island];game.world.pressures=press();var birthSite=explorationSite(game.player.island);birthSite.familiarity=22;birthSite.visits=1;
  ST.forEach(function(k){game.player.stats[k]=8+R('b')*12;game.player.caps[k]=68+R('c')*25});SK.forEach(function(k){game.player.skills[k]=2+R('b')*8;game.player.caps[k]=68+R('c')*25});game.player.naturalCaps={};game.player.absoluteCaps={};ST.concat(SK).forEach(function(k){game.player.naturalCaps[k]=game.player.caps[k];game.player.absoluteCaps[k]=cl(game.player.caps[k]+5+(H(String(game.seed)+':absolute:'+k)%8),game.player.caps[k],100)});game.player.progression=defaultProgression(game.player);
  syncPowers();recordProgressSnapshot(true);tl('Naissance','Tu nais à '+game.player.island+', dans '+origin+'.','major');news('Grande Ère de la Piraterie','Le monde entre dans une période de bouleversements.');save();return game}
