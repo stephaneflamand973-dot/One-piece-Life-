@@ -440,7 +440,7 @@ function chooseAdvanceDuration(plan){
  if(!plan||plan.max<=0)return 0;var m=plan.min+(plan.max-plan.min)*R('time');if(plan.limit!=null)m=Math.min(m,Math.max(.25,plan.limit));return Math.max(.25,Math.round(m*4)/4)
 }
 function durationText(m){
- if(m<=.3)return'environ une semaine';if(m<=.6)return'environ deux semaines';if(m<1)return'environ trois semaines';if(Math.abs(m-1)<.01)return'1 mois';if(m<2)return m.toFixed(1).replace('.5','½')+' mois';return(Math.round(m*4)/4).toString().replace('.5','½')+' mois'
+ if(m<=.3)return'environ une semaine';if(m<=.6)return'environ deux semaines';if(m<1)return'environ trois semaines';var q=Math.round(m*4)/4,whole=Math.floor(q),frac=Math.round((q-whole)*4),suffix=frac===1?'¼':frac===2?'½':frac===3?'¾':'',label=(whole?whole:'')+suffix;if(!label)label='1';return label+' mois'
 }
 function planWindowText(plan){
  if(!plan||plan.max<=0)return'Décision';var a=durationText(plan.min),b=durationText(plan.max);return plan.min===plan.max?a:a+' à '+b
@@ -448,11 +448,14 @@ function planWindowText(plan){
 function totalTrackedGain(){
  var p=game.player,pr=migrateProgression(game,p);return Object.keys(pr.gains||{}).reduce(function(a,k){return a+(pr.gains[k]||0)},0)
 }
+function totalAbilityProgress(){
+ var p=game.player,haki=(p.haki.Observation||0)+(p.haki.Armement||0)+(p.haki.Conquérant||0),tech=Object.keys(p.techniqueMastery||{}).reduce(function(a,k){return a+(p.techniqueMastery[k]||0)},0);return totalTrackedGain()+haki+(p.fruitMastery||0)+tech
+}
 function captureAdvanceState(){
- var p=game.player,l=migrateLifeLoop(game);return{age:p.ageMonths,money:p.money,health:p.health,energy:p.energy,power:power(),gain:totalTrackedGain(),momentSeq:l.momentSeq,majorSeq:l.majorSeq}
+ var p=game.player,l=migrateLifeLoop(game);return{age:p.ageMonths,money:p.money,health:p.health,energy:p.energy,power:power(),gain:totalAbilityProgress(),momentSeq:l.momentSeq,majorSeq:l.majorSeq}
 }
 function finalizeAdvanceReport(before,m,plan){
- var p=game.player,l=migrateLifeLoop(game),moments=Math.max(0,l.momentSeq-before.momentSeq),major=Math.max(0,l.majorSeq-before.majorSeq),powerDelta=power()-before.power,gainDelta=totalTrackedGain()-before.gain,moneyDelta=p.money-before.money;if(game.pending){moments=Math.max(1,moments);major=Math.max(1,major)}
+ var p=game.player,l=migrateLifeLoop(game),moments=Math.max(0,l.momentSeq-before.momentSeq),major=Math.max(0,l.majorSeq-before.majorSeq),powerDelta=power()-before.power,gainDelta=totalAbilityProgress()-before.gain,moneyDelta=p.money-before.money;if(game.pending){moments=Math.max(1,moments);major=Math.max(1,major)}
  l.advanceCount++;l.quietAdvances=moments?0:l.quietAdvances+1;l.recentKinds.unshift(plan&&plan.key||'unknown');l.recentKinds=l.recentKinds.slice(0,6);
  l.lastAdvance={months:m,kind:plan&&plan.key||'',label:plan&&plan.label||'',moments:moments,major:major,powerDelta:powerDelta,gainDelta:gainDelta,moneyDelta:moneyDelta,healthDelta:p.health-before.health,energyDelta:p.energy-before.energy,activity:p.activity,ageFrom:before.age,ageTo:p.ageMonths};
  return l.lastAdvance
