@@ -1,3 +1,79 @@
+# ONE PIECE LIFE — V2.3 Fluid Life
+
+La V2.3 simplifie l’expérience sans supprimer les systèmes profonds développés jusqu’à V2.2.
+
+## Philosophie
+
+Le joueur prend moins de décisions répétitives.
+
+Le moteur conserve les statistiques, compétences, spécialisations, styles, Haki, Fruit, carrière, monde vivant, économie, relations, justice et narration, mais il automatise davantage les calculs secondaires.
+
+Principe de la version :
+
+**moins de boutons, plus de décisions importantes.**
+
+## Progression simplifiée
+
+Les anciennes activités très détaillées sont remplacées dans l’interface par quelques priorités simples :
+
+- **Équilibre** : travaille automatiquement les points faibles ;
+- **Combat** : développe le style de combat naturel du personnage ;
+- **Forme** : renforce automatiquement les qualités physiques les plus en retard ;
+- **Carrière** : cible les compétences utiles à la spécialisation actuelle ;
+- **Pouvoirs** : apparaît lorsque Haki/Fruit/potentiel le justifie et gère leur entraînement.
+
+Le joueur ne choisit donc plus séparément Force, Mobilité, Condition physique, Mental, Sabre, Tir, Médecine, Science, Commandement, etc.
+
+Ces caractéristiques existent toujours. Le moteur choisit automatiquement les bonnes cibles.
+
+## Recommandation automatique
+
+Le jeu propose un focus recommandé selon :
+
+- âge ;
+- santé et énergie ;
+- ambition ;
+- spécialisation ;
+- niveau d’expertise ;
+- Haki et Fruit.
+
+La recommandation n’impose rien.
+
+## Navigation simplifiée
+
+Les sous-onglets sont réduits :
+
+- Personnage : **Profil / Carrière / Situation** ;
+- Progression : **Progresser / Pouvoirs / Détails** ;
+- Relations : **Proches / Réseau** ;
+- Monde : **Explorer / Monde / Histoire**.
+
+Les systèmes avancés restent accessibles mais ne saturent plus l’écran principal.
+
+## Choix contextuels
+
+Les listes permanentes de spécialisations et d’ambitions sont remplacées par un bouton unique qui ouvre le choix uniquement lorsque le joueur veut le modifier.
+
+## Missions plus lisibles
+
+Le tableau affiche maintenant trois opportunités au lieu de quatre.
+
+Elles sont triées selon :
+
+- spécialisation ;
+- chances réelles du personnage ;
+- niveau de mission.
+
+La meilleure option contextuelle est mise en avant comme recommandée.
+
+## Compatibilité
+
+Le GameState passe en **version interne 23**.
+
+Les anciennes activités des sauvegardes V2.2 sont automatiquement converties vers les nouveaux focus sans supprimer les statistiques déjà acquises.
+
+---
+
 # ONE PIECE LIFE — V2.2 Meaningful Builds & Missions
 
 La V2.2 répond à l’audit de simulation de V2.1 : toutes les caractéristiques étaient entraînables, mais elles n’avaient pas encore toutes une utilité comparable.
