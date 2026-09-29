@@ -863,8 +863,8 @@ test('V2.5 save-slot deletion removes save and slot meta only',()=>{
 
 
 test('V2.5 save-slot deletion leaves other slots untouched',()=>{
-  q.setSlot(1);fresh(14013);q.save();q.setSlot(2);fresh(14014);q.save();assert(q.load(1)&&q.load(2),'test slots were not saved');
-  q.setSlot(1);q.deleteSaveSlot(1,true);assert(q.load(1)===null,'deleted slot survived');assert(q.load(2),'deleting slot 1 removed slot 2');q.setSlot(1);return 'slot isolation preserved';
+  q.setSlot(1);const g=fresh(14013);q.save();q.setSlot(2);q.setGame(JSON.parse(JSON.stringify(g)));q.save();assert(q.load(1)&&q.load(2),'test slots were not saved');
+  q.setSlot(1);q.setGame(g);q.deleteSaveSlot(1,true);assert(q.load(1)===null,'deleted slot survived');assert(q.load(2),'deleting slot 1 removed slot 2');q.setSlot(1);return 'slot isolation preserved';
 });
 test('V2.5 conflict missions apply faction-specific consequences',()=>{
   const g=fresh(14015),p=g.player;p.ageMonths=300;g.world.conflicts=[{location:p.island,region:p.region,attacker:'Pirates',defender:'Marine',intensity:60,status:'active'}];g.world.territories[p.island].stability=60;
