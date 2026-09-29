@@ -990,7 +990,7 @@ function storyResolve(story){
  }
  if(story.type==='family-crossroads'){
   var partnerNow=partnerRelation(),kids=(p.children||[]).filter(function(c){return c.status==='active'});if(story.choice==='presence'){if(partnerNow){partnerNow.affection=cl(partnerNow.affection+7,0,100);partnerNow.trust=cl(partnerNow.trust+5,0,100)}kids.forEach(function(c){c.bond=cl((c.bond||55)+5,0,100)});return closeStory(story,'liens consolidés','Tu ralentis suffisamment pour renforcer les liens qui survivront à tes aventures.',false)}
-  var recFamily=careerRecord();recFamily.xp+=7;p.reputation+=2;if(partnerNow)partnerNow.affection=cl(partnerNow.affection-3,0,100);kids.forEach(function(c){c.bond=cl((c.bond||55)-2,0,100)});return closeStory(story,'ambition prioritaire','Ta trajectoire avance, mais tes proches ressentent ton absence.',false)
+  if(p.career!=='Aucune'){var recFamily=careerRecord();recFamily.xp+=7}else gain('Discipline',.65+R('story')*.35);p.reputation+=2;if(partnerNow)partnerNow.affection=cl(partnerNow.affection-3,0,100);kids.forEach(function(c){c.bond=cl((c.bond||55)-2,0,100)});return closeStory(story,'ambition prioritaire','Ta trajectoire avance, mais tes proches ressentent ton absence.',false)
  }
  if(story.type==='horizon-call'){
   if(story.choice==='sell'){var sale=1800+Math.round(R('story')*5200);p.money+=sale;return closeStory(story,'information vendue','Tu transformes la rumeur en '+sale.toLocaleString('fr-FR')+' B sans prendre le risque de la poursuivre.',false)}
