@@ -355,6 +355,13 @@ test('V1.7 progression: technique mastery only improves with relevant training',
 test('V1.7 progression: technique mastery changes effective combat value',()=>{
   const g=fresh(7035),p=g.player;p.ageMonths=300;const def=q.allTechniqueDefs().find(x=>x.skill==='Combat');assert(def,'no Combat technique');p.techniques=[def.id];p.techniqueMastery[def.id]=1;const low=q.techniqueBonus();p.techniqueMastery[def.id]=100;const high=q.techniqueBonus();assert(high>low*2,'mastery barely changes technique value');assert(high<=def.bonus+.001,'effective bonus exceeded definition max');return low.toFixed(2)+' -> '+high.toFixed(2)
 });
+test('V1.7 progression: global power rewards combat ability, not unrelated professions',()=>{
+  const g=fresh(7037),p=g.player;p.ageMonths=300;for(const k of q.constants.ST)p.stats[k]=50;for(const k of q.constants.SK)p.skills[k]=10;p.style='Équilibré';const base=q.power();p.skills.Médecine=100;const medicine=q.power();p.skills.Médecine=10;p.skills.Combat=100;const combat=q.power();assert(medicine-base<2,'Medicine inflates combat power too much');assert(combat-base>18,'Combat skill does not materially affect global power');return 'Medicine +'+(medicine-base).toFixed(1)+' / Combat +'+(combat-base).toFixed(1)
+});
+test('V1.7 progression: advanced powers develop slower in childhood',()=>{
+  const g=fresh(7038),p=g.player;p.latent.Observation=100;p.haki.Observation=10;p.ageMonths=60;const h0=p.haki.Observation;q.trainHaki('Observation',12);const childH=p.haki.Observation-h0;p.haki.Observation=10;p.ageMonths=300;q.trainHaki('Observation',12);const adultH=p.haki.Observation-10;assert(adultH>childH*2,'Haki age scaling is too weak');
+  p.fruit='QA Fruit';p.fruitMastery=10;p.ageMonths=60;q.trainFruit(12);const childF=p.fruitMastery-10;p.fruitMastery=10;p.ageMonths=300;q.trainFruit(12);const adultF=p.fruitMastery-10;assert(adultF>childF*2,'Fruit mastery age scaling is too weak');return 'Haki '+childH.toFixed(2)+'/'+adultH.toFixed(2)+' • Fruit '+childF.toFixed(2)+'/'+adultF.toFixed(2)
+});
 test('V1.7 progression: snapshots record global evolution',()=>{
   const g=fresh(7040),p=g.player;const n=p.progression.snapshots.length;p.ageMonths+=6;p.activity='Entraînement';q.train(6);q.recordProgressSnapshot(false);assert(p.progression.snapshots.length===n+1,'six-month progression snapshot missing');const d=q.progressionDelta();assert(Number.isFinite(d.power)&&d.months===6,'invalid progression delta');return 'power delta '+d.power.toFixed(2)
 });
