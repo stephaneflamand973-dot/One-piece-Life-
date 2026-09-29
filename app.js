@@ -174,12 +174,93 @@ var ACHIEVEMENTS=[
  {id:'smuggler',name:'Sous le nez de la Marine',desc:'Réussir trois passages de contrebande.'}
 ];
 function normalizeRelation(g,r,i){
- r=r||{};var base=H(String(g.seed||1)+':rel:'+String(r.name||i));
+ r=r||{};var base=H(String(g.seed||1)+':rel:'+String(r.name||i)),p=g.player||{},playerAge=p.ageMonths||0;
  r.id=r.id||('rel-'+i+'-'+(base%100000));r.name=r.name||PEOPLE_NAMES[base%PEOPLE_NAMES.length];r.role=r.role||'connaissance';r.type=r.type||'social';
  r.affection=cl(r.affection==null?35+(base%41):r.affection,0,100);r.respect=cl(r.respect==null?30+((base>>>3)%46):r.respect,0,100);r.trust=cl(r.trust==null?30+((base>>>5)%41):r.trust,0,100);
  r.fear=cl(r.fear||0,0,100);r.loyalty=cl(r.loyalty==null?35+((base>>>7)%36):r.loyalty,0,100);r.rivalry=cl(r.rivalry||0,0,100);r.attraction=cl(r.attraction==null?20+((base>>>9)%61):r.attraction,0,100);
- r.monthsKnown=r.monthsKnown||0;r.relationshipMonths=r.relationshipMonths||0;r.status=r.status||'active';r.location=r.location||null;r.faction=r.faction||'Civil';return r
+ r.monthsKnown=r.monthsKnown||0;r.relationshipMonths=r.relationshipMonths||0;r.status=r.status||'active';r.location=r.location||null;r.faction=r.faction||'Civil';
+ r.canonical=!!r.canonical;r.actorName=r.actorName||null;r.npcAgeMonths=r.npcAgeMonths==null?Math.max(0,playerAge-48+((base>>>10)%145)):r.npcAgeMonths;
+ r.npcPower=cl(r.npcPower==null?12+((base>>>12)%39)+(r.role==='mentor'?18:r.role==='rival'?8:0):r.npcPower,1,100);
+ r.npcPotential=cl(r.npcPotential==null?Math.max(r.npcPower+8,58+((base>>>15)%40)):r.npcPotential,r.npcPower,100);
+ r.npcSpecialty=r.npcSpecialty||['Combat','Navigation','Médecine','Sabre','Discrétion','Commandement'][(base>>>18)%6];
+ r.npcTrajectory=r.npcTrajectory||['Stable','Ascension','Ascension','Instable','Stable'][(base>>>21)%5];
+ r.npcAmbition=r.npcAmbition||['Devenir plus fort','Explorer le monde','Faire fortune','Servir sa faction','Protéger ses proches'][(base>>>24)%5];
+ r.careerLevel=cl(r.careerLevel==null?Math.floor(r.npcPower/18):r.careerLevel,0,6);r.npcWins=r.npcWins||0;r.npcLosses=r.npcLosses||0;r.rivalWins=r.rivalWins||0;r.rivalLosses=r.rivalLosses||0;
+ r.mentorSessions=r.mentorSessions||0;r.favorBalance=r.favorBalance||0;r.injuryMonths=r.injuryMonths||0;r.lastDuelAge=r.lastDuelAge==null?-999:r.lastDuelAge;r.challengeReady=!!r.challengeReady;r.joinedOrganization=!!r.joinedOrganization;
+ r.memories=Array.isArray(r.memories)?r.memories.slice(0,12):[];r.region=r.region||(r.location&&PL[r.location]?PL[r.location][0]:(p.region||p.origin||'East Blue'));return r
 }
+
+function addRelationMemory(r,text,type){
+ if(!r)return;r.memories=r.memories||[];var stamp=game&&game.player?age():'?';if(r.memories[0]&&r.memories[0].text===text)return;r.memories.unshift({text:text,type:type||'social',age:stamp});r.memories=r.memories.slice(0,12)
+}
+function relationForActor(name){return game.relations.find(function(r){return r.actorName===name||(r.canonical&&r.name===name)})||null}
+function npcCareerRank(r){
+ var cfg=CAREERS[r.faction]||CAREERS.Civil,track=(r.faction==='Gouvernement'?careerTrack('Gouvernement',null):cfg.ranks)||[];if(!track.length)return r.role||'Indépendant';return track[Math.min(track.length-1,Math.max(0,r.careerLevel||0))].n
+}
+function npcRegion(r){if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a)return a.region}return r.region||(r.location&&PL[r.location]?PL[r.location][0]:game.player.region)}
+function npcNearby(r){return r.status==='active'&&npcRegion(r)===game.player.region}
+function canonicalFreedom(r){if(!r.canonical)return true;var a=canonActor(r.actorName||r.name),need=a?Math.round((a.importance||90)*.48):48;return game.world.divergence>=need}
+function bondCanonicalActor(a,context){
+ if(!a)return null;var r=relationForActor(a.name),p=game.player;
+ if(!r){var hostile=diplomacy(p.faction,a.faction)<-35,pow=actorPower(a),role=hostile?'rival':a.faction===p.faction&&pow>power()+18?'mentor':'connaissance';r=normalizeRelation(game,{id:'canon-rel-'+H(a.name),name:a.name,role:role,type:'canonical',canonical:true,actorName:a.name,faction:a.faction,region:a.region,location:null,npcPower:pow,npcPotential:a.peak,respect:hostile?35:55,trust:hostile?20:42,loyalty:35,attraction:10,rivalry:hostile?48:0,npcAmbition:a.goal},game.socialSeq++);game.relations.push(r);addRelationMemory(r,'Première rencontre dans '+p.region+'.','canon')}
+ else{r.faction=a.faction;r.region=a.region;r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';r.monthsKnown=Math.max(r.monthsKnown,1)}
+ if(context)addRelationMemory(r,context,'canon');return r
+}
+function relationPower(r){if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a)return actorPower(a)}return r.npcPower||10}
+function relationGrowthRate(r){
+ var base=r.npcTrajectory==='Ascension'?.09:r.npcTrajectory==='Instable'?.045:r.npcTrajectory==='Déclin'?.018:.055;if(r.role==='rival')base*=1.18;if(r.role==='mentor')base*=.72;return base
+}
+function moveNpc(r){
+ var cur=npcRegion(r),links=REGION_LINKS[cur]||[];if(!links.length)return;var next=pk(links,'npc'),places=Object.keys(PL).filter(function(n){return PL[n][0]===next});r.region=next;r.location=places.length?pk(places,'npc'):null;addRelationMemory(r,'Part pour '+next+'.','travel')
+}
+function npcTick(m){
+ var p=game.player;
+ game.relations.forEach(function(r){
+  r=normalizeRelation(game,r,0);if(r.status==='dead')return;r.npcAgeMonths+=m;
+  if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a){var was=r.status;r.faction=a.faction;r.region=a.region;r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';if(was!=='dead'&&r.status==='dead')addRelationMemory(r,'Sa trajectoire s’achève dans le monde vivant.','death')}return}
+  if(r.injuryMonths>0){r.injuryMonths-=m;if(r.injuryMonths<=0){r.injuryMonths=0;r.status='active';addRelationMemory(r,'Se remet de ses blessures.','recovery')}return}
+  if(r.status!=='active')return;
+  var gap=Math.max(0,r.npcPotential-r.npcPower),growth=gap/100*relationGrowthRate(r)*m*5;r.npcPower=cl(r.npcPower+growth,1,r.npcPotential);
+  if(r.npcTrajectory==='Instable'&&R('npc')<.008*m)r.npcPower=cl(r.npcPower-(1+R('npc')*3),1,r.npcPotential);
+  if(R('npc')<.018*m&&r.careerLevel<6){r.careerLevel++;r.respect=cl(r.respect+2,0,100);addRelationMemory(r,'Progresse dans sa carrière : '+npcCareerRank(r)+'.','career')}
+  if(r.id!==p.life.partnerId&&R('npc')<.012*m)moveNpc(r);
+  if(r.role==='rival'&&r.rivalry>=55&&npcNearby(r)&&p.ageMonths-r.lastDuelAge>=6&&R('npc')<.035*m){r.challengeReady=true;addRelationMemory(r,'Te provoque pour mesurer vos progrès.','rival')}
+  if(r.role==='mentor'&&power()>r.npcPower+15&&r.mentorSessions>=3&&!r.peerRecognized){r.peerRecognized=true;r.respect=cl(r.respect+8,0,100);addRelationMemory(r,'Te reconnaît désormais comme un pair.','mentor')}
+  var years=r.npcAgeMonths/12;if(years>72&&R('npc')<Math.pow((years-70)/38,2)*.002*m){r.status='dead';addRelationMemory(r,'Décède après une longue vie.','death');tl('Une relation disparaît',r.name+' est décédé.','major')}
+ })
+}
+function askMentorship(id){
+ var p=game.player,r=relationById(id);if(!r||!npcNearby(r)||r.status!=='active')return toast('Cette personne n’est pas disponible dans ta région.');if(r.role==='mentor')return toast(r.name+' est déjà ton mentor.');if(relationPower(r)<power()+8)return toast('Cette personne n’a pas assez d’avance sur toi pour devenir un mentor crédible.');if(r.respect<55||r.trust<38)return toast('Il faut davantage de respect et de confiance.');if(!canonicalFreedom(r))return toast('Sa trajectoire canonique reste encore trop contrainte par le monde.');if(!useSocialAction())return;
+ var chance=cl(.35+r.respect/220+r.trust/300,.25,.9);if(R('npc')<chance){r.role='mentor';r.rivalry=cl(r.rivalry-10,0,100);r.respect=cl(r.respect+5,0,100);addRelationMemory(r,'Accepte de devenir ton mentor.','mentor');tl('Mentorat',r.name+' accepte de guider ta progression.','major')}else{r.respect=cl(r.respect-2,0,100);addRelationMemory(r,'Refuse pour l’instant de devenir ton mentor.','mentor')}save();render()
+}
+function trainWithMentor(id){
+ var p=game.player,r=relationById(id);if(!r||r.role!=='mentor'||!npcNearby(r)||r.status!=='active')return toast('Ton mentor doit être actif dans ta région.');if(!useSocialAction())return;
+ var skill=r.npcSpecialty||'Combat',before=p.skills[skill]||0,gained=gain(skill,1.4+Math.max(0,relationPower(r)-power())*.018+R('npc')*.8);r.mentorSessions++;r.respect=cl(r.respect+1.5,0,100);r.trust=cl(r.trust+1,0,100);
+ var cap=p.caps[skill]||90;if(before>=cap-.8&&r.respect>=72&&r.trust>=55&&R('npc')<.18){p.caps[skill]=cl(cap+1+Math.floor(R('npc')*2),0,100);addRelationMemory(r,'T’aide à dépasser une limite en '+skill+'.','breakthrough');tl('Percée avec un mentor',r.name+' t’aide à repousser ton plafond en '+skill+'.','major')}else{addRelationMemory(r,'Séance de '+skill+' partagée.','mentor');tl('Entraînement avec '+r.name,'Ta maîtrise de '+skill+' progresse de '+gained.toFixed(1)+'.')}
+ save();render()
+}
+function declareRivalry(id){
+ var r=relationById(id);if(!r||r.id===game.player.life.partnerId||r.status!=='active')return;if(!npcNearby(r))return toast('Cette personne n’est pas dans ta région.');if(r.canonical&&!canonicalFreedom(r))return toast('Le canon résiste encore à une rivalité personnelle aussi importante.');if(!useSocialAction())return;r.role='rival';r.rivalry=Math.max(r.rivalry,50);r.respect=cl(r.respect+3,0,100);addRelationMemory(r,'Votre relation devient une rivalité assumée.','rival');tl('Nouvelle rivalité',r.name+' devient un rival récurrent.','major');save();render()
+}
+function challengeRival(id){
+ var p=game.player,r=relationById(id);if(!r||r.role!=='rival'||r.status!=='active'||!npcNearby(r))return toast('Ce rival n’est pas disponible ici.');if(p.health<45)return toast('Ta santé est trop basse pour provoquer un rival.');if(p.ageMonths-r.lastDuelAge<3)return toast('Votre dernier duel est encore trop récent.');if(!useSocialAction())return;
+ var danger=cl(relationPower(r),12,98),ok=fight(danger,'Duel contre '+r.name);r.lastDuelAge=p.ageMonths;r.challengeReady=false;r.rivalry=cl(r.rivalry+2,0,100);
+ if(!game.alive)return;if(ok){r.rivalLosses++;r.respect=cl(r.respect+6,0,100);r.affection=cl(r.affection+1,0,100);addRelationMemory(r,'Tu remportes un duel contre lui/elle.','rival')}else{r.rivalWins++;r.respect=cl(r.respect+3,0,100);addRelationMemory(r,'Remporte un duel contre toi.','rival')}
+ if(r.rivalLosses>=3&&r.rivalLosses>=r.rivalWins+2){r.npcTrajectory='Ascension';r.npcPotential=cl(Math.max(r.npcPotential,r.npcPower+8),0,100)}
+ save();render()
+}
+function relationOrgRole(r){
+ var roles=(ORG_CONFIG[game.player.faction]||ORG_CONFIG.Civil).roles,s=r.npcSpecialty;if(s==='Navigation')return roles.find(function(x){return /Navig/i.test(x)})||roles[0];if(s==='Médecine')return roles.find(function(x){return /Médec/i.test(x)})||roles[0];if(s==='Discrétion')return roles.find(function(x){return /Infil|Renseig|Investig/i.test(x)})||roles[0];if(s==='Commandement')return roles.find(function(x){return /Quartier|Logist|Associ/i.test(x)})||roles[0];return roles.find(function(x){return /Combat|Combatt|Duell|Agent/i.test(x)})||roles[0]
+}
+function recruitKnownRelation(id){
+ var p=game.player,r=relationById(id),o=ensureOrganization();if(!r||!o)return;if(r.canonical)return toast('Les personnages canoniques restent autonomes dans cette version.');if(r.joinedOrganization)return toast(r.name+' appartient déjà à ton organisation.');if(o.authority!=='leader')return toast('Il faut diriger ton organisation.');if(!npcNearby(r))return toast(r.name+' n’est pas dans ta région.');if(r.faction!==p.faction&&r.faction!=='Civil')return toast('Sa faction est incompatible avec ton organisation.');if(r.trust<58||r.loyalty<52||r.respect<42)return toast('Le lien n’est pas assez solide pour un recrutement.');if(o.members.filter(function(m){return m.status==='active'}).length>=organizationCapacity())return toast('Ton organisation a atteint sa capacité.');if(!useOrganizationAction())return;
+ var role=relationOrgRole(r),member={id:'orgm-rel-'+r.id,name:r.name,role:role,power:relationPower(r),loyalty:r.loyalty,morale:cl((r.affection+r.trust)/2,35,95),months:0,injuryMonths:r.injuryMonths||0,status:'active',origin:r.region,linkedRelationId:r.id};o.members.push(member);r.joinedOrganization=true;r.faction=p.faction;r.type='organization';r.location=p.island;r.region=p.region;r.loyalty=cl(r.loyalty+8,0,100);addRelationMemory(r,'Rejoint '+o.name+' comme '+role+'.','organization');tl('Recrutement relationnel',r.name+' rejoint '+o.name+' comme '+role+'.','major');save();render()
+}
+function seekMentor(){
+ var p=game.player;if(p.ageMonths<144)return toast('Tu es encore trop jeune pour rechercher un mentor structuré.');if(!useSocialAction())return;var existing=game.relations.filter(function(r){return r.status==='active'&&npcNearby(r)&&relationPower(r)>power()+10&&!r.canonical});if(existing.length){var r=pk(existing,'npc');r.respect=cl(r.respect+4,0,100);r.trust=cl(r.trust+3,0,100);addRelationMemory(r,'Tu sollicites ses conseils.','mentor');tl('Piste de mentorat',r.name+' semble disposé à observer ta progression.');save();render();return}
+ var r=createRelation('mentor');r.region=p.region;r.location=p.island;r.npcPower=cl(power()+14+R('npc')*16,20,94);r.npcPotential=cl(Math.max(r.npcPower+5,72+R('npc')*24),r.npcPower,100);r.respect=Math.max(r.respect,64);r.trust=Math.max(r.trust,48);addRelationMemory(r,'Rencontré en recherchant un guide expérimenté.','mentor');tl('Mentor potentiel',r.name+' accepte de suivre tes progrès.','major');save();render()
+}
+
 function defaultLife(){return{relationshipStatus:'Célibataire',partnerId:null,housingLevel:0,assets:{property:0,business:0,ship:0,treasure:0},livingCostsPaid:0,debtPeak:0,netWorthPeak:0,socialActions:2,lastExpense:0,totalBusinessIncome:0}}
 function metaKey(){return P+'meta-'+slot}
 function loadMeta(){try{return JSON.parse(localStorage.getItem(metaKey())||'null')}catch(x){return null}}
@@ -254,7 +335,7 @@ function key(){return P+slot}
 function save(){if(game){localStorage.setItem(key(),JSON.stringify(game));saveMeta()}}
 function migrate(g){
  if(!g)return null;var p=g.player||{},w=g.world||{};
- g.version=15;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};
+ g.version=16;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};
  p.techniques=p.techniques||[];p.techniqueMastery=p.techniqueMastery||{};p.fruitMastery=p.fruitMastery||0;p.fruitAwakened=!!p.fruitAwakened;p.heldFruit=p.heldFruit||null;p.combatXP=p.combatXP||0;p.hakiApplications=p.hakiApplications||{Observation:[],Armement:[],Conquérant:[]};
  p.haki=p.haki||{Observation:0,Armement:0,Conquérant:0};p.latent=p.latent||{Observation:40,Armement:40,Conquérant:0};p.conditions=p.conditions||[];
  p.life=p.life||defaultLife();p.life.assets=p.life.assets||{property:0,business:0,ship:0,treasure:0};p.children=p.children||[];p.children=p.children.map(function(c,i){c.id=c.id||('child-'+i+'-'+H(String(g.seed)+':child:'+i));c.name=c.name||PEOPLE_NAMES[H(String(g.seed)+':childname:'+i)%PEOPLE_NAMES.length];c.ageMonths=c.ageMonths||0;c.birthplace=c.birthplace||p.island||'';c.birthRegion=c.birthRegion||p.region||p.origin;c.race=c.race||p.race||'Humain';c.status=c.status||'active';return c});
@@ -274,7 +355,7 @@ function news(t,d,type){game.news.unshift({title:t,desc:d,type:type||''});game.n
 function press(){var o={};REG.forEach(function(r){o[r]={Piraterie:20+R('w')*25,Marine:30+R('w')*35,Criminalité:15+R('w')*30,Révolution:5+R('w')*20,Prospérité:40+R('w')*35,Instabilité:10+R('w')*25}});return o}
 function make(){
  var seed=Number($('#seedInput').value)||Math.floor(Math.random()*2147483647);game={seed:seed,rng:{}};var origin=mode==='custom'?$('#originInput').value:pk(ORIG,'b');
- game={version:15,seed:seed,rng:game.rng,alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
+ game={version:16,seed:seed,rng:game.rng,alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
  game=applyMeta(migrate(game));syncCanonicalFruits();var homes=Object.keys(PL).filter(function(n){return PL[n][0]===origin});game.player.island=pk(homes,'b');game.player.visited=[game.player.island];game.codex.places=[game.player.island];game.world.pressures=press();
  ST.forEach(function(k){game.player.stats[k]=8+R('b')*12;game.player.caps[k]=68+R('c')*25});SK.forEach(function(k){game.player.skills[k]=2+R('b')*8;game.player.caps[k]=68+R('c')*25});
  syncPowers();tl('Naissance','Tu nais à '+game.player.island+', dans '+origin+'.','major');news('Grande Ère de la Piraterie','Le monde entre dans une période de bouleversements.');save();return game}
