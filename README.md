@@ -1,4 +1,23 @@
-# ONE PIECE LIFE — V2.5 Living World Intelligence
+# ONE PIECE LIFE — V2.6 Signature Moments
+
+La V2.6 conserve la fluidité et le monde autonome de V2.5, mais donne davantage de poids aux événements qui doivent réellement définir une carrière.
+
+## V2.6 — Signature Moments
+
+Le moteur identifie maintenant les moments rares sans demander de micro-gestion supplémentaire :
+
+- missions du monde classées par importance et marquées **Exceptionnelles** ou **Décisives** lorsque les enjeux le justifient ;
+- récompenses légèrement renforcées pour les missions signatures ;
+- combats majeurs et exploits improbables enregistrés comme moments signatures ;
+- rivalités qui produisent des jalons uniques lorsqu'elles deviennent confirmées puis atteignent le statut de Némésis ;
+- achievements remontés directement dans le rapport **AVANCER** ;
+- nouveaux moments signatures affichés dans le même rapport de période ;
+- registre compact et sérialisable des temps forts de la carrière ;
+- migration automatique des sauvegardes V2.5 vers **GameState 26**.
+
+Aucun nouvel écran de micro-gestion n'est ajouté.
+
+## Héritage V2.5 — Living World Intelligence
 
 La V2.5 conserve la fluidité de V2.4 et rend la simulation plus autonome sans ajouter de micro-gestion.
 
@@ -92,9 +111,9 @@ Le GameState passe en **version interne 25**.
 Les sauvegardes V2.4 migrent automatiquement et reçoivent les nouveaux champs d'intention, de réseau PNJ et d'autonomie sans perdre leur progression existante.
 
 
-## QA V2.5
+## QA V2.6
 
-La release durcie passe **184/184 scénarios fonctionnels**.
+La release V2.6 couvre **191 scénarios fonctionnels** avec les nouveaux garde-fous Signature Moments.
 
 Les nouveaux garde-fous vérifient notamment :
 
@@ -123,7 +142,13 @@ Les nouveaux garde-fous vérifient notamment :
 - enfance/formation compressée sans supprimer les événements structurants ;
 - quatre nouveaux archétypes narratifs : mentor, menace d’équipage, famille et appel du large ;
 - passage de rang de puissance transformé en événement majeur visible ;
-- ouverture des fils narratifs non bloquante : AVANCER s’arrête sur la décision, pas sur le simple lancement de l’histoire.
+- ouverture des fils narratifs non bloquante : AVANCER s’arrête sur la décision, pas sur le simple lancement de l’histoire ;
+- migration V25 → V26 du registre de moments signatures ;
+- classification automatique des missions exceptionnelles ;
+- migration des missions actives vers leur niveau d’importance ;
+- combats majeurs enregistrés sans clic supplémentaire ;
+- jalons de rivalité non dupliqués ;
+- achievements et moments signatures remontés dans le rapport AVANCER.
 
 Mesures longues de référence :
 

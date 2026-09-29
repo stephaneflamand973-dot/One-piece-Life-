@@ -10,8 +10,8 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('V2.5')) throw new Error('index.html does not expose V2.5');
-if(!app.includes('version:25') || !app.includes('g.version=25')) throw new Error('game state is not V2.5 migration version 25');
+if(!html.includes('V2.6')) throw new Error('index.html does not expose V2.6');
+if(!app.includes('version:26') || !app.includes('g.version=26')) throw new Error('game state is not V2.6 migration version 26');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
 if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include content-v1.js');
@@ -46,6 +46,8 @@ if(!app.includes('function weightedIntent') || !app.includes('function weightedP
 if(!app.includes('function eventNoveltyWeight') || !app.includes('function missionNoveltyScore') || !app.includes('function storyNoveltyWeight')) throw new Error('V2.5 fun-flow novelty director missing');
 if(!app.includes("'mentor-lesson'") || !app.includes("'crew-pressure'") || !app.includes("'family-crossroads'") || !app.includes("'horizon-call'")) throw new Error('V2.5 expanded story variety missing');
 if(!app.includes("PALIER DE PUISSANCE")) throw new Error('V2.5 progression milestone feedback missing');
+if(!app.includes('function recordSignatureMoment') || !app.includes('function missionImportance') || !app.includes('function missionStakes')) throw new Error('V2.6 signature moment engine missing');
+if(!app.includes('function syncRivalryMilestone') || !app.includes("recordSignatureMoment('Accomplissement")) throw new Error('V2.6 rivalry or achievement signature integration missing');
 if(!app.includes("eng.history.slice(0,4)") || !app.includes('worldHighlights:worldHighlights') || !app.includes("label:'Ouverture'")) throw new Error('V2.5 fun-flow feedback surfaces missing');
 if(!app.includes("Object.keys(bonus||{})") || !app.includes("intent==='Recruter'") || !app.includes("poursuit ses activités dans")) throw new Error('V2.5 autonomy hardening missing');
 if(!app.includes('function assignNpcIntent') || !app.includes('function npcSocialTick') || !app.includes('npcLinks')) throw new Error('V2.5 autonomous NPC network missing');
@@ -127,4 +129,4 @@ if(!app.includes('function showStoryDecision') || !app.includes('function render
 if(!html.includes('id="storyEngineBadge"') || !html.includes('id="storySummary"') || !html.includes('id="activeStories"') || !html.includes('id="storyHistory"')) throw new Error('V2.0 story UI missing');
 if(!app.includes("id:'story-first'") || !app.includes("id:'story-weaver'") || !app.includes("id:'story-decisions'")) throw new Error('V2.0 story achievements missing');
 if(!app.includes("if(awaitingStory())return showStoryDecision()")) throw new Error('V2.0 AVANCER story gate missing');
-console.log('ONE PIECE LIFE V2.5 validation OK');
+console.log('ONE PIECE LIFE V2.6 validation OK');
