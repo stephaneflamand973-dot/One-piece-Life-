@@ -1730,7 +1730,7 @@ function renderRel(){
 }
 function diplomacyLabel(v){return v>=60?'Alliance':v>=25?'Coopération':v>-25?'Neutre':v>-60?'Tension':'Hostilité'}
 function renderWorld(){var p=game.player,w=game.world,q=inf(),rp=w.pressures[p.region],terr=w.territories[p.island]||{controller:'Inconnu',influence:0,stability:0,contested:false};
- $('#worldHeadline').textContent='Grande Ère de la Piraterie';$('#worldSubhead').textContent='Année '+w.year+', mois '+(Math.floor(w.month)+1)+'. La V1.9 relie désormais voyages, exploration locale, rumeurs et découvertes à l’état réel du monde.';
+ $('#worldHeadline').textContent='Grande Ère de la Piraterie';$('#worldSubhead').textContent='Année '+w.year+', mois '+(Math.floor(w.month)+1)+'. La V2.0 relie désormais exploration, relations, carrière, justice et organisations en fils narratifs persistants.';
  $('#worldMeta').innerHTML='<span>Divergence '+Math.round(w.divergence)+'%</span><span>Tension '+Math.round(w.globalTension)+'%</span><span>'+p.visited.length+' lieux visités</span>';
  $('#placeName').textContent=p.travel?'En mer → '+p.travel.destination:p.island;$('#placeDanger').textContent='Danger '+q.danger;
  var placeProfile=islandProfile(p.island);$('#placeDescription').textContent=p.travel?'Temps restant : '+Math.max(0,p.travel.remaining).toFixed(1)+' mois vers '+p.travel.destination+'.':'Région : '+p.region+' • contrôle : '+terr.controller+' • stabilité '+Math.round(terr.stability)+'%. '+placeProfile.identity;
