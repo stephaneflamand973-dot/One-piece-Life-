@@ -10,8 +10,8 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('V2.4')) throw new Error('index.html does not expose V2.4');
-if(!app.includes('version:24') || !app.includes('g.version=24')) throw new Error('game state is not V2.4 migration version 24');
+if(!html.includes('V2.5')) throw new Error('index.html does not expose V2.5');
+if(!app.includes('version:25') || !app.includes('g.version=25')) throw new Error('game state is not V2.5 migration version 25');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
 if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include content-v1.js');
@@ -41,6 +41,10 @@ if(!app.includes('function renderWorldExplore') || !app.includes('function rende
 if(!app.includes('function renderRelClose') || !app.includes('function renderRelNetwork') || !app.includes('function relationActionDecision')) throw new Error('V2.4 contextual relation UI missing');
 if(!app.includes('function renderAbProgress') || !app.includes('function renderAbPowers') || !app.includes('function renderAbDetails')) throw new Error('V2.4 lazy progression rendering missing');
 if(!app.includes("activityGrowthKeys(currentFocus())")) throw new Error('V2.4 focus-aware event engine missing');
+if(!app.includes('function assignActorIntent') || !app.includes('function resolveActorIntent') || !app.includes('function crewIntentTick')) throw new Error('V2.5 world intention engine missing');
+if(!app.includes('function assignNpcIntent') || !app.includes('function npcSocialTick') || !app.includes('npcLinks')) throw new Error('V2.5 autonomous NPC network missing');
+if(!app.includes('function worldMissionOpportunities') || !app.includes('function applyWorldMissionOutcome')) throw new Error('V2.5 causal mission engine missing');
+if(!app.includes('function purgeSaveSlot') || !app.includes('function deleteSaveSlot') || !app.includes('save-delete')) throw new Error('V2.5 save deletion missing');
 if(!app.includes('var MISSION_PROFILE_CONFIG=') || !app.includes('function missionResolution') || !app.includes('function missionChance')) throw new Error('V2.2 mission profile engine missing');
 if(!app.includes('function styleMastery')) throw new Error('V2.2 style mastery missing');
 if(!app.includes('debtInterestPaid') || !app.includes('function chargeMoney') || !app.includes('function serviceDebt')) throw new Error('V2.2 debt engine missing');
@@ -115,4 +119,4 @@ if(!app.includes('function showStoryDecision') || !app.includes('function render
 if(!html.includes('id="storyEngineBadge"') || !html.includes('id="storySummary"') || !html.includes('id="activeStories"') || !html.includes('id="storyHistory"')) throw new Error('V2.0 story UI missing');
 if(!app.includes("id:'story-first'") || !app.includes("id:'story-weaver'") || !app.includes("id:'story-decisions'")) throw new Error('V2.0 story achievements missing');
 if(!app.includes("if(awaitingStory())return showStoryDecision()")) throw new Error('V2.0 AVANCER story gate missing');
-console.log('ONE PIECE LIFE V2.4 validation OK');
+console.log('ONE PIECE LIFE V2.5 validation OK');
