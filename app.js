@@ -25,6 +25,53 @@ var TRAINING_PROFILES={
  'Formation Révolutionnaires':{keys:['Discrétion','Commandement'],desc:'Discrétion & Commandement'},
  'Formation Gouvernement':{keys:['Discipline','Discrétion'],desc:'Discipline & Discrétion'}
 };
+
+var SIMPLE_FOCUS={
+ 'Équilibre':{label:'Équilibre',desc:'Le moteur corrige automatiquement tes points faibles sans micro-gestion.'},
+ 'Combat':{label:'Combat',desc:'Travaille automatiquement ton style de combat et les qualités physiques qui lui correspondent.'},
+ 'Forme':{label:'Forme',desc:'Renforce automatiquement tes qualités physiques les moins développées.'},
+ 'Carrière':{label:'Carrière',desc:'Développe les compétences réellement utiles à ta spécialisation et à ta progression professionnelle.'},
+ 'Pouvoirs':{label:'Pouvoirs',desc:'Concentre la période sur le Haki, le Fruit du démon et la volonté.'}
+};
+var LEGACY_FOCUS={
+ 'Études':'Carrière','Entraînement':'Combat','Renforcement':'Forme','Mobilité':'Forme','Condition physique':'Forme','Mental':'Équilibre','Sabre':'Combat','Tir':'Combat','Médecine':'Carrière','Commandement':'Carrière','Discrétion':'Carrière','Science':'Carrière',
+ 'Formation Marine':'Carrière','Formation Pirates':'Carrière','Formation Révolutionnaires':'Carrière','Formation Gouvernement':'Carrière','Haki Observation':'Pouvoirs','Haki Armement':'Pouvoirs','Haki Conquérant':'Pouvoirs','Maîtrise du Fruit':'Pouvoirs'
+};
+function keyValue(k){var p=game.player;return p.stats&&p.stats[k]!=null?p.stats[k]:p.skills&&p.skills[k]!=null?p.skills[k]:0}
+function keyCap(k){return Math.max(1,game.player.caps&&game.player.caps[k]||100)}
+function weakestOf(keys,count){return keys.slice().sort(function(a,b){return keyValue(a)/keyCap(a)-keyValue(b)/keyCap(b)}).slice(0,count||1)}
+function styleFocusKeys(){
+ var p=game.player;if(p.style==='Sabreur')return['Sabre','Réflexes'];if(p.style==='Tireur')return['Tir','Réflexes'];if(p.style==='Mobile / esquive')return['Combat','Agilité'];if(p.style==='Corps-à-corps')return['Combat','Force'];return['Combat','Réflexes']
+}
+function careerFocusKeys(){
+ var p=game.player,profile=specProfile(p.specialization);if(profile)return weakestOf(profile.keys,2);
+ var factionMap={Marine:['Discipline','Combat'],Pirates:['Combat','Navigation'],'Chasseur de primes':['Réflexes','Discrétion'],Révolutionnaires:['Discrétion','Commandement'],Gouvernement:['Discipline','Discrétion'],Civil:['Discipline','Science']};
+ return factionMap[p.faction]||['Discipline','Science']
+}
+function simpleFocusKeys(a){
+ if(a==='Équilibre')return[weakestOf(ST,1)[0],weakestOf(SK,1)[0]];
+ if(a==='Combat')return styleFocusKeys();
+ if(a==='Forme')return weakestOf(['Force','Vitesse','Agilité','Endurance','Résistance','Réflexes'],2);
+ if(a==='Carrière')return careerFocusKeys();
+ return[]
+}
+function hasPowerFocus(){
+ var p=game.player;if(p.fruit)return true;if(Object.keys(p.haki||{}).some(function(k){return p.haki[k]>0}))return true;
+ return p.ageMonths>=144&&Math.max(p.latent.Observation||0,p.latent.Armement||0,p.latent.Conquérant||0)>55
+}
+function focusOptions(){
+ var p=game.player;if(p.ageMonths<72)return['Grandir'];var out=['Équilibre','Combat','Forme'];if(p.ageMonths>=180||p.career!=='Aucune')out.push('Carrière');if(hasPowerFocus())out.push('Pouvoirs');return out
+}
+function recommendedFocus(){
+ var p=game.player;if(p.ageMonths<72)return'Grandir';if(p.health<72||p.energy<45)return'Forme';if(p.ambition==='Devenir puissant')return'Combat';if(p.ambition==='Faire fortune'&&p.career!=='Aucune')return'Carrière';if(p.specialization&&careerExpertise(p.specialization)<32)return'Carrière';if(hasPowerFocus()&&(p.fruit&&p.fruitMastery<30||Object.keys(p.haki).some(function(k){return p.haki[k]>0&&p.haki[k]<25})))return'Pouvoirs';return'Équilibre'
+}
+function normalizeActivityFocus(p){
+ if(!p)return;if(p.travel||game&&game.mission)return;
+ if(LEGACY_FOCUS[p.activity])p.activity=LEGACY_FOCUS[p.activity];
+ if(p.activity==='Navigation'&&p.situation!=='Navigation')p.activity=p.career!=='Aucune'?'Carrière':'Équilibre';
+ if(p.activity!=='Grandir'&&p.activity!=='Explorer'&&!SIMPLE_FOCUS[p.activity])p.activity=p.ageMonths<72?'Grandir':recommendedFocus()
+}
+
 var PL={
 'Loguetown':['East Blue',14,['Shells Town','Baratie','Reverse Mountain']],
 'Shells Town':['East Blue',8,['Loguetown','Orange Town']],
@@ -784,10 +831,11 @@ function renderStories(){
 
 function migrate(g){
  if(!g)return null;var p=g.player||{},w=g.world||{};
- g.version=22;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};migrateLifeLoop(g);migrateExploration(p);migrateStoryEngine(g);if(g.pending&&!pendingIsExecutable(g.pending))g.pending=null;
+ g.version=23;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};migrateLifeLoop(g);migrateExploration(p);migrateStoryEngine(g);if(g.pending&&!pendingIsExecutable(g.pending))g.pending=null;
  p.techniques=p.techniques||[];p.techniqueMastery=p.techniqueMastery||{};p.fruitMastery=p.fruitMastery||0;p.fruitAwakened=!!p.fruitAwakened;p.heldFruit=p.heldFruit||null;p.combatXP=p.combatXP||0;p.hakiApplications=p.hakiApplications||{Observation:[],Armement:[],Conquérant:[]};
  p.haki=p.haki||{Observation:0,Armement:0,Conquérant:0};p.latent=p.latent||{Observation:40,Armement:40,Conquérant:0};p.conditions=p.conditions||[];
- p.life=p.life||defaultLife();p.life.assets=p.life.assets||{property:0,business:0,ship:0,treasure:0};p.life.debt=Math.max(0,p.life.debt||0);p.life.debtPeak=Math.max(0,p.life.debtPeak||0);p.life.debtInterestPaid=Math.max(0,p.life.debtInterestPaid||0);if(p.money<0){p.life.debt+=-p.money;p.life.debtPeak=Math.max(p.life.debtPeak,p.life.debt);p.money=0}p.children=p.children||[];p.children=p.children.map(function(c,i){c.id=c.id||('child-'+i+'-'+H(String(g.seed)+':child:'+i));c.name=c.name||PEOPLE_NAMES[H(String(g.seed)+':childname:'+i)%PEOPLE_NAMES.length];c.ageMonths=c.ageMonths||0;c.birthplace=c.birthplace||p.island||'';c.birthRegion=c.birthRegion||p.region||p.origin;c.race=c.race||p.race||'Humain';c.status=c.status||'active';return c});
+ normalizeActivityFocus(p);
+  p.life=p.life||defaultLife();p.life.assets=p.life.assets||{property:0,business:0,ship:0,treasure:0};p.life.debt=Math.max(0,p.life.debt||0);p.life.debtPeak=Math.max(0,p.life.debtPeak||0);p.life.debtInterestPaid=Math.max(0,p.life.debtInterestPaid||0);if(p.money<0){p.life.debt+=-p.money;p.life.debtPeak=Math.max(p.life.debtPeak,p.life.debt);p.money=0}p.children=p.children||[];p.children=p.children.map(function(c,i){c.id=c.id||('child-'+i+'-'+H(String(g.seed)+':child:'+i));c.name=c.name||PEOPLE_NAMES[H(String(g.seed)+':childname:'+i)%PEOPLE_NAMES.length];c.ageMonths=c.ageMonths||0;c.birthplace=c.birthplace||p.island||'';c.birthRegion=c.birthRegion||p.region||p.origin;c.race=c.race||p.race||'Humain';c.status=c.status||'active';return c});
  g.codex=g.codex||{people:[],places:[],factions:['Civil'],fruits:[]};['people','places','factions','fruits','events','techniques','discoveries'].forEach(function(k){g.codex[k]=g.codex[k]||[]});g.relations=(g.relations||[]).map(function(r,i){return normalizeRelation(g,r,i)});g.socialSeq=g.socialSeq||g.relations.length;g.achievements=g.achievements||{unlocked:{}};g.achievements.unlocked=g.achievements.unlocked||{};g.dynasty=g.dynasty||{generation:1,ancestors:[]};
  p.factionRep=p.factionRep||{Civil:10,Marine:0,Pirates:0,'Chasseur de primes':0,Révolutionnaires:0,Gouvernement:0};
  FACTION_KEYS.forEach(function(k){if(p.factionRep[k]==null)p.factionRep[k]=0});
@@ -804,7 +852,7 @@ function news(t,d,type){game.news.unshift({title:t,desc:d,type:type||''});game.n
 function press(){var o={};REG.forEach(function(r){o[r]={Piraterie:20+R('w')*25,Marine:30+R('w')*35,Criminalité:15+R('w')*30,Révolution:5+R('w')*20,Prospérité:40+R('w')*35,Instabilité:10+R('w')*25}});return o}
 function make(){
  var seed=Number($('#seedInput').value)||Math.floor(Math.random()*2147483647);game={seed:seed,rng:{}};var origin=mode==='custom'?$('#originInput').value:pk(ORIG,'b');
- game={version:22,seed:seed,rng:game.rng,alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[],discoveries:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
+ game={version:23,seed:seed,rng:game.rng,alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[],discoveries:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
  game=applyMeta(migrate(game));syncCanonicalFruits();var homes=Object.keys(PL).filter(function(n){return PL[n][0]===origin});game.player.island=pk(homes,'b');game.player.visited=[game.player.island];game.codex.places=[game.player.island];game.world.pressures=press();var birthSite=explorationSite(game.player.island);birthSite.familiarity=22;birthSite.visits=1;
  ST.forEach(function(k){game.player.stats[k]=8+R('b')*12;game.player.caps[k]=68+R('c')*25});SK.forEach(function(k){game.player.skills[k]=2+R('b')*8;game.player.caps[k]=68+R('c')*25});game.player.naturalCaps={};game.player.absoluteCaps={};ST.concat(SK).forEach(function(k){game.player.naturalCaps[k]=game.player.caps[k];game.player.absoluteCaps[k]=cl(game.player.caps[k]+5+(H(String(game.seed)+':absolute:'+k)%8),game.player.caps[k],100)});game.player.progression=defaultProgression(game.player);
  syncPowers();recordProgressSnapshot(true);tl('Naissance','Tu nais à '+game.player.island+', dans '+origin+'.','major');news('Grande Ère de la Piraterie','Le monde entre dans une période de bouleversements.');save();return game}
@@ -821,8 +869,22 @@ function learnMastery(m,focus){
  var p=game.player,defs=allTechniqueDefs(),fs=Array.isArray(focus)?focus:focus?[focus]:[];(p.techniques||[]).forEach(function(id){var def=defs.find(function(x){return x.id===id}),relevant=!fs.length||(def&&def.skill&&fs.indexOf(def.skill)>=0)||(def&&def.requires&&def.requires.skill&&fs.indexOf(def.requires.skill)>=0);if(!relevant)return;var cur=p.techniqueMastery[id]||1;p.techniqueMastery[id]=cl(cur+m*(.28+R('p')*.38)*cl(1-cur/125,.15,1),0,100)});syncPowers()
 }
 function gain(k,n){var p=game.player,b=p.stats[k]!=null?p.stats:p.skills,z=b[k],cap=p.caps[k]||90;if(z>=cap)return 0;var raw=n*diff()[0]*developmentFactor(k)*cl(1-Math.pow(z/110,1.7),.1,1),next=cl(z+raw,0,cap),g=next-z;b[k]=next;trackProgressGain(k,g);return g}
-function activityGrowthKeys(a){if(a==='Explorer')return['Réflexes','Navigation'];var profile=TRAINING_PROFILES[a];return profile?profile.keys.slice():[]}
-function train(m){var p=game.player;if(p.activity==='Haki Observation'){trainHaki('Observation',m);learnMastery(m*.25,['Combat']);return}if(p.activity==='Haki Armement'){trainHaki('Armement',m);learnMastery(m*.25,['Combat','Sabre']);return}if(p.activity==='Haki Conquérant'){trainHaki('Conquérant',m);learnMastery(m*.18,['Combat']);return}if(p.activity==='Maîtrise du Fruit'){trainFruit(m);learnMastery(m*.18,['Combat']);return}var ks=activityGrowthKeys(p.activity);if(!ks.length)ks=[pk(ST,'p'),pk(SK,'p')];ks.forEach(function(k){gain(k,m*(.5+R('p')*.8))});if(p.fruit&&R('fruit')<.5)trainFruit(m*.35);if(p.haki.Observation&&R('h')<.35)trainHaki('Observation',m*.25);if(p.haki.Armement&&R('h')<.35)trainHaki('Armement',m*.25);learnMastery(m,ks)}
+function activityGrowthKeys(a){if(a==='Explorer')return['Réflexes','Navigation'];if(SIMPLE_FOCUS[a])return simpleFocusKeys(a);var profile=TRAINING_PROFILES[a];return profile?profile.keys.slice():[]}
+function train(m){
+ var p=game.player;
+ if(p.activity==='Pouvoirs'){
+  gain('Volonté',m*(.28+R('p')*.32));gain('Discipline',m*(.18+R('p')*.25));
+  if(p.fruit)trainFruit(m*.82);
+  var awakened=Object.keys(p.haki).filter(function(k){return p.haki[k]>0});
+  if(awakened.length)awakened.forEach(function(k){trainHaki(k,m*.48)});
+  else if(p.ageMonths>=144){trainHaki('Observation',m*.32);trainHaki('Armement',m*.28);if((p.latent.Conquérant||0)>0)trainHaki('Conquérant',m*.18)}
+  learnMastery(m*.35,['Combat','Sabre','Tir']);return
+ }
+ var ks=activityGrowthKeys(p.activity);if(!ks.length)ks=[pk(ST,'p'),pk(SK,'p')];
+ var rate=p.activity==='Équilibre'?.48:p.activity==='Carrière'?.56:p.activity==='Combat'?.57:.52;
+ ks.forEach(function(k){gain(k,m*(rate+R('p')*.72))});
+ if(p.fruit&&R('fruit')<.35)trainFruit(m*.25);if(p.haki.Observation&&R('h')<.25)trainHaki('Observation',m*.18);if(p.haki.Armement&&R('h')<.25)trainHaki('Armement',m*.18);learnMastery(m,ks)
+}
 
 function relationById(id){return game.relations.find(function(r){return r.id===id})||null}
 function partnerRelation(){var id=game.player.life.partnerId;return id?relationById(id):null}
@@ -1350,7 +1412,7 @@ function standingLabel(v){return v<=-40?'Hostile':v<-10?'Méfiant':v<20?'Neutre'
 function adjustRep(f,n){var p=game.player;if(p.factionRep[f]==null)p.factionRep[f]=0;p.factionRep[f]=cl(p.factionRep[f]+n,-100,100)}
 function rankIndex(){var p=game.player,t=careerTrack(p.faction,p.specialization),i=t.findIndex(function(r){return r.n===p.rank});return i<0?0:i}
 function nextRank(){var t=careerTrack(game.player.faction,game.player.specialization),i=rankIndex();return i<t.length-1?t[i+1]:null}
-function activityForFaction(f){return f==='Civil'?'Études':f==='Chasseur de primes'?'Entraînement':f==='Pirates'?'Formation Pirates':f==='Révolutionnaires'?'Formation Révolutionnaires':f==='Gouvernement'?'Formation Gouvernement':'Formation Marine'}
+function activityForFaction(f){return'Carrière'}
 function join(f,r){var p=game.player,old=p.faction;if(p.organization&&p.organization.faction!==f)archiveOrganization('Changement de voie');var rec=careerRecord(f);p.faction=f;p.career=f;p.rank=rec.rank||r||firstRank(f);p.specialization=rec.specialization||null;p.situation='Carrière';p.activity=activityForFaction(f);if(game.codex.factions.indexOf(f)<0)game.codex.factions.push(f);p.careerHistory.push({age:age(),from:old,to:f});ensureOrganization();tl('Nouvelle carrière','Tu rejoins '+(CAREERS[f]?CAREERS[f].label:f)+'.','major')}
 function career(){decision('Choisir une voie','Ta vie adulte commence. Chaque voie possède désormais ses propres rangs, missions, spécialisations et conséquences.',[
  ['Marine','Carrière structurée, salaire et promotions.',function(){join('Marine','Recrue')}],
@@ -1364,7 +1426,7 @@ function specEligibility(sp){var p=game.player;if(sp==='Cipher Pol'){if(p.factio
 function chooseSpecialization(sp){var p=game.player,rec=careerRecord(),q=specEligibility(sp);if(!q[0])return toast(q[1]);if(rec.specialization&&rec.specialization!==sp){rec.xp*=.9;tl('Réorientation','Tu quittes la spécialisation '+rec.specialization+' pour '+sp+'. Une partie de ton expérience de carrière est perdue.','major')}else if(!rec.specialization)tl('Spécialisation','Tu te spécialises en '+sp+'.','major');rec.specialization=sp;p.specialization=sp;if(p.faction==='Gouvernement'&&sp==='Cipher Pol'&&rankIndex()<2&&rec.xp>=105){p.rank='Stagiaire Cipher Pol';rec.rank=p.rank}save();renderChar()}
 function salaryPerMonth(){var p=game.player,c=CAREERS[p.faction]||CAREERS.Civil,i=rankIndex();if(!c.salary)return 0;return Math.round(c.salary*(1+i*.34))}
 function specSkill(sp){var m={Combat:'Combat',Combattant:'Combat',Duelliste:'Combat',Navigation:'Navigation',Navigateur:'Navigation',Tireur:'Tir',Médecine:'Médecine',Médecin:'Médecine',Renseignement:'Discrétion',Infiltration:'Discrétion',Investigateur:'Discrétion',Scientifique:'Science',Administration:'Discipline',Logistique:'Commandement','Quartier-maître':'Commandement',Marchand:'Commandement',Artisan:'Science',Cuisinier:'Discipline',Traqueur:'Réflexes','Cipher Pol':'Discrétion'};return m[sp]||null}
-function careerActivityFit(){var p=game.player,keys=activityGrowthKeys(p.activity),profile=specProfile(p.specialization);if(String(p.activity).indexOf('Formation')===0)return 1.25;if(!profile)return p.activity==='Études'||p.activity==='Entraînement'?1.1:.65;var hits=profile.keys.filter(function(k){return keys.indexOf(k)>=0}).length;if(hits>=2)return 1.35;if(hits===1)return 1.05;if(p.activity==='Études')return .82;return .55}
+function careerActivityFit(){var p=game.player,keys=activityGrowthKeys(p.activity),profile=specProfile(p.specialization);if(p.activity==='Carrière')return 1.35;if(p.activity==='Équilibre')return .82;if(!profile)return p.activity==='Combat'?1.0:.68;var hits=profile.keys.filter(function(k){return keys.indexOf(k)>=0}).length;if(hits>=2)return 1.18;if(hits===1)return .95;return .62}
 function evaluatePromotion(){var p=game.player,rec=careerRecord(),n=nextRank();if(!n)return false;var rep=p.factionRep[p.faction]||0,qual=careerQualification();if(rec.xp<n.xp||rep<n.rep||qual<n.pow)return false;p.rank=n.n;rec.rank=n.n;adjustRep(p.faction,3);tl('PROMOTION','Tu accèdes au rang de '+n.n+' au sein de '+(CAREERS[p.faction]?CAREERS[p.faction].label:p.faction)+' grâce à une qualification de '+Math.round(qual)+'.','major');syncOrganizationRole();return true}
 function careerTick(m){var p=game.player;if(p.ageMonths<180||p.career==='Aucune')return;var rec=careerRecord(),fit=careerActivityFit();rec.months+=m;rec.xp+=m*fit*(1+(p.stats.Discipline||0)/260);var sk=specSkill(p.specialization);if(sk)gain(sk,m*(.10+.05*fit));var sal=salaryPerMonth()*m;if(sal>0){p.money+=sal;p.salaryTotal+=sal}adjustRep(p.faction,m*.08);evaluatePromotion();organizationTick(m)}
 function careerEligibility(f){var p=game.player;if(f===p.faction)return[false,'Voie actuelle'];if(p.ageMonths<180)return[false,'Carrière accessible à partir de 15 ans'];if(f==='Marine'&&p.bounty>0)return[false,'Une prime active bloque le recrutement'];if(f==='Gouvernement'){if(p.bounty>0)return[false,'Une prime active bloque le recrutement'];if((p.stats.Discipline||0)<18)return[false,'Discipline 18 requise']}if(f==='Chasseur de primes'&&p.bounty>50000)return[false,'Prime trop élevée'];return[true,'']}
@@ -1633,7 +1695,7 @@ function advance(){
  if(p.travel){travel(m);storyTick(m)}
  else if(game.mission){game.mission.remaining-=m;train(m);if(game.mission.remaining<=0)resolveMission();storyTick(m)}
  else{train(m);explorationTick(m);storyTick(m);var alreadyMeaningful=loop.momentSeq>before.momentSeq,force=!alreadyMeaningful&&loop.quietAdvances>=2;if(!alreadyMeaningful||R('story')<.22)event(m,force)}
- if(!game.alive){finalizeAdvanceReport(before,m,plan);save();render();deathModal();return}if(p.ageMonths>=72&&p.situation==='Enfance'){p.situation='Formation';p.activity='Études';tl('Formation','Tu commences une formation structurée.','major')}if(p.ageMonths>=180&&p.career==='Aucune'&&!game.pending&&!awaitingStory())career();p.danger=p.conditions.length?'Moyen':inf().danger>45?'Élevé':inf().danger>20?'Moyen':'Faible';recordProgressSnapshot(false);finalizeAdvanceReport(before,m,plan);checkAchievements();save();render()
+ if(!game.alive){finalizeAdvanceReport(before,m,plan);save();render();deathModal();return}if(p.ageMonths>=72&&p.situation==='Enfance'){p.situation='Formation';p.activity='Équilibre';tl('Formation','Tu commences une formation structurée.','major')}if(p.ageMonths>=180&&p.career==='Aucune'&&!game.pending&&!awaitingStory())career();p.danger=p.conditions.length?'Moyen':inf().danger>45?'Élevé':inf().danger>20?'Moyen':'Faible';recordProgressSnapshot(false);finalizeAdvanceReport(before,m,plan);checkAchievements();save();render()
 }
 
 function rep(){var r=game.player.reputation;return r>75?'Célèbre':r>40?'Reconnu':r>15?'Connu':'Inconnu'}
@@ -1750,13 +1812,11 @@ function renderChar(){var p=game.player,rec=careerRecord(),cfg=CAREERS[p.faction
 }
 function specialReqText(t){var q=t.requires||{},a=[];if(q.faction)a.push(q.faction);if(q.race)a.push(q.race);if(q.style)a.push(q.style);if(q.skill)a.push(q.skill+' '+q.skillValue);if(q.stat)a.push(q.stat+' '+q.statValue);return a.join(' • ')}
 function renderActivityOptions(){
- var p=game.player,acts=['Études','Entraînement','Renforcement','Mobilité','Condition physique','Mental','Navigation','Sabre','Tir','Médecine','Commandement','Discrétion','Science',activityForFaction(p.faction)];if(p.ageMonths<72)acts.unshift('Grandir');if(p.haki.Observation)acts.push('Haki Observation');if(p.haki.Armement)acts.push('Haki Armement');if(p.haki.Conquérant)acts.push('Haki Conquérant');if(p.fruit)acts.push('Maîtrise du Fruit');acts=acts.filter(function(v,i,a){return a.indexOf(v)===i});
- $('#activityOptions').innerHTML=acts.map(function(a){return '<button class="action-card '+(p.activity===a?'active':'')+'" data-act="'+e(a)+'"><strong>'+e(a)+'</strong><small>'+e(activityFocusText(a))+'</small></button>'}).join('');
+ var p=game.player;normalizeActivityFocus(p);var acts=focusOptions(),recommended=recommendedFocus();
+ $('#activityOptions').innerHTML=acts.map(function(a){var keys=activityGrowthKeys(a),detail=a==='Pouvoirs'?'Haki • Fruit • Volonté':keys.join(' • ');return '<button class="action-card '+(p.activity===a?'active ':'')+(recommended===a?'recommended':'')+'" data-act="'+e(a)+'"><strong>'+e(a)+(recommended===a?' · recommandé':'')+'</strong><small>'+e(activityFocusText(a))+'<br>'+e(detail)+'</small></button>'}).join('');
  $$('[data-act]').forEach(function(b){b.onclick=function(){p.activity=b.dataset.act;save();renderAb()}})
 }
-function activityFocusText(a){
- var special={'Haki Observation':'Progression ciblée du Haki de l’Observation','Haki Armement':'Progression ciblée du Haki de l’Armement','Haki Conquérant':'Maîtrise ciblée du Haki des Rois','Maîtrise du Fruit':'Maîtrise ciblée du Fruit du démon',Explorer:'Réflexes & Navigation'};var profile=TRAINING_PROFILES[a];return profile?profile.desc:(special[a]||'Influence la progression pendant AVANCER')
-}
+function activityFocusText(a){if(SIMPLE_FOCUS[a])return SIMPLE_FOCUS[a].desc;if(a==='Grandir')return'Développement naturel pendant la petite enfance.';if(a==='Explorer')return'Exploration locale et progression de Navigation.';var profile=TRAINING_PROFILES[a];return profile?profile.desc:'Le moteur adapte automatiquement la progression.'}
 
 function progressionBar(o){
  var p=game.player;return Object.keys(o).map(function(k){var v=o[k],cap=p.caps[k]||100,pct=cl(v/Math.max(1,cap)*100,0,100),status=currentCapStatus(k);return '<div class="stat-row progression-stat"><span>'+e(k)+'</span><div><div class="stat-bar"><div class="stat-fill" style="width:'+pct+'%"></div></div><small>'+e(status)+'</small></div><span class="stat-value">'+Math.round(v)+'/'+Math.round(cap)+'</span></div>'}).join('')
