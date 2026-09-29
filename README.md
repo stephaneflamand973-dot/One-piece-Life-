@@ -110,6 +110,48 @@ L’interface affiche le souvenir récent le plus important.
 - **Rivalité légendaire** : cinq duels contre le même rival ;
 - **Plus qu’une connaissance** : recruter une relation importante dans son organisation.
 
+## Services, dettes et loyauté
+
+Les relations peuvent maintenant créer de véritables **services réciproques**.
+
+Aider quelqu’un :
+
+- augmente confiance et loyauté ;
+- crée un crédit social ;
+- laisse un souvenir persistant.
+
+Demander ensuite de l’aide peut fournir selon sa spécialité :
+
+- soins ;
+- réduction de pression judiciaire ;
+- aide à la navigation ;
+- appui de réputation ;
+- soutien financier.
+
+Abuser des services sans rendre la pareille dégrade progressivement confiance et loyauté.
+
+## Interactions canoniques directes
+
+Les acteurs canoniques présents dans ta région peuvent désormais être approchés depuis l’écran Monde.
+
+La probabilité d’obtenir un véritable échange dépend notamment :
+
+- de ta réputation ;
+- de ton influence ;
+- de votre faction ;
+- de l’importance canonique du personnage ;
+- de l’hostilité entre vos camps.
+
+Une fois le lien créé, les rencontres suivantes sont mémorisées.
+
+## Mémoire dynastique
+
+À la mort du personnage, les relations majeures ne disparaissent plus toutes avec lui.
+
+Les mentors, rivaux, liens canoniques et relations extrêmement fortes peuvent survivre dans la génération suivante comme **relations de la famille**.
+
+Le nouvel héritier ne récupère pas automatiquement les sentiments de son parent, mais le PNJ se souvient de la génération précédente.
+
 ## QA
 
 La V1.6 conserve le banc QA professionnel introduit en V1.5.1 et ajoute des scénarios dédiés :
