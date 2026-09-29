@@ -427,7 +427,7 @@ function migrateLifeLoop(g){
 }
 function advancePlan(){
  var p=game.player,j=migrateJustice(p),danger=inf().danger||0,severe=p.health<45||(p.conditions||[]).some(function(c){return(c.severity||1)>=2});
- if(game.pending)return{key:'decision',label:'Décision en attente',tone:'urgent',min:0,max:0,reason:'Une décision importante interrompt automatiquement le temps.'};
+ if(game.pending)return{key:'decision',label:'Décision en attente',tone:'urgent',min:0,max:0,reason:'Une décision importante interrompt automatiquement le temps.'};var storyWait=awaitingStory();if(storyWait)return{key:'story-decision',label:'Fil narratif à décider',tone:'urgent',min:0,max:0,reason:storyWait.title+' attend ta décision avant que le temps continue.'};
  if(j.detained&&j.prison)return{key:'detention',label:'Détention',tone:'urgent',min:.5,max:1,limit:j.prison.remaining,reason:'Le temps avance lentement en détention.'};
  if(game.mission)return{key:'mission',label:'Mission en cours',tone:'active',min:.5,max:1,limit:game.mission.remaining,reason:'La simulation resserre le temps jusqu’à la prochaine étape de mission.'};
  if(p.travel)return{key:'travel',label:'Navigation',tone:'active',min:.5,max:1,limit:p.travel.remaining,reason:'La traversée progresse par périodes courtes afin de laisser les incidents interrompre le voyage.'};
@@ -474,7 +474,7 @@ function eventChance(m){
 function renderAdvanceLoop(){
  var l=migrateLifeLoop(game),plan=advancePlan(),badge=$('#advanceWindowBadge');$('#advanceRhythm').textContent=plan.label;badge.textContent=planWindowText(plan);badge.className='badge '+(plan.tone==='urgent'?'rhythm-urgent':plan.tone==='active'?'rhythm-active':'rhythm-calm');$('#advancePreview').textContent=plan.reason;
  var report=l.lastAdvance,box=$('#advanceReport');if(!report){box.classList.add('hidden')}else{box.classList.remove('hidden');$('#advanceReportDuration').textContent=durationText(report.months);$('#advanceReportStats').innerHTML='<div><span>Progression</span><strong>'+(report.gainDelta>0?'+'+report.gainDelta.toFixed(1):'Stable')+'</strong></div><div><span>Puissance</span><strong>'+(report.powerDelta>=0?'+':'')+report.powerDelta.toFixed(1)+'</strong></div><div><span>Berry</span><strong>'+(report.moneyDelta>=0?'+':'')+Math.round(report.moneyDelta).toLocaleString('fr-FR')+'</strong></div><div><span>Moments</span><strong>'+report.moments+'</strong></div>';var txt=report.moments?'Cette période a produit '+report.moments+' moment'+(report.moments>1?'s':'')+' notable'+(report.moments>1?'s':'')+(report.major?' dont '+report.major+' majeur'+(report.major>1?'s':''):'')+'.':report.gainDelta>.05?'Période calme : aucun événement majeur, mais ton activité a continué à te faire progresser.':'Période réellement calme. Le directeur d’événements augmente désormais la probabilité d’une interruption significative.';$('#advanceReportText').textContent=txt}
- $('#advanceBtn').disabled=!game.alive;$('#advanceHint').textContent=game.pending?'Décision à prendre — appuie pour l’ouvrir':plan.max>0?planWindowText(plan)+' • '+plan.label:'Décision en attente'
+ var storyWait=awaitingStory();$('#advanceBtn').disabled=!game.alive;$('#advanceHint').textContent=game.pending?'Décision à prendre — appuie pour l’ouvrir':storyWait?'Fil narratif à décider — appuie pour l’ouvrir':plan.max>0?planWindowText(plan)+' • '+plan.label:'Décision en attente'
 }
 
 
@@ -706,7 +706,7 @@ function storyTick(m){
   if(story.stage===0){setStoryAwaiting(story);continue}
   if(story.stage===1)storyResolve(story)
  }
- if(!awaitingStory())maybeStartStory(m)
+ if(!awaitingStory()&&!migrateJustice(p).detained)maybeStartStory(m)
 }
 function showStoryDecision(id){
  var story=id?activeStories().find(function(s){return s.id===id}):awaitingStory();if(!story||!story.awaiting)return false;var choices=storyChoices(story).map(function(c){return[c.label,c.desc,function(){storyChoice(story.id,c.id)}]});if(!choices.length)return false;decision(story.title,storyPrompt(story),choices);return true
