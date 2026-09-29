@@ -57,7 +57,7 @@ window.__qa={
  getGame:function(){return game},setGame:function(v){game=v},
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,
  power:power,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,
- developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,
+ developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,
  join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,startMission:startMission,resolveMission:resolveMission,board:board,
  createRelation:createRelation,pursueRomance:pursueRomance,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,
  normalizeRelation:normalizeRelation,npcTick:npcTick,npcNearby:npcNearby,bondCanonicalActor:bondCanonicalActor,relationForActor:relationForActor,relationPower:relationPower,npcCareerRank:npcCareerRank,trainWithMentor:trainWithMentor,challengeRival:challengeRival,rivalStage:rivalStage,reconcileRival:reconcileRival,recruitKnownRelation:recruitKnownRelation,askMentorship:askMentorship,declareRivalry:declareRivalry,seekMentor:seekMentor,canonActor:canonActor,helpRelation:helpRelation,askRelationFavor:askRelationFavor,approachCanonicalActor:approachCanonicalActor,favorLabel:favorLabel,realignRelationsAfterFactionChange:realignRelationsAfterFactionChange,
@@ -351,6 +351,9 @@ test('V1.7 progression: technique mastery only improves with relevant training',
   const g=fresh(7030),p=g.player;p.ageMonths=300;const def=q.allTechniqueDefs().find(x=>x.skill==='Sabre');assert(def,'no Sabre technique definition');p.techniques=[def.id];p.techniqueMastery[def.id]=25;
   p.activity='Études';q.train(3);const afterStudy=p.techniqueMastery[def.id];assert(Math.abs(afterStudy-25)<.001,'studying Science improved sword technique mastery');
   p.activity='Sabre';q.train(3);assert(p.techniqueMastery[def.id]>afterStudy,'Sabre training did not improve Sabre technique mastery');return afterStudy.toFixed(1)+' -> '+p.techniqueMastery[def.id].toFixed(1)
+});
+test('V1.7 progression: technique mastery changes effective combat value',()=>{
+  const g=fresh(7035),p=g.player;p.ageMonths=300;const def=q.allTechniqueDefs().find(x=>x.skill==='Combat');assert(def,'no Combat technique');p.techniques=[def.id];p.techniqueMastery[def.id]=1;const low=q.techniqueBonus();p.techniqueMastery[def.id]=100;const high=q.techniqueBonus();assert(high>low*2,'mastery barely changes technique value');assert(high<=def.bonus+.001,'effective bonus exceeded definition max');return low.toFixed(2)+' -> '+high.toFixed(2)
 });
 test('V1.7 progression: snapshots record global evolution',()=>{
   const g=fresh(7040),p=g.player;const n=p.progression.snapshots.length;p.ageMonths+=6;p.activity='Entraînement';q.train(6);q.recordProgressSnapshot(false);assert(p.progression.snapshots.length===n+1,'six-month progression snapshot missing');const d=q.progressionDelta();assert(Number.isFinite(d.power)&&d.months===6,'invalid progression delta');return 'power delta '+d.power.toFixed(2)
