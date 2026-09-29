@@ -1,3 +1,166 @@
+# ONE PIECE LIFE — V1.9 Exploration & Discovery
+
+La V1.9 transforme le déplacement en **aventure**. Les îles ne sont plus seulement des noms reliés par des routes : chacune possède une identité, un niveau de connaissance, des découvertes, des rumeurs et une progression d’exploration persistante.
+
+## Connaissance locale
+
+Chaque île possède désormais un niveau de connaissance personnel :
+
+- Inconnue ;
+- Reconnue ;
+- Connue ;
+- Bien connue ;
+- Maîtrisée.
+
+Le personnage ne gagne cette connaissance qu’en réellement explorant la zone.
+
+La familiarité dépend notamment de :
+
+- Navigation ;
+- Discipline ;
+- Haki de l’Observation ;
+- durée consacrée à l’exploration.
+
+Les progrès ralentissent naturellement lorsqu’une île devient déjà très bien connue.
+
+## Identité des îles
+
+Les grandes îles possèdent maintenant une identité particulière.
+
+Exemples :
+
+- Water 7 : chantiers navals, canaux, commerce ;
+- Wano : samouraïs, Kairouseki, territoire fermé ;
+- Egghead : science et technologie ;
+- Little Garden : faune préhistorique ;
+- Alabasta : désert, royaume et ruines ;
+- Sabaody : mangroves, sous-monde et carrefour mondial.
+
+Les autres lieux héritent d’un profil régional cohérent.
+
+## Découvertes
+
+L’exploration peut révéler plusieurs catégories :
+
+- lieux remarquables ;
+- indices historiques ;
+- ressources ;
+- contacts ;
+- secrets.
+
+Les découvertes sont persistantes et entrent dans le Codex.
+
+Un même élément ne peut pas être découvert deux fois.
+
+Les secrets les plus rares exigent une connaissance très élevée de la zone.
+
+## Rumeurs
+
+Les rumeurs utilisent l’état actuel du monde.
+
+Elles peuvent concerner :
+
+- conflit local ;
+- personnage canonique présent dans la région ;
+- équipage actif ;
+- pénurie économique ;
+- route maritime voisine.
+
+Une rumeur n’est donc pas simplement un texte décoratif choisi au hasard : elle découle du WorldState au moment où elle est entendue.
+
+## Exploration et AVANCER
+
+Choisir **Explorer cette île** définit Explorer comme activité principale.
+
+AVANCER peut alors :
+
+- augmenter la connaissance locale ;
+- révéler une découverte ;
+- faire entendre une nouvelle rumeur ;
+- produire une petite trouvaille ;
+- améliorer Navigation et Réflexes via l’activité normale.
+
+L’exploration autonome est bloquée avant 6 ans afin de préserver la cohérence de l’enfance.
+
+## Traversées maritimes
+
+Une traversée possède désormais une condition de mer propre :
+
+- Mer calme ;
+- Courants portants ;
+- Mer agitée ;
+- Brouillard dense ;
+- Tempête.
+
+Cette condition modifie réellement :
+
+- durée estimée ;
+- risque d’incident.
+
+Les navires, leur état et la cargaison continuent également d’influencer le voyage.
+
+## Incidents en mer
+
+Une traversée peut maintenant produire autre chose qu’un combat générique :
+
+- lecture favorable des courants ;
+- conditions météorologiques difficiles ;
+- consommation ou perte de provisions ;
+- rencontre maritime ;
+- découverte utile sur la route.
+
+Le journal de traversée conserve les derniers événements.
+
+## Arrivée sur une île
+
+Arriver dans un nouveau lieu :
+
+- enregistre la visite ;
+- enrichit le Codex ;
+- donne une première connaissance locale ;
+- peut immédiatement révéler une découverte si le seuil approprié est franchi ;
+- lance toujours les éventuels contrôles de contrebande.
+
+## Codex enrichi
+
+Le Codex affiche maintenant notamment :
+
+- îles connues ;
+- îles maîtrisées ;
+- découvertes ;
+- trésors ;
+- dernières découvertes avec leur lieu et leur type.
+
+Le Codex devient donc une vraie mémoire de la vie du personnage, et non plus une simple collection de noms.
+
+## Achievements V1.9
+
+Trois nouveaux achievements :
+
+- **Grand voyageur** : visiter dix lieux ;
+- **Œil d’explorateur** : enregistrer dix découvertes ;
+- **Je connais ces mers** : maîtriser trois îles.
+
+## QA V1.9
+
+Le banc professionnel passe à **84 scénarios fonctionnels**.
+
+Mesures de la release candidate :
+
+- familiarité moyenne après 36 mois d’exploration ciblée : **60,4 %** ;
+- découvertes moyennes sur cette période : **3** ;
+- aucune duplication de découverte ;
+- rumeurs limitées et persistantes ;
+- conditions maritimes toujours bornées ;
+- arrivée, Codex et migration V18 → V19 validés ;
+- tous les systèmes précédents de progression, combat, économie, PNJ, guerre et AVANCER restent couverts.
+
+## Sauvegardes
+
+Les sauvegardes V1.8 sont migrées automatiquement vers la **version interne 19**.
+
+---
+
 # ONE PIECE LIFE — V1.8 Adaptive Life Loop
 
 La V1.8 refond le cœur du jeu : **AVANCER**. Le moteur choisit désormais une durée selon l’âge et le contexte, resserre automatiquement le temps pendant les situations tendues et évite les longues séries de clics sans intérêt.
