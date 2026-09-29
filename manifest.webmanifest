@@ -8,7 +8,7 @@
   "orientation": "portrait-primary",
   "background_color": "#f4ecd8",
   "theme_color": "#f4ecd8",
-  "description": "V1.6 — simulateur de vie avec rivaux persistants, mentors, services sociaux, mémoire dynastique, personnages canoniques relationnels et trajectoires autonomes.",
+  "description": "V1.6 — simulateur de vie avec PNJ persistants, rivaux, mentors, services sociaux, mémoire dynastique, interactions canoniques protégées et trajectoires autonomes.",
   "icons": [
     {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ]
