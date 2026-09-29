@@ -1,3 +1,249 @@
+# ONE PIECE LIFE — V2.0 Emergent Story Engine
+
+La V2.0 transforme les systèmes accumulés depuis les versions précédentes en **histoires persistantes**.
+
+Le jeu ne se contente plus d’enchaîner des événements indépendants. Une situation peut désormais naître d’une relation, d’une exploration, d’une carrière, de la justice, d’une rivalité ou d’une organisation, évoluer pendant plusieurs périodes, demander une décision puis laisser une conséquence durable.
+
+## Fils narratifs persistants
+
+Chaque fil possède notamment :
+
+- un identifiant permanent ;
+- un type ;
+- un titre ;
+- un contexte ;
+- un lieu et une région ;
+- un éventuel participant ;
+- une étape ;
+- une prochaine échéance ;
+- une date limite ;
+- une décision éventuelle ;
+- un résultat final.
+
+Les fils sont enregistrés comme des données JSON normales.
+
+Aucun callback JavaScript n’est stocké dans la sauvegarde.
+
+Une partie peut donc être quittée au milieu d’un choix puis rechargée sans perdre ou casser l’histoire en cours.
+
+## AVANCER et décisions narratives
+
+Lorsqu’un fil atteint une étape nécessitant une décision :
+
+- le temps s’arrête ;
+- AVANCER ouvre la décision ;
+- l’écran Vie affiche l’histoire concernée ;
+- la partie ne peut pas sauter cette étape par accident.
+
+Une fois le choix effectué, le fil peut continuer pendant plusieurs mois avant d’en révéler les conséquences.
+
+## Types de fils V2.0
+
+Le moteur initial comprend plusieurs familles.
+
+### Promesse de jeunesse
+
+Une relation de jeunesse peut devenir une promesse qui influence :
+
+- confiance ;
+- respect ;
+- affection ;
+- progression personnelle.
+
+### Mystère local
+
+Une connaissance suffisante d’une île peut faire émerger une piste.
+
+Le joueur peut :
+
+- l’abandonner ;
+- enquêter.
+
+Le résultat dépend notamment de :
+
+- Navigation ;
+- Discipline ;
+- Haki de l’Observation ;
+- connaissance de l’île ;
+- danger local.
+
+Quitter l’île avant la résolution peut briser définitivement le fil.
+
+### Service à une relation
+
+Un proche peut demander une aide concrète.
+
+Aider peut :
+
+- coûter des Berry ;
+- augmenter confiance et loyauté ;
+- créer une dette sociale persistante.
+
+Refuser protège les ressources mais reste dans la mémoire de la relation.
+
+### Croisée des chemins professionnelle
+
+La carrière peut proposer une opportunité :
+
+- prudente ;
+- risquée.
+
+Le choix plus risqué utilise réellement :
+
+- puissance ;
+- Discipline ;
+- expérience de carrière ;
+- difficulté de la situation.
+
+### Pression des autorités
+
+Un personnage recherché ou surveillé peut voir la justice devenir un fil narratif.
+
+Il peut notamment :
+
+- tenter de disparaître ;
+- défier ouvertement les autorités.
+
+Le résultat influence chaleur régionale, notoriété, réputation et éventuellement prime.
+
+### Rivalité
+
+Un rival peut provoquer une confrontation narrative.
+
+Accepter ou reporter le duel influence :
+
+- rivalité ;
+- respect ;
+- historique des confrontations ;
+- victoire ou défaite du personnage.
+
+### Crise d’organisation
+
+Un équipage, une unité ou un groupe dont les ressources ou le moral se dégradent peut produire une crise.
+
+Le joueur peut :
+
+- financer la solution ;
+- tenter de rallier le groupe avec son Commandement.
+
+## Directeur narratif
+
+Le moteur n’impose pas artificiellement une histoire toutes les quelques secondes.
+
+Une nouvelle intrigue dépend :
+
+- de l’âge ;
+- des relations présentes ;
+- de la carrière ;
+- de l’activité ;
+- de la connaissance locale ;
+- de la justice ;
+- des rivalités ;
+- de l’état de l’organisation ;
+- des fils déjà actifs.
+
+Maximum : **2 fils actifs simultanément**.
+
+Aucun nouveau fil n’est créé pendant :
+
+- une traversée ;
+- une mission ;
+- une détention.
+
+Le moteur garde ainsi les histoires lisibles au lieu de transformer la vie du personnage en boîte de réception professionnelle.
+
+## Échéances
+
+Chaque intrigue possède une fenêtre temporelle.
+
+Si le personnage ignore trop longtemps une situation :
+
+- elle peut échouer ;
+- disparaître ;
+- rester dans l’historique comme occasion manquée.
+
+Les choix ont donc un poids temporel réel.
+
+## Mort et héritage
+
+La mort interrompt automatiquement les fils encore actifs.
+
+Ils sont archivés comme histoires inachevées.
+
+Lorsqu’un héritier reprend la partie :
+
+- aucun fil actif du parent ne lui est artificiellement transféré ;
+- les derniers fils résolus restent dans la mémoire narrative de la dynastie.
+
+Le nouveau personnage construit ensuite ses propres histoires.
+
+## Interface Vie
+
+L’écran Vie possède maintenant un panneau **Fils narratifs**.
+
+Il affiche :
+
+- nombre de fils démarrés ;
+- résolus ;
+- échoués ;
+- décisions prises ;
+- histoires actuellement actives ;
+- prochaine échéance ;
+- participant éventuel ;
+- derniers fils terminés.
+
+Une histoire en attente de décision apparaît également dans la carte d’attention centrale.
+
+## Achievements V2.0
+
+Trois nouveaux succès :
+
+- **Un fil se noue** : résoudre une première histoire ;
+- **Une vie pleine d’histoires** : résoudre dix fils ;
+- **À la croisée des chemins** : prendre quinze décisions narratives.
+
+## QA V2.0
+
+Le banc professionnel passe à **98 scénarios fonctionnels**.
+
+La release candidate valide notamment :
+
+- sérialisation JSON des fils sans callbacks ;
+- reprise d’une décision après sauvegarde et rechargement ;
+- blocage correct d’AVANCER pendant un choix ;
+- résolution unique sans duplication d’historique ;
+- conséquences sociales ;
+- conséquences professionnelles ;
+- conséquences judiciaires ;
+- rupture d’un mystère lors d’un départ en mer ;
+- interruption correcte à la mort ;
+- migration V19 → V20 ;
+- maximum de deux fils actifs ;
+- interface narrative.
+
+### Mesures de simulation
+
+Sur vingt vies simulées pendant dix années adultes :
+
+- fils démarrés en moyenne : **5,4** ;
+- fils résolus : **3,2** ;
+- fils échoués : **1,9** ;
+- décisions narratives : **5,3** ;
+- maximum simultané observé : **2**.
+
+La boucle d’enfance reste également stable :
+
+- 28 vies sur 30 atteignent 15 ans dans l’échantillon ;
+- environ **48,4 AVANCER** pour atteindre 15 ans ;
+- densité moyenne : **0,67 moment notable par clic** ;
+- maximum de deux périodes réellement calmes consécutives.
+
+## Sauvegardes
+
+Les sauvegardes V1.9 sont migrées automatiquement vers la **version interne 20**.
+
+---
+
 # ONE PIECE LIFE — V1.9 Exploration & Discovery
 
 La V1.9 transforme le déplacement en **aventure**. Les îles ne sont plus seulement des noms reliés par des routes : chacune possède une identité, un niveau de connaissance, des découvertes, des rumeurs et une progression d’exploration persistante.
