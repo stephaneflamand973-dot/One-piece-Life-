@@ -58,8 +58,8 @@ window.__qa={
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,
  power:power,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,
  join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,startMission:startMission,resolveMission:resolveMission,board:board,
- createRelation:createRelation,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,
- normalizeRelation:normalizeRelation,npcTick:npcTick,npcNearby:npcNearby,bondCanonicalActor:bondCanonicalActor,relationForActor:relationForActor,relationPower:relationPower,npcCareerRank:npcCareerRank,trainWithMentor:trainWithMentor,challengeRival:challengeRival,recruitKnownRelation:recruitKnownRelation,askMentorship:askMentorship,declareRivalry:declareRivalry,seekMentor:seekMentor,canonActor:canonActor,helpRelation:helpRelation,askRelationFavor:askRelationFavor,approachCanonicalActor:approachCanonicalActor,favorLabel:favorLabel,
+ createRelation:createRelation,pursueRomance:pursueRomance,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,
+ normalizeRelation:normalizeRelation,npcTick:npcTick,npcNearby:npcNearby,bondCanonicalActor:bondCanonicalActor,relationForActor:relationForActor,relationPower:relationPower,npcCareerRank:npcCareerRank,trainWithMentor:trainWithMentor,challengeRival:challengeRival,rivalStage:rivalStage,reconcileRival:reconcileRival,recruitKnownRelation:recruitKnownRelation,askMentorship:askMentorship,declareRivalry:declareRivalry,seekMentor:seekMentor,canonActor:canonActor,helpRelation:helpRelation,askRelationFavor:askRelationFavor,approachCanonicalActor:approachCanonicalActor,favorLabel:favorLabel,realignRelationsAfterFactionChange:realignRelationsAfterFactionChange,
  ensureOrganization:ensureOrganization,syncOrganizationRole:syncOrganizationRole,organizationPower:organizationPower,organizationCapacity:organizationCapacity,organizationTick:organizationTick,
  upgradeOrganizationShip:upgradeOrganizationShip,generateRecruitCandidate:generateRecruitCandidate,
  registerCrime:registerCrime,arrestPlayer:arrestPlayer,prisonTick:prisonTick,attemptEscape:attemptEscape,justiceTick:justiceTick,
@@ -284,6 +284,51 @@ test('V1.6 social generation: childhood relations use age-coherent roles',()=>{
   return '80 childhood relations coherent'
 });
 
+
+test('V1.6 favors: refused request does not create phantom debt',()=>{
+  let found=false,detail='';
+  for(let seed=6100;seed<6140&&!found;seed++){const g=fresh(seed),p=g.player;p.ageMonths=300;p.life.socialActions=3;const r=q.normalizeRelation(g,{id:'favor-ref-'+seed,name:'Favor Refusal QA',role:'ami',faction:'Civil',region:p.region,location:p.island,trust:48,loyalty:0,favorBalance:-3,status:'active'},150);g.relations.push(r);const before=r.favorBalance;q.askRelationFavor(r.id);if(r.memories[0]&&/Refuse/.test(r.memories[0].text)){assert(r.favorBalance===before,'refused favor changed debt balance');found=true;detail='seed '+seed+' balance '+r.favorBalance}}
+  assert(found,'could not exercise a refused favor path');return detail
+});
+test('V1.6 mentor lifecycle: mentor recognizes player as a peer',()=>{
+  const g=fresh(6150),p=g.player;p.ageMonths=360;Object.keys(p.stats).forEach(k=>p.stats[k]=90);Object.keys(p.skills).forEach(k=>p.skills[k]=88);const r=q.normalizeRelation(g,{id:'peer-qa',name:'Mentor QA',role:'mentor',faction:'Civil',region:p.region,location:p.island,npcPower:40,npcPotential:70,mentorSessions:4,respect:82,trust:78,status:'active'},151);g.relations.push(r);q.npcTick(1);assert(r.peerRecognized,'mentor did not recognize stronger student as peer');assert(r.memories.some(m=>/pair/.test(m.text)),'peer recognition memory missing');return 'peer recognized'
+});
+test('V1.6 rival lifecycle: five meaningful duels can create a nemesis',()=>{
+  const g=fresh(6160),p=g.player;p.ageMonths=360;p.life.socialActions=5;Object.keys(p.stats).forEach(k=>p.stats[k]=98);Object.keys(p.skills).forEach(k=>p.skills[k]=95);p.health=100;p.energy=100;const r=q.normalizeRelation(g,{id:'nemesis-qa',name:'Nemesis QA',role:'rival',faction:'Pirates',region:p.region,location:p.island,npcPower:12,npcPotential:90,rivalry:88,rivalWins:2,rivalLosses:2,lastDuelAge:-999,status:'active'},152);g.relations.push(r);q.challengeRival(r.id);assert((r.rivalWins+r.rivalLosses)===5,'fifth duel not recorded');assert(q.rivalStage(r)==='Némésis','rival did not reach nemesis stage');assert(r.nemesisRecognized,'nemesis recognition flag missing');return r.rivalWins+'-'+r.rivalLosses
+});
+test('V1.6 rival lifecycle: mature rivalry can reconcile',()=>{
+  const g=fresh(6170),p=g.player;p.ageMonths=360;p.life.socialActions=5;const r=q.normalizeRelation(g,{id:'reconcile-qa',name:'Rival Friend QA',role:'rival',faction:'Civil',region:p.region,location:p.island,npcPower:45,npcPotential:75,rivalry:76,rivalWins:2,rivalLosses:2,respect:80,trust:70,affection:65,status:'active'},153);g.relations.push(r);q.reconcileRival(r.id);assert(r.role==='ami','rivalry did not resolve into friendship');assert(r.rivalResolved,'rival resolution flag missing');assert(r.rivalry<50,'rivalry remained too high after reconciliation');return 'rivalry '+Math.round(r.rivalry)
+});
+
+
+test('V1.6 age safety: underage NPC cannot enter romance',()=>{
+  const g=fresh(6180),p=g.player;p.ageMonths=300;p.life.socialActions=4;const r=q.normalizeRelation(g,{id:'minor-romance',name:'Minor QA',role:'ami',faction:'Civil',region:p.region,location:p.island,npcAgeMonths:180,attraction:100,affection:100,trust:100,status:'active'},160);g.relations.push(r);q.pursueRomance?q.pursueRomance(r.id):null;assert(!p.life.partnerId,'underage NPC became romantic partner');return 'romance blocked'
+});
+test('V1.6 age safety: underage NPC cannot join professional organization',()=>{
+  const g=adultPirate(6190),p=g.player,o=p.organization;o.commandActions=3;const r=q.normalizeRelation(g,{id:'minor-recruit',name:'Young QA',role:'ami',faction:'Pirates',region:p.region,location:p.island,npcAgeMonths:150,trust:100,loyalty:100,respect:100,status:'active'},161);g.relations.push(r);q.recruitKnownRelation(r.id);assert(!o.members.some(m=>m.linkedRelationId===r.id),'underage NPC joined organization');assert(!r.joinedOrganization,'underage relation flagged as recruited');return 'recruitment blocked'
+});
+test('V1.6 age safety: child NPC does not gain hidden career levels or roam seas',()=>{
+  const g=fresh(6200),p=g.player;p.ageMonths=72;const r=q.normalizeRelation(g,{id:'child-life',name:'Child QA',role:'ami',faction:'Civil',region:p.region,location:p.island,npcAgeMonths:72,npcPower:12,npcPotential:60,careerLevel:0,status:'active'},162);g.relations.push(r);const region=r.region,location=r.location;q.npcTick(60);assert(r.npcAgeMonths===132,'child age did not progress correctly');assert(r.careerLevel===0,'child accumulated hidden career levels');assert(r.region===region&&r.location===location,'child roamed to another region/island');return 'age '+Math.round(r.npcAgeMonths/12)+' years'
+});
+test('V1.6 migration safety: mentor and partner roles are adult-aged',()=>{
+  const g=fresh(6210),p=g.player;p.ageMonths=240;const mentor=q.normalizeRelation(g,{id:'old-mentor',name:'Old Mentor QA',role:'mentor',npcAgeMonths:120,faction:'Civil'},163),partner=q.normalizeRelation(g,{id:'old-partner',name:'Old Partner QA',role:'partenaire',type:'partner',npcAgeMonths:150,faction:'Civil'},164);assert(mentor.npcAgeMonths>=216,'mentor remained underage after normalization');assert(partner.npcAgeMonths>=216,'partner remained underage after normalization');return mentor.npcAgeMonths+'/'+partner.npcAgeMonths+' months'
+});
+
+
+test('V1.6 politics: faction change strains hostile professional relations',()=>{
+  const g=fresh(6220),p=g.player;p.ageMonths=300;p.faction='Pirates';g.world.diplomacy[['Marine','Pirates'].sort().join('|')]=-100;
+  const weak=q.normalizeRelation(g,{id:'politics-weak',name:'Marine Weak QA',role:'collègue',faction:'Marine',region:p.region,location:p.island,npcAgeMonths:300,trust:45,loyalty:50,respect:50,rivalry:20,status:'active',joinedOrganization:true,type:'organization'},170);
+  const strong=q.normalizeRelation(g,{id:'politics-strong',name:'Marine Strong QA',role:'ami',faction:'Marine',region:p.region,location:p.island,npcAgeMonths:300,trust:90,loyalty:90,respect:80,rivalry:10,status:'active'},171);
+  g.relations.push(weak,strong);q.realignRelationsAfterFactionChange('Marine','Pirates');
+  assert(weak.trust<45&&weak.loyalty<50&&weak.rivalry>20,'hostile relation did not react');assert(strong.trust<90,'strong hostile bond ignored faction change');assert((90-strong.trust)<(45-weak.trust),'strong bond did not resist better');assert(!weak.joinedOrganization,'old organization link survived faction change');return 'weak trust '+weak.trust.toFixed(1)+' / strong '+strong.trust.toFixed(1)
+});
+test('V1.6 politics: relation in new faction gains alignment',()=>{
+  const g=fresh(6230),p=g.player;p.ageMonths=300;p.faction='Pirates';const r=q.normalizeRelation(g,{id:'politics-new',name:'Pirate Ally QA',role:'ami',faction:'Pirates',region:p.region,location:p.island,npcAgeMonths:300,trust:50,respect:50,status:'active'},172);g.relations.push(r);q.realignRelationsAfterFactionChange('Marine','Pirates');assert(r.trust>50&&r.respect>50,'new-faction relation did not strengthen');assert(r.memories.some(m=>m.type==='faction'),'faction alignment memory missing');return 'trust '+r.trust.toFixed(1)
+});
+test('V1.6 politics: prolonged faction hostility can become personal rivalry',()=>{
+  const g=fresh(6240),p=g.player;p.ageMonths=360;p.faction='Pirates';g.world.diplomacy[['Marine','Pirates'].sort().join('|')]=-100;const r=q.normalizeRelation(g,{id:'politics-drift',name:'Marine Drift QA',role:'connaissance',faction:'Marine',region:p.region,location:p.island,npcAgeMonths:300,trust:20,loyalty:35,respect:40,rivalry:61.5,status:'active'},173);g.relations.push(r);q.npcTick(12);assert(r.trust<20,'hostile diplomacy did not erode trust');assert(r.rivalry>61.5,'hostile diplomacy did not increase rivalry');assert(r.role==='rival','political hostility did not cross into personal rivalry');return 'rivalry '+r.rivalry.toFixed(1)
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
@@ -321,6 +366,25 @@ assert(metrics.combatWinRateAtMidStats[60]<=.55,'danger 60 remains too forgiving
 assert(metrics.initialTradeMargins.maxPct<150,'initial trade arbitrage exceeds 150%');
 assert(metrics.thirtyYearWorld.avgShortages>=.2,'persistent shortages are effectively absent');
 assert((metrics.warPacing.outcomes.attacker||0)>=5,'attackers almost never win strategic wars');
+
+{
+  const g=fresh(6300),p=g.player;p.ageMonths=300;g.relations=[];
+  const trajectories=['Stable','Ascension','Instable','Déclin'];
+  for(let i=0;i<120;i++){
+    const tr=trajectories[i%trajectories.length],pow=22+(i%7)*4,pot=Math.min(96,pow+28+(i%5)*5);
+    g.relations.push(q.normalizeRelation(g,{id:'tele-'+i,name:'NPC '+i,role:i%9===0?'rival':'ami',faction:i%4===0?'Marine':i%4===1?'Pirates':'Civil',region:p.region,location:p.island,npcAgeMonths:216+(i%8)*24,npcPower:pow,npcPotential:pot,npcTrajectory:tr,status:'active'},300+i));
+  }
+  const before=g.relations.map(r=>r.npcPower);
+  for(let month=0;month<180;month++)q.npcTick(1);
+  const active=g.relations.filter(r=>r.status!=='dead'),gains=active.map((r,i)=>r.npcPower-before[+r.id.split('-')[1]]).filter(Number.isFinite);
+  const byTrajectory={};
+  trajectories.forEach(tr=>{const rs=g.relations.filter(r=>r.npcTrajectory===tr&&r.status!=='dead');byTrajectory[tr]={count:rs.length,avgPower:+(rs.reduce((a,r)=>a+r.npcPower,0)/Math.max(1,rs.length)).toFixed(1),avgCareer:+(rs.reduce((a,r)=>a+r.careerLevel,0)/Math.max(1,rs.length)).toFixed(1)}});
+  metrics.npcFifteenYearProgression={sample:g.relations.length,alive:active.length,avgGain:+(gains.reduce((a,b)=>a+b,0)/Math.max(1,gains.length)).toFixed(1),maxPower:+Math.max(...active.map(r=>r.npcPower)).toFixed(1),atOrAbove95:active.filter(r=>r.npcPower>=95).length,byTrajectory};
+}
+assert(metrics.npcFifteenYearProgression.avgGain>=3,'NPC long-term progression is effectively stagnant');
+assert(metrics.npcFifteenYearProgression.avgGain<=30,'NPC long-term progression is too explosive');
+assert(metrics.npcFifteenYearProgression.atOrAbove95<=Math.ceil(metrics.npcFifteenYearProgression.sample*.15),'too many NPCs converge to elite power');
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
