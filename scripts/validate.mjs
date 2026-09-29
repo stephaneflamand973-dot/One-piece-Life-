@@ -10,13 +10,13 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('V2.3')) throw new Error('index.html does not expose V2.3');
-if(!app.includes('version:23') || !app.includes('g.version=23')) throw new Error('game state is not V2.3 migration version 23');
+if(!html.includes('V2.4')) throw new Error('index.html does not expose V2.4');
+if(!app.includes('version:24') || !app.includes('g.version=24')) throw new Error('game state is not V2.4 migration version 24');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
 if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include content-v1.js');
 
-const dynamicIds=new Set(['eatHeldFruit','challengeBtn','martialTrainBtn','changeCareerBtn','careerRecordBtn','upgradeHousingBtn','investBusinessBtn','partnerTimeBtn','marryBtn','breakupBtn','welcomeChildBtn','orgBondBtn','orgRecruitBtn','orgTrainBtn','orgFundBtn','orgSupplyBtn','orgRepairBtn','orgUpgradeBtn','layLowBtn','surrenderBtn','escapeBtn','claimDomainBtn','fortifyDomainBtn','affiliateCrewBtn','launchCampaignBtn','seekMentorBtn','exploreIslandBtn','seekRumorBtn','specializationChoiceBtn','ambitionChoiceBtn']);
+const dynamicIds=new Set(['eatHeldFruit','challengeBtn','martialTrainBtn','changeCareerBtn','careerRecordBtn','upgradeHousingBtn','investBusinessBtn','partnerTimeBtn','marryBtn','breakupBtn','welcomeChildBtn','orgBondBtn','orgRecruitBtn','orgTrainBtn','orgFundBtn','orgSupplyBtn','orgRepairBtn','orgUpgradeBtn','layLowBtn','surrenderBtn','escapeBtn','claimDomainBtn','fortifyDomainBtn','affiliateCrewBtn','launchCampaignBtn','seekMentorBtn','exploreIslandBtn','seekRumorBtn','specializationChoiceBtn','ambitionChoiceBtn','timelineMoreBtn','expandRelationsBtn']);
 const ids=[...app.matchAll(/\$\('#([^']+)'\)/g)].map(m=>m[1]);
 const missing=[...new Set(ids)].filter(id=>!dynamicIds.has(id)&&!html.includes('id="'+id+'"'));
 if(missing.length) throw new Error('Missing HTML ids: '+missing.join(', '));
@@ -32,6 +32,12 @@ if(!app.includes('var SPEC_PROFILES=') || !app.includes('function careerQualific
 if(!app.includes('var SIMPLE_FOCUS=') || !app.includes('function recommendedFocus') || !app.includes('function normalizeActivityFocus')) throw new Error('V2.3 adaptive focus engine missing');
 if(!app.includes("label:'Progresser'") || !app.includes("label:'Situation'") || !app.includes("label:'Monde'")) throw new Error('V2.3 simplified navigation missing');
 if(!app.includes('function specializationDecision') || !app.includes('function ambitionDecision')) throw new Error('V2.3 simplified choice flows missing');
+if(!app.includes("'Auto':{label:'Auto'") || !app.includes("if(p.focus==='Auto')return recommendedFocus()")) throw new Error('V2.4 Auto focus missing');
+if(!app.includes("min:3,max:5") || !app.includes("min:2,max:4")) throw new Error('V2.4 flow pacing missing');
+if(!app.includes('function renderWorldExplore') || !app.includes('function renderWorldState') || !app.includes('function renderWorldHistory')) throw new Error('V2.4 lazy world rendering missing');
+if(!app.includes('function renderRelClose') || !app.includes('function renderRelNetwork') || !app.includes('function relationActionDecision')) throw new Error('V2.4 contextual relation UI missing');
+if(!app.includes('function renderAbProgress') || !app.includes('function renderAbPowers') || !app.includes('function renderAbDetails')) throw new Error('V2.4 lazy progression rendering missing');
+if(!app.includes("activityGrowthKeys(currentFocus())")) throw new Error('V2.4 focus-aware event engine missing');
 if(!app.includes('var MISSION_PROFILE_CONFIG=') || !app.includes('function missionResolution') || !app.includes('function missionChance')) throw new Error('V2.2 mission profile engine missing');
 if(!app.includes('function styleMastery')) throw new Error('V2.2 style mastery missing');
 if(!app.includes('debtInterestPaid') || !app.includes('function chargeMoney') || !app.includes('function serviceDebt')) throw new Error('V2.2 debt engine missing');
@@ -106,4 +112,4 @@ if(!app.includes('function showStoryDecision') || !app.includes('function render
 if(!html.includes('id="storyEngineBadge"') || !html.includes('id="storySummary"') || !html.includes('id="activeStories"') || !html.includes('id="storyHistory"')) throw new Error('V2.0 story UI missing');
 if(!app.includes("id:'story-first'") || !app.includes("id:'story-weaver'") || !app.includes("id:'story-decisions'")) throw new Error('V2.0 story achievements missing');
 if(!app.includes("if(awaitingStory())return showStoryDecision()")) throw new Error('V2.0 AVANCER story gate missing');
-console.log('ONE PIECE LIFE V2.3 validation OK');
+console.log('ONE PIECE LIFE V2.4 validation OK');
