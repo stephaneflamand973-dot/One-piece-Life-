@@ -562,6 +562,14 @@ test('V2.1 migration: V20 save upgrades without altering progression values',()=
 });
 
 
+test('V2.1 adaptive time: focused training uses active-life pacing',()=>{
+  const g=fresh(11007),p=g.player;p.ageMonths=300;p.career='Aucune';p.activity='Mobilité';const plan=q.advancePlan();
+  assert(plan.key==='active-life','Mobilité was not recognized as active training');
+  assert(plan.min===1&&plan.max===2,'focused training uses wrong time window');
+  return plan.label+' '+plan.min+'-'+plan.max+' months';
+});
+
+
 const metrics={};
 {
   const origins={},races={},styles={};
