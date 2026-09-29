@@ -1048,7 +1048,7 @@ function migrate(g){
  if(p.careerRecords[p.faction]){p.rank=p.careerRecords[p.faction].rank||p.rank;p.specialization=p.careerRecords[p.faction].specialization||p.specialization}
  w.fruits=w.fruits||['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi'];w.fruitRegistry=w.fruitRegistry||{};
  w.fruits.forEach(function(n){if(!w.fruitRegistry[n])w.fruitRegistry[n]={status:p.fruit===n?'consumed':'available',holder:p.fruit===n?p.name:null}});
- w=initWorldEconomy(g,initGrandStrategy(initLivingWorld(g,w)));migrateWorldMissionSource(g,w);var dk=String(g.seed),ix=migrateInfluence(p);ix.domains=Object.keys(w.territories).filter(function(n){var pc=w.territories[n].playerControl;return pc&&pc.ownerKey===dk});ix.affiliates=w.crews.filter(function(c){return c.affiliation&&c.affiliation.ownerKey===dk&&c.status==='active'}).map(function(c){return c.id});g.player=p;g.world=w;return g
+ w=initWorldEconomy(g,initGrandStrategy(initLivingWorld(g,w)));migrateWorldMissionSource(g,w);if(g.mission){g.mission.importance=missionImportance(g.mission,w);g.mission.stakes=missionStakes(g.mission,w);g.mission.signature=g.mission.importance>=58}var dk=String(g.seed),ix=migrateInfluence(p);ix.domains=Object.keys(w.territories).filter(function(n){var pc=w.territories[n].playerControl;return pc&&pc.ownerKey===dk});ix.affiliates=w.crews.filter(function(c){return c.affiliation&&c.affiliation.ownerKey===dk&&c.status==='active'}).map(function(c){return c.id});g.player=p;g.world=w;return g
 }
 function load(i){try{return migrate(JSON.parse(localStorage.getItem(slotKey(i))||'null'))}catch(x){return null}}
 function purgeSaveSlot(i){var existed=!!localStorage.getItem(slotKey(i))||!!localStorage.getItem(slotMetaKey(i));localStorage.removeItem(slotKey(i));localStorage.removeItem(slotMetaKey(i));return existed}
@@ -1680,14 +1680,14 @@ function worldMissionOpportunities(){
  var actors=w.actors.filter(function(a){return a.status==='active'&&a.region===region&&a.faction!==p.faction&&diplomacy(p.faction,a.faction)<-25&&(a.intention==='Étendre son influence'||a.intention==='Chercher un affrontement')}).sort(function(a,b){return b.importance-a.importance});if(actors.length){var a=actors[0],d=cl(actorPower(a)*.55+inf().danger*.15,20,78);out.push({title:'Renseignement sur '+a.name,danger:Math.round(d),reward:Math.round(10000+d*360),xp:Math.round(15+d*.34),tier:cl(Math.floor(d/18),1,5),spec:null,months:2,profile:'stealth',sourceType:'actor',sourceId:a.name,sourceName:a.name,worldGenerated:true})}
  return out.filter(function(m){return m.tier<=ri+2}).slice(0,2)
 }
-function missionImportance(m){
- var score=(m.danger||0)*.45+(m.tier||0)*5+(m.worldGenerated?10:0),w=game.world;
- if(m.sourceType==='crew'){var c=w.crews.find(function(x){return x.id===m.sourceId});if(c)score+=(c.power||0)*.12}
- else if(m.sourceType==='conflict'){var cf=w.conflicts.find(function(x){return x.id===m.sourceId});if(cf)score+=(cf.intensity||0)*.16}
- else if(m.sourceType==='actor'){var a=w.actors.find(function(x){return x.name===m.sourceId});if(a)score+=Math.min(18,(a.importance||1)*4)}
+function missionImportance(m,world){
+ var score=(m.danger||0)*.45+(m.tier||0)*5+(m.worldGenerated?10:0),w=world||(game&&game.world)||{crews:[],conflicts:[],actors:[]};
+ if(m.sourceType==='crew'){var c=(w.crews||[]).find(function(x){return x.id===m.sourceId});if(c)score+=(c.power||0)*.12}
+ else if(m.sourceType==='conflict'){var cf=(w.conflicts||[]).find(function(x){return x.id===m.sourceId});if(cf)score+=(cf.intensity||0)*.16}
+ else if(m.sourceType==='actor'){var a=(w.actors||[]).find(function(x){return x.name===m.sourceId});if(a)score+=Math.min(18,(a.importance||1)*4)}
  return Math.round(cl(score,0,100))
 }
-function missionStakes(m){var v=missionImportance(m);return v>=72?'Décisive':v>=58?'Exceptionnelle':v>=44?'Importante':'Standard'}
+function missionStakes(m,world){var v=missionImportance(m,world);return v>=72?'Décisive':v>=58?'Exceptionnelle':v>=44?'Importante':'Standard'}
 function missionNoveltyKey(m){return m.worldGenerated?(m.sourceType||'world')+':'+(m.sourceId||m.sourceName||m.title):'static:'+m.title}
 function missionNoveltyScore(m){var recent=migrateLifeLoop(game).recentMissions||[],i=recent.indexOf(missionNoveltyKey(m));return i<0?1:i===0?.2:i===1?.42:i===2?.65:.82}
 function rememberMission(m){var l=migrateLifeLoop(game),key=missionNoveltyKey(m);l.recentMissions=l.recentMissions.filter(function(x){return x!==key});l.recentMissions.unshift(key);l.recentMissions=l.recentMissions.slice(0,6)}
