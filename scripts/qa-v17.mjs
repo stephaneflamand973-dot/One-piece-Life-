@@ -12,7 +12,7 @@ function fakeElement(sel){
     elementMap.set(sel,{
       selector:sel,value:'',textContent:'',innerHTML:'',disabled:false,className:'',dataset:{},style:{},onclick:null,_t:null,
       classList:{add(...xs){xs.forEach(x=>cls.add(x))},remove(...xs){xs.forEach(x=>cls.delete(x))},toggle(x,force){if(force===undefined){if(cls.has(x)){cls.delete(x);return false}cls.add(x);return true}force?cls.add(x):cls.delete(x);return !!force},contains(x){return cls.has(x)}},
-      addEventListener(){},removeEventListener(){},focus(){},select(){}
+      children:[],parentElement:null,closest(){return null},querySelectorAll(){return []},addEventListener(){},removeEventListener(){},focus(){},select(){}
     });
   }
   return elementMap.get(sel);
@@ -57,7 +57,7 @@ window.__qa={
  getGame:function(){return game},setGame:function(v){game=v},
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,
  power:power,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,
- developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,
+ developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,
  join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,startMission:startMission,resolveMission:resolveMission,board:board,
  createRelation:createRelation,pursueRomance:pursueRomance,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,
  normalizeRelation:normalizeRelation,npcTick:npcTick,npcNearby:npcNearby,bondCanonicalActor:bondCanonicalActor,relationForActor:relationForActor,relationPower:relationPower,npcCareerRank:npcCareerRank,trainWithMentor:trainWithMentor,challengeRival:challengeRival,rivalStage:rivalStage,reconcileRival:reconcileRival,recruitKnownRelation:recruitKnownRelation,askMentorship:askMentorship,declareRivalry:declareRivalry,seekMentor:seekMentor,canonActor:canonActor,helpRelation:helpRelation,askRelationFavor:askRelationFavor,approachCanonicalActor:approachCanonicalActor,favorLabel:favorLabel,realignRelationsAfterFactionChange:realignRelationsAfterFactionChange,
@@ -366,6 +366,9 @@ test('V1.7 UI: main render is lazy instead of rebuilding every heavy panel',()=>
   assert(!renderBody.includes('renderChar();renderAb();renderRel();renderWorld()'),'legacy full-render chain still present');
   assert(html.includes('id="characterSectionTabs"')&&html.includes('id="abilitiesSectionTabs"')&&html.includes('id="relationsSectionTabs"')&&html.includes('id="worldSectionTabs"'),'segmented navigation containers missing');
   return 'lazy panel render + segmented navigation'
+});
+test('V1.7 UI: every primary tab renders independently',()=>{
+  const g=fresh(7065);q.setupSectionNavigation();for(const tab of ['life','abilities','character','relations','world'])q.activateTab(tab,false);return '5 primary tabs rendered independently'
 });
 test('V1.7 migration: existing saves gain layered caps without changing current ceilings',()=>{
   let g=fresh(7060);const oldCaps={...g.player.caps};delete g.player.naturalCaps;delete g.player.absoluteCaps;delete g.player.progression;g.version=16;g=q.migrate(g);
