@@ -20,3 +20,5 @@ jobs:
         run: node scripts/validate-content.mjs
       - name: Professional V1.8 systems QA
         run: node scripts/qa-v18.mjs
+
+# V1.8 QA trigger
