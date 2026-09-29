@@ -226,7 +226,9 @@ function weightedIntent(items,stream){
  for(var i=0;i<clean.length;i++){r-=clean[i].weight;if(r<=0)return clean[i].id}return clean[clean.length-1].id
 }
 function weightedPool(pool,bonus,stream){
- var counts={};pool.forEach(function(id){counts[id]=(counts[id]||0)+1});var items=Object.keys(counts).map(function(id){return{id:id,weight:counts[id]+(bonus&&bonus[id]||0)}});return weightedIntent(items,stream)
+ var counts={};pool.forEach(function(id){counts[id]=(counts[id]||0)+1});
+ Object.keys(bonus||{}).forEach(function(id){if(!counts[id]&&bonus[id]>0)counts[id]=0});
+ var items=Object.keys(counts).map(function(id){return{id:id,weight:counts[id]+(bonus&&bonus[id]||0)}});return weightedIntent(items,stream)
 }
 function actorIntentPool(a){
  var pool=['Voyager','S’entraîner'],goal=String(a.goal||'').toLowerCase();
@@ -294,10 +296,12 @@ function resolveCrewIntent(c){
  if(intent==='Se remettre'){c.morale=cl(c.morale+8+R('world')*10,0,100);c.resources=cl(c.resources+4+R('world')*8,0,100);outcome='reprend des forces'}
  else if(intent==='S’entraîner'){c.power=cl(c.power+1+R('world')*2.4,6,96);c.morale=cl(c.morale+2,0,100);outcome='renforce son niveau'}
  else if(intent==='Voyager'){var links=REGION_LINKS[c.region]||[];if(links.length)c.region=pk(links,'world');outcome='met le cap sur '+c.region}
+ else if(intent==='Recruter'){var room=Math.max(0,40-(c.members||0)),gain=Math.min(room,1+Math.floor(R('world')*4));if(gain>0){var cost=4+R('world')*6;c.members=(c.members||0)+gain;c.resources=cl(c.resources-cost,0,100);c.morale=cl(c.morale+1+R('world')*2,0,100);outcome='recrute '+gain+' nouveau'+(gain>1?'x membres':' membre')}else outcome='a déjà atteint sa taille optimale'}
  else if(intent==='Chercher un butin'){var haul=6+R('world')*18;c.resources=cl(c.resources+haul,0,100);c.morale=cl(c.morale+3,0,100);c.bounty+=Math.round((2+R('world')*8)*100000);var rp=w.pressures[c.region];if(rp){rp.Piraterie=cl(rp.Piraterie+1.5,0,100);rp.Criminalité=cl(rp.Criminalité+1,0,100)}outcome='réussit un raid dans '+c.region}
  else if(intent==='Traquer une cible'){c.power=cl(c.power+.4+R('world')*1.2,6,96);c.morale=cl(c.morale+(R('world')<.6?3:-2),0,100);var rp2=w.pressures[c.region];if(rp2)rp2.Criminalité=cl(rp2.Criminalité-1.2,0,100);outcome='mène une chasse dans '+c.region}
  else if(intent==='Étendre son réseau'){if(w.factions[c.faction]!=null)w.factions[c.faction]=cl(w.factions[c.faction]+.5+R('world'),0,100);c.resources=cl(c.resources+3,0,100);outcome='développe son réseau clandestin'}
  else if(intent==='Revendiquer une zone'){var terrs=Object.keys(w.territories).filter(function(n){return infStatic(n).region===c.region}),name=terrs.length?pk(terrs,'world'):null,t=name&&w.territories[name];if(t&&t.controller!==c.faction&&diplomacy(c.faction,t.controller)<-15){spawnConflict(name,c.faction,t.controller,34+c.power*.5,c.id);outcome='conteste '+name}else outcome='cherche une zone vulnérable'}
+ if(!outcome)outcome='poursuit ses activités dans '+c.region;
  c.lastIntentOutcome=outcome;c.intention=null;c.intentionMonths=0;if(c.power>=65&&R('world')<.22)news(c.name+' agit',outcome+'.','');return outcome
 }
 function crewIntentTick(c){if(c.status!=='active')return;if(!c.intention)assignCrewIntent(c);c.intentionMonths=Math.max(0,(c.intentionMonths||0)-1);if(c.intentionMonths<=0)resolveCrewIntent(c)}

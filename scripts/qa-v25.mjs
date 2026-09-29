@@ -865,6 +865,23 @@ test('V2.5 NPC ambition strongly biases autonomous intent selection',()=>{
 });
 
 
+test('V2.5 context bonuses can introduce recovery and recruitment',()=>{
+  const g=fresh(14104),c=g.world.crews[0];c.faction='Pirates';c.morale=58;c.resources=24;c.members=12;
+  let recover=0;for(let i=0;i<140;i++){c.intention=null;c.intentionMonths=0;if(q.assignCrewIntent(c)==='Se remettre')recover++}
+  assert(recover>0,'resource pressure bonus never introduced recovery');
+  c.resources=70;c.morale=70;c.members=7;let recruit=0;for(let i=0;i<140;i++){c.intention=null;c.intentionMonths=0;if(q.assignCrewIntent(c)==='Recruter')recruit++}
+  assert(recruit>0,'small-crew bonus never introduced recruitment');return recover+' recover / '+recruit+' recruit';
+});
+test('V2.5 recruitment intent changes crew state and resolves cleanly',()=>{
+  const g=fresh(14105),c=g.world.crews[0];c.members=5;c.resources=70;c.morale=52;c.intention='Recruter';const members=c.members,res=c.resources,out=q.resolveCrewIntent(c);
+  assert(c.members>members,'recruitment did not add members');assert(c.resources<res,'recruitment did not consume resources');assert(out&&out.includes('recrute'),'recruitment produced an empty outcome');assert(c.lastIntentOutcome===out,'last outcome was not persisted');return out;
+});
+test('V2.5 latent NPC needs can influence autonomous intentions',()=>{
+  const g=fresh(14106),r=q.createRelation('ami');r.npcAgeMonths=300;r.npcAmbition='Explorer le monde';r.npcPower=20;r.npcPotential=75;r.npcWealth=0;
+  const counts={};for(let i=0;i<220;i++){r.npcIntent=null;r.npcIntentMonths=0;const x=q.assignNpcIntent(r);counts[x]=(counts[x]||0)+1}
+  assert((counts['S’entraîner']||0)>0,'large potential gap never influenced training');assert((counts['S’enrichir']||0)>0,'low wealth never influenced earning');return JSON.stringify(counts);
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};

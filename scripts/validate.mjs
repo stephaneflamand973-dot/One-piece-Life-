@@ -43,6 +43,7 @@ if(!app.includes('function renderAbProgress') || !app.includes('function renderA
 if(!app.includes("activityGrowthKeys(currentFocus())")) throw new Error('V2.4 focus-aware event engine missing');
 if(!app.includes('function assignActorIntent') || !app.includes('function resolveActorIntent') || !app.includes('function crewIntentTick')) throw new Error('V2.5 world intention engine missing');
 if(!app.includes('function weightedIntent') || !app.includes('function weightedPool')) throw new Error('V2.5 context-aware intent weighting missing');
+if(!app.includes("Object.keys(bonus||{})") || !app.includes("intent==='Recruter'") || !app.includes("poursuit ses activités dans")) throw new Error('V2.5 autonomy hardening missing');
 if(!app.includes('function assignNpcIntent') || !app.includes('function npcSocialTick') || !app.includes('npcLinks')) throw new Error('V2.5 autonomous NPC network missing');
 if(!app.includes('function worldMissionOpportunities') || !app.includes('function applyWorldMissionOutcome')) throw new Error('V2.5 causal mission engine missing');
 if(!app.includes('function purgeSaveSlot') || !app.includes('function deleteSaveSlot') || !app.includes('save-delete')) throw new Error('V2.5 save deletion missing');
