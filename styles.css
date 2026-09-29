@@ -80,3 +80,29 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
  .advance-report-stats{grid-template-columns:1fr 1fr}
  .advance-context-card{padding-bottom:13px}
 }
+
+.exploration-card{background:linear-gradient(145deg,#fffaf0,#edf4ef)}
+.exploration-summary,.journey-summary,.codex-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.exploration-summary>div,.journey-summary>div,.codex-summary>div{padding:10px;border-radius:12px;background:#f4f0e5}
+.exploration-summary span,.journey-summary span,.codex-summary span{display:block;font-size:9px;color:var(--muted);margin-bottom:4px}
+.exploration-summary strong,.journey-summary strong,.codex-summary strong{font-size:12px}
+.exploration-meter{height:8px;border-radius:999px;background:#e0ded6;overflow:hidden;margin:10px 0}
+.exploration-meter>div{height:100%;width:0;background:linear-gradient(90deg,#2d7181,#78a7a7);transition:width .25s ease}
+.exploration-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.discovery-list{display:flex;flex-direction:column;gap:6px;margin-top:5px}
+.discovery-item{padding:8px 9px;border-radius:10px;background:#f4f0e5;font-size:10px;line-height:1.4}
+.discovery-item strong{display:block;font-size:11px;color:var(--ink);margin-bottom:2px}
+.discovery-item small{color:var(--muted);font-size:9px}
+.exploration-actions{margin-top:10px}
+.sea-journey-card{background:linear-gradient(145deg,#eaf4f4,#fffaf0)}
+.journey-log{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.journey-log-item{padding:8px 9px;border-left:3px solid #78a7a7;border-radius:8px;background:#f7f7f0;font-size:10px;line-height:1.4}
+.codex-card{background:linear-gradient(145deg,#fff9ee,#eef4f1)}
+.codex-discovery-list{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0}
+.codex-entry{padding:9px;border-radius:11px;background:#f4f0e5}
+.codex-entry strong{display:block;font-size:11px}
+.codex-entry small{font-size:9px;color:var(--muted)}
+@media(max-width:520px){
+ .exploration-summary,.journey-summary,.codex-summary{grid-template-columns:1fr 1fr}
+ .exploration-columns,.codex-discovery-list{grid-template-columns:1fr}
+}
