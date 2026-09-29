@@ -33,7 +33,7 @@ if(!app.includes('var SIMPLE_FOCUS=') || !app.includes('function recommendedFocu
 if(!app.includes("label:'Progresser'") || !app.includes("label:'Situation'") || !app.includes("label:'Monde'")) throw new Error('V2.3 simplified navigation missing');
 if(!app.includes('function specializationDecision') || !app.includes('function ambitionDecision')) throw new Error('V2.3 simplified choice flows missing');
 if(!app.includes("'Auto':{label:'Auto'") || !app.includes("if(p.focus==='Auto')return recommendedFocus()")) throw new Error('V2.4 Auto focus missing');
-if(!app.includes("min:3,max:5") || !app.includes("min:2,max:4")) throw new Error('V2.4 flow pacing missing');
+if(!app.includes("min:3,max:5") || !app.includes("min:2.5,max:4.5")) throw new Error('V2.4 flow pacing missing');
 if(!app.includes('function renderWorldExplore') || !app.includes('function renderWorldState') || !app.includes('function renderWorldHistory')) throw new Error('V2.4 lazy world rendering missing');
 if(!app.includes('function renderRelClose') || !app.includes('function renderRelNetwork') || !app.includes('function relationActionDecision')) throw new Error('V2.4 contextual relation UI missing');
 if(!app.includes('function renderAbProgress') || !app.includes('function renderAbPowers') || !app.includes('function renderAbDetails')) throw new Error('V2.4 lazy progression rendering missing');
