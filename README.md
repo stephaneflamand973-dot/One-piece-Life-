@@ -98,6 +98,8 @@ Les garde-fous spécifiques à la fluidité vérifient notamment :
 Mesures V2.4 de référence :
 
 - **5,28 AVANCER/an** sur le parcours adulte simulé, sous l’objectif ≤ 5,5 ;
+- **6,28 AVANCER/an** en carrière active avec environ 1 mission/an, sous l’objectif ≤ 7,5 ;
+- **5,44 AVANCER/an** en exploration prolongée, sous l’objectif ≤ 7,5 ;
 - **43,3 AVANCER** en moyenne pour atteindre 15 ans, contre environ 48 en V2.3 ;
 - **0,66 moment notable par clic** pendant l’enfance ;
 - puissance moyenne à 25 ans : **34,9** ;
