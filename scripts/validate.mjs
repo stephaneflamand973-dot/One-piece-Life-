@@ -10,8 +10,8 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('V1.9')) throw new Error('index.html does not expose V1.9');
-if(!app.includes('version:19') || !app.includes('g.version=19')) throw new Error('game state is not V1.9 migration version 19');
+if(!html.includes('V2.0')) throw new Error('index.html does not expose V2.0');
+if(!app.includes('version:20') || !app.includes('g.version=20')) throw new Error('game state is not V2.0 migration version 20');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
 if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include content-v1.js');
@@ -91,4 +91,10 @@ if(!app.includes('function currentRumor') || !app.includes('function learnLocalR
 if(!app.includes('function renderCodexExploration')) throw new Error('V1.9 Codex exploration integration missing');
 if(!html.includes('id="explorationSummary"') || !html.includes('id="localDiscoveries"') || !html.includes('id="seaJourneyCard"') || !html.includes('id="codexSummary"')) throw new Error('V1.9 exploration UI missing');
 if(!app.includes("id:'explorer'") || !app.includes("id:'discoverer'") || !app.includes("id:'cartographer'")) throw new Error('V1.9 exploration achievements missing');
-console.log('ONE PIECE LIFE V1.9 validation OK');
+if(!app.includes('function defaultStoryEngine') || !app.includes('function migrateStoryEngine') || !app.includes('function storyTick')) throw new Error('V2.0 story engine missing');
+if(!app.includes('function startStory') || !app.includes('function storyChoice') || !app.includes('function storyResolve')) throw new Error('V2.0 story lifecycle missing');
+if(!app.includes('function showStoryDecision') || !app.includes('function renderStories') || !app.includes('function awaitingStory')) throw new Error('V2.0 story decision/UI integration missing');
+if(!html.includes('id="storyEngineBadge"') || !html.includes('id="storySummary"') || !html.includes('id="activeStories"') || !html.includes('id="storyHistory"')) throw new Error('V2.0 story UI missing');
+if(!app.includes("id:'story-first'") || !app.includes("id:'story-weaver'") || !app.includes("id:'story-decisions'")) throw new Error('V2.0 story achievements missing');
+if(!app.includes("if(awaitingStory())return showStoryDecision()")) throw new Error('V2.0 AVANCER story gate missing');
+console.log('ONE PIECE LIFE V2.0 validation OK');
