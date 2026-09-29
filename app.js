@@ -50,7 +50,13 @@ function careerFocusKeys(){
  return factionMap[p.faction]||['Discipline','Science']
 }
 function simpleFocusKeys(a){
- if(a==='Équilibre')return[weakestOf(ST,1)[0],weakestOf(SK,1)[0]];
+ var p=game.player;
+ if(a==='Équilibre'){
+  if(p.ambition==='Explorer le monde')return[weakestOf(['Endurance','Réflexes','Agilité'],1)[0],'Navigation'];
+  if(p.ambition==='Entrer dans l’histoire')return['Volonté','Commandement'];
+  if(p.ambition==='Survivre')return[weakestOf(['Endurance','Résistance','Réflexes'],1)[0],weakestOf(SK,1)[0]];
+  return[weakestOf(ST,1)[0],weakestOf(SK,1)[0]]
+ }
  if(a==='Combat')return styleFocusKeys();
  if(a==='Forme')return weakestOf(['Force','Vitesse','Agilité','Endurance','Résistance','Réflexes'],2);
  if(a==='Carrière')return careerFocusKeys();
@@ -64,7 +70,13 @@ function focusOptions(){
  var p=game.player;if(p.ageMonths<72)return['Grandir'];var out=['Auto','Combat','Forme'];if(p.ageMonths>=180||p.career!=='Aucune')out.push('Carrière');if(hasPowerFocus())out.push('Pouvoirs');return out
 }
 function recommendedFocus(){
- var p=game.player;if(p.ageMonths<72)return'Grandir';if(p.health<72||p.energy<45)return'Forme';if(p.ambition==='Devenir puissant')return'Combat';if(p.ambition==='Faire fortune'&&p.career!=='Aucune')return'Carrière';if(p.specialization&&careerExpertise(p.specialization)<32)return'Carrière';if(hasPowerFocus()&&(p.fruit&&p.fruitMastery<30||Object.keys(p.haki).some(function(k){return p.haki[k]>0&&p.haki[k]<25})))return'Pouvoirs';return'Équilibre'
+ var p=game.player;if(p.ageMonths<72)return'Grandir';if(p.health<72||p.energy<45)return'Forme';
+ if(hasPowerFocus()&&(p.fruit&&p.fruitMastery<30||Object.keys(p.haki).some(function(k){return p.haki[k]>0&&p.haki[k]<25})))return'Pouvoirs';
+ if(p.ambition==='Devenir puissant')return'Combat';
+ if(p.ambition==='Faire fortune'&&p.career!=='Aucune')return'Carrière';
+ if(p.ambition==='Survivre'&&(p.stats.Résistance<45||p.stats.Endurance<45))return'Forme';
+ if(p.specialization&&careerExpertise(p.specialization)<32)return'Carrière';
+ return'Équilibre'
 }
 function normalizeActivityFocus(p,g){
  if(!p)return;
@@ -1701,14 +1713,33 @@ function event(m,force){
 }
 
 function die(c){activeStories().slice().forEach(function(st){closeStory(st,'interrompu par la mort','La mort de '+game.player.name+' met fin à ce fil narratif.',true,'interrupted')});releasePlayerFruits();game.alive=false;game.death={cause:c};game.player.health=0;tl('Mort',c,'danger')}
-function advance(){
- if(!game||!game.alive)return;if(game.pending)return showDecision();if(awaitingStory())return showStoryDecision();var p=game.player,j=migrateJustice(p),plan=advancePlan(),m=chooseAdvanceDuration(plan),before=captureAdvanceState(),loop=migrateLifeLoop(game);p.ageMonths+=m;world(m);p.conditions.forEach(function(c){c.months-=m});p.conditions=p.conditions.filter(function(c){return c.months>0});
- if(j.detained){lifeTick(m);influenceTick(m);if(!game.alive){finalizeAdvanceReport(before,m,plan);save();render();deathModal();return}prisonTick(m);storyTick(m);p.danger='Détenu';recordProgressSnapshot(false);finalizeAdvanceReport(before,m,plan);checkAchievements();save();render();return}
- p.health=cl(p.health+m*2,0,100);p.energy=cl(p.energy+m*4,0,100);careerTick(m);lifeTick(m);if(!game.alive){finalizeAdvanceReport(before,m,plan);save();render();deathModal();return}justiceTick(m);influenceTick(m);if(!game.alive){finalizeAdvanceReport(before,m,plan);save();render();deathModal();return}if(j.detained){storyTick(m);finalizeAdvanceReport(before,m,plan);save();render();return}
+function advanceSlice(m){
+ var p=game.player,j=migrateJustice(p),loop=migrateLifeLoop(game),sliceMoment=loop.momentSeq;p.ageMonths+=m;world(m);p.conditions.forEach(function(c){c.months-=m});p.conditions=p.conditions.filter(function(c){return c.months>0});
+ if(j.detained){lifeTick(m);influenceTick(m);if(!game.alive)return;prisonTick(m);storyTick(m);p.danger='Détenu';return}
+ p.health=cl(p.health+m*2,0,100);p.energy=cl(p.energy+m*4,0,100);careerTick(m);lifeTick(m);if(!game.alive)return;justiceTick(m);influenceTick(m);if(!game.alive)return;
+ j=migrateJustice(p);if(j.detained){storyTick(m);return}
  if(p.travel){travel(m);storyTick(m)}
  else if(game.mission){game.mission.remaining-=m;train(m*.4);if(game.mission.remaining<=0)resolveMission();storyTick(m)}
- else{train(p.activity==='Explorer'?m*.55:m);explorationTick(m);storyTick(m);var alreadyMeaningful=loop.momentSeq>before.momentSeq,force=!alreadyMeaningful&&loop.quietAdvances>=2;if(!alreadyMeaningful||R('story')<.22)event(m,force)}
- if(!game.alive){finalizeAdvanceReport(before,m,plan);save();render();deathModal();return}if(p.ageMonths>=72&&p.situation==='Enfance'){p.situation='Formation';p.activity='Formation';p.focus='Auto';tl('Formation','Tu commences une formation structurée.','major')}if(p.ageMonths>=180&&p.career==='Aucune'&&!game.pending&&!awaitingStory())career();p.danger=p.conditions.length?'Moyen':inf().danger>45?'Élevé':inf().danger>20?'Moyen':'Faible';recordProgressSnapshot(false);finalizeAdvanceReport(before,m,plan);checkAchievements();save();render()
+ else{train(p.activity==='Explorer'?m*.55:m);explorationTick(m);storyTick(m);var alreadyMeaningful=loop.momentSeq>sliceMoment,force=!alreadyMeaningful&&loop.quietAdvances>=2;if(!alreadyMeaningful||R('story')<.22)event(m,force)}
+ if(!game.alive)return;
+ if(p.ageMonths>=72&&p.situation==='Enfance'){p.situation='Formation';p.activity='Formation';p.focus='Auto';tl('Formation','Tu commences une formation structurée.','major')}
+ if(p.ageMonths>=180&&p.career==='Aucune'&&!game.pending&&!awaitingStory())career();
+ p.danger=p.conditions.length?'Moyen':inf().danger>45?'Élevé':inf().danger>20?'Moyen':'Faible'
+}
+function advance(){
+ if(!game||!game.alive)return;if(game.pending)return showDecision();if(awaitingStory())return showStoryDecision();
+ var p=game.player,plan=advancePlan(),target=chooseAdvanceDuration(plan),before=captureAdvanceState(),loop=migrateLifeLoop(game),total=0,startMajor=loop.majorSeq,startMoments=loop.momentSeq,adult=p.ageMonths>=180,hadMission=!!game.mission,hadTravel=!!p.travel;
+ if(!adult&&!hadMission&&!hadTravel&&plan.key!=='detention'){advanceSlice(target);total=target}
+ else{
+  var remaining=target,guard=0;
+  while(remaining>.001&&guard++<12&&game.alive){
+   var slice=Math.min(1,remaining);advanceSlice(slice);total+=slice;remaining-=slice;
+   var missionEnded=hadMission&&!game.mission,travelEnded=hadTravel&&!p.travel,important=loop.majorSeq>startMajor,tooManyMoments=loop.momentSeq-startMoments>=2;
+   if(game.pending||awaitingStory()||missionEnded||travelEnded||important||tooManyMoments)break
+  }
+ }
+ if(total<=0)return;
+ recordProgressSnapshot(false);finalizeAdvanceReport(before,total,plan);checkAchievements();save();render();if(!game.alive)deathModal()
 }
 
 function rep(){var r=game.player.reputation;return r>75?'Célèbre':r>40?'Reconnu':r>15?'Connu':'Inconnu'}
