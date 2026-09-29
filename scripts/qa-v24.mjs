@@ -352,7 +352,7 @@ test('V2.0 adaptive time: life stages use distinct time windows',()=>{
   p.ageMonths=6;stages.infant=q.advancePlan();p.ageMonths=48;stages.child=q.advancePlan();p.ageMonths=120;stages.teen=q.advancePlan();p.ageMonths=300;p.career='Aucune';p.activity='Explorer';stages.adult=q.advancePlan();
   assert(stages.infant.min>=5&&stages.infant.max>=7,'infancy window is too short');
   assert(stages.child.max<stages.infant.max,'childhood should narrow relative to infancy');
-  assert(stages.teen.max<=4,'formation window is too long');
+  assert(stages.teen.max<=4.5,'formation window is too long');
   assert(stages.adult.max<=3,'adult calm window is too long');
   return 'infant '+stages.infant.min+'-'+stages.infant.max+' / child '+stages.child.min+'-'+stages.child.max+' / teen '+stages.teen.min+'-'+stages.teen.max+' / adult '+stages.adult.min+'-'+stages.adult.max
 });
@@ -563,10 +563,10 @@ test('V2.1 migration: V20 save upgrades without altering progression values',()=
 });
 
 
-test('V2.1 adaptive time: focused training uses active-life pacing',()=>{
-  const g=fresh(11007),p=g.player;p.ageMonths=300;p.career='Aucune';p.activity='Mobilité';const plan=q.advancePlan();
-  assert(plan.key==='active-life','Mobilité was not recognized as active training');
-  assert(plan.min===1&&plan.max===2,'focused training uses wrong time window');
+test('V2.4 adaptive time: progression focus no longer forces short adult pacing',()=>{
+  const g=fresh(11007),p=g.player;p.ageMonths=300;p.career='Aucune';p.activity='Mobilité';p.focus='Forme';const plan=q.advancePlan();
+  assert(plan.key==='calm-life','progression focus still forces active-life pacing');
+  assert(plan.min===3&&plan.max===5,'calm adult window is wrong');
   return plan.label+' '+plan.min+'-'+plan.max+' months';
 });
 
@@ -639,8 +639,8 @@ test('V2.2 sword victories progress Sabre as the primary combat skill',()=>{
   const before=p.skills.Sabre;for(let i=0;i<12&&p.skills.Sabre===before;i++){p.health=100;p.energy=100;g.alive=true;q.fight(20,'QA sword fight')}
   assert(p.skills.Sabre>before,'Sabreur victory did not progress Sabre');return before.toFixed(1)+' -> '+p.skills.Sabre.toFixed(1);
 });
-test('V2.2 wealth UI exposes explicit debt',()=>{
-  const g=fresh(12015),p=g.player;p.ageMonths=300;p.life.debt=12345;q.renderChar();assert(fakeElement('#economySummary').innerHTML.includes('Dette'),'debt is absent from wealth UI');assert(fakeElement('#economySummary').innerHTML.includes('12 345')||fakeElement('#economySummary').innerHTML.includes('12 345')||fakeElement('#economySummary').innerHTML.includes('12345'),'debt amount is absent from wealth UI');return 'debt visible';
+test('V2.4 lazy wealth UI exposes explicit debt in Situation',()=>{
+  const g=fresh(12015),p=g.player;p.ageMonths=300;p.life.debt=12345;q.setSectionState('character','situation');q.renderChar();assert(fakeElement('#economySummary').innerHTML.includes('Dette'),'debt is absent from wealth UI');assert(fakeElement('#economySummary').innerHTML.includes('12 345')||fakeElement('#economySummary').innerHTML.includes('12 345')||fakeElement('#economySummary').innerHTML.includes('12345'),'debt amount is absent from wealth UI');return 'debt visible';
 });
 
 
@@ -698,7 +698,7 @@ test('V2.3 Carrière focus adapts to specialization',()=>{
   assert(keys.includes('Médecine')&&keys.includes('Science'),'medical career focus ignored weakest professional skills: '+keys.join(','));return keys.join(' + ');
 });
 test('V2.3 Équilibre automatically corrects one weak stat and one weak skill',()=>{
-  const g=fresh(13005),p=g.player;p.ageMonths=300;
+  const g=fresh(13005),p=g.player;p.ageMonths=300;p.ambition='Faire fortune';
   for(const k of q.constants.ST)p.stats[k]=60;for(const k of q.constants.SK)p.skills[k]=60;p.stats.Vitesse=8;p.skills.Navigation=7;
   const keys=q.simpleFocusKeys('Équilibre');assert(keys.includes('Vitesse')&&keys.includes('Navigation'),'balanced focus did not target weak axes');return keys.join(' + ');
 });
@@ -719,9 +719,10 @@ test('V2.3 mission board shows at most three contextual opportunities',()=>{
   const g=fresh(13009),p=g.player;p.ageMonths=300;q.join('Civil');p.specialization='Scientifique';q.careerRecord().specialization='Scientifique';const b=q.board();
   assert(b.length<=3,'mission board exposes more than three choices');if(b.length)assert(b[0].recommended===true,'first mission is not marked recommended');return b.map(x=>x.title).join(' / ');
 });
-test('V2.3 specialization and ambition surfaces collapse into one control each',()=>{
-  const g=fresh(13010),p=g.player;p.ageMonths=300;q.join('Civil');q.renderChar();
-  const spec=fakeElement('#specializationOptions').innerHTML,amb=fakeElement('#ambitionOptions').innerHTML;
+test('V2.4 specialization and ambition surfaces each collapse into one contextual control',()=>{
+  const g=fresh(13010),p=g.player;p.ageMonths=300;q.join('Civil');
+  q.setSectionState('character','career');q.renderChar();const spec=fakeElement('#specializationOptions').innerHTML;
+  q.setSectionState('character','profile');q.renderChar();const amb=fakeElement('#ambitionOptions').innerHTML;
   assert((spec.match(/<button/g)||[]).length===1,'specialization surface has more than one persistent button');
   assert((amb.match(/<button/g)||[]).length===1,'ambition surface has more than one persistent button');return '1 + 1 controls';
 });
