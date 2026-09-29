@@ -965,6 +965,10 @@ test('V2.5 progression: crossing a global power rank becomes a major moment',()=
   const g=fresh(15205),p=g.player;p.ageMonths=300;Object.keys(p.stats).forEach(k=>p.stats[k]=34);Object.keys(p.skills).forEach(k=>p.skills[k]=34);const before=q.captureAdvanceState();Object.keys(p.stats).forEach(k=>p.stats[k]=55);Object.keys(p.skills).forEach(k=>p.skills[k]=55);q.finalizeAdvanceReport(before,1,{key:'qa',label:'QA'});assert(g.timeline.some(x=>x.title==='PALIER DE PUISSANCE'),'power-rank milestone missing');return g.timeline[0].desc;
 });
 
+test('V2.5 fun flow: story openings do not interrupt AVANCER as major events',()=>{
+  const g=fresh(15206),p=g.player;p.ageMonths=300;p.activity='Explorer';q.explorationSite(p.island).familiarity=60;const before=q.migrateLifeLoop(g).majorSeq;const st=q.startStory('island-secret');assert(st,'story did not start');assert(q.migrateLifeLoop(g).majorSeq===before,'story opening still counts as a major interruption');assert(g.timeline[0]&&g.timeline[0].type==='story','story opening lost its timeline identity');return 'background opening';
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
