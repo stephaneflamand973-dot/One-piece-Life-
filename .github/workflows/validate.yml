@@ -2,7 +2,7 @@ name: Validate game
 
 on:
   push:
-    branches: [main, v1.6-living-npcs]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -11,6 +11,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Validate static game
@@ -18,4 +19,4 @@ jobs:
       - name: Validate V1 content pack
         run: node scripts/validate-content.mjs
       - name: Professional systems QA
-        run: node scripts/qa-v16.mjs
+        run: node scripts/qa-v17.mjs
