@@ -44,7 +44,7 @@ if(!app.includes('function establishDomain') || !app.includes('function fortifyD
 if(!app.includes('function recruitAffiliate') || !app.includes('function affiliateCandidates')) throw new Error('V1.6 affiliate network missing');
 if(!app.includes('function realignInfluenceAfterFactionChange')) throw new Error('V1.6 faction/domain realignment missing');
 if(!html.includes('id="publicStanding"') || !html.includes('id="domainList"') || !html.includes('id="affiliateList"')) throw new Error('V1.6 influence UI missing');
-const badDynamicLoops=[...app.matchAll(/(?<!\$)\$\('\[[^']+\]'\)\.forEach/g)];
+const badDynamicLoops=[...app.matchAll(/(?<!\$)\$\([^;\n]*?\)\.forEach/g)];
 if(badDynamicLoops.length) throw new Error('Single-element selector used as list: '+badDynamicLoops[0][0]);
 if(!app.includes('function strategyTick') || !app.includes('function simulateWars') || !app.includes('function startStrategicWar')) throw new Error('V1.6 strategic war engine missing');
 if(!app.includes('function createTreaty') || !app.includes('function simulateTreaties') || !app.includes('function coalitionFor')) throw new Error('V1.6 alliance engine missing');
