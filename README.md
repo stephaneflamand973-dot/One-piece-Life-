@@ -59,6 +59,17 @@ Un mentor permet :
 
 Une action permet aussi de rechercher un mentor dans la région actuelle.
 
+Lorsque le joueur finit par dépasser nettement son mentor après plusieurs séances, celui-ci peut le reconnaître comme **pair**.
+
+À partir de ce moment :
+
+- le lien reste important ;
+- l’entraînement commun continue ;
+- le bonus devient plus modéré ;
+- les percées de plafond réservées au véritable mentorat ne sont plus disponibles.
+
+La relation évolue donc de maître à élève vers une relation plus équilibrée.
+
 ## Rivaux
 
 Une relation peut devenir un rival persistant.
@@ -74,6 +85,15 @@ Les rivaux conservent :
 - souvenirs communs.
 
 Un rival peut progresser après plusieurs défaites et revenir plus dangereux.
+
+La rivalité possède maintenant un véritable cycle de vie :
+
+- rivalité naissante ;
+- rival confirmé ;
+- **némésis** après plusieurs duels marquants ;
+- réconciliation possible lorsque respect, confiance et histoire commune sont suffisamment élevés.
+
+Une rivalité peut donc devenir plus intense ou se transformer en amitié durable au lieu de rester figée éternellement.
 
 ## Recrutement relationnel
 
@@ -130,6 +150,8 @@ Demander ensuite de l’aide peut fournir selon sa spécialité :
 
 Abuser des services sans rendre la pareille dégrade progressivement confiance et loyauté.
 
+Une demande refusée ne crée plus artificiellement de dette : le crédit social ne change que lorsqu’un service est réellement accordé.
+
 ## Interactions canoniques directes
 
 Les acteurs canoniques présents dans ta région peuvent désormais être approchés depuis l’écran Monde.
@@ -169,7 +191,13 @@ Les relations générées pendant l’enfance respectent également l’âge :
 - pas de collègue ou mentor absurde à l’âge scolaire ;
 - pas de rivalité procédurale avant six ans ;
 - les pairs enfants restent dans une tranche d’âge cohérente ;
-- l’interface affiche **Enfance** ou **Formation** au lieu d’un rang professionnel pour les jeunes PNJ.
+- l’interface affiche **Enfance** ou **Formation** au lieu d’un rang professionnel pour les jeunes PNJ ;
+- aucun niveau de carrière professionnel n’est accumulé avant l’âge requis ;
+- les déplacements autonomes entre régions commencent à l’âge de carrière ;
+- les incidents dangereux sont désactivés pour les plus jeunes et atténués pendant l’adolescence ;
+- un duel de rivalité réel n’est pas disponible avant l’adolescence ;
+- romance et mariage exigent que les deux personnages soient adultes ;
+- le recrutement dans une organisation professionnelle exige l’âge de carrière.
 
 ## Incidents autonomes
 
@@ -185,6 +213,22 @@ Selon leur puissance et le danger de leur région, ils peuvent :
 
 Ces incidents alimentent leur mémoire persistante.
 
+
+## Relations et politique
+
+Les relations réagissent maintenant aux changements de faction.
+
+Lors d’une désertion ou d’un changement de camp :
+
+- les anciens liens d’organisation sont rompus proprement ;
+- les relations appartenant au nouveau camp peuvent gagner confiance et respect ;
+- les relations appartenant à une faction hostile peuvent perdre confiance et loyauté ;
+- les liens très forts résistent davantage ;
+- famille et partenaire bénéficient d’une forte protection relationnelle ;
+- une relation procédurale très dégradée peut devenir un rival politique.
+
+Même sans changement de carrière, une hostilité durable entre deux factions peut lentement éroder certains liens et transformer une opposition politique en rivalité personnelle.
+
 ## Protection du canon
 
 Les relations avec les acteurs canoniques ont maintenant des garde-fous supplémentaires :
@@ -197,7 +241,7 @@ Les relations avec les acteurs canoniques ont maintenant des garde-fous supplém
 
 ## QA
 
-La V1.6 exécute désormais **37 scénarios fonctionnels** dans la CI, en plus des validateurs statiques et du content pack.
+La V1.6 exécute désormais **48 scénarios fonctionnels** dans la CI, en plus des validateurs statiques et du content pack.
 
 Ils couvrent notamment :
 
@@ -223,7 +267,30 @@ Ils couvrent notamment :
 - présence locale des PNJ ;
 - cooldown des rencontres canoniques ;
 - synchronisation organisationnelle ;
-- cohérence sociale de l’enfance.
+- cohérence sociale de l’enfance ;
+- cycle mentor → pair ;
+- cycle rival → némésis / réconciliation ;
+- sécurité d’âge pour romance, recrutement et carrière ;
+- réaction des relations aux changements de faction ;
+- dérive sociale liée à l’hostilité politique ;
+- télémétrie de progression de 120 PNJ sur quinze ans.
+
+
+## Équilibrage long terme des PNJ
+
+Un banc de 120 PNJ est simulé pendant quinze ans à chaque validation de balance.
+
+Sur la build actuelle :
+
+- gain moyen de puissance : **+13,4** ;
+- puissance maximale observée : **73,5** ;
+- aucun PNJ du panel n’atteint artificiellement 95+ ;
+- trajectoire Stable : puissance moyenne **49,0** ;
+- Ascension : **55,7** ;
+- Instable : **44,7** ;
+- Déclin : **39,7**.
+
+La population ne converge donc pas vers un niveau élite uniforme et les trajectoires produisent des différences visibles sur le long terme.
 
 ## Compatibilité
 
