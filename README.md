@@ -1,3 +1,72 @@
+# ONE PIECE LIFE — V2.2 Meaningful Builds & Missions
+
+La V2.2 répond à l’audit de simulation de V2.1 : toutes les caractéristiques étaient entraînables, mais elles n’avaient pas encore toutes une utilité comparable.
+
+## Missions spécialisées
+
+Les missions ne sont plus résolues automatiquement par un combat.
+
+Chaque mission reçoit désormais un profil principal :
+
+- Combat ;
+- Navigation ;
+- Médecine ;
+- Science ;
+- Infiltration ;
+- Commandement ;
+- Commerce ;
+- Traque ;
+- Exploration ;
+- Sauvetage ;
+- opération mixte.
+
+La probabilité de réussite dépend des caractéristiques réellement pertinentes, de la spécialisation et du soutien de l’organisation.
+
+## Qualification de carrière
+
+Les promotions utilisent désormais une **qualification de carrière**.
+
+Pour les spécialisations combattantes, la puissance conserve un poids important.
+
+Pour les spécialisations comme Médecin, Scientifique, Navigateur, Marchand, Administration ou Renseignement, l’expertise métier devient la composante principale.
+
+## Activité et carrière
+
+L’XP de carrière dépend désormais de la cohérence entre l’activité choisie et la spécialisation.
+
+Science devient réellement utile à un Scientifique, Médecine à un Médecin, Navigation à un Navigateur, etc.
+
+## Styles de combat
+
+Chaque style possède maintenant une maîtrise propre.
+
+Un Sabreur dépend surtout de Sabre, un Tireur de Tir, un combattant Mobile de Combat + Agilité + Vitesse, et un combattant au corps-à-corps de Combat + Force + Endurance.
+
+## Dette
+
+Les Berry ne passent plus silencieusement en négatif.
+
+Les dépenses non couvertes deviennent une dette explicite, avec intérêts mensuels et pression sur l’énergie. Les anciennes sauvegardes ayant un solde négatif migrent automatiquement vers ce système.
+
+## Narration
+
+Les fils distinguent désormais :
+
+- abouti ;
+- échoué ;
+- abandonné ;
+- interrompu.
+
+Abandonner une piste ou refuser un duel ne compte donc plus comme une réussite narrative.
+
+## Compatibilité
+
+Le GameState passe en **version interne 22**.
+
+Les sauvegardes V2.1 sont migrées automatiquement.
+
+---
+
 # ONE PIECE LIFE — V2.1 Complete Progression
 
 La V2.1 corrige un angle mort du moteur de progression : certaines caractéristiques existaient dans les calculs de puissance et de combat sans disposer d’une voie d’entraînement volontaire claire.
