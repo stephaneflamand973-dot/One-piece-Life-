@@ -1,0 +1,22 @@
+name: V1.7 Core Experience QA
+
+on:
+  push:
+    branches: [v1.7-core-experience-refactor]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate static game
+        run: node scripts/validate.mjs
+      - name: Validate V1 content pack
+        run: node scripts/validate-content.mjs
+      - name: Professional V1.7 systems QA
+        run: node scripts/qa-v17.mjs
