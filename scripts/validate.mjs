@@ -10,7 +10,7 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('V2.6')) throw new Error('index.html does not expose V2.6');
+if(!html.includes('<title>ONE PIECE LIFE — V2.6</title>') || !html.includes('V2.6 • Signature Moments')) throw new Error('index.html does not expose V2.6 consistently');
 if(!app.includes('version:26') || !app.includes('g.version=26')) throw new Error('game state is not V2.6 migration version 26');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
