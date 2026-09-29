@@ -10,8 +10,8 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('V2.1')) throw new Error('index.html does not expose V2.1');
-if(!app.includes('version:21') || !app.includes('g.version=21')) throw new Error('game state is not V2.1 migration version 21');
+if(!html.includes('V2.2')) throw new Error('index.html does not expose V2.2');
+if(!app.includes('version:22') || !app.includes('g.version=22')) throw new Error('game state is not V2.2 migration version 22');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
 if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include content-v1.js');
@@ -28,6 +28,11 @@ if(!app.includes('function processCanonEvents') || !app.includes('function resol
 if(!app.includes('CANON_EVENTS') || !app.includes('SPECIAL_TECHNIQUES') || !app.includes('pickFruit')) throw new Error('V1 content integration missing');
 if(!app.includes('relationshipStatus') || !app.includes('children') || !app.includes('netWorthPeak')) throw new Error('family/economy state missing');
 if(!app.includes("Mobilité:{keys:['Vitesse','Agilité']") || !app.includes("Mental:{keys:['Volonté','Discipline']")) throw new Error('V2.1 focused progression profiles missing');
+if(!app.includes('var SPEC_PROFILES=') || !app.includes('function careerQualification') || !app.includes('function careerActivityFit')) throw new Error('V2.2 meaningful career engine missing');
+if(!app.includes('var MISSION_PROFILE_CONFIG=') || !app.includes('function missionResolution') || !app.includes('function missionChance')) throw new Error('V2.2 mission profile engine missing');
+if(!app.includes('function styleMastery')) throw new Error('V2.2 style mastery missing');
+if(!app.includes('debtInterestPaid') || !app.includes('function chargeMoney') || !app.includes('function serviceDebt')) throw new Error('V2.2 debt engine missing');
+if(!app.includes("stats:{started:0,resolved:0,failed:0,abandoned:0,interrupted:0,choices:0}")) throw new Error('V2.2 narrative closure state missing');
 if(!app.includes('factionRep') || !app.includes('Cipher Pol')) throw new Error('faction systems missing');
 if(!app.includes('canonForecast') || !app.includes('contentStats')) throw new Error('V1 canon UI missing');
 if(!app.includes('var ORG_CONFIG=') || !app.includes('var SHIP_TIERS=')) throw new Error('V1.6 organization configuration missing');
@@ -98,4 +103,4 @@ if(!app.includes('function showStoryDecision') || !app.includes('function render
 if(!html.includes('id="storyEngineBadge"') || !html.includes('id="storySummary"') || !html.includes('id="activeStories"') || !html.includes('id="storyHistory"')) throw new Error('V2.0 story UI missing');
 if(!app.includes("id:'story-first'") || !app.includes("id:'story-weaver'") || !app.includes("id:'story-decisions'")) throw new Error('V2.0 story achievements missing');
 if(!app.includes("if(awaitingStory())return showStoryDecision()")) throw new Error('V2.0 AVANCER story gate missing');
-console.log('ONE PIECE LIFE V2.0 validation OK');
+console.log('ONE PIECE LIFE V2.2 validation OK');
