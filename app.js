@@ -221,6 +221,58 @@ function initLivingWorld(g,w){
 }
 function diplomacy(a,b){if(a===b)return 100;if(a==='Indépendant'||b==='Indépendant')return 0;return game.world.diplomacy[pairKey(a,b)]||0}
 function actorPower(a){var y=game.world.year||0;if(a.status==='inactive')return 0;var start=a.activeFrom||0,t=cl((y-start)/Math.max(1,a.growth||15),0,1),base=a.base+(a.peak-a.base)*t;return cl(base+(a.momentum||0),1,100)}
+function actorIntentPool(a){
+ var pool=['Voyager','S’entraîner'],goal=String(a.goal||'').toLowerCase();
+ if(a.faction==='Pirates')pool.push('Étendre son influence','Étendre son influence','Chercher un affrontement');
+ if(a.faction==='Marine'||a.faction==='Gouvernement')pool.push('Sécuriser sa région','Étendre son influence','Consolider ses alliances');
+ if(a.faction==='Révolutionnaires')pool.push('Étendre son influence','Consolider ses alliances','Voyager');
+ if(a.faction==='Indépendant')pool.push('S’entraîner','Voyager');
+ if(/protéger|famille|observer/.test(goal))pool.push('Sécuriser sa région','Consolider ses alliances','Consolider ses alliances');
+ if(/adversaire|affront/.test(goal))pool.push('Chercher un affrontement','Chercher un affrontement');
+ if(/domination|territoire|étendre|réseau/.test(goal))pool.push('Étendre son influence','Étendre son influence');
+ return pool
+}
+function assignActorIntent(a){a.intention=pk(actorIntentPool(a),'world');a.intentionMonths=3+Math.floor(R('world')*7);return a.intention}
+function actorMoveByIntent(a){var links=REGION_LINKS[a.region]||[];if(!links.length)return false;a.region=pk(links,'world');return true}
+function resolveActorIntent(a){
+ var w=game.world,intent=a.intention||assignActorIntent(a),outcome='';
+ if(intent==='S’entraîner'){var inc=.5+R('world')*2;a.momentum=cl((a.momentum||0)+inc,-8,12);outcome='gagne en puissance'}
+ else if(intent==='Voyager'){outcome=actorMoveByIntent(a)?'se déplace vers '+a.region:'reste dans '+a.region}
+ else if(intent==='Étendre son influence'){
+  if(w.factions[a.faction]!=null)w.factions[a.faction]=cl(w.factions[a.faction]+.5+R('world')*1.5,0,100);
+  var terrs=Object.keys(w.territories).filter(function(n){return infStatic(n).region===a.region}),name=terrs.length?pk(terrs,'world'):null,t=name&&w.territories[name];
+  if(t){if(t.controller===a.faction)t.influence=cl(t.influence+2+R('world')*3,0,100);else{t.stability=cl(t.stability-(1+R('world')*2),0,100);if(diplomacy(a.faction,t.controller)<-30&&R('world')<.28)spawnConflict(name,a.faction,t.controller,38+actorPower(a)*.35,a.name)}}
+  outcome='renforce son influence dans '+a.region
+ }else if(intent==='Chercher un affrontement'){
+  var foes=w.actors.filter(function(x){return x!==a&&x.status==='active'&&x.region===a.region&&diplomacy(a.faction,x.faction)<-35});
+  if(foes.length){var b=pk(foes,'world'),pa=actorPower(a)+R('world')*18,pb=actorPower(b)+R('world')*18,loser=pa>=pb?b:a,winner=loser===a?b:a;loser.status='wounded';loser.woundMonths=2+Math.floor(R('world')*4);winner.momentum=cl((winner.momentum||0)+.5,-8,12);outcome='affronte '+b.name+' ; '+winner.name+' prend l’avantage';news('Initiative de '+a.name,outcome+' dans '+a.region+'.','major')}
+  else outcome='ne trouve aucun adversaire digne dans '+a.region
+ }else if(intent==='Sécuriser sa région'){
+  Object.keys(w.territories).filter(function(n){return infStatic(n).region===a.region}).slice(0,3).forEach(function(n){var t=w.territories[n];if(t.controller===a.faction||diplomacy(a.faction,t.controller)>20)t.stability=cl(t.stability+1+R('world')*1.5,0,100)});outcome='stabilise ses positions dans '+a.region
+ }else if(intent==='Consolider ses alliances'){
+  var choices=WORLD_FACTIONS.filter(function(f){return f!==a.faction&&diplomacy(a.faction,f)>-25});if(choices.length){var f=pk(choices,'world'),k=pairKey(a.faction,f);w.diplomacy[k]=cl((w.diplomacy[k]||0)+1+R('world')*3,-100,100);outcome='renforce ses liens avec '+f}else outcome='reste isolé diplomatiquement'
+ }
+ a.lastIntentOutcome=outcome;a.intention=null;a.intentionMonths=0;if(a.importance>=98&&R('world')<.35)news(a.name+' poursuit son objectif',outcome+'.','');return outcome
+}
+function actorIntentTick(a){if(a.status!=='active')return;if(!a.intention)assignActorIntent(a);a.intentionMonths=Math.max(0,(a.intentionMonths||0)-1);a.momentum=cl((a.momentum||0)*.997,-8,12);if(a.intentionMonths<=0)resolveActorIntent(a)}
+function crewIntentPool(c){
+ if(c.morale<30)return['Se remettre','Se remettre','S’entraîner'];
+ var pool=['Voyager','S’entraîner'];if(c.faction==='Pirates')pool.push('Chercher un butin','Chercher un butin','Revendiquer une zone');if(c.faction==='Chasseur de primes')pool.push('Traquer une cible','Traquer une cible','Voyager');if(c.faction==='Révolutionnaires')pool.push('Étendre son réseau','Revendiquer une zone','Voyager');return pool
+}
+function assignCrewIntent(c){c.intention=pk(crewIntentPool(c),'world');c.intentionMonths=2+Math.floor(R('world')*6);return c.intention}
+function resolveCrewIntent(c){
+ var w=game.world,intent=c.intention||assignCrewIntent(c),outcome='';
+ if(intent==='Se remettre'){c.morale=cl(c.morale+8+R('world')*10,0,100);c.resources=cl(c.resources+4+R('world')*8,0,100);outcome='reprend des forces'}
+ else if(intent==='S’entraîner'){c.power=cl(c.power+1+R('world')*2.4,6,96);c.morale=cl(c.morale+2,0,100);outcome='renforce son niveau'}
+ else if(intent==='Voyager'){var links=REGION_LINKS[c.region]||[];if(links.length)c.region=pk(links,'world');outcome='met le cap sur '+c.region}
+ else if(intent==='Chercher un butin'){var haul=6+R('world')*18;c.resources=cl(c.resources+haul,0,100);c.morale=cl(c.morale+3,0,100);c.bounty+=Math.round((2+R('world')*8)*100000);var rp=w.pressures[c.region];if(rp){rp.Piraterie=cl(rp.Piraterie+1.5,0,100);rp.Criminalité=cl(rp.Criminalité+1,0,100)}outcome='réussit un raid dans '+c.region}
+ else if(intent==='Traquer une cible'){c.power=cl(c.power+.4+R('world')*1.2,6,96);c.morale=cl(c.morale+(R('world')<.6?3:-2),0,100);var rp2=w.pressures[c.region];if(rp2)rp2.Criminalité=cl(rp2.Criminalité-1.2,0,100);outcome='mène une chasse dans '+c.region}
+ else if(intent==='Étendre son réseau'){if(w.factions[c.faction]!=null)w.factions[c.faction]=cl(w.factions[c.faction]+.5+R('world'),0,100);c.resources=cl(c.resources+3,0,100);outcome='développe son réseau clandestin'}
+ else if(intent==='Revendiquer une zone'){var terrs=Object.keys(w.territories).filter(function(n){return infStatic(n).region===c.region}),name=terrs.length?pk(terrs,'world'):null,t=name&&w.territories[name];if(t&&t.controller!==c.faction&&diplomacy(c.faction,t.controller)<-15){spawnConflict(name,c.faction,t.controller,34+c.power*.5,c.id);outcome='conteste '+name}else outcome='cherche une zone vulnérable'}
+ c.lastIntentOutcome=outcome;c.intention=null;c.intentionMonths=0;if(c.power>=65&&R('world')<.22)news(c.name+' agit',outcome+'.','');return outcome
+}
+function crewIntentTick(c){if(c.status!=='active')return;if(!c.intention)assignCrewIntent(c);c.intentionMonths=Math.max(0,(c.intentionMonths||0)-1);if(c.intentionMonths<=0)resolveCrewIntent(c)}
+
 
 var PEOPLE_NAMES=['Mira','Doran','Seline','Rook','Nessa','Toma','Ari','Noa','Kaï','Lina','Eden','Sora','Maël','Namiya','Kellan','Yuna','Senn','Iria','Milo','Rin'];
 var HOUSING=[
