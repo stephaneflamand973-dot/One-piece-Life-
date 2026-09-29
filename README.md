@@ -105,8 +105,9 @@ Les nouveaux tests couvrent notamment :
 Télémétrie de référence :
 
 - 30 vies simulées de la naissance à 15 ans ;
-- environ **49,9 clics** en moyenne pour atteindre 15 ans ;
-- environ **28,8 moments notables** sur cette période ;
+- **48,1 clics** en moyenne pour atteindre 15 ans parmi les vies qui y parviennent ;
+- environ **0,52 moment notable par clic** ;
+- **29 vies sur 30** atteignent 15 ans dans l’échantillon, avec 1 mort précoce cohérente avec la mortalité du simulateur ;
 - maximum de **2 périodes réellement calmes consécutives** ;
 - tous les contrôles de progression, monde vivant, économie, guerre, PNJ, justice et héritage des versions précédentes restent actifs.
 
