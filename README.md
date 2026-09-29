@@ -133,9 +133,10 @@ Mesures longues de référence :
 - progression de 120 PNJ sur 15 ans : gain moyen **+18,4**, puissance maximale **89,7**, aucun PNJ ordinaire à 95+ ;
 - carrière PNJ après 15 ans : **3,3** en moyenne pour les trajectoires Ascension contre **2,1** pour Déclin ;
 - enfance jusqu’à 15 ans : **36,3 AVANCER** en moyenne, contre 42,9 avant la passe Fun Flow ;
-- fluidité adulte conservée : **5,40 AVANCER/an** ;
-- carrière active : **6,19 AVANCER/an** ;
-- exploration : **5,28 AVANCER/an**.
+- diversité narrative adulte : **4,2 archétypes distincts** en moyenne sur dix ans ;
+- fluidité adulte : **5,20 AVANCER/an** ;
+- carrière active : **5,97 AVANCER/an** ;
+- exploration : **5,31 AVANCER/an**.
 
 
 ---
