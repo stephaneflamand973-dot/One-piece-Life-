@@ -86,6 +86,34 @@ Le GameState passe en **version interne 25**.
 
 Les sauvegardes V2.4 migrent automatiquement et reçoivent les nouveaux champs d'intention, de réseau PNJ et d'autonomie sans perdre leur progression existante.
 
+
+## QA V2.5
+
+La release candidate passe **159/159 scénarios fonctionnels**.
+
+Les nouveaux garde-fous vérifient notamment :
+
+- migration V24 → V25 des acteurs, équipages et relations ;
+- intentions d'acteurs persistantes et sérialisables ;
+- intentions d'équipages avec conséquences réelles ;
+- projets autonomes des relations importantes ;
+- liens persistants entre PNJ ;
+- génération de missions à partir d'entités réellement présentes dans le WorldState ;
+- conséquences d'une mission sur son équipage, conflit ou acteur source ;
+- maintien du tableau de missions à trois opportunités maximum ;
+- suppression complète d'un emplacement de sauvegarde et de ses métadonnées sans toucher aux autres slots.
+
+Mesures longues de référence :
+
+- monde simulé sur 30 ans : **31,8 %** de divergence moyenne ;
+- **7,9 équipages actifs** en moyenne après simulation longue ;
+- indice des prix moyen : **102,7** ;
+- progression de 120 PNJ sur 15 ans : gain moyen **+15,7**, puissance maximale **81,5**, aucun PNJ ordinaire à 95+ ;
+- fluidité adulte conservée : **5,42 AVANCER/an** ;
+- carrière active : **6,29 AVANCER/an** ;
+- exploration : **5,31 AVANCER/an**.
+
+
 ---
 
 # ONE PIECE LIFE — V2.4 Flow Engine
