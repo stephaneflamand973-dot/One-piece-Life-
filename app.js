@@ -410,7 +410,8 @@ function createRelation(role){
  while(game.relations.some(function(r){return r.name===name})&&tries++<12)name=pk(PEOPLE_NAMES,'r');
  var chosen=role||pk(roles,'r');if(years<6&&(chosen==='rival'||chosen==='mentor'||chosen==='collègue'))chosen='connaissance';else if(years<12&&(chosen==='mentor'||chosen==='collègue'))chosen='connaissance';if(years<15&&chosen==='collègue')chosen='connaissance';
  var faction=years<15&&chosen!=='mentor'?'Civil':pk([p.faction,'Civil','Marine','Pirates'],'r'),r=normalizeRelation(game,{id:'rel-'+i+'-'+Math.floor(R('r')*99999),name:name,role:chosen,faction:faction,location:p.island,monthsKnown:0},i);
- if(r.role==='rival'){r.npcAgeMonths=cl(p.ageMonths-30+R('r')*60,Math.max(0,p.ageMonths-48),p.ageMonths+48);r.rivalry=45+R('r')*35;r.affection*=.7}
+ if(years<12&&['ami','rival','connaissance'].indexOf(r.role)>=0)r.npcAgeMonths=cl(p.ageMonths-24+R('r')*48,Math.max(0,p.ageMonths-30),p.ageMonths+30);
+ if(r.role==='rival'){var span=years<12?24:48;r.npcAgeMonths=cl(p.ageMonths-span/2+R('r')*span,Math.max(0,p.ageMonths-span),p.ageMonths+span);r.rivalry=45+R('r')*35;r.affection*=.7}
  if(r.role==='mentor'){r.npcAgeMonths=Math.max(216,p.ageMonths+48+R('r')*120);r.respect=Math.max(r.respect,62);r.trust=Math.max(r.trust,50);r.npcPower=Math.max(r.npcPower,cl(power()+10+R('r')*18,20,92));r.npcPotential=Math.max(r.npcPotential,r.npcPower+4)}
  game.relations.push(r);return r
 }
