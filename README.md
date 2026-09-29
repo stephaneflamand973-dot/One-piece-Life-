@@ -113,7 +113,7 @@ Les sauvegardes V2.4 migrent automatiquement et reçoivent les nouveaux champs d
 
 ## QA V2.6
 
-La release V2.6 couvre **191 scénarios fonctionnels** avec les nouveaux garde-fous Signature Moments.
+La release V2.6 passe **191/191 scénarios fonctionnels** avec les nouveaux garde-fous Signature Moments.
 
 Les nouveaux garde-fous vérifient notamment :
 
@@ -159,9 +159,9 @@ Mesures longues de référence :
 - carrière PNJ après 15 ans : **3,3** en moyenne pour les trajectoires Ascension contre **2,1** pour Déclin ;
 - enfance jusqu’à 15 ans : **36,3 AVANCER** en moyenne, contre 42,9 avant la passe Fun Flow ;
 - diversité narrative adulte : **4,2 archétypes distincts** en moyenne sur dix ans ;
-- fluidité adulte : **5,20 AVANCER/an** ;
-- carrière active : **5,97 AVANCER/an** ;
-- exploration : **5,31 AVANCER/an**.
+- fluidité adulte : **5,22 AVANCER/an** ;
+- carrière active : **5,93 AVANCER/an** ;
+- exploration : **5,32 AVANCER/an**.
 
 
 ---
