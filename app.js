@@ -896,7 +896,7 @@ function pickStoryType(types){
  var total=types.reduce(function(a,x){return a+x.weight},0),r=R('story')*total;for(var i=0;i<types.length;i++){r-=types[i].weight;if(r<=0)return types[i].id}return types.length?types[types.length-1].id:null
 }
 function storyBase(type){
- var p=game.player,rels=game.relations.filter(function(r){return r.status==='active'&&(r.location===p.island||r.region===p.region)}),rivals=rels.filter(function(r){return r.role==='rival'}),site=explorationSite(p.island),profile=islandProfile(p.island),o=p.organization,j=migrateJustice(p),r=null,title='',summary='',data={};
+ var p=game.player,rels=game.relations.filter(function(r){return r.status==='active'&&(r.location===p.island||r.region===p.region)}),rivals=rels.filter(function(r){return r.role==='rival'}),site=explorationSite(p.island),profile=islandProfile(p.island),o=p.organization,j=migrateJustice(p),partner=partnerRelation(),r=null,title='',summary='',data={};
  if(type==='youth-promise'){r=pk(rels,'story');title='Une promesse avec '+r.name;summary='Un lien de jeunesse commence à devenir plus important qu’une simple rencontre.';data.focus=pk(['Discipline','Réflexes','Combat'],'story')}
  else if(type==='island-secret'){title='Une piste à '+p.island;summary='Un détail revient dans plusieurs indices locaux : '+profile.signature+'.';data.familiarity=site.familiarity;data.signature=profile.signature}
  else if(type==='social-favor'){r=pk(rels,'story');title=r.name+' a besoin de toi';summary='Une relation importante te demande une aide qui pourrait laisser une trace durable.';data.cost=Math.min(Math.max(500,Math.round(800+R('story')*4500)),Math.max(500,Math.round(p.money*.18)))}
