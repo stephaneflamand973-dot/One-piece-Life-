@@ -599,7 +599,7 @@ assert(metrics.playerAge25Progression.avgCapped<=4,'too many characteristics hit
   const rows=[];
   for(let seed=8200;seed<8230;seed++){
     const g=fresh(seed),p=g.player;let clicks=0,events=0,quietMax=0;
-    while(p.ageMonths<180&&clicks<100&&g.alive){if(g.pending)g.pending=null;q.advance();clicks++;events+=g.loop.lastAdvance?g.loop.lastAdvance.moments:0;quietMax=Math.max(quietMax,g.loop.quietAdvances)}
+    while(p.ageMonths<180&&clicks<100&&g.alive){if(g.pending)g.pending=null;const aw=q.awaitingStory();if(aw){const choices=q.storyChoices(aw);if(choices.length)q.storyChoice(aw.id,choices[0].id)}q.advance();clicks++;events+=g.loop.lastAdvance?g.loop.lastAdvance.moments:0;quietMax=Math.max(quietMax,g.loop.quietAdvances)}
     rows.push({clicks,events,quietMax,age:p.ageMonths,alive:g.alive,reached:p.ageMonths>=180})
   }
   const reached=rows.filter(x=>x.reached),avg=(arr,k)=>+(arr.reduce((a,x)=>a+x[k],0)/Math.max(1,arr.length)).toFixed(1),totalClicks=rows.reduce((a,x)=>a+x.clicks,0),totalEvents=rows.reduce((a,x)=>a+x.events,0);
