@@ -58,7 +58,7 @@ window.__qa={
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,
  power:power,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,
  join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,startMission:startMission,resolveMission:resolveMission,board:board,
- createRelation:createRelation,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,
+ createRelation:createRelation,normalizeRelation:normalizeRelation,relationById:relationById,bondCanonicalActor:bondCanonicalActor,npcTick:npcTick,npcNearby:npcNearby,relationPower:relationPower,askMentorship:askMentorship,trainWithMentor:trainWithMentor,declareRivalry:declareRivalry,challengeRival:challengeRival,recruitKnownRelation:recruitKnownRelation,seekMentor:seekMentor,renderRel:renderRel,addRelationMemory:addRelationMemory,canonicalFreedom:canonicalFreedom,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,
  ensureOrganization:ensureOrganization,syncOrganizationRole:syncOrganizationRole,organizationPower:organizationPower,organizationCapacity:organizationCapacity,organizationTick:organizationTick,
  upgradeOrganizationShip:upgradeOrganizationShip,generateRecruitCandidate:generateRecruitCandidate,
  registerCrime:registerCrime,arrestPlayer:arrestPlayer,prisonTick:prisonTick,attemptEscape:attemptEscape,justiceTick:justiceTick,
@@ -120,8 +120,8 @@ test('Static: no broken dynamic selector pattern',()=>{
   const bad=[...appSource.matchAll(/(?<!\$)\$\('\[[^']+\]'\)\.forEach/g)];
   assert(!bad.length,'single-element selector used as list: '+bad.map(x=>x[0]).join(','));return 'selectors clean'
 });
-test('Creation: Custom mode initializes full V1.5 state',()=>{
-  const g=fresh(1111,'custom');assert(g.version===15,'wrong version');assert(g.player.name==='QA Tester','name');assert(g.player.origin==='East Blue','origin');
+test('Creation: Custom mode initializes full V1.6 state',()=>{
+  const g=fresh(1111,'custom');assert(g.version===16,'wrong version');assert(g.player.name==='QA Tester','name');assert(g.player.origin==='East Blue','origin');
   assert(Object.keys(g.world.markets).length===Object.keys(q.constants.PL).length,'market coverage mismatch');assert(g.world.treaties.some(t=>t.a==='Marine'&&t.b==='Gouvernement'),'foundation alliance absent');
   assert(g.player.trade&&g.player.strategy&&g.player.influence&&g.player.justice,'new subsystem state missing');bounds(g);return Object.keys(g.world.markets).length+' markets'
 });
@@ -129,9 +129,9 @@ test('Creation: Destiny mode is seed deterministic',()=>{
   function snap(){const g=fresh(424242,'destiny');return JSON.stringify({origin:g.player.origin,race:g.player.race,style:g.player.style,stats:g.player.stats,skills:g.player.skills,caps:g.player.caps,island:g.player.island})}
   const a=snap(),b=snap();assert(a===b,'same seed generated different character');return 'seed 424242 reproducible'
 });
-test('Migration: legacy state upgrades idempotently to V1.5',()=>{
+test('Migration: legacy state upgrades idempotently to V1.6',()=>{
   let g=fresh(3001);g=JSON.parse(JSON.stringify(g));g.version=9;delete g.player.trade;delete g.player.strategy;delete g.player.influence;delete g.world.markets;delete g.world.economy;delete g.world.wars;delete g.world.treaties;
-  let m=q.migrate(g);assert(m.version===15,'migration version');assert(m.player.trade&&m.player.strategy&&m.player.influence,'player migration missing');assert(Object.keys(m.world.markets).length===Object.keys(q.constants.PL).length,'markets not restored');
+  let m=q.migrate(g);assert(m.version===16,'migration version');assert(m.player.trade&&m.player.strategy&&m.player.influence,'player migration missing');assert(Object.keys(m.world.markets).length===Object.keys(q.constants.PL).length,'markets not restored');
   const counts=[m.world.actors.length,m.world.crews.length,m.world.treaties.length];m=q.migrate(m);assert(counts.join('/')===[m.world.actors.length,m.world.crews.length,m.world.treaties.length].join('/'),'idempotent migration duplicated world entities');q.setGame(m);bounds(m);return 'legacy v9 -> v15'
 });
 test('World simulation: 30 years without numerical corruption',()=>{
@@ -168,6 +168,34 @@ test('Relationships: marriage, child and legacy handoff',()=>{
   const g=fresh(3801),p=g.player;p.ageMonths=360;p.money=500000;const r=q.createRelation('partenaire');r.affection=95;r.trust=95;r.attraction=95;r.relationshipMonths=18;p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.life.socialActions=2;q.marryPartner();assert(p.life.relationshipStatus==='Marié','marriage failed');
   p.life.socialActions=2;q.welcomeChild();assert(p.children.length===1,'child creation failed');p.children[0].ageMonths=220;const childName=p.children[0].name,generation=g.dynasty.generation;g.death={cause:'QA'};q.buildHeir(p.children[0]);assert(g.dynasty.generation===generation+1,'generation not advanced');assert(g.player.name===childName,'heir not selected');return 'generation '+g.dynasty.generation
 });
+
+test('Living NPC: procedural relation progresses autonomously',()=>{
+  const g=fresh(3810),p=g.player;p.ageMonths=300;const r=q.createRelation('connaissance');r.npcPower=30;r.npcPotential=80;r.npcTrajectory='Ascension';r.region=p.region;r.location=p.island;const before=r.npcPower,age=r.npcAgeMonths;q.npcTick(24);
+  assert(r.npcAgeMonths===age+24,'NPC age did not advance');assert(r.npcPower>before,'NPC power did not progress');assert(r.npcPower<=r.npcPotential,'NPC exceeded potential');return before.toFixed(1)+' -> '+r.npcPower.toFixed(1)
+});
+test('Living NPC: mentor training modifies player and keeps memories',()=>{
+  const g=fresh(3820),p=g.player;p.ageMonths=300;p.life.socialActions=5;const r=q.createRelation('mentor');r.region=p.region;r.location=p.island;r.npcPower=Math.max(70,q.power()+20);r.npcPotential=95;r.npcSpecialty='Combat';r.respect=90;r.trust=90;const before=p.skills.Combat;
+  q.trainWithMentor(r.id);assert(r.mentorSessions===1,'mentor session not counted');assert(p.skills.Combat>=before,'mentor training regressed skill');assert(r.memories.length>0,'mentor memory missing');return 'Combat '+before.toFixed(1)+' -> '+p.skills.Combat.toFixed(1)
+});
+test('Living NPC: rivalry duel records a persistent result',()=>{
+  const g=fresh(3830),p=g.player;p.ageMonths=300;p.life.socialActions=5;p.health=100;p.energy=100;Object.keys(p.stats).forEach(k=>p.stats[k]=85);Object.keys(p.skills).forEach(k=>p.skills[k]=80);const r=q.createRelation('rival');r.region=p.region;r.location=p.island;r.npcPower=20;r.rivalry=80;r.lastDuelAge=-999;const before=r.rivalWins+r.rivalLosses;
+  q.challengeRival(r.id);assert(r.rivalWins+r.rivalLosses===before+1,'rival duel not recorded');assert(r.lastDuelAge===p.ageMonths,'rival duel timestamp missing');assert(r.memories.length>0,'rival memory missing');return r.rivalLosses+' loss(es) / '+r.rivalWins+' win(s) for rival'
+});
+test('Living NPC: known relation recruitment stays synchronized with organization',()=>{
+  const g=adultPirate(3840),p=g.player,o=p.organization;o.commandActions=3;const r=q.createRelation('ami');r.region=p.region;r.location=p.island;r.faction='Pirates';r.trust=90;r.loyalty=90;r.respect=90;r.npcPower=42;r.npcPotential=88;
+  q.recruitKnownRelation(r.id);const mem=o.members.find(m=>m.linkedRelationId===r.id);assert(mem,'linked organization member missing');assert(r.joinedOrganization,'relation not flagged as recruited');
+  r.npcPower=64;mem.power=50;q.organizationTick(1);assert(Math.abs(mem.power-r.npcPower)<.001,'relation/member power diverged');mem.injuryMonths=2;q.organizationTick(.5);assert(r.status==='wounded'&&r.injuryMonths>0,'injury not synchronized to relation');return mem.role+' • power '+mem.power.toFixed(1)
+});
+test('Living NPC: canonical encounter creates one persistent bond',()=>{
+  const g=fresh(3850),p=g.player;p.ageMonths=300;const actor=g.world.actors.find(a=>a.status==='active');assert(actor,'no active canonical actor');actor.region=p.region;const r1=q.bondCanonicalActor(actor,'QA première rencontre'),r2=q.bondCanonicalActor(actor,'QA retrouvailles');
+  assert(r1.id===r2.id,'canonical actor duplicated relation');assert(r1.canonical&&r1.actorName===actor.name,'canonical metadata missing');assert(g.relations.filter(r=>r.actorName===actor.name).length===1,'multiple canonical bonds created');assert(r1.memories.length>=2,'canonical memories not accumulated');return actor.name+' -> '+r1.role
+});
+test('Living NPC: strong social bonds survive as family legacy',()=>{
+  const g=fresh(3860),p=g.player;p.ageMonths=420;p.money=500000;const mentor=q.createRelation('mentor');mentor.trust=90;mentor.loyalty=90;mentor.respect=90;mentor.memories=[{text:'A formé ton parent.',type:'mentor',age:'20 ans'}];
+  const partner=q.createRelation('partenaire');partner.affection=95;partner.trust=95;partner.loyalty=95;p.life.partnerId=partner.id;p.life.relationshipStatus='Marié';const child={id:'qa-heir',name:'Legacy Kid',ageMonths:220,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:80};p.children=[child];g.death={cause:'QA legacy'};
+  q.buildHeir(child);const legacy=g.relations.find(r=>r.name===mentor.name);assert(legacy,'mentor relationship disappeared across generation');assert(legacy.memories.some(m=>/parent/.test(m.text)),'legacy memory not created');return legacy.name+' remembered previous generation'
+});
+
 test('Justice: witnessed crime -> bounty -> detention -> release',()=>{
   const g=adultPirate(3901),p=g.player;const b=p.bounty;q.registerCrime('QA raid',4,true);assert(p.bounty>b,'bounty did not increase');assert(p.justice.regionalHeat[p.region]>0,'heat did not increase');q.arrestPlayer('QA arrest');assert(p.justice.detained,'arrest failed');const months=p.justice.prison.remaining;for(let i=0;i<Math.ceil(months)+2&&p.justice.detained;i++)q.prisonTick(1);assert(!p.justice.detained,'prison did not release');return 'bounty '+p.bounty.toLocaleString('fr-FR')+' B'
 });
@@ -203,7 +231,7 @@ test('Fruit lifecycle: player death release returns fruit to world',()=>{
   const g=fresh(4701),p=g.player,fruit=g.world.fruits.find(n=>!g.world.fruitRegistry[n]||g.world.fruitRegistry[n].status==='available');assert(fruit,'no available fruit');p.fruit=fruit;g.world.fruitRegistry[fruit]={status:'consumed',holder:p.name};q.releasePlayerFruits();assert(g.world.fruitRegistry[fruit].status==='available'&&g.world.fruitRegistry[fruit].holder===null,'fruit not released');return fruit
 });
 test('Rendering smoke test: main views render on complex state',()=>{
-  const g=adultPirate(4801),p=g.player;p.justice.regionalHeat[p.region]=60;p.bounty=250000000;p.life.assets.business=100000;p.influence.titles=['Supernova'];q.render();q.renderChar();q.renderWorld();return 'render completed without exception'
+  const g=adultPirate(4801),p=g.player;p.justice.regionalHeat[p.region]=60;p.bounty=250000000;p.life.assets.business=100000;p.influence.titles=['Supernova'];q.render();q.renderChar();q.renderWorld();q.renderRel();return 'render completed without exception'
 });
 
 
