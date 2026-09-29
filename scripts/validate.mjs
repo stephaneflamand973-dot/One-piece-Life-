@@ -34,6 +34,9 @@ if(!app.includes("label:'Progresser'") || !app.includes("label:'Situation'") || 
 if(!app.includes('function specializationDecision') || !app.includes('function ambitionDecision')) throw new Error('V2.3 simplified choice flows missing');
 if(!app.includes("'Auto':{label:'Auto'") || !app.includes("if(p.focus==='Auto')return recommendedFocus()")) throw new Error('V2.4 Auto focus missing');
 if(!app.includes("min:4,max:6") || !app.includes("min:2.5,max:4.5")) throw new Error('V2.4 flow pacing missing');
+if(!app.includes('function advanceSlice') || !app.includes('tooManyMoments=loop.momentSeq-startMoments>=4')) throw new Error('V2.4 segmented advance engine missing');
+if(!app.includes('timelineExpanded') || !app.includes('Voir toute l’histoire')) throw new Error('V2.4 compact timeline expansion missing');
+if(!app.includes("group=sectionState.character||'profile'")) throw new Error('V2.4 lazy character rendering missing');
 if(!app.includes('function renderWorldExplore') || !app.includes('function renderWorldState') || !app.includes('function renderWorldHistory')) throw new Error('V2.4 lazy world rendering missing');
 if(!app.includes('function renderRelClose') || !app.includes('function renderRelNetwork') || !app.includes('function relationActionDecision')) throw new Error('V2.4 contextual relation UI missing');
 if(!app.includes('function renderAbProgress') || !app.includes('function renderAbPowers') || !app.includes('function renderAbDetails')) throw new Error('V2.4 lazy progression rendering missing');
