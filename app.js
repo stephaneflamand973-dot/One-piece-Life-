@@ -558,7 +558,7 @@ function advancePlan(){
  if(danger>=58||currentHeat()>55)return{key:'high-risk',label:'Contexte tendu',tone:'urgent',min:.5,max:1.5,reason:'Danger local ou pression judiciaire élevée : les périodes restent courtes.'};
  if(p.activity==='Explorer')return{key:'exploration',label:'Exploration',tone:'active',min:1.5,max:3,reason:'L’exploration avance par blocs jusqu’à une découverte ou un incident notable.'};
  if(p.career!=='Aucune')return{key:'active-life',label:'Vie active',tone:'active',min:2.5,max:4.5,reason:'La carrière progresse en blocs plus longs ; le moteur t’interrompt quand quelque chose mérite ton attention.'};
- return{key:'calm-life',label:'Période calme',tone:'calm',min:3,max:5,reason:'Le moteur laisse passer plusieurs mois tant qu’aucun événement important ne réclame ton attention.'}
+ return{key:'calm-life',label:'Période calme',tone:'calm',min:4,max:6,reason:'Le moteur laisse passer plusieurs mois tant qu’aucun événement important ne réclame ton attention.'}
 }
 function chooseAdvanceDuration(plan){
  if(!plan||plan.max<=0)return 0;var m=plan.min+(plan.max-plan.min)*R('time');if(plan.limit!=null)m=Math.min(m,Math.max(.25,plan.limit));return Math.max(.25,Math.round(m*4)/4)
