@@ -11,7 +11,7 @@ La V2.4 part d'un constat simple : V2.3 avait réduit la micro-gestion, mais le 
 AVANCER utilise désormais des fenêtres plus longues quand rien ne justifie une interruption :
 
 - vie calme : **3 à 5 mois** ;
-- carrière : **2 à 4 mois** ;
+- carrière : **2,5 à 4,5 mois** ;
 - exploration : **1,5 à 3 mois** ;
 - formation : **2,5 à 4,5 mois** ;
 - danger, détention et blessures restent volontairement plus fins ;
