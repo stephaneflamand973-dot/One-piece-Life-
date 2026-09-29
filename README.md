@@ -1,3 +1,83 @@
+# ONE PIECE LIFE — V2.4 Flow Engine
+
+La V2.4 part d'un constat simple : V2.3 avait réduit la micro-gestion, mais le jeu demandait encore trop de clics et rendait trop de contenu invisible.
+
+## Objectif
+
+**Même profondeur, moins d'effort pour y accéder.**
+
+## Temps plus fluide
+
+AVANCER utilise désormais des fenêtres plus longues quand rien ne justifie une interruption :
+
+- vie calme : **3 à 5 mois** ;
+- carrière : **2 à 4 mois** ;
+- exploration : **1,5 à 3 mois** ;
+- formation : **2,5 à 4,5 mois** ;
+- danger, détention et blessures restent volontairement plus fins ;
+- missions et voyages avancent par blocs plus larges jusqu'à leur prochaine étape utile.
+
+Le focus de progression n'impose plus artificiellement un rythme de 1 à 2 mois à toute vie adulte.
+
+## Focus AUTO
+
+Le mode **Auto** devient la manière la plus simple de progresser.
+
+Il choisit dynamiquement entre Combat, Forme, Carrière, Pouvoirs ou Équilibre selon :
+
+- santé et énergie ;
+- ambition ;
+- spécialisation ;
+- expertise ;
+- Haki ;
+- Fruit ;
+- style de combat.
+
+Les focus manuels restent disponibles.
+
+## Activité et focus
+
+Les événements de progression utilisent maintenant le **focus réel** plutôt que l'activité temporaire.
+
+Une mission, une exploration ou une routine ne fait donc plus disparaître les événements liés à la progression choisie.
+
+## Rendu à la demande
+
+Les écrans complexes ne construisent plus systématiquement tout leur contenu caché.
+
+- Monde rend indépendamment **Explorer / Monde / Histoire** ;
+- Progression rend indépendamment **Progresser / Pouvoirs / Détails** ;
+- Carrière rend indépendamment **Profil / Carrière / Situation** ;
+- Liens rend indépendamment **Proches / Réseau**.
+
+## Relations simplifiées
+
+Le réseau social affiche les relations prioritaires et un seul bouton **Interagir** par personne.
+
+Les actions disponibles sont proposées ensuite dans une décision contextuelle.
+
+Le réseau complet reste accessible.
+
+## Feedback AVANCER
+
+Après une période, le rapport indique les progressions principales réellement obtenues, par exemple :
+
+**Focus Combat : Sabre +0,8 • Réflexes +0,5**
+
+## Interface Vie
+
+La Timeline normale est limitée aux **5 derniers événements**. L'historique étendu reste accessible.
+
+Les compteurs détaillés des fils narratifs sont retirés de la boucle principale ; seuls les fils actifs et décisions utiles restent visibles.
+
+## Compatibilité
+
+Le GameState passe en **version interne 24**.
+
+Les sauvegardes V2.3 sont migrées sans perdre statistiques, relations, histoires, monde, économie ou progression.
+
+---
+
 # ONE PIECE LIFE — V2.3 Fluid Life
 
 La V2.3 simplifie l’expérience sans supprimer les systèmes profonds développés jusqu’à V2.2.
