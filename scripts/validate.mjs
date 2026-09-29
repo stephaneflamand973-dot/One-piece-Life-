@@ -64,4 +64,8 @@ if(!app.includes('function npcTick') || !app.includes('function bondCanonicalAct
 if(!app.includes('function trainWithMentor') || !app.includes('function challengeRival') || !app.includes('function recruitKnownRelation')) throw new Error('V1.6 mentor/rival/recruitment actions missing');
 if(!app.includes('memories=Array.isArray') || !app.includes('npcPotential') || !app.includes('npcTrajectory')) throw new Error('V1.6 persistent NPC state missing');
 if(!html.includes('id="bondDynamicsList"') || !html.includes('id="npcNetworkSummary"') || !html.includes('id="npcOpportunities"')) throw new Error('V1.6 living NPC UI missing');
+if(!app.includes('function helpRelation') || !app.includes('function askRelationFavor') || !app.includes('favorBalance')) throw new Error('V1.6 social favors/debts missing');
+if(!app.includes('function approachCanonicalActor')) throw new Error('V1.6 direct canonical interaction missing');
+if(!app.includes('legacyRelations') || !app.includes("'legacy'")) throw new Error('V1.6 generational social memory missing');
+if(!app.includes('linkedRelationId') || !app.includes('rr.npcPower')) throw new Error('V1.6 organization/relation synchronization missing');
 console.log('ONE PIECE LIFE V1.6 validation OK');
