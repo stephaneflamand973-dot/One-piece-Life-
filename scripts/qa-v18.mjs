@@ -515,14 +515,16 @@ assert(metrics.playerAge25Progression.avgCapped<=4,'too many characteristics hit
   const rows=[];
   for(let seed=8200;seed<8230;seed++){
     const g=fresh(seed),p=g.player;let clicks=0,events=0,quietMax=0;
-    while(p.ageMonths<180&&clicks<100){if(g.pending)g.pending=null;q.advance();clicks++;events+=g.loop.lastAdvance?g.loop.lastAdvance.moments:0;quietMax=Math.max(quietMax,g.loop.quietAdvances)}
-    rows.push({clicks,events,quietMax,age:p.ageMonths})
+    while(p.ageMonths<180&&clicks<100&&g.alive){if(g.pending)g.pending=null;q.advance();clicks++;events+=g.loop.lastAdvance?g.loop.lastAdvance.moments:0;quietMax=Math.max(quietMax,g.loop.quietAdvances)}
+    rows.push({clicks,events,quietMax,age:p.ageMonths,alive:g.alive,reached:p.ageMonths>=180})
   }
-  const avg=k=>+(rows.reduce((a,x)=>a+x[k],0)/rows.length).toFixed(1);
-  metrics.adaptiveChildhoodPacing={samples:rows.length,avgClicksTo15:avg('clicks'),avgMoments:avg('events'),maxQuiet:Math.max(...rows.map(x=>x.quietMax)),minClicks:Math.min(...rows.map(x=>x.clicks)),maxClicks:Math.max(...rows.map(x=>x.clicks))};
+  const reached=rows.filter(x=>x.reached),avg=(arr,k)=>+(arr.reduce((a,x)=>a+x[k],0)/Math.max(1,arr.length)).toFixed(1),totalClicks=rows.reduce((a,x)=>a+x.clicks,0),totalEvents=rows.reduce((a,x)=>a+x.events,0);
+  metrics.adaptiveChildhoodPacing={samples:rows.length,reached15:reached.length,earlyDeaths:rows.filter(x=>!x.alive&&x.age<180).length,avgClicksTo15:avg(reached,'clicks'),avgMomentsPerLife:avg(rows,'events'),momentsPerClick:+(totalEvents/Math.max(1,totalClicks)).toFixed(2),maxQuiet:Math.max(...rows.map(x=>x.quietMax)),minClicks:Math.min(...reached.map(x=>x.clicks)),maxClicks:Math.max(...reached.map(x=>x.clicks))};
 }
+assert(metrics.adaptiveChildhoodPacing.reached15>=24,'too many simulated lives fail to reach age 15');
 assert(metrics.adaptiveChildhoodPacing.avgClicksTo15>=25,'childhood simulation is skipping too aggressively');
 assert(metrics.adaptiveChildhoodPacing.avgClicksTo15<=55,'childhood simulation is too click-heavy');
+assert(metrics.adaptiveChildhoodPacing.momentsPerClick>=.25&&metrics.adaptiveChildhoodPacing.momentsPerClick<=1.2,'event density per click is outside the intended range');
 assert(metrics.adaptiveChildhoodPacing.maxQuiet<=2,'quiet streak guard failed in telemetry');
 
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
