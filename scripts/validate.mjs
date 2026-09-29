@@ -10,8 +10,8 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('V1.6')) throw new Error('index.html does not expose V1.6');
-if(!app.includes('version:16') || !app.includes('g.version=16')) throw new Error('game state is not V1.6 migration version 16');
+if(!html.includes('V1.7')) throw new Error('index.html does not expose V1.7');
+if(!app.includes('version:17') || !app.includes('g.version=17')) throw new Error('game state is not V1.7 migration version 17');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
 if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include content-v1.js');
@@ -72,4 +72,11 @@ if(!app.includes('function rivalStage') || !app.includes('function reconcileRiva
 if(!app.includes('function realignRelationsAfterFactionChange') || !app.includes('political hostility') && !app.includes('tensions entre vos factions')) throw new Error('V1.6 faction/social integration missing');
 if(!app.includes("r.npcAgeMonths<216") || !app.includes("r.npcAgeMonths<180")) throw new Error('V1.6 NPC age guards missing');
 if(!app.includes('ageFactor=r.npcAgeMonths<144') || !app.includes('r.npcAgeMonths>=180&&R')) throw new Error('V1.6 age-aware NPC lifecycle missing');
-console.log('ONE PIECE LIFE V1.6 validation OK');
+if(!app.includes('function migrateProgression') || !app.includes('function developmentFactor') || !app.includes('function attemptBreakthrough')) throw new Error('V1.7 progression engine missing');
+if(!app.includes('naturalCaps') || !app.includes('absoluteCaps') || !app.includes('progressionSnapshot')) throw new Error('V1.7 layered progression state missing');
+if(!app.includes('function progressionBar') || !app.includes('function renderProgressionOverview')) throw new Error('V1.7 progression UI missing');
+if(!app.includes('function setupSectionNavigation') || !app.includes('function renderPanel') || !app.includes('renderPanel(activeTab)')) throw new Error('V1.7 lazy navigation engine missing');
+if(!html.includes('id="characterSectionTabs"') || !html.includes('id="abilitiesSectionTabs"') || !html.includes('id="relationsSectionTabs"') || !html.includes('id="worldSectionTabs"')) throw new Error('V1.7 segmented navigation UI missing');
+if(!html.includes('id="progressionSummary"') || !html.includes('id="progressionFocus"')) throw new Error('V1.7 progression dashboard missing');
+if(app.includes('renderTimeline();renderChar();renderAb();renderRel();renderWorld()')) throw new Error('legacy full-screen render chain still active');
+console.log('ONE PIECE LIFE V1.7 validation OK');
