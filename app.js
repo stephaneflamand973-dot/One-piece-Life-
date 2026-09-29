@@ -361,13 +361,44 @@ function relationGrowthRate(r){
 function moveNpc(r){
  var cur=npcRegion(r),links=REGION_LINKS[cur]||[];if(!links.length)return;var next=pk(links,'npc'),places=Object.keys(PL).filter(function(n){return PL[n][0]===next});r.region=next;r.location=places.length?pk(places,'npc'):null;addRelationMemory(r,'Part pour '+next+'.','travel');if(next===game.player.region&&r.monthsKnown>=6){r.trust=cl(r.trust+1,0,100);addRelationMemory(r,'Vos routes se croisent à nouveau dans '+next+'.','reunion');tl('Retrouvailles',r.name+' réapparaît dans ta région.','major')}
 }
+function npcIntentPool(r){
+ var pool=['Faire carrière','Voyager'],amb=String(r.npcAmbition||'');
+ if(amb==='Devenir plus fort')pool.push('S’entraîner','S’entraîner');
+ if(amb==='Explorer le monde')pool.push('Voyager','Voyager');
+ if(amb==='Faire fortune')pool.push('S’enrichir','S’enrichir');
+ if(amb==='Servir sa faction')pool.push('Faire carrière','Servir sa faction');
+ if(amb==='Protéger ses proches')pool.push('Soutenir ses proches','Soutenir ses proches');
+ if(r.role==='rival')pool.push('Défier son rival');if(r.role==='mentor')pool.push('Former la relève');return pool
+}
+function assignNpcIntent(r){r.npcIntent=pk(npcIntentPool(r),'npc');r.npcIntentMonths=2+Math.floor(R('npc')*7);return r.npcIntent}
+function resolveNpcIntent(r){
+ var p=game.player,intent=r.npcIntent||assignNpcIntent(r),outcome='';
+ if(intent==='S’entraîner'){var inc=.4+R('npc')*1.6;r.npcPower=cl(r.npcPower+inc,1,r.npcPotential);outcome='progresse grâce à un entraînement ciblé'}
+ else if(intent==='Faire carrière'||intent==='Servir sa faction'){if(r.npcAgeMonths>=180&&r.careerLevel<6){r.careerLevel++;r.respect=cl(r.respect+2,0,100);outcome='progresse dans sa carrière : '+npcCareerRank(r)}else outcome='consolide sa position'}
+ else if(intent==='Voyager'){var before=npcRegion(r);moveNpc(r);outcome=before===npcRegion(r)?'reste dans '+before:'part vers '+npcRegion(r)}
+ else if(intent==='S’enrichir'){var gain=1200+Math.round(R('npc')*7000);r.npcWealth=(r.npcWealth||0)+gain;outcome='développe ses ressources personnelles'}
+ else if(intent==='Soutenir ses proches'){if(npcNearby(r)){r.trust=cl(r.trust+2,0,100);r.loyalty=cl(r.loyalty+2,0,100);outcome='renforce ses liens dans ta région'}else outcome='reste attentif à ses proches à distance'}
+ else if(intent==='Défier son rival'){if(r.role==='rival'&&npcNearby(r)&&p.ageMonths-r.lastDuelAge>=6){r.challengeReady=true;outcome='prépare un nouveau défi contre toi'}else outcome='cherche une occasion de mesurer ses progrès'}
+ else if(intent==='Former la relève'){r.respect=cl(r.respect+1.5,0,100);outcome='consacre du temps à transmettre son expérience'}
+ r.lastIntentOutcome=outcome;addRelationMemory(r,outcome+'.','intent');r.npcIntent=null;r.npcIntentMonths=0;return outcome
+}
+function npcIntentTick(r,m){if(r.status!=='active'||r.canonical)return;if(!r.npcIntent)assignNpcIntent(r);r.npcIntentMonths=Math.max(0,(r.npcIntentMonths||0)-m);if(r.npcIntentMonths<=0)resolveNpcIntent(r)}
+function npcLinkKey(a,b){return[a,b].sort().join('|')}
+function npcLinkBetween(a,b){var k=npcLinkKey(a.id,b.id);return(game.world.npcLinks||[]).find(function(x){return x.key===k})||null}
+function npcSocialTick(m){
+ var links=game.world.npcLinks||(game.world.npcLinks=[]),active=game.relations.filter(function(r){return r.status==='active'&&!r.canonical&&!r.joinedOrganization});
+ for(var i=0;i<active.length;i++)for(var j=i+1;j<active.length;j++){var a=active[i],b=active[j];if(npcRegion(a)!==npcRegion(b))continue;var link=npcLinkBetween(a,b),dip=diplomacy(a.faction,b.faction),chance=.0025*m;if(!link&&R('npc')<chance){var base=(a.faction===b.faction?22:0)+dip*.18+(R('npc')-.5)*35;link={key:npcLinkKey(a,b),a:a.id,b:b.id,bond:cl(base,-60,60),type:'neutre',months:0};links.push(link)}if(link){link.months+=m;link.bond=cl(link.bond+(a.faction===b.faction?.08:-.01)*m+dip*.0015*m+(R('npc')-.5)*.3*m,-100,100);var old=link.type;link.type=link.bond>=55?'alliés':link.bond<=-55?'rivaux':'neutre';if(old!==link.type&&link.type!=='neutre'){addRelationMemory(a,'Développe une relation de '+link.type+' avec '+b.name+'.','network');addRelationMemory(b,'Développe une relation de '+link.type+' avec '+a.name+'.','network')}}}
+ game.world.npcLinks=links.slice(-40)
+}
+
 function npcTick(m){
  var p=game.player;
- game.relations.forEach(function(r){
+ npcSocialTick(m);game.relations.forEach(function(r){
   r=normalizeRelation(game,r,0);if(r.status==='dead')return;r.npcAgeMonths+=m;
   if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a){var was=r.status;r.faction=a.faction;r.region=a.region;r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';if(was!=='dead'&&r.status==='dead')addRelationMemory(r,'Sa trajectoire s’achève dans le monde vivant.','death')}return}
   if(r.injuryMonths>0){r.injuryMonths-=m;if(r.injuryMonths<=0){r.injuryMonths=0;r.status='active';addRelationMemory(r,'Se remet de ses blessures.','recovery')}return}
   if(r.status!=='active')return;
+  npcIntentTick(r,m);
   if(r.id===p.life.partnerId){r.region=p.region;r.location=p.island}
   if(r.joinedOrganization){var org=p.organization,mem=org&&org.members.find(function(m){return m.linkedRelationId===r.id});if(mem&&mem.status==='active'){r.region=p.region;r.location=p.island;r.npcPower=cl(Math.max(r.npcPower,mem.power),1,100);mem.power=r.npcPower;r.injuryMonths=mem.injuryMonths||0;return}else{r.joinedOrganization=false;if(r.type==='organization')r.type='social';addRelationMemory(r,'N’appartient plus à ton organisation.','organization')}}
   var gap=Math.max(0,r.npcPotential-r.npcPower),ageFactor=r.npcAgeMonths<144?.42:r.npcAgeMonths<180?.68:1,growth=gap/100*relationGrowthRate(r)*m*5*ageFactor;r.npcPower=cl(r.npcPower+growth,1,r.npcPotential);
