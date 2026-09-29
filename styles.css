@@ -35,3 +35,29 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 
 .npc-dynamics-card{background:linear-gradient(145deg,#f7f0e8,#eef4f0)}.npc-network-card{background:linear-gradient(145deg,#eef4f5,#fff8ec)}.npc-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.npc-summary>div{padding:11px;border-radius:13px;background:#f4f0e5}.npc-summary span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}.npc-summary strong{font-size:13px}.npc-dynamics-list{display:flex;flex-direction:column;gap:9px;margin-top:10px}.npc-dynamic-card{padding:12px;border-radius:14px;background:#f4f0e5;border:1px solid rgba(120,100,65,.08)}.npc-dynamic-card.rival{background:#fff2ee;border-color:rgba(163,75,61,.22)}.npc-dynamic-card.mentor{background:#eef5ef;border-color:rgba(63,106,86,.18)}.npc-dynamic-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.npc-dynamic-head strong{font-size:12px}.npc-dynamic-head span{font-size:10px;font-weight:900;color:var(--sea);text-transform:uppercase}.npc-dynamic-meta{font-size:11px;color:var(--muted);line-height:1.45;margin-top:4px}.npc-memory{margin-top:7px;padding:7px 8px;border-radius:10px;background:rgba(255,255,255,.55);font-size:10px;color:var(--muted);line-height:1.4}.npc-power-meter{height:7px;border-radius:999px;background:#ded6c7;overflow:hidden;margin-top:8px}.npc-power-meter>div{height:100%;border-radius:999px;background:linear-gradient(90deg,#80a995,#426c82)}.npc-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.npc-actions button{min-height:40px;border:0;border-radius:9px;padding:8px 10px;font-size:10px;font-weight:900;background:#e6eee9;color:#355f55}.npc-actions button.rival-action{background:#f3e3df;color:#8a473d}.npc-opportunities{margin-top:10px}.relation-card .npc-state-line{font-size:10px;color:var(--muted);margin-top:3px}.relation-card .npc-tag{display:inline-flex;padding:3px 6px;border-radius:999px;background:#e9efe9;color:#426655;font-size:9px;font-weight:900;margin-right:4px;margin-top:4px}.relation-card .npc-tag.rival{background:#f4e5e0;color:#8b4c42}.relation-card .npc-tag.mentor{background:#e7efe9;color:#3f6a56}.relation-card .npc-tag.canon{background:#fff0cf;color:#88651f}.npc-opportunity-note{padding:11px;border-radius:13px;background:#f4f0e5;font-size:11px;color:var(--muted);line-height:1.45}
 @media(max-width:480px){.npc-summary{grid-template-columns:1fr}.npc-actions button{min-height:44px}}
+
+.ui-section-hidden{display:none!important}
+.section-tabs{position:sticky;top:58px;z-index:24;display:flex;gap:7px;overflow-x:auto;padding:8px 2px 10px;margin:0 0 10px;background:linear-gradient(180deg,rgba(244,236,216,.98) 72%,rgba(244,236,216,0));scrollbar-width:none}
+.section-tabs::-webkit-scrollbar{display:none}
+.section-tab{flex:0 0 auto;min-height:38px;border:1px solid rgba(93,108,104,.15);border-radius:999px;background:rgba(255,250,240,.94);padding:8px 12px;font-size:11px;font-weight:800;color:#6f7774;white-space:nowrap}
+.section-tab.active{background:#173f4e;color:#fff;border-color:#173f4e;box-shadow:0 6px 18px rgba(23,63,78,.14)}
+.progression-dashboard{background:linear-gradient(145deg,#eef5f1,#fff9ed)}
+.progression-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.progression-summary>div{padding:11px;border-radius:13px;background:#f4f0e5}
+.progression-summary span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}
+.progression-summary strong{font-size:14px}
+.progression-focus{margin-top:10px;padding:12px;border-radius:13px;background:#f4f0e5}
+.progression-focus strong,.progression-focus p,.progression-focus small{display:block}
+.progression-focus p{margin:5px 0;font-size:12px;line-height:1.45;color:#53605d}
+.progression-focus small{font-size:10px;line-height:1.4;color:var(--muted)}
+.progression-stat{grid-template-columns:96px 1fr 52px}
+.progression-stat>div small{display:block;margin-top:4px;font-size:9px;color:var(--muted)}
+.progression-stat .stat-value{font-size:11px}
+@media(max-width:520px){
+ .section-tabs{top:54px;margin-left:-2px;margin-right:-2px}
+ .section-tab{min-height:40px;font-size:11px}
+ .progression-summary{grid-template-columns:1fr 1fr}
+ .progression-stat{grid-template-columns:82px 1fr 48px}
+ .nav-item{min-height:48px}
+ .nav-item small{font-size:10px;max-width:72px;overflow:hidden;text-overflow:ellipsis}
+}
