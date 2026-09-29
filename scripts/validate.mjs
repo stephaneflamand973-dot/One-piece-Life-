@@ -97,7 +97,7 @@ if(!app.includes('linkedRelationId') || !app.includes('rr.npcPower')) throw new 
 if(!app.includes('function rivalStage') || !app.includes('function reconcileRival') || !app.includes('peerRecognized')) throw new Error('V1.6 relationship lifecycle arcs missing');
 if(!app.includes('function realignRelationsAfterFactionChange') || !app.includes('political hostility') && !app.includes('tensions entre vos factions')) throw new Error('V1.6 faction/social integration missing');
 if(!app.includes("r.npcAgeMonths<216") || !app.includes("r.npcAgeMonths<180")) throw new Error('V1.6 NPC age guards missing');
-if(!app.includes('ageFactor=r.npcAgeMonths<144') || !app.includes('r.npcAgeMonths>=180&&R')) throw new Error('V1.6 age-aware NPC lifecycle missing');
+if(!app.includes('ageFactor=r.npcAgeMonths<144') || !app.includes('function npcCareerPromotionChance') || !app.includes('passiveCareerChance=')) throw new Error('V1.6 age-aware NPC lifecycle missing');
 if(!app.includes('function migrateProgression') || !app.includes('function developmentFactor') || !app.includes('function attemptBreakthrough')) throw new Error('V1.7 progression engine missing');
 if(!app.includes('naturalCaps') || !app.includes('absoluteCaps') || !app.includes('progressionSnapshot')) throw new Error('V1.7 layered progression state missing');
 if(!app.includes('function progressionBar') || !app.includes('function renderProgressionOverview')) throw new Error('V1.7 progression UI missing');
