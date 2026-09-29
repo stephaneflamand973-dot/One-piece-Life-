@@ -278,9 +278,10 @@ test('V1.6 organization locality: linked recruit follows the player instead of r
 
 
 test('V1.6 social generation: childhood relations use age-coherent roles',()=>{
-  const g=fresh(4995),p=g.player;p.ageMonths=96;
-  for(let i=0;i<60;i++){const r=q.createRelation();assert(r.role!=='mentor'&&r.role!=='collègue','child generated adult social role: '+r.role)}
-  return '60 childhood relations coherent'
+  const g=fresh(4995),p=g.player;p.ageMonths=48;
+  for(let i=0;i<40;i++){const r=q.createRelation();assert(r.role!=='mentor'&&r.role!=='collègue'&&r.role!=='rival','preschool child generated implausible role: '+r.role);assert(r.faction==='Civil','young child relation generated professional faction')}
+  p.ageMonths=96;for(let i=0;i<40;i++){const r=q.createRelation();assert(r.role!=='mentor'&&r.role!=='collègue','child generated adult social role: '+r.role);assert(q.npcCareerRank(r)==='Enfance','child NPC displayed adult career rank')}
+  return '80 childhood relations coherent'
 });
 
 const metrics={};
