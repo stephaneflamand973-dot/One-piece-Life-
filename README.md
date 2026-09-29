@@ -152,16 +152,78 @@ Les mentors, rivaux, liens canoniques et relations extrêmement fortes peuvent s
 
 Le nouvel héritier ne récupère pas automatiquement les sentiments de son parent, mais le PNJ se souvient de la génération précédente.
 
+## Cohérence sociale renforcée
+
+La simulation distingue maintenant réellement la **région** de la **présence locale**.
+
+Pour les PNJ procéduraux :
+
+- être dans la même mer ne suffit plus pour interagir physiquement ;
+- la même île est normalement requise ;
+- un membre recruté suit l’organisation et le joueur ;
+- le partenaire reste synchronisé avec la vie quotidienne du joueur ;
+- les interactions physiques sont indisponibles pendant une traversée lorsque le PNJ n’est pas avec toi.
+
+Les relations générées pendant l’enfance respectent également l’âge :
+
+- pas de collègue ou mentor absurde à l’âge scolaire ;
+- pas de rivalité procédurale avant six ans ;
+- les pairs enfants restent dans une tranche d’âge cohérente ;
+- l’interface affiche **Enfance** ou **Formation** au lieu d’un rang professionnel pour les jeunes PNJ.
+
+## Incidents autonomes
+
+Les PNJ procéduraux ne progressent plus dans un vide parfaitement sûr.
+
+Selon leur puissance et le danger de leur région, ils peuvent :
+
+- gagner un affrontement autonome ;
+- gagner légèrement en puissance ;
+- perdre ;
+- être blessés plusieurs mois ;
+- se rétablir plus tard.
+
+Ces incidents alimentent leur mémoire persistante.
+
+## Protection du canon
+
+Les relations avec les acteurs canoniques ont maintenant des garde-fous supplémentaires :
+
+- cooldown entre deux interactions significatives ;
+- aucune interaction directe pendant une traversée ;
+- âge synchronisé avec la chronologie du personnage canonique ;
+- mentorat et duels importants limités par la divergence du monde ;
+- une relation personnelle ne remplace jamais l’état de l’acteur dans le WorldState.
+
 ## QA
 
-La V1.6 conserve le banc QA professionnel introduit en V1.5.1 et ajoute des scénarios dédiés :
+La V1.6 exécute désormais **37 scénarios fonctionnels** dans la CI, en plus des validateurs statiques et du content pack.
 
-- migration des anciennes relations ;
-- synchronisation d’un personnage canonique ;
+Ils couvrent notamment :
+
+- création Custom et Destiny ;
+- migration d’anciennes sauvegardes ;
+- simulation mondiale sur 30 ans ;
+- progression, Haki et Fruits ;
+- combat ;
+- carrière, missions et organisations ;
+- relations, mariage, famille et héritage ;
+- justice, prison et évasion ;
+- influence et domaines ;
+- guerres ;
+- économie et contrebande ;
+- migration des relations V1.6 ;
+- synchronisation canonique ;
 - mentorat ;
 - rivalité ;
-- progression autonome d’un PNJ ;
-- recrutement relationnel.
+- progression autonome ;
+- services et dettes ;
+- recrutement relationnel ;
+- mémoire dynastique ;
+- présence locale des PNJ ;
+- cooldown des rencontres canoniques ;
+- synchronisation organisationnelle ;
+- cohérence sociale de l’enfance.
 
 ## Compatibilité
 
