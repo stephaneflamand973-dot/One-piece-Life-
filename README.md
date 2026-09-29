@@ -36,7 +36,7 @@ Les sauvegardes V2.0 sont migrées sans modifier les valeurs existantes de stati
 
 ## QA V2.1
 
-Le banc V2.1 ajoute des contrôles garantissant :
+La release candidate passe **105/105 scénarios fonctionnels**. Le banc V2.1 ajoute des contrôles garantissant :
 
 - qu’aucune des 8 statistiques n’est orpheline ;
 - qu’aucune des 8 compétences n’est orpheline ;
