@@ -593,7 +593,7 @@ function eventChance(m){
  return cl(base,.08,.68)
 }
 function renderAdvanceLoop(){
- var l=migrateLifeLoop(game),plan=advancePlan(),badge=$('#advanceWindowBadge');$('#advanceRhythm').textContent=plan.label;badge.textContent=planWindowText(plan);badge.className='badge '+(plan.tone==='urgent'?'rhythm-urgent':plan.tone==='active'?'rhythm-active':'rhythm-calm');$('#advancePreview').textContent=plan.reason+' Focus : '+currentFocus()+'.';
+ var l=migrateLifeLoop(game),plan=advancePlan(),badge=$('#advanceWindowBadge');$('#advanceRhythm').textContent=plan.label;badge.textContent=planWindowText(plan);badge.className='badge '+(plan.tone==='urgent'?'rhythm-urgent':plan.tone==='active'?'rhythm-active':'rhythm-calm');$('#advancePreview').textContent=plan.reason+' Focus : '+(game.player.focus==='Auto'?'Auto → '+currentFocus():currentFocus())+'.';
  var report=l.lastAdvance,box=$('#advanceReport');if(!report){box.classList.add('hidden')}else{box.classList.remove('hidden');$('#advanceReportDuration').textContent=durationText(report.months);$('#advanceReportStats').innerHTML='<div><span>Progression</span><strong>'+(report.gainDelta>0?'+'+report.gainDelta.toFixed(1):'Stable')+'</strong></div><div><span>Puissance</span><strong>'+(report.powerDelta>=0?'+':'')+report.powerDelta.toFixed(1)+'</strong></div><div><span>Berry</span><strong>'+(report.moneyDelta>=0?'+':'')+Math.round(report.moneyDelta).toLocaleString('fr-FR')+'</strong></div><div><span>Moments</span><strong>'+report.moments+'</strong></div>';var progressText=report.details&&report.details.length?' Focus '+(report.focus||currentFocus())+' : '+report.details.map(function(x){return x[0]+' +'+x[1].toFixed(1)}).join(' • ')+'.':'';var txt=report.moments?'Cette période a produit '+report.moments+' moment'+(report.moments>1?'s':'')+' notable'+(report.moments>1?'s':'')+(report.major?' dont '+report.major+' majeur'+(report.major>1?'s':''):'')+'.'+progressText:report.gainDelta>.05?'Période calme, progression automatique maintenue.'+progressText:'Période réellement calme. Le directeur d’événements augmente désormais la probabilité d’une interruption significative.';$('#advanceReportText').textContent=txt}
  var storyWait=awaitingStory();$('#advanceBtn').disabled=!game.alive;$('#advanceHint').textContent=game.pending?'Décision à prendre — appuie pour l’ouvrir':storyWait?'Fil narratif à décider — appuie pour l’ouvrir':plan.max>0?planWindowText(plan)+' • '+plan.label:'Décision en attente'
 }
@@ -1720,7 +1720,7 @@ function advanceSlice(m){
  j=migrateJustice(p);if(j.detained){storyTick(m);return}
  if(p.travel){travel(m);storyTick(m)}
  else if(game.mission){game.mission.remaining-=m;train(m*.4);if(game.mission.remaining<=0)resolveMission();storyTick(m)}
- else{train(p.activity==='Explorer'?m*.55:m);explorationTick(m);storyTick(m);var alreadyMeaningful=loop.momentSeq>sliceMoment,force=!alreadyMeaningful&&loop.quietAdvances>=2;if(!alreadyMeaningful||R('story')<.22)event(m,force)}
+ else{train(p.activity==='Explorer'?m*.55:m);explorationTick(m);storyTick(m);var alreadyMeaningful=loop.momentSeq>sliceMoment,force=!alreadyMeaningful&&loop.quietAdvances>=2;if(!game.pending&&!awaitingStory()&&(!alreadyMeaningful||R('story')<.22))event(m,force)}
  if(!game.alive)return;
  if(p.ageMonths>=72&&p.situation==='Enfance'){p.situation='Formation';p.activity='Formation';p.focus='Auto';tl('Formation','Tu commences une formation structurée.','major')}
  if(p.ageMonths>=180&&p.career==='Aucune'&&!game.pending&&!awaitingStory())career();
