@@ -1,268 +1,131 @@
-# ONE PIECE LIFE — V1.5.1 Stability & Balance
+# ONE PIECE LIFE — V1.6 Rivals, Mentors & Living NPCs
 
-Simulateur mobile-first de vie, carrière, aventure et héritage dans un monde One Piece vivant.
+La V1.6 approfondit la partie **simulation de vie**. Les personnes rencontrées ne sont plus de simples lignes de relation : elles disposent désormais d’une trajectoire persistante et peuvent devenir des mentors, rivaux, alliés ou membres de ton organisation.
 
-## V1.5.1 — Stability & Balance
+## Personnages persistants
 
-La V1.5.1 est une mise à jour de consolidation basée sur un banc QA professionnel.
+Chaque relation conserve désormais notamment :
 
-### Correctifs critiques
+- âge propre ;
+- puissance ;
+- potentiel ;
+- spécialité ;
+- trajectoire ;
+- ambition ;
+- carrière ;
+- région ;
+- blessures ;
+- historique de duels ;
+- séances de mentorat ;
+- souvenirs importants ;
+- statut dans ton organisation.
 
-- correction de `organizationPower()`, qui pouvait provoquer `ReferenceError: avg is not defined` dès qu’une organisation existait ;
-- initialisation du RNG avant les premiers tirages Destiny, afin qu’une seed reproduise réellement toute la naissance ;
-- conservation du schéma de sauvegarde interne V15, aucune réinitialisation nécessaire.
+Les anciennes sauvegardes sont migrées automatiquement.
 
-### Rééquilibrage
+## Progression autonome
 
-- courbe de danger des combats plus lisible ;
-- campagnes stratégiques moins biaisées en faveur du défenseur ;
-- soutien des coalitions et logistique du joueur intégrés aux batailles de guerre ;
-- écarts régionaux de prix atténués ;
-- achats et ventes en volume soumis au slippage ;
-- pénuries moins fréquentes mais persistantes plusieurs mois ;
-- risque qualitatif affiché sur les missions.
+Les PNJ procéduraux vieillissent et progressent même lorsque tu ne t’occupes pas d’eux.
 
-### Mobile
+Selon leur trajectoire, ils peuvent :
 
-- textes secondaires importants agrandis ;
-- boutons de marché remontés à 44 px minimum ;
-- meilleure lisibilité des guerres, domaines et marchés sur petit écran.
+- devenir plus puissants ;
+- progresser dans leur carrière ;
+- voyager entre régions ;
+- être blessés ;
+- se remettre ;
+- vieillir et mourir ;
+- reconnaître le joueur comme un pair.
 
-### QA
+## Personnages canoniques
 
-La CI exécute désormais le validateur statique, le validateur de contenu et le banc QA de 23 scénarios fonctionnels, avec gardes de régression sur le combat, les guerres, les pénuries et les marges commerciales.
+Une rencontre canonique crée maintenant un **lien persistant**.
 
-## V1.5 — Economy, Trade & Black Market
+Le jeu mémorise la relation avec le personnage, sa faction, sa région, sa puissance actuelle et les rencontres marquantes.
 
-La V1.5 ajoute une économie mondiale persistante reliée aux voyages, guerres, domaines, organisations et systèmes judiciaires.
+Les personnages canoniques restent synchronisés avec le WorldState.
 
-### Marchés locaux
+Leur liberté relationnelle dépend de la divergence du monde : une chronologie encore proche du canon résiste davantage aux transformations extrêmes.
 
-Chaque lieu possède désormais son propre marché avec :
+## Mentors
 
-- stock ;
-- demande ;
-- activité commerciale ;
-- prix locaux ;
-- éventuelle pénurie ;
-- éventuel blocus.
+Une relation suffisamment puissante, respectée et digne de confiance peut devenir mentor.
 
-Les prix ne sont pas globaux.
+Un mentor permet :
 
-Ils dépendent notamment :
+- entraînement ciblé selon sa spécialité ;
+- progression plus rapide ;
+- chance rare de repousser un plafond de compétence ;
+- reconnaissance comme pair lorsque le joueur finit par le dépasser.
 
-- de la région ;
-- de l'offre et de la demande ;
-- de la stabilité du territoire ;
-- de la prospérité ;
-- de l'instabilité ;
-- de la criminalité ;
-- des conflits ;
-- des guerres et blocus.
+Une action permet aussi de rechercher un mentor dans la région actuelle.
 
-### Marchandises
+## Rivaux
 
-Le système initial contient :
+Une relation peut devenir un rival persistant.
 
-- provisions ;
-- médicaments ;
-- matériaux ;
-- produits de luxe ;
-- armes ;
-- Dials ;
-- Kairouseki.
+Les rivaux conservent :
 
-Les Dials sont des biens exotiques mais légaux.
+- rivalité ;
+- puissance ;
+- potentiel ;
+- victoires ;
+- défaites ;
+- date du dernier duel ;
+- souvenirs communs.
 
-Les armes et le Kairouseki passent par les circuits clandestins dans le système de jeu.
+Un rival peut progresser après plusieurs défaites et revenir plus dangereux.
 
-### Spécialisation régionale
+## Recrutement relationnel
 
-Chaque région dispose de profils économiques différents.
+Un chef d’organisation peut recruter une relation procédurale déjà connue si :
 
-Exemples :
+- elle est présente dans la région ;
+- le lien de confiance est suffisant ;
+- la loyauté et le respect sont assez élevés ;
+- sa faction est compatible ;
+- l’organisation dispose d’une place.
 
-- certaines Blues produisent plus facilement nourriture ou matériaux ;
-- Grand Line bénéficie d'un meilleur accès aux Dials ;
-- le Nouveau Monde dispose d'un meilleur accès au Kairouseki ;
-- les zones dangereuses et instables paient généralement plus cher les biens essentiels.
+Le membre créé reste lié à la relation d’origine.
 
-Skypiea reçoit un bonus structurel de production de Dials.
+Les personnages canoniques restent autonomes dans cette version.
 
-Wano reçoit un bonus structurel de disponibilité du Kairouseki.
+## Mémoire sociale
 
-### Cargaison
+Les relations conservent leurs événements importants :
 
-Le personnage possède maintenant une cargaison persistante.
+- première rencontre ;
+- entraînement ;
+- duel ;
+- voyage ;
+- progression de carrière ;
+- recrutement ;
+- blessure et rétablissement ;
+- moments partagés.
 
-Chaque marchandise conserve :
+L’interface affiche le souvenir récent le plus important.
 
-- quantité ;
-- coût moyen d'achat ;
-- poids ;
-- valeur comptable.
+## Achievements V1.6
 
-La capacité dépend :
+- **Sous l’aile d’un maître** : cinq entraînements avec un mentor ;
+- **Rivalité légendaire** : cinq duels contre le même rival ;
+- **Plus qu’une connaissance** : recruter une relation importante dans son organisation.
 
-- du personnage ;
-- de la Navigation ;
-- surtout du navire de l'organisation lorsqu'il existe.
+## QA
 
-Un navire chargé ralentit légèrement les voyages.
+La V1.6 conserve le banc QA professionnel introduit en V1.5.1 et ajoute des scénarios dédiés :
 
-### Commerce
+- migration des anciennes relations ;
+- synchronisation d’un personnage canonique ;
+- mentorat ;
+- rivalité ;
+- progression autonome d’un PNJ ;
+- recrutement relationnel.
 
-Le joueur peut acheter et vendre directement dans les ports.
+## Compatibilité
 
-Le moteur suit :
+Migration interne : **version 16**.
 
-- volume échangé ;
-- nombre de transactions ;
-- profit commercial cumulé ;
-- meilleur profit ;
-- cargaison actuelle.
-
-Les personnages civils gagnent également un peu de progression de carrière lors des opérations commerciales réellement rentables.
-
-### Routes commerciales
-
-Les routes maritimes voisines affichent les écarts commerciaux les plus intéressants.
-
-Le moteur compare les prix actuels entre les ports connectés.
-
-Les flux autonomes transportent également des marchandises entre marchés lorsqu'un écart de prix devient important.
-
-Ces échanges tendent progressivement à réduire les écarts.
-
-### Blocus
-
-Un conflit intense ou une guerre visant directement une île peut provoquer un blocus économique.
-
-Conséquences :
-
-- hausse immédiate des prix ;
-- baisse des stocks ;
-- augmentation de la demande de biens essentiels ;
-- interruption des flux commerciaux autonomes ;
-- réduction des revenus territoriaux.
-
-Les guerres V1.4 ont donc maintenant une conséquence économique concrète.
-
-### Pénuries et chocs
-
-Chaque mois, les marchés évoluent.
-
-Des événements rares peuvent créer :
-
-- pénurie ;
-- arrivage exceptionnel.
-
-Ils apparaissent dans les actualités du monde.
-
-L'interface affiche également :
-
-- indice des prix local ;
-- indice mondial ;
-- nombre de pénuries ;
-- prospérité régionale ;
-- activité commerciale.
-
-### Logistique des organisations
-
-Le bouton de ravitaillement V1.1 n'utilise plus un tarif fixe arbitraire.
-
-Le coût dépend désormais du véritable prix des provisions dans le port actuel.
-
-Il faut également que le marché local dispose réellement du stock nécessaire.
-
-Une organisation en guerre dans une région en pénurie peut donc rencontrer de vrais problèmes logistiques.
-
-### Entreprises et domaines
-
-Les revenus d'une activité commerciale personnelle dépendent maintenant de la prospérité locale et peuvent chuter sous blocus.
-
-Les revenus des domaines V1.3 utilisent également :
-
-- stabilité ;
-- activité commerciale locale ;
-- état de blocus.
-
-Un territoire riche et connecté vaut donc davantage qu'une île ruinée par une guerre.
-
-### Marché noir
-
-Le marché noir peut devenir accessible selon :
-
-- faction ;
-- Discrétion ;
-- niveau de criminalité régional.
-
-Les transactions clandestines comportent un risque d'identification.
-
-Une opération découverte utilise directement le système judiciaire V1.2.
-
-### Contrebande maritime
-
-Transporter une cargaison interdite entre deux ports crée maintenant un véritable risque douanier.
-
-À l'arrivée, le contrôle dépend notamment :
-
-- de la présence Marine ;
-- du contrôleur du territoire ;
-- de la chaleur judiciaire ;
-- de la Discrétion du personnage.
-
-Une interception peut entraîner :
-
-- saisie de la cargaison ;
-- amende ;
-- crime enregistré ;
-- hausse de chaleur ;
-- nouvelle prime.
-
-Un passage réussi améliore légèrement la Discrétion et alimente les statistiques de contrebande.
-
-### Achievements V1.5
-
-Deux nouveaux achievements :
-
-- **Marchand des mers** : cumuler 100 000 B de profit commercial ;
-- **Sous le nez de la Marine** : réussir trois passages de contrebande.
-
-## Systèmes conservés
-
-V1.4 : guerres, fronts, coalitions, trêves et campagnes.
-
-V1.3 : influence, titres, domaines et réseaux affiliés.
-
-V1.2 : primes, poursuites, prison, évasion et chasse aux primes.
-
-V1.1 : organisations, équipages, membres, navires et commandement.
-
-V1.0 : canon causal, content pack et Fruits persistants.
-
-V0.9 : relations, famille, économie personnelle et héritage.
-
-## Sauvegardes
-
-Les sauvegardes V0.5 à V1.4 sont migrées automatiquement vers V1.5.
-
-La migration interne passe à la version 15.
-
-## Validation
-
-Chaque push vérifie notamment :
-
-- syntaxe du moteur ;
-- interface ;
-- migration V1.5 ;
-- marchés mondiaux ;
-- cargaison ;
-- commerce ;
-- marché noir ;
-- contrebande ;
-- sélecteurs dynamiques ;
-- content pack canonique.
+Les sauvegardes précédentes sont migrées automatiquement.
 
 ## iPhone / PWA
 
@@ -270,4 +133,4 @@ GitHub Pages publie automatiquement la branche `main`.
 
 Sur iPhone :
 
-Safari → Partager → **Sur l'écran d'accueil** → **Ouvrir comme app web**.
+Safari → Partager → **Sur l’écran d’accueil** → **Ouvrir comme app web**.
