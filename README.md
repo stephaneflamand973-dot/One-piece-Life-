@@ -1,3 +1,93 @@
+# ONE PIECE LIFE — V2.5 Living World Intelligence
+
+La V2.5 conserve la fluidité de V2.4 et rend la simulation plus autonome sans ajouter de micro-gestion.
+
+## Le monde poursuit ses propres objectifs
+
+Les acteurs majeurs possèdent désormais une **intention temporaire** :
+
+- s'entraîner ;
+- voyager ;
+- étendre leur influence ;
+- chercher un affrontement ;
+- sécuriser leur région ;
+- consolider des alliances.
+
+Ces intentions sont de simples données persistantes. Elles sont simulées par le moteur et ne stockent aucune fonction dans les sauvegardes.
+
+## Équipages autonomes
+
+Les équipages émergents poursuivent également des projets :
+
+- chercher du butin ;
+- s'entraîner ;
+- voyager ;
+- traquer une cible ;
+- étendre un réseau ;
+- revendiquer une zone ;
+- récupérer après une mauvaise période.
+
+Leurs actions modifient réellement puissance, moral, ressources, primes, pressions régionales et conflits.
+
+## PNJ liés au joueur
+
+Les relations importantes ne restent plus figées en attendant le joueur.
+
+Un PNJ peut notamment :
+
+- s'entraîner ;
+- progresser dans sa carrière ;
+- voyager ;
+- s'enrichir ;
+- soutenir ses proches ;
+- préparer un défi ;
+- transmettre son expérience.
+
+Le projet actuel apparaît dans le réseau relationnel.
+
+## Relations entre PNJ
+
+Les PNJ non canoniques peuvent développer des liens entre eux lorsqu'ils évoluent dans la même région.
+
+Ces liens sont persistants et peuvent évoluer vers :
+
+- alliance ;
+- neutralité ;
+- rivalité.
+
+Le réseau reste volontairement sparse et limité afin de ne pas alourdir les sauvegardes.
+
+## Missions causales
+
+Certaines missions sont désormais générées à partir du WorldState réel :
+
+- équipage actif dans la région ;
+- conflit en cours ;
+- acteur hostile poursuivant une initiative locale.
+
+La mission garde une référence de données vers sa source.
+
+Réussir ou échouer modifie ensuite réellement cette source : moral et ressources d'un équipage, intensité d'un conflit, momentum d'un acteur, etc.
+
+## Suppression des sauvegardes
+
+Chaque emplacement occupé dispose maintenant d'un bouton **Supprimer**.
+
+La suppression :
+
+- demande une confirmation ;
+- supprime la sauvegarde ;
+- supprime aussi ses métadonnées associées ;
+- ne touche pas aux autres emplacements.
+
+## Compatibilité
+
+Le GameState passe en **version interne 25**.
+
+Les sauvegardes V2.4 migrent automatiquement et reçoivent les nouveaux champs d'intention, de réseau PNJ et d'autonomie sans perdre leur progression existante.
+
+---
+
 # ONE PIECE LIFE — V2.4 Flow Engine
 
 La V2.4 part d'un constat simple : V2.3 avait réduit la micro-gestion, mais le jeu demandait encore trop de clics et rendait trop de contenu invisible.
