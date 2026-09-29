@@ -1249,6 +1249,62 @@ function advance(){if(!game||!game.alive||game.pending)return;var p=game.player,
 function rep(){var r=game.player.reputation;return r>75?'Célèbre':r>40?'Reconnu':r>15?'Connu':'Inconnu'}
 function slots(){var b=$('#saveSlots');b.innerHTML='';for(var i=1;i<=3;i++){(function(i){var s=load(i),x=document.createElement('button');x.className='save-slot'+(s?'':' empty');x.innerHTML=s?'<strong>'+e(s.player.name)+'</strong><small>'+Math.floor(s.player.ageMonths/12)+' ans • '+e(s.player.faction)+'<br>'+e(s.player.island)+'</small>':'<strong>＋ Nouvelle vie</strong><small>Emplacement '+i+'</small>';x.onclick=function(){slot=i;if(s){game=s;syncCanonicalFruits();render()}else $('#creationCard').classList.remove('hidden')};b.appendChild(x)})(i)}}
 function bar(o){return Object.keys(o).map(function(k){var v=o[k];return '<div class="stat-row"><span>'+e(k)+'</span><div class="stat-bar"><div class="stat-fill" style="width:'+cl(v,0,100)+'%"></div></div><span class="stat-value">'+Math.round(v)+'</span></div>'}).join('')}
+
+var activeTab='life';
+var sectionState={character:'overview',abilities:'overview',relations:'close',world:'explore'};
+var SECTION_UI={
+ character:{nav:'characterSectionTabs',groups:[
+  {id:'overview',label:'Profil',markers:['identityGrid','careerCard','specializationCard','factionStanding','publicStanding']},
+  {id:'career',label:'Carrière',markers:['careerActions','ambitionCard','missionBoard']},
+  {id:'organization',label:'Organisation',markers:['crewSection']},
+  {id:'justice',label:'Justice',markers:['wantedPoster']},
+  {id:'wealth',label:'Patrimoine',markers:['economySummary','achievementList','equipmentList','storageStatus']}
+ ]},
+ abilities:{nav:'abilitiesSectionTabs',groups:[
+  {id:'overview',label:'Aperçu',markers:['progressionSummary','statsList','skillsList']},
+  {id:'training',label:'Entraînement',markers:['activityOptions']},
+  {id:'powers',label:'Pouvoirs',markers:['hakiList','fruitCard','hakiApplications','fruitMasteryCard']},
+  {id:'combat',label:'Combat',markers:['techniqueList','combatStyleCard','combatReportSection']}
+ ]},
+ relations:{nav:'relationsSectionTabs',groups:[
+  {id:'close',label:'Proches',markers:['socialSummary','romanceCard','familyList']},
+  {id:'dynamics',label:'Mentors & rivaux',markers:['bondDynamicsSummary']},
+  {id:'network',label:'Réseau',markers:['npcNetworkSummary','relationsList']}
+ ]},
+ world:{nav:'worldSectionTabs',groups:[
+  {id:'explore',label:'Voyage',markers:['worldHeadline','placeName','travelOptions','regionMap']},
+  {id:'economy',label:'Économie',markers:['marketSummary']},
+  {id:'powers',label:'Puissances',markers:['worldPulse','localActors','territoryList','domainSummary','autonomousCrews','diplomacyGrid','factionOverview','pressureBars']},
+  {id:'wars',label:'Guerres',markers:['conflictList','warOverview']},
+  {id:'history',label:'Chronologie',markers:['worldNews','canonForecast','canonList','codexList']}
+ ]}
+};
+function setupSectionNavigation(){
+ Object.keys(SECTION_UI).forEach(function(name){var cfg=SECTION_UI[name],panel=$('#'+name+'Panel'),nav=$('#'+cfg.nav);if(!panel||!nav)return;
+  cfg.groups.forEach(function(g){g.markers.forEach(function(id){var marker=$('#'+id);if(!marker||!marker.closest)return;var card=marker.closest('.paper-card');if(card&&card.parentElement===panel)card.dataset.uiGroup=g.id})});
+  Array.prototype.forEach.call(panel.children,function(el){if(el.classList&&el.classList.contains('paper-card')&&!el.dataset.uiGroup)el.dataset.uiGroup=cfg.groups[0].id});
+  nav.innerHTML=cfg.groups.map(function(g){return'<button class="section-tab '+(sectionState[name]===g.id?'active':'')+'" data-section-owner="'+name+'" data-section-target="'+g.id+'">'+e(g.label)+'</button>'}).join('');
+  nav.querySelectorAll('.section-tab').forEach(function(b){b.onclick=function(){applySectionGroup(name,b.dataset.sectionTarget,true)}});
+  applySectionGroup(name,sectionState[name]||cfg.groups[0].id,false)
+ })
+}
+function applySectionGroup(name,group,scroll){
+ var cfg=SECTION_UI[name],panel=$('#'+name+'Panel'),nav=cfg&&$('#'+cfg.nav);if(!cfg||!panel)return;sectionState[name]=group;
+ Array.prototype.forEach.call(panel.children,function(el){if(el.classList&&el.classList.contains('paper-card'))el.classList.toggle('ui-section-hidden',!!el.dataset.uiGroup&&el.dataset.uiGroup!==group)});
+ if(nav)nav.querySelectorAll('.section-tab').forEach(function(b){b.classList.toggle('active',b.dataset.sectionTarget===group)});
+ if(scroll)scrollTo(0,0)
+}
+function renderPanel(name){
+ if(!game)return;if(name==='life')renderTimeline();else if(name==='character')renderChar();else if(name==='abilities')renderAb();else if(name==='relations')renderRel();else if(name==='world')renderWorld();
+ if(SECTION_UI[name])applySectionGroup(name,sectionState[name]||SECTION_UI[name].groups[0].id,false)
+}
+function activateTab(name,scroll){
+ activeTab=name||'life';$('.nav-item').forEach(function(x){x.classList.toggle('active',x.dataset.tab===activeTab)});$('.tab-panel').forEach(function(x){x.classList.toggle('active',x.dataset.panel===activeTab)});renderPanel(activeTab);if(scroll!==false)scrollTo(0,0)
+}
+function renderDevOutput(){
+ var panel=$('#developerPanel');if(!game||!panel||panel.classList.contains('hidden'))return;$('#devOutput').textContent=JSON.stringify({seed:game.seed,power:power(),player:game.player,world:game.world},null,2)
+}
+
 function showGame(){$('#startScreen').classList.remove('active');$('#gameScreen').classList.add('active');$('#bottomNav').classList.remove('hidden');$('#homeBtn').classList.remove('hidden')}
 function showStart(){game=null;$('#gameScreen').classList.remove('active');$('#startScreen').classList.add('active');$('#bottomNav').classList.add('hidden');$('#homeBtn').classList.add('hidden');slots()}
 function renderTimeline(){var a=game.timeline.filter(function(x){return !majorOnly||['major','danger','canon'].indexOf(x.type)>=0});$('#timeline').innerHTML=a.slice(0,45).map(function(x){return '<div class="timeline-item '+e(x.type)+'"><span class="timeline-dot"></span><span class="timeline-age">'+e(x.age)+'</span><div class="timeline-title">'+e(x.title)+'</div><div class="timeline-desc">'+e(x.desc)+'</div></div>'}).join('')}
@@ -1363,7 +1419,7 @@ function renderWorld(){var p=game.player,w=game.world,q=inf(),rp=w.pressures[p.r
  $('#divergenceBadge').textContent='Divergence '+Math.round(w.divergence)+'%';$('#canonList').innerHTML=w.canon.slice().sort(function(a,b){return canonMonth(a)-canonMonth(b)}).map(function(c){return '<div class="canon-item canon-'+e(c.status)+'"><span class="status">'+e(c.status)+'</span><strong>'+e(c.title)+'</strong><span>Année '+c.year+', mois '+(c.month+1)+' • '+e(c.location)+' • résistance '+c.resistance+'</span><small>'+e(c.description||'')+'</small></div>'}).join('');
  var co=[].concat(game.codex.people,game.codex.places,game.codex.factions,game.codex.fruits,game.codex.events||[],game.codex.techniques||[]).filter(function(v,i,a){return a.indexOf(v)===i});$('#codexList').innerHTML=co.map(function(x){return '<span class="chip">'+e(x)+'</span>'}).join('')
 }
-function render(){if(!game)return;showGame();var p=game.player;$('#ageLabel').textContent=age();$('#locationLabel').textContent=p.travel?'→ '+p.travel.destination:p.island;$('#moneyLabel').textContent=Math.floor(p.money).toLocaleString('fr-FR')+' B';$('#playerName').textContent=p.name;$('#avatarInitial').textContent=p.name.charAt(0).toUpperCase();$('#playerSubtitle').textContent=p.race+' • '+p.region+' • '+p.faction;$('#lifeStatus').textContent=p.situation;$('#repPill').textContent=rep();$('#situationTitle').textContent=p.situation;$('#activityValue').textContent=p.activity;$('#factionValue').textContent=p.faction;$('#healthValue').textContent=Math.round(p.health)+'%';$('#energyValue').textContent=Math.round(p.energy)+'%';var d=$('#dangerBadge');d.textContent=p.danger;d.className='danger-badge '+(p.danger==='Élevé'?'high':p.danger==='Moyen'?'medium':'low');$('#conditionChips').innerHTML=p.conditions.length?p.conditions.map(function(c){return '<span class="chip">'+e(c.name)+'</span>'}).join(''):'<span class="chip">Aucune blessure</span>';$('#advanceBtn').disabled=!game.alive||!!game.pending;$('#advanceHint').textContent=game.pending?'Une décision t’attend':game.mission?'Mission : '+game.mission.title:p.travel?'Navigation en cours':'Le moteur choisit la durée adaptée';if(game.pending){$('#attentionCard').classList.remove('hidden');$('#attentionTitle').textContent=game.pending.title;$('#attentionText').textContent=game.pending.text}else $('#attentionCard').classList.add('hidden');renderTimeline();renderChar();renderAb();renderRel();renderWorld();$('#devOutput').textContent=JSON.stringify({seed:game.seed,power:power(),player:p,world:game.world},null,2)}
+function render(){if(!game)return;showGame();var p=game.player;$('#ageLabel').textContent=age();$('#locationLabel').textContent=p.travel?'→ '+p.travel.destination:p.island;$('#moneyLabel').textContent=Math.floor(p.money).toLocaleString('fr-FR')+' B';$('#playerName').textContent=p.name;$('#avatarInitial').textContent=p.name.charAt(0).toUpperCase();$('#playerSubtitle').textContent=p.race+' • '+p.region+' • '+p.faction;$('#lifeStatus').textContent=p.situation;$('#repPill').textContent=rep();$('#situationTitle').textContent=p.situation;$('#activityValue').textContent=p.activity;$('#factionValue').textContent=p.faction;$('#healthValue').textContent=Math.round(p.health)+'%';$('#energyValue').textContent=Math.round(p.energy)+'%';var d=$('#dangerBadge');d.textContent=p.danger;d.className='danger-badge '+(p.danger==='Élevé'?'high':p.danger==='Moyen'?'medium':'low');$('#conditionChips').innerHTML=p.conditions.length?p.conditions.map(function(c){return '<span class="chip">'+e(c.name)+'</span>'}).join(''):'<span class="chip">Aucune blessure</span>';$('#advanceBtn').disabled=!game.alive||!!game.pending;$('#advanceHint').textContent=game.pending?'Une décision t’attend':game.mission?'Mission : '+game.mission.title:p.travel?'Navigation en cours':'Le moteur choisit la durée adaptée';if(game.pending){$('#attentionCard').classList.remove('hidden');$('#attentionTitle').textContent=game.pending.title;$('#attentionText').textContent=game.pending.text}else $('#attentionCard').classList.add('hidden');renderPanel(activeTab);renderDevOutput()}
 function deathModal(){var p=game.player,estate=estateValue(),partner=partnerRelation(),kids=(p.children||[]).filter(function(c){return c.status==='active'}),ach=Object.keys(game.achievements.unlocked||{}).length;$('#deathTitle').textContent=p.name+', '+age();$('#deathSummary').innerHTML='<div><span>Cause</span><strong>'+e(game.death.cause)+'</strong></div><div><span>Carrière</span><strong>'+e(p.career)+' • '+e(p.rank)+'</strong></div><div><span>Victoires</span><strong>'+p.wins+'</strong></div><div><span>Lieux</span><strong>'+p.visited.length+'</strong></div><div><span>Patrimoine</span><strong>'+estate.toLocaleString('fr-FR')+' B</strong></div><div><span>Achievements</span><strong>'+ach+'/'+ACHIEVEMENTS.length+'</strong></div>';$('#legacyCard').innerHTML='<strong>Génération '+game.dynasty.generation+'</strong><span>'+(partner?'Conjoint : '+e(partner.name)+' • ':'')+kids.length+' enfant'+(kids.length>1?'s':'')+' • prime maximale '+Math.round(p.highestBounty).toLocaleString('fr-FR')+' B.</span>';var hb=$('#continueHeirBtn');hb.classList.toggle('hidden',!kids.length);if(kids.length){var heir=kids.slice().sort(function(a,b){return b.ageMonths-a.ageMonths})[0];hb.textContent='Continuer avec '+heir.name}$('#deathModal').classList.remove('hidden')}
 function toast(m){var t=$('#toast');t.textContent=m;t.classList.remove('hidden');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.add('hidden')},1600)}
 function backup(m){backupMode=m;$('#backupModal').classList.remove('hidden');$('#backupTitle').textContent=m==='export'?'Exporter':'Importer';$('#backupText').value=m==='export'?btoa(unescape(encodeURIComponent(JSON.stringify(game)))):'';$('#backupPrimaryBtn').textContent=m==='export'?'Copier':'Importer'}
@@ -1371,11 +1427,11 @@ function bind(){
  $$('.mode-card').forEach(function(b){b.onclick=function(){mode=b.dataset.mode;$$('.mode-card').forEach(function(x){x.classList.toggle('selected',x===b)});$('#customFields').classList.toggle('hidden',mode!=='custom')}});
  $('#newLifeBtn').onclick=function(){make();$('#creationCard').classList.add('hidden');render()};$('#cancelCreate').onclick=function(){$('#creationCard').classList.add('hidden')};$('#advanceBtn').onclick=advance;$('#attentionBtn').onclick=showDecision;$('#homeBtn').onclick=showStart;
  $('#deathHomeBtn').onclick=function(){$('#deathModal').classList.add('hidden');showStart()};$('#continueHeirBtn').onclick=continueWithHeir;$('#deathNewBtn').onclick=function(){localStorage.removeItem(key());$('#deathModal').classList.add('hidden');showStart();$('#creationCard').classList.remove('hidden')};
- $('#timelineFilter').onclick=function(){majorOnly=!majorOnly;renderTimeline()};$$('.nav-item').forEach(function(b){b.onclick=function(){$$('.nav-item').forEach(function(x){x.classList.toggle('active',x===b)});$$('.tab-panel').forEach(function(x){x.classList.toggle('active',x.dataset.panel===b.dataset.tab)});scrollTo(0,0)}});
- $('#devToggle').onclick=function(){if(game)$('#developerPanel').classList.remove('hidden')};$('#closeDev').onclick=function(){$('#developerPanel').classList.add('hidden')};$('#exportSaveBtn').onclick=function(){backup('export')};$('#importSaveBtn').onclick=function(){backup('import')};$('#backupCloseBtn').onclick=function(){$('#backupModal').classList.add('hidden')};
+ $('#timelineFilter').onclick=function(){majorOnly=!majorOnly;renderTimeline()};$('.nav-item').forEach(function(b){b.onclick=function(){activateTab(b.dataset.tab,true)}});
+ $('#devToggle').onclick=function(){if(game){$('#developerPanel').classList.remove('hidden');renderDevOutput()}};$('#closeDev').onclick=function(){$('#developerPanel').classList.add('hidden')};$('#exportSaveBtn').onclick=function(){backup('export')};$('#importSaveBtn').onclick=function(){backup('import')};$('#backupCloseBtn').onclick=function(){$('#backupModal').classList.add('hidden')};
  $('#backupPrimaryBtn').onclick=function(){if(backupMode==='export'){if(navigator.clipboard)navigator.clipboard.writeText($('#backupText').value);toast('Sauvegarde copiée ou prête à copier.')}else try{game=migrate(JSON.parse(decodeURIComponent(escape(atob($('#backupText').value.trim())))));syncCanonicalFruits();save();$('#backupModal').classList.add('hidden');render()}catch(x){toast('Sauvegarde invalide.')}};
  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')save()});window.addEventListener('pagehide',save)
 }
-function init(){bind();if(location.protocol!=='file:')$('#localFileWarning').classList.add('hidden');if(/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.matchMedia('(display-mode: standalone)').matches&&location.protocol==='https:')$('#iosInstallCard').classList.remove('hidden');slots();if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(function(){})}
+function init(){bind();setupSectionNavigation();if(location.protocol!=='file:')$('#localFileWarning').classList.add('hidden');if(/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.matchMedia('(display-mode: standalone)').matches&&location.protocol==='https:')$('#iosInstallCard').classList.remove('hidden');slots();if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(function(){})}
 init();
 })();
