@@ -243,7 +243,7 @@ function avg(rows,key){return rows.length?rows.reduce((a,x)=>a+x[key],0)/rows.le
     if(!g.mission&&clicks%10===0){const b=q.board();if(b.length)q.startMission(0)}
     q.advance();clicks++;
   }
-  fluidity.saveSize={newLifeBytes:baseline,evolvedLifeBytes:JSON.stringify(g).length,growthMultiple:+(JSON.stringify(g).length/baseline).toFixed(2),timeline:g.timeline.length,relations:g.relations.length,storyHistory:g.story.history.length,news:g.world.news.length};
+  fluidity.saveSize={newLifeBytes:baseline,evolvedLifeBytes:JSON.stringify(g).length,growthMultiple:+(JSON.stringify(g).length/baseline).toFixed(2),timeline:g.timeline.length,relations:g.relations.length,storyHistory:g.story.history.length,news:(g.news||[]).length};
 }
 
 {
