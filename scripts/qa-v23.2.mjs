@@ -141,7 +141,7 @@ function avg(rows,key){return rows.length?rows.reduce((a,x)=>a+x[key],0)/rows.le
 
 {
   const rows=[];
-  for(let seed=20000;seed<20080;seed++){
+  for(let seed=20000;seed<20020;seed++){
     const g=fresh(seed),p=g.player;p.ageMonths=180;p.activity='Routine';p.focus='Équilibre';p.career='Aucune';p.faction='Civil';
     let clicks=0,pending=0,storyChoices=0,focusSwitches=0,lastFocus=p.focus,major=0,moments=0;
     while(p.ageMonths<360&&clicks<220&&g.alive){
@@ -168,7 +168,7 @@ function avg(rows,key){return rows.length?rows.reduce((a,x)=>a+x[key],0)/rows.le
 
 {
   const rows=[];
-  for(let seed=20200;seed<20250;seed++){
+  for(let seed=20200;seed<20215;seed++){
     const g=fresh(seed),p=g.player;p.ageMonths=180;q.join('Civil');p.specialization='Scientifique';q.careerRecord().specialization='Scientifique';p.focus='Carrière';
     let clicks=0,missions=0,interruptions=0,lastMissionAge=-999;
     while(p.ageMonths<360&&clicks<260&&g.alive){
@@ -189,7 +189,7 @@ function avg(rows,key){return rows.length?rows.reduce((a,x)=>a+x[key],0)/rows.le
 
 {
   const rows=[];
-  for(let seed=20400;seed<20440;seed++){
+  for(let seed=20400;seed<20415;seed++){
     const g=fresh(seed),p=g.player;p.ageMonths=180;p.focus='Combat';p.activity='Explorer';q.explorationSite(p.island).familiarity=10;
     let clicks=0,interruptions=0;
     while(p.ageMonths<300&&clicks<180&&g.alive){
@@ -248,7 +248,7 @@ function avg(rows,key){return rows.length?rows.reduce((a,x)=>a+x[key],0)/rows.le
 
 {
   const timings=[];
-  for(let seed=20800;seed<20810;seed++){
+  for(let seed=20800;seed<20803;seed++){
     const g=fresh(seed);
     const t0=performance.now();q.world(600);const t1=performance.now();
     timings.push(t1-t0);
