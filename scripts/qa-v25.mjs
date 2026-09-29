@@ -897,6 +897,13 @@ test('V2.5 stale conflict mission cannot mutate a replacement conflict',()=>{
   assert(freshConflict.intensity===before,'stale mission changed replacement conflict');return 'replacement '+before+' unchanged';
 });
 
+test('V2.5 resolved conflicts never appear as contextual missions',()=>{
+  const g=fresh(14113),p=g.player;p.ageMonths=300;const t=Object.keys(g.world.territories)[0],def=g.world.territories[t].controller,enemy=def==='Pirates'?'Marine':'Pirates',region=q.infStatic(t).region;
+  g.world.crews=[];g.world.actors.forEach(a=>{a.status='inactive'});g.world.conflicts=[{id:'resolved-only',location:t,region,attacker:enemy,defender:def,intensity:28,months:5,status:'resolved',source:'qa',warId:null}];
+  p.region=region;p.island=t;const list=q.worldMissionOpportunities();assert(!list.some(x=>x.sourceType==='conflict'),'resolved conflict leaked into mission board');return 'resolved conflict ignored';
+});
+
+
 test('V2.5 migration upgrades legacy conflict mission source to unique id',()=>{
   let g=fresh(14111),p=g.player;p.ageMonths=300;const t=Object.keys(g.world.territories)[0],def=g.world.territories[t].controller,enemy=def==='Pirates'?'Marine':'Pirates';
   const cf={id:'migration-conf',location:t,region:q.infStatic(t).region,attacker:enemy,defender:def,intensity:36,months:0,status:'active',source:'qa',warId:null};g.world.conflicts=[cf];
