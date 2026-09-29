@@ -229,6 +229,10 @@ function adjustActorLink(a,b,n){var wi=game.world.intelligence,k=actorPairKey(a,
 function intelligenceEvent(title,desc,type,source){
  var wi=game.world.intelligence||defaultWorldIntelligence();wi.seq++;wi.events.unshift({id:'wi-'+wi.seq,title:title,desc:desc,type:type||'',source:source||null,year:game.world.year,month:game.world.month});wi.events=wi.events.slice(0,24);if(type==='major'||type==='war')news(title,desc,type)
 }
+function weightedIntent(items,stream){
+ var clean=items.filter(function(x){return x&&x.weight>0}),total=clean.reduce(function(sum,x){return sum+x.weight},0);if(!clean.length)return null;var r=R(stream||'world')*total;
+ for(var i=0;i<clean.length;i++){r-=clean[i].weight;if(r<=0)return clean[i].id}return clean[clean.length-1].id
+}
 function actorIntentChoices(a){
  var goal=String(a.goal||'').toLowerCase(),out=[];
  if(/territoire|domination|étendre/.test(goal))out.push('Étendre son influence');
@@ -243,7 +247,19 @@ function actorIntentChoices(a){
  out.push('S’entraîner','Explorer');return out.filter(function(v,i,x){return x.indexOf(v)===i})
 }
 function chooseActorIntent(a){
- var choices=actorIntentChoices(a);a.intent=pk(choices,'world');a.intentMonths=4+Math.floor(R('world')*9);a.lastIntentYear=game.world.year;return a.intent
+ var choices=actorIntentChoices(a),goal=String(a.goal||'').toLowerCase(),items=choices.map(function(id){var w=1;
+  if(id==='S’entraîner')w+=(a.bonusPower||0)<3?1.2:.35;
+  if(id==='Chercher un adversaire')w+=/adversaire|fort/.test(goal)?3:0;
+  if(id==='Étendre son influence')w+=/territoire|domination|étendre/.test(goal)?3:0;
+  if(id==='Former des alliés')w+=/former|génération/.test(goal)?3:0;
+  if(id==='Protéger sa zone')w+=/protéger|famille/.test(goal)?3:0;
+  if(id==='Explorer')w+=/observer|route|ère/.test(goal)?2.4:.35;
+  if(id==='Développer son réseau')w+=/réseau|révolution/.test(goal)?2.6:0;
+  if(id==='Stabiliser une zone'&&(a.faction==='Marine'||a.faction==='Gouvernement'))w+=2;
+  if(id==='Mener un raid'&&a.faction==='Pirates')w+=2.2+(a.resources||50)/65;
+  return{id:id,weight:w}
+ });
+ a.intent=weightedIntent(items,'world')||choices[0];a.intentMonths=4+Math.floor(R('world')*9);a.lastIntentYear=game.world.year;return a.intent
 }
 function actorIntentTick(a){
  var w=game.world;if(!a.intent||a.intentMonths<=0)chooseActorIntent(a);a.intentMonths--;
@@ -257,7 +273,18 @@ function actorIntentTick(a){
  if(a.intentMonths<=0&&a.importance>=96&&R('world')<.22)intelligenceEvent('Mouvement de '+a.name,a.name+' termine une phase « '+a.intent+' » dans '+a.region+'.','',a.name)
 }
 function crewIntentChoices(c){if(c.morale<28||c.resources<20)return['Se réorganiser'];if(c.members<8)return['Recruter'];if(c.faction==='Pirates')return['Mener un raid','Chercher un territoire','Explorer'];if(c.faction==='Chasseur de primes')return['Traquer une cible','Explorer','Recruter'];return['Développer un réseau','Explorer','Recruter']}
-function chooseCrewIntent(c){c.intent=pk(crewIntentChoices(c),'world');c.intentMonths=3+Math.floor(R('world')*8);return c.intent}
+function chooseCrewIntent(c){
+ var choices=crewIntentChoices(c),items=choices.map(function(id){var w=1;
+  if(id==='Se réorganiser')w+=(c.resources<28?4:0)+(c.morale<32?3:0);
+  if(id==='Recruter')w+=c.members<6?4:c.members<10?1.5:.2;
+  if(id==='Mener un raid'&&c.faction==='Pirates')w+=(c.resources>28?2.5:.3)+(c.morale>45?1:0);
+  if(id==='Traquer une cible'&&(c.faction==='Marine'||c.faction==='Chasseur de primes'))w+=2.2;
+  if(id==='Développer un réseau'&&c.faction==='Révolutionnaires')w+=2.5;
+  if(id==='Explorer')w+=c.resources>18?.8:.2;
+  return{id:id,weight:w}
+ });
+ c.intent=weightedIntent(items,'world')||choices[0];c.intentMonths=3+Math.floor(R('world')*8);return c.intent
+}
 function migrateWorldIntelligence(g,w){
  w.intelligence=w.intelligence||defaultWorldIntelligence();w.intelligence.actorLinks=w.intelligence.actorLinks||{};w.intelligence.events=Array.isArray(w.intelligence.events)?w.intelligence.events.slice(0,24):[];w.intelligence.seq=w.intelligence.seq||0;
  (w.actors||[]).forEach(function(a){a.intent=a.intent||null;a.intentMonths=a.intentMonths||0;a.bonusPower=cl(a.bonusPower||0,0,8);a.resources=cl(a.resources==null?50:a.resources,0,100);a.victories=a.victories||0;a.defeats=a.defeats||0});
@@ -355,9 +382,14 @@ function moveNpc(r){
  var cur=npcRegion(r),links=REGION_LINKS[cur]||[];if(!links.length)return;var next=pk(links,'npc'),places=Object.keys(PL).filter(function(n){return PL[n][0]===next});r.region=next;r.location=places.length?pk(places,'npc'):null;addRelationMemory(r,'Part pour '+next+'.','travel');if(next===game.player.region&&r.monthsKnown>=6){r.trust=cl(r.trust+1,0,100);addRelationMemory(r,'Vos routes se croisent à nouveau dans '+next+'.','reunion');tl('Retrouvailles',r.name+' réapparaît dans ta région.','major')}
 }
 function chooseNpcIntent(r){
- var a=String(r.npcAmbition||'').toLowerCase(),choices=[];
- if(/fort/.test(a))choices.push('S’entraîner');if(/explorer/.test(a))choices.push('Explorer');if(/fortune/.test(a))choices.push('S’enrichir');if(/faction/.test(a))choices.push('Faire carrière');if(/proches/.test(a))choices.push('Protéger ses proches');
- choices.push('Faire carrière','Explorer');r.npcIntent=pk(choices,'npc');r.npcIntentMonths=5+Math.floor(R('npc')*10);return r.npcIntent
+ var a=String(r.npcAmbition||'').toLowerCase(),items=[
+  {id:'S’entraîner',weight:1+(/fort/.test(a)?4:0)+Math.max(0,(r.npcPotential-r.npcPower))/55},
+  {id:'Explorer',weight:1+(/explorer/.test(a)?4:0)+(r.npcAgeMonths>=180?.7:0)},
+  {id:'S’enrichir',weight:.8+(/fortune/.test(a)?4:0)+(r.npcWealth<5000?1:0)},
+  {id:'Faire carrière',weight:1.1+(/faction/.test(a)?4:0)+(r.npcAgeMonths>=180&&r.careerLevel<4?1.1:0)},
+  {id:'Protéger ses proches',weight:.45+(/proches/.test(a)?4:0)+(r.loyalty>65?1:0)}
+ ];
+ r.npcIntent=weightedIntent(items,'npc')||'Faire carrière';r.npcIntentMonths=5+Math.floor(R('npc')*10);return r.npcIntent
 }
 function npcIntentTick(r,m){
  if(!r.npcIntent||r.npcIntentMonths<=0)chooseNpcIntent(r);r.npcIntentMonths-=m;
