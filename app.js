@@ -395,7 +395,7 @@ function seekMentor(){
 }
 
 function defaultLife(){return{relationshipStatus:'Célibataire',partnerId:null,housingLevel:0,assets:{property:0,business:0,ship:0,treasure:0},livingCostsPaid:0,debt:0,debtPeak:0,debtInterestPaid:0,netWorthPeak:0,socialActions:2,lastExpense:0,totalBusinessIncome:0}}
-function metaKey(){return P+'meta-'+slot}
+function metaKey(){return slotMetaKey(slot)}
 function loadMeta(){try{return JSON.parse(localStorage.getItem(metaKey())||'null')}catch(x){return null}}
 function saveMeta(){if(!game)return;localStorage.setItem(metaKey(),JSON.stringify({codex:game.codex,achievements:game.achievements,dynasty:game.dynasty}))}
 function applyMeta(g){var m=loadMeta();if(!m)return g;if(m.codex){['people','places','factions','fruits','events','techniques'].forEach(function(k){g.codex[k]=[].concat(g.codex[k]||[],m.codex[k]||[]).filter(function(v,i,a){return a.indexOf(v)===i})})}if(m.achievements)g.achievements=m.achievements;return g}
@@ -498,6 +498,8 @@ function pk(a,k){return a[Math.floor(R(k)*a.length)]}
 function inf(n){var p=PL[n||game.player.island]||[game.player.region,10,[]];return{region:p[0],danger:p[1],routes:p[2]}}
 function age(){var m=game.player.ageMonths,y=Math.floor(m/12),o=Math.floor(m%12);return y?(y+' an'+(y>1?'s':'')+(o?' et '+o+' mois':'')):(o+' mois')}
 function key(){return P+slot}
+function slotKey(i){return P+i}
+function slotMetaKey(i){return P+'meta-'+i}
 function pendingIsExecutable(p){
  return!!(p&&Array.isArray(p.choices)&&p.choices.length&&p.choices.every(function(c){return Array.isArray(c)&&typeof c[2]==='function'}))
 }
@@ -864,7 +866,8 @@ function migrate(g){
  w.fruits.forEach(function(n){if(!w.fruitRegistry[n])w.fruitRegistry[n]={status:p.fruit===n?'consumed':'available',holder:p.fruit===n?p.name:null}});
  w=initWorldEconomy(g,initGrandStrategy(initLivingWorld(g,w)));var dk=String(g.seed),ix=migrateInfluence(p);ix.domains=Object.keys(w.territories).filter(function(n){var pc=w.territories[n].playerControl;return pc&&pc.ownerKey===dk});ix.affiliates=w.crews.filter(function(c){return c.affiliation&&c.affiliation.ownerKey===dk&&c.status==='active'}).map(function(c){return c.id});g.player=p;g.world=w;return g
 }
-function load(i){try{return migrate(JSON.parse(localStorage.getItem(P+i)||'null'))}catch(x){return null}}
+function load(i){try{return migrate(JSON.parse(localStorage.getItem(slotKey(i))||'null'))}catch(x){return null}}
+function deleteSaveSlot(i,skipConfirm){var existing=load(i);if(!existing)return false;var label=existing.player&&existing.player.name?existing.player.name:'cette vie';if(!skipConfirm&&typeof window!=='undefined'&&typeof window.confirm==='function'&&!window.confirm('Supprimer définitivement la sauvegarde de '+label+' ? Cette action est irréversible.'))return false;localStorage.removeItem(slotKey(i));localStorage.removeItem(slotMetaKey(i));if(slot===i&&!$('#startScreen').classList.contains('active'))game=null;slots();toast('Emplacement '+i+' supprimé.');return true}
 function tl(t,d,y){game.timeline.unshift({age:age(),title:t,desc:d,type:y||''});game.timeline=game.timeline.slice(0,100);var l=migrateLifeLoop(game);l.momentSeq++;if(['major','danger','canon'].indexOf(y)>=0)l.majorSeq++}
 function news(t,d,type){game.news.unshift({title:t,desc:d,type:type||''});game.news=game.news.slice(0,35)}
 function press(){var o={};REG.forEach(function(r){o[r]={Piraterie:20+R('w')*25,Marine:30+R('w')*35,Criminalité:15+R('w')*30,Révolution:5+R('w')*20,Prospérité:40+R('w')*35,Instabilité:10+R('w')*25}});return o}
@@ -1743,7 +1746,7 @@ function advance(){
 }
 
 function rep(){var r=game.player.reputation;return r>75?'Célèbre':r>40?'Reconnu':r>15?'Connu':'Inconnu'}
-function slots(){var b=$('#saveSlots');b.innerHTML='';for(var i=1;i<=3;i++){(function(i){var s=load(i),x=document.createElement('button');x.className='save-slot'+(s?'':' empty');x.innerHTML=s?'<strong>'+e(s.player.name)+'</strong><small>'+Math.floor(s.player.ageMonths/12)+' ans • '+e(s.player.faction)+'<br>'+e(s.player.island)+'</small>':'<strong>＋ Nouvelle vie</strong><small>Emplacement '+i+'</small>';x.onclick=function(){slot=i;if(s){game=s;syncCanonicalFruits();render()}else $('#creationCard').classList.remove('hidden')};b.appendChild(x)})(i)}}
+function slots(){var b=$('#saveSlots');b.innerHTML='';for(var i=1;i<=3;i++){(function(i){var saved=load(i),wrap=document.createElement('div'),x=document.createElement('button');wrap.className='save-slot-wrap'+(saved?'':' empty');x.className='save-slot'+(saved?'':' empty');x.innerHTML=saved?'<strong>'+e(saved.player.name)+'</strong><small>'+Math.floor(saved.player.ageMonths/12)+' ans • '+e(saved.player.faction)+'<br>'+e(saved.player.island)+'</small>':'<strong>＋ Nouvelle vie</strong><small>Emplacement '+i+'</small>';x.onclick=function(){slot=i;if(saved){game=saved;syncCanonicalFruits();render()}else $('#creationCard').classList.remove('hidden')};wrap.appendChild(x);if(saved){var del=document.createElement('button');del.className='save-delete';del.type='button';del.setAttribute('aria-label','Supprimer la sauvegarde '+i);del.textContent='Supprimer';del.onclick=function(ev){if(ev&&ev.stopPropagation)ev.stopPropagation();deleteSaveSlot(i,false)};wrap.appendChild(del)}b.appendChild(wrap)})(i)}}
 function bar(o){return Object.keys(o).map(function(k){var v=o[k];return '<div class="stat-row"><span>'+e(k)+'</span><div class="stat-bar"><div class="stat-fill" style="width:'+cl(v,0,100)+'%"></div></div><span class="stat-value">'+Math.round(v)+'</span></div>'}).join('')}
 
 var activeTab='life';
@@ -1969,7 +1972,7 @@ function backup(m){backupMode=m;$('#backupModal').classList.remove('hidden');$('
 function bind(){
  $$('.mode-card').forEach(function(b){b.onclick=function(){mode=b.dataset.mode;$$('.mode-card').forEach(function(x){x.classList.toggle('selected',x===b)});$('#customFields').classList.toggle('hidden',mode!=='custom')}});
  $('#newLifeBtn').onclick=function(){make();$('#creationCard').classList.add('hidden');render()};$('#cancelCreate').onclick=function(){$('#creationCard').classList.add('hidden')};$('#advanceBtn').onclick=function(){if(game)advance()};$('#attentionBtn').onclick=showAttention;$('#homeBtn').onclick=showStart;
- $('#deathHomeBtn').onclick=function(){$('#deathModal').classList.add('hidden');showStart()};$('#continueHeirBtn').onclick=continueWithHeir;$('#deathNewBtn').onclick=function(){localStorage.removeItem(key());$('#deathModal').classList.add('hidden');showStart();$('#creationCard').classList.remove('hidden')};
+ $('#deathHomeBtn').onclick=function(){$('#deathModal').classList.add('hidden');showStart()};$('#continueHeirBtn').onclick=continueWithHeir;$('#deathNewBtn').onclick=function(){localStorage.removeItem(key());localStorage.removeItem(metaKey());$('#deathModal').classList.add('hidden');showStart();$('#creationCard').classList.remove('hidden')};
  $('#timelineFilter').onclick=function(){majorOnly=!majorOnly;timelineExpanded=false;renderTimeline()};$$('.nav-item').forEach(function(b){b.onclick=function(){activateTab(b.dataset.tab,true)}});
  $('#devToggle').onclick=function(){if(game){$('#developerPanel').classList.remove('hidden');renderDevOutput()}};$('#closeDev').onclick=function(){$('#developerPanel').classList.add('hidden')};$('#exportSaveBtn').onclick=function(){backup('export')};$('#importSaveBtn').onclick=function(){backup('import')};$('#backupCloseBtn').onclick=function(){$('#backupModal').classList.add('hidden')};
  $('#backupPrimaryBtn').onclick=function(){if(backupMode==='export'){if(navigator.clipboard)navigator.clipboard.writeText($('#backupText').value);toast('Sauvegarde copiée ou prête à copier.')}else try{game=migrate(JSON.parse(decodeURIComponent(escape(atob($('#backupText').value.trim())))));syncCanonicalFruits();save();$('#backupModal').classList.add('hidden');render()}catch(x){toast('Sauvegarde invalide.')}};
