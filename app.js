@@ -223,10 +223,11 @@ function npcTick(m){
   if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a){var was=r.status;r.faction=a.faction;r.region=a.region;r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';if(was!=='dead'&&r.status==='dead')addRelationMemory(r,'Sa trajectoire s’achève dans le monde vivant.','death')}return}
   if(r.injuryMonths>0){r.injuryMonths-=m;if(r.injuryMonths<=0){r.injuryMonths=0;r.status='active';addRelationMemory(r,'Se remet de ses blessures.','recovery')}return}
   if(r.status!=='active')return;
+  if(r.joinedOrganization){var org=p.organization,mem=org&&org.members.find(function(m){return m.linkedRelationId===r.id});if(mem&&mem.status==='active'){r.region=p.region;r.location=p.island;r.npcPower=cl(Math.max(r.npcPower,mem.power),1,100);mem.power=r.npcPower;r.injuryMonths=mem.injuryMonths||0}else{r.joinedOrganization=false;if(r.type==='organization')r.type='social';addRelationMemory(r,'N’appartient plus à ton organisation.','organization')}}
   var gap=Math.max(0,r.npcPotential-r.npcPower),growth=gap/100*relationGrowthRate(r)*m*5;r.npcPower=cl(r.npcPower+growth,1,r.npcPotential);
   if(r.npcTrajectory==='Instable'&&R('npc')<.008*m)r.npcPower=cl(r.npcPower-(1+R('npc')*3),1,r.npcPotential);
   if(R('npc')<.018*m&&r.careerLevel<6){r.careerLevel++;r.respect=cl(r.respect+2,0,100);addRelationMemory(r,'Progresse dans sa carrière : '+npcCareerRank(r)+'.','career')}
-  if(r.id!==p.life.partnerId&&R('npc')<.012*m)moveNpc(r);
+  if(r.id!==p.life.partnerId&&!r.joinedOrganization&&R('npc')<.012*m)moveNpc(r);
   if(r.role==='rival'&&r.rivalry>=55&&npcNearby(r)&&p.ageMonths-r.lastDuelAge>=6&&R('npc')<.035*m){r.challengeReady=true;addRelationMemory(r,'Te provoque pour mesurer vos progrès.','rival')}
   if(r.role==='mentor'&&power()>r.npcPower+15&&r.mentorSessions>=3&&!r.peerRecognized){r.peerRecognized=true;r.respect=cl(r.respect+8,0,100);addRelationMemory(r,'Te reconnaît désormais comme un pair.','mentor')}
   var years=r.npcAgeMonths/12;if(years>72&&R('npc')<Math.pow((years-70)/38,2)*.002*m){r.status='dead';addRelationMemory(r,'Décède après une longue vie.','death');tl('Une relation disparaît',r.name+' est décédé.','major')}
@@ -573,7 +574,7 @@ function assignOrganizationRole(id){
  var o=ensureOrganization();if(!o||o.authority==='member')return;var m=o.members.find(function(x){return x.id===id});if(!m)return;var roles=(ORG_CONFIG[o.faction]||ORG_CONFIG.Civil).roles,choices=roles.map(function(role){return[role,'Assigner ce rôle à '+m.name+'.',function(){m.role=role;o.cohesion=cl(o.cohesion+.5,0,100);tl('Répartition des rôles',m.name+' devient '+role+'.')} ]});decision('Rôle de '+m.name,'Une équipe équilibrée améliore le soutien lors des missions.',choices)
 }
 function dismissOrganizationMember(id){
- var o=ensureOrganization();if(!o||o.authority!=='leader')return;var m=o.members.find(function(x){return x.id===id});if(!m)return;decision('Écarter '+m.name,'Cette décision réduira la cohésion et peut affecter le moral.',[['Confirmer','Faire quitter le groupe à '+m.name+'.',function(){m.status='left';m.loyalty=0;o.cohesion=cl(o.cohesion-5,0,100);o.morale=cl(o.morale-3,0,100);tl('Départ',m.name+' quitte '+o.name+'.','major')}],['Annuler','Ne rien changer.',function(){}]])
+ var o=ensureOrganization();if(!o||o.authority!=='leader')return;var m=o.members.find(function(x){return x.id===id});if(!m)return;decision('Écarter '+m.name,'Cette décision réduira la cohésion et peut affecter le moral.',[['Confirmer','Faire quitter le groupe à '+m.name+'.',function(){m.status='left';m.loyalty=0;o.cohesion=cl(o.cohesion-5,0,100);o.morale=cl(o.morale-3,0,100);if(m.linkedRelationId){var r=relationById(m.linkedRelationId);if(r){r.joinedOrganization=false;r.type='social';r.loyalty=cl(r.loyalty-18,0,100);r.trust=cl(r.trust-10,0,100);addRelationMemory(r,'Tu l’écartes de '+o.name+'.','organization')}}tl('Départ',m.name+' quitte '+o.name+'.','major')}],['Annuler','Ne rien changer.',function(){}]])
 }
 function archiveOrganization(reason){
  var p=game.player,o=p.organization;if(!o)return;p.organizationHistory=p.organizationHistory||[];p.organizationHistory.push({name:o.name,faction:o.faction,role:o.playerRole,months:o.months,successes:o.successes,reason:reason||'Départ'});p.organization=null
