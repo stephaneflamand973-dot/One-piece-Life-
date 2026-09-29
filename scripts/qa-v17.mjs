@@ -54,7 +54,7 @@ vm.runInContext(contentSource,sandbox,{filename:'content-v1.js'});
 const exposure=`
 window.__qa={
  setMode:function(v){mode=v},getMode:function(){return mode},
- getGame:function(){return game},setGame:function(v){game=v},
+ getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,
  power:power,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,
  developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,
@@ -333,6 +333,15 @@ test('V1.7 politics: prolonged faction hostility can become personal rivalry',()
 
 test('V1.7 core loop: clicking AVANCER advances the game',()=>{
   const g=fresh(6901),before=g.player.ageMonths;q.bind();const btn=fakeElement('#advanceBtn');assert(typeof btn.onclick==='function','AVANCER has no click handler');btn.onclick();assert(q.getGame().player.ageMonths>before,'clicking AVANCER did not increase age');assert(q.getGame().timeline.length>=1,'timeline disappeared after advancing');return before+' -> '+q.getGame().player.ageMonths+' months'
+});
+test('V1.7 core loop: pending decisions no longer deadlock AVANCER',()=>{
+  const g=fresh(6902);q.bind();g.pending={title:'QA decision',text:'Choose',choices:[['Continue','Resume',function(){}]]};q.render();const btn=fakeElement('#advanceBtn');assert(btn.disabled===false,'AVANCER is disabled while a decision is pending');const age=g.player.ageMonths;btn.onclick();assert(g.player.ageMonths===age,'pending-decision click advanced time instead of opening the decision');assert(g.pending,'pending decision vanished unexpectedly');return 'decision routed through AVANCER'
+});
+test('V1.7 saves: callback decisions are never persisted as broken JSON',()=>{
+  const g=fresh(6903);g.pending={title:'QA decision',text:'Choose',choices:[['Continue','Resume',function(){}]]};q.save();const raw=JSON.parse(localStorage.getItem('opl-v05-1'));assert(raw.pending===null,'pending callback decision was persisted');return 'pending omitted from persisted save'
+});
+test('V1.7 migration: stale serialized pending decisions are repaired',()=>{
+  const g=fresh(6904);g.pending={title:'Broken',text:'Old save',choices:[['Continue','Resume',null]]};const copy=JSON.parse(JSON.stringify(g)),m=q.migrate(copy);assert(m.pending===null,'stale pending decision survived migration');return 'stale pending cleared'
 });
 test('V1.7 progression: difficulty modes have distinct growth rates',()=>{
   const g=fresh(7001),p=g.player;p.ageMonths=300;p.stats.Force=40;p.caps.Force=90;const rates={};
