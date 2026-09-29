@@ -207,9 +207,9 @@ function npcNearby(r){
 function canonicalFreedom(r){if(!r.canonical)return true;var a=canonActor(r.actorName||r.name),need=a?Math.round((a.importance||90)*.48):48;return game.world.divergence>=need}
 function bondCanonicalActor(a,context){
  if(!a)return null;var r=relationForActor(a.name),p=game.player;
- if(!r){var hostile=diplomacy(p.faction,a.faction)<-35,pow=actorPower(a),role=hostile?'rival':'connaissance';r=normalizeRelation(game,{id:'canon-rel-'+H(a.name),name:a.name,role:role,type:'canonical',canonical:true,actorName:a.name,faction:a.faction,region:a.region,location:null,npcPower:pow,npcPotential:a.peak,respect:hostile?35:55,trust:hostile?20:42,loyalty:35,attraction:10,rivalry:hostile?48:0,npcAmbition:a.goal,mentorPotential:a.faction===p.faction&&pow>power()+18},game.socialSeq++);game.relations.push(r);addRelationMemory(r,'Première rencontre dans '+p.region+'.','canon')}
+ if(!r){var hostile=diplomacy(p.faction,a.faction)<-35,pow=actorPower(a),role=hostile?'rival':'connaissance';r=normalizeRelation(game,{id:'canon-rel-'+H(a.name),name:a.name,role:role,type:'canonical',canonical:true,actorName:a.name,faction:a.faction,region:a.region,location:null,npcAgeMonths:Math.max(0,((game.world.year||0)-(a.birthYear||0))*12+(game.world.month||0)),npcPower:pow,npcPotential:a.peak,respect:hostile?35:55,trust:hostile?20:42,loyalty:35,attraction:10,rivalry:hostile?48:0,npcAmbition:a.goal,mentorPotential:a.faction===p.faction&&pow>power()+18},game.socialSeq++);game.relations.push(r);addRelationMemory(r,'Première rencontre dans '+p.region+'.','canon')}
  else{r.faction=a.faction;r.region=a.region;r.npcAgeMonths=Math.max(0,((game.world.year||0)-(a.birthYear||0))*12+(game.world.month||0));r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';r.monthsKnown=Math.max(r.monthsKnown,1)}
- if(context)addRelationMemory(r,context,'canon');return r
+ if(context){addRelationMemory(r,context,'canon');r.lastCanonInteractionAge=p.ageMonths}return r
 }
 function relationPower(r){if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a)return actorPower(a)}return r.npcPower||10}
 function relationGrowthRate(r){
@@ -269,14 +269,14 @@ function helpRelation(id){
  var p=game.player,r=relationById(id);if(!r||r.status!=='active'||!npcNearby(r))return toast('Cette personne n’est pas disponible ici.');if(!useSocialAction())return;var cost=p.ageMonths>=180?Math.round(500+relationPower(r)*22):0;if(p.money<cost){p.life.socialActions++;return toast('Il te manque des Berry pour l’aider concrètement.')}p.money-=cost;r.favorBalance=cl((r.favorBalance||0)+1,-5,5);r.trust=cl(r.trust+4,0,100);r.loyalty=cl(r.loyalty+3,0,100);r.affection=cl(r.affection+2,0,100);addRelationMemory(r,'Tu l’aides lorsqu’il/elle en avait besoin.','favor');tl('Service rendu','Tu aides '+r.name+' et renforces votre confiance.');save();render()
 }
 function askRelationFavor(id){
- var p=game.player,r=relationById(id);if(!r||r.status!=='active'||!npcNearby(r))return toast('Cette personne n’est pas disponible ici.');if(r.trust<48)return toast('La confiance est insuffisante pour demander un service.');if(!useSocialAction())return;var balance=r.favorBalance||0,ch=cl(.40+r.trust/260+r.loyalty/360+Math.max(0,balance)*.09+Math.min(0,balance)*.08,.12,.95);
+ var p=game.player,r=relationById(id);if(!r||r.status!=='active'||!npcNearby(r))return toast('Cette personne n’est pas disponible ici.');if(r.trust<48)return toast('La confiance est insuffisante pour demander un service.');var balance=r.favorBalance||0;if(balance<=-4)return toast('Tu lui dois déjà trop de services. Rends-lui la pareille avant de demander davantage.');if(!useSocialAction())return;var ch=cl(.40+r.trust/260+r.loyalty/360+Math.max(0,balance)*.09+Math.min(0,balance)*.08,.12,.95);
  if(R('npc')>=ch){r.trust=cl(r.trust-3,0,100);r.favorBalance=cl(balance-1,-5,5);addRelationMemory(r,'Refuse une demande de service trop lourde.','favor');tl('Service refusé',r.name+' ne peut pas t’aider cette fois.');save();render();return}
  r.favorBalance=cl(balance-1,-5,5);r.loyalty=cl(r.loyalty+1,0,100);var spec=r.npcSpecialty||'Combat',msg='';
  if(spec==='Médecine'){p.health=cl(p.health+16,0,100);if(p.conditions.length&&R('npc')<.55)p.conditions.shift();msg='t’aide à récupérer physiquement'}
  else if(spec==='Discrétion'){var j=migrateJustice(p);j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)-12,0,100);msg='fait jouer ses contacts pour diminuer la pression locale'}
  else if(spec==='Navigation'){p.energy=cl(p.energy+18,0,100);msg='t’aide à préparer ta prochaine traversée'}
  else if(spec==='Commandement'){p.reputation=cl(p.reputation+3,0,100);msg='met sa réputation au service de ton réseau'}
- else{var support=1200+Math.round(relationPower(r)*35);p.money+=support;msg='te fournit '+support.toLocaleString('fr-FR')+' B de soutien'}
+ else{var support=700+Math.round(relationPower(r)*18);p.money+=support;msg='te fournit '+support.toLocaleString('fr-FR')+' B de soutien'}
  addRelationMemory(r,'Accepte de te rendre un service : '+msg+'.','favor');tl('Service de '+r.name,r.name+' '+msg+'.','major');save();render()
 }
 function approachCanonicalActor(name){
