@@ -65,11 +65,11 @@ function focusOptions(){
 function recommendedFocus(){
  var p=game.player;if(p.ageMonths<72)return'Grandir';if(p.health<72||p.energy<45)return'Forme';if(p.ambition==='Devenir puissant')return'Combat';if(p.ambition==='Faire fortune'&&p.career!=='Aucune')return'Carrière';if(p.specialization&&careerExpertise(p.specialization)<32)return'Carrière';if(hasPowerFocus()&&(p.fruit&&p.fruitMastery<30||Object.keys(p.haki).some(function(k){return p.haki[k]>0&&p.haki[k]<25})))return'Pouvoirs';return'Équilibre'
 }
-function normalizeActivityFocus(p){
- if(!p)return;if(p.travel||game&&game.mission)return;
+function normalizeActivityFocus(p,g){
+ if(!p)return;if(p.travel||(g&&g.mission))return;
  if(LEGACY_FOCUS[p.activity])p.activity=LEGACY_FOCUS[p.activity];
- if(p.activity==='Navigation'&&p.situation!=='Navigation')p.activity=p.career!=='Aucune'?'Carrière':'Équilibre';
- if(p.activity!=='Grandir'&&p.activity!=='Explorer'&&!SIMPLE_FOCUS[p.activity])p.activity=p.ageMonths<72?'Grandir':recommendedFocus()
+ if(p.activity==='Navigation'&&p.situation!=='Navigation')p.activity=p.career&&p.career!=='Aucune'?'Carrière':'Équilibre';
+ if(p.activity!=='Grandir'&&p.activity!=='Explorer'&&!SIMPLE_FOCUS[p.activity])p.activity=p.ageMonths<72?'Grandir':p.career&&p.career!=='Aucune'?'Carrière':'Équilibre'
 }
 
 var PL={
