@@ -65,6 +65,34 @@ Le GameState passe en **version interne 22**.
 
 Les sauvegardes V2.1 sont migrées automatiquement.
 
+## QA V2.2
+
+La release candidate passe **122/122 scénarios fonctionnels**.
+
+Les contrôles V2.2 vérifient notamment :
+
+- les 32 missions classées dans un profil de résolution valide ;
+- l'influence réelle de Médecine, Science, Navigation, Discrétion, Commandement et des autres spécialisations ;
+- les missions non combattantes sans victoire/défaite de combat artificielle ;
+- les promotions par expertise métier ;
+- la progression de carrière alignée sur l'activité ;
+- la migration de dette V21 → V22 ;
+- l'absence de Berry négatifs ;
+- la séparation entre fils aboutis, abandonnés, échoués et interrompus ;
+- l'équilibrage des cinq styles à attributs égaux ;
+- la progression de Sabre/Tir pendant les combats correspondants.
+
+Sur 200 combats simulés par style à attributs identiques contre une difficulté 50 :
+
+- Équilibré : **44,5 %** ;
+- Corps-à-corps : **44,0 %** ;
+- Sabreur : **38,5 %** ;
+- Tireur : **47,5 %** ;
+- Mobile / esquive : **40,5 %**.
+
+L'écart maximal tombe ainsi à **9 points**, sans rendre les styles identiques.
+
+
 ---
 
 # ONE PIECE LIFE — V2.1 Complete Progression
