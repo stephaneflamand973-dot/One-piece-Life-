@@ -944,6 +944,45 @@ assert(metrics.storyTenYearPacing.maxActive<=2,'natural story engine exceeded ac
   assert(metrics.v24Fluidity.adultFlowClicksPerYear<=5.5,'V2.4 adult flow missed <=5.5 clicks/year target: '+metrics.v24Fluidity.adultFlowClicksPerYear);
 }
 
+
+{
+  const rows=[];
+  for(let seed=14600;seed<14612;seed++){
+    const g=fresh(seed),p=g.player;p.ageMonths=180;q.join('Civil');p.specialization='Scientifique';q.careerRecord().specialization='Scientifique';p.focus='Auto';p.activity='Carrière';let clicks=0,lastMissionAge=-999,missions=0,start=p.ageMonths;
+    while(p.ageMonths<300&&clicks<140&&g.alive){
+      if(g.pending){const c=g.pending.choices&&g.pending.choices[0];if(c&&typeof c[2]==='function')c[2]();g.pending=null}
+      const st=q.awaitingStory();if(st){const cs=q.storyChoices(st);if(cs.length)q.storyChoice(st.id,cs[0].id)}
+      if(!g.mission&&p.ageMonths-lastMissionAge>=12){const b=q.board();if(b.length){q.startMission(0);lastMissionAge=p.ageMonths;missions++}}
+      q.advance();clicks++;
+    }
+    rows.push({clicks,years:Math.max(.01,(p.ageMonths-start)/12),missions});
+  }
+  metrics.v24CareerFlow={
+    clicksPerYear:+(rows.reduce((a,x)=>a+x.clicks,0)/rows.reduce((a,x)=>a+x.years,0)).toFixed(2),
+    missionsPerYear:+(rows.reduce((a,x)=>a+x.missions,0)/rows.reduce((a,x)=>a+x.years,0)).toFixed(2),
+    sample:rows.length
+  };
+  assert(metrics.v24CareerFlow.clicksPerYear<=7.5,'V2.4 career flow missed <=7.5 clicks/year target: '+metrics.v24CareerFlow.clicksPerYear);
+}
+
+{
+  const rows=[];
+  for(let seed=14700;seed<14712;seed++){
+    const g=fresh(seed),p=g.player;p.ageMonths=180;p.focus='Auto';p.activity='Explorer';p.ambition='Explorer le monde';let clicks=0,start=p.ageMonths;
+    while(p.ageMonths<300&&clicks<140&&g.alive){
+      if(g.pending){const c=g.pending.choices&&g.pending.choices[0];if(c&&typeof c[2]==='function')c[2]();g.pending=null}
+      const st=q.awaitingStory();if(st){const cs=q.storyChoices(st);if(cs.length)q.storyChoice(st.id,cs[0].id)}
+      q.advance();clicks++;
+    }
+    rows.push({clicks,years:Math.max(.01,(p.ageMonths-start)/12)});
+  }
+  metrics.v24ExplorationFlow={
+    clicksPerYear:+(rows.reduce((a,x)=>a+x.clicks,0)/rows.reduce((a,x)=>a+x.years,0)).toFixed(2),
+    sample:rows.length
+  };
+  assert(metrics.v24ExplorationFlow.clicksPerYear<=7.5,'V2.4 exploration flow missed <=7.5 clicks/year target: '+metrics.v24ExplorationFlow.clicksPerYear);
+}
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
