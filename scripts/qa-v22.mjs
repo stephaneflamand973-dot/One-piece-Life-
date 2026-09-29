@@ -57,7 +57,7 @@ window.__qa={
  getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,
  advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,event:event,eventChance:eventChance,migrateLifeLoop:migrateLifeLoop,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,
- power:power,styleMastery:styleMastery,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,
+ power:power,styleMastery:styleMastery,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,
  developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,
  join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,startMission:startMission,resolveMission:resolveMission,board:board,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionResolution:missionResolution,
  createRelation:createRelation,pursueRomance:pursueRomance,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,
@@ -625,6 +625,21 @@ test('V2.2 mobile style mastery rewards agility and speed',()=>{
   const g=fresh(12012),p=g.player;p.style='Mobile / esquive';p.skills.Combat=30;p.stats.Agilité=80;p.stats.Vitesse=70;const mobile=q.styleMastery();
   p.style='Corps-à-corps';p.stats.Force=20;p.stats.Endurance=20;const melee=q.styleMastery();
   assert(mobile>melee+15,'mobile style does not meaningfully reward mobility stats');return mobile.toFixed(1)+' vs '+melee.toFixed(1);
+});
+
+
+test('V2.2 equal-stat combat profiles stay in the same baseline band',()=>{
+  const g=fresh(12013),p=g.player;p.ageMonths=300;for(const k of q.constants.ST)p.stats[k]=50;for(const k of q.constants.SK)p.skills[k]=50;p.haki={Observation:0,Armement:0,Conquérant:0};p.fruit=null;
+  const vals={};for(const style of ['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive']){p.style=style;const c=q.combatProfile();vals[style]=c.offense*.58+c.defense*.34+c.stamina*.08}
+  const arr=Object.values(vals),spread=Math.max(...arr)-Math.min(...arr);assert(spread<5,'equal-stat styles have an excessive baseline spread: '+spread.toFixed(2));return JSON.stringify(vals);
+});
+test('V2.2 sword victories progress Sabre as the primary combat skill',()=>{
+  const g=fresh(12014),p=g.player;p.ageMonths=300;p.style='Sabreur';for(const k of q.constants.ST)p.stats[k]=80;for(const k of q.constants.SK)p.skills[k]=40;p.skills.Sabre=45;p.caps.Sabre=95;p.caps.Combat=95;
+  const before=p.skills.Sabre;for(let i=0;i<12&&p.skills.Sabre===before;i++){p.health=100;p.energy=100;g.alive=true;q.fight(20,'QA sword fight')}
+  assert(p.skills.Sabre>before,'Sabreur victory did not progress Sabre');return before.toFixed(1)+' -> '+p.skills.Sabre.toFixed(1);
+});
+test('V2.2 wealth UI exposes explicit debt',()=>{
+  const g=fresh(12015),p=g.player;p.ageMonths=300;p.life.debt=12345;q.renderChar();assert(fakeElement('#economySummary').innerHTML.includes('Dette'),'debt is absent from wealth UI');assert(fakeElement('#economySummary').innerHTML.includes('12 345')||fakeElement('#economySummary').innerHTML.includes('12 345')||fakeElement('#economySummary').innerHTML.includes('12345'),'debt amount is absent from wealth UI');return 'debt visible';
 });
 
 
