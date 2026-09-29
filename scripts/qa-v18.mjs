@@ -535,3 +535,5 @@ const summary={
 };
 console.log('\nQA_SUMMARY '+JSON.stringify(summary));
 if(failed.length) process.exitCode=1;
+
+// V1.8 adaptive life-loop release candidate
