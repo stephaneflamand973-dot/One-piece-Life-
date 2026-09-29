@@ -767,9 +767,9 @@ test('V2.4 every ambition has a real Auto progression effect',()=>{
   p.ambition='Devenir puissant';p.stats.Résistance=80;p.stats.Endurance=80;assert(q.recommendedFocus()==='Combat','Power ambition does not prioritize Combat');
   return '5 ambitions meaningful through Auto rules';
 });
-test('V2.4 calm adult pacing uses 4–6 month windows',()=>{
+test('V2.5 fun flow: calm adult pacing uses 4.5–6.5 month windows',()=>{
   const g=fresh(14003),p=g.player;p.ageMonths=300;p.career='Aucune';p.activity='Routine';p.focus='Auto';p.health=100;p.energy=100;p.conditions=[];p.ambition='Explorer le monde';
-  const plan=q.advancePlan();assert(plan.key==='calm-life','expected calm-life, got '+plan.key);assert(plan.min===4&&plan.max===6,'calm window is not 4–6 months');return plan.min+'-'+plan.max;
+  const plan=q.advancePlan();assert(plan.key==='calm-life','expected calm-life, got '+plan.key);assert(plan.min===4.5&&plan.max===6.5,'calm window is not 4.5–6.5 months');return plan.min+'-'+plan.max;
 });
 test('V2.4 career pacing uses 2.5–4.5 month windows',()=>{
   const g=fresh(14004),p=g.player;p.ageMonths=300;q.join('Civil');p.activity='Carrière';p.focus='Auto';p.health=100;p.energy=100;p.conditions=[];
