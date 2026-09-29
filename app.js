@@ -459,7 +459,7 @@ function advancePlan(){
  if(p.ageMonths<72)return{key:'childhood',label:'Enfance',tone:'calm',min:4,max:7,reason:'Le temps avance encore rapidement, avec interruption automatique en cas d’événement.'};
  if(p.ageMonths<180)return{key:'formation',label:'Formation',tone:'active',min:2,max:4,reason:'La progression devient plus détaillée à mesure que ton autonomie augmente.'};
  if(danger>=58||currentHeat()>55)return{key:'high-risk',label:'Contexte tendu',tone:'urgent',min:.5,max:1.5,reason:'Danger local ou pression judiciaire élevée : les périodes deviennent courtes.'};
- if(p.career!=='Aucune'||['Entraînement','Navigation','Sabre','Médecine','Explorer'].indexOf(p.activity)>=0||String(p.activity).indexOf('Formation')===0)return{key:'active-life',label:'Vie active',tone:'active',min:1,max:2,reason:'Carrière et entraînement maintiennent un rythme intermédiaire.'};
+ var focusedTraining=activityGrowthKeys(p.activity).length>0||String(p.activity).indexOf('Haki ')===0||p.activity==='Maîtrise du Fruit';if(p.career!=='Aucune'||focusedTraining)return{key:'active-life',label:'Vie active',tone:'active',min:1,max:2,reason:'Carrière et entraînement maintiennent un rythme intermédiaire.'};
  return{key:'calm-life',label:'Période calme',tone:'calm',min:1.5,max:3,reason:'Rien n’impose un découpage très fin pour le moment.'}
 }
 function chooseAdvanceDuration(plan){
