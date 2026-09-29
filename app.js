@@ -1306,7 +1306,7 @@ function renderDevOutput(){
 }
 
 function showGame(){$('#startScreen').classList.remove('active');$('#gameScreen').classList.add('active');$('#bottomNav').classList.remove('hidden');$('#homeBtn').classList.remove('hidden')}
-function showStart(){game=null;$('#gameScreen').classList.remove('active');$('#startScreen').classList.add('active');$('#bottomNav').classList.add('hidden');$('#homeBtn').classList.add('hidden');slots()}
+function showStart(){game=null;activeTab='life';$('#gameScreen').classList.remove('active');$('#startScreen').classList.add('active');$('#bottomNav').classList.add('hidden');$('#homeBtn').classList.add('hidden');slots()}
 function renderTimeline(){var a=game.timeline.filter(function(x){return !majorOnly||['major','danger','canon'].indexOf(x.type)>=0});$('#timeline').innerHTML=a.slice(0,45).map(function(x){return '<div class="timeline-item '+e(x.type)+'"><span class="timeline-dot"></span><span class="timeline-age">'+e(x.age)+'</span><div class="timeline-title">'+e(x.title)+'</div><div class="timeline-desc">'+e(x.desc)+'</div></div>'}).join('')}
 function renderJustice(){
  var p=game.player,j=migrateJustice(p),level=wantedLevel(),heat=currentHeat(),pressure=justicePressure(),bounty=p.bounty||0,badge=$('#wantedBadge');
@@ -1395,7 +1395,7 @@ function renderRel(){
 }
 function diplomacyLabel(v){return v>=60?'Alliance':v>=25?'Coopération':v>-25?'Neutre':v>-60?'Tension':'Hostilité'}
 function renderWorld(){var p=game.player,w=game.world,q=inf(),rp=w.pressures[p.region],terr=w.territories[p.island]||{controller:'Inconnu',influence:0,stability:0,contested:false};
- $('#worldHeadline').textContent='Grande Ère de la Piraterie';$('#worldSubhead').textContent='Année '+w.year+', mois '+(Math.floor(w.month)+1)+'. La V1.6 fait désormais évoluer les personnages, rivalités, mentors et souvenirs indépendamment de ta progression.';
+ $('#worldHeadline').textContent='Grande Ère de la Piraterie';$('#worldSubhead').textContent='Année '+w.year+', mois '+(Math.floor(w.month)+1)+'. La V1.7 conserve le monde vivant tout en affichant seulement les informations utiles à la section consultée.';
  $('#worldMeta').innerHTML='<span>Divergence '+Math.round(w.divergence)+'%</span><span>Tension '+Math.round(w.globalTension)+'%</span><span>'+p.visited.length+' lieux visités</span>';
  $('#placeName').textContent=p.travel?'En mer → '+p.travel.destination:p.island;$('#placeDanger').textContent='Danger '+q.danger;
  $('#placeDescription').textContent=p.travel?'Temps restant : '+Math.max(0,p.travel.remaining).toFixed(1)+' mois.':'Région : '+p.region+' • contrôle : '+terr.controller+' • stabilité '+Math.round(terr.stability)+'%.';
