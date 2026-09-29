@@ -771,9 +771,9 @@ test('V2.4 calm adult pacing uses 3–5 month windows',()=>{
   const g=fresh(14003),p=g.player;p.ageMonths=300;p.career='Aucune';p.activity='Routine';p.focus='Auto';p.health=100;p.energy=100;p.conditions=[];p.ambition='Explorer le monde';
   const plan=q.advancePlan();assert(plan.key==='calm-life','expected calm-life, got '+plan.key);assert(plan.min===3&&plan.max===5,'calm window is not 3–5 months');return plan.min+'-'+plan.max;
 });
-test('V2.4 career pacing uses 2–4 month windows',()=>{
+test('V2.4 career pacing uses 2.5–4.5 month windows',()=>{
   const g=fresh(14004),p=g.player;p.ageMonths=300;q.join('Civil');p.activity='Carrière';p.focus='Auto';p.health=100;p.energy=100;p.conditions=[];
-  const plan=q.advancePlan();assert(plan.key==='active-life','expected active-life, got '+plan.key);assert(plan.min===2&&plan.max===4,'career window is not 2–4 months');return plan.min+'-'+plan.max;
+  const plan=q.advancePlan();assert(plan.key==='active-life','expected active-life, got '+plan.key);assert(plan.min===2.5&&plan.max===4.5,'career window is not 2.5–4.5 months');return plan.min+'-'+plan.max;
 });
 test('V2.4 event progression reads persistent focus rather than temporary activity',()=>{
   const g=fresh(14005),p=g.player;p.ageMonths=300;p.activity='Routine';p.focus='Combat';p.style='Sabreur';
@@ -940,8 +940,8 @@ assert(metrics.storyTenYearPacing.maxActive<=2,'natural story engine exceeded ac
     }
     rows.push({clicks,years:Math.max(.01,(p.ageMonths-180)/12)});
   }
-  metrics.v24Fluidity={adultCalmClicksPerYear:+(rows.reduce((a,x)=>a+x.clicks,0)/rows.reduce((a,x)=>a+x.years,0)).toFixed(2),sample:rows.length};
-  assert(metrics.v24Fluidity.adultCalmClicksPerYear<=5.5,'V2.4 calm adult flow missed <=5.5 clicks/year target: '+metrics.v24Fluidity.adultCalmClicksPerYear);
+  metrics.v24Fluidity={adultFlowClicksPerYear:+(rows.reduce((a,x)=>a+x.clicks,0)/rows.reduce((a,x)=>a+x.years,0)).toFixed(2),sample:rows.length};
+  assert(metrics.v24Fluidity.adultFlowClicksPerYear<=5.5,'V2.4 adult flow missed <=5.5 clicks/year target: '+metrics.v24Fluidity.adultFlowClicksPerYear);
 }
 
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
