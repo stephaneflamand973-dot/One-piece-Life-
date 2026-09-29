@@ -57,7 +57,7 @@ window.__qa={
  getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,
  advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,event:event,eventChance:eventChance,migrateLifeLoop:migrateLifeLoop,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,
- power:power,styleMastery:styleMastery,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,focusOptions:focusOptions,recommendedFocus:recommendedFocus,normalizeActivityFocus:normalizeActivityFocus,simpleFocusKeys:simpleFocusKeys,styleFocusKeys:styleFocusKeys,careerFocusKeys:careerFocusKeys,hasPowerFocus:hasPowerFocus,
+ power:power,styleMastery:styleMastery,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,focusOptions:focusOptions,recommendedFocus:recommendedFocus,normalizeActivityFocus:normalizeActivityFocus,currentFocus:currentFocus,simpleFocusKeys:simpleFocusKeys,styleFocusKeys:styleFocusKeys,careerFocusKeys:careerFocusKeys,hasPowerFocus:hasPowerFocus,
  developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,
  join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionResolution:missionResolution,
  createRelation:createRelation,pursueRomance:pursueRomance,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,
@@ -706,13 +706,13 @@ test('V2.3 power focus stays contextual',()=>{
   assert(!q.focusOptions().includes('Pouvoirs'),'power focus exposed without relevant power path');
   p.ageMonths=180;p.latent.Observation=80;assert(q.focusOptions().includes('Pouvoirs'),'power focus missing with strong latent Haki');return 'contextual';
 });
-test('V2.3 legacy training choices migrate into simple focuses',()=>{
-  let g=fresh(13007),p=g.player;p.ageMonths=300;p.activity='Mobilité';g.version=22;g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===23,'migration did not reach V23');assert(g.player.activity==='Forme','Mobilité did not migrate to Forme');
-  g.player.activity='Médecine';q.normalizeActivityFocus(g.player,g);assert(g.player.activity==='Carrière','Médecine did not normalize to Carrière');return 'legacy focus migration';
+test('V2.3 legacy training choices migrate into persistent simple focuses',()=>{
+  let g=fresh(13007),p=g.player;p.ageMonths=300;p.focus=null;p.activity='Mobilité';g.version=22;g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===23,'migration did not reach V23');assert(g.player.focus==='Forme','Mobilité did not migrate to Forme focus');assert(g.player.activity==='Routine','legacy training activity was not simplified');
+  g.player.focus=null;g.player.activity='Médecine';q.normalizeActivityFocus(g.player,g);assert(g.player.focus==='Carrière','Médecine did not normalize to Carrière focus');return 'legacy focus migration';
 });
 test('V2.3 focus migration preserves active travel context',()=>{
-  let g=fresh(13008),p=g.player;p.ageMonths=300;p.activity='Navigation';p.travel={from:p.island,destination:p.island,remaining:1,total:1,danger:10,condition:'calm',logs:[]};g.version=22;
-  g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.player.activity==='Navigation','travel activity was overwritten during migration');return 'travel preserved';
+  let g=fresh(13008),p=g.player;p.ageMonths=300;p.focus='Combat';p.activity='Navigation';p.travel={from:p.island,destination:p.island,remaining:1,total:1,danger:10,condition:'calm',logs:[]};g.version=22;
+  g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.player.activity==='Navigation','travel activity was overwritten during migration');assert(g.player.focus==='Combat','persistent focus was overwritten during travel migration');return 'travel + focus preserved';
 });
 test('V2.3 mission board shows at most three contextual opportunities',()=>{
   const g=fresh(13009),p=g.player;p.ageMonths=300;q.join('Civil');p.specialization='Scientifique';q.careerRecord().specialization='Scientifique';const b=q.board();
@@ -733,6 +733,21 @@ test('V2.3 recommended focus reacts to ambition and condition',()=>{
   const g=fresh(13012),p=g.player;p.ageMonths=300;p.career='Civil';p.faction='Civil';
   p.ambition='Devenir puissant';p.health=100;p.energy=100;assert(q.recommendedFocus()==='Combat','power ambition did not recommend Combat');
   p.health=60;assert(q.recommendedFocus()==='Forme','low health did not prioritize Forme');return 'adaptive recommendation';
+});
+
+
+test('V2.3 exploration does not erase the progression focus',()=>{
+  const g=fresh(13013),p=g.player;p.ageMonths=300;p.focus='Combat';p.activity='Routine';q.setExplorationActivity();
+  assert(p.activity==='Explorer','exploration context did not activate');assert(p.focus==='Combat','exploration erased persistent focus');return p.activity+' / '+p.focus;
+});
+test('V2.3 missions do not erase the progression focus',()=>{
+  const g=fresh(13014),p=g.player;p.ageMonths=300;q.join('Civil');p.focus='Forme';const b=q.board();assert(b.length,'no mission available');q.startMission(0);
+  assert(p.focus==='Forme','mission erased persistent focus');assert(g.mission,'mission did not start');return g.mission.title+' / '+p.focus;
+});
+test('V2.3 focus selection changes focus without faking the current activity',()=>{
+  const g=fresh(13015),p=g.player;p.ageMonths=300;p.activity='Explorer';p.focus='Équilibre';q.renderActivityOptions();
+  const before=p.activity;const btn=fakeElement('#activityOptions');assert(btn.innerHTML.includes('Combat'),'Combat focus unavailable');
+  p.focus='Combat';assert(p.activity===before,'changing focus changed activity context');assert(q.currentFocus()==='Combat','current focus mismatch');return p.activity+' / '+p.focus;
 });
 
 
