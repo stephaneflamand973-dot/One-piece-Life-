@@ -72,6 +72,26 @@ Le GameState passe en **version interne 23**.
 
 Les anciennes activités des sauvegardes V2.2 sont automatiquement converties vers les nouveaux focus sans supprimer les statistiques déjà acquises.
 
+## QA V2.3
+
+La release candidate passe **137/137 scénarios fonctionnels**.
+
+Les tests dédiés vérifient notamment :
+
+- maximum cinq focus de progression visibles ;
+- adaptation du focus Combat au style ;
+- ciblage automatique des points faibles par Forme et Équilibre ;
+- adaptation du focus Carrière à la spécialisation ;
+- apparition contextuelle du focus Pouvoirs ;
+- migration V22 → V23 des anciennes activités ;
+- conservation du focus pendant exploration, voyage et mission ;
+- trois missions contextuelles maximum ;
+- une seule commande persistante pour spécialisation et ambition ;
+- navigation réduite à 3/3/2/3 sous-sections ;
+- stabilité du rythme de vie, du monde, de l’économie, de l’exploration et de la narration.
+
+Sur les simulations de référence, le personnage moyen atteint environ **35 de puissance à 25 ans**, l’enfance demande environ **48 clics** jusqu’à 15 ans, et le moteur narratif reste à environ **5,7 fils démarrés sur dix ans**.
+
 ---
 
 # ONE PIECE LIFE — V2.2 Meaningful Builds & Missions
