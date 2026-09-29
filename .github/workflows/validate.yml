@@ -2,7 +2,9 @@ name: Validate game
 
 on:
   push:
-    branches: [main, v1.8-adaptive-life-loop]
+    branches:
+      - main
+      - 'v*'
   workflow_dispatch:
 
 permissions:
@@ -20,8 +22,6 @@ jobs:
         run: node scripts/validate-content.mjs
       - name: Professional systems QA
         run: |
-          if [ -f scripts/qa-v18.mjs ]; then
-            node scripts/qa-v18.mjs
-          else
-            node scripts/qa-v17.mjs
-          fi
+          QA_SCRIPT=$(ls scripts/qa-v*.mjs | sort -V | tail -1)
+          echo "Running $QA_SCRIPT"
+          node "$QA_SCRIPT"
