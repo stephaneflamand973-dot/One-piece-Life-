@@ -55,7 +55,7 @@ vm.runInContext(contentSource,sandbox,{filename:'content-v1.js'});
 
 const exposure=`
 window.__qa={
- setMode:function(v){mode=v},getMode:function(){return mode},
+ setMode:function(v){mode=v},getMode:function(){return mode},setSlot:function(v){slot=v},getSlot:function(){return slot},
  getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,loadMeta:loadMeta,deleteSaveSlot:deleteSaveSlot,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,simulateActors:simulateActors,simulateCrews:simulateCrews,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,
  advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,eventChance:eventChance,migrateLifeLoop:migrateLifeLoop,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
@@ -859,6 +859,18 @@ test('V2.5 market-sourced mission can clear a shortage',()=>{
 });
 test('V2.5 save-slot deletion removes save and slot meta only',()=>{
   fresh(14012);q.save();assert(q.load(1),'slot 1 was not saved');assert(q.loadMeta(),'slot metadata was not saved');const ok=q.deleteSaveSlot(1,true);assert(ok,'deleteSaveSlot returned false');assert(q.load(1)===null,'save data survived deletion');assert(q.loadMeta()===null,'slot metadata survived deletion');return 'slot 1 fully deleted';
+});
+
+
+test('V2.5 save-slot deletion leaves other slots untouched',()=>{
+  q.setSlot(1);fresh(14013);q.save();q.setSlot(2);fresh(14014);q.save();assert(q.load(1)&&q.load(2),'test slots were not saved');
+  q.setSlot(1);q.deleteSaveSlot(1,true);assert(q.load(1)===null,'deleted slot survived');assert(q.load(2),'deleting slot 1 removed slot 2');q.setSlot(1);return 'slot isolation preserved';
+});
+test('V2.5 conflict missions apply faction-specific consequences',()=>{
+  const g=fresh(14015),p=g.player;p.ageMonths=300;g.world.conflicts=[{location:p.island,region:p.region,attacker:'Pirates',defender:'Marine',intensity:60,status:'active'}];g.world.territories[p.island].stability=60;
+  q.applyMissionSourceImpact(true,{source:{type:'conflict',location:p.island,effect:'stabilize'}});const stabilized=g.world.conflicts[0].intensity;assert(stabilized<60,'stabilization mission did not reduce conflict');
+  g.world.conflicts[0].intensity=60;const stability=g.world.territories[p.island].stability;q.applyMissionSourceImpact(true,{source:{type:'conflict',location:p.island,effect:'exploit'}});
+  assert(g.world.conflicts[0].intensity>60,'pirate exploitation unexpectedly calmed conflict');assert(g.world.territories[p.island].stability<stability,'pirate exploitation did not destabilize territory');return stabilized+' vs '+g.world.conflicts[0].intensity;
 });
 
 
