@@ -1,6 +1,36 @@
-# ONE PIECE LIFE — V1.5 Economy, Trade & Black Market
+# ONE PIECE LIFE — V1.5.1 Stability & Balance
 
 Simulateur mobile-first de vie, carrière, aventure et héritage dans un monde One Piece vivant.
+
+## V1.5.1 — Stability & Balance
+
+La V1.5.1 est une mise à jour de consolidation basée sur un banc QA professionnel.
+
+### Correctifs critiques
+
+- correction de `organizationPower()`, qui pouvait provoquer `ReferenceError: avg is not defined` dès qu’une organisation existait ;
+- initialisation du RNG avant les premiers tirages Destiny, afin qu’une seed reproduise réellement toute la naissance ;
+- conservation du schéma de sauvegarde interne V15, aucune réinitialisation nécessaire.
+
+### Rééquilibrage
+
+- courbe de danger des combats plus lisible ;
+- campagnes stratégiques moins biaisées en faveur du défenseur ;
+- soutien des coalitions et logistique du joueur intégrés aux batailles de guerre ;
+- écarts régionaux de prix atténués ;
+- achats et ventes en volume soumis au slippage ;
+- pénuries moins fréquentes mais persistantes plusieurs mois ;
+- risque qualitatif affiché sur les missions.
+
+### Mobile
+
+- textes secondaires importants agrandis ;
+- boutons de marché remontés à 44 px minimum ;
+- meilleure lisibilité des guerres, domaines et marchés sur petit écran.
+
+### QA
+
+La CI exécute désormais le validateur statique, le validateur de contenu et le banc QA de 23 scénarios fonctionnels, avec gardes de régression sur le combat, les guerres, les pénuries et les marges commerciales.
 
 ## V1.5 — Economy, Trade & Black Market
 
