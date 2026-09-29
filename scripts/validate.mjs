@@ -68,4 +68,8 @@ if(!app.includes('function helpRelation') || !app.includes('function askRelation
 if(!app.includes('function approachCanonicalActor')) throw new Error('V1.6 direct canonical interaction missing');
 if(!app.includes('legacyRelations') || !app.includes("'legacy'")) throw new Error('V1.6 generational social memory missing');
 if(!app.includes('linkedRelationId') || !app.includes('rr.npcPower')) throw new Error('V1.6 organization/relation synchronization missing');
+if(!app.includes('function rivalStage') || !app.includes('function reconcileRival') || !app.includes('peerRecognized')) throw new Error('V1.6 relationship lifecycle arcs missing');
+if(!app.includes('function realignRelationsAfterFactionChange') || !app.includes('political hostility') && !app.includes('tensions entre vos factions')) throw new Error('V1.6 faction/social integration missing');
+if(!app.includes("r.npcAgeMonths<216") || !app.includes("r.npcAgeMonths<180")) throw new Error('V1.6 NPC age guards missing');
+if(!app.includes('ageFactor=r.npcAgeMonths<144') || !app.includes('r.npcAgeMonths>=180&&R')) throw new Error('V1.6 age-aware NPC lifecycle missing');
 console.log('ONE PIECE LIFE V1.6 validation OK');
