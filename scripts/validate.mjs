@@ -42,6 +42,7 @@ if(!app.includes('function renderRelClose') || !app.includes('function renderRel
 if(!app.includes('function renderAbProgress') || !app.includes('function renderAbPowers') || !app.includes('function renderAbDetails')) throw new Error('V2.4 lazy progression rendering missing');
 if(!app.includes("activityGrowthKeys(currentFocus())")) throw new Error('V2.4 focus-aware event engine missing');
 if(!app.includes('function assignActorIntent') || !app.includes('function resolveActorIntent') || !app.includes('function crewIntentTick')) throw new Error('V2.5 world intention engine missing');
+if(!app.includes('function weightedIntent') || !app.includes('function weightedPool')) throw new Error('V2.5 context-aware intent weighting missing');
 if(!app.includes('function assignNpcIntent') || !app.includes('function npcSocialTick') || !app.includes('npcLinks')) throw new Error('V2.5 autonomous NPC network missing');
 if(!app.includes('function worldMissionOpportunities') || !app.includes('function applyWorldMissionOutcome')) throw new Error('V2.5 causal mission engine missing');
 if(!app.includes('function purgeSaveSlot') || !app.includes('function deleteSaveSlot') || !app.includes('save-delete')) throw new Error('V2.5 save deletion missing');

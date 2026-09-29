@@ -846,6 +846,25 @@ test('V2.5 board: contextual world missions compete with static opportunities',(
 });
 
 
+test('V2.5 actor goals strongly bias autonomous intent selection',()=>{
+  const g=fresh(14101),a=g.world.actors.find(x=>x.status==='active')||g.world.actors[0];a.goal='Étendre son territoire et sa domination';a.faction='Pirates';a.momentum=4;
+  const counts={};for(let i=0;i<180;i++){a.intention=null;a.intentionMonths=0;const x=q.assignActorIntent(a);counts[x]=(counts[x]||0)+1}
+  assert((counts['Étendre son influence']||0)>(counts['Voyager']||0),'territorial goal failed to bias influence '+JSON.stringify(counts));
+  return JSON.stringify(counts);
+});
+test('V2.5 damaged crews overwhelmingly choose recovery',()=>{
+  const g=fresh(14102),c=g.world.crews[0];c.resources=7;c.morale=12;c.members=14;
+  const counts={};for(let i=0;i<120;i++){c.intention=null;c.intentionMonths=0;const x=q.assignCrewIntent(c);counts[x]=(counts[x]||0)+1}
+  assert((counts['Se remettre']||0)>=80,'damaged crew did not prioritize recovery '+JSON.stringify(counts));return JSON.stringify(counts);
+});
+test('V2.5 NPC ambition strongly biases autonomous intent selection',()=>{
+  const g=fresh(14103),r=q.createRelation('ami');r.npcAgeMonths=300;r.npcAmbition='Faire fortune';r.npcWealth=0;
+  const counts={};for(let i=0;i<180;i++){r.npcIntent=null;r.npcIntentMonths=0;const x=q.assignNpcIntent(r);counts[x]=(counts[x]||0)+1}
+  assert((counts['S’enrichir']||0)>(counts['Voyager']||0),'fortune ambition failed to bias wealth '+JSON.stringify(counts));
+  assert((counts['S’enrichir']||0)>(counts['Faire carrière']||0),'fortune ambition failed to dominate generic career '+JSON.stringify(counts));return JSON.stringify(counts);
+});
+
+
 const metrics={};
 {
   const origins={},races={},styles={};

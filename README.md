@@ -89,7 +89,7 @@ Les sauvegardes V2.4 migrent automatiquement et reçoivent les nouveaux champs d
 
 ## QA V2.5
 
-La release candidate passe **159/159 scénarios fonctionnels**.
+La release durcie passe **162/162 scénarios fonctionnels**.
 
 Les nouveaux garde-fous vérifient notamment :
 
@@ -102,13 +102,16 @@ Les nouveaux garde-fous vérifient notamment :
 - conséquences d'une mission sur son équipage, conflit ou acteur source ;
 - maintien du tableau de missions à trois opportunités maximum ;
 - suppression complète d'un emplacement de sauvegarde et de ses métadonnées sans toucher aux autres slots.
+- intentions pondérées par les objectifs et l’état réel des acteurs ;
+- équipages en difficulté qui privilégient la récupération ;
+- ambitions des PNJ qui orientent réellement leurs décisions autonomes.
 
 Mesures longues de référence :
 
 - monde simulé sur 30 ans : **31,8 %** de divergence moyenne ;
 - **7,9 équipages actifs** en moyenne après simulation longue ;
 - indice des prix moyen : **102,7** ;
-- progression de 120 PNJ sur 15 ans : gain moyen **+15,7**, puissance maximale **81,5**, aucun PNJ ordinaire à 95+ ;
+- progression de 120 PNJ sur 15 ans : gain moyen **+17,2**, puissance maximale **87,6**, aucun PNJ ordinaire à 95+ ;
 - fluidité adulte conservée : **5,42 AVANCER/an** ;
 - carrière active : **6,29 AVANCER/an** ;
 - exploration : **5,31 AVANCER/an**.
