@@ -2,7 +2,7 @@ name: Validate game
 
 on:
   push:
-    branches: [main]
+    branches: [main, v1.8-adaptive-life-loop]
   workflow_dispatch:
 
 permissions:
@@ -19,4 +19,9 @@ jobs:
       - name: Validate V1 content pack
         run: node scripts/validate-content.mjs
       - name: Professional systems QA
-        run: node scripts/qa-v17.mjs
+        run: |
+          if [ -f scripts/qa-v18.mjs ]; then
+            node scripts/qa-v18.mjs
+          else
+            node scripts/qa-v17.mjs
+          fi
