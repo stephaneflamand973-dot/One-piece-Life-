@@ -10,13 +10,13 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('V1.8')) throw new Error('index.html does not expose V1.8');
-if(!app.includes('version:18') || !app.includes('g.version=18')) throw new Error('game state is not V1.8 migration version 18');
+if(!html.includes('V1.9')) throw new Error('index.html does not expose V1.9');
+if(!app.includes('version:19') || !app.includes('g.version=19')) throw new Error('game state is not V1.9 migration version 19');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
 if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include content-v1.js');
 
-const dynamicIds=new Set(['eatHeldFruit','challengeBtn','martialTrainBtn','changeCareerBtn','careerRecordBtn','upgradeHousingBtn','investBusinessBtn','partnerTimeBtn','marryBtn','breakupBtn','welcomeChildBtn','orgBondBtn','orgRecruitBtn','orgTrainBtn','orgFundBtn','orgSupplyBtn','orgRepairBtn','orgUpgradeBtn','layLowBtn','surrenderBtn','escapeBtn','claimDomainBtn','fortifyDomainBtn','affiliateCrewBtn','launchCampaignBtn','seekMentorBtn']);
+const dynamicIds=new Set(['eatHeldFruit','challengeBtn','martialTrainBtn','changeCareerBtn','careerRecordBtn','upgradeHousingBtn','investBusinessBtn','partnerTimeBtn','marryBtn','breakupBtn','welcomeChildBtn','orgBondBtn','orgRecruitBtn','orgTrainBtn','orgFundBtn','orgSupplyBtn','orgRepairBtn','orgUpgradeBtn','layLowBtn','surrenderBtn','escapeBtn','claimDomainBtn','fortifyDomainBtn','affiliateCrewBtn','launchCampaignBtn','seekMentorBtn','exploreIslandBtn','seekRumorBtn']);
 const ids=[...app.matchAll(/\$\('#([^']+)'\)/g)].map(m=>m[1]);
 const missing=[...new Set(ids)].filter(id=>!dynamicIds.has(id)&&!html.includes('id="'+id+'"'));
 if(missing.length) throw new Error('Missing HTML ids: '+missing.join(', '));
@@ -84,4 +84,11 @@ if(!app.includes('function eventChance') || !app.includes('function weightedEven
 if(!app.includes('function finalizeAdvanceReport') || !app.includes('function renderAdvanceLoop')) throw new Error('V1.8 advance feedback missing');
 if(!html.includes('id="advanceRhythm"') || !html.includes('id="advanceReport"') || !html.includes('id="advanceReportStats"')) throw new Error('V1.8 life-loop UI missing');
 if(!app.includes("loop.quietAdvances>=2")) throw new Error('V1.8 quiet-streak guard missing');
-console.log('ONE PIECE LIFE V1.8 validation OK');
+if(!app.includes('function defaultExploration') || !app.includes('function explorationSite') || !app.includes('function explorationTick')) throw new Error('V1.9 exploration engine missing');
+if(!app.includes('function islandProfile') || !app.includes('function discoveryPool') || !app.includes('function registerDiscovery')) throw new Error('V1.9 island identity/discovery engine missing');
+if(!app.includes('function routeEstimate') || !app.includes('function seaJourneyTick') || !app.includes('function renderJourney')) throw new Error('V1.9 sea journey engine missing');
+if(!app.includes('function currentRumor') || !app.includes('function learnLocalRumor')) throw new Error('V1.9 rumor engine missing');
+if(!app.includes('function renderCodexExploration')) throw new Error('V1.9 Codex exploration integration missing');
+if(!html.includes('id="explorationSummary"') || !html.includes('id="localDiscoveries"') || !html.includes('id="seaJourneyCard"') || !html.includes('id="codexSummary"')) throw new Error('V1.9 exploration UI missing');
+if(!app.includes("id:'explorer'") || !app.includes("id:'discoverer'") || !app.includes("id:'cartographer'")) throw new Error('V1.9 exploration achievements missing');
+console.log('ONE PIECE LIFE V1.9 validation OK');
