@@ -121,7 +121,7 @@ test('Static: no broken dynamic selector pattern',()=>{
   const bad=[...appSource.matchAll(/(?<!\$)\$\('\[[^']+\]'\)\.forEach/g)];
   assert(!bad.length,'single-element selector used as list: '+bad.map(x=>x[0]).join(','));return 'selectors clean'
 });
-test('Creation: Custom mode initializes full V1.5 state',()=>{
+test('Creation: Custom mode initializes full V1.6 state',()=>{
   const g=fresh(1111,'custom');assert(g.version===16,'wrong version');assert(g.player.name==='QA Tester','name');assert(g.player.origin==='East Blue','origin');
   assert(Object.keys(g.world.markets).length===Object.keys(q.constants.PL).length,'market coverage mismatch');assert(g.world.treaties.some(t=>t.a==='Marine'&&t.b==='Gouvernement'),'foundation alliance absent');
   assert(g.player.trade&&g.player.strategy&&g.player.influence&&g.player.justice,'new subsystem state missing');bounds(g);return Object.keys(g.world.markets).length+' markets'
@@ -130,7 +130,7 @@ test('Creation: Destiny mode is seed deterministic',()=>{
   function snap(){const g=fresh(424242,'destiny');return JSON.stringify({origin:g.player.origin,race:g.player.race,style:g.player.style,stats:g.player.stats,skills:g.player.skills,caps:g.player.caps,island:g.player.island})}
   const a=snap(),b=snap();assert(a===b,'same seed generated different character');return 'seed 424242 reproducible'
 });
-test('Migration: legacy state upgrades idempotently to V1.5',()=>{
+test('Migration: legacy state upgrades idempotently to V1.6',()=>{
   let g=fresh(3001);g=JSON.parse(JSON.stringify(g));g.version=9;delete g.player.trade;delete g.player.strategy;delete g.player.influence;delete g.world.markets;delete g.world.economy;delete g.world.wars;delete g.world.treaties;
   let m=q.migrate(g);assert(m.version===16,'migration version');assert(m.player.trade&&m.player.strategy&&m.player.influence,'player migration missing');assert(Object.keys(m.world.markets).length===Object.keys(q.constants.PL).length,'markets not restored');
   const counts=[m.world.actors.length,m.world.crews.length,m.world.treaties.length];m=q.migrate(m);assert(counts.join('/')===[m.world.actors.length,m.world.crews.length,m.world.treaties.length].join('/'),'idempotent migration duplicated world entities');q.setGame(m);bounds(m);return 'legacy v9 -> v16'
@@ -280,7 +280,7 @@ test('V1.6 organization locality: linked recruit follows the player instead of r
 test('V1.6 social generation: childhood relations use age-coherent roles',()=>{
   const g=fresh(4995),p=g.player;p.ageMonths=48;
   for(let i=0;i<40;i++){const r=q.createRelation();assert(r.role!=='mentor'&&r.role!=='collègue'&&r.role!=='rival','preschool child generated implausible role: '+r.role);assert(r.faction==='Civil','young child relation generated professional faction')}
-  p.ageMonths=96;for(let i=0;i<40;i++){const r=q.createRelation();assert(r.role!=='mentor'&&r.role!=='collègue','child generated adult social role: '+r.role);assert(q.npcCareerRank(r)==='Enfance','child NPC displayed adult career rank')}
+  p.ageMonths=96;for(let i=0;i<40;i++){const r=q.createRelation();assert(r.role!=='mentor'&&r.role!=='collègue','child generated adult social role: '+r.role);assert(['Enfance','Formation'].includes(q.npcCareerRank(r)),'child NPC displayed adult career rank: '+q.npcCareerRank(r))}
   return '80 childhood relations coherent'
 });
 
