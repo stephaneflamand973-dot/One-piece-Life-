@@ -72,9 +72,9 @@ function normalizeActivityFocus(p,g){
  if(legacy&&(!p.focus||p.focus==='Grandir'&&p.ageMonths>=72))p.focus=legacy;
  if(p.ageMonths>=72&&p.focus==='Grandir')p.focus=p.career&&p.career!=='Aucune'?'Carrière':'Équilibre';
  if(p.focus!=='Grandir'&&!SIMPLE_FOCUS[p.focus])p.focus=p.ageMonths<72?'Grandir':p.career&&p.career!=='Aucune'?'Carrière':'Équilibre';
- if(LEGACY_FOCUS[p.activity]||SIMPLE_FOCUS[p.activity])p.activity=p.situation==='Carrière'?'Carrière':p.situation==='Formation'?'Formation':p.ageMonths<72?'Grandir':'Routine'
+ if(LEGACY_FOCUS[p.activity]||SIMPLE_FOCUS[p.activity]||p.activity==='Navigation'&&!p.travel)p.activity=p.situation==='Carrière'?'Carrière':p.situation==='Formation'?'Formation':p.ageMonths<72?'Grandir':'Routine'
 }
-function currentFocus(){var p=game.player;if(p.focus)return p.focus;if(LEGACY_FOCUS[p.activity])return LEGACY_FOCUS[p.activity];if(SIMPLE_FOCUS[p.activity])return p.activity;return p.ageMonths<72?'Grandir':p.career!=='Aucune'?'Carrière':'Équilibre'}
+function currentFocus(){var p=game.player;if(p.focus&&!(p.focus==='Grandir'&&p.ageMonths>=72))return p.focus;if(LEGACY_FOCUS[p.activity])return LEGACY_FOCUS[p.activity];if(SIMPLE_FOCUS[p.activity])return p.activity;return p.ageMonths<72?'Grandir':p.career!=='Aucune'?'Carrière':'Équilibre'}
 
 var PL={
 'Loguetown':['East Blue',14,['Shells Town','Baratie','Reverse Mountain']],
