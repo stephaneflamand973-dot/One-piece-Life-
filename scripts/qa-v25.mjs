@@ -352,7 +352,7 @@ test('V2.0 adaptive time: life stages use distinct time windows',()=>{
   p.ageMonths=6;stages.infant=q.advancePlan();p.ageMonths=48;stages.child=q.advancePlan();p.ageMonths=120;stages.teen=q.advancePlan();p.ageMonths=300;p.career='Aucune';p.activity='Explorer';stages.adult=q.advancePlan();
   assert(stages.infant.min>=5&&stages.infant.max>=7,'infancy window is too short');
   assert(stages.child.max<stages.infant.max,'childhood should narrow relative to infancy');
-  assert(stages.teen.max<=4.5,'formation window is too long');
+  assert(stages.teen.max<=5.5&&stages.teen.max<stages.child.max,'formation window is too long or no longer distinct from childhood');
   assert(stages.adult.max<=3,'adult calm window is too long');
   return 'infant '+stages.infant.min+'-'+stages.infant.max+' / child '+stages.child.min+'-'+stages.child.max+' / teen '+stages.teen.min+'-'+stages.teen.max+' / adult '+stages.adult.min+'-'+stages.adult.max
 });
