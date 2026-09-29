@@ -1,3 +1,118 @@
+# ONE PIECE LIFE — V1.8 Adaptive Life Loop
+
+La V1.8 refond le cœur du jeu : **AVANCER**. Le moteur choisit désormais une durée selon l’âge et le contexte, resserre automatiquement le temps pendant les situations tendues et évite les longues séries de clics sans intérêt.
+
+## Temps adaptatif
+
+La durée d’un avancement dépend maintenant de la situation :
+
+- petite enfance : environ 6 à 9 mois ;
+- enfance : environ 4 à 7 mois ;
+- formation : environ 2 à 4 mois ;
+- vie adulte calme : environ 1,5 à 3 mois ;
+- carrière ou entraînement soutenu : environ 1 à 2 mois ;
+- danger élevé, blessure, mission, voyage ou détention : périodes beaucoup plus courtes.
+
+Une mission ou une traversée ne peut jamais être dépassée artificiellement par le pas temporel.
+
+## Directeur d’événements
+
+Les événements ne reposent plus sur une simple probabilité uniforme.
+
+Le moteur tient compte notamment :
+
+- de l’âge ;
+- du danger local ;
+- de la tension mondiale ;
+- de l’activité du personnage ;
+- des acteurs et équipages présents ;
+- du nombre de périodes calmes successives ;
+- de la disponibilité réelle de certains événements rares.
+
+Les événements récents voient temporairement leur poids diminuer afin de limiter les répétitions.
+
+## Enfance cohérente
+
+Le directeur d’événements distingue désormais explicitement les événements de jeunesse.
+
+Un jeune enfant peut vivre :
+
+- découvertes ;
+- petits défis ;
+- rencontres familiales ;
+- rumeurs du large ;
+- micro-progressions cohérentes.
+
+Il n’est plus envoyé vers les mêmes événements commerciaux ou combats génériques qu’un adulte.
+
+## Anti-ennui sans récompense artificielle
+
+Une période peut rester calme.
+
+Mais après plusieurs périodes réellement calmes, la probabilité d’une interruption significative augmente automatiquement.
+
+Le moteur ne garantit donc pas un Fruit, un Haki ou une rencontre canonique. Il garantit seulement que la simulation ne se transforme pas en série de clics vides.
+
+## Résumé de période
+
+Après chaque AVANCER, l’écran Vie affiche désormais :
+
+- durée écoulée ;
+- progression cumulée ;
+- variation de puissance ;
+- variation de Berry ;
+- nombre de moments notables ;
+- explication synthétique de la période.
+
+Le joueur peut donc comprendre ce qui vient de se passer sans fouiller toutes les statistiques.
+
+## Prévisualisation du rythme
+
+Avant d’avancer, l’interface indique le type de période actuel :
+
+- Période calme ;
+- Formation ;
+- Vie active ;
+- Navigation ;
+- Mission ;
+- Contexte tendu ;
+- Récupération ;
+- Détention.
+
+Elle donne aussi la fenêtre temporelle probable et explique pourquoi le moteur l’a choisie.
+
+## Sauvegardes
+
+Le GameState passe en **version 18**.
+
+Les sauvegardes V1.7 sont migrées automatiquement et reçoivent simplement le nouvel état de boucle de vie. Timeline, personnage, monde, relations et progression existants sont conservés.
+
+## QA V1.8
+
+La release candidate passe **72/72 scénarios fonctionnels**.
+
+Les nouveaux tests couvrent notamment :
+
+- fenêtres temporelles selon l’âge ;
+- limites de durée des missions et voyages ;
+- rapport après AVANCER ;
+- protection contre les longues séries de périodes vides ;
+- événements d’enfance adaptés à l’âge ;
+- montée de probabilité après plusieurs périodes calmes ;
+- migration V17 → V18 ;
+- rendu de la nouvelle interface Vie.
+
+Télémétrie de référence :
+
+- 30 vies simulées de la naissance à 15 ans ;
+- **48,1 clics** en moyenne pour atteindre 15 ans parmi les vies qui y parviennent ;
+- environ **0,52 moment notable par clic** ;
+- **29 vies sur 30** atteignent 15 ans dans l’échantillon, avec 1 mort précoce cohérente avec la mortalité du simulateur ;
+- maximum de **2 périodes réellement calmes consécutives** ;
+- tous les contrôles de progression, monde vivant, économie, guerre, PNJ, justice et héritage des versions précédentes restent actifs.
+
+---
+
 # ONE PIECE LIFE — V1.7 Core Experience Rework
 
 La V1.7 est une refonte structurelle centrée sur les principes du GDD : **interface simple, simulation profonde, progression cohérente et moteur rapide**.

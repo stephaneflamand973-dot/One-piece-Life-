@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ONE PIECE LIFE" />
   <meta name="description" content="ONE PIECE LIFE, simulateur mobile-first de destin, carrière et aventure dans un monde pirate vivant." />
-  <title>ONE PIECE LIFE — V1.7</title>
+  <title>ONE PIECE LIFE — V1.8</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="styles.css" />
@@ -28,10 +28,10 @@
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V1.7 • Core Experience Rework • iPhone & PWA</span>
+        <span class="eyebrow">V1.8 • Adaptive Life Loop • iPhone & PWA</span>
         <h2>Une vie. Un monde qui n’attend pas ton arrivée.</h2>
-        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.7 recentre l’expérience : navigation claire, progression lisible, rendu plus rapide et évolution du personnage auditée de la naissance à la légende.</p>
-        <div class="feature-pills"><span>Progression auditée</span><span>Navigation segmentée</span><span>Rendu allégé</span><span>Autosave</span></div>
+        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.8 refond la boucle centrale : durée adaptative, rythme contextuel, événements mieux cadencés et résumé clair de chaque période.</p>
+        <div class="feature-pills"><span>Temps adaptatif</span><span>Rythme vivant</span><span>Résumé de période</span><span>Autosave</span></div>
       </section>
 
       <section id="localFileWarning" class="paper-card compatibility-card">
@@ -94,6 +94,16 @@
             <div><span>Santé</span><strong id="healthValue">100%</strong></div><div><span>Énergie</span><strong id="energyValue">100%</strong></div>
           </div>
           <div id="conditionChips" class="chip-list compact-list"></div>
+        </section>
+
+        <section class="paper-card advance-context-card">
+          <div class="section-heading compact"><div><span class="eyebrow">Rythme de vie</span><h3 id="advanceRhythm">Période calme</h3></div><span id="advanceWindowBadge" class="badge">Adaptatif</span></div>
+          <p id="advancePreview" class="advance-preview">Le moteur adapte automatiquement la durée au contexte.</p>
+          <div id="advanceReport" class="advance-report hidden">
+            <div class="advance-report-head"><strong>Dernier avancement</strong><span id="advanceReportDuration"></span></div>
+            <div id="advanceReportStats" class="advance-report-stats"></div>
+            <p id="advanceReportText"></p>
+          </div>
         </section>
 
         <section id="attentionCard" class="paper-card attention-card hidden"><span class="eyebrow">À décider</span><h3 id="attentionTitle"></h3><p id="attentionText"></p><button id="attentionBtn" class="primary-btn small">Voir les choix</button></section>

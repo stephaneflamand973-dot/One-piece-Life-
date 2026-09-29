@@ -8,7 +8,7 @@
   "orientation": "portrait-primary",
   "background_color": "#f4ecd8",
   "theme_color": "#f4ecd8",
-  "description": "V1.7 — refonte de l’expérience centrale : navigation mobile segmentée, progression cohérente, plafonds dynamiques, maîtrise réelle et rendu allégé.",
+  "description": "V1.8 — boucle de vie adaptative : durée contextuelle, événements mieux cadencés, périodes calmes utiles et résumé de chaque avancement.",
   "icons": [
     {
       "src": "icon.svg",
