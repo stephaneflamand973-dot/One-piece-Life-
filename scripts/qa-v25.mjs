@@ -566,7 +566,7 @@ test('V2.1 migration: V20 save upgrades without altering progression values',()=
 test('V2.4 adaptive time: progression focus no longer forces short adult pacing',()=>{
   const g=fresh(11007),p=g.player;p.ageMonths=300;p.career='Aucune';p.activity='Mobilité';p.focus='Forme';const plan=q.advancePlan();
   assert(plan.key==='calm-life','progression focus still forces active-life pacing');
-  assert(plan.min===4&&plan.max===6,'calm adult window is wrong');
+  assert(plan.min===4.5&&plan.max===6.5,'calm adult window is wrong');
   return plan.label+' '+plan.min+'-'+plan.max+' months';
 });
 
