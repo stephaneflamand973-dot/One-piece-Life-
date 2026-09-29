@@ -221,6 +221,13 @@ function initLivingWorld(g,w){
 }
 function diplomacy(a,b){if(a===b)return 100;if(a==='Indépendant'||b==='Indépendant')return 0;return game.world.diplomacy[pairKey(a,b)]||0}
 function actorPower(a){var y=game.world.year||0;if(a.status==='inactive')return 0;var start=a.activeFrom||0,t=cl((y-start)/Math.max(1,a.growth||15),0,1),base=a.base+(a.peak-a.base)*t;return cl(base+(a.momentum||0),1,100)}
+function weightedIntent(items,stream){
+ var clean=items.filter(function(x){return x&&x.weight>0}),total=clean.reduce(function(sum,x){return sum+x.weight},0);if(!clean.length)return null;var r=R(stream||'world')*total;
+ for(var i=0;i<clean.length;i++){r-=clean[i].weight;if(r<=0)return clean[i].id}return clean[clean.length-1].id
+}
+function weightedPool(pool,bonus,stream){
+ var counts={};pool.forEach(function(id){counts[id]=(counts[id]||0)+1});var items=Object.keys(counts).map(function(id){return{id:id,weight:counts[id]+(bonus&&bonus[id]||0)}});return weightedIntent(items,stream)
+}
 function actorIntentPool(a){
  var pool=['Voyager','S’entraîner'],goal=String(a.goal||'').toLowerCase();
  if(a.faction==='Pirates')pool.push('Étendre son influence','Étendre son influence','Chercher un affrontement');
@@ -232,7 +239,16 @@ function actorIntentPool(a){
  if(/domination|territoire|étendre|réseau/.test(goal))pool.push('Étendre son influence','Étendre son influence');
  return pool
 }
-function assignActorIntent(a){a.intention=pk(actorIntentPool(a),'world');a.intentionMonths=3+Math.floor(R('world')*7);return a.intention}
+function assignActorIntent(a){
+ var goal=String(a.goal||'').toLowerCase(),bonus={};
+ if((a.momentum||0)<-2)bonus['S’entraîner']=2.2;
+ if(/adversaire|affront/.test(goal))bonus['Chercher un affrontement']=2.5;
+ if(/domination|territoire|étendre|réseau/.test(goal))bonus['Étendre son influence']=2.8;
+ if(/protéger|famille/.test(goal))bonus['Sécuriser sa région']=2.6;
+ if(a.faction==='Pirates'&&(a.momentum||0)>2)bonus['Étendre son influence']=(bonus['Étendre son influence']||0)+1.2;
+ if((a.faction==='Marine'||a.faction==='Gouvernement')&&game.world.globalTension>55)bonus['Sécuriser sa région']=(bonus['Sécuriser sa région']||0)+1.6;
+ a.intention=weightedPool(actorIntentPool(a),bonus,'world');a.intentionMonths=3+Math.floor(R('world')*7);return a.intention
+}
 function actorMoveByIntent(a){var links=REGION_LINKS[a.region]||[];if(!links.length)return false;a.region=pk(links,'world');return true}
 function resolveActorIntent(a){
  var w=game.world,intent=a.intention||assignActorIntent(a),outcome='';
@@ -256,10 +272,23 @@ function resolveActorIntent(a){
 }
 function actorIntentTick(a){if(a.status!=='active')return;if(!a.intention)assignActorIntent(a);a.intentionMonths=Math.max(0,(a.intentionMonths||0)-1);a.momentum=cl((a.momentum||0)*.997,-8,12);if(a.intentionMonths<=0)resolveActorIntent(a)}
 function crewIntentPool(c){
- if(c.morale<30)return['Se remettre','Se remettre','S’entraîner'];
- var pool=['Voyager','S’entraîner'];if(c.faction==='Pirates')pool.push('Chercher un butin','Chercher un butin','Revendiquer une zone');if(c.faction==='Chasseur de primes')pool.push('Traquer une cible','Traquer une cible','Voyager');if(c.faction==='Révolutionnaires')pool.push('Étendre son réseau','Revendiquer une zone','Voyager');return pool
+ if(c.morale<30||c.resources<18)return['Se remettre','Se remettre','Se remettre','S’entraîner'];
+ if(c.members<6)return['Recruter','Recruter','Voyager','S’entraîner'];
+ var pool=['Voyager','S’entraîner'];
+ if(c.faction==='Pirates')pool.push('Chercher un butin','Chercher un butin','Revendiquer une zone');
+ if(c.faction==='Chasseur de primes')pool.push('Traquer une cible','Traquer une cible','Voyager');
+ if(c.faction==='Révolutionnaires')pool.push('Étendre son réseau','Revendiquer une zone','Voyager');
+ return pool
 }
-function assignCrewIntent(c){c.intention=pk(crewIntentPool(c),'world');c.intentionMonths=2+Math.floor(R('world')*6);return c.intention}
+function assignCrewIntent(c){
+ var bonus={};
+ if(c.resources<30)bonus['Se remettre']=2.5;
+ if(c.members<8)bonus['Recruter']=2.4;
+ if(c.faction==='Pirates'&&c.resources>45&&c.morale>45)bonus['Chercher un butin']=1.8;
+ if(c.faction==='Chasseur de primes'&&c.power>40)bonus['Traquer une cible']=1.5;
+ if(c.faction==='Révolutionnaires'&&c.resources>35)bonus['Étendre son réseau']=1.5;
+ c.intention=weightedPool(crewIntentPool(c),bonus,'world');c.intentionMonths=2+Math.floor(R('world')*6);return c.intention
+}
 function resolveCrewIntent(c){
  var w=game.world,intent=c.intention||assignCrewIntent(c),outcome='';
  if(intent==='Se remettre'){c.morale=cl(c.morale+8+R('world')*10,0,100);c.resources=cl(c.resources+4+R('world')*8,0,100);outcome='reprend des forces'}
@@ -370,7 +399,19 @@ function npcIntentPool(r){
  if(amb==='Protéger ses proches')pool.push('Soutenir ses proches','Soutenir ses proches');
  if(r.role==='rival')pool.push('Défier son rival');if(r.role==='mentor')pool.push('Former la relève');return pool
 }
-function assignNpcIntent(r){r.npcIntent=pk(npcIntentPool(r),'npc');r.npcIntentMonths=2+Math.floor(R('npc')*7);return r.npcIntent}
+function assignNpcIntent(r){
+ var bonus={},amb=String(r.npcAmbition||'');
+ if(amb==='Devenir plus fort')bonus['S’entraîner']=2.5;
+ if(amb==='Explorer le monde')bonus['Voyager']=2.5;
+ if(amb==='Faire fortune')bonus['S’enrichir']=2.8;
+ if(amb==='Servir sa faction')bonus['Faire carrière']=1.8;
+ if(amb==='Protéger ses proches')bonus['Soutenir ses proches']=2.5;
+ if((r.npcPotential||0)-(r.npcPower||0)>30)bonus['S’entraîner']=(bonus['S’entraîner']||0)+.8;
+ if((r.npcWealth||0)<3000)bonus['S’enrichir']=(bonus['S’enrichir']||0)+.7;
+ if(r.role==='rival'&&r.challengeReady)bonus['Défier son rival']=1.8;
+ if(r.role==='mentor')bonus['Former la relève']=1.3;
+ r.npcIntent=weightedPool(npcIntentPool(r),bonus,'npc');r.npcIntentMonths=2+Math.floor(R('npc')*7);return r.npcIntent
+}
 function resolveNpcIntent(r){
  var p=game.player,intent=r.npcIntent||assignNpcIntent(r),outcome='';
  if(intent==='S’entraîner'){var inc=.4+R('npc')*1.6;r.npcPower=cl(r.npcPower+inc,1,r.npcPotential);outcome='progresse grâce à un entraînement ciblé'}
