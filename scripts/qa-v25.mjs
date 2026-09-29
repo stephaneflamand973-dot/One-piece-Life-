@@ -882,6 +882,21 @@ test('V2.5 latent NPC needs can influence autonomous intentions',()=>{
   assert((counts['S’entraîner']||0)>0,'large potential gap never influenced training');assert((counts['S’enrichir']||0)>0,'low wealth never influenced earning');return JSON.stringify(counts);
 });
 
+test('V2.5 conflict missions keep the unique causal conflict id',()=>{
+  const g=fresh(14107),p=g.player;p.ageMonths=300;const t=Object.keys(g.world.territories)[0],def=g.world.territories[t].controller,att=q.constants?null:null;
+  const enemy=def==='Pirates'?'Marine':'Pirates',cf=q.startStrategicWar?null:null;
+  g.world.conflicts=[];const spawned=(function(){const w=g.world;const c={id:'qa-conflict-unique',location:t,region:q.infStatic(t).region,attacker:enemy,defender:def,intensity:58,months:0,status:'active',source:'qa',warId:null};w.conflicts.push(c);return c})();
+  p.region=spawned.region;p.island=t;const list=q.worldMissionOpportunities(),m=list.find(x=>x.sourceType==='conflict');
+  assert(m,'conflict did not generate contextual mission');assert(m.sourceId===spawned.id,'mission did not persist unique conflict id');return m.sourceId;
+});
+test('V2.5 stale conflict mission cannot mutate a replacement conflict',()=>{
+  const g=fresh(14108),p=g.player;p.ageMonths=300,t=Object.keys(g.world.territories)[0],def=g.world.territories[t].controller,enemy=def==='Pirates'?'Marine':'Pirates';
+  const old={id:'old-conf',location:t,region:q.infStatic(t).region,attacker:enemy,defender:def,intensity:60,months:4,status:'resolved',source:'qa',warId:null};
+  const freshConflict={id:'new-conf',location:t,region:q.infStatic(t).region,attacker:enemy,defender:def,intensity:44,months:0,status:'active',source:'qa',warId:null};
+  g.world.conflicts=[old,freshConflict];const before=freshConflict.intensity;q.applyWorldMissionOutcome({worldGenerated:true,sourceType:'conflict',sourceId:'old-conf',sourceName:t},true);
+  assert(freshConflict.intensity===before,'stale mission changed replacement conflict');return 'replacement '+before+' unchanged';
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
