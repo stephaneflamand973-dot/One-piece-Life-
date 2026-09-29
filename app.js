@@ -376,16 +376,54 @@ function inf(n){var p=PL[n||game.player.island]||[game.player.region,10,[]];retu
 function age(){var m=game.player.ageMonths,y=Math.floor(m/12),o=Math.floor(m%12);return y?(y+' an'+(y>1?'s':'')+(o?' et '+o+' mois':'')):(o+' mois')}
 function key(){return P+slot}
 function save(){if(game){localStorage.setItem(key(),JSON.stringify(game));saveMeta()}}
+
+function defaultProgression(p){
+ return{gains:{},snapshots:[],breakthroughs:[],lastSnapshotAge:p&&p.ageMonths||0}
+}
+function migrateProgression(g,p){
+ p.progression=p.progression||defaultProgression(p);p.progression.gains=p.progression.gains||{};p.progression.snapshots=Array.isArray(p.progression.snapshots)?p.progression.snapshots.slice(-30):[];p.progression.breakthroughs=Array.isArray(p.progression.breakthroughs)?p.progression.breakthroughs.slice(-20):[];p.progression.lastSnapshotAge=p.progression.lastSnapshotAge==null?(p.ageMonths||0):p.progression.lastSnapshotAge;
+ p.naturalCaps=p.naturalCaps||{};p.absoluteCaps=p.absoluteCaps||{};var caps=p.caps||{};
+ ST.concat(SK).forEach(function(k){var c=caps[k]||90;if(p.naturalCaps[k]==null)p.naturalCaps[k]=c;if(p.absoluteCaps[k]==null){var extra=5+(H(String(g.seed||1)+':absolute:'+k)%8);p.absoluteCaps[k]=cl(c+extra,c,100)}else p.absoluteCaps[k]=cl(p.absoluteCaps[k],c,100)});
+ return p.progression
+}
+function developmentFactor(k){
+ var p=game.player,y=(p.ageMonths||0)/12,isSkill=p.skills&&p.skills[k]!=null;
+ if(y<2)return isSkill?.08:.18;if(y<6)return isSkill?.18:.34;if(y<12)return isSkill?.45:.68;if(y<15)return isSkill?.72:.88;if(y<40)return 1;if(y<55)return .9;if(y<70)return .72;return .52
+}
+function trackProgressGain(k,n){
+ if(!n||n<=0)return;var pr=migrateProgression(game,game.player);pr.gains[k]=(pr.gains[k]||0)+n
+}
+function progressionSnapshot(){
+ var p=game.player;return{ageMonths:p.ageMonths,power:+power().toFixed(2),stats:Object.assign({},p.stats),skills:Object.assign({},p.skills),haki:Object.assign({},p.haki),fruit:+(p.fruitMastery||0).toFixed(2)}
+}
+function recordProgressSnapshot(force){
+ var p=game.player,pr=migrateProgression(game,p),ageNow=p.ageMonths||0;if(!force&&ageNow-(pr.lastSnapshotAge||0)<6)return false;pr.snapshots.push(progressionSnapshot());pr.snapshots=pr.snapshots.slice(-30);pr.lastSnapshotAge=ageNow;return true
+}
+function progressionDelta(){
+ var pr=migrateProgression(game,game.player),ss=pr.snapshots;if(ss.length<2)return{power:0,months:0};var a=ss[ss.length-2],b=ss[ss.length-1];return{power:b.power-a.power,months:b.ageMonths-a.ageMonths}
+}
+function currentCapStatus(k){
+ var p=game.player,b=p.stats[k]!=null?p.stats:p.skills,v=b[k]||0,c=p.caps[k]||90;if(v>=c-.05)return'Plafond actuel';if(c-v<=5)return'Proche du plafond';return'Progression ouverte'
+}
+function qualitativePotential(k){
+ var p=game.player,c=p.caps[k]||90,a=p.absoluteCaps&&p.absoluteCaps[k]!=null?p.absoluteCaps[k]:c,room=a-c;if(room>=10)return'Réserve exceptionnelle';if(room>=6)return'Réserve prometteuse';if(room>=3)return'Marge limitée';return'Quasi stabilisé'
+}
+function attemptBreakthrough(context,intensity){
+ var p=game.player,pr=migrateProgression(game,p),candidates=ST.concat(SK).filter(function(k){var b=p.stats[k]!=null?p.stats:p.skills,cap=p.caps[k]||90,abs=p.absoluteCaps[k]||cap;return b[k]>=cap-.35&&cap<abs-.05});
+ if(!candidates.length)return false;var chance=context==='combat'?cl(.012+Math.max(0,(intensity||0)-55)*.0008,.012,.05):.01;if(R('breakthrough')>=chance)return false;
+ var k=pk(candidates,'breakthrough'),old=p.caps[k],abs=p.absoluteCaps[k]||100,inc=Math.min(abs-old,1+Math.floor(R('breakthrough')*2));if(inc<=0)return false;p.caps[k]=cl(old+inc,old,abs);var item={age:age(),key:k,from:old,to:p.caps[k],context:context};pr.breakthroughs.push(item);pr.breakthroughs=pr.breakthroughs.slice(-20);tl('BREAKTHROUGH',k+' repousse son plafond : '+Math.round(old)+' → '+Math.round(p.caps[k])+'.','major');return true
+}
+
 function migrate(g){
  if(!g)return null;var p=g.player||{},w=g.world||{};
- g.version=16;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};
+ g.version=17;g.lastCombat=g.lastCombat||null;g.rng=g.rng||{};
  p.techniques=p.techniques||[];p.techniqueMastery=p.techniqueMastery||{};p.fruitMastery=p.fruitMastery||0;p.fruitAwakened=!!p.fruitAwakened;p.heldFruit=p.heldFruit||null;p.combatXP=p.combatXP||0;p.hakiApplications=p.hakiApplications||{Observation:[],Armement:[],Conquérant:[]};
  p.haki=p.haki||{Observation:0,Armement:0,Conquérant:0};p.latent=p.latent||{Observation:40,Armement:40,Conquérant:0};p.conditions=p.conditions||[];
  p.life=p.life||defaultLife();p.life.assets=p.life.assets||{property:0,business:0,ship:0,treasure:0};p.children=p.children||[];p.children=p.children.map(function(c,i){c.id=c.id||('child-'+i+'-'+H(String(g.seed)+':child:'+i));c.name=c.name||PEOPLE_NAMES[H(String(g.seed)+':childname:'+i)%PEOPLE_NAMES.length];c.ageMonths=c.ageMonths||0;c.birthplace=c.birthplace||p.island||'';c.birthRegion=c.birthRegion||p.region||p.origin;c.race=c.race||p.race||'Humain';c.status=c.status||'active';return c});
  g.codex=g.codex||{people:[],places:[],factions:['Civil'],fruits:[]};['people','places','factions','fruits','events','techniques'].forEach(function(k){g.codex[k]=g.codex[k]||[]});g.relations=(g.relations||[]).map(function(r,i){return normalizeRelation(g,r,i)});g.socialSeq=g.socialSeq||g.relations.length;g.achievements=g.achievements||{unlocked:{}};g.achievements.unlocked=g.achievements.unlocked||{};g.dynasty=g.dynasty||{generation:1,ancestors:[]};
  p.factionRep=p.factionRep||{Civil:10,Marine:0,Pirates:0,'Chasseur de primes':0,Révolutionnaires:0,Gouvernement:0};
  FACTION_KEYS.forEach(function(k){if(p.factionRep[k]==null)p.factionRep[k]=0});
- p.careerRecords=p.careerRecords||{};p.specialization=p.specialization||null;p.careerHistory=p.careerHistory||[];p.salaryTotal=p.salaryTotal||0;p.deserterFrom=p.deserterFrom||[];migrateOrganization(g,p);migrateJustice(p);migrateInfluence(p);migrateStrategy(p);migrateTrade(p);
+ p.careerRecords=p.careerRecords||{};p.specialization=p.specialization||null;p.careerHistory=p.careerHistory||[];p.salaryTotal=p.salaryTotal||0;p.deserterFrom=p.deserterFrom||[];migrateOrganization(g,p);migrateJustice(p);migrateInfluence(p);migrateStrategy(p);migrateTrade(p);migrateProgression(g,p);
  if(p.career&&p.career!=='Aucune'&&!p.careerRecords[p.faction])p.careerRecords[p.faction]={xp:p.careerXP||0,months:p.serviceMonths||0,rank:p.rank||firstRank(p.faction),specialization:p.specialization||null,successes:0,failures:0};
  if(p.careerRecords[p.faction]){p.rank=p.careerRecords[p.faction].rank||p.rank;p.specialization=p.careerRecords[p.faction].specialization||p.specialization}
  w.fruits=w.fruits||['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi'];w.fruitRegistry=w.fruitRegistry||{};
@@ -398,11 +436,11 @@ function news(t,d,type){game.news.unshift({title:t,desc:d,type:type||''});game.n
 function press(){var o={};REG.forEach(function(r){o[r]={Piraterie:20+R('w')*25,Marine:30+R('w')*35,Criminalité:15+R('w')*30,Révolution:5+R('w')*20,Prospérité:40+R('w')*35,Instabilité:10+R('w')*25}});return o}
 function make(){
  var seed=Number($('#seedInput').value)||Math.floor(Math.random()*2147483647);game={seed:seed,rng:{}};var origin=mode==='custom'?$('#originInput').value:pk(ORIG,'b');
- game={version:16,seed:seed,rng:game.rng,alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
+ game={version:17,seed:seed,rng:game.rng,alive:true,pending:null,mission:null,timeline:[],news:[],relations:[],codex:{people:[],places:[],factions:['Civil'],fruits:[],events:[],techniques:[]},world:{year:0,month:0,divergence:0,pressures:{},factions:{Marine:82,Pirates:79,Révolutionnaires:56,Gouvernement:94},canon:[['Exécution de Gol D. Roger',0,'completed',100],['Nouvelle génération',18,'future',75],['Guerre au sommet',22,'future',95]],fruits:['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi']},player:{name:$('#nameInput').value.trim()||'Kael Maren',difficulty:$('#difficultyInput').value,ageMonths:0,race:mode==='custom'?$('#raceInput').value:pk(['Humain','Humain','Humain','Mink','Homme-poisson'],'b'),origin:origin,region:origin,island:'',situation:'Enfance',activity:'Grandir',faction:'Civil',career:'Aucune',rank:'Enfant',money:3000,health:100,energy:100,danger:'Faible',conditions:[],bounty:0,highestBounty:0,reputation:0,ambition:'Survivre',wins:0,losses:0,travel:null,visited:[],style:mode==='custom'?$('#styleInput').value:pk(['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],'b'),fruit:null,heldFruit:null,fruitMastery:0,fruitAwakened:false,techniques:[],techniqueMastery:{},combatXP:0,hakiApplications:{Observation:[],Armement:[],Conquérant:[]},haki:{Observation:0,Armement:0,Conquérant:0},latent:{Observation:20+R('h')*60,Armement:20+R('h')*60,Conquérant:R('h')<.04?90:0},stats:{},skills:{},caps:{}}};
  game=applyMeta(migrate(game));syncCanonicalFruits();var homes=Object.keys(PL).filter(function(n){return PL[n][0]===origin});game.player.island=pk(homes,'b');game.player.visited=[game.player.island];game.codex.places=[game.player.island];game.world.pressures=press();
- ST.forEach(function(k){game.player.stats[k]=8+R('b')*12;game.player.caps[k]=68+R('c')*25});SK.forEach(function(k){game.player.skills[k]=2+R('b')*8;game.player.caps[k]=68+R('c')*25});
+ ST.forEach(function(k){game.player.stats[k]=8+R('b')*12;game.player.caps[k]=68+R('c')*25});SK.forEach(function(k){game.player.skills[k]=2+R('b')*8;game.player.caps[k]=68+R('c')*25});game.player.naturalCaps={};game.player.absoluteCaps={};ST.concat(SK).forEach(function(k){game.player.naturalCaps[k]=game.player.caps[k];game.player.absoluteCaps[k]=cl(game.player.caps[k]+5+(H(String(game.seed)+':absolute:'+k)%8),game.player.caps[k],100)});game.player.progression=defaultProgression(game.player);
  syncPowers();tl('Naissance','Tu nais à '+game.player.island+', dans '+origin+'.','major');news('Grande Ère de la Piraterie','Le monde entre dans une période de bouleversements.');save();return game}
-function diff(){return game.player.difficulty==='Casual'?[1.2,.75]:game.player.difficulty==='Ironman'?[.9,1.55]:[1,1]}
+function diff(){var d=game.player.difficulty;return d==='Casual'?[1.18,.75]:d==='Grand Line'?[.97,1.15]:d==='New World'?[.93,1.35]:d==='Ironman'?[.9,1.55]:[1,1]}
 function allTechniqueDefs(){return[].concat.apply([],Object.keys(TECH).map(function(k){return TECH[k]})).concat(SPECIAL_TECHNIQUES)}function techniqueBonus(){var p=game.player,b=0,all=allTechniqueDefs();(p.techniques||[]).forEach(function(id){var t=all.find(function(x){return x.id===id});if(t)b+=t.bonus||0});return b}
 function power(){var p=game.player,a=ST.reduce(function(s,k){return s+p.stats[k]},0)/ST.length,b=SK.reduce(function(s,k){return s+p.skills[k]},0)/SK.length,h=p.haki.Observation*.18+p.haki.Armement*.22+p.haki.Conquérant*.27,f=p.fruit?(8+p.fruitMastery*.18+(p.fruitAwakened?12:0)):0;return a*.42+b*.38+h+f+techniqueBonus()*.45}
 function powerRank(){var v=power();return v<20?'Novice':v<35?'Combattant':v<50?'Confirmé':v<65?'Élite':v<80?'Monstrueux':'Sommet'}
@@ -410,9 +448,11 @@ function unlockTechnique(t,label){var p=game.player;if(p.techniques.indexOf(t.id
 function syncPowers(){var p=game.player,prof=TECH[p.style]||TECH['Équilibré'];prof.forEach(function(t){if((p.skills[t.skill]||0)>=t.req)unlockTechnique(t)});SPECIAL_TECHNIQUES.forEach(function(t){if(specialRequirementMet(t,p))unlockTechnique(t,'Technique spéciale')});Object.keys(HAKI_APPS).forEach(function(k){p.hakiApplications[k]=HAKI_APPS[k].filter(function(a){return p.haki[k]>=a[0]}).map(function(a){return a[1]})})}
 function trainHaki(k,m){var p=game.player;if(!p.haki[k]){if(p.latent[k]>55&&R('h')<.025*m*(p.latent[k]/70)){p.haki[k]=1;tl('Éveil du Haki','Ton Haki de '+k+' s’éveille.','major')}return}p.haki[k]=cl(p.haki[k]+m*(.35+p.latent[k]/160)*cl(1-p.haki[k]/125,.12,1),0,100)}
 function trainFruit(m){var p=game.player;if(!p.fruit)return;p.fruitMastery=cl(p.fruitMastery+m*(.55+R('fruit')*.45)*cl(1-p.fruitMastery/120,.15,1),0,100);if(p.fruitMastery>=85&&!p.fruitAwakened&&R('fruit')<.015*m){p.fruitAwakened=true;tl('ÉVEIL DU FRUIT','Ta maîtrise franchit un seuil extraordinaire.','major')}}
-function learnMastery(m){var p=game.player;(p.techniques||[]).forEach(function(id){p.techniqueMastery[id]=cl((p.techniqueMastery[id]||1)+m*(.4+R('p')*.5),0,100)});syncPowers()}
-function gain(k,n){var p=game.player,b=p.stats[k]!=null?p.stats:p.skills,z=b[k],cap=p.caps[k]||90;if(z>=cap)return 0;var g=n*diff()[0]*cl(1-Math.pow(z/110,1.7),.12,1);b[k]=cl(z+g,0,cap);return g}
-function train(m){var p=game.player;if(p.activity==='Haki Observation'){trainHaki('Observation',m);learnMastery(m);return}if(p.activity==='Haki Armement'){trainHaki('Armement',m);learnMastery(m);return}if(p.activity==='Haki Conquérant'){trainHaki('Conquérant',m);learnMastery(m);return}if(p.activity==='Maîtrise du Fruit'){trainFruit(m);learnMastery(m);return}var map={Grandir:['Endurance','Réflexes'],Études:['Discipline','Science'],Entraînement:['Force','Combat'],Navigation:['Navigation','Endurance'],Sabre:['Sabre','Réflexes'],'Formation Marine':['Discipline','Combat'],'Formation Pirates':['Combat','Navigation'],'Formation Révolutionnaires':['Discrétion','Commandement'],'Formation Gouvernement':['Discipline','Discrétion'],Médecine:['Médecine','Discipline'],Explorer:['Réflexes','Navigation']},ks=map[p.activity]||[pk(ST,'p'),pk(SK,'p')];ks.forEach(function(k){gain(k,m*(.5+R('p')*.8))});if(p.fruit&&R('fruit')<.5)trainFruit(m*.35);if(p.haki.Observation&&R('h')<.35)trainHaki('Observation',m*.25);if(p.haki.Armement&&R('h')<.35)trainHaki('Armement',m*.25);learnMastery(m)}
+function learnMastery(m,focus){
+ var p=game.player,defs=allTechniqueDefs(),fs=Array.isArray(focus)?focus:focus?[focus]:[];(p.techniques||[]).forEach(function(id){var def=defs.find(function(x){return x.id===id}),relevant=!fs.length||(def&&def.skill&&fs.indexOf(def.skill)>=0)||(def&&def.requires&&def.requires.skill&&fs.indexOf(def.requires.skill)>=0);if(!relevant)return;var cur=p.techniqueMastery[id]||1;p.techniqueMastery[id]=cl(cur+m*(.28+R('p')*.38)*cl(1-cur/125,.15,1),0,100)});syncPowers()
+}
+function gain(k,n){var p=game.player,b=p.stats[k]!=null?p.stats:p.skills,z=b[k],cap=p.caps[k]||90;if(z>=cap)return 0;var raw=n*diff()[0]*developmentFactor(k)*cl(1-Math.pow(z/110,1.7),.1,1),next=cl(z+raw,0,cap),g=next-z;b[k]=next;trackProgressGain(k,g);return g}
+function train(m){var p=game.player;if(p.activity==='Haki Observation'){trainHaki('Observation',m);learnMastery(m*.25,['Combat']);return}if(p.activity==='Haki Armement'){trainHaki('Armement',m);learnMastery(m*.25,['Combat','Sabre']);return}if(p.activity==='Haki Conquérant'){trainHaki('Conquérant',m);learnMastery(m*.18,['Combat']);return}if(p.activity==='Maîtrise du Fruit'){trainFruit(m);learnMastery(m*.18,['Combat']);return}var map={Grandir:['Endurance','Réflexes'],Études:['Discipline','Science'],Entraînement:['Force','Combat'],Navigation:['Navigation','Endurance'],Sabre:['Sabre','Réflexes'],'Formation Marine':['Discipline','Combat'],'Formation Pirates':['Combat','Navigation'],'Formation Révolutionnaires':['Discrétion','Commandement'],'Formation Gouvernement':['Discipline','Discrétion'],Médecine:['Médecine','Discipline'],Explorer:['Réflexes','Navigation']},ks=map[p.activity]||[pk(ST,'p'),pk(SK,'p')];ks.forEach(function(k){gain(k,m*(.5+R('p')*.8))});if(p.fruit&&R('fruit')<.5)trainFruit(m*.35);if(p.haki.Observation&&R('h')<.35)trainHaki('Observation',m*.25);if(p.haki.Armement&&R('h')<.35)trainHaki('Armement',m*.25);learnMastery(m,ks)}
 
 function relationById(id){return game.relations.find(function(r){return r.id===id})||null}
 function partnerRelation(){var id=game.player.life.partnerId;return id?relationById(id):null}
