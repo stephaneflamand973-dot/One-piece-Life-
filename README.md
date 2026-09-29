@@ -94,7 +94,7 @@ Les sauvegardes V2.4 migrent automatiquement et reçoivent les nouveaux champs d
 
 ## QA V2.5
 
-La release durcie passe **178/178 scénarios fonctionnels**.
+La release durcie passe **183/183 scénarios fonctionnels**.
 
 Les nouveaux garde-fous vérifient notamment :
 
@@ -120,7 +120,9 @@ Les nouveaux garde-fous vérifient notamment :
 - historique narratif visible ;
 - changements du monde remontés dans le rapport AVANCER ;
 - combats automatiques racontés en ouverture, tournant et conclusion ;
-- enfance/formation compressée sans supprimer les événements structurants.
+- enfance/formation compressée sans supprimer les événements structurants ;
+- quatre nouveaux archétypes narratifs : mentor, menace d’équipage, famille et appel du large ;
+- passage de rang de puissance transformé en événement majeur visible.
 
 Mesures longues de référence :
 

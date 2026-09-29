@@ -56,7 +56,7 @@ window.__qa={
  setMode:function(v){mode=v},getMode:function(){return mode},
  getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,purgeSaveSlot:purgeSaveSlot,deleteSaveSlot:deleteSaveSlot,slotKey:slotKey,slotMetaKey:slotMetaKey,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,simulateActors:simulateActors,simulateCrews:simulateCrews,actorIntentPool:actorIntentPool,assignActorIntent:assignActorIntent,resolveActorIntent:resolveActorIntent,actorIntentTick:actorIntentTick,crewIntentPool:crewIntentPool,assignCrewIntent:assignCrewIntent,resolveCrewIntent:resolveCrewIntent,crewIntentTick:crewIntentTick,
- advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
+ advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
  power:power,styleMastery:styleMastery,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,focusOptions:focusOptions,recommendedFocus:recommendedFocus,normalizeActivityFocus:normalizeActivityFocus,currentFocus:currentFocus,simpleFocusKeys:simpleFocusKeys,styleFocusKeys:styleFocusKeys,careerFocusKeys:careerFocusKeys,hasPowerFocus:hasPowerFocus,
  developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,setSectionState:function(name,value){sectionState[name]=value},getSectionState:function(){return Object.assign({},sectionState)},
  join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,missionNoveltyKey:missionNoveltyKey,missionNoveltyScore:missionNoveltyScore,rememberMission:rememberMission,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionResolution:missionResolution,
@@ -949,6 +949,22 @@ test('V2.5 fun flow: combat report has three simulated phases',()=>{
   const g=fresh(15106),p=g.player;p.ageMonths=300;Object.keys(p.stats).forEach(k=>p.stats[k]=70);Object.keys(p.skills).forEach(k=>p.skills[k]=70);p.health=100;p.energy=100;q.fight(35,'QA phased fight');assert(g.lastCombat&&g.lastCombat.phases&&g.lastCombat.phases.length===3,'combat phases missing');return g.lastCombat.phases.map(x=>x.label).join(' / ');
 });
 
+test('V2.5 story variety: mentor lesson becomes eligible and resolves',()=>{
+  const g=fresh(15201),p=g.player;p.ageMonths=240;const r=q.createRelation('mentor');r.location=p.island;r.region=p.region;const types=q.storyEligibleTypes().map(x=>x.id);assert(types.includes('mentor-lesson'),'mentor story not eligible');const st=q.startStory('mentor-lesson');st.awaiting=true;q.storyChoice(st.id,'observe');p.ageMonths=st.nextAge+1;q.storyTick(1);assert(!q.activeStories().some(x=>x.id===st.id),'mentor story did not resolve');return 'mentor lesson resolved';
+});
+test('V2.5 story variety: hostile crew can create a pressure arc',()=>{
+  const g=fresh(15202),p=g.player;p.ageMonths=300;p.faction='Marine';const c=g.world.crews.find(x=>x.status==='active');c.region=p.region;c.faction='Pirates';const types=q.storyEligibleTypes().map(x=>x.id);assert(types.includes('crew-pressure'),'crew pressure story not eligible');const st=q.startStory('crew-pressure');assert(st.data.crewId,'crew story lost source id');return st.data.crewName;
+});
+test('V2.5 story variety: family crossroads appears for established family life',()=>{
+  const g=fresh(15203),p=g.player;p.ageMonths=300;const r=q.createRelation('ami');r.npcAgeMonths=300;r.location=p.island;r.region=p.region;r.attraction=90;p.life.partnerId=r.id;p.life.relationshipStatus='En couple';const types=q.storyEligibleTypes().map(x=>x.id);assert(types.includes('family-crossroads'),'family story not eligible');return 'family crossroads eligible';
+});
+test('V2.5 story variety: horizon call rewards established exploration',()=>{
+  const g=fresh(15204),p=g.player;p.ageMonths=300;p.activity='Explorer';q.explorationSite(p.island).familiarity=55;const types=q.storyEligibleTypes().map(x=>x.id);assert(types.includes('horizon-call'),'horizon story not eligible');return 'horizon call eligible';
+});
+test('V2.5 progression: crossing a global power rank becomes a major moment',()=>{
+  const g=fresh(15205),p=g.player;p.ageMonths=300;Object.keys(p.stats).forEach(k=>p.stats[k]=34);Object.keys(p.skills).forEach(k=>p.skills[k]=34);const before=q.captureAdvanceState();Object.keys(p.stats).forEach(k=>p.stats[k]=55);Object.keys(p.skills).forEach(k=>p.skills[k]=55);q.finalizeAdvanceReport(before,1,{key:'qa',label:'QA'});assert(g.timeline.some(x=>x.title==='PALIER DE PUISSANCE'),'power-rank milestone missing');return g.timeline[0].desc;
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
@@ -1058,14 +1074,15 @@ assert(metrics.explorationPacing.avgDiscoveries>=1&&metrics.explorationPacing.av
   for(let seed=10300;seed<10320;seed++){
     const g=fresh(seed),p=g.player;p.ageMonths=180;p.career='Civil';p.faction='Civil';p.activity='Explorer';q.explorationSite(p.island).familiarity=55;q.createRelation('ami');let clicks=0,maxActive=0;
     while(p.ageMonths<300&&clicks<100&&g.alive){if(g.pending)g.pending=null;const aw=q.awaitingStory();if(aw){const choices=q.storyChoices(aw);q.storyChoice(aw.id,choices[0].id)}q.advance();maxActive=Math.max(maxActive,q.activeStories().length);clicks++}
-    rows.push({started:g.story.stats.started,resolved:g.story.stats.resolved,failed:g.story.stats.failed,choices:g.story.stats.choices,maxActive})
+    rows.push({started:g.story.stats.started,resolved:g.story.stats.resolved,failed:g.story.stats.failed,choices:g.story.stats.choices,maxActive,uniqueTypes:new Set(g.story.history.map(x=>x.type).concat(g.story.active.map(x=>x.type))).size})
   }
   const avg=k=>+(rows.reduce((a,x)=>a+x[k],0)/rows.length).toFixed(1);
-  metrics.storyTenYearPacing={samples:rows.length,avgStarted:avg('started'),avgResolved:avg('resolved'),avgFailed:avg('failed'),avgChoices:avg('choices'),maxActive:Math.max(...rows.map(x=>x.maxActive))};
+  metrics.storyTenYearPacing={samples:rows.length,avgStarted:avg('started'),avgResolved:avg('resolved'),avgFailed:avg('failed'),avgChoices:avg('choices'),avgUniqueTypes:avg('uniqueTypes'),maxActive:Math.max(...rows.map(x=>x.maxActive))};
 }
 assert(metrics.storyTenYearPacing.avgStarted>=2,'story engine is too dormant over ten years');
 assert(metrics.storyTenYearPacing.avgStarted<=18,'story engine overwhelms the life simulation');
 assert(metrics.storyTenYearPacing.maxActive<=2,'natural story engine exceeded active cap');
+assert(metrics.storyTenYearPacing.avgUniqueTypes>=3.5,'story variety remains too narrow over ten years: '+metrics.storyTenYearPacing.avgUniqueTypes);
 
 
 {
