@@ -1,3 +1,156 @@
+# ONE PIECE LIFE — V1.7 Core Experience Rework
+
+La V1.7 est une refonte structurelle centrée sur les principes du GDD : **interface simple, simulation profonde, progression cohérente et moteur rapide**.
+
+## Interface mobile refondue
+
+La navigation principale reste volontairement limitée à cinq entrées :
+
+- **Vie** : situation actuelle, décisions et timeline ;
+- **Progression** : évolution, entraînement, capacités, Haki, Fruit et combat ;
+- **Carrière** : profil, carrière, organisation, justice et patrimoine ;
+- **Liens** : proches, famille, mentors, rivaux et réseau ;
+- **Monde** : voyage, économie, puissances, guerres et chronologie.
+
+Les quatre écrans les plus riches utilisent maintenant des sous-onglets horizontaux. Le joueur ne traverse donc plus une page interminable contenant quinze systèmes différents.
+
+## Rendu allégé
+
+L’ancien rendu reconstruisait simultanément Vie, Personnage, Capacités, Relations et Monde à presque chaque action.
+
+La V1.7 ne reconstruit plus que **l’onglet actuellement affiché**.
+
+Le panneau développeur ne sérialise également le WorldState que lorsqu’il est réellement ouvert.
+
+Cette architecture réduit fortement le travail DOM inutile sur mobile sans diminuer la profondeur de la simulation.
+
+## Progression du personnage auditée
+
+La progression possède maintenant trois niveaux de limite :
+
+- plafond naturel initial ;
+- plafond actuel entraînable ;
+- plafond extraordinaire caché.
+
+Les anciennes sauvegardes conservent exactement leurs plafonds actuels. La migration ajoute seulement les nouvelles couches cachées.
+
+Une caractéristique arrivée à son plafond actuel ne peut toujours plus recevoir de progression normale.
+
+## Développement lié à l’âge
+
+Le même entraînement n’a plus exactement le même rendement à quatre ans et à vingt-cinq ans.
+
+La croissance est volontairement lente pendant la petite enfance, augmente pendant la formation, atteint son rendement normal à l’âge adulte puis ralentit progressivement avec l’âge avancé.
+
+Les tests de régression empêchent notamment qu’un enfant devienne un combattant d’élite simplement parce que plusieurs gros pas temporels ont été simulés.
+
+## Difficulté réellement différenciée
+
+Les cinq difficultés influencent désormais explicitement progression et danger :
+
+- Casual ;
+- Standard ;
+- Grand Line ;
+- New World ;
+- Ironman.
+
+Grand Line et New World ne retombent plus silencieusement sur les mêmes paramètres que Standard.
+
+## Techniques et maîtrise
+
+Débloquer une technique ne donne plus immédiatement 100 % de son bonus.
+
+Son efficacité dépend de sa **maîtrise réelle**.
+
+La maîtrise progresse uniquement lorsque l’activité entraînée est pertinente. Étudier la Science ne perfectionne donc plus mystérieusement une technique de sabre.
+
+## Haki et Fruit
+
+Le Haki et la maîtrise d’un Fruit utilisent maintenant eux aussi la courbe de développement liée à l’âge.
+
+Les opportunités extraordinaires restent possibles, mais l’enfance n’est plus un raccourci numérique vers les capacités de haut niveau.
+
+## Breakthroughs
+
+Les breakthroughs peuvent repousser le plafond actuel sans dépasser un plafond extraordinaire caché.
+
+Sources actuellement prises en compte :
+
+- mentor qualifié ;
+- victoire dans un combat réellement dangereux.
+
+Chaque percée est enregistrée dans l’historique de progression.
+
+## Puissance globale recalculée
+
+L’ancienne formule donnait du poids à toutes les compétences dans la puissance de combat. Un excellent médecin ou scientifique pouvait donc devenir artificiellement beaucoup plus dangereux au combat.
+
+La V1.7 utilise désormais principalement :
+
+- capacités physiques pertinentes ;
+- Combat ;
+- compétence du style naturel, comme Sabre ou Tir ;
+- Discipline et Volonté dans une mesure limitée ;
+- Haki ;
+- Fruit ;
+- techniques avec leur maîtrise effective.
+
+Médecine, Navigation ou Science restent importantes pour leurs propres systèmes mais ne gonflent plus artificiellement le niveau martial.
+
+## Tableau de progression
+
+L’écran Progression affiche maintenant :
+
+- puissance estimée ;
+- rang de puissance ;
+- évolution récente ;
+- plafonds actuels atteints ;
+- domaines ayant le plus progressé ;
+- dernière percée ;
+- valeur actuelle / plafond actuel de chaque caractéristique.
+
+Le plafond extraordinaire reste caché conformément au GDD.
+
+## Cohérence générationnelle
+
+Les héritiers reçoivent le même modèle de progression en trois couches.
+
+Ils héritent partiellement du potentiel parental sans récupérer mécaniquement les statistiques ou exploits de leur parent.
+
+## QA V1.7
+
+Le banc professionnel couvre maintenant **60 scénarios fonctionnels** avant publication.
+
+Parmi les nouveaux garde-fous :
+
+- croissance enfant/adulte ;
+- cinq niveaux de difficulté ;
+- maîtrise ciblée des techniques ;
+- impact réel de la maîtrise sur le combat ;
+- Haki et Fruit selon l’âge ;
+- plafond extraordinaire ;
+- migration V16 → V17 ;
+- formule de puissance ;
+- rendu paresseux des écrans ;
+- navigation principale indépendante.
+
+Mesures de référence de la build candidate :
+
+- 200 créations Destiny reproductibles ;
+- danger combat 20/40/60/80 : environ **90 % / 62 % / 44 % / 18 %** de victoire pour le personnage médian du test ;
+- progression ordinaire à 25 ans : puissance moyenne **32,2**, seulement **0,1 caractéristique au plafond** en moyenne ;
+- simulation mondiale de 30 ans stable ;
+- 30 campagnes stratégiques simulées ;
+- progression autonome de 120 PNJ pendant 15 ans.
+
+## Sauvegardes
+
+Les sauvegardes précédentes sont migrées automatiquement.
+
+La version interne du GameState passe à **17**.
+
+---
+
 # ONE PIECE LIFE — V1.6 Rivals, Mentors & Living NPCs
 
 La V1.6 approfondit la partie **simulation de vie**. Les personnes rencontrées ne sont plus de simples lignes de relation : elles disposent désormais d’une trajectoire persistante et peuvent devenir des mentors, rivaux, alliés ou membres de ton organisation.
