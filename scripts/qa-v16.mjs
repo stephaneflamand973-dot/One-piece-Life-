@@ -351,6 +351,25 @@ assert(metrics.combatWinRateAtMidStats[60]<=.55,'danger 60 remains too forgiving
 assert(metrics.initialTradeMargins.maxPct<150,'initial trade arbitrage exceeds 150%');
 assert(metrics.thirtyYearWorld.avgShortages>=.2,'persistent shortages are effectively absent');
 assert((metrics.warPacing.outcomes.attacker||0)>=5,'attackers almost never win strategic wars');
+
+{
+  const g=fresh(6300),p=g.player;p.ageMonths=300;g.relations=[];
+  const trajectories=['Stable','Ascension','Instable','Déclin'];
+  for(let i=0;i<120;i++){
+    const tr=trajectories[i%trajectories.length],pow=22+(i%7)*4,pot=Math.min(96,pow+28+(i%5)*5);
+    g.relations.push(q.normalizeRelation(g,{id:'tele-'+i,name:'NPC '+i,role:i%9===0?'rival':'ami',faction:i%4===0?'Marine':i%4===1?'Pirates':'Civil',region:p.region,location:p.island,npcAgeMonths:216+(i%8)*24,npcPower:pow,npcPotential:pot,npcTrajectory:tr,status:'active'},300+i));
+  }
+  const before=g.relations.map(r=>r.npcPower);
+  for(let month=0;month<180;month++)q.npcTick(1);
+  const active=g.relations.filter(r=>r.status!=='dead'),gains=active.map((r,i)=>r.npcPower-before[+r.id.split('-')[1]]).filter(Number.isFinite);
+  const byTrajectory={};
+  trajectories.forEach(tr=>{const rs=g.relations.filter(r=>r.npcTrajectory===tr&&r.status!=='dead');byTrajectory[tr]={count:rs.length,avgPower:+(rs.reduce((a,r)=>a+r.npcPower,0)/Math.max(1,rs.length)).toFixed(1),avgCareer:+(rs.reduce((a,r)=>a+r.careerLevel,0)/Math.max(1,rs.length)).toFixed(1)}});
+  metrics.npcFifteenYearProgression={sample:g.relations.length,alive:active.length,avgGain:+(gains.reduce((a,b)=>a+b,0)/Math.max(1,gains.length)).toFixed(1),maxPower:+Math.max(...active.map(r=>r.npcPower)).toFixed(1),atOrAbove95:active.filter(r=>r.npcPower>=95).length,byTrajectory};
+}
+assert(metrics.npcFifteenYearProgression.avgGain>=3,'NPC long-term progression is effectively stagnant');
+assert(metrics.npcFifteenYearProgression.avgGain<=30,'NPC long-term progression is too explosive');
+assert(metrics.npcFifteenYearProgression.atOrAbove95<=Math.ceil(metrics.npcFifteenYearProgression.sample*.15),'too many NPCs converge to elite power');
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
