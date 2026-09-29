@@ -643,6 +643,38 @@ test('V2.2 wealth UI exposes explicit debt',()=>{
 });
 
 
+test('V2.2 every noncombat mission profile rewards its relevant build',()=>{
+  const cases={
+    navigation:{title:'Cartographier une route dangereuse',keys:['Navigation','Discipline','Réflexes','Endurance']},
+    medicine:{title:'Soigner un équipage blessé',keys:['Médecine','Science','Discipline','Réflexes']},
+    science:{title:'Étudier un phénomène rare',keys:['Science','Discipline','Navigation','Commandement']},
+    stealth:{title:'Opération de renseignement',keys:['Discrétion','Agilité','Réflexes','Discipline']},
+    command:{title:'Sécuriser un royaume allié',keys:['Commandement','Volonté','Discipline','Combat']},
+    trade:{title:'Ouvrir une route commerciale',keys:['Commandement','Navigation','Discipline','Science']},
+    hunt:{title:'Traque longue distance',keys:['Réflexes','Discrétion','Navigation','Combat']},
+    exploration:{title:'Chasse au trésor',keys:['Navigation','Discipline','Réflexes','Science']},
+    rescue:{title:'Évacuer des civils',keys:['Médecine','Commandement','Endurance','Navigation']}
+  };
+  const g=fresh(12016),p=g.player;p.ageMonths=300;
+  for(const [profile,c] of Object.entries(cases)){
+    for(const k of q.constants.ST)p.stats[k]=10;for(const k of q.constants.SK)p.skills[k]=10;
+    const m={title:c.title,danger:55,reward:0,xp:0,tier:2,profile};
+    const low=q.missionChance(m);for(const k of c.keys){if(p.stats[k]!=null)p.stats[k]=75;else p.skills[k]=75}const high=q.missionChance(m);
+    assert(high>=low+.20,profile+' build barely changes mission chance: '+low.toFixed(2)+' -> '+high.toFixed(2));
+  }
+  return Object.keys(cases).length+' specialist profiles verified';
+});
+test('V2.2 combat styles remain comparable at equal attributes',()=>{
+  const styles=['Équilibré','Corps-à-corps','Sabreur','Tireur','Mobile / esquive'],rates={};
+  for(let si=0;si<styles.length;si++){
+    const g=fresh(12100+si),p=g.player;p.ageMonths=300;p.style=styles[si];for(const k of q.constants.ST)p.stats[k]=50;for(const k of q.constants.SK)p.skills[k]=50;p.haki={Observation:0,Armement:0,Conquérant:0};p.fruit=null;let wins=0;
+    for(let i=0;i<200;i++){g.alive=true;g.death=null;p.health=100;p.energy=100;p.conditions=[];if(q.fight(50,'V2.2 style audit'))wins++}
+    rates[styles[si]]=wins/200;
+  }
+  const vals=Object.values(rates),spread=Math.max(...vals)-Math.min(...vals);assert(spread<=.18,'equal-stat style win-rate spread too large: '+spread.toFixed(2)+' '+JSON.stringify(rates));return JSON.stringify(rates);
+});
+
+
 const metrics={};
 {
   const origins={},races={},styles={};
