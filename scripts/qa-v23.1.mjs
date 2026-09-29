@@ -978,7 +978,7 @@ function avg(rows,key){return rows.length?rows.reduce((a,x)=>a+x[key],0)/rows.le
   }
   collect('character',q.renderChar);
   collect('abilities',q.renderAb);
-  collect('relations',q.renderRel);
+  collect('relations',function(){q.renderPanel('relations')});
   collect('world',q.renderWorld);
   fluidity.renderDensity=panels;
 }
