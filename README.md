@@ -76,6 +76,38 @@ Le GameState passe en **version interne 24**.
 
 Les sauvegardes V2.3 sont migrées sans perdre statistiques, relations, histoires, monde, économie ou progression.
 
+
+## QA V2.4
+
+La release candidate passe **149/149 scénarios fonctionnels**.
+
+Les garde-fous spécifiques à la fluidité vérifient notamment :
+
+- focus **Auto** dynamique sans écraser le choix du joueur ;
+- effet réel des cinq ambitions ;
+- vie calme par fenêtres de **4 à 6 mois** ;
+- carrière par fenêtres de **2,5 à 4,5 mois** ;
+- simulation segmentée qui s’interrompt sur décision, événement majeur, arrivée ou fin de mission ;
+- événements de progression branchés sur le focus réel ;
+- feedback détaillé après AVANCER ;
+- vrai lazy rendering des sous-sections Monde et Progression ;
+- réseau relationnel limité à six personnes visibles avec un seul bouton contextuel par relation ;
+- un seul scan d’achievements par AVANCER ;
+- Timeline limitée à cinq entrées avant développement.
+
+Mesures V2.4 de référence :
+
+- **5,28 AVANCER/an** sur le parcours adulte simulé, sous l’objectif ≤ 5,5 ;
+- **43,3 AVANCER** en moyenne pour atteindre 15 ans, contre environ 48 en V2.3 ;
+- **0,66 moment notable par clic** pendant l’enfance ;
+- puissance moyenne à 25 ans : **34,9** ;
+- exploration après 36 mois : **60,4 %** de familiarité et **3 découvertes** en moyenne ;
+- narration adulte sur dix ans : **6,7 fils commencés**, maximum **2 simultanés** ;
+- monde sur trente ans : divergence moyenne **35 %**, indice des prix **103,4**, environ **8 équipages actifs**.
+
+La fluidité progresse donc sans supprimer la profondeur ni accélérer artificiellement les simulations mensuelles internes.
+
+
 ---
 
 # ONE PIECE LIFE — V2.3 Fluid Life
