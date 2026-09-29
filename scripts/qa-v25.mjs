@@ -56,10 +56,10 @@ window.__qa={
  setMode:function(v){mode=v},getMode:function(){return mode},
  getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,purgeSaveSlot:purgeSaveSlot,deleteSaveSlot:deleteSaveSlot,slotKey:slotKey,slotMetaKey:slotMetaKey,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,simulateActors:simulateActors,simulateCrews:simulateCrews,actorIntentPool:actorIntentPool,assignActorIntent:assignActorIntent,resolveActorIntent:resolveActorIntent,actorIntentTick:actorIntentTick,crewIntentPool:crewIntentPool,assignCrewIntent:assignCrewIntent,resolveCrewIntent:resolveCrewIntent,crewIntentTick:crewIntentTick,
- advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,eventChance:eventChance,migrateLifeLoop:migrateLifeLoop,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
+ advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
  power:power,styleMastery:styleMastery,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,focusOptions:focusOptions,recommendedFocus:recommendedFocus,normalizeActivityFocus:normalizeActivityFocus,currentFocus:currentFocus,simpleFocusKeys:simpleFocusKeys,styleFocusKeys:styleFocusKeys,careerFocusKeys:careerFocusKeys,hasPowerFocus:hasPowerFocus,
  developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,setSectionState:function(name,value){sectionState[name]=value},getSectionState:function(){return Object.assign({},sectionState)},
- join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionResolution:missionResolution,
+ join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,missionNoveltyKey:missionNoveltyKey,missionNoveltyScore:missionNoveltyScore,rememberMission:rememberMission,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionResolution:missionResolution,
  createRelation:createRelation,pursueRomance:pursueRomance,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,renderRel:renderRel,renderRelClose:renderRelClose,renderRelNetwork:renderRelNetwork,relationActionDecision:relationActionDecision,
  normalizeRelation:normalizeRelation,npcTick:npcTick,npcIntentPool:npcIntentPool,assignNpcIntent:assignNpcIntent,npcCareerPromotionChance:npcCareerPromotionChance,tryNpcCareerPromotion:tryNpcCareerPromotion,resolveNpcIntent:resolveNpcIntent,npcIntentTick:npcIntentTick,npcSocialTick:npcSocialTick,npcLinkBetween:npcLinkBetween,ensureNpcLink:ensureNpcLink,npcNearby:npcNearby,bondCanonicalActor:bondCanonicalActor,relationForActor:relationForActor,relationPower:relationPower,npcCareerRank:npcCareerRank,trainWithMentor:trainWithMentor,challengeRival:challengeRival,rivalStage:rivalStage,reconcileRival:reconcileRival,recruitKnownRelation:recruitKnownRelation,askMentorship:askMentorship,declareRivalry:declareRivalry,seekMentor:seekMentor,canonActor:canonActor,helpRelation:helpRelation,askRelationFavor:askRelationFavor,approachCanonicalActor:approachCanonicalActor,favorLabel:favorLabel,realignRelationsAfterFactionChange:realignRelationsAfterFactionChange,
  ensureOrganization:ensureOrganization,syncOrganizationRole:syncOrganizationRole,organizationPower:organizationPower,organizationCapacity:organizationCapacity,organizationTick:organizationTick,
@@ -71,7 +71,7 @@ window.__qa={
  simulateEconomy:simulateEconomy,cargoUsed:cargoUsed,cargoCapacity:cargoCapacity,cargoBookValue:cargoBookValue,blackMarketRisk:blackMarketRisk,inspectSmugglingAtArrival:inspectSmugglingAtArrival,
  releasePlayerFruits:releasePlayerFruits,checkAchievements:checkAchievements,chargeMoney:chargeMoney,serviceDebt:serviceDebt,netWorth:netWorth,
  explorationSite:explorationSite,islandProfile:islandProfile,discoveryPool:discoveryPool,registerDiscovery:registerDiscovery,discoverByKnowledge:discoverByKnowledge,explorationTick:explorationTick,migrateExploration:migrateExploration,currentRumor:currentRumor,learnLocalRumor:learnLocalRumor,routeEstimate:routeEstimate,chooseSeaCondition:chooseSeaCondition,seaJourneyTick:seaJourneyTick,travel:travel,setExplorationActivity:setExplorationActivity,renderExploration:renderExploration,renderJourney:renderJourney,renderCodexExploration:renderCodexExploration,
- defaultStoryEngine:defaultStoryEngine,migrateStoryEngine:migrateStoryEngine,activeStories:activeStories,awaitingStory:awaitingStory,storyEligibleTypes:storyEligibleTypes,startStory:startStory,maybeStartStory:maybeStartStory,storyPrompt:storyPrompt,storyChoices:storyChoices,storyChoice:storyChoice,storyTick:storyTick,closeStory:closeStory,showStoryDecision:showStoryDecision,renderStories:renderStories,die:die,
+ defaultStoryEngine:defaultStoryEngine,migrateStoryEngine:migrateStoryEngine,activeStories:activeStories,awaitingStory:awaitingStory,storyNoveltyWeight:storyNoveltyWeight,storyEligibleTypes:storyEligibleTypes,startStory:startStory,maybeStartStory:maybeStartStory,storyPrompt:storyPrompt,storyChoices:storyChoices,storyChoice:storyChoice,storyTick:storyTick,closeStory:closeStory,showStoryDecision:showStoryDecision,renderStories:renderStories,die:die,
  firstRank:firstRank,rankIndex:rankIndex,nextRank:nextRank,inf:inf,infStatic:infStatic,req:req,
  constants:{PL:PL,REG:REG,ST:ST,SK:SK,TRADE_GOODS:TRADE_GOODS,SHIP_TIERS:SHIP_TIERS,ACHIEVEMENTS:ACHIEVEMENTS,MISSIONS:MISSIONS,MISSION_TITLE_PROFILES:MISSION_TITLE_PROFILES}
 };
@@ -930,6 +930,25 @@ test('V2.5 career intention is no longer an automatic promotion',()=>{
   assert(promotions>0&&promotions<90,'career intent is either impossible or still nearly automatic: '+promotions);return promotions+'/120 promotions';
 });
 
+test('V2.5 fun flow: event novelty strongly suppresses immediate repetition',()=>{
+  const g=fresh(15101),l=q.migrateLifeLoop(g);l.recentEvents=['local'];assert(q.eventNoveltyWeight('local')<.3,'immediate event repetition is not strongly suppressed');assert(q.eventNoveltyWeight('danger')===1,'unseen event lost full novelty');return q.eventNoveltyWeight('local').toFixed(2);
+});
+test('V2.5 fun flow: story novelty suppresses recently used archetypes',()=>{
+  const g=fresh(15102),st=q.migrateStoryEngine(g);st.recentTypes=['island-secret','social-favor'];assert(q.storyNoveltyWeight('island-secret')<q.storyNoveltyWeight('career-crossroads'),'recent story was not penalized');return q.storyNoveltyWeight('island-secret').toFixed(2);
+});
+test('V2.5 fun flow: accepted missions are remembered and demoted',()=>{
+  const g=fresh(15103),p=g.player;p.ageMonths=300;q.join('Civil');const first=q.board()[0];q.rememberMission(first);assert(q.missionNoveltyScore(first)<.3,'accepted mission kept full novelty');return first.title;
+});
+test('V2.5 fun flow: story history is rendered instead of discarded',()=>{
+  const g=fresh(15104),st=q.migrateStoryEngine(g);st.history=[{id:'h1',type:'island-secret',title:'Secret QA',result:'Résultat persistant',closure:'resolved',resolvedAge:180,generation:1}];q.renderStories();assert(fakeElement('#storyHistory').innerHTML.includes('Secret QA'),'story history is still invisible');assert(fakeElement('#storyHistory').innerHTML.includes('Résultat persistant'),'story result is missing from history');return 'history visible';
+});
+test('V2.5 fun flow: world changes surface in the advance report',()=>{
+  const g=fresh(15105),p=g.player;p.ageMonths=300;const l=q.migrateLifeLoop(g),before=l.worldSeq;q.world(12);const recent=l.recentWorld.filter(x=>x.seq>before);assert(recent.length>0,'world simulation created no reportable highlights');return recent[0].title;
+});
+test('V2.5 fun flow: combat report has three simulated phases',()=>{
+  const g=fresh(15106),p=g.player;p.ageMonths=300;Object.keys(p.stats).forEach(k=>p.stats[k]=70);Object.keys(p.skills).forEach(k=>p.skills[k]=70);p.health=100;p.energy=100;q.fight(35,'QA phased fight');assert(g.lastCombat&&g.lastCombat.phases&&g.lastCombat.phases.length===3,'combat phases missing');return g.lastCombat.phases.map(x=>x.label).join(' / ');
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
@@ -1015,8 +1034,8 @@ assert(metrics.playerAge25Progression.avgCapped<=4,'too many characteristics hit
   metrics.adaptiveChildhoodPacing={samples:rows.length,reached15:reached.length,earlyDeaths:rows.filter(x=>!x.alive&&x.age<180).length,avgClicksTo15:avg(reached,'clicks'),avgMomentsPerLife:avg(rows,'events'),momentsPerClick:+(totalEvents/Math.max(1,totalClicks)).toFixed(2),maxQuiet:Math.max(...rows.map(x=>x.quietMax)),minClicks:Math.min(...reached.map(x=>x.clicks)),maxClicks:Math.max(...reached.map(x=>x.clicks))};
 }
 assert(metrics.adaptiveChildhoodPacing.reached15>=24,'too many simulated lives fail to reach age 15');
-assert(metrics.adaptiveChildhoodPacing.avgClicksTo15>=25,'childhood simulation is skipping too aggressively');
-assert(metrics.adaptiveChildhoodPacing.avgClicksTo15<=55,'childhood simulation is too click-heavy');
+assert(metrics.adaptiveChildhoodPacing.avgClicksTo15>=28,'childhood simulation is skipping too aggressively');
+assert(metrics.adaptiveChildhoodPacing.avgClicksTo15<=40,'childhood simulation is too click-heavy');
 assert(metrics.adaptiveChildhoodPacing.momentsPerClick>=.25&&metrics.adaptiveChildhoodPacing.momentsPerClick<=1.2,'event density per click is outside the intended range');
 assert(metrics.adaptiveChildhoodPacing.maxQuiet<=2,'quiet streak guard failed in telemetry');
 

@@ -2,6 +2,10 @@
 
 La V2.5 conserve la fluidité de V2.4 et rend la simulation plus autonome sans ajouter de micro-gestion.
 
+## Fun Flow hardening
+
+La passe plaisir/fluidité ajoute un directeur de nouveauté invisible : les événements, fils narratifs et missions récemment vus sont temporairement moins prioritaires. L'écran Vie remonte maintenant les changements récents du monde dans le rapport AVANCER, l'historique des fils narratifs est réellement affiché, les combats restent automatiques mais sont racontés en trois temps, et la phase Formation avance par blocs légèrement plus longs.
+
 ## Le monde poursuit ses propres objectifs
 
 Les acteurs majeurs possèdent désormais une **intention temporaire** :
@@ -90,7 +94,7 @@ Les sauvegardes V2.4 migrent automatiquement et reçoivent les nouveaux champs d
 
 ## QA V2.5
 
-La release durcie passe **172/172 scénarios fonctionnels**.
+La release durcie passe **178/178 scénarios fonctionnels**.
 
 Les nouveaux garde-fous vérifient notamment :
 
@@ -111,7 +115,12 @@ Les nouveaux garde-fous vérifient notamment :
 - équipages en difficulté qui privilégient la récupération ;
 - équipages réduits qui peuvent réellement recruter, avec coût en ressources et limite d'effectif ;
 - ambitions, potentiel inexploité et ressources personnelles des PNJ qui orientent réellement leurs décisions autonomes ;
-- progression de carrière des PNJ probabiliste et contextualisée, avec rangs élevés plus difficiles à atteindre.
+- progression de carrière des PNJ probabiliste et contextualisée, avec rangs élevés plus difficiles à atteindre ;
+- anti-répétition indépendant pour événements, histoires et missions ;
+- historique narratif visible ;
+- changements du monde remontés dans le rapport AVANCER ;
+- combats automatiques racontés en ouverture, tournant et conclusion ;
+- enfance/formation compressée sans supprimer les événements structurants.
 
 Mesures longues de référence :
 

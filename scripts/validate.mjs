@@ -43,6 +43,8 @@ if(!app.includes('function renderAbProgress') || !app.includes('function renderA
 if(!app.includes("activityGrowthKeys(currentFocus())")) throw new Error('V2.4 focus-aware event engine missing');
 if(!app.includes('function assignActorIntent') || !app.includes('function resolveActorIntent') || !app.includes('function crewIntentTick')) throw new Error('V2.5 world intention engine missing');
 if(!app.includes('function weightedIntent') || !app.includes('function weightedPool')) throw new Error('V2.5 context-aware intent weighting missing');
+if(!app.includes('function eventNoveltyWeight') || !app.includes('function missionNoveltyScore') || !app.includes('function storyNoveltyWeight')) throw new Error('V2.5 fun-flow novelty director missing');
+if(!app.includes("eng.history.slice(0,4)") || !app.includes('worldHighlights:worldHighlights') || !app.includes("label:'Ouverture'")) throw new Error('V2.5 fun-flow feedback surfaces missing');
 if(!app.includes("Object.keys(bonus||{})") || !app.includes("intent==='Recruter'") || !app.includes("poursuit ses activités dans")) throw new Error('V2.5 autonomy hardening missing');
 if(!app.includes('function assignNpcIntent') || !app.includes('function npcSocialTick') || !app.includes('npcLinks')) throw new Error('V2.5 autonomous NPC network missing');
 if(!app.includes('function npcCareerPromotionChance') || !app.includes('function tryNpcCareerPromotion')) throw new Error('V2.5 NPC career pacing missing');
