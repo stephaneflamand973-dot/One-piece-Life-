@@ -90,7 +90,7 @@ Les sauvegardes V2.4 migrent automatiquement et reçoivent les nouveaux champs d
 
 ## QA V2.5
 
-La release durcie passe **167/167 scénarios fonctionnels**.
+La release durcie passe **169/169 scénarios fonctionnels**.
 
 Les nouveaux garde-fous vérifient notamment :
 
@@ -108,7 +108,8 @@ Les nouveaux garde-fous vérifient notamment :
 - bonus contextuels capables d'introduire une action absente du pool de base ;
 - équipages en difficulté qui privilégient la récupération ;
 - équipages réduits qui peuvent réellement recruter, avec coût en ressources et limite d'effectif ;
-- ambitions, potentiel inexploité et ressources personnelles des PNJ qui orientent réellement leurs décisions autonomes.
+- ambitions, potentiel inexploité et ressources personnelles des PNJ qui orientent réellement leurs décisions autonomes ;
+- progression de carrière des PNJ probabiliste et contextualisée, avec rangs élevés plus difficiles à atteindre.
 
 Mesures longues de référence :
 

@@ -45,6 +45,7 @@ if(!app.includes('function assignActorIntent') || !app.includes('function resolv
 if(!app.includes('function weightedIntent') || !app.includes('function weightedPool')) throw new Error('V2.5 context-aware intent weighting missing');
 if(!app.includes("Object.keys(bonus||{})") || !app.includes("intent==='Recruter'") || !app.includes("poursuit ses activités dans")) throw new Error('V2.5 autonomy hardening missing');
 if(!app.includes('function assignNpcIntent') || !app.includes('function npcSocialTick') || !app.includes('npcLinks')) throw new Error('V2.5 autonomous NPC network missing');
+if(!app.includes('function npcCareerPromotionChance') || !app.includes('function tryNpcCareerPromotion')) throw new Error('V2.5 NPC career pacing missing');
 if(!app.includes('function worldMissionOpportunities') || !app.includes('function applyWorldMissionOutcome')) throw new Error('V2.5 causal mission engine missing');
 if(!app.includes("sourceType:'conflict',sourceId:cf.id") || !app.includes("x.id===sid")) throw new Error('V2.5 conflict causal identity hardening missing');
 if(!app.includes('function purgeSaveSlot') || !app.includes('function deleteSaveSlot') || !app.includes('save-delete')) throw new Error('V2.5 save deletion missing');

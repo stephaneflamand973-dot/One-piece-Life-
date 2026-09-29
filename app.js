@@ -416,10 +416,23 @@ function assignNpcIntent(r){
  if(r.role==='mentor')bonus['Former la relève']=1.3;
  r.npcIntent=weightedPool(npcIntentPool(r),bonus,'npc');r.npcIntentMonths=2+Math.floor(R('npc')*7);return r.npcIntent
 }
+function npcCareerPromotionChance(r){
+ var level=cl(r.careerLevel||0,0,6),trajectory=r.npcTrajectory||'Stable',chance=.16-level*.018;
+ if(trajectory==='Ascension')chance+=.12;else if(trajectory==='Stable')chance+=.04;else if(trajectory==='Instable')chance-=.015;else if(trajectory==='Déclin')chance-=.07;
+ if(r.npcAmbition==='Servir sa faction')chance+=.10;
+ var expected=22+level*9;if((r.npcPower||0)>=expected+12)chance+=.07;else if((r.npcPower||0)<expected)chance-=.06;
+ if((r.npcAgeMonths||0)<216)chance*=.72;
+ return cl(chance,.035,.42)
+}
+function tryNpcCareerPromotion(r){
+ if((r.npcAgeMonths||0)<180||r.careerLevel>=6)return false;
+ if(R('npc')>=npcCareerPromotionChance(r))return false;
+ r.careerLevel++;r.respect=cl(r.respect+2,0,100);return true
+}
 function resolveNpcIntent(r){
  var p=game.player,intent=r.npcIntent||assignNpcIntent(r),outcome='';
  if(intent==='S’entraîner'){var inc=.4+R('npc')*1.6;r.npcPower=cl(r.npcPower+inc,1,r.npcPotential);outcome='progresse grâce à un entraînement ciblé'}
- else if(intent==='Faire carrière'||intent==='Servir sa faction'){if(r.npcAgeMonths>=180&&r.careerLevel<6){r.careerLevel++;r.respect=cl(r.respect+2,0,100);outcome='progresse dans sa carrière : '+npcCareerRank(r)}else outcome='consolide sa position'}
+ else if(intent==='Faire carrière'||intent==='Servir sa faction'){if(tryNpcCareerPromotion(r))outcome='progresse dans sa carrière : '+npcCareerRank(r);else outcome='consolide sa position et prépare la prochaine étape'}
  else if(intent==='Voyager'){var before=npcRegion(r);moveNpc(r);outcome=before===npcRegion(r)?'reste dans '+before:'part vers '+npcRegion(r)}
  else if(intent==='S’enrichir'){var gain=1200+Math.round(R('npc')*7000);r.npcWealth=(r.npcWealth||0)+gain;outcome='développe ses ressources personnelles'}
  else if(intent==='Soutenir ses proches'){if(npcNearby(r)){r.trust=cl(r.trust+2,0,100);r.loyalty=cl(r.loyalty+2,0,100);outcome='renforce ses liens dans ta région'}else outcome='reste attentif à ses proches à distance'}
@@ -449,7 +462,7 @@ function npcTick(m){
   if(r.joinedOrganization){var org=p.organization,mem=org&&org.members.find(function(m){return m.linkedRelationId===r.id});if(mem&&mem.status==='active'){r.region=p.region;r.location=p.island;r.npcPower=cl(Math.max(r.npcPower,mem.power),1,100);mem.power=r.npcPower;r.injuryMonths=mem.injuryMonths||0;return}else{r.joinedOrganization=false;if(r.type==='organization')r.type='social';addRelationMemory(r,'N’appartient plus à ton organisation.','organization')}}
   var gap=Math.max(0,r.npcPotential-r.npcPower),ageFactor=r.npcAgeMonths<144?.42:r.npcAgeMonths<180?.68:1,growth=gap/100*relationGrowthRate(r)*m*5*ageFactor;r.npcPower=cl(r.npcPower+growth,1,r.npcPotential);
   if(r.npcTrajectory==='Instable'&&R('npc')<.008*m)r.npcPower=cl(r.npcPower-(1+R('npc')*3),1,r.npcPotential);
-  if(r.npcAgeMonths>=180&&R('npc')<.004*m&&r.careerLevel<6){r.careerLevel++;r.respect=cl(r.respect+2,0,100);addRelationMemory(r,'Progresse dans sa carrière : '+npcCareerRank(r)+'.','career')}
+  var passiveCareerChance=.0014*m*(r.npcTrajectory==='Ascension'?1.35:r.npcTrajectory==='Déclin'?.55:r.npcTrajectory==='Instable'?.85:1)*(r.npcAmbition==='Servir sa faction'?1.35:1)*cl(1-(r.careerLevel||0)*.10,.35,1);if(r.npcAgeMonths>=180&&r.careerLevel<6&&R('npc')<passiveCareerChance&&tryNpcCareerPromotion(r)){addRelationMemory(r,'Progresse dans sa carrière : '+npcCareerRank(r)+'.','career')}
   var localDanger=35;var localPlaces=Object.keys(PL).filter(function(n){return PL[n][0]===npcRegion(r)});if(localPlaces.length)localDanger=localPlaces.reduce(function(a,n){return a+PL[n][1]},0)/localPlaces.length;var youth=r.npcAgeMonths<180,incidentChance=r.npcAgeMonths<144?0:.004*m*(.7+localDanger/70)*(youth?.45:1);if(R('npc')<incidentChance){var effectiveDanger=youth?localDanger*.55:localDanger,odds=cl(.48+(r.npcPower-effectiveDanger)/130,.12,.9);if(R('npc')<odds){r.npcWins++;r.npcPower=cl(r.npcPower+.3+R('npc')*.8,1,r.npcPotential);addRelationMemory(r,youth?'Se distingue lors d’une épreuve risquée de jeunesse.':'Surmonte un affrontement dangereux pendant son propre voyage.','incident')}else{r.npcLosses++;r.injuryMonths=youth?1:1+Math.floor(R('npc')*4);r.status='wounded';addRelationMemory(r,youth?'Se blesse lors d’une épreuve de jeunesse.':'Est blessé lors d’un incident autonome.','injury');return}}
   if(r.npcAgeMonths>=180&&r.id!==p.life.partnerId&&R('npc')<.003*m)moveNpc(r);
   if(r.role==='rival'&&r.npcAgeMonths>=144&&p.ageMonths>=144&&r.rivalry>=55&&npcNearby(r)&&p.ageMonths-r.lastDuelAge>=6&&R('npc')<.012*m){r.challengeReady=true;addRelationMemory(r,'Te provoque pour mesurer vos progrès.','rival')}
