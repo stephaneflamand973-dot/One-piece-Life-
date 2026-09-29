@@ -883,14 +883,14 @@ test('V2.5 latent NPC needs can influence autonomous intentions',()=>{
 });
 
 test('V2.5 conflict missions keep the unique causal conflict id',()=>{
-  const g=fresh(14107),p=g.player;p.ageMonths=300;const t=Object.keys(g.world.territories)[0],def=g.world.territories[t].controller,att=q.constants?null:null;
-  const enemy=def==='Pirates'?'Marine':'Pirates',cf=q.startStrategicWar?null:null;
-  g.world.conflicts=[];const spawned=(function(){const w=g.world;const c={id:'qa-conflict-unique',location:t,region:q.infStatic(t).region,attacker:enemy,defender:def,intensity:58,months:0,status:'active',source:'qa',warId:null};w.conflicts.push(c);return c})();
+  const g=fresh(14107),p=g.player;p.ageMonths=300;const t=Object.keys(g.world.territories)[0],def=g.world.territories[t].controller;
+  const enemy=def==='Pirates'?'Marine':'Pirates';
+  g.world.conflicts=[];const spawned=(function(){const w=g.world;const c={id:'qa-conflict-unique',location:t,region:q.infStatic(t).region,attacker:enemy,defender:def,intensity:30,months:0,status:'active',source:'qa',warId:null};w.conflicts.push(c);return c})();
   p.region=spawned.region;p.island=t;const list=q.worldMissionOpportunities(),m=list.find(x=>x.sourceType==='conflict');
   assert(m,'conflict did not generate contextual mission');assert(m.sourceId===spawned.id,'mission did not persist unique conflict id');return m.sourceId;
 });
 test('V2.5 stale conflict mission cannot mutate a replacement conflict',()=>{
-  const g=fresh(14108),p=g.player;p.ageMonths=300,t=Object.keys(g.world.territories)[0],def=g.world.territories[t].controller,enemy=def==='Pirates'?'Marine':'Pirates';
+  const g=fresh(14108),p=g.player;p.ageMonths=300;const t=Object.keys(g.world.territories)[0],def=g.world.territories[t].controller,enemy=def==='Pirates'?'Marine':'Pirates';
   const old={id:'old-conf',location:t,region:q.infStatic(t).region,attacker:enemy,defender:def,intensity:60,months:4,status:'resolved',source:'qa',warId:null};
   const freshConflict={id:'new-conf',location:t,region:q.infStatic(t).region,attacker:enemy,defender:def,intensity:44,months:0,status:'active',source:'qa',warId:null};
   g.world.conflicts=[old,freshConflict];const before=freshConflict.intensity;q.applyWorldMissionOutcome({worldGenerated:true,sourceType:'conflict',sourceId:'old-conf',sourceName:t},true);
@@ -959,6 +959,8 @@ assert((metrics.warPacing.outcomes.attacker||0)>=5,'attackers almost never win s
   const byTrajectory={};
   trajectories.forEach(tr=>{const rs=g.relations.filter(r=>r.npcTrajectory===tr&&r.status!=='dead');byTrajectory[tr]={count:rs.length,avgPower:+(rs.reduce((a,r)=>a+r.npcPower,0)/Math.max(1,rs.length)).toFixed(1),avgCareer:+(rs.reduce((a,r)=>a+r.careerLevel,0)/Math.max(1,rs.length)).toFixed(1)}});
   metrics.npcFifteenYearProgression={sample:g.relations.length,alive:active.length,avgGain:+(gains.reduce((a,b)=>a+b,0)/Math.max(1,gains.length)).toFixed(1),maxPower:+Math.max(...active.map(r=>r.npcPower)).toFixed(1),atOrAbove95:active.filter(r=>r.npcPower>=95).length,byTrajectory};
+  assert(byTrajectory.Ascension.avgCareer>=byTrajectory.Déclin.avgCareer+.5,'NPC career trajectories remain too similar after 15 years: '+JSON.stringify(byTrajectory));
+  assert(Math.max(...Object.values(byTrajectory).map(x=>x.avgCareer))<=5.0,'NPC careers still saturate near maximum after 15 years: '+JSON.stringify(byTrajectory));
 }
 assert(metrics.npcFifteenYearProgression.avgGain>=3,'NPC long-term progression is effectively stagnant');
 assert(metrics.npcFifteenYearProgression.avgGain<=30,'NPC long-term progression is too explosive');
