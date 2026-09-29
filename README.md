@@ -82,6 +82,38 @@ Le GameState passe en **version interne 25**.
 
 Les sauvegardes V2.4 reçoivent automatiquement l'état d'intelligence du monde sans perdre leurs données existantes.
 
+
+## QA V2.5
+
+La release candidate passe **168/168 scénarios fonctionnels**.
+
+Les garde-fous V2.5 vérifient notamment :
+
+- migration V24 → V25 sans perte des acteurs, équipages ou données du monde ;
+- intentions persistantes des acteurs majeurs ;
+- intentions autonomes des équipages avec ressources, moral, recrutement et déplacement ;
+- ambitions autonomes des relations personnelles ;
+- relations persistantes entre PNJ ;
+- création de missions à partir de conflits, équipages hostiles, pénuries et acteurs majeurs ;
+- conséquences réelles d'une mission sur sa source ;
+- effets distincts d'une intervention de stabilisation, d'une résistance ou d'une exploitation pirate ;
+- suppression complète d'un emplacement de sauvegarde et de ses métadonnées ;
+- isolation stricte des trois emplacements : supprimer un slot ne touche pas les autres.
+
+Mesures de stabilité V2.5 :
+
+- vie adulte : **5,29 AVANCER/an** ;
+- carrière active : **6,13 AVANCER/an**, avec environ **0,94 mission/an** ;
+- exploration : **5,35 AVANCER/an** ;
+- enfance : **43,4 AVANCER** en moyenne jusqu'à 15 ans ;
+- puissance moyenne à 25 ans : **34,9** ;
+- progression PNJ sur quinze ans : **+15** de puissance en moyenne, maximum **73,5**, aucun PNJ ordinaire à 95+ ;
+- monde sur trente ans : divergence moyenne **34,1 %**, **3,9 guerres**, indice des prix **106,3**, environ **8 équipages actifs** ;
+- narration sur dix ans adultes : **7,7 fils démarrés**, maximum **2 simultanés**.
+
+L'intelligence supplémentaire du monde ne réintroduit donc pas la micro-gestion supprimée par V2.4.
+
+
 ---
 
 # ONE PIECE LIFE — V2.4 Flow Engine
