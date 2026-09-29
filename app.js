@@ -1362,7 +1362,7 @@ function specialReqText(t){var q=t.requires||{},a=[];if(q.faction)a.push(q.facti
 function renderActivityOptions(){
  var p=game.player,acts=['Études','Entraînement','Navigation','Sabre','Médecine',activityForFaction(p.faction)];if(p.ageMonths<72)acts.unshift('Grandir');if(p.haki.Observation)acts.push('Haki Observation');if(p.haki.Armement)acts.push('Haki Armement');if(p.haki.Conquérant)acts.push('Haki Conquérant');if(p.fruit)acts.push('Maîtrise du Fruit');acts=acts.filter(function(v,i,a){return a.indexOf(v)===i});
  $('#activityOptions').innerHTML=acts.map(function(a){return '<button class="action-card '+(p.activity===a?'active':'')+'" data-act="'+e(a)+'"><strong>'+e(a)+'</strong><small>'+e(activityFocusText(a))+'</small></button>'}).join('');
- $('[data-act]').forEach(function(b){b.onclick=function(){p.activity=b.dataset.act;save();renderAb()}})
+ $$('[data-act]').forEach(function(b){b.onclick=function(){p.activity=b.dataset.act;save();renderAb()}})
 }
 function activityFocusText(a){
  var m={Grandir:'Développement naturel : Endurance & Réflexes',Études:'Discipline & Science',Entraînement:'Force & Combat',Navigation:'Navigation & Endurance',Sabre:'Sabre & Réflexes',Médecine:'Médecine & Discipline','Formation Marine':'Discipline & Combat','Formation Pirates':'Combat & Navigation','Formation Révolutionnaires':'Discrétion & Commandement','Formation Gouvernement':'Discipline & Discrétion','Haki Observation':'Progression ciblée du Haki de l’Observation','Haki Armement':'Progression ciblée du Haki de l’Armement','Haki Conquérant':'Maîtrise ciblée du Haki des Rois','Maîtrise du Fruit':'Maîtrise ciblée du Fruit du démon'};return m[a]||'Influence la progression pendant AVANCER'
