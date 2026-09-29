@@ -55,7 +55,7 @@ const exposure=`
 window.__qa={
  setMode:function(v){mode=v},getMode:function(){return mode},
  getGame:function(){return game},setGame:function(v){game=v},
- make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,
+ make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,
  power:power,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,
  developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,
  join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,startMission:startMission,resolveMission:resolveMission,board:board,
@@ -331,6 +331,9 @@ test('V1.7 politics: prolonged faction hostility can become personal rivalry',()
 });
 
 
+test('V1.7 core loop: clicking AVANCER advances the game',()=>{
+  const g=fresh(6901),before=g.player.ageMonths;q.bind();const btn=fakeElement('#advanceBtn');assert(typeof btn.onclick==='function','AVANCER has no click handler');btn.onclick();assert(q.getGame().player.ageMonths>before,'clicking AVANCER did not increase age');assert(q.getGame().timeline.length>=1,'timeline disappeared after advancing');return before+' -> '+q.getGame().player.ageMonths+' months'
+});
 test('V1.7 progression: difficulty modes have distinct growth rates',()=>{
   const g=fresh(7001),p=g.player;p.ageMonths=300;p.stats.Force=40;p.caps.Force=90;const rates={};
   for(const d of ['Casual','Standard','Grand Line','New World','Ironman']){p.difficulty=d;p.stats.Force=40;rates[d]=q.gain('Force',1)}
