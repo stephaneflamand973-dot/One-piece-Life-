@@ -874,6 +874,41 @@ test('V2.5 conflict missions apply faction-specific consequences',()=>{
 });
 
 
+test('V2.5 actor intentions are biased by canonical goals',()=>{
+  const g=fresh(14016);q.world(240);const a=g.world.actors.find(x=>x.status==='active')||g.world.actors[0];
+  a.goal='Étendre son territoire et sa domination';a.faction='Pirates';a.resources=70;
+  const counts={};for(let i=0;i<180;i++){a.intent=null;a.intentMonths=0;const x=q.chooseActorIntent(a);counts[x]=(counts[x]||0)+1}
+  assert((counts['Étendre son influence']||0)>(counts['Explorer']||0),'territorial goal did not favor influence '+JSON.stringify(counts));
+  return JSON.stringify(counts);
+});
+test('V2.5 damaged crews prioritize recovery over adventuring',()=>{
+  const g=fresh(14017),c=g.world.crews[0];c.resources=6;c.morale=14;c.members=12;c.intent=null;c.intentMonths=0;
+  const x=q.chooseCrewIntent(c);assert(x==='Se réorganiser','struggling crew chose '+x);return x;
+});
+test('V2.5 NPC ambition biases autonomous behavior',()=>{
+  const g=fresh(14018),r=q.createRelation('ami');r.npcAgeMonths=300;r.npcAmbition='Faire fortune';r.npcWealth=0;
+  const counts={};for(let i=0;i<180;i++){r.npcIntent=null;r.npcIntentMonths=0;const x=q.chooseNpcIntent(r);counts[x]=(counts[x]||0)+1}
+  assert((counts['S’enrichir']||0)>(counts['Explorer']||0),'fortune ambition did not favor wealth '+JSON.stringify(counts));
+  assert((counts['S’enrichir']||0)>(counts['Faire carrière']||0),'fortune ambition did not beat generic career '+JSON.stringify(counts));
+  return JSON.stringify(counts);
+});
+test('V2.5 repeated mission-board reads are deterministic and side-effect free',()=>{
+  const g=fresh(14019),p=g.player;p.ageMonths=300;q.join('Civil');const rng0=JSON.stringify(g.rng);
+  const a=q.board().map(x=>x.title+'|'+(x.sourceText||'')).join('::'),rng1=JSON.stringify(g.rng);
+  const b=q.board().map(x=>x.title+'|'+(x.sourceText||'')).join('::'),rng2=JSON.stringify(g.rng);
+  assert(a===b,'mission board changed without time advancing');assert(rng0===rng1&&rng1===rng2,'reading mission board consumed RNG');
+  return a||'stable empty board';
+});
+test('V2.5 intelligence history stays bounded during long world simulation',()=>{
+  const g=fresh(14020);q.world(600);assert(g.world.intelligence.events.length<=24,'intelligence event history exceeded cap');
+  assert(g.world.crews.length<=28,'crew population exceeded cap');bounds(g);
+  const actors=g.world.actors.filter(x=>x.status==='active'),crews=g.world.crews.filter(x=>x.status==='active');
+  assert(!actors.length||actors.some(x=>x.intent),'active actors never received intentions');
+  assert(!crews.length||crews.some(x=>x.intent),'active crews never received intentions');
+  return g.world.intelligence.events.length+' events / '+actors.length+' actors / '+crews.length+' crews';
+});
+
+
 const metrics={};
 {
   const origins={},races={},styles={};
