@@ -17,3 +17,5 @@ jobs:
         run: node scripts/validate.mjs
       - name: Validate V1 content pack
         run: node scripts/validate-content.mjs
+      - name: Professional systems QA
+        run: node scripts/qa-v15.mjs
