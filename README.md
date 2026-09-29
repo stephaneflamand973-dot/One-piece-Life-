@@ -1,3 +1,52 @@
+# ONE PIECE LIFE — V2.1 Complete Progression
+
+La V2.1 corrige un angle mort du moteur de progression : certaines caractéristiques existaient dans les calculs de puissance et de combat sans disposer d’une voie d’entraînement volontaire claire.
+
+## Progression complète
+
+Les **8 statistiques** et les **8 compétences** affichées peuvent désormais toutes être travaillées directement.
+
+Nouvelles activités ciblées :
+
+- **Renforcement** : Force & Résistance ;
+- **Mobilité** : Vitesse & Agilité ;
+- **Condition physique** : Endurance & Réflexes ;
+- **Mental** : Volonté & Discipline ;
+- **Tir** : Tir & Réflexes ;
+- **Commandement** : Commandement & Volonté ;
+- **Discrétion** : Discrétion & Agilité ;
+- **Science** : Science & Discipline.
+
+Les activités existantes restent compatibles avec les anciennes sauvegardes : Études, Entraînement, Navigation, Sabre, Médecine et formations de faction continuent de fonctionner.
+
+## Correctif Agilité
+
+Agilité n’était pas bloquée par son plafond : elle n’était simplement ciblée par aucune activité d’entraînement sélectionnable. Elle intervenait pourtant déjà dans la puissance défensive et certaines actions comme l’évasion.
+
+La V2.1 lui donne deux voies cohérentes :
+
+- **Mobilité**, avec Vitesse ;
+- **Discrétion**, comme caractéristique physique secondaire.
+
+## Compatibilité
+
+Le GameState passe en **version interne 21**.
+
+Les sauvegardes V2.0 sont migrées sans modifier les valeurs existantes de statistiques, compétences, plafonds, histoires, relations ou monde.
+
+## QA V2.1
+
+La release candidate passe **105/105 scénarios fonctionnels**. Le banc V2.1 ajoute des contrôles garantissant :
+
+- qu’aucune des 8 statistiques n’est orpheline ;
+- qu’aucune des 8 compétences n’est orpheline ;
+- que Mobilité améliore réellement Vitesse et Agilité ;
+- que chaque nouvelle activité améliore toutes ses cibles déclarées ;
+- que les nouvelles cartes d’entraînement sont rendues dans l’interface ;
+- qu’une sauvegarde V20 migre vers V21 sans altérer la progression.
+
+---
+
 # ONE PIECE LIFE — V2.0 Emergent Story Engine
 
 La V2.0 transforme les systèmes accumulés depuis les versions précédentes en **histoires persistantes**.

@@ -8,7 +8,7 @@
   "orientation": "portrait-primary",
   "background_color": "#f4ecd8",
   "theme_color": "#f4ecd8",
-  "description": "V2.0 — moteur narratif émergent : situations persistantes, choix, échéances, conséquences et mémoire d’une vie.",
+  "description": "V2.1 — progression complète : toutes les statistiques et compétences disposent d’une voie d’entraînement ciblée, avec le moteur narratif V2.0 conservé.",
   "icons": [
     {
       "src": "icon.svg",

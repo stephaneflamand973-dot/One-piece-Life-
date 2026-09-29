@@ -10,8 +10,8 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('V2.0')) throw new Error('index.html does not expose V2.0');
-if(!app.includes('version:20') || !app.includes('g.version=20')) throw new Error('game state is not V2.0 migration version 20');
+if(!html.includes('V2.1')) throw new Error('index.html does not expose V2.1');
+if(!app.includes('version:21') || !app.includes('g.version=21')) throw new Error('game state is not V2.1 migration version 21');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
 if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include content-v1.js');
@@ -27,6 +27,7 @@ if(!app.includes('function lifeTick') || !app.includes('function continueWithHei
 if(!app.includes('function processCanonEvents') || !app.includes('function resolveCanonEvent')) throw new Error('V1 causal canon engine missing');
 if(!app.includes('CANON_EVENTS') || !app.includes('SPECIAL_TECHNIQUES') || !app.includes('pickFruit')) throw new Error('V1 content integration missing');
 if(!app.includes('relationshipStatus') || !app.includes('children') || !app.includes('netWorthPeak')) throw new Error('family/economy state missing');
+if(!app.includes("Mobilité:{keys:['Vitesse','Agilité']") || !app.includes("Mental:{keys:['Volonté','Discipline']")) throw new Error('V2.1 focused progression profiles missing');
 if(!app.includes('factionRep') || !app.includes('Cipher Pol')) throw new Error('faction systems missing');
 if(!app.includes('canonForecast') || !app.includes('contentStats')) throw new Error('V1 canon UI missing');
 if(!app.includes('var ORG_CONFIG=') || !app.includes('var SHIP_TIERS=')) throw new Error('V1.6 organization configuration missing');
