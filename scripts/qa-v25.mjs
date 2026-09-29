@@ -837,7 +837,7 @@ test('V2.5 personal NPCs pursue autonomous ambitions',()=>{
   const g=fresh(14006),p=g.player;p.ageMonths=300;const r=q.createRelation('ami');r.npcIntent='S’enrichir';r.npcIntentMonths=10;r.npcWealth=0;q.npcIntentTick(r,6);assert(r.npcWealth>0,'NPC wealth ambition had no effect');return Math.round(r.npcWealth)+' B';
 });
 test('V2.5 social web can store relationships between NPCs',()=>{
-  const g=fresh(14007),p=g.player;p.ageMonths=300,r1=q.createRelation('ami'),r2=q.createRelation('ami');r1.region=p.region;r2.region=p.region;g.socialWeb[g.socialWeb?Object.keys(g.socialWeb)[0]||'x':'x']=0;
+  const g=fresh(14007),p=g.player;p.ageMonths=300;const r1=q.createRelation('ami'),r2=q.createRelation('ami');r1.region=p.region;r2.region=p.region;g.socialWeb.x=0;
   for(let i=0;i<200&&Object.keys(g.socialWeb).filter(k=>k!=='x').length===0;i++)q.socialWebTick(6);
   assert(Object.keys(g.socialWeb).some(k=>k!=='x'),'NPC-to-NPC social link never formed');return Object.keys(g.socialWeb).length+' links';
 });
@@ -846,7 +846,7 @@ test('V2.5 regional conflict generates a causal mission',()=>{
   const ms=q.worldMissionOpportunities(),m=ms.find(x=>x.source&&x.source.type==='conflict');assert(m,'conflict did not produce mission');assert(m.worldDriven&&m.source.location===p.island,'mission lost source');return m.title;
 });
 test('V2.5 hostile local crew can generate a causal mission',()=>{
-  const g=fresh(14009),p=g.player;p.ageMonths=300;q.join('Marine');const c=g.world.crews[0];c.status='active';c.region=p.region;c.faction='Pirates';c.intent='Mener un raid';
+  const g=fresh(14009),p=g.player;p.ageMonths=300;q.join('Marine');g.world.crews.forEach((x,i)=>{if(i)x.status='destroyed'});const c=g.world.crews[0];c.status='active';c.region=p.region;c.faction='Pirates';c.intent='Mener un raid';
   const ms=q.worldMissionOpportunities(),m=ms.find(x=>x.source&&x.source.type==='crew');assert(m,'local hostile crew did not produce mission');assert(m.source.id===c.id,'crew source mismatch');return m.title;
 });
 test('V2.5 resolving a crew-sourced mission changes that crew',()=>{
