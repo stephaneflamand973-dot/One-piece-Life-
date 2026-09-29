@@ -47,7 +47,7 @@ if(!app.includes("Object.keys(bonus||{})") || !app.includes("intent==='Recruter'
 if(!app.includes('function assignNpcIntent') || !app.includes('function npcSocialTick') || !app.includes('npcLinks')) throw new Error('V2.5 autonomous NPC network missing');
 if(!app.includes('function npcCareerPromotionChance') || !app.includes('function tryNpcCareerPromotion')) throw new Error('V2.5 NPC career pacing missing');
 if(!app.includes('function worldMissionOpportunities') || !app.includes('function applyWorldMissionOutcome')) throw new Error('V2.5 causal mission engine missing');
-if(!app.includes("sourceType:'conflict',sourceId:cf.id") || !app.includes("x.id===sid")) throw new Error('V2.5 conflict causal identity hardening missing');
+if(!app.includes("sourceType:'conflict',sourceId:cf.id") || !app.includes("x.id===sid") || !app.includes('function migrateWorldMissionSource') || app.includes("sid.indexOf('|')>=0){var parts")) throw new Error('V2.5 conflict causal identity hardening missing');
 if(!app.includes('function purgeSaveSlot') || !app.includes('function deleteSaveSlot') || !app.includes('save-delete')) throw new Error('V2.5 save deletion missing');
 if(!app.includes('var MISSION_PROFILE_CONFIG=') || !app.includes('function missionResolution') || !app.includes('function missionChance')) throw new Error('V2.2 mission profile engine missing');
 if(!app.includes('function styleMastery')) throw new Error('V2.2 style mastery missing');

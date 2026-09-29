@@ -90,7 +90,7 @@ Les sauvegardes V2.4 migrent automatiquement et reçoivent les nouveaux champs d
 
 ## QA V2.5
 
-La release durcie passe **169/169 scénarios fonctionnels**.
+La release durcie passe **171/171 scénarios fonctionnels**.
 
 Les nouveaux garde-fous vérifient notamment :
 
@@ -102,6 +102,7 @@ Les nouveaux garde-fous vérifient notamment :
 - génération de missions à partir d'entités réellement présentes dans le WorldState ;
 - conséquences d'une mission sur son équipage, conflit ou acteur source ;
 - identité causale unique des conflits afin qu'une mission ancienne ne puisse jamais modifier un conflit de remplacement ;
+- migration sûre des anciennes missions contextuelles V2.5 vers les identifiants uniques, avec neutralisation de la référence si le conflit d'origine n'existe plus ;
 - maintien du tableau de missions à trois opportunités maximum ;
 - suppression complète d'un emplacement de sauvegarde et de ses métadonnées sans toucher aux autres slots.
 - intentions pondérées par les objectifs et l’état réel des acteurs ;
