@@ -118,10 +118,11 @@ Mesures longues de référence :
 - monde simulé sur 30 ans : **33,6 %** de divergence moyenne ;
 - **8,0 équipages actifs** en moyenne après simulation longue ;
 - indice des prix moyen : **102,5** ;
-- progression de 120 PNJ sur 15 ans : gain moyen **+18,1**, puissance maximale **85,3**, aucun PNJ ordinaire à 95+ ;
-- fluidité adulte conservée : **5,46 AVANCER/an** ;
-- carrière active : **6,27 AVANCER/an** ;
-- exploration : **5,44 AVANCER/an**.
+- progression de 120 PNJ sur 15 ans : gain moyen **+18,4**, puissance maximale **89,7**, aucun PNJ ordinaire à 95+ ;
+- carrière PNJ après 15 ans : **3,3** en moyenne pour les trajectoires Ascension contre **2,1** pour Déclin ;
+- fluidité adulte conservée : **5,40 AVANCER/an** ;
+- carrière active : **6,26 AVANCER/an** ;
+- exploration : **5,37 AVANCER/an**.
 
 
 ---
