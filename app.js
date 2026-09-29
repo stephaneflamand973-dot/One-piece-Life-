@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 var $=function(s){return document.querySelector(s)},$$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
-var game=null,slot=1,mode='destiny',majorOnly=false,backupMode='export',P='opl-v05-';
+var game=null,slot=1,mode='destiny',majorOnly=false,timelineExpanded=false,backupMode='export',P='opl-v05-';
 var ORIG=['East Blue','North Blue','West Blue','South Blue'],REG=ORIG.concat(['Grand Line','New World']);
 var ST=['Force','Vitesse','Agilité','Endurance','Résistance','Réflexes','Discipline','Volonté'];
 var SK=['Combat','Sabre','Tir','Navigation','Médecine','Commandement','Discrétion','Science'];
@@ -1798,7 +1798,7 @@ function renderDevOutput(){
 
 function showGame(){$('#startScreen').classList.remove('active');$('#gameScreen').classList.add('active');$('#bottomNav').classList.remove('hidden');$('#homeBtn').classList.remove('hidden')}
 function showStart(){game=null;activeTab='life';$('#gameScreen').classList.remove('active');$('#startScreen').classList.add('active');$('#bottomNav').classList.add('hidden');$('#homeBtn').classList.add('hidden');slots()}
-function renderTimeline(){var a=game.timeline.filter(function(x){return !majorOnly||['major','danger','canon'].indexOf(x.type)>=0}),limit=majorOnly?20:5;$('#timeline').innerHTML=a.slice(0,limit).map(function(x){return '<div class="timeline-item '+e(x.type)+'"><span class="timeline-dot"></span><span class="timeline-age">'+e(x.age)+'</span><div class="timeline-title">'+e(x.title)+'</div><div class="timeline-desc">'+e(x.desc)+'</div></div>'}).join('')+(a.length>limit&&!majorOnly?'<button id="timelineMoreBtn" class="text-btn">Voir toute l’histoire</button>':'');var b=$('#timelineMoreBtn');if(b)b.onclick=function(){majorOnly=true;renderTimeline()}}
+function renderTimeline(){var a=game.timeline.filter(function(x){return !majorOnly||['major','danger','canon'].indexOf(x.type)>=0}),limit=timelineExpanded?45:5;$('#timeline').innerHTML=a.slice(0,limit).map(function(x){return '<div class="timeline-item '+e(x.type)+'"><span class="timeline-dot"></span><span class="timeline-age">'+e(x.age)+'</span><div class="timeline-title">'+e(x.title)+'</div><div class="timeline-desc">'+e(x.desc)+'</div></div>'}).join('')+(a.length>5?'<button id="timelineMoreBtn" class="text-btn">'+(timelineExpanded?'Réduire l’histoire':'Voir toute l’histoire')+'</button>':'');var b=$('#timelineMoreBtn');if(b)b.onclick=function(){timelineExpanded=!timelineExpanded;renderTimeline()}}
 function renderJustice(){
  var p=game.player,j=migrateJustice(p),level=wantedLevel(),heat=currentHeat(),pressure=justicePressure(),bounty=p.bounty||0,badge=$('#wantedBadge');
  badge.textContent=level;badge.className='badge '+(level==='Aucun avis'?'wanted-clear':level==='Surveillé'||level==='Recherché'?'wanted-hot':'wanted-critical');
@@ -1970,7 +1970,7 @@ function bind(){
  $$('.mode-card').forEach(function(b){b.onclick=function(){mode=b.dataset.mode;$$('.mode-card').forEach(function(x){x.classList.toggle('selected',x===b)});$('#customFields').classList.toggle('hidden',mode!=='custom')}});
  $('#newLifeBtn').onclick=function(){make();$('#creationCard').classList.add('hidden');render()};$('#cancelCreate').onclick=function(){$('#creationCard').classList.add('hidden')};$('#advanceBtn').onclick=function(){if(game)advance()};$('#attentionBtn').onclick=showAttention;$('#homeBtn').onclick=showStart;
  $('#deathHomeBtn').onclick=function(){$('#deathModal').classList.add('hidden');showStart()};$('#continueHeirBtn').onclick=continueWithHeir;$('#deathNewBtn').onclick=function(){localStorage.removeItem(key());$('#deathModal').classList.add('hidden');showStart();$('#creationCard').classList.remove('hidden')};
- $('#timelineFilter').onclick=function(){majorOnly=!majorOnly;renderTimeline()};$$('.nav-item').forEach(function(b){b.onclick=function(){activateTab(b.dataset.tab,true)}});
+ $('#timelineFilter').onclick=function(){majorOnly=!majorOnly;timelineExpanded=false;renderTimeline()};$$('.nav-item').forEach(function(b){b.onclick=function(){activateTab(b.dataset.tab,true)}});
  $('#devToggle').onclick=function(){if(game){$('#developerPanel').classList.remove('hidden');renderDevOutput()}};$('#closeDev').onclick=function(){$('#developerPanel').classList.add('hidden')};$('#exportSaveBtn').onclick=function(){backup('export')};$('#importSaveBtn').onclick=function(){backup('import')};$('#backupCloseBtn').onclick=function(){$('#backupModal').classList.add('hidden')};
  $('#backupPrimaryBtn').onclick=function(){if(backupMode==='export'){if(navigator.clipboard)navigator.clipboard.writeText($('#backupText').value);toast('Sauvegarde copiée ou prête à copier.')}else try{game=migrate(JSON.parse(decodeURIComponent(escape(atob($('#backupText').value.trim())))));syncCanonicalFruits();save();$('#backupModal').classList.add('hidden');render()}catch(x){toast('Sauvegarde invalide.')}};
  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')save()});window.addEventListener('pagehide',save)
