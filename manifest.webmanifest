@@ -8,8 +8,13 @@
   "orientation": "portrait-primary",
   "background_color": "#f4ecd8",
   "theme_color": "#f4ecd8",
-  "description": "V1.6 — simulateur de vie avec PNJ persistants, mentors devenant pairs, rivalités évolutives, mémoire sociale, réactions aux factions et trajectoires autonomes.",
+  "description": "V1.7 — refonte de l’expérience centrale : navigation mobile segmentée, progression cohérente, plafonds dynamiques, maîtrise réelle et rendu allégé.",
   "icons": [
-    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
   ]
 }
