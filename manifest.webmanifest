@@ -8,7 +8,7 @@
   "orientation": "portrait-primary",
   "background_color": "#f4ecd8",
   "theme_color": "#f4ecd8",
-  "description": "V1.8 — boucle de vie adaptative : durée contextuelle, événements mieux cadencés, périodes calmes utiles et résumé de chaque avancement.",
+  "description": "V1.9 — exploration locale, identité des îles, découvertes, rumeurs, traversées dynamiques et Codex enrichi.",
   "icons": [
     {
       "src": "icon.svg",
