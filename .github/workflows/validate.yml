@@ -2,7 +2,7 @@ name: Validate game
 
 on:
   push:
-    branches: [main]
+    branches: [main, v1.6-living-npcs]
   workflow_dispatch:
 
 permissions:
@@ -18,4 +18,4 @@ jobs:
       - name: Validate V1 content pack
         run: node scripts/validate-content.mjs
       - name: Professional systems QA
-        run: node scripts/qa-v15.mjs
+        run: node scripts/qa-v16.mjs
