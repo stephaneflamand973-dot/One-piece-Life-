@@ -189,7 +189,7 @@ function normalizeRelation(g,r,i){
  r.npcTrajectory=r.npcTrajectory||['Stable','Ascension','Ascension','Instable','Stable'][(base>>>21)%5];
  r.npcAmbition=r.npcAmbition||['Devenir plus fort','Explorer le monde','Faire fortune','Servir sa faction','Protéger ses proches'][(base>>>24)%5];
  r.careerLevel=cl(r.careerLevel==null?Math.floor(r.npcPower/18):r.careerLevel,0,6);r.npcWins=r.npcWins||0;r.npcLosses=r.npcLosses||0;r.rivalWins=r.rivalWins||0;r.rivalLosses=r.rivalLosses||0;
- r.mentorSessions=r.mentorSessions||0;r.favorBalance=r.favorBalance||0;r.injuryMonths=r.injuryMonths||0;r.lastDuelAge=r.lastDuelAge==null?-999:r.lastDuelAge;r.challengeReady=!!r.challengeReady;r.joinedOrganization=!!r.joinedOrganization;
+ r.mentorSessions=r.mentorSessions||0;r.favorBalance=r.favorBalance||0;r.injuryMonths=r.injuryMonths||0;r.lastDuelAge=r.lastDuelAge==null?-999:r.lastDuelAge;r.lastCanonInteractionAge=r.lastCanonInteractionAge==null?-999:r.lastCanonInteractionAge;r.challengeReady=!!r.challengeReady;r.joinedOrganization=!!r.joinedOrganization;
  r.memories=Array.isArray(r.memories)?r.memories.slice(0,12):[];r.region=r.region||(r.location&&PL[r.location]?PL[r.location][0]:(p.region||p.origin||'East Blue'));return r
 }
 
@@ -201,12 +201,14 @@ function npcCareerRank(r){
  var cfg=CAREERS[r.faction]||CAREERS.Civil,track=(r.faction==='Gouvernement'?careerTrack('Gouvernement',null):cfg.ranks)||[];if(!track.length)return r.role||'Indépendant';return track[Math.min(track.length-1,Math.max(0,r.careerLevel||0))].n
 }
 function npcRegion(r){if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a)return a.region}return r.region||(r.location&&PL[r.location]?PL[r.location][0]:game.player.region)}
-function npcNearby(r){return r.status==='active'&&npcRegion(r)===game.player.region}
+function npcNearby(r){
+ var p=game.player;if(!r||r.status!=='active')return false;if(r.joinedOrganization)return true;if(p.travel)return false;if(r.canonical)return npcRegion(r)===p.region;if(r.location)return r.location===p.island;return npcRegion(r)===p.region
+}
 function canonicalFreedom(r){if(!r.canonical)return true;var a=canonActor(r.actorName||r.name),need=a?Math.round((a.importance||90)*.48):48;return game.world.divergence>=need}
 function bondCanonicalActor(a,context){
  if(!a)return null;var r=relationForActor(a.name),p=game.player;
  if(!r){var hostile=diplomacy(p.faction,a.faction)<-35,pow=actorPower(a),role=hostile?'rival':'connaissance';r=normalizeRelation(game,{id:'canon-rel-'+H(a.name),name:a.name,role:role,type:'canonical',canonical:true,actorName:a.name,faction:a.faction,region:a.region,location:null,npcPower:pow,npcPotential:a.peak,respect:hostile?35:55,trust:hostile?20:42,loyalty:35,attraction:10,rivalry:hostile?48:0,npcAmbition:a.goal,mentorPotential:a.faction===p.faction&&pow>power()+18},game.socialSeq++);game.relations.push(r);addRelationMemory(r,'Première rencontre dans '+p.region+'.','canon')}
- else{r.faction=a.faction;r.region=a.region;r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';r.monthsKnown=Math.max(r.monthsKnown,1)}
+ else{r.faction=a.faction;r.region=a.region;r.npcAgeMonths=Math.max(0,((game.world.year||0)-(a.birthYear||0))*12+(game.world.month||0));r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';r.monthsKnown=Math.max(r.monthsKnown,1)}
  if(context)addRelationMemory(r,context,'canon');return r
 }
 function relationPower(r){if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a)return actorPower(a)}return r.npcPower||10}
@@ -223,11 +225,12 @@ function npcTick(m){
   if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a){var was=r.status;r.faction=a.faction;r.region=a.region;r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';if(was!=='dead'&&r.status==='dead')addRelationMemory(r,'Sa trajectoire s’achève dans le monde vivant.','death')}return}
   if(r.injuryMonths>0){r.injuryMonths-=m;if(r.injuryMonths<=0){r.injuryMonths=0;r.status='active';addRelationMemory(r,'Se remet de ses blessures.','recovery')}return}
   if(r.status!=='active')return;
-  if(r.joinedOrganization){var org=p.organization,mem=org&&org.members.find(function(m){return m.linkedRelationId===r.id});if(mem&&mem.status==='active'){r.region=p.region;r.location=p.island;r.npcPower=cl(Math.max(r.npcPower,mem.power),1,100);mem.power=r.npcPower;r.injuryMonths=mem.injuryMonths||0}else{r.joinedOrganization=false;if(r.type==='organization')r.type='social';addRelationMemory(r,'N’appartient plus à ton organisation.','organization')}}
+  if(r.joinedOrganization){var org=p.organization,mem=org&&org.members.find(function(m){return m.linkedRelationId===r.id});if(mem&&mem.status==='active'){r.region=p.region;r.location=p.island;r.npcPower=cl(Math.max(r.npcPower,mem.power),1,100);mem.power=r.npcPower;r.injuryMonths=mem.injuryMonths||0;return}else{r.joinedOrganization=false;if(r.type==='organization')r.type='social';addRelationMemory(r,'N’appartient plus à ton organisation.','organization')}}
   var gap=Math.max(0,r.npcPotential-r.npcPower),growth=gap/100*relationGrowthRate(r)*m*5;r.npcPower=cl(r.npcPower+growth,1,r.npcPotential);
   if(r.npcTrajectory==='Instable'&&R('npc')<.008*m)r.npcPower=cl(r.npcPower-(1+R('npc')*3),1,r.npcPotential);
   if(R('npc')<.018*m&&r.careerLevel<6){r.careerLevel++;r.respect=cl(r.respect+2,0,100);addRelationMemory(r,'Progresse dans sa carrière : '+npcCareerRank(r)+'.','career')}
-  if(r.id!==p.life.partnerId&&!r.joinedOrganization&&R('npc')<.012*m)moveNpc(r);
+  var localDanger=35;var localPlaces=Object.keys(PL).filter(function(n){return PL[n][0]===npcRegion(r)});if(localPlaces.length)localDanger=localPlaces.reduce(function(a,n){return a+PL[n][1]},0)/localPlaces.length;var incidentChance=.004*m*(.7+localDanger/70);if(R('npc')<incidentChance){var odds=cl(.48+(r.npcPower-localDanger)/130,.12,.9);if(R('npc')<odds){r.npcWins++;r.npcPower=cl(r.npcPower+.3+R('npc')*.8,1,r.npcPotential);addRelationMemory(r,'Surmonte un affrontement dangereux pendant son propre voyage.','incident')}else{r.npcLosses++;r.injuryMonths=1+Math.floor(R('npc')*4);r.status='wounded';addRelationMemory(r,'Est blessé lors d’un incident autonome.','injury');return}}
+  if(r.id!==p.life.partnerId&&R('npc')<.012*m)moveNpc(r);
   if(r.role==='rival'&&r.rivalry>=55&&npcNearby(r)&&p.ageMonths-r.lastDuelAge>=6&&R('npc')<.035*m){r.challengeReady=true;addRelationMemory(r,'Te provoque pour mesurer vos progrès.','rival')}
   if(r.role==='mentor'&&power()>r.npcPower+15&&r.mentorSessions>=3&&!r.peerRecognized){r.peerRecognized=true;r.respect=cl(r.respect+8,0,100);addRelationMemory(r,'Te reconnaît désormais comme un pair.','mentor')}
   var years=r.npcAgeMonths/12;if((r.favorBalance||0)<-2){r.trust=cl(r.trust-.12*m*Math.abs(r.favorBalance),0,100);r.loyalty=cl(r.loyalty-.08*m*Math.abs(r.favorBalance),0,100)}if(years>72&&R('npc')<Math.pow((years-70)/38,2)*.002*m){r.status='dead';addRelationMemory(r,'Décède après une longue vie.','death');if(r.id===p.life.partnerId){p.life.partnerId=null;p.life.relationshipStatus='En deuil';tl('Deuil',r.name+' est décédé. Ta vie familiale en est profondément marquée.','major')}else tl('Une relation disparaît',r.name+' est décédé.','major')}
@@ -277,9 +280,9 @@ function askRelationFavor(id){
  addRelationMemory(r,'Accepte de te rendre un service : '+msg+'.','favor');tl('Service de '+r.name,r.name+' '+msg+'.','major');save();render()
 }
 function approachCanonicalActor(name){
- var p=game.player,a=canonActor(name);if(!a||a.status!=='active'||a.region!==p.region)return toast('Cet acteur n’est pas disponible dans ta région.');var existing=relationForActor(name);if(existing){if(!useSocialAction())return;existing.respect=cl(existing.respect+1+R('npc')*3,0,100);existing.trust=cl(existing.trust+R('npc')*2,0,100);addRelationMemory(existing,'Nouvelle rencontre dans '+p.region+'.','canon');tl('Retrouvailles',name+' te reconnaît désormais plus facilement.');save();render();return}
+ var p=game.player,a=canonActor(name);if(p.travel)return toast('Impossible d’organiser cette rencontre pendant une traversée.');if(!a||a.status!=='active'||a.region!==p.region)return toast('Cet acteur n’est pas disponible dans ta région.');var existing=relationForActor(name);if(existing&&p.ageMonths-existing.lastCanonInteractionAge<2)return toast('Cette rencontre est trop récente pour provoquer un nouvel échange important.');if(existing){if(!useSocialAction())return;existing.lastCanonInteractionAge=p.ageMonths;existing.respect=cl(existing.respect+1+R('npc')*3,0,100);existing.trust=cl(existing.trust+R('npc')*2,0,100);addRelationMemory(existing,'Nouvelle rencontre dans '+p.region+'.','canon');tl('Retrouvailles',name+' te reconnaît désormais plus facilement.');save();render();return}
  if(!useSocialAction())return;var hostile=diplomacy(p.faction,a.faction)<-35,gate=.20+p.reputation/260+influenceMetrics().score/420+(a.faction===p.faction?.18:0)-(a.importance||80)/620-(hostile?.10:0),chance=cl(gate,.05,.82);
- if(R('npc')<chance){var r=bondCanonicalActor(a,'Tu prends l’initiative de l’aborder dans '+p.region+'.');r.respect=cl(r.respect+4,0,100);r.trust=cl(r.trust+2,0,100);tl('Rencontre marquante',name+' accepte un véritable échange avec toi.','canon')}
+ if(R('npc')<chance){var r=bondCanonicalActor(a,'Tu prends l’initiative de l’aborder dans '+p.region+'.');r.lastCanonInteractionAge=p.ageMonths;r.respect=cl(r.respect+4,0,100);r.trust=cl(r.trust+2,0,100);tl('Rencontre marquante',name+' accepte un véritable échange avec toi.','canon')}
  else{tl('Occasion manquée',name+' ne t’accorde qu’un instant avant de poursuivre sa route.');if(hostile&&actorPower(a)>power()+35&&R('npc')<.12)registerCrime('Incident lors d’une rencontre avec '+name,2,true)}
  save();render()
 }
