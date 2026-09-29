@@ -72,6 +72,36 @@ Le GameState passe en **version interne 23**.
 
 Les anciennes activités des sauvegardes V2.2 sont automatiquement converties vers les nouveaux focus sans supprimer les statistiques déjà acquises.
 
+
+## QA V2.3
+
+La release candidate passe **137/137 scénarios fonctionnels**.
+
+La simplification est contrôlée explicitement :
+
+- maximum **5 focus** de progression visibles ;
+- les anciens entraînements détaillés ne sont plus exposés dans l’interface ;
+- **Combat** adapte automatiquement ses cibles au style ;
+- **Forme** choisit les qualités physiques les plus faibles ;
+- **Carrière** adapte ses cibles à la spécialisation ;
+- **Équilibre** corrige automatiquement un point faible statistique et une compétence faible ;
+- **Pouvoirs** n’apparaît que lorsqu’il existe une voie de progression pertinente ;
+- exploration, mission et navigation ne suppriment plus le focus choisi ;
+- le tableau de missions est limité à **3 opportunités contextuelles** ;
+- spécialisation et ambition n’occupent plus qu’un contrôle permanent chacune ;
+- les sous-onglets passent de **17 à 11** au total sur les quatre écrans secondaires.
+
+Mesures de stabilité :
+
+- enfance : **30/30** vies de l’échantillon atteignent 15 ans ;
+- rythme : **48 AVANCER** en moyenne jusqu’à 15 ans ;
+- densité : **0,69 moment notable par clic** ;
+- puissance moyenne à 25 ans : **35** ;
+- connaissance d’une île après 36 mois d’exploration ciblée : **60,4 %** ;
+- histoires démarrées sur dix ans adultes : **5,7** en moyenne ;
+- maximum de fils narratifs simultanés : **2**.
+
+
 ## QA V2.3
 
 La release candidate passe **137/137 scénarios fonctionnels**.
