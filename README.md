@@ -1,3 +1,89 @@
+# ONE PIECE LIFE — V2.5 Living World Intelligence
+
+La V2.5 ne rajoute pas une nouvelle couche de micro-gestion. Elle rend les systèmes existants plus autonomes.
+
+## Le monde poursuit ses propres objectifs
+
+Les acteurs canoniques et majeurs possèdent désormais une intention persistante pendant plusieurs mois :
+
+- explorer ;
+- s'entraîner ;
+- chercher un adversaire ;
+- étendre leur influence ;
+- protéger ou stabiliser une zone ;
+- développer un réseau ;
+- mener un raid ;
+- former des alliés.
+
+Leurs actions influencent puissance, faction, territoires, stabilité, pressions régionales et relations avec d'autres acteurs.
+
+## Relations entre acteurs
+
+Les acteurs présents dans la même région développent progressivement leurs propres rapports.
+
+Les alliances de faction améliorent ces liens ; les rivalités politiques et affrontements les dégradent.
+
+Ces relations peuvent ensuite rendre un affrontement autonome plus probable.
+
+## Équipages autonomes
+
+Les équipages choisissent eux aussi un objectif selon leur faction, leur moral, leurs ressources et leurs effectifs :
+
+- raid ;
+- recrutement ;
+- exploration ;
+- traque ;
+- réseau ;
+- réorganisation.
+
+Leur effectif, leurs ressources, leur puissance, leur prime et leur survie évoluent en conséquence.
+
+## Relations personnelles autonomes
+
+Les relations du joueur continuent de vivre hors écran.
+
+Elles peuvent poursuivre une carrière, s'entraîner, voyager, s'enrichir ou protéger leurs proches.
+
+Des relations présentes dans la même région peuvent également créer leurs propres affinités ou conflits.
+
+## Missions issues du monde
+
+Le tableau de missions peut désormais être alimenté par des situations réellement présentes dans le WorldState :
+
+- conflit régional ;
+- équipage hostile actif ;
+- pénurie ou blocus ;
+- acteur majeur poursuivant un objectif dans la région.
+
+Une mission issue du monde conserve sa source.
+
+La réussite peut donc :
+
+- affaiblir ou détruire un équipage ;
+- réduire un conflit ;
+- lever un blocus ou une pénurie ;
+- modifier momentanément la trajectoire d'un acteur.
+
+## Suppression d'une sauvegarde
+
+Chaque emplacement occupé possède maintenant une commande **Supprimer**.
+
+La suppression demande confirmation et efface :
+
+- la sauvegarde ;
+- les métadonnées associées ;
+- codex/achievements/dynastie propres à cet emplacement.
+
+Les autres emplacements restent intacts.
+
+## Compatibilité
+
+Le GameState passe en **version interne 25**.
+
+Les sauvegardes V2.4 reçoivent automatiquement l'état d'intelligence du monde sans perdre leurs données existantes.
+
+---
+
 # ONE PIECE LIFE — V2.4 Flow Engine
 
 La V2.4 part d'un constat simple : V2.3 avait réduit la micro-gestion, mais le jeu demandait encore trop de clics et rendait trop de contenu invisible.
