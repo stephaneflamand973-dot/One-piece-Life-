@@ -483,10 +483,10 @@ test('V2.0 progression: six childhood years do not create an elite fighter',()=>
   const avg=Object.values(p.stats).reduce((a,b)=>a+b,0)/Object.values(p.stats).length,max=Math.max(...Object.values(p.stats));
   assert(avg<32,'average physical/mental stats too high at age 6: '+avg);assert(max<60,'single stat became implausibly elite at age 6: '+max);return 'avg '+avg.toFixed(1)+' / max '+max.toFixed(1)
 });
-test('V2.0 progression: technique mastery only improves with relevant training',()=>{
-  const g=fresh(7030),p=g.player;p.ageMonths=300;const def=q.allTechniqueDefs().find(x=>x.skill==='Sabre');assert(def,'no Sabre technique definition');p.techniques=[def.id];p.techniqueMastery[def.id]=25;
-  p.activity='Études';q.train(3);const afterStudy=p.techniqueMastery[def.id];assert(Math.abs(afterStudy-25)<.001,'studying Science improved sword technique mastery');
-  p.activity='Sabre';q.train(3);assert(p.techniqueMastery[def.id]>afterStudy,'Sabre training did not improve Sabre technique mastery');return afterStudy.toFixed(1)+' -> '+p.techniqueMastery[def.id].toFixed(1)
+test('V2.3 progression: technique mastery follows the adaptive combat focus',()=>{
+  const g=fresh(7030),p=g.player;p.ageMonths=300;p.style='Sabreur';const def=q.allTechniqueDefs().find(x=>x.skill==='Sabre');assert(def,'no Sabre technique definition');p.techniques=[def.id];p.techniqueMastery[def.id]=25;
+  p.focus='Carrière';q.train(3);const afterCareer=p.techniqueMastery[def.id];assert(Math.abs(afterCareer-25)<.001,'career focus improved sword technique mastery');
+  p.focus='Combat';q.train(3);assert(p.techniqueMastery[def.id]>afterCareer,'Sabreur Combat focus did not improve Sabre technique mastery');return afterCareer.toFixed(1)+' -> '+p.techniqueMastery[def.id].toFixed(1)
 });
 test('V2.0 progression: technique mastery changes effective combat value',()=>{
   const g=fresh(7035),p=g.player;p.ageMonths=300;const def=q.allTechniqueDefs().find(x=>x.skill==='Combat');assert(def,'no Combat technique');p.techniques=[def.id];p.techniqueMastery[def.id]=1;const low=q.techniqueBonus();p.techniqueMastery[def.id]=100;const high=q.techniqueBonus();assert(high>low*2,'mastery barely changes technique value');assert(high<=def.bonus+.001,'effective bonus exceeded definition max');return low.toFixed(2)+' -> '+high.toFixed(2)
@@ -537,17 +537,17 @@ test('V2.1 progression: every displayed skill has a targeted training path',()=>
   for(const k of q.constants.SK)assert(covered.has(k),'no targeted training path for skill '+k);
   return q.constants.SK.join(', ');
 });
-test('V2.1 progression: mobility improves both speed and agility',()=>{
-  const g=fresh(11003),p=g.player;p.ageMonths=300;p.activity='Mobilité';p.stats.Vitesse=12;p.stats.Agilité=13;p.caps.Vitesse=90;p.caps.Agilité=90;
+test('V2.3 progression: Forme automatically improves the two weakest physical attributes',()=>{
+  const g=fresh(11003),p=g.player;p.ageMonths=300;p.focus='Forme';Object.assign(p.stats,{Force:70,Vitesse:12,Agilité:13,Endurance:65,Résistance:60,Réflexes:68});p.caps.Vitesse=90;p.caps.Agilité=90;
   const v=p.stats.Vitesse,a=p.stats.Agilité;q.train(2);
-  assert(p.stats.Vitesse>v,'Vitesse did not improve under Mobilité');
-  assert(p.stats.Agilité>a,'Agilité did not improve under Mobilité');
+  assert(p.stats.Vitesse>v,'Vitesse did not improve under adaptive Forme');
+  assert(p.stats.Agilité>a,'Agilité did not improve under adaptive Forme');
   return v.toFixed(1)+'/'+a.toFixed(1)+' -> '+p.stats.Vitesse.toFixed(1)+'/'+p.stats.Agilité.toFixed(1);
 });
-test('V2.1 progression: new focused activities improve all declared targets',()=>{
-  const checks={Renforcement:['Force','Résistance'],Mobilité:['Vitesse','Agilité'],'Condition physique':['Endurance','Réflexes'],Mental:['Volonté','Discipline'],Tir:['Tir','Réflexes'],Commandement:['Commandement','Volonté'],Discrétion:['Discrétion','Agilité'],Science:['Science','Discipline']};
-  for(const [activity,keys] of Object.entries(checks)){const g=fresh(11100+activity.length),p=g.player;p.ageMonths=300;p.activity=activity;for(const k of keys){const b=p.stats[k]!=null?p.stats:p.skills;b[k]=10;p.caps[k]=90}const before=keys.map(k=>(p.stats[k]!=null?p.stats:p.skills)[k]);q.train(1);keys.forEach((k,i)=>assert((p.stats[k]!=null?p.stats:p.skills)[k]>before[i],activity+' did not improve '+k))}
-  return Object.keys(checks).length+' focused activities verified';
+test('V2.3 progression: each simple focus improves the targets selected by the engine',()=>{
+  const focuses=['Équilibre','Combat','Forme','Carrière'];
+  for(let i=0;i<focuses.length;i++){const focus=focuses[i],g=fresh(11100+i),p=g.player;p.ageMonths=300;if(focus==='Carrière'){q.join('Civil');p.specialization='Scientifique';q.careerRecord().specialization='Scientifique'}p.focus=focus;for(const k of [...q.constants.ST,...q.constants.SK]){const b=p.stats[k]!=null?p.stats:p.skills;b[k]=20;p.caps[k]=90}if(focus==='Combat')p.style='Sabreur';const keys=q.simpleFocusKeys(focus),before=keys.map(k=>(p.stats[k]!=null?p.stats:p.skills)[k]);q.train(1);keys.forEach((k,j)=>assert((p.stats[k]!=null?p.stats:p.skills)[k]>before[j],focus+' did not improve '+k))}
+  return focuses.join(', ');
 });
 test('V2.3 UI: progression surface exposes only simple focuses',()=>{
   const g=fresh(11005);g.player.ageMonths=300;g.player.career='Civil';g.player.faction='Civil';q.renderActivityOptions();const htmlOut=fakeElement('#activityOptions').innerHTML;
@@ -598,7 +598,7 @@ test('V2.2 scientist career can qualify through expertise',()=>{
 });
 test('V2.3 career XP rewards the simple Career focus',()=>{
   const g=fresh(12006),p=g.player;p.ageMonths=300;q.join('Civil');p.specialization='Scientifique';q.careerRecord().specialization='Scientifique';
-  p.activity='Carrière';const aligned=q.careerActivityFit();p.activity='Forme';const off=q.careerActivityFit();
+  p.focus='Carrière';const aligned=q.careerActivityFit();p.focus='Forme';const off=q.careerActivityFit();
   assert(aligned>off,'Career focus is not better for career progression');return aligned.toFixed(2)+' vs '+off.toFixed(2);
 });
 test('V2.2 debt migration converts negative cash into explicit debt',()=>{
