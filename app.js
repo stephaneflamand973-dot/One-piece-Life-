@@ -912,7 +912,7 @@ function storyBase(type){
 }
 function startStory(type){
  var p=game.player,eng=migrateStoryEngine(game),base=storyBase(type);if(!base.title)return null;var id='story-'+(++eng.seq)+'-'+Math.floor(R('story')*99999),story={id:id,type:type,title:base.title,summary:base.summary,status:'active',stage:0,awaiting:false,createdAge:p.ageMonths,nextAge:p.ageMonths+1+R('story')*2,deadlineAge:p.ageMonths+8+R('story')*6,location:p.island,region:p.region,participantId:base.participant?base.participant.id:null,participantName:base.participant?base.participant.name:null,data:base.data||{},choice:null,lastBeat:'Ouverture'};
- eng.active.push(story);eng.stats.started++;eng.lastStartAge=p.ageMonths;eng.recentTypes.unshift(type);eng.recentTypes=eng.recentTypes.slice(0,6);tl('Nouveau fil — '+story.title,story.summary,'major');return story
+ eng.active.push(story);eng.stats.started++;eng.lastStartAge=p.ageMonths;eng.recentTypes.unshift(type);eng.recentTypes=eng.recentTypes.slice(0,6);tl('Nouveau fil — '+story.title,story.summary,'story');return story
 }
 function maybeStartStory(m){
  var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;return!!startStory(pickStoryType(types))
