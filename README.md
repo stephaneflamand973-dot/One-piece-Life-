@@ -22,6 +22,7 @@ Les équipages émergents poursuivent également des projets :
 - chercher du butin ;
 - s'entraîner ;
 - voyager ;
+- recruter lorsque leurs effectifs deviennent trop faibles ;
 - traquer une cible ;
 - étendre un réseau ;
 - revendiquer une zone ;
@@ -89,7 +90,7 @@ Les sauvegardes V2.4 migrent automatiquement et reçoivent les nouveaux champs d
 
 ## QA V2.5
 
-La release durcie passe **162/162 scénarios fonctionnels**.
+La release durcie passe **165/165 scénarios fonctionnels**.
 
 Les nouveaux garde-fous vérifient notamment :
 
@@ -103,18 +104,20 @@ Les nouveaux garde-fous vérifient notamment :
 - maintien du tableau de missions à trois opportunités maximum ;
 - suppression complète d'un emplacement de sauvegarde et de ses métadonnées sans toucher aux autres slots.
 - intentions pondérées par les objectifs et l’état réel des acteurs ;
+- bonus contextuels capables d'introduire une action absente du pool de base ;
 - équipages en difficulté qui privilégient la récupération ;
-- ambitions des PNJ qui orientent réellement leurs décisions autonomes.
+- équipages réduits qui peuvent réellement recruter, avec coût en ressources et limite d'effectif ;
+- ambitions, potentiel inexploité et ressources personnelles des PNJ qui orientent réellement leurs décisions autonomes.
 
 Mesures longues de référence :
 
-- monde simulé sur 30 ans : **31,8 %** de divergence moyenne ;
-- **7,9 équipages actifs** en moyenne après simulation longue ;
-- indice des prix moyen : **102,7** ;
-- progression de 120 PNJ sur 15 ans : gain moyen **+17,2**, puissance maximale **87,6**, aucun PNJ ordinaire à 95+ ;
-- fluidité adulte conservée : **5,42 AVANCER/an** ;
-- carrière active : **6,29 AVANCER/an** ;
-- exploration : **5,31 AVANCER/an**.
+- monde simulé sur 30 ans : **33,6 %** de divergence moyenne ;
+- **8,0 équipages actifs** en moyenne après simulation longue ;
+- indice des prix moyen : **102,5** ;
+- progression de 120 PNJ sur 15 ans : gain moyen **+18,1**, puissance maximale **85,3**, aucun PNJ ordinaire à 95+ ;
+- fluidité adulte conservée : **5,46 AVANCER/an** ;
+- carrière active : **6,27 AVANCER/an** ;
+- exploration : **5,44 AVANCER/an**.
 
 
 ---
