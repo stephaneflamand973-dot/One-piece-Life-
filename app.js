@@ -1734,7 +1734,7 @@ function advance(){
   var remaining=target,guard=0;
   while(remaining>.001&&guard++<12&&game.alive){
    var slice=Math.min(1,remaining);advanceSlice(slice);total+=slice;remaining-=slice;
-   var missionEnded=hadMission&&!game.mission,travelEnded=hadTravel&&!p.travel,important=loop.majorSeq>startMajor,tooManyMoments=loop.momentSeq-startMoments>=2;
+   var missionEnded=hadMission&&!game.mission,travelEnded=hadTravel&&!p.travel,important=loop.majorSeq>startMajor,tooManyMoments=loop.momentSeq-startMoments>=3;
    if(game.pending||awaitingStory()||missionEnded||travelEnded||important||tooManyMoments)break
   }
  }
