@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ONE PIECE LIFE" />
   <meta name="description" content="ONE PIECE LIFE, simulateur mobile-first de destin, carrière et aventure dans un monde pirate vivant." />
-  <title>ONE PIECE LIFE — V1.5.1</title>
+  <title>ONE PIECE LIFE — V1.6</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="styles.css" />
@@ -28,9 +28,9 @@
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V1.5.1 • Stability & Balance • iPhone & PWA</span>
+        <span class="eyebrow">V1.6 • Rivals, Mentors & Living NPCs • iPhone & PWA</span>
         <h2>Une vie. Un monde qui n’attend pas ton arrivée.</h2>
-        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.5.1 consolide le moteur : RNG Destiny déterministe, organisations réparées, guerres rééquilibrées, commerce moins exploitable, pénuries durables et meilleure lisibilité mobile.</p>
+        <p>Tu nais au début de la Grande Ère de la Piraterie. La V1.6 donne une mémoire aux personnages : rivaux persistants, mentors, trajectoires autonomes, retrouvailles, recrutement relationnel et liens avec les personnages canoniques.</p>
         <div class="feature-pills"><span>RNG seedé</span><span>Marchés dynamiques</span><span>Commerce maritime</span><span>Autosave</span></div>
       </section>
 
@@ -174,6 +174,16 @@
         <section class="paper-card relation-hero"><div class="section-heading compact"><div><span class="eyebrow">Vie sociale</span><h2>Relations & famille</h2></div><span id="socialStatusBadge" class="badge"></span></div><div id="socialSummary" class="social-summary"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Couple</span><h3>Vie sentimentale</h3></div><span id="romanceBadge" class="badge"></span></div><div id="romanceCard" class="career-card"></div><div id="romanceActions" class="action-grid relation-actions"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Famille</span><h3>Enfants & héritiers</h3></div><span id="familyBadge" class="badge"></span></div><div id="familyList" class="family-list"></div><div id="familyActions" class="action-grid relation-actions"></div></section>
+        <section class="paper-card npc-dynamics-card">
+          <div class="section-heading compact"><div><span class="eyebrow">Liens dynamiques</span><h3>Rivaux & mentors</h3></div><span id="bondDynamicsBadge" class="badge"></span></div>
+          <div id="bondDynamicsSummary" class="npc-summary"></div>
+          <div id="bondDynamicsList" class="npc-dynamics-list"></div>
+        </section>
+        <section class="paper-card npc-network-card">
+          <div class="section-heading compact"><div><span class="eyebrow">Réseau vivant</span><h3>Trajectoires autour de toi</h3></div><span id="npcNetworkBadge" class="badge"></span></div>
+          <div id="npcNetworkSummary" class="npc-summary"></div>
+          <div id="npcOpportunities" class="action-grid npc-opportunities"></div>
+        </section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Relations</span><h3>Personnes importantes</h3></div><span id="relationCountBadge" class="badge"></span></div><div id="relationsList" class="relations-list"></div></section>
       </section>
 
