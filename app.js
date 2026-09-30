@@ -1085,8 +1085,9 @@ function awaitingStory(){return activeStories().find(function(s){return s.awaiti
 function storyRelation(story){return story&&story.participantId?relationById(story.participantId):null}
 function storyNoveltyWeight(id){var recent=migrateStoryEngine(game).recentTypes||[],i=recent.indexOf(id);return i<0?1:i===0?.2:i===1?.4:i===2?.62:i<=4?.78:.9}
 function directorTravelCandidate(){
- var p=game.player,d=migrateLifeDirector(p),routes=(PL[p.island]&&PL[p.island][2]||[]).filter(function(n){return req(n)[0]});
+ var p=game.player,d=migrateLifeDirector(p),partner=partnerRelation(),routes=(PL[p.island]&&PL[p.island][2]||[]).filter(function(n){return req(n)[0]});
  if(!routes.length||p.travel||p.ageMonths-d.lastMobilityAge<36)return null;
+ if(partner&&p.life.relationshipStatus==='En couple'&&(partner.relationshipMonths||0)<12)return null;
  var fresh=routes.filter(function(n){return p.visited.indexOf(n)<0}),pool=fresh.length?fresh:routes.filter(function(n){return n!==p.island});
  if(!pool.length)return null;
  pool.sort(function(a,b){var av=p.visited.indexOf(a)<0?12:0,bv=p.visited.indexOf(b)<0?12:0,ar=inf(a).region!==p.region?5:0,br=inf(b).region!==p.region?5:0;return(bv+br-inf(b).danger*.03)-(av+ar-inf(a).danger*.03)});
@@ -1094,7 +1095,7 @@ function directorTravelCandidate(){
 }
 function directorRomanceCandidate(){
  var p=game.player,d=migrateLifeDirector(p);if(p.ageMonths<216||p.career==='Aucune'||p.life.partnerId||p.ageMonths-d.lastRomanceAge<18)return null;
- return game.relations.filter(function(r){return r.status==='active'&&r.npcAgeMonths>=216&&npcNearby(r)&&r.role!=='rival'&&r.role!=='mentor'&&r.role!=='parent'&&r.role!=='frère / sœur'}).sort(function(a,b){var as=(a.affection||0)+(a.trust||0)+(a.attraction||0)*1.2,bs=(b.affection||0)+(b.trust||0)+(b.attraction||0)*1.2;return bs-as}).filter(function(r){return(r.affection||0)>=52&&(r.trust||0)>=48&&((r.attraction||0)>=30||(r.affection||0)>=68)})[0]||null
+ return game.relations.filter(function(r){var reunion=!r.canonical&&r.monthsKnown>=12&&npcRegion(r)===p.region;return r.status==='active'&&r.npcAgeMonths>=216&&(npcNearby(r)||reunion)&&r.role!=='rival'&&r.role!=='mentor'&&r.role!=='parent'&&r.role!=='frère / sœur'}).sort(function(a,b){var as=(a.affection||0)+(a.trust||0)+(a.attraction||0)*1.2,bs=(b.affection||0)+(b.trust||0)+(b.attraction||0)*1.2;return bs-as}).filter(function(r){return(r.affection||0)>=48&&(r.trust||0)>=44&&((r.attraction||0)>=28||(r.affection||0)>=65)})[0]||null
 }
 function directorFamilyOpportunity(){
  var p=game.player,d=migrateLifeDirector(p),r=partnerRelation(),kids=(p.children||[]).filter(function(c){return c.status==='active'}).length,cooldown=p.life.relationshipStatus==='Marié'&&kids===0?12:24;if(!r||!npcNearby(r)||p.ageMonths<216||p.career==='Aucune'||p.ageMonths-d.lastFamilyAge<cooldown)return null;
@@ -1136,7 +1137,7 @@ function storyBase(type){
  else if(type==='mentor-lesson'){var mentors=rels.filter(function(x){return x.role==='mentor'});r=pk(mentors,'story');title='La leçon de '+r.name;summary=r.name+' estime que tu es prêt pour une étape plus exigeante de ton apprentissage.';data.focus=pk(activityGrowthKeys('Combat'),'story')}
  else if(type==='crew-pressure'){var hostile=game.world.crews.filter(function(c){return c.status==='active'&&c.region===p.region&&diplomacy(p.faction,c.faction)<-20});var cr=pk(hostile,'story');title=cr.name+' se rapproche';summary='Les mouvements de '+cr.name+' commencent à peser sur '+p.region+'.';data.crewId=cr.id;data.crewName=cr.name;data.crewPower=cr.power;data.region=p.region}
  else if(type==='family-crossroads'){r=partner||null;title='Ce que tu protèges';summary='Ta vie d’aventure entre en tension avec les personnes qui comptent le plus pour toi.';data.hasPartner=!!partner}
- else if(type==='relationship-opening'){r=directorRomanceCandidate();if(!r)return{title:'',summary:'',participant:null,data:{}};title='Un lien change avec '+r.name;summary='Votre relation commence à ressembler à autre chose qu’une simple proximité.';data.director=true}
+ else if(type==='relationship-opening'){r=directorRomanceCandidate();if(!r)return{title:'',summary:'',participant:null,data:{}};if(!npcNearby(r)&&!r.canonical){r.location=p.island;r.region=p.region;addRelationMemory(r,'Vos routes se recroisent à '+p.island+' après une période à distance.','reunion')}title='Un lien change avec '+r.name;summary='Votre relation commence à ressembler à autre chose qu’une simple proximité.';data.director=true}
  else if(type==='family-future'){r=partner;var future=directorFamilyOpportunity();if(!r||!future)return{title:'',summary:'',participant:null,data:{}};data.future=future;title=future==='marriage'?'Construire une vie avec '+r.name:'La famille peut s’agrandir';summary=future==='marriage'?'Votre relation est assez solide pour envisager un engagement durable.':'Votre couple arrive à un moment où une nouvelle génération devient une vraie possibilité.'}
  else if(type==='career-transfer'){var destination=directorTravelCandidate();if(!destination)return{title:'',summary:'',participant:null,data:{}};title='Une nouvelle affectation à '+destination;summary=(CAREERS[p.faction]?CAREERS[p.faction].label:p.faction)+' ouvre une opportunité loin de '+p.island+'.';data.destination=destination;data.from=p.island;data.director=true}
  else if(type==='horizon-call'){title='Une route hors des habitudes';summary='Une rumeur crédible évoque une opportunité que peu de voyageurs semblent avoir remarquée.';data.danger=inf().danger;data.signature=profile.signature}
@@ -1147,7 +1148,8 @@ function startStory(type){
  eng.active.push(story);eng.stats.started++;eng.lastStartAge=p.ageMonths;eng.recentTypes.unshift(type);eng.recentTypes=eng.recentTypes.slice(0,6);tl('Nouveau fil — '+story.title,story.summary,'story');return story
 }
 function maybeStartStory(m){
- var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;return!!startStory(pickStoryType(types))
+ var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;
+ var family=types.find(function(x){return x.id==='family-future'}),romance=types.find(function(x){return x.id==='relationship-opening'}),chosen=family?'family-future':romance&&R('story')<.72?'relationship-opening':pickStoryType(types);return!!startStory(chosen)
 }
 function storyPrompt(story){
  if(story.type==='youth-promise')return story.participantName+' te propose de vous fixer un objectif commun pour les mois qui viennent.';
