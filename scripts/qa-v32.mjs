@@ -1414,6 +1414,14 @@ test('V5.0 death succession exposes every active heir instead of forcing the eld
   const kids=q.heirCandidates();assert(kids.length===3,'inactive child leaked into heir choices');assert(kids[0].id==='d'&&kids[1].id==='a','same-age heirs are not ordered by bond');assert(kids.some(x=>x.id==='b'),'younger active heir was hidden');return kids.map(x=>x.name).join(' / ');
 });
 
+
+test('V5.0 life chronicle preserves a meaningful crew or organization',()=>{
+  const g=fresh(50160),p=g.player;p.ageMonths=360;p.factionRep.Pirates=100;q.join('Pirates');p.organization.name='Équipage QA';p.organization.authority='leader';p.organization.renown=55;p.organization.members.push({id:'qa-org-extra',name:'Membre QA',status:'active',power:35,loyalty:70,morale:70});const out=q.lifeChronicle(p);assert(out.organization&&out.organization.name==='Équipage QA','meaningful organization missing from chronicle');assert(out.summary.includes('Équipage QA'),'organization absent from chronicle summary');return out.organization.name+' / '+out.organization.members+' membres';
+});
+test('V5.0 life chronicle ignores routine low-impact organization noise',()=>{
+  const g=fresh(50161),p=g.player;p.ageMonths=300;q.join('Civil');p.organization.authority='member';p.organization.renown=0;p.organization.members=(p.organization.members||[]).slice(0,3);const out=q.lifeChronicle(p);assert(out.organization===null,'routine organization polluted compact chronicle');return 'routine organization omitted';
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
