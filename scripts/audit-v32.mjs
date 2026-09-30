@@ -320,7 +320,12 @@ let postCareerRows=[],postCareerProfiles=[];
     parentShare:+(rows.filter(x=>x.children>0).length/rows.length).toFixed(2),
     avgSaveKB:+(rows.reduce((a,x)=>a+(x.saveBytes||0),0)/rows.length/1024).toFixed(1),
     maxSaveKB:+(Math.max(...rows.map(x=>x.saveBytes||0))/1024).toFixed(1),
-    profiles:rows.map(x=>({faction:x.faction,spec:x.spec,alive:x.alive,rank:x.finalRank,visited:x.visited,chapters:x.personalChapters,recognition:x.recognition&&x.recognition.score||0,saveKB:+((x.saveBytes||0)/1024).toFixed(1)}))
+    deathCauses:rows.filter(x=>!x.alive).reduce((a,x)=>{const k=x.deathCause||'unknown';a[k]=(a[k]||0)+1;return a},{}),
+    legendQualifiedShare:+(rows.filter(x=>x.recognition&&x.recognition.legendQualified).length/rows.length).toFixed(2),
+    avgDecisiveSagas:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.decisiveSagas||0),0)/rows.length).toFixed(1),
+    avgDomains:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.domains||0),0)/rows.length).toFixed(1),
+    avgAllies:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.allies||0),0)/rows.length).toFixed(1),
+    profiles:rows.map(x=>({faction:x.faction,spec:x.spec,alive:x.alive,death:x.deathCause||null,rank:x.finalRank,visited:x.visited,chapters:x.personalChapters,founding:x.founding,recognition:x.recognition&&x.recognition.score||0,role:x.recognition&&x.recognition.role||null,legendQualified:!!(x.recognition&&x.recognition.legendQualified),decisiveSagas:x.recognition&&x.recognition.decisiveSagas||0,domains:x.recognition&&x.recognition.domains||0,allies:x.recognition&&x.recognition.allies||0,saveKB:+((x.saveBytes||0)/1024).toFixed(1)}))
   };
   const y40=metrics.v50FortyYearCareer;
   if(y40.avgClicksPerYear>6.5)throw new Error('V5.0 forty-year flow regression: '+y40.avgClicksPerYear+' clicks/year');
