@@ -1,3 +1,51 @@
+# ONE PIECE LIFE — V2.7 Living Consequences
+
+La V2.7 conserve la fluidité de V2.6 mais change une règle fondamentale : **les grands événements ne disparaissent plus une fois résolus**.
+
+## V2.7 — Living Consequences
+
+Le moteur possède maintenant une mémoire causale persistante et sérialisable :
+
+- les fils narratifs terminés peuvent revenir plusieurs mois plus tard sous forme d’échos ;
+- une relation se souvient d’une aide, d’un abandon ou d’une histoire mal terminée ;
+- les missions contextuelles et signatures peuvent modifier les futurs plans de leur équipage, conflit ou acteur source ;
+- un équipage survivant peut développer une rancune envers le joueur et adapter son intention ;
+- une rivalité confirmée ou une Némésis programme sa propre réapparition ;
+- les grands combats peuvent continuer à nourrir la réputation du personnage longtemps après leur résolution ;
+- une seule conséquence différée est résolue par tick afin de préserver la lisibilité ;
+- les conséquences visibles remontent directement dans le rapport **AVANCER** ;
+- aucune nouvelle action obligatoire ni nouvel écran de micro-gestion n’est ajouté.
+
+### Mémoire causale
+
+Chaque sauvegarde possède maintenant une file compacte de conséquences différées et un historique des échos déjà résolus.
+
+Une conséquence contient uniquement des données sérialisables : type, source, date prévue, poids narratif et références vers les entités existantes. Les sauvegardes restent donc simples à migrer et sûres à recharger.
+
+### Compatibilité
+
+Le GameState passe en **version interne 27**.
+
+Les sauvegardes V2.6 migrent automatiquement vers la nouvelle structure de mémoire causale sans perdre leurs moments signatures, fils narratifs, relations, missions, monde ou progression.
+
+### QA V2.7
+
+La V2.7 ajoute **9 nouveaux scénarios fonctionnels** dédiés à Living Consequences, en plus des 191 garde-fous V2.6. La suite complète est maintenant exécutable automatiquement via `scripts/qa-v27.mjs` et GitHub Actions.
+
+Les nouveaux garde-fous couvrent notamment :
+
+- création native du GameState 27 ;
+- migration V26 → V27 idempotente ;
+- persistance et résolution d’un callback relationnel ;
+- réaction future d’un équipage après une mission ;
+- retour automatique d’une Némésis ;
+- résolution d’une seule conséquence par tick ;
+- affichage des callbacks dans le rapport AVANCER ;
+- programmation automatique d’un écho après un fil narratif résolu ;
+- programmation automatique d’une conséquence après une mission signature.
+
+---
+
 # ONE PIECE LIFE — V2.6 Signature Moments
 
 La V2.6 conserve la fluidité et le monde autonome de V2.5, mais donne davantage de poids aux événements qui doivent réellement définir une carrière.
