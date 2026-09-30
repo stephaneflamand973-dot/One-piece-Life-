@@ -16,6 +16,8 @@ La V5.0 part du constat post-V4.0 : le monde sait désormais vivre sans le joueu
 - **Continuité du foyer** : conjoint et distance géographique réagissent aux mutations ; les étapes familiales exigent une proximité réelle.
 - **Momentum de carrière** : réussites et échecs modifient temporairement la vitesse de progression professionnelle, puis l'effet revient vers la normale. Les promotions supérieures demandent aussi un dossier de missions crédible.
 - **Chapitres personnels** : promotions, missions majeures, rivalités, voyages et famille peuvent se regrouper en arcs de vie mémorables sans ajouter d'écran.
+- **Chronique de vie** : le bilan final synthétise automatiquement reconnaissance, voyages, famille, chapitres et moments signatures, puis transmet une version compacte à la génération suivante.
+- **Carrefour d’héritage** : lorsqu’un ancêtre a réellement marqué le monde, son descendant reçoit au plus une décision majeure pour assumer cet héritage ou tracer sa propre voie ; les héritages insignifiants ne génèrent aucune interruption.
 - **Fluidité** : vie active ordinaire compressée en fenêtres de 4 à 6 mois ; périodes adultes réellement calmes en 5,5 à 7,5 mois. Les événements importants interrompent toujours la période immédiatement.
 - **Release gate** : GitHub Pages ne publie désormais qu’un SHA ayant réussi le QA V5.0, puis les validations statiques sont rejouées sur ce même SHA avant déploiement.
 - Les historiques V5.0 restent bornés et le GameState reste en **version 28**.
