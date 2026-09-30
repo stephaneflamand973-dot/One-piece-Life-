@@ -1128,6 +1128,17 @@ test('V5.0 career relocation can rebuild a local social network',()=>{
   const g=fresh(50061),p=g.player;p.ageMonths=360;q.join('Marine');const dest=(q.constants.PL[p.island][2]||[])[0];assert(dest,'no destination fixture');gameLoop:for(let i=0;i<20;i++){const r=q.settleCareerNetwork(dest);if(r)break gameLoop}const local=g.relations.find(r=>r.status==='active'&&!r.canonical&&r.location===dest&&r.role==='collègue');assert(local,'relocation never rebuilt a local colleague network');assert(local.faction===p.faction,'career bridge has wrong faction');assert(local.trust>=46&&local.affection>=48,'career bridge starts too weak to become meaningful');return local.name+' at '+dest;
 });
 
+
+test('V5.0 new couples are protected from immediate organic relocation',()=>{
+  const g=fresh(50060),p=g.player;p.ageMonths=300;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));q.join('Marine');const r=q.createRelation('ami');r.npcAgeMonths=300;r.location=p.island;r.region=p.region;r.affection=80;r.trust=80;r.attraction=70;r.relationshipMonths=6;r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.lifeDirector.lastMobilityAge=240;assert(q.directorTravelCandidate()===null,'fresh couple received relocation before 12 months');r.relationshipMonths=12;assert(q.directorTravelCandidate(),'established couple never regained mobility');return 'protected first year';
+});
+test('V5.0 strong regional bond can reunite into a romance opportunity',()=>{
+  const g=fresh(50061),p=g.player;p.ageMonths=320;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=320;r.region=p.region;r.location=(q.constants.PL[p.island][2]||[])[0]||p.island;r.monthsKnown=24;r.affection=70;r.trust=65;r.attraction=60;if(r.location===p.island){const alt=Object.keys(q.constants.PL).find(n=>q.constants.PL[n][0]===p.region&&n!==p.island);if(alt)r.location=alt}const candidate=q.directorRomanceCandidate();assert(candidate&&candidate.id===r.id,'regional bond was lost after travel');const st=q.startStory('relationship-opening');assert(st&&r.location===p.island,'romance opportunity did not create a plausible reunion');return r.name+' reunited at '+p.island;
+});
+test('V5.0 family future outranks routine story competition once eligible',()=>{
+  const g=fresh(50062),p=g.player;p.ageMonths=360;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=360;r.location=p.island;r.region=p.region;r.affection=85;r.trust=82;r.relationshipMonths=20;r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.lifeDirector.lastFamilyAge=300;const types=q.storyEligibleTypes();assert(types.some(x=>x.id==='family-future'),'family future missing from eligible stories');const oldStarted=g.story.stats.started;q.maybeStartStory(6);const started=g.story.active[g.story.active.length-1];if(g.story.stats.started>oldStarted)assert(started.type==='family-future','eligible family future lost to routine story competition');return started?started.type:'chance deferred';
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
