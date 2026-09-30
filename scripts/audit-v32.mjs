@@ -200,3 +200,5 @@ await import('file:///tmp/qa-v30-runtime.mjs');
 // V3.5 living canon branch lifecycle stress pass
 
 // V3.5 release candidate full regression pass
+
+// V3.5 final tension dynamics release audit
