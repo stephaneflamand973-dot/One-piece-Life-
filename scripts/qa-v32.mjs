@@ -1112,6 +1112,14 @@ test('V5.0 organic journey cadence stays meaningful without becoming spam',()=>{
   const g=fresh(50050),p=g.player;p.ageMonths=300;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));q.join('Marine');p.lifeDirector.lastMobilityAge=265;assert(q.directorTravelCandidate()===null,'mobility offer returned before 36-month cooldown');p.lifeDirector.lastMobilityAge=264;assert(q.directorTravelCandidate(),'mobility offer missing after 36-month cooldown');return '36-month mobility floor';
 });
 
+
+test('V5.0 manual family actions feed the same personal chapter',()=>{
+  const g=fresh(50051),p=g.player;p.ageMonths=360;p.money=500000;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=360;r.location=p.island;r.region=p.region;r.affection=95;r.trust=95;r.attraction=95;r.relationshipMonths=18;r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.life.socialActions=2;q.marryPartner();p.life.socialActions=2;q.welcomeChild();const ch=p.lifeDirector.activeChapters.find(x=>x.key==='family:'+r.id);assert(ch&&ch.beats>=2,'manual marriage/child did not merge into family chapter');return ch.beats+' family beats';
+});
+test('V5.0 manual travel contributes to a journey chapter',()=>{
+  const g=fresh(50052),p=g.player;p.ageMonths=300;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');assert(q.beginJourney(d,'manual'),'manual journey failed');const ch=p.lifeDirector.activeChapters.find(x=>x.key==='journey:manual-journey');assert(ch&&ch.beats===1,'manual journey did not feed personal chapter');return d;
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
