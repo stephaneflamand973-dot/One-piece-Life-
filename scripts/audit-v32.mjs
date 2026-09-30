@@ -264,6 +264,39 @@ let postCareerRows=[],postCareerProfiles=[];
     };
   }
 {
+  const profiles=[
+    ['Civil','Scientifique','science'],
+    ['Civil','Navigateur','navigation'],
+    ['Marine','Combattant','combat'],
+    ['Pirates','Duelliste','combat'],
+    ['Révolutionnaires','Infiltration','stealth'],
+    ['Gouvernement','Renseignement','stealth']
+  ];
+  const rows=profiles.map((cfg,i)=>qaLongCareer(35200+i*37,cfg[0],cfg[1],cfg[2],40));
+  const avg=k=>+(rows.reduce((a,x)=>a+(x[k]||0),0)/rows.length).toFixed(1);
+  metrics.v50FortyYearCareer={
+    sample:rows.length,yearsTarget:40,
+    survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
+    avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+    avgVisitedPlaces:avg('visited'),
+    avgPersonalChapters:avg('personalChapters'),
+    avgFoundingMemories:avg('founding'),
+    avgRecognition:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.score||0),0)/rows.length).toFixed(1),
+    organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
+    partneredShare:+(rows.filter(x=>x.relationshipStatus!=='Célibataire').length/rows.length).toFixed(2),
+    parentShare:+(rows.filter(x=>x.children>0).length/rows.length).toFixed(2),
+    avgSaveKB:+(rows.reduce((a,x)=>a+(x.saveBytes||0),0)/rows.length/1024).toFixed(1),
+    maxSaveKB:+(Math.max(...rows.map(x=>x.saveBytes||0))/1024).toFixed(1),
+    profiles:rows.map(x=>({faction:x.faction,spec:x.spec,alive:x.alive,rank:x.finalRank,visited:x.visited,chapters:x.personalChapters,recognition:x.recognition&&x.recognition.score||0,saveKB:+((x.saveBytes||0)/1024).toFixed(1)}))
+  };
+  const y40=metrics.v50FortyYearCareer;
+  if(y40.avgClicksPerYear>6.5)throw new Error('V5.0 forty-year flow regression: '+y40.avgClicksPerYear+' clicks/year');
+  if(y40.survival<.50)throw new Error('V5.0 forty-year survival collapse: '+y40.survival);
+  if(y40.avgVisitedPlaces<5)throw new Error('V5.0 forty-year journey remains too static: '+y40.avgVisitedPlaces+' places');
+  if(y40.avgSaveKB>350||y40.maxSaveKB>450)throw new Error('V5.0 forty-year save growth regression: avg '+y40.avgSaveKB+' KB / max '+y40.maxSaveKB+' KB');
+  if(y40.avgPersonalChapters<3)throw new Error('V5.0 forty-year life chapters too dormant: '+y40.avgPersonalChapters);
+}
+{
   const rows=[];for(let s=0;s<24;s++)rows.push(qaLongCareer(34500+s,'Pirates','Duelliste','combat',20));
   const plans=rows.reduce((a,x)=>{Object.entries(x.planCounts||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{});
   metrics.v40PirateFlowStress={
@@ -467,7 +500,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
 }));
 
 console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
-console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,dynasty:metrics.v50DynastyStress}));
+console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress}));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
