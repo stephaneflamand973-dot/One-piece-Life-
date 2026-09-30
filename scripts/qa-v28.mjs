@@ -1287,6 +1287,11 @@ test('V2.8.1 forced encounters are less lethal than deliberate equivalent fights
   function deaths(lethality){let n=0;for(let seed=18800;seed<18860;seed++){const g=fresh(seed),p=g.player;p.ageMonths=240;Object.keys(p.stats).forEach(k=>p.stats[k]=28);Object.keys(p.skills).forEach(k=>p.skills[k]=26);q.fight(62,'QA lethal comparison',{lethality});if(!g.alive)n++}return n}
   const full=deaths(1),forced=deaths(.35);assert(forced<full,'reduced-lethality forced combat did not reduce deaths: '+forced+' vs '+full);return forced+' forced vs '+full+' deliberate deaths';
 });
+test('V2.8.1 high-risk pacing stays tense without returning to monthly clicking',()=>{
+  const g=fresh(18880),p=g.player;p.ageMonths=300;p.justice.regionalHeat[p.region]=60;let plan=q.advancePlan();assert(plan.key==='high-risk','expected high-risk plan');assert(plan.min>=1&&plan.max>=2,'high-risk window still too granular: '+plan.min+'-'+plan.max);
+  p.justice.regionalHeat[p.region]=82;plan=q.advancePlan();assert(plan.key==='critical-risk','critical heat did not preserve close tracking');assert(plan.max<=1.75,'critical risk became too compressed');return 'high '+q.durationText(1.25)+'-'+q.durationText(2.5)+' / critical '+q.durationText(.75)+'-'+q.durationText(1.75);
+});
+
 
 
 
@@ -1354,6 +1359,11 @@ test('V2.8.1 forced encounters are less lethal than deliberate equivalent fights
     };
   }
   metrics.v281LongCareerAudit=byFaction;
+  assert(byFaction['Chasseur de primes'].routineShare<=.15,'routine fallback still dominates bounty hunting: '+byFaction['Chasseur de primes'].routineShare);
+  assert(byFaction.Pirates.aliveAt30>=2,'pirate career remains excessively lethal: '+byFaction.Pirates.aliveAt30+'/4 alive at 30');
+  assert(byFaction.Pirates.clicksPerYear<=8.5,'pirate high-risk flow remains too click-heavy: '+byFaction.Pirates.clicksPerYear);
+  assert(Object.values(byFaction).every(x=>x.arcPeak>=1),'at least one career family still fails to activate emergent arcs');
+  assert(byFaction.Civil.missionRepeatRate<=.55&&byFaction.Marine.missionRepeatRate<=.65&&byFaction.Gouvernement.missionRepeatRate<=.65,'contextual mission variety remains too repetitive');
 }
 
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
