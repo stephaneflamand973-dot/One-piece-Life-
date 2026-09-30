@@ -939,6 +939,11 @@ test('V2.5 fun flow: story novelty suppresses recently used archetypes',()=>{
 test('V2.5 fun flow: accepted missions are remembered and demoted',()=>{
   const g=fresh(15103),p=g.player;p.ageMonths=300;q.join('Civil');const first=q.board()[0];q.rememberMission(first);assert(q.missionNoveltyScore(first)<.3,'accepted mission kept full novelty');return first.title;
 });
+
+test('V5.0 mission board avoids immediate repetition when a similarly safe alternative exists',()=>{
+  const g=fresh(50080),p=g.player;p.ageMonths=360;p.factionRep.Marine=100;q.join('Marine');p.specialization='Combat';const rec=q.careerRecord();rec.specialization='Combat';p.rank='Commandant';rec.rank='Commandant';Object.keys(p.stats).forEach(k=>p.stats[k]=82);Object.keys(p.skills).forEach(k=>p.skills[k]=82);
+  const firstBoard=q.board(),first=firstBoard.find(x=>x.recommended)||firstBoard[0];assert(first,'no first mission');q.rememberMission(first);const secondBoard=q.board(),second=secondBoard.find(x=>x.recommended)||secondBoard[0];const alternatives=secondBoard.filter(x=>q.missionNoveltyKey(x)!==q.missionNoveltyKey(first)&&x.chance>=first.chance-.08);assert(alternatives.length>0,'fixture has no similarly safe alternative');assert(q.missionNoveltyKey(second)!==q.missionNoveltyKey(first),'board repeated the same mission despite a similarly safe alternative');return first.title+' -> '+second.title;
+});
 test('V2.5 fun flow: story history is rendered instead of discarded',()=>{
   const g=fresh(15104),st=q.migrateStoryEngine(g);st.history=[{id:'h1',type:'island-secret',title:'Secret QA',result:'Résultat persistant',closure:'resolved',resolvedAge:180,generation:1}];q.renderStories();assert(fakeElement('#storyHistory').innerHTML.includes('Secret QA'),'story history is still invisible');assert(fakeElement('#storyHistory').innerHTML.includes('Résultat persistant'),'story result is missing from history');return 'history visible';
 });
