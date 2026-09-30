@@ -116,7 +116,9 @@ function qaLongCareer(seed,faction,spec,profile,years){
     directorRomanceOffers:p.lifeDirector&&p.lifeDirector.romanceOffers||0,
     directorFamilyOffers:p.lifeDirector&&p.lifeDirector.familyOffers||0,
     careerMomentum:+((q.careerRecord&&q.careerRecord().momentum)||0).toFixed(2),
-    careerSuccessRate:(q.careerRecord&&((q.careerRecord().successes||0)+(q.careerRecord().failures||0)))?+((q.careerRecord().successes||0)/((q.careerRecord().successes||0)+(q.careerRecord().failures||0))).toFixed(2):0
+    careerSuccessRate:(q.careerRecord&&((q.careerRecord().successes||0)+(q.careerRecord().failures||0)))?+((q.careerRecord().successes||0)/((q.careerRecord().successes||0)+(q.careerRecord().failures||0))).toFixed(2):0,
+    personalChapters:p.lifeDirector&&p.lifeDirector.chapterHistory?p.lifeDirector.chapterHistory.length:0,
+    activePersonalChapters:p.lifeDirector&&p.lifeDirector.activeChapters?p.lifeDirector.activeChapters.length:0
   };
 }
 let postCareerRows=[],postCareerProfiles=[];
@@ -199,7 +201,9 @@ let postCareerRows=[],postCareerProfiles=[];
         avgConsequencesResolved:avg('consequenceHistory'),
         avgStoryHistory:avg('storyHistory'),
         avgFoundingMemories:avg('founding'),
-        avgArcResolutions:avg('arcHistoryDelta')
+        avgArcResolutions:avg('arcHistoryDelta'),
+        avgPersonalChapters:avg('personalChapters'),
+        avgActivePersonalChapters:avg('activePersonalChapters')
       },
       breadth:{
         avgVisitedPlaces:avg('visited'),
