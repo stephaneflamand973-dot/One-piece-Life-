@@ -1246,6 +1246,68 @@ test('V2.8 active arc registry remains compact',()=>{
   const g=fresh(18012),p=g.player;p.ageMonths=300;for(let i=0;i<9;i++)q.registerArcSignal('crew','crew','crew-'+i,'Crew '+i,60+i,{});assert(g.loop.arcs.length<=4,'active arcs exceeded cap');assert(g.loop.arcHistory.length>=1,'dropped arcs left no history');return g.loop.arcs.length+' active / '+g.loop.arcHistory.length+' history';
 });
 
+
+{
+  const rows=[];
+  function resolveAuditAttention(g){
+    if(g.pending){const c=g.pending.choices&&g.pending.choices[0];if(c&&typeof c[2]==='function')c[2]();g.pending=null}
+    const st=q.awaitingStory();if(st){const cs=q.storyChoices(st);if(cs.length)q.storyChoice(st.id,cs[0].id)}
+  }
+  function matureAudit(seed){
+    const g=fresh(seed),p=g.player;let clicks=0;
+    while(p.ageMonths<180&&clicks<100&&g.alive){if(g.pending)g.pending=null;resolveAuditAttention(g);q.advance();clicks++}
+    if(g.pending)g.pending=null;return g
+  }
+  const setups=[
+    {name:'Civil-Scientifique',faction:'Civil',spec:'Scientifique'},
+    {name:'Pirates',faction:'Pirates',spec:null}
+  ];
+  setups.forEach((setup,si)=>{
+    for(let n=0;n<6;n++){
+      const g=matureAudit(19000+si*100+n),p=g.player;if(!g.alive){rows.push({type:setup.name,alive:false,early:true});continue}
+      p.factionRep[setup.faction]=100;q.join(setup.faction);if(setup.spec){p.specialization=setup.spec;q.careerRecord().specialization=setup.spec}
+      p.focus='Auto';p.activity='Carrière';
+      let clicks=0,missions=0,routine=0,world=0,lastMissionAge=-999,maxArcStage=0,start=p.ageMonths;const titles=[];
+      while(p.ageMonths<420&&clicks<220&&g.alive){
+        resolveAuditAttention(g);
+        if(!g.mission&&p.ageMonths-lastMissionAge>=12){
+          const b=q.board(),pick=b.find(x=>x.recommended)||b[0];
+          if(pick){titles.push(pick.title);routine+=pick.routine?1:0;world+=pick.worldGenerated?1:0;q.startMission(pick.id);missions++;lastMissionAge=p.ageMonths}
+        }
+        q.advance();clicks++;maxArcStage=Math.max(maxArcStage,...g.loop.arcs.map(a=>a.stage||0),...g.loop.arcHistory.map(a=>a.stage==='Héritage'?4:a.stage==='Tournant'?3:a.stage==='Escalade'?2:a.stage==='En cours'?1:0));
+      }
+      rows.push({type:setup.name,alive:g.alive,early:false,years:(p.ageMonths-start)/12,clicks,missions,routine,world,unique:new Set(titles).size,repeat:missions?1-new Set(titles).size/missions:0,arcActive:g.loop.arcs.length,arcHistory:g.loop.arcHistory.length,maxArcStage,founding:g.loop.foundingMemories.length,consequences:g.loop.consequenceHistory.length,stories:g.story.history.length});
+    }
+  });
+  const groups={};
+  setups.forEach(setup=>{
+    const rs=rows.filter(x=>x.type===setup.name&&!x.early),den=Math.max(1,rs.length),years=Math.max(.01,rs.reduce((a,x)=>a+(x.years||0),0));
+    groups[setup.name]={
+      sample:rs.length,aliveAt35:rs.filter(x=>x.alive&&x.years>=19.5).length,
+      clicksPerYear:+(rs.reduce((a,x)=>a+x.clicks,0)/years).toFixed(2),
+      missions:+(rs.reduce((a,x)=>a+x.missions,0)/den).toFixed(1),
+      missionRepeatRate:+(rs.reduce((a,x)=>a+x.repeat,0)/den).toFixed(2),
+      routineShare:+(rs.reduce((a,x)=>a+x.routine,0)/Math.max(1,rs.reduce((a,x)=>a+x.missions,0))).toFixed(2),
+      worldMissionShare:+(rs.reduce((a,x)=>a+x.world,0)/Math.max(1,rs.reduce((a,x)=>a+x.missions,0))).toFixed(2),
+      avgArcHistory:+(rs.reduce((a,x)=>a+x.arcHistory,0)/den).toFixed(1),
+      avgActiveArcs:+(rs.reduce((a,x)=>a+x.arcActive,0)/den).toFixed(1),
+      maxArcStage:Math.max(0,...rs.map(x=>x.maxArcStage)),
+      avgFoundingMemories:+(rs.reduce((a,x)=>a+x.founding,0)/den).toFixed(1),
+      avgConsequences:+(rs.reduce((a,x)=>a+x.consequences,0)/den).toFixed(1),
+      avgStories:+(rs.reduce((a,x)=>a+x.stories,0)/den).toFixed(1)
+    };
+  });
+  metrics.v281LongCareerAudit=groups;
+}
+{
+  const g=fresh(19250),p=g.player;p.ageMonths=300;const c=g.world.crews[0];c.status='active';
+  q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});
+  q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});
+  const a=g.loop.arcs.find(x=>x.sourceType==='crew'&&String(x.sourceId)===String(c.id)),startHistory=g.loop.arcHistory.length,startTimeline=g.timeline.length;
+  for(let i=0;i<71;i++)q.arcTick(1);
+  metrics.v281DormantArcAudit={existsBeforeExpiry:!!g.loop.arcs.find(x=>x.id===a.id),stage:a.stage,historyDelta:g.loop.arcHistory.length-startHistory,timelineDelta:g.timeline.length-startTimeline,founding:g.loop.foundingMemories.length};
+}
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
