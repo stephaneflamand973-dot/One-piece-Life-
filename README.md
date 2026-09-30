@@ -1,3 +1,97 @@
+# ONE PIECE LIFE — V2.8.1 Quality Pass
+
+La V2.8.1 est un **quality pass de profondeur et de fluidité** sur V2.8. L'objectif n'est pas d'ajouter des menus : il est de rendre les systèmes existants plus cohérents sur des carrières de 20 ans et plus.
+
+## Changements principaux
+
+### Arcs réellement vivants
+
+Les arcs actifs produisent désormais de rares échos autonomes qui influencent les intentions du monde sans interrompre **AVANCER**.
+
+- les équipages rancuniers peuvent réorienter leurs mouvements vers le joueur ;
+- les rivaux et Némésis peuvent remettre la rivalité au centre de leurs projets ;
+- les mentors peuvent revenir vers la transmission ;
+- les conflits persistants continuent d'évoluer ;
+- les échos autonomes peuvent faire mûrir un arc jusqu'à **Escalade**, mais un **Tournant** ou un **Héritage** exigent toujours de nouveaux événements réels.
+
+Aucun clic ou choix obligatoire n'est ajouté.
+
+### Missions contextuelles
+
+Les missions de carrière gardent leur identité mécanique, mais leur présentation et une petite partie de leur difficulté tiennent désormais compte :
+
+- de l'île ;
+- de la région ;
+- de la signature locale ;
+- des pressions du monde vivant ;
+- d'un contexte secondaire comme Navigation, Discrétion, Commandement, Réflexes ou Discipline.
+
+Une même « Livraison côtière » peut donc devenir une opération différente selon le lieu et la période, sans contourner le système anti-répétition.
+
+### Carrière Pirate mieux alignée
+
+La mission **Chasse au trésor** utilise désormais un profil hybride **Aventure** fondé sur Navigation, Réflexes, Combat et Discipline.
+
+Les missions de rang 0 reçoivent un soutien d'entrée limité au premier rang afin d'apprendre la carrière à travers de vraies missions de faction plutôt que par un fallback de routine permanent.
+
+### Recommandation de mission
+
+Une mission marquée **recommandée** doit désormais atteindre au minimum le niveau **Adaptée**.
+
+Lorsqu'aucune mission normale ne satisfait ce seuil, le moteur peut toujours produire une mission de routine calibrée au personnage.
+
+### Récupération plus fluide
+
+Les périodes de blessure grave avancent désormais sur une fenêtre de **1 à 2 mois** au lieu de 0,5 à 1,5 mois, tout en conservant la simulation mensuelle et les interruptions sur événements importants.
+
+### Souvenirs fondateurs visibles
+
+Les souvenirs fondateurs ne dorment plus seulement dans la sauvegarde. Ils apparaissent désormais dans la Timeline lorsque l'histoire complète est dépliée.
+
+## Audit avant / après
+
+Stress-test de carrières longues :
+
+| Indicateur | V2.8 audit initial | V2.8.1 final |
+| --- | ---: | ---: |
+| Répétition missions Civil scientifique | 93 % | **60 %** |
+| Répétition missions Pirate | 78 % | **39 %** |
+| Missions de routine Pirate | 63 % après premier correctif | **33 %** |
+| Stade maximal naturel des arcs | 1 | **2 — Escalade** |
+| AVANCER/an carrière standard | 6,11 | **5,96** |
+| AVANCER/an exploration | 5,24 | **4,93** |
+| Survie Pirate à 35 ans dans le stress-test agressif | 2–3 / 6 selon passe | **4 / 6** |
+
+Le stress-test Pirate utilise volontairement les premiers choix narratifs proposés, souvent les plus risqués. Sa mortalité ne représente donc pas un joueur prudent ; elle sert à détecter les excès du moteur.
+
+## QA V2.8.1
+
+La release candidate passe **222/222 tests avec 0 échec**.
+
+Les nouveaux garde-fous vérifient notamment :
+
+- recommandation de mission au niveau Adaptée ou supérieur ;
+- fallback viable pour un personnage très faible ;
+- soutien d'entrée borné aux missions tier 0 ;
+- variation contextuelle sans casser l'anti-répétition ;
+- arcs autonomes non bloquants ;
+- progression naturelle d'un arc jusqu'à Escalade ;
+- impossibilité pour les seuls échos autonomes de créer un Tournant majeur ;
+- récupération 1–2 mois ;
+- visibilité des souvenirs fondateurs.
+
+Mesures finales de non-régression :
+
+- fluidité adulte : **5,03 AVANCER/an** ;
+- carrière active standard : **5,96 AVANCER/an** et **0,93 mission/an** ;
+- exploration : **4,93 AVANCER/an** ;
+- variété narrative : **4,3 archétypes distincts** en moyenne sur dix ans ;
+- progression joueur à 25 ans : puissance moyenne **34,9** ;
+- progression de 120 PNJ sur 15 ans : gain moyen **+18,4**, maximum **89,7** ;
+- monde sur 30 ans : **33,6 %** de divergence moyenne, **4 guerres** et **8 équipages actifs** en moyenne.
+
+---
+
 # ONE PIECE LIFE — V2.8 Emergent Arcs
 
 La V2.8 transforme la mémoire causale de V2.7 en **moteur de trajectoires persistantes**. Le jeu ne se contente plus de se souvenir qu'un événement a eu lieu : il peut maintenant utiliser ce passé pour modifier les décisions du monde, les opportunités futures et la trajectoire d'un rival ou d'un équipage.
