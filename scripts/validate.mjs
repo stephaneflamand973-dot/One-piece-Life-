@@ -10,7 +10,7 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('<title>ONE PIECE LIFE — V3.2</title>') || !html.includes('V3.2 • World Foundations')) throw new Error('index.html does not expose V3.2 consistently');
+if(!html.includes('<title>ONE PIECE LIFE — V3.5</title>') || !html.includes('V3.5 • Canon Engine')) throw new Error('index.html does not expose V3.5 consistently');
 if(!app.includes('version:28') || !app.includes('g.version=28')) throw new Error('compatible GameState 28 migration is missing');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
@@ -24,7 +24,7 @@ if(missing.length) throw new Error('Missing HTML ids: '+missing.join(', '));
 if(!app.includes('function careerTick') || !app.includes('var CAREERS=')) throw new Error('career engine missing');
 if(!app.includes('function worldMonthStep') || !app.includes('function simulateCrews') || !app.includes('function simulateActors') || !app.includes('function simulateConflicts')) throw new Error('living world engine missing');
 if(!app.includes('function lifeTick') || !app.includes('function continueWithHeir') || !app.includes('function checkAchievements')) throw new Error('life simulator engine missing');
-if(!app.includes('function processCanonEvents') || !app.includes('function resolveCanonEvent')) throw new Error('V1 causal canon engine missing');
+if(!app.includes('function processCanonEvents') || !app.includes('function resolveCanonEvent') || !app.includes('function simulateCanonBranches') || !app.includes('function markPlayerCanonImpact') || !app.includes('function canonTimelineMode')) throw new Error('V3.5 causal canon engine missing');
 if(!app.includes('CANON_EVENTS') || !app.includes('SPECIAL_TECHNIQUES') || !app.includes('pickFruit')) throw new Error('V1 content integration missing');
 if(!app.includes('relationshipStatus') || !app.includes('children') || !app.includes('netWorthPeak')) throw new Error('family/economy state missing');
 if(!app.includes("Mobilité:{keys:['Vitesse','Agilité']") || !app.includes("Mental:{keys:['Volonté','Discipline']")) throw new Error('V2.1 focused progression profiles missing');
