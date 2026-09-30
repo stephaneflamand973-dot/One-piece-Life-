@@ -1,3 +1,20 @@
+# ONE PIECE LIFE — V4.0 Living World
+
+La V4.0 fait passer la simulation d'une carrière dans One Piece à une simulation du monde de One Piece autour de cette carrière.
+
+## Living World
+- Les guerres, rivalités majeures et divergences canoniques peuvent devenir des **sagas mondiales persistantes**.
+- Les sagas évoluent de Tensions à Confrontation, Escalade puis Point culminant, avant stabilisation, nouvel équilibre ou rupture.
+- Les factions et équipages poursuivent des **ambitions collectives persistantes**.
+- Les changements territoriaux mémorisent leur cause afin de produire une géopolitique traçable.
+- Le joueur est intégré automatiquement aux sagas de sa région lorsque sa carrière les traverse.
+- L'endgame utilise désormais une **reconnaissance mondiale organique** fondée sur puissance, influence, territoires, alliés, sagas et impact canonique.
+- Le Canon Engine V3.5 reste actif : les timelines alternatives continuent d'alimenter les nouvelles sagas.
+- Toute cette profondeur reste principalement automatique et remonte via les interfaces existantes plutôt que par de nouveaux écrans de micro-gestion.
+- Le GameState interne reste en version 28 pour préserver les sauvegardes existantes.
+
+---
+
 # ONE PIECE LIFE — V3.5 Canon Engine
 
 La V3.5 transforme la chronologie canonique en système causal vivant plutôt qu'en calendrier figé.
