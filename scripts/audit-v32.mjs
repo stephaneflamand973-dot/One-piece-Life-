@@ -207,21 +207,22 @@ function qaLongCareer(seed,faction,spec,profile,years){
       created:totalCreated,resolved:totalResolved,createdByType,outcomes,
       avgActive:+(activeCounts.reduce((a,b)=>a+b,0)/activeCounts.length).toFixed(2),maxActive,
       avgDuration:durations.length?+(durations.reduce((a,b)=>a+b,0)/durations.length).toFixed(1):0,
-      geoEvents:seenGeo.size,geoCauses,maxFlips:Math.max(0,...Object.values(flips)),dominantShare:+dominant.toFixed(2),
+      geoEvents:seenGeo.size,geoCauses,maxFlips:Math.max(0,...Object.values(flips)),dominantShare:+dominant.toFixed(2),controllers,
       avgWars:+(warCounts.reduce((a,b)=>a+b,0)/warCounts.length).toFixed(2),
       avgWarDuration:resolvedWars.length?+(resolvedWars.reduce((a,w)=>a+(w.months||0),0)/resolvedWars.length).toFixed(1):0,
       goals,initialBytes,finalBytes:JSON.stringify(g).length,elapsedMs:Date.now()-start
     });
   }
   const sum=k=>rows.reduce((a,x)=>a+(x[k]||0),0),mergeMap=k=>rows.reduce((acc,x)=>{Object.entries(x[k]||{}).forEach(([n,v])=>acc[n]=(acc[n]||0)+v);return acc},{});
-  const typeTotals=mergeMap('createdByType'),outcomeTotals=mergeMap('outcomes'),causeTotals=mergeMap('geoCauses');
+  const typeTotals=mergeMap('createdByType'),outcomeTotals=mergeMap('outcomes'),causeTotals=mergeMap('geoCauses'),controllerNames=[...new Set(rows.flatMap(x=>Object.keys(x.controllers||{})))],controllerSummary={};
+  controllerNames.forEach(f=>controllerSummary[f]=+(rows.reduce((a,x)=>a+((x.controllers&&x.controllers[f])||0),0)/rows.length).toFixed(1));
   const goalSummary={};['Pirates','Marine','Révolutionnaires','Gouvernement','Civil','Chasseur de primes'].forEach(f=>{
     goalSummary[f]={avgProgress:+(rows.reduce((a,x)=>a+x.goals[f].progress,0)/rows.length).toFixed(1),avgCompleted:+(rows.reduce((a,x)=>a+x.goals[f].completed,0)/rows.length).toFixed(1)};
   });
   metrics.v40LivingWorld={
     samples:rows.length,years:40,
     sagas:{avgActive:+(sum('avgActive')/rows.length).toFixed(2),avgCreatedPerDecade:+(sum('created')/rows.length/4).toFixed(2),avgResolved:+(sum('resolved')/rows.length).toFixed(1),resolutionRate:+(sum('resolved')/Math.max(1,sum('created'))).toFixed(2),avgDuration:+(sum('avgDuration')/rows.length).toFixed(1),maxActive:Math.max(...rows.map(x=>x.maxActive)),types:typeTotals,outcomes:outcomeTotals,ruptureRate:+((outcomeTotals['rupture']||0)/Math.max(1,sum('resolved'))).toFixed(2),stabilizationRate:+((outcomeTotals['stabilisation']||0)/Math.max(1,sum('resolved'))).toFixed(2),newBalanceRate:+((outcomeTotals['nouvel équilibre']||0)/Math.max(1,sum('resolved'))).toFixed(2)},
-    geopolitics:{avgShifts:+(sum('geoEvents')/rows.length).toFixed(1),causes:causeTotals,avgMaxFlips:+(sum('maxFlips')/rows.length).toFixed(1),avgDominantShare:+(sum('dominantShare')/rows.length).toFixed(2),avgActiveWars:+(sum('avgWars')/rows.length).toFixed(2),avgWarDuration:+(sum('avgWarDuration')/rows.length).toFixed(1)},
+    geopolitics:{avgShifts:+(sum('geoEvents')/rows.length).toFixed(1),causes:causeTotals,avgMaxFlips:+(sum('maxFlips')/rows.length).toFixed(1),avgDominantShare:+(sum('dominantShare')/rows.length).toFixed(2),avgTerritoriesByController:controllerSummary,avgActiveWars:+(sum('avgWars')/rows.length).toFixed(2),avgWarDuration:+(sum('avgWarDuration')/rows.length).toFixed(1)},
     factionGoals:goalSummary,
     performance:{avgInitialSaveKB:+(sum('initialBytes')/rows.length/1024).toFixed(1),avgFinalSaveKB:+(sum('finalBytes')/rows.length/1024).toFixed(1),avgWorldMonthMs:+(sum('elapsedMs')/rows.length/months).toFixed(2)}
   };
