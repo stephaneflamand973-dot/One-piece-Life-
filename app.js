@@ -1449,11 +1449,11 @@ function attemptEscape(){
  save();render()
 }
 function pursuitEvasion(pressure){
- var p=game.player,j=migrateJustice(p),stealth=(p.skills.Discrétion||0)*.48+(p.stats.Agilité||0)*.27+(p.haki.Observation||0)*.15+(p.stats.Réflexes||0)*.10,nav=(p.skills.Navigation||0)*.46+(p.stats.Réflexes||0)*.27+(p.stats.Agilité||0)*.17+(p.haki.Observation||0)*.10,useStealth=stealth>=nav,score=Math.max(stealth,nav),chance=cl(.18+(score-pressure*.62)/105,.07,.72);
+ var p=game.player,j=migrateJustice(p),crewAssist=p.organization?organizationPower()*.08:0,stealth=(p.skills.Discrétion||0)*.48+(p.stats.Agilité||0)*.27+(p.haki.Observation||0)*.15+(p.stats.Réflexes||0)*.10+crewAssist,nav=(p.skills.Navigation||0)*.46+(p.stats.Réflexes||0)*.27+(p.stats.Agilité||0)*.17+(p.haki.Observation||0)*.10+crewAssist,useStealth=stealth>=nav,score=Math.max(stealth,nav),chance=cl(.24+(score-pressure*.58)/105,.09,.78);
  if(R('justice')>=chance)return false;var key=useStealth?'Discrétion':'Navigation',drop=2+R('justice')*5;j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)-drop,0,100);gain(key,.28+R('justice')*.34);if(pressure>=62)attemptBreakthrough('evasion',pressure,[key,'Agilité','Réflexes']);tl('Poursuite évitée','Tu sèmes les autorités grâce à '+key+'. Chaleur locale -'+Math.round(drop)+'.');return true
 }
 function pursuitEncounter(){
- var p=game.player,j=migrateJustice(p);if(j.detained||!game.alive)return;var pressure=justicePressure(),d=cl(inf().danger*.45+pressure*.55+12,18,94);j.pursuits++;j.lastPursuit={year:game.world.year,month:Math.floor(game.world.month),region:p.region};
+ var p=game.player,j=migrateJustice(p);if(j.detained||!game.alive)return;var pressure=justicePressure(),crewSupport=p.organization?organizationSupport(null)*.65:0,d=cl(inf().danger*.45+pressure*.55+12-crewSupport,18,94);j.pursuits++;j.lastPursuit={year:game.world.year,month:Math.floor(game.world.month),region:p.region};
  if(pursuitEvasion(pressure))return;
  var ok=fight(d,'Poursuite des autorités');if(!game.alive)return;if(ok){j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)+10,0,100);registerCrime('Résistance à l’arrestation',3,true);tl('Cavale','Tu échappes aux forces lancées à tes trousses.','major')}else arrestPlayer('Capture après poursuite')
 }
