@@ -1146,8 +1146,8 @@ test('V5.0 manual romance attempt synchronizes director cooldown',()=>{
 test('V5.0 Life Director can naturally carry a life from bond to parenthood',()=>{
   const g=fresh(50064),p=g.player;p.ageMonths=320;p.money=500000;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=320;r.location=p.island;r.region=p.region;r.monthsKnown=24;r.affection=90;r.trust=90;r.attraction=90;
   let st=q.startStory('relationship-opening');assert(st&&st.participantId===r.id,'relationship opening failed');st.awaiting=true;q.storyChoice(st.id,'explore');assert(p.life.relationshipStatus==='En couple','couple not created');
-  q.lifeTick(12);st=q.startStory('family-future');assert(st&&st.data.future==='marriage','marriage future did not emerge');st.awaiting=true;q.storyChoice(st.id,'commit');assert(p.life.relationshipStatus==='Marié','marriage not created');
-  q.lifeTick(12);assert(q.directorFamilyOpportunity()==='child','child future did not unlock after stable marriage');st=q.startStory('family-future');assert(st&&st.data.future==='child','child story did not emerge');st.awaiting=true;q.storyChoice(st.id,'child');assert(p.children.length===1,'Life Director chain did not create a child');
+  p.ageMonths+=12;q.lifeTick(12);st=q.startStory('family-future');assert(st&&st.data.future==='marriage','marriage future did not emerge');st.awaiting=true;q.storyChoice(st.id,'commit');assert(p.life.relationshipStatus==='Marié','marriage not created');
+  p.ageMonths+=12;q.lifeTick(12);assert(q.directorFamilyOpportunity()==='child','child future did not unlock after stable marriage');st=q.startStory('family-future');assert(st&&st.data.future==='child','child story did not emerge');st.awaiting=true;q.storyChoice(st.id,'child');assert(p.children.length===1,'Life Director chain did not create a child');
   return 'bond → couple → marriage → '+p.children[0].name;
 });
 
