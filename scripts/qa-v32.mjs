@@ -66,7 +66,7 @@ window.__qa={
  upgradeOrganizationShip:upgradeOrganizationShip,generateRecruitCandidate:generateRecruitCandidate,
  registerCrime:registerCrime,arrestPlayer:arrestPlayer,prisonTick:prisonTick,attemptEscape:attemptEscape,justiceTick:justiceTick,
  influenceMetrics:influenceMetrics,establishDomain:establishDomain,fortifyDomain:fortifyDomain,influenceTick:influenceTick,
- startStrategicWar:startStrategicWar,simulateWars:simulateWars,simulateConflicts:simulateConflicts,resolveWar:resolveWar,warBetween:warBetween,
+ startStrategicWar:startStrategicWar,simulateWars:simulateWars,simulateConflicts:simulateConflicts,resolveConflict:resolveConflict,resolveWar:resolveWar,warBetween:warBetween,
  marketPrice:marketPrice,marketPriceIndex:marketPriceIndex,buyCommodity:buyCommodity,sellCommodity:sellCommodity,tradeRouteOpportunities:tradeRouteOpportunities,
  simulateEconomy:simulateEconomy,cargoUsed:cargoUsed,cargoCapacity:cargoCapacity,cargoBookValue:cargoBookValue,blackMarketRisk:blackMarketRisk,inspectSmugglingAtArrival:inspectSmugglingAtArrival,
  releasePlayerFruits:releasePlayerFruits,checkAchievements:checkAchievements,chargeMoney:chargeMoney,serviceDebt:serviceDebt,netWorth:netWorth,
@@ -1432,6 +1432,12 @@ test('V4.0 faction ambitions require real causal activity',()=>{
 });
 test('V4.0 completed collective ambitions evolve instead of looping forever',()=>{
  const g=fresh(40206),goal=q.factionWorldGoal('Pirates'),old=goal.primary;goal.progress=99;q.recordGeopoliticalShift(g.player.island,'qa-conquest','Marine','Pirates');assert(goal.completed===1,'faction completion not recorded');assert(goal.progress<40,'completed faction goal did not restart');assert(goal.primary!==old,'completed faction goal did not evolve');const crew=g.world.crews.find(x=>x.status==='active'&&x.faction==='Pirates');const cg=q.crewWorldGoal(crew),cold=cg.primary;cg.progress=99;crew.intention='S’entraîner';crew.intentionMonths=0;q.resolveCrewIntent(crew);assert(cg.completed===1,'crew completion not recorded');assert(cg.primary!==cold,'crew goal did not evolve');return old+' → '+goal.primary+' / '+cold+' → '+cg.primary;
+});
+test('V4.0 ordinary crew victories destabilize before they conquer',()=>{
+ const g=fresh(40207),crew=g.world.crews.find(x=>x.status==='active'&&x.faction==='Pirates');assert(crew,'pirate crew missing');const loc=Object.keys(g.world.territories).find(n=>g.world.territories[n].controller!=='Pirates');assert(loc,'non-pirate territory missing');const t=g.world.territories[loc],old=t.controller;g.world.factions.Pirates=100;g.world.factions[old]=1;crew.power=90;crew.region=q.infStatic(loc).region;t.influence=20;t.stability=45;const conf={id:'qa-crew-raid',location:loc,region:crew.region,attacker:'Pirates',defender:old,intensity:55,months:3,status:'active',source:crew.id,warId:null};g.world.conflicts.push(conf);q.resolveConflict(conf);assert(conf.winner==='Pirates','fixture did not produce pirate victory');assert(t.controller===old,'ordinary crew raid flipped sovereignty');assert(t.contested,'successful raid should leave territory contested');return old+' tient '+loc+' malgré le raid';
+});
+test('V4.0 major crew victories can still conquer territory',()=>{
+ const g=fresh(40208),crew=g.world.crews.find(x=>x.status==='active'&&x.faction==='Pirates');assert(crew,'pirate crew missing');const loc=Object.keys(g.world.territories).find(n=>g.world.territories[n].controller!=='Pirates');assert(loc,'non-pirate territory missing');const t=g.world.territories[loc],old=t.controller;g.world.factions.Pirates=100;g.world.factions[old]=1;crew.power=96;crew.region=q.infStatic(loc).region;t.influence=20;t.stability=35;const conf={id:'qa-crew-conquest',location:loc,region:crew.region,attacker:'Pirates',defender:old,intensity:95,months:4,status:'active',source:crew.id,warId:null};g.world.conflicts.push(conf);q.resolveConflict(conf);assert(conf.winner==='Pirates','fixture did not produce pirate victory');assert(t.controller==='Pirates','major crew victory could not conquer territory');return old+' → '+t.controller+' à '+loc;
 });
 test('V4.0 non-pirate legends do not require territorial domains',()=>{
  const cases=[['Marine','Vice-amiral'],['Révolutionnaires','Commandant régional'],['Gouvernement','CP0'],['Chasseur de primes',''],['Civil','Scientifique']];const out=[];
