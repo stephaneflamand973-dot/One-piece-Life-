@@ -154,6 +154,7 @@ if(!app.includes('delete m.goods[x.id].activity') || !app.includes('delete m.goo
 if(!app.includes('function generationLegacySnapshot') || !app.includes('g.dynasty.ancestors.slice(-20)') || !app.includes('legacy:legacy')) throw new Error('V5.0 bounded generational legacy missing');
 if(!app.includes('function lifeChronicle') || !app.includes('chronicle:chronicle.summary') || !app.includes("chronicle.headline")) throw new Error('V5.0 compact life chronicle payoff missing');
 if(!app.includes('function directorLegacyOpportunity') || !app.includes("'legacy-crossroads'") || !app.includes('legacyChoice') || !app.includes("embrace-legacy")) throw new Error('V5.0 generational legacy crossroads missing');
+if(!app.includes('p.ageMonths>480') || !app.includes("legacy&&p.ageMonths>=216")) throw new Error('V5.0 meaningful legacy crossroads pacing missing');
 if(!app.includes('function latestDynastyLegacy') || !app.includes("Héritage de '+e(ancestor.name)")) throw new Error('V5.0 visible generational legacy missing');
 if(!app.includes("Chapitre actuel : ")) throw new Error('V5.0 active chapter is not surfaced in AVANCER');
 if(!app.includes('partnerFollows') || !app.includes('longDistance') || !app.includes("Vous vous installez ensemble à")) throw new Error('V5.0 household relocation continuity missing');
