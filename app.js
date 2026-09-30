@@ -1107,7 +1107,7 @@ function directorTravelCandidate(){
  var p=game.player,d=migrateLifeDirector(p),partner=partnerRelation(),routes=(PL[p.island]&&PL[p.island][2]||[]).filter(function(n){return req(n)[0]});
  if(!routes.length||p.travel||p.ageMonths-d.lastMobilityAge<27)return null;
  if(partner&&p.life.relationshipStatus==='En couple'&&(partner.relationshipMonths||0)<12)return null;
- var fresh=routes.filter(function(n){return p.visited.indexOf(n)<0}),pool=fresh.length?fresh:routes.filter(function(n){return n!==p.island});
+ var pool=routes.filter(function(n){return n!==p.island});
  if(!pool.length)return null;
  pool.sort(function(a,b){return directorTravelContext(b).score-directorTravelContext(a).score});
  return pool[0]
