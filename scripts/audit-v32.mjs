@@ -168,6 +168,96 @@ function qaLongCareer(seed,faction,spec,profile,years){
   const byFaction={};factions.forEach(f=>{const rs=rows.filter(x=>x.faction===f);byFaction[f]={routineBoard:+(rs.filter(x=>x.hasRoutine).length/rs.length).toFixed(2),routineRecommended:+(rs.filter(x=>x.recommendedRoutine).length/rs.length).toFixed(2),avgBestChance:+(rs.reduce((a,x)=>a+x.bestChance,0)/rs.length).toFixed(2)}});
   metrics.v32RoutineFallback={sample:rows.length,byFaction};
 }
+
+{
+  const seeds=6,months=480,rows=[];
+  for(let si=0;si<seeds;si++){
+    const g=fresh(33000+si),ws=g.world.worldState,seenSaga=new Set(),seenResolved=new Set(),seenGeo=new Set();
+    const createdByType={},outcomes={},durations=[],geoCauses={},flips={},activeCounts=[],warCounts=[];
+    let maxActive=0,totalCreated=0,totalResolved=0;
+    const initialBytes=JSON.stringify(g).length,start=Date.now();
+    for(let m=0;m<months;m++){
+      q.worldMonthStep();
+      const active=(ws.worldSagas||[]).filter(x=>x.status==='active');
+      activeCounts.push(active.length);maxActive=Math.max(maxActive,active.length);
+      warCounts.push((g.world.wars||[]).filter(x=>x.status==='active').length);
+      (ws.worldSagas||[]).forEach(s=>{
+        if(!seenSaga.has(s.id)){seenSaga.add(s.id);totalCreated++;createdByType[s.type]=(createdByType[s.type]||0)+1}
+      });
+      (ws.sagaHistory||[]).forEach(s=>{
+        if(!seenResolved.has(s.id)){seenResolved.add(s.id);totalResolved++;outcomes[s.outcome]=(outcomes[s.outcome]||0)+1;if(Number.isFinite(s.months))durations.push(s.months)}
+      });
+      (ws.geopoliticalHistory||[]).forEach(h=>{
+        if(seenGeo.has(h.seq))return;seenGeo.add(h.seq);
+        const cause=String(h.cause||'unknown'),bucket=cause.startsWith('war:')?'war':cause.startsWith('actor:')?'actor':cause.startsWith('player')?'player':cause.startsWith('crew-')?'crew':cause==='world'||cause==='ambient'?'ambient':'other';
+        geoCauses[bucket]=(geoCauses[bucket]||0)+1;flips[h.name]=(flips[h.name]||0)+1;
+      });
+    }
+    const controllers={};Object.values(g.world.territories).forEach(t=>controllers[t.controller]=(controllers[t.controller]||0)+1);
+    const terrCount=Object.keys(g.world.territories).length,dominant=Math.max(...Object.values(controllers))/Math.max(1,terrCount);
+    const goals=Object.fromEntries(['Pirates','Marine','Révolutionnaires','Gouvernement','Civil','Chasseur de primes'].map(f=>{const x=q.factionWorldGoal(f);return[f,{progress:+(x.progress||0).toFixed(1),completed:x.completed||0}]}));
+    const resolvedWars=(g.world.wars||[]).filter(w=>w.status==='resolved');
+    rows.push({
+      created:totalCreated,resolved:totalResolved,createdByType,outcomes,
+      avgActive:+(activeCounts.reduce((a,b)=>a+b,0)/activeCounts.length).toFixed(2),maxActive,
+      avgDuration:durations.length?+(durations.reduce((a,b)=>a+b,0)/durations.length).toFixed(1):0,
+      geoEvents:seenGeo.size,geoCauses,maxFlips:Math.max(0,...Object.values(flips)),dominantShare:+dominant.toFixed(2),
+      avgWars:+(warCounts.reduce((a,b)=>a+b,0)/warCounts.length).toFixed(2),
+      avgWarDuration:resolvedWars.length?+(resolvedWars.reduce((a,w)=>a+(w.months||0),0)/resolvedWars.length).toFixed(1):0,
+      goals,initialBytes,finalBytes:JSON.stringify(g).length,elapsedMs:Date.now()-start
+    });
+  }
+  const sum=k=>rows.reduce((a,x)=>a+(x[k]||0),0),mergeMap=k=>rows.reduce((acc,x)=>{Object.entries(x[k]||{}).forEach(([n,v])=>acc[n]=(acc[n]||0)+v);return acc},{});
+  const typeTotals=mergeMap('createdByType'),outcomeTotals=mergeMap('outcomes'),causeTotals=mergeMap('geoCauses');
+  const goalSummary={};['Pirates','Marine','Révolutionnaires','Gouvernement','Civil','Chasseur de primes'].forEach(f=>{
+    goalSummary[f]={avgProgress:+(rows.reduce((a,x)=>a+x.goals[f].progress,0)/rows.length).toFixed(1),avgCompleted:+(rows.reduce((a,x)=>a+x.goals[f].completed,0)/rows.length).toFixed(1)};
+  });
+  metrics.v40LivingWorld={
+    samples:rows.length,years:40,
+    sagas:{avgActive:+(sum('avgActive')/rows.length).toFixed(2),avgCreatedPerDecade:+(sum('created')/rows.length/4).toFixed(2),avgResolved:+(sum('resolved')/rows.length).toFixed(1),avgDuration:+(sum('avgDuration')/rows.length).toFixed(1),maxActive:Math.max(...rows.map(x=>x.maxActive)),types:typeTotals,outcomes:outcomeTotals},
+    geopolitics:{avgShifts:+(sum('geoEvents')/rows.length).toFixed(1),causes:causeTotals,avgMaxFlips:+(sum('maxFlips')/rows.length).toFixed(1),avgDominantShare:+(sum('dominantShare')/rows.length).toFixed(2),avgActiveWars:+(sum('avgWars')/rows.length).toFixed(2),avgWarDuration:+(sum('avgWarDuration')/rows.length).toFixed(1)},
+    factionGoals:goalSummary,
+    performance:{avgInitialSaveKB:+(sum('initialBytes')/rows.length/1024).toFixed(1),avgFinalSaveKB:+(sum('finalBytes')/rows.length/1024).toFixed(1),avgWorldMonthMs:+(sum('elapsedMs')/rows.length/months).toFixed(2)}
+  };
+}
+{
+  const g=fresh(33601),ws=g.world.worldState,s=q.startWorldSaga('rivalry',g.player.region,'Alpha','Beta','audit'),before=s.pressure;
+  for(let i=0;i<12;i++)q.playerSagaPresence();
+  metrics.v40PlayerSagaBaseline={involved:!!s.playerInvolved,playerMonths:s.playerMonths||0,pressureGain:+(s.pressure-before).toFixed(1),peakPower:s.playerPeakPower||0};
+}
+{
+  const g=fresh(33602),factions=['Pirates','Marine','Révolutionnaires','Gouvernement','Civil','Chasseur de primes'],out={};
+  factions.forEach(f=>q.factionWorldGoal(f));
+  for(let i=0;i<1200;i++)q.updateFactionWorldGoals();
+  factions.forEach(f=>{const x=q.factionWorldGoal(f);out[f]={progress:+(x.progress||0).toFixed(1),completed:x.completed||0}});
+  metrics.v40FactionAutopilot=out;
+}
+{
+  const factions=['Pirates','Marine','Révolutionnaires','Gouvernement','Chasseur de primes','Civil'],out={};
+  factions.forEach((f,ix)=>{
+    const g=fresh(33700+ix),p=g.player;p.ageMonths=480;p.money=7000000;p.reputation=100;
+    Object.keys(p.stats).forEach(k=>{p.stats[k]=90;p.caps[k]=98;p.absoluteCaps[k]=100});
+    Object.keys(p.skills).forEach(k=>{p.skills[k]=88;p.caps[k]=98;p.absoluteCaps[k]=100});
+    p.factionRep[f]=95;if(f!=='Civil')q.join(f);
+    const x=q.influenceMetrics();x.score=90;x.fame=85;x.infamy=f==='Pirates'?75:10;x.domains=[];x.affiliates=[];
+    if(f==='Pirates'){x.domains=['Foosha Village','Orange Town','Syrup Village'];x.affiliates=['qa1','qa2','qa3'];p.bounty=1200000000}
+    if(f==='Marine')p.rank='Vice-amiral';
+    if(f==='Révolutionnaires')p.rank='Commandant régional';
+    if(f==='Gouvernement')p.rank='CP0';
+    if(f==='Chasseur de primes'){p.justice.captures=20;p.justice.bountiesClaimed=250000000}
+    if(f==='Civil'){p.specialization='Scientifique';p.skills.Science=95}
+    const r=q.playerWorldRecognition(),e=q.endgameStage();
+    out[f]={score:r.score,role:r.role,organic:!!(e&&e.organic),stage:e&&e.label};
+  });
+  metrics.v40EndgameElitePaths=out;
+}
+console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
+  livingWorld:metrics.v40LivingWorld,
+  passiveSaga:metrics.v40PlayerSagaBaseline,
+  factionAutopilot:metrics.v40FactionAutopilot,
+  elitePaths:metrics.v40EndgameElitePaths
+}));
+
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
