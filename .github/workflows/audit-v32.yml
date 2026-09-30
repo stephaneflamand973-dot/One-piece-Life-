@@ -11,6 +11,10 @@ on:
       - 'scripts/audit-v32.mjs'
       - '.github/workflows/audit-v32.yml'
 
+concurrency:
+  group: v5-long-audit-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
