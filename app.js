@@ -778,7 +778,7 @@ function advancePlan(){
  if(p.ageMonths<24)return{key:'infancy',label:'Petite enfance',tone:'calm',min:6,max:9,reason:'Les mois passent vite tant qu’aucun événement important ne survient.'};
  if(p.ageMonths<72)return{key:'childhood',label:'Enfance',tone:'calm',min:4,max:7,reason:'Le temps avance encore rapidement, avec interruption automatique en cas d’événement.'};
  if(p.ageMonths<180)return{key:'formation',label:'Formation',tone:'active',min:3.5,max:5.5,reason:'La progression reste suivie, mais les périodes ordinaires sont davantage compressées.'};
- if(danger>=58||currentHeat()>55)return{key:'high-risk',label:'Contexte tendu',tone:'urgent',min:.5,max:1.5,reason:'Danger local ou pression judiciaire élevée : les périodes restent courtes.'};
+ if(danger>=58||currentHeat()>55){var pirateVeteran=p.faction==='Pirates'&&p.ageMonths>=240&&power()>=48&&!severe,controlled=pirateVeteran&&currentHeat()<82;return controlled?{key:'high-risk',label:'Mer dangereuse maîtrisée',tone:'active',min:1.25,max:2.75,reason:'Ton expérience pirate absorbe désormais les incidents mineurs ; seuls les vrais tournants interrompent la période.'}:{key:'high-risk',label:'Contexte tendu',tone:'urgent',min:.5,max:1.5,reason:'Danger local ou pression judiciaire élevée : les périodes restent courtes.'}};
  if(p.activity==='Explorer')return{key:'exploration',label:'Exploration',tone:'active',min:1.5,max:3,reason:'L’exploration avance par blocs jusqu’à une découverte ou un incident notable.'};
  if(p.career!=='Aucune')return{key:'active-life',label:'Vie active',tone:'active',min:2.5,max:4.5,reason:'La carrière progresse en blocs plus longs ; le moteur t’interrompt quand quelque chose mérite ton attention.'};
  return{key:'calm-life',label:'Période calme',tone:'calm',min:4.5,max:6.5,reason:'Le moteur laisse passer plusieurs mois tant qu’aucun événement important ne réclame ton attention.'}
@@ -1487,6 +1487,33 @@ function influenceMetrics(){
 }
 function addTitle(t){
  var x=migrateInfluence(game.player);if(x.titles.indexOf(t)>=0)return false;x.titles.push(t);x.primaryTitle=t;x.history.unshift({age:age(),title:t});x.history=x.history.slice(0,30);tl('Nouveau titre',game.player.name+' est désormais connu comme « '+t+' ».','major');news('Un nouveau nom circule',game.player.name+' gagne le titre « '+t+' ».','major');return true
+}
+function endgameMilestones(){
+ var p=game.player,x=influenceMetrics(),org=p.organization,goals=[];
+ if(p.ageMonths<300)return goals;
+ if(p.faction==='Pirates'){
+  goals=[
+   {id:'newworld',label:'S’imposer dans le Nouveau Monde',done:p.region==='New World'&&power()>=62,progress:Math.round(Math.min(100,(p.region==='New World'?45:0)+power()*.55))},
+   {id:'domain',label:'Bâtir un territoire',done:x.domains.length>=3,progress:Math.min(100,Math.round(x.domains.length/3*100))},
+   {id:'fleet',label:'Former une flotte',done:x.affiliates.length>=3,progress:Math.min(100,Math.round(x.affiliates.length/3*100))},
+   {id:'emperor',label:'Devenir une puissance mondiale',done:x.recognizedTitle==='Empereur des mers',progress:Math.min(100,Math.round(x.score))}
+  ]
+ }else if(p.faction==='Marine'){
+  goals=[{id:'command',label:'Atteindre le haut commandement',done:['Vice-amiral','Amiral'].indexOf(p.rank)>=0,progress:Math.min(100,rankIndex()*18+20)},{id:'legend',label:'Devenir une figure de la Marine',done:x.score>=82&&power()>=80,progress:Math.min(100,Math.round((x.score+power())/2))},{id:'stability',label:'Peser sur l’équilibre des mers',done:(p.factionRep.Marine||0)>=90&&x.domains.length>=2,progress:Math.min(100,Math.round((p.factionRep.Marine||0)*.65+x.domains.length*18))}]
+ }else if(p.faction==='Révolutionnaires'){
+  goals=[{id:'network',label:'Étendre le réseau révolutionnaire',done:x.domains.length>=3||x.affiliates.length>=3,progress:Math.min(100,Math.round(Math.max(x.domains.length,x.affiliates.length)/3*100))},{id:'command',label:'Devenir un cadre majeur',done:['Commandant régional','Bras droit'].indexOf(p.rank)>=0||x.score>=80,progress:Math.min(100,Math.round(x.score))},{id:'change',label:'Changer durablement l’équilibre du monde',done:game.world.divergence>=35,progress:Math.min(100,Math.round(game.world.divergence/35*100))}]
+ }else if(p.faction==='Gouvernement'){
+  goals=[{id:'elite',label:'Atteindre les opérations d’élite',done:p.rank==='CP0'||p.rank==='Candidat CP0'||x.score>=82,progress:Math.min(100,Math.round(x.score))},{id:'network',label:'Construire un réseau d’influence',done:x.domains.length>=3,progress:Math.min(100,Math.round(x.domains.length/3*100))},{id:'authority',label:'Devenir une autorité mondiale',done:(p.factionRep.Gouvernement||0)>=92&&power()>=78,progress:Math.min(100,Math.round(((p.factionRep.Gouvernement||0)+power())/2))}]
+ }else if(p.faction==='Chasseur de primes'){
+  goals=[{id:'hunts',label:'Devenir une légende des primes',done:p.justice&&p.justice.captures>=15,progress:Math.min(100,Math.round(((p.justice&&p.justice.captures)||0)/15*100))},{id:'fortune',label:'Faire fortune par la chasse',done:netWorth()>=5000000,progress:Math.min(100,Math.round(netWorth()/5000000*100))},{id:'legend',label:'Être reconnu sur toutes les mers',done:x.score>=80,progress:Math.min(100,Math.round(x.score))}]
+ }else{
+  goals=[{id:'mastery',label:'Devenir une référence dans son domaine',done:careerExpertise(p.specialization)>=85,progress:Math.min(100,Math.round(careerExpertise(p.specialization)))},{id:'fortune',label:'Construire une fortune durable',done:netWorth()>=5000000,progress:Math.min(100,Math.round(netWorth()/5000000*100))},{id:'legacy',label:'Laisser une trace dans le monde',done:x.score>=75||game.world.divergence>=25,progress:Math.min(100,Math.round(Math.max(x.score,game.world.divergence*3)))}]
+ }
+ return goals
+}
+function endgameStage(){
+ var goals=endgameMilestones();if(!goals.length)return null;var done=goals.filter(function(g){return g.done}).length,avg=goals.reduce(function(a,g){return a+(g.progress||0)},0)/goals.length;
+ return{label:done===goals.length?'Légende accomplie':done>=Math.ceil(goals.length/2)?'Puissance établie':'Ascension majeure',done:done,total:goals.length,progress:Math.round(avg),goals:goals}
 }
 function evaluateTitles(){
  var p=game.player,x=influenceMetrics(),org=p.organization,ageY=p.ageMonths/12,rank=p.rank||'';if(p.ageMonths<180)return x;
