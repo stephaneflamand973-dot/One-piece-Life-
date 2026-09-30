@@ -1148,7 +1148,7 @@ function careerSpecializationFit(sp){
 }
 function careerTurnCandidate(){
  var p=game.player,d=migrateLifeDirector(p),cfg=CAREERS[p.faction]||CAREERS.Civil,rec=careerRecord();
- if(p.ageMonths<240||p.career==='Aucune'||!p.specialization||p.travel||game.mission||rec.months<36||p.ageMonths-d.lastCareerTurnAge<48)return null;
+ if(p.ageMonths<240||p.career==='Aucune'||!p.specialization||p.travel||game.mission||rec.months<24||p.ageMonths-d.lastCareerTurnAge<48)return null;
  var current=p.specialization,currentFit=careerSpecializationFit(current),choices=(cfg.specs||[]).filter(function(sp){return sp!==current&&specEligibility(sp)[0]}).map(function(sp){return{sp:sp,fit:careerSpecializationFit(sp)}}).sort(function(a,b){return b.fit-a.fit});
  if(!choices.length)return null;var best=choices[0],margin=best.fit-currentFit;if(margin<8)return null;
  var reason=margin>=16?'tes aptitudes et le contexte de ta carrière pointent nettement vers '+best.sp:margin>=11?'ton évolution récente correspond davantage à '+best.sp:'une nouvelle spécialité correspond mieux à la direction prise par ta carrière';
@@ -1331,7 +1331,7 @@ function storyChoice(storyId,choiceId){
 }
 function maybeStartCareerTurnStory(){
  var p=game.player,eng=migrateStoryEngine(game),d=migrateLifeDirector(p),active=activeStories();if(p.travel||game.mission||awaitingStory()||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;
- var turn=careerTurnCandidate();if(!turn)return false;var rec=careerRecord(),sinceTurn=p.ageMonths-(d.lastCareerTurnAge==null?-999:d.lastCareerTurnAge),strong=turn.margin>=10&&rec.months>=36,overdue=sinceTurn>=72;
+ var turn=careerTurnCandidate();if(!turn)return false;var rec=careerRecord(),sinceTurn=p.ageMonths-(d.lastCareerTurnAge==null?-999:d.lastCareerTurnAge),strong=turn.margin>=8&&rec.months>=24,overdue=sinceTurn>=72;
  if(!strong||!overdue)return false;return!!startStory('career-turn')
 }
 function storyTick(m){
