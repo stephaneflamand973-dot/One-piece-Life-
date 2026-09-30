@@ -828,7 +828,7 @@ function advancePlan(){
  if(p.ageMonths<24)return{key:'infancy',label:'Petite enfance',tone:'calm',min:6,max:9,reason:'Les mois passent vite tant qu’aucun événement important ne survient.'};
  if(p.ageMonths<72)return{key:'childhood',label:'Enfance',tone:'calm',min:4,max:7,reason:'Le temps avance encore rapidement, avec interruption automatique en cas d’événement.'};
  if(p.ageMonths<180)return{key:'formation',label:'Formation',tone:'active',min:3.5,max:5.5,reason:'La progression reste suivie, mais les périodes ordinaires sont davantage compressées.'};
- if(danger>=58||currentHeat()>55){var pirateVeteran=p.faction==='Pirates'&&p.ageMonths>=240&&power()>=48&&!severe,controlled=pirateVeteran&&currentHeat()<82;return controlled?{key:'high-risk',label:'Mer dangereuse maîtrisée',tone:'active',min:1.25,max:2.75,reason:'Ton expérience pirate absorbe désormais les incidents mineurs ; seuls les vrais tournants interrompent la période.'}:{key:'high-risk',label:'Contexte tendu',tone:'urgent',min:.5,max:1.5,reason:'Danger local ou pression judiciaire élevée : les périodes restent courtes.'}};
+ if(danger>=58||currentHeat()>55){var pirateVeteran=p.faction==='Pirates'&&p.ageMonths>=240&&power()>=48&&!severe,controlled=pirateVeteran&&currentHeat()<82;return controlled?{key:'high-risk',label:'Mer dangereuse maîtrisée',tone:'active',min:2,max:4,reason:'Ton expérience pirate absorbe désormais les incidents mineurs ; seuls les vrais tournants interrompent la période.'}:{key:'high-risk',label:'Contexte tendu',tone:'urgent',min:.5,max:1.5,reason:'Danger local ou pression judiciaire élevée : les périodes restent courtes.'}};
  if(p.activity==='Explorer')return{key:'exploration',label:'Exploration',tone:'active',min:1.5,max:3,reason:'L’exploration avance par blocs jusqu’à une découverte ou un incident notable.'};
  if(p.career!=='Aucune')return{key:'active-life',label:'Vie active',tone:'active',min:2.5,max:4.5,reason:'La carrière progresse en blocs plus longs ; le moteur t’interrompt quand quelque chose mérite ton attention.'};
  return{key:'calm-life',label:'Période calme',tone:'calm',min:4.5,max:6.5,reason:'Le moteur laisse passer plusieurs mois tant qu’aucun événement important ne réclame ton attention.'}
@@ -872,7 +872,7 @@ function weightedEventPick(items){
  for(var i=0;i<weighted.length;i++){r-=weighted[i].w;if(r<=0){l.recentEvents.unshift(weighted[i].x.id);l.recentEvents=l.recentEvents.slice(0,8);return weighted[i].x}}return weighted.length?weighted[weighted.length-1].x:null
 }
 function eventChance(m){
- var l=migrateLifeLoop(game),w=game.world,d=inf().danger||0,base=.09+Math.min(.18,m*.025)+Math.min(.11,d/650)+Math.min(.10,(w.globalTension||0)/650)+Math.min(.22,l.quietAdvances*.09);
+ var l=migrateLifeLoop(game),w=game.world,d=inf().danger||0,base=.09+Math.min(.18,m*.025)+Math.min(.11,d/650)+Math.min(.10,(w.globalTension||0)/650)+Math.min(.22,l.quietAdvances*.09),p=game.player;if(p.faction==='Pirates'&&p.ageMonths>=240&&power()>=48&&currentHeat()<82)base*=.82;
  return cl(base,.08,.68)
 }
 function renderAdvanceLoop(){
