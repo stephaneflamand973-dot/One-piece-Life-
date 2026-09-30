@@ -92,7 +92,25 @@ function qaLongCareer(seed,faction,spec,profile,years){
     deathCause:g.death&&g.death.cause||null,
     avgHeat:heatSamples.length?+(heatSamples.reduce((a,b)=>a+b,0)/heatSamples.length).toFixed(1):0,planCounts,
     recognition:q.playerWorldRecognition(),
-    endgame:q.endgameStage()
+    endgame:q.endgameStage(),
+    finalRank:p.rank||'',
+    finalPower:+q.power().toFixed(1),
+    netWorth:Math.round(q.netWorth()),
+    relationsActive:g.relations.filter(r=>r.status==='active').length,
+    strongRelations:g.relations.filter(r=>r.status==='active'&&((r.trust||0)>=70||(r.affection||0)>=70||(r.respect||0)>=80)).length,
+    canonicalRelations:g.relations.filter(r=>r.status==='active'&&r.canonical).length,
+    mentors:g.relations.filter(r=>r.status==='active'&&r.role==='mentor').length,
+    rivals:g.relations.filter(r=>r.status==='active'&&(r.role==='rival'||r.nemesisRecognized)).length,
+    relationshipStatus:p.life&&p.life.relationshipStatus||'Célibataire',
+    children:(p.children||[]).filter(x=>x.status==='active').length,
+    achievements:Object.keys(g.achievements&&g.achievements.unlocked||{}).length,
+    visited:(p.visited||[]).length,
+    signatureMoments:(g.loop.signatureMoments||[]).length,
+    consequenceHistory:(g.loop.consequenceHistory||[]).length,
+    storyHistory:(g.story&&g.story.history||[]).length,
+    careerHistory:(p.careerHistory||[]).length,
+    organizationMembers:p.organization&&Array.isArray(p.organization.members)?p.organization.members.filter(x=>x.status!=='inactive').length:0,
+    organizationLeader:!!(p.organization&&p.organization.authority==='leader')
   };
 }
 {
@@ -139,6 +157,56 @@ function qaLongCareer(seed,faction,spec,profile,years){
     byProfile
   };
 }
+  {
+    const avg=k=>+(rows.reduce((a,x)=>a+(x[k]||0),0)/rows.length).toFixed(1);
+    const ordered=k=>rows.map(x=>x[k]||0).sort((a,b)=>a-b);
+    const median=k=>{const a=ordered(k);return a.length?+a[Math.floor(a.length/2)].toFixed(1):0};
+    const rankSpread={};profiles.forEach(cfg=>{const key=cfg[0]+' / '+cfg[1],rs=rows.filter(x=>x.faction===cfg[0]&&x.spec===cfg[1]);rankSpread[key]=rs.reduce((a,x)=>{a[x.finalRank]=(a[x.finalRank]||0)+1;return a},{})});
+    metrics.v40PostReleaseAudit={
+      sample:rows.length,yearsTarget:20,
+      career:{
+        avgPower:avg('finalPower'),medianPower:median('finalPower'),
+        avgRecognition:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.score||0),0)/rows.length).toFixed(1),
+        organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
+        avgCareerHistory:avg('careerHistory'),
+        finalRanks:rankSpread
+      },
+      personalLife:{
+        avgActiveRelations:avg('relationsActive'),
+        avgStrongRelations:avg('strongRelations'),
+        avgCanonicalRelations:avg('canonicalRelations'),
+        mentorShare:+(rows.filter(x=>x.mentors>0).length/rows.length).toFixed(2),
+        rivalShare:+(rows.filter(x=>x.rivals>0).length/rows.length).toFixed(2),
+        partneredShare:+(rows.filter(x=>x.relationshipStatus!=='Célibataire').length/rows.length).toFixed(2),
+        marriedShare:+(rows.filter(x=>x.relationshipStatus==='Marié').length/rows.length).toFixed(2),
+        parentShare:+(rows.filter(x=>x.children>0).length/rows.length).toFixed(2),
+        avgChildren:avg('children')
+      },
+      narrative:{
+        avgSignatureMoments:avg('signatureMoments'),
+        avgConsequencesResolved:avg('consequenceHistory'),
+        avgStoryHistory:avg('storyHistory'),
+        avgFoundingMemories:avg('founding'),
+        avgArcResolutions:avg('arcHistoryDelta')
+      },
+      breadth:{
+        avgVisitedPlaces:avg('visited'),
+        avgAchievements:avg('achievements'),
+        organizationLeaderShare:+(rows.filter(x=>x.organizationLeader).length/rows.length).toFixed(2),
+        avgOrganizationMembers:avg('organizationMembers')
+      },
+      economy:{
+        avgNetWorth:Math.round(rows.reduce((a,x)=>a+x.netWorth,0)/rows.length),
+        medianNetWorth:Math.round(median('netWorth')),
+        maxNetWorth:Math.max(...rows.map(x=>x.netWorth))
+      },
+      flow:{
+        avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+        avgMissionsPerYear:+(rows.reduce((a,x)=>a+x.missionPerYear,0)/rows.length).toFixed(2),
+        survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2)
+      }
+    };
+  }
 {
   const rows=[];for(let s=0;s<24;s++)rows.push(qaLongCareer(34500+s,'Pirates','Duelliste','combat',20));
   const plans=rows.reduce((a,x)=>{Object.entries(x.planCounts||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{});
@@ -293,6 +361,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
   pirateFlow:metrics.v40PirateFlowStress
 }));
 
+console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
