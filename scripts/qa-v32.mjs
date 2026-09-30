@@ -1461,6 +1461,13 @@ test('V4.0 non-pirate legends do not require territorial domains',()=>{
 });
 
 
+test('V4.0 promotions persist as career milestones',()=>{
+ const g=fresh(40301),p=g.player;q.join('Marine','Recrue');const rec=q.careerRecord();p.factionRep.Marine=100;Object.keys(p.stats).forEach(k=>p.stats[k]=90);Object.keys(p.skills).forEach(k=>p.skills[k]=90);rec.xp=2000;const before=p.careerHistory.length;let promoted=0;while(q.evaluatePromotion()&&promoted++<20){}const events=p.careerHistory.slice(before).filter(x=>x.type==='promotion');assert(events.length>=4,'promotions were not persisted in career history');assert(events.every(x=>x.from&&x.to),'promotion milestones lost rank transition');return events.length+' promotions recorded';
+});
+test('V4.0 career history stays bounded without schema bump',()=>{
+ const g=fresh(40302),p=g.player,version=g.version;for(let i=0;i<100;i++)p.careerHistory.push({age:i,type:'promotion',from:'A',to:'B'});q.migrate(g);assert(g.version===version&&g.version===28,'GameState version changed');assert(p.careerHistory.length<=60,'career history is not bounded: '+p.careerHistory.length);return 'GameState '+g.version+' / '+p.careerHistory.length+' milestones';
+});
+
 test('V4.0 passive presence never becomes saga participation',()=>{
  const g=fresh(40401),saga=q.startWorldSaga('power',g.player.region,'Alpha','Beta','qa');for(let i=0;i<24;i++)q.playerSagaPresence();assert(!saga.playerInvolved,'passive presence became involvement');assert((saga.playerRole||'present')==='present','passive presence gained a causal role');return saga.playerPresenceMonths+'m / '+(saga.playerRole||'present');
 });
