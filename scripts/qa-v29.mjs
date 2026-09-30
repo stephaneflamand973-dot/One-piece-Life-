@@ -1268,7 +1268,7 @@ test('V2.9 adaptive mission novelty uses the generated variant identity',()=>{
 });
 test('V2.9 mission board stays compact while adaptive briefs compete with world missions',()=>{
   const g=fresh(19005),p=g.player;p.ageMonths=300;p.factionRep.Marine=100;q.join('Marine');p.specialization='Combattant';q.careerRecord().specialization='Combattant';
-  const c=g.world.crews[0];c.status='active';c.faction='Pirates';c.region=p.region;c.power=30;
+  g.world.crews.forEach(x=>{x.status='destroyed'});const c=g.world.crews[0];c.status='active';c.faction='Pirates';c.region=p.region;c.power=30;
   const b=q.board();assert(b.length<=3,'board exceeded three cards');assert(b.some(x=>x.worldGenerated),'living-world mission disappeared');assert(b.some(x=>x.adaptive),'adaptive brief failed to reach compact board');return b.map(x=>(x.adaptive?'ADAPTIVE:':x.worldGenerated?'WORLD:':'STATIC:')+x.title).join(' / ');
 });
 test('V2.9 ready nemesis stops spamming pursuit intents',()=>{
