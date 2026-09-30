@@ -206,3 +206,5 @@ await import('file:///tmp/qa-v30-runtime.mjs');
 // final V3.5 named long-audit trigger
 
 // V4.0 emergent world saga foundation stress pass
+
+// V4.0 Living World release candidate full stress audit
