@@ -214,3 +214,5 @@ await import('file:///tmp/qa-v30-runtime.mjs');
 // V4.0 final world-pulse release pass
 
 // V4.0 full Living World release regression: collective ambitions, causal geopolitics, saga participation, organic endgame
+
+// V4.0 final RC after economy persistence correction
