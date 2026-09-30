@@ -1166,6 +1166,11 @@ test('V5.0 legacy career records migrate into recent-form dossiers without GameS
   const g=fresh(50072),p=g.player;p.ageMonths=360;p.careerRecords.Marine={xp:420,months:96,rank:'Commandant',specialization:'Combat',successes:12,failures:3};p.faction='Marine';p.career='Marine';p.rank='Commandant';p.specialization='Combat';const migrated=q.migrate(JSON.parse(JSON.stringify(g))),rec=migrated.player.careerRecords.Marine;assert(migrated.version===28,'career dossier migration bumped GameState');assert(rec.xp===420&&rec.rank==='Commandant','legacy career progression changed');q.setGame(migrated);const live=q.careerRecord('Marine');assert(Array.isArray(live.recentResults)&&live.recentResults.length>0&&live.recentResults.length<=10,'recent form was not reconstructed');assert(Number.isFinite(live.distinctions)&&live.distinctions>=0,'distinctions migration invalid');return live.recentResults.length+' recent / '+live.distinctions+' distinctions';
 });
 
+
+test('V5.0 AVANCER surfaces the strongest active personal chapter',()=>{
+  const g=fresh(50060),p=g.player;p.ageMonths=300;q.signalPersonalChapter('career','Ascension décisive',18,'qa-1','Marine');q.signalPersonalChapter('journey','Voyages à travers les mers',34,'qa-2','journey');q.renderAdvanceLoop();const txt=document.querySelector('#advancePreview').textContent;assert(txt.includes('Chapitre actuel : Voyages à travers les mers.'),'AVANCER did not surface strongest chapter: '+txt);return txt;
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
