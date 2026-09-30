@@ -1114,10 +1114,10 @@ test('V5.0 organic journey cadence stays meaningful without becoming spam',()=>{
 
 
 test('V5.0 manual family actions feed the same personal chapter',()=>{
-  const g=fresh(50051),p=g.player;p.ageMonths=360;p.money=500000;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=360;r.location=p.island;r.region=p.region;r.affection=95;r.trust=95;r.attraction=95;r.relationshipMonths=18;r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.life.socialActions=2;q.marryPartner();p.life.socialActions=2;q.welcomeChild();const ch=p.lifeDirector.activeChapters.find(x=>x.key==='family:'+r.id);assert(ch&&ch.beats>=2,'manual marriage/child did not merge into family chapter');return ch.beats+' family beats';
+  const g=fresh(50051),p=g.player;p.ageMonths=360;p.money=500000;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=360;r.location=p.island;r.region=p.region;r.affection=95;r.trust=95;r.attraction=95;r.relationshipMonths=18;r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.life.socialActions=2;q.marryPartner();p.life.socialActions=2;q.welcomeChild();const ch=p.lifeDirector.activeChapters.find(x=>x.key==='family:'+r.id);assert(ch&&ch.beats>=2,'manual marriage/child did not merge into family chapter');assert(p.lifeDirector.lastFamilyAge===p.ageMonths,'manual family action did not synchronize Life Director cooldown');return ch.beats+' family beats';
 });
 test('V5.0 manual travel contributes to a journey chapter',()=>{
-  const g=fresh(50052),p=g.player;p.ageMonths=300;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');assert(q.beginJourney(d,'manual'),'manual journey failed');const ch=p.lifeDirector.activeChapters.find(x=>x.key==='journey:manual-journey');assert(ch&&ch.beats===1,'manual journey did not feed personal chapter');return d;
+  const g=fresh(50052),p=g.player;p.ageMonths=300;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');assert(q.beginJourney(d,'manual'),'manual journey failed');const ch=p.lifeDirector.activeChapters.find(x=>x.key==='journey:manual-journey');assert(ch&&ch.beats===1,'manual journey did not feed personal chapter');assert(p.lifeDirector.lastMobilityAge===p.ageMonths-18,'manual journey did not delay immediate organic relocation');return d;
 });
 
 
@@ -1137,6 +1137,10 @@ test('V5.0 strong regional bond can reunite into a romance opportunity',()=>{
 });
 test('V5.0 family future outranks routine story competition once eligible',()=>{
   const g=fresh(50062),p=g.player;p.ageMonths=360;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=360;r.location=p.island;r.region=p.region;r.affection=85;r.trust=82;r.relationshipMonths=20;r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.lifeDirector.lastFamilyAge=300;const types=q.storyEligibleTypes();assert(types.some(x=>x.id==='family-future'),'family future missing from eligible stories');const oldStarted=g.story.stats.started;q.maybeStartStory(6);const started=g.story.active[g.story.active.length-1];if(g.story.stats.started>oldStarted)assert(started.type==='family-future','eligible family future lost to routine story competition');return started?started.type:'chance deferred';
+});
+
+test('V5.0 manual romance attempt synchronizes director cooldown',()=>{
+  const g=fresh(50063),p=g.player;p.ageMonths=320;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=320;r.location=p.island;r.region=p.region;r.affection=90;r.trust=90;r.attraction=90;p.life.socialActions=2;q.pursueRomance(r.id);assert(p.lifeDirector.lastRomanceAge===p.ageMonths,'manual romance attempt left director cooldown stale');return 'cooldown at '+p.ageMonths;
 });
 
 const metrics={};
