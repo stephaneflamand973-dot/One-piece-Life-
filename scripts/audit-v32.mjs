@@ -396,6 +396,7 @@ let postCareerRows=[],postCareerProfiles=[];
 }
 {
   const v5=metrics.v40PostReleaseAudit;
+  console.log('V50_PRE_GATE '+JSON.stringify({lifeDirector:v5.lifeDirector,career:v5.career,personalLife:v5.personalLife,narrative:v5.narrative,breadth:v5.breadth,flow:v5.flow,storage:v5.storage}));
   if(v5.flow.avgClicksPerYear>6.2)throw new Error('V5.0 flow regression: '+v5.flow.avgClicksPerYear+' clicks/year');
   if(v5.flow.survival<.85)throw new Error('V5.0 survival regression: '+v5.flow.survival);
   if(v5.storage.avgSaveKB>300||v5.storage.maxSaveKB>400)throw new Error('V5.0 career save growth regression: avg '+v5.storage.avgSaveKB+' KB / max '+v5.storage.maxSaveKB+' KB');
