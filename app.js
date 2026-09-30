@@ -626,7 +626,7 @@ function careerQualification(){var p=game.player,profile=specProfile(p.specializ
 function careerRequirementLabel(){var p=game.player,profile=specProfile(p.specialization);return profile&&profile.combatWeight<.45?'Expertise métier':'Qualification'}
 function missionProfile(m){var id=(m&&m.profile)||MISSION_TITLE_PROFILES[m&&m.title]||'mixed';return{id:id,config:MISSION_PROFILE_CONFIG[id]||MISSION_PROFILE_CONFIG.mixed}}
 function missionScore(m){var p=game.player,mp=missionProfile(m),keys=mp.config.keys,score=keys.reduce(function(a,k){return a+valueForKey(k)},0)/Math.max(1,keys.length);if(mp.id==='combat')score=power();else if(mp.id==='mixed')score=score*.55+power()*.45;if(p.specialization&&m.spec===p.specialization)score+=5;var sp=specProfile(p.specialization);if(sp&&keys.some(function(k){return sp.keys.indexOf(k)>=0}))score+=2.5;return score}
-function missionChance(m){var effective=organizationMissionDanger(m),mp=missionProfile(m),score=missionScore(m),support=Math.max(0,m.danger-effective)*.35,ch=.52+(score-effective)/82+support/100;if(mp.id==='medicine'||mp.id==='science'||mp.id==='navigation'||mp.id==='trade')ch+=.04;return cl(ch,.08,.94)}
+function missionChance(m){var effective=organizationMissionDanger(m),mp=missionProfile(m),score=missionScore(m),support=Math.max(0,m.danger-effective)*.35,ch=.52+(score-effective)/82+support/100;if(mp.id==='medicine'||mp.id==='science'||mp.id==='navigation'||mp.id==='trade')ch+=.04;if(m&&m.routine)ch+=.12;return cl(ch,.08,.94)}
 function missionRiskLabel(m){var c=missionChance(m);return c>=.8?'Favorable':c>=.62?'Maîtrisé':c>=.45?'Incertain':c>=.28?'Dangereux':'Extrême'}
 
 var TECH={
