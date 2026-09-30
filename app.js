@@ -881,6 +881,7 @@ function worldPulseSince(seq){
  (ws.crewHistory||[]).filter(function(x){return x.seq>seq&&x.impact>=2.5}).slice(0,1).forEach(function(x){items.push({kind:'crew',title:x.name+' : '+x.outcome,importance:x.impact})});
  (ws.canonBranchHistory||[]).filter(function(x){return x.seq>seq}).slice(0,2).forEach(function(x){items.push({kind:'canon',title:x.title+' : '+(x.outcome==='escalation'?'escalade':x.outcome==='new-balance'?'nouvel équilibre':'résolution'),importance:x.outcome==='escalation'?6:4.5})});
  (ws.playerCanonImpact||[]).filter(function(x){return x.seq>seq}).slice(0,1).forEach(function(x){items.push({kind:'canon-player',title:'Tu influences '+x.eventTitle,importance:x.kind==='major'?7:5})});
+ (ws.sagaHistory||[]).filter(function(x){return x.seq>seq}).slice(0,1).forEach(function(x){items.push({kind:'saga',title:'Saga : '+x.title+' → '+x.outcome,importance:6})});
  return items.sort(function(a,b){return b.importance-a.importance}).slice(0,3)
 }
 function finalizeAdvanceReport(before,m,plan){
