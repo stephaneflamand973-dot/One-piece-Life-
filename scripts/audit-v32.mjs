@@ -130,6 +130,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
       dynasty:JSON.stringify(g.dynasty||{}).length
     },
     worldStorageParts:Object.keys(g.world||{}).reduce((a,k)=>{a[k]=JSON.stringify(g.world[k]||null).length;return a},{}),
+    worldStateStorageParts:Object.keys((g.world&&g.world.worldState)||{}).reduce((a,k)=>{a[k]=JSON.stringify(g.world.worldState[k]||null).length;return a},{}),
     careerMomentum:+((q.careerRecord&&q.careerRecord().momentum)||0).toFixed(2),
     careerSuccessRate:(q.careerRecord&&((q.careerRecord().successes||0)+(q.careerRecord().failures||0)))?+((q.careerRecord().successes||0)/((q.careerRecord().successes||0)+(q.careerRecord().failures||0))).toFixed(2):0,
     careerDistinctions:q.careerRecord?(q.careerRecord().distinctions||0):0,
@@ -255,7 +256,8 @@ let postCareerRows=[],postCareerProfiles=[];
         avgSaveKB:+(rows.reduce((a,x)=>a+(x.saveBytes||0),0)/rows.length/1024).toFixed(1),
         maxSaveKB:+(Math.max(...rows.map(x=>x.saveBytes||0))/1024).toFixed(1),
         avgPartsKB:['player','relations','timeline','world','loop','story','codex','achievements','dynasty'].reduce((a,k)=>{a[k]=+(rows.reduce((s,x)=>s+((x.storageParts&&x.storageParts[k])||0),0)/rows.length/1024).toFixed(1);return a},{}),
-        avgWorldPartsKB:Array.from(new Set(rows.flatMap(x=>Object.keys(x.worldStorageParts||{})))).reduce((a,k)=>{a[k]=+(rows.reduce((s,x)=>s+((x.worldStorageParts&&x.worldStorageParts[k])||0),0)/rows.length/1024).toFixed(1);return a},{})
+        avgWorldPartsKB:Array.from(new Set(rows.flatMap(x=>Object.keys(x.worldStorageParts||{})))).reduce((a,k)=>{a[k]=+(rows.reduce((s,x)=>s+((x.worldStorageParts&&x.worldStorageParts[k])||0),0)/rows.length/1024).toFixed(1);return a},{}),
+        avgWorldStatePartsKB:Array.from(new Set(rows.flatMap(x=>Object.keys(x.worldStateStorageParts||{})))).reduce((a,k)=>{a[k]=+(rows.reduce((s,x)=>s+((x.worldStateStorageParts&&x.worldStateStorageParts[k])||0),0)/rows.length/1024).toFixed(1);return a},{})
       },
       lifeDirector:{
         avgAcceptedMoves:avg('directorJourneys'),
