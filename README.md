@@ -21,15 +21,23 @@ La V5.0 part du constat post-V4.0 : le monde sait désormais vivre sans le joueu
 - Les historiques V5.0 restent bornés et le GameState reste en **version 28**.
 
 ## Baseline auditée V5.0
-Dernier audit complet après Life Director, mobilité organique, continuité du foyer, dossiers de carrière et chapitres personnels :
-- QA : **304/304** ;
-- survie 20 ans : **98 %** ;
-- fluidité : **5,43 AVANCER/an** ;
-- lieux visités : **2,5** en moyenne sur 20 ans ;
-- opportunité de couple : **94 %** ; mariage : **77 %** ; parentalité : **75 %** lorsque les choix d’audit sont acceptés ;
-- chapitres personnels résolus : **3,9** par carrière ;
-- variété moyenne de rang final : **1,17** par profil ;
-- sauvegarde moyenne 20 ans : **256,6 KB**, maximum observé **273 KB**.
+Release candidate validée après Life Director, mobilité organique, continuité du foyer, dossiers de carrière, réorientations organiques et chapitres personnels :
+
+- QA : **333/333** ;
+- survie 20 ans : **96 %** ;
+- fluidité : **5,21 AVANCER/an** ;
+- missions : **1,03/an** ;
+- lieux visités : **4,0** en moyenne sur 20 ans et **6,7** sur 40 ans ;
+- couple : **94 %** ; mariage : **63 %** ; parentalité : **54 %** dans les carrières autonomes de l’audit ;
+- chapitres personnels résolus : **4,9** par carrière sur 20 ans et **9,5** sur 40 ans ;
+- souvenirs fondateurs : **1,7** par carrière sur 20 ans ;
+- variété moyenne de rang final : **2,0** par profil ;
+- stress de réorientation volontairement mal appariée : **42 %** des carrières changent de spécialité, pour seulement **0,42** tournant moyen ;
+- sauvegarde moyenne 20 ans : **232,4 KB**, maximum observé **249,3 KB** ;
+- sauvegarde moyenne 40 ans : **270,8 KB**, maximum observé **286,3 KB** ;
+- monde V4 préservé : **2,58 sagas/décennie**, **0,45** saga active en moyenne, **100 %** de résolution ;
+- simulation mondiale : **3,88 ms/mois** ;
+- GameState interne : **28**.
 
 ## Philosophie V5.0
 Le moteur doit proposer le prochain tournant intéressant. Le joueur décide. Les actions ordinaires restent automatiques.
