@@ -1279,6 +1279,16 @@ test('V5.0 migration removes resolved causal duplicates without schema bump',()=
   const g=fresh(50161),version=g.version,ws=g.world.worldState;ws.canonBranches.push({id:'old-resolved',status:'resolved'});ws.worldSagas.push({id:'old-saga',status:'resolved'});q.migrate(g);assert(g.version===version&&g.version===28,'world pruning changed GameState version');assert(!ws.canonBranches.some(x=>x.id==='old-resolved'),'resolved canon branch survived migration');assert(!ws.worldSagas.some(x=>x.id==='old-saga'),'resolved world saga survived migration');return 'GameState '+g.version+' / active-only causal containers';
 });
 
+test('V5.0 migration preserves newest-first world history',()=>{
+  const g=fresh(50164),ws=g.world.worldState,make=n=>Array.from({length:n},(_,i)=>({seq:n-i,tag:'event-'+(n-i)}));
+  ws.actorHistory=make(140);ws.territoryHistory=make(120);ws.goalHistory=make(100);ws.canonCausality=make(110);ws.canonBranchHistory=make(100);ws.playerCanonImpact=make(90);ws.sagaHistory=make(100);ws.geopoliticalHistory=make(120);ws.crewHistory=make(110);ws.monthlyChanges=make(70);
+  q.migrate(g);
+  const checks=[['actorHistory',90],['territoryHistory',80],['goalHistory',60],['canonCausality',80],['canonBranchHistory',60],['playerCanonImpact',50],['sagaHistory',60],['geopoliticalHistory',80],['crewHistory',70],['monthlyChanges',36]];
+  checks.forEach(([k,n])=>{assert(ws[k].length===n,k+' wrong compacted length');assert(ws[k][0].seq>ws[k][ws[k].length-1].seq,k+' lost newest-first order');});
+  assert(ws.actorHistory[0].seq===140&&ws.actorHistory[89].seq===51,'actor history kept old tail instead of recent head');
+  return checks.length+' histories keep recent head';
+});
+
 
 
 
