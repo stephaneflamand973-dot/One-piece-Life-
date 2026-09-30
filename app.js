@@ -1765,9 +1765,14 @@ function factionCareerLegacy(){
  else v=Math.min(20,careerExpertise(p.specialization)*.13+Math.log10(Math.max(1,netWorth()+1)));
  return v
 }
+function careerLifetimeEvidence(){
+ var p=game.player,records=p.careerRecords||{},months=0,distinctions=0,successes=0,failures=0,paths=0;
+ Object.keys(records).forEach(function(f){var r=records[f]||{},rm=Math.max(0,r.months||0),rs=Math.max(0,r.successes||0),rf=Math.max(0,r.failures||0),rd=r.distinctions==null?Math.min(20,Math.floor(rs/6)):Math.max(0,r.distinctions||0);months+=rm;successes+=rs;failures+=rf;distinctions+=rd;if(rm>0||rs+rf>0)paths++});
+ return{careerYears:Math.round(months/12*10)/10,distinctions:cl(distinctions,0,30),successes:successes,failures:failures,careerPaths:paths}
+}
 function organicLegendEvidence(){
- var p=game.player,rec=careerRecord(),loop=migrateLifeLoop(game),director=migrateLifeDirector(p),ws=game.world.worldState||{},history=(ws.sagaHistory||[]).filter(function(s){return s.playerInvolved}),decisive=history.filter(function(s){return sagaPlayerRoleRank(s.playerRole||'indirect')>=3}).length,canon=(ws.playerCanonImpact||[]).length,strongChapters=(director.chapterHistory||[]).filter(function(ch){return(ch.score||0)>=45&&(ch.beats||0)>=2}).length,highMoments=(loop.signatureMoments||[]).filter(function(x){return(x.weight||0)>=80}).length,founding=(loop.foundingMemories||[]).length,careerYears=(rec.months||0)/12;
- var score=Math.min(24,(rec.distinctions||0)*2.5)+Math.min(16,strongChapters*2.7)+Math.min(15,founding*5)+Math.min(12,highMoments*2)+Math.min(15,decisive*5)+Math.min(10,canon*2)+Math.min(8,Math.max(0,careerYears-20)*.4);
+ var p=game.player,lifetime=careerLifetimeEvidence(),loop=migrateLifeLoop(game),director=migrateLifeDirector(p),ws=game.world.worldState||{},history=(ws.sagaHistory||[]).filter(function(s){return s.playerInvolved}),decisive=history.filter(function(s){return sagaPlayerRoleRank(s.playerRole||'indirect')>=3}).length,canon=(ws.playerCanonImpact||[]).length,strongChapters=(director.chapterHistory||[]).filter(function(ch){return(ch.score||0)>=45&&(ch.beats||0)>=2}).length,highMoments=(loop.signatureMoments||[]).filter(function(x){return(x.weight||0)>=80}).length,founding=(loop.foundingMemories||[]).length,careerYears=lifetime.careerYears;
+ var score=Math.min(24,lifetime.distinctions*2.5)+Math.min(16,strongChapters*2.7)+Math.min(15,founding*5)+Math.min(12,highMoments*2)+Math.min(15,decisive*5)+Math.min(10,canon*2)+Math.min(8,Math.max(0,careerYears-20)*.4);
  var gate=false,f=p.faction||'Civil',ri=rankIndex();
  if(f==='Pirates')gate=ri>=4||(p.bounty||0)>=300000000||decisive>=1;
  else if(f==='Marine')gate=ri>=5||decisive>=1;
@@ -1775,7 +1780,7 @@ function organicLegendEvidence(){
  else if(f==='Gouvernement')gate=ri>=4||p.rank==='CP9'||p.rank==='Candidat CP0'||p.rank==='CP0'||decisive>=1;
  else if(f==='Chasseur de primes')gate=((p.justice&&p.justice.captures)||0)>=8||decisive>=1;
  else gate=careerExpertise(p.specialization)>=70||netWorth()>=2000000;
- return{score:Math.round(cl(score,0,100)),qualified:score>=62&&gate,gate:gate,distinctions:rec.distinctions||0,strongChapters:strongChapters,founding:founding,highMoments:highMoments,decisiveSagas:decisive,canonImpact:canon,careerYears:Math.round(careerYears*10)/10}
+ return{score:Math.round(cl(score,0,100)),qualified:score>=62&&gate,gate:gate,distinctions:lifetime.distinctions,strongChapters:strongChapters,founding:founding,highMoments:highMoments,decisiveSagas:decisive,canonImpact:canon,careerYears:careerYears,careerPaths:lifetime.careerPaths}
 }
 function playerWorldRecognition(){
  var p=game.player,x=influenceMetrics(),ws=game.world.worldState||{},active=(ws.worldSagas||[]).filter(function(s){return s.status==='active'&&s.playerInvolved}),history=(ws.sagaHistory||[]).filter(function(s){return s.playerInvolved}),canon=(ws.playerCanonImpact||[]).length,domains=x.domains.length,allies=x.affiliates.length,rep=p.factionRep&&p.factionRep[p.faction]||0;
