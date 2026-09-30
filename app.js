@@ -886,7 +886,7 @@ function advancePlan(){
  if(danger>=58||currentHeat()>55){var pirateVeteran=p.faction==='Pirates'&&p.ageMonths>=240&&power()>=48&&!severe,heat=currentHeat();if(pirateVeteran&&heat<82)return{key:'high-risk',label:'Mer dangereuse maîtrisée',tone:'active',min:2,max:4,reason:'Ton expérience pirate absorbe désormais les incidents mineurs ; seuls les vrais tournants interrompent la période.'};if(pirateVeteran&&heat<94)return{key:'high-risk',label:'Traque soutenue',tone:'active',min:1.25,max:2.75,reason:'La pression reste forte, mais ton expérience permet de regrouper les incidents secondaires en périodes plus longues.'};return{key:'high-risk',label:'Contexte tendu',tone:'urgent',min:.5,max:1.5,reason:'Danger local ou pression judiciaire extrême : les périodes restent courtes.'}};
  if(p.activity==='Explorer')return{key:'exploration',label:'Exploration',tone:'active',min:1.5,max:3,reason:'L’exploration avance par blocs jusqu’à une découverte ou un incident notable.'};
  if(p.career!=='Aucune')return{key:'active-life',label:'Vie active',tone:'active',min:3,max:5,reason:'La V5.0 compresse davantage la vie active ordinaire ; le moteur t’interrompt seulement quand un vrai tournant mérite ton attention.'};
- return{key:'calm-life',label:'Période calme',tone:'calm',min:4.5,max:6.5,reason:'Le moteur laisse passer plusieurs mois tant qu’aucun événement important ne réclame ton attention.'}
+ return{key:'calm-life',label:'Période calme',tone:'calm',min:5,max:7,reason:'La V5.0 compresse les périodes adultes réellement calmes ; le moteur n’interrompt que lorsqu’un événement mérite ton attention.'}
 }
 function chooseAdvanceDuration(plan){
  if(!plan||plan.max<=0)return 0;var m=plan.min+(plan.max-plan.min)*R('time');if(plan.limit!=null)m=Math.min(m,Math.max(.25,plan.limit));return Math.max(.25,Math.round(m*4)/4)
@@ -930,7 +930,7 @@ function weightedEventPick(items){
  for(var i=0;i<weighted.length;i++){r-=weighted[i].w;if(r<=0){l.recentEvents.unshift(weighted[i].x.id);l.recentEvents=l.recentEvents.slice(0,8);return weighted[i].x}}return weighted.length?weighted[weighted.length-1].x:null
 }
 function eventChance(m){
- var l=migrateLifeLoop(game),w=game.world,d=inf().danger||0,base=.09+Math.min(.18,m*.025)+Math.min(.11,d/650)+Math.min(.10,(w.globalTension||0)/650)+Math.min(.22,l.quietAdvances*.09),p=game.player;if(p.faction==='Pirates'&&p.ageMonths>=240&&power()>=48&&currentHeat()<82)base*=.82;
+ var l=migrateLifeLoop(game),w=game.world,d=inf().danger||0,base=.09+Math.min(.18,m*.025)+Math.min(.11,d/650)+Math.min(.10,(w.globalTension||0)/650)+Math.min(.22,l.quietAdvances*.09),p=game.player;if(p.ageMonths>=180&&p.career==='Aucune'&&d<58)base*=.88;if(p.faction==='Pirates'&&p.ageMonths>=240&&power()>=48&&currentHeat()<82)base*=.82;
  return cl(base,.08,.68)
 }
 function renderAdvanceLoop(){
