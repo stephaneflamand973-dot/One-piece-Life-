@@ -1446,6 +1446,7 @@ function attemptEscape(){
 }
 function pursuitEncounter(){
  var p=game.player,j=migrateJustice(p);if(j.detained||!game.alive)return;var pressure=justicePressure(),d=cl(inf().danger*.45+pressure*.55+12,18,94);j.pursuits++;j.lastPursuit={year:game.world.year,month:Math.floor(game.world.month),region:p.region};
+ if(tryAvoidForcedFight('Poursuite des autorités',d,'justice')){j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)-2,0,100);return}
  var ok=fight(d,'Poursuite des autorités');if(!game.alive)return;if(ok){j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)+10,0,100);registerCrime('Résistance à l’arrestation',3,true);tl('Cavale','Tu échappes aux forces lancées à tes trousses.','major')}else arrestPlayer('Capture après poursuite')
 }
 function justiceTick(m){
@@ -1999,10 +2000,22 @@ function dangerAlternativeScore(){
  var p=game.player,nav=p.skills.Navigation||0,stealth=p.skills['Discrétion']||0,command=p.skills.Commandement||0,ref=p.stats['Réflexes']||0,agi=p.stats['Agilité']||0,will=p.stats['Volonté']||0;
  return Math.max(nav*.58+ref*.22+agi*.20,stealth*.58+agi*.24+ref*.18,command*.55+will*.27+ref*.18)
 }
+function dangerEscapeProfile(){
+ var p=game.player,scores=[
+  {key:'Discrétion',score:(p.skills['Discrétion']||0)*.50+(p.stats['Agilité']||0)*.30+(p.stats['Réflexes']||0)*.20},
+  {key:'Navigation',score:(p.skills.Navigation||0)*.48+(p.stats['Réflexes']||0)*.30+(p.stats['Agilité']||0)*.22},
+  {key:'Réflexes',score:(p.stats['Réflexes']||0)*.46+(p.stats['Agilité']||0)*.34+(p.stats['Endurance']||0)*.20},
+  {key:'Commandement',score:(p.skills.Commandement||0)*.45+(p.stats['Volonté']||0)*.32+(p.stats['Réflexes']||0)*.23}
+ ];scores.sort(function(a,b){return b.score-a.score});return scores[0]
+}
+function forcedFightEscapeChance(danger,context){
+ var best=dangerEscapeProfile(),combat=power(),gap=danger-combat,ch=0;if(best.score>combat+5)ch=.18+(best.score-danger)/95;if(gap>=12)ch=Math.max(ch,.24+(best.score-danger)/130+gap/95);if(context==='justice')ch+=.08;return cl(ch,0,.76)
+}
+function tryAvoidForcedFight(title,danger,context){
+ var p=game.player,best=dangerEscapeProfile(),ch=forcedFightEscapeChance(danger,context),rng=context==='justice'?'justice':'e';if(ch<=0||R(rng)>=ch)return false;var g=gain(best.key,.22+.32*R(rng));p.energy=cl(p.energy-(2+danger*.022),0,100);if(danger>=48)attemptBreakthrough('survie',danger,[best.key,'Réflexes','Agilité','Navigation','Discrétion']);tl(context==='justice'?'Poursuite semée':(title||'Danger évité'),'Tu évites un affrontement trop défavorable grâce à '+best.key+(g?' • '+best.key+' +'+g.toFixed(1):'')+'.','major');return true
+}
 function resolveAmbientDanger(title,danger){
- var p=game.player,alt=dangerAlternativeScore(),combat=power(),avoidChance=cl(.18+(alt-danger)/95,.08,.82);
- if(alt>combat+5&&R('e')<avoidChance){var key=(p.skills['Discrétion']||0)>=Math.max(p.skills.Navigation||0,p.skills.Commandement||0)?'Discrétion':(p.skills.Navigation||0)>=(p.skills.Commandement||0)?'Navigation':'Commandement',g=gain(key,.25+.3*R('e'));p.energy=cl(p.energy-(2+danger*.025),0,100);if(danger>=48)attemptBreakthrough('survie',danger,[key,'Réflexes','Agilité','Volonté']);tl(title||'Danger évité','Tu évites l’affrontement grâce à '+key+(g?' • '+key+' +'+g.toFixed(1):'')+'.','major');return true}
- return fight(danger,title||'Confrontation imprévue')
+ if(tryAvoidForcedFight(title,danger,'ambient'))return true;return fight(danger,title||'Confrontation imprévue')
 }
 function event(m,force){
  var p=game.player,l=migrateLifeLoop(game),before=l.momentSeq;if(!force&&R('e')>eventChance(m))return false;
