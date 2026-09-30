@@ -1610,7 +1610,7 @@ function factionCareerLegacy(){
  else if(f==='Marine')v=['Vice-amiral','Amiral'].indexOf(p.rank)>=0?18:Math.min(14,rankIndex()*2.5);
  else if(f==='Révolutionnaires')v=['Commandant régional','Bras droit'].indexOf(p.rank)>=0?18:Math.min(14,rankIndex()*2.5);
  else if(f==='Gouvernement')v=p.rank==='CP0'?18:p.rank==='Candidat CP0'?14:Math.min(12,rankIndex()*2);
- else if(f==='Chasseur de primes')v=Math.min(18,((p.justice&&p.justice.captures)||0)*.65+Math.log10(Math.max(1,((p.justice&&p.justice.bountiesClaimed)||0)+1)));
+ else if(f==='Chasseur de primes')v=Math.min(20,((p.justice&&p.justice.captures)||0)*.7+Math.log10(Math.max(1,((p.justice&&p.justice.bountiesClaimed)||0)+1)));
  else v=Math.min(18,careerExpertise(p.specialization)*.12+Math.log10(Math.max(1,netWorth()+1)));
  return v
 }
