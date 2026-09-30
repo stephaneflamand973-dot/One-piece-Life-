@@ -70,7 +70,7 @@ window.__qa={
  marketPrice:marketPrice,marketPriceIndex:marketPriceIndex,buyCommodity:buyCommodity,sellCommodity:sellCommodity,tradeRouteOpportunities:tradeRouteOpportunities,
  simulateEconomy:simulateEconomy,cargoUsed:cargoUsed,cargoCapacity:cargoCapacity,cargoBookValue:cargoBookValue,blackMarketRisk:blackMarketRisk,inspectSmugglingAtArrival:inspectSmugglingAtArrival,
  releasePlayerFruits:releasePlayerFruits,checkAchievements:checkAchievements,chargeMoney:chargeMoney,serviceDebt:serviceDebt,netWorth:netWorth,
- explorationSite:explorationSite,islandProfile:islandProfile,discoveryPool:discoveryPool,registerDiscovery:registerDiscovery,discoverByKnowledge:discoverByKnowledge,explorationTick:explorationTick,migrateExploration:migrateExploration,currentRumor:currentRumor,learnLocalRumor:learnLocalRumor,routeEstimate:routeEstimate,chooseSeaCondition:chooseSeaCondition,seaJourneyTick:seaJourneyTick,travel:travel,beginJourney:beginJourney,setExplorationActivity:setExplorationActivity,renderExploration:renderExploration,renderJourney:renderJourney,renderCodexExploration:renderCodexExploration,
+ explorationSite:explorationSite,islandProfile:islandProfile,discoveryPool:discoveryPool,registerDiscovery:registerDiscovery,discoverByKnowledge:discoverByKnowledge,explorationTick:explorationTick,migrateExploration:migrateExploration,currentRumor:currentRumor,learnLocalRumor:learnLocalRumor,routeEstimate:routeEstimate,chooseSeaCondition:chooseSeaCondition,seaJourneyTick:seaJourneyTick,travel:travel,beginJourney:beginJourney,settleCareerNetwork:settleCareerNetwork,setExplorationActivity:setExplorationActivity,renderExploration:renderExploration,renderJourney:renderJourney,renderCodexExploration:renderCodexExploration,
  defaultStoryEngine:defaultStoryEngine,migrateStoryEngine:migrateStoryEngine,activeStories:activeStories,awaitingStory:awaitingStory,storyNoveltyWeight:storyNoveltyWeight,storyEligibleTypes:storyEligibleTypes,startStory:startStory,maybeStartStory:maybeStartStory,storyPrompt:storyPrompt,storyChoices:storyChoices,storyChoice:storyChoice,storyTick:storyTick,closeStory:closeStory,showStoryDecision:showStoryDecision,renderStories:renderStories,die:die,
  firstRank:firstRank,rankIndex:rankIndex,nextRank:nextRank,inf:inf,infStatic:infStatic,req:req,
  constants:{PL:PL,REG:REG,ST:ST,SK:SK,TRADE_GOODS:TRADE_GOODS,SHIP_TIERS:SHIP_TIERS,ACHIEVEMENTS:ACHIEVEMENTS,MISSIONS:MISSIONS,MISSION_TITLE_PROFILES:MISSION_TITLE_PROFILES}
@@ -1118,6 +1118,14 @@ test('V5.0 manual family actions feed the same personal chapter',()=>{
 });
 test('V5.0 manual travel contributes to a journey chapter',()=>{
   const g=fresh(50052),p=g.player;p.ageMonths=300;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');assert(q.beginJourney(d,'manual'),'manual journey failed');const ch=p.lifeDirector.activeChapters.find(x=>x.key==='journey:manual-journey');assert(ch&&ch.beats===1,'manual journey did not feed personal chapter');return d;
+});
+
+
+test('V5.0 long-distance partner keeps a real physical location',()=>{
+  const g=fresh(50060),p=g.player;p.ageMonths=360;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=360;r.location=p.island;r.region=p.region;r.type='partner';r.role='partenaire';r.affection=80;r.trust=80;p.life.partnerId=r.id;p.life.relationshipStatus='En couple';r.longDistance=true;const away=(q.constants.PL[p.island][2]||[])[0];assert(away,'no route for fixture');r.location=away;r.region=q.infStatic(away).region;q.lifeTick(3);assert(r.location===away,'long-distance partner was teleported to player');assert(r.longDistance,'long-distance flag was lost');return 'remains at '+away;
+});
+test('V5.0 career relocation can rebuild a local social network',()=>{
+  const g=fresh(50061),p=g.player;p.ageMonths=360;q.join('Marine');const dest=(q.constants.PL[p.island][2]||[])[0];assert(dest,'no destination fixture');gameLoop:for(let i=0;i<20;i++){const r=q.settleCareerNetwork(dest);if(r)break gameLoop}const local=g.relations.find(r=>r.status==='active'&&!r.canonical&&r.location===dest&&r.role==='collègue');assert(local,'relocation never rebuilt a local colleague network');assert(local.faction===p.faction,'career bridge has wrong faction');assert(local.trust>=46&&local.affection>=48,'career bridge starts too weak to become meaningful');return local.name+' at '+dest;
 });
 
 const metrics={};
