@@ -1338,6 +1338,11 @@ test('V3.2 forty-year autonomous world remains bounded and diverse',()=>{
  const avg=k=>samples.reduce((a,x)=>a+x[k],0)/samples.length;assert(avg('changed')>=2,'world too static');assert(avg('changed')<=Object.keys(fresh(999).world.territories).length*.75,'territory churn too high');assert(avg('activeCrews')>=6,'crew ecosystem collapsed');assert(avg('actorHistory')>=20,'actors leave too little history');assert(avg('goalAvg')>10,'actor goals stagnate');return JSON.stringify({samples:samples.length,avgChanged:+avg('changed').toFixed(1),avgGoal:+avg('goalAvg').toFixed(1),avgTension:+avg('tension').toFixed(1),avgDivergence:+avg('divergence').toFixed(1),avgActiveCrews:+avg('activeCrews').toFixed(1),avgActorHistory:+avg('actorHistory').toFixed(1),avgCrewHistory:+avg('crewHistory').toFixed(1)});
 });
 
+
+test('V3.2 completed actor ambitions open a new chapter',()=>{
+ const g=fresh(28201),a=g.world.actors.find(x=>x.status==='active'&&x.faction==='Pirates');assert(a,'no pirate actor');const goal=g.world.worldState.actorGoals[a.name];goal.progress=99;a.intention='S’entraîner';a.intentionMonths=0;const old=goal.primary;q.resolveActorIntent(a);assert(g.world.worldState.goalHistory.length===1,'goal milestone not recorded');assert(goal.completed===1,'completion count missing');assert(goal.primary!==old||goal.progress<100,'completed goal remained frozen');assert(goal.progress<100,'new chapter should restart below 100');return a.name+' : '+old+' -> '+goal.primary+' ('+goal.progress+'%)';
+});
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
