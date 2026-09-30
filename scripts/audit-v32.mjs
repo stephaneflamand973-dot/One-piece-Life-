@@ -115,6 +115,8 @@ function qaLongCareer(seed,faction,spec,profile,years){
     directorJourneyOffers:p.lifeDirector&&p.lifeDirector.journeyOffers||0,
     directorRomanceOffers:p.lifeDirector&&p.lifeDirector.romanceOffers||0,
     directorFamilyOffers:p.lifeDirector&&p.lifeDirector.familyOffers||0,
+    directorCareerTurns:p.lifeDirector&&p.lifeDirector.careerTurns||0,
+    finalSpecialization:p.specialization||null,
     saveBytes:JSON.stringify(g).length,
     storageParts:{
       player:JSON.stringify(g.player||{}).length,
@@ -208,6 +210,9 @@ let postCareerRows=[],postCareerProfiles=[];
         avgMissionSuccessRate:+(rows.reduce((a,x)=>a+(x.careerSuccessRate||0),0)/rows.length).toFixed(2),
         avgRecentMissionRate:+(rows.reduce((a,x)=>a+(x.recentMissionRate||0),0)/rows.length).toFixed(2),
         avgDistinctions:avg('careerDistinctions'),
+        avgCareerTurns:avg('directorCareerTurns'),
+        careerTurnShare:+(rows.filter(x=>x.directorCareerTurns>0).length/rows.length).toFixed(2),
+        specializationSpread:profiles.reduce((a,cfg)=>{const key=cfg[0]+' / '+cfg[1],rs=rows.filter(x=>x.faction===cfg[0]&&x.spec===cfg[1]);a[key]=rs.reduce((m,x)=>{const sp=x.finalSpecialization||'Aucune';m[sp]=(m[sp]||0)+1;return m},{});return a},{}),
         finalRanks:rankSpread
       },
       personalLife:{
@@ -259,7 +264,9 @@ let postCareerRows=[],postCareerProfiles=[];
         avgRomanceOffers:avg('directorRomanceOffers'),
         romanceOpportunityShare:+(rows.filter(x=>x.directorRomanceOffers>0).length/rows.length).toFixed(2),
         avgFamilyOffers:avg('directorFamilyOffers'),
-        familyOpportunityShare:+(rows.filter(x=>x.directorFamilyOffers>0).length/rows.length).toFixed(2)
+        familyOpportunityShare:+(rows.filter(x=>x.directorFamilyOffers>0).length/rows.length).toFixed(2),
+        avgCareerTurns:avg('directorCareerTurns'),
+        careerTurnShare:+(rows.filter(x=>x.directorCareerTurns>0).length/rows.length).toFixed(2)
       }
     };
   }
@@ -490,6 +497,7 @@ console.log('V50_DYNASTY_AUDIT '+JSON.stringify(metrics.v50DynastyStress));
   if(v5.personalLife.parentShare<=0)throw new Error('V5.0 family legacy never emerged in long careers');
   if(v5.career.avgRankVariety<1.15)throw new Error('V5.0 career trajectories remain too uniform: '+v5.career.avgRankVariety+' ranks/profile');
   if(v5.narrative.avgPersonalChapters<.5)throw new Error('V5.0 personal chapters too dormant: '+v5.narrative.avgPersonalChapters+' per career');
+  if(v5.lifeDirector.avgCareerTurns>1.75)throw new Error('V5.0 career turning points became micromanagement: '+v5.lifeDirector.avgCareerTurns+' turns/20y');
 }
 console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
   livingWorld:metrics.v40LivingWorld,
