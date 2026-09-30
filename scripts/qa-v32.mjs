@@ -1281,9 +1281,7 @@ test('V5.0 migration removes resolved causal duplicates without schema bump',()=
 
 
 
-test('V5.0 migration removes resolved causal duplicates without schema bump',()=>{
-  const g=fresh(50161),version=g.version,ws=g.world.worldState;ws.canonBranches.push({id:'old-resolved',status:'resolved'});ws.worldSagas.push({id:'old-saga',status:'resolved'});q.migrate(g);assert(g.version===version&&g.version===28,'world pruning changed GameState version');assert(!ws.canonBranches.some(x=>x.id==='old-resolved'),'resolved canon branch survived migration');assert(!ws.worldSagas.some(x=>x.id==='old-saga'),'resolved world saga survived migration');return 'GameState '+g.version+' / active-only causal containers';
-});
+
 
 const metrics={};
 {
