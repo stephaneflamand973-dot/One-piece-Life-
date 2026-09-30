@@ -194,3 +194,5 @@ await import('file:///tmp/qa-v30-runtime.mjs');
 // evolving ambitions multi-decade pass
 
 // final V3.2 pirate pacing and bounded-memory regression pass
+
+// V3.5 canon dependency and alternate branch regression pass
