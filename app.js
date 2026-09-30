@@ -2173,7 +2173,7 @@ function resolveConflict(c){
  }
  else{t.influence=cl(t.influence+5+margin*.12,0,100);t.stability=cl(t.stability+3-R('world')*4,0,100);news('Offensive repoussée',c.defender+' conserve '+c.location+' face à '+c.attacker+'.','war')}
  if(pc){if(winner===pc.faction)pc.control=cl(pc.control+5+margin*.08,0,100);else if(diplomacy(winner,pc.faction)<-20){pc.control=cl(pc.control-(18+margin*.22),0,100);if(pc.control<=20)loseDomain(c.location,'défaite militaire')}}
- t.contested=false;w.globalTension=cl(w.globalTension-1,0,100);
+ t.contested=winner!==t.controller||t.influence<45;w.globalTension=cl(w.globalTension-1,0,100);
  w.worldHistory.unshift({year:w.year,month:Math.floor(w.month),type:'conflict',location:c.location,winner:winner,loser:loser});w.worldHistory=w.worldHistory.slice(0,80);recordWarBattle(c,winner)
 }
 function simulateConflicts(){
