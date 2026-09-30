@@ -2,14 +2,6 @@ name: V3.1 Long Audit
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'app.js'
-      - 'content-v1.js'
-      - 'scripts/qa-v31.mjs'
-      - 'scripts/audit-v31.mjs'
-      - '.github/workflows/audit-v30.yml'
 
 permissions:
   contents: read
