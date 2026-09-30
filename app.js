@@ -221,8 +221,8 @@ function initLivingWorld(g,w){
 }
 function migrateWorldFoundations(g,w){
  w.worldState=w.worldState||{version:1,seq:0,actorHistory:[],territoryHistory:[],monthlyChanges:[],actorGoals:{}};
- var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(-120):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(-100):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(-48):[];ws.actorGoals=ws.actorGoals||{};ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory.slice(-80):[];ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality.slice(-100):[];ws.canonBranches=Array.isArray(ws.canonBranches)?ws.canonBranches.slice(-60):[];ws.canonBranchHistory=Array.isArray(ws.canonBranchHistory)?ws.canonBranchHistory.slice(-80):[];ws.playerCanonImpact=Array.isArray(ws.playerCanonImpact)?ws.playerCanonImpact.slice(-60):[];ws.worldSagas=Array.isArray(ws.worldSagas)?ws.worldSagas.slice(-40):[];ws.sagaCooldowns=ws.sagaCooldowns||{};ws.sagaHistory=Array.isArray(ws.sagaHistory)?ws.sagaHistory.slice(-80):[];ws.crewGoals=ws.crewGoals||{};var liveCrewGoals={};(w.crews||[]).forEach(function(c){if(ws.crewGoals[c.id])liveCrewGoals[c.id]=ws.crewGoals[c.id]});ws.crewGoals=liveCrewGoals;ws.factionGoals=ws.factionGoals||{};ws.geopoliticalHistory=Array.isArray(ws.geopoliticalHistory)?ws.geopoliticalHistory.slice(-100):[];ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(-100):[];
- (w.actors||[]).forEach(function(a){var goal=ws.actorGoals[a.name]||{};goal.primary=goal.primary||a.goal||'Tracer sa route';goal.progress=cl(goal.progress||0,0,100);goal.stage=goal.stage||'pursuing';goal.lastAction=goal.lastAction||'';goal.lastOutcome=goal.lastOutcome||'';goal.updatedAt=goal.updatedAt||0;ws.actorGoals[a.name]=goal;a.worldGoal=goal});
+ var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(-90):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(-80):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(-36):[];ws.actorGoals=ws.actorGoals||{};ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory.slice(-60):[];ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality.slice(-80):[];ws.canonBranches=Array.isArray(ws.canonBranches)?ws.canonBranches.slice(-50):[];ws.canonBranchHistory=Array.isArray(ws.canonBranchHistory)?ws.canonBranchHistory.slice(-60):[];ws.playerCanonImpact=Array.isArray(ws.playerCanonImpact)?ws.playerCanonImpact.slice(-50):[];ws.worldSagas=Array.isArray(ws.worldSagas)?ws.worldSagas.slice(-32):[];ws.sagaCooldowns=ws.sagaCooldowns||{};ws.sagaHistory=Array.isArray(ws.sagaHistory)?ws.sagaHistory.slice(-60):[];ws.crewGoals=ws.crewGoals||{};var liveCrewGoals={};(w.crews||[]).forEach(function(c){if(ws.crewGoals[c.id])liveCrewGoals[c.id]=ws.crewGoals[c.id]});ws.crewGoals=liveCrewGoals;ws.factionGoals=ws.factionGoals||{};ws.geopoliticalHistory=Array.isArray(ws.geopoliticalHistory)?ws.geopoliticalHistory.slice(-80):[];ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(-70):[];
+ (w.actors||[]).forEach(function(a){var goal=ws.actorGoals[a.name]||{};goal.primary=goal.primary||a.goal||'Tracer sa route';goal.progress=cl(goal.progress||0,0,100);goal.stage=goal.stage||'pursuing';goal.lastAction=goal.lastAction||'';goal.lastOutcome=goal.lastOutcome||'';goal.updatedAt=goal.updatedAt||0;ws.actorGoals[a.name]=goal;try{delete a.worldGoal;Object.defineProperty(a,'worldGoal',{value:goal,writable:true,configurable:true,enumerable:false})}catch(x){a.worldGoal=goal}});
  return w
 }
 function nextActorWorldGoal(a,goal){
@@ -236,18 +236,18 @@ function nextActorWorldGoal(a,goal){
 }
 function completeActorWorldGoal(a,goal){
  var ws=game.world.worldState,old=goal.primary||a.goal||'Tracer sa route';goal.completed=(goal.completed||0)+1;goal.lastCompleted=old;goal.primary=nextActorWorldGoal(a,goal);goal.progress=Math.min(18,4+goal.completed*2);goal.stage='pursuing';goal.updatedAt=game.world.year*12+game.world.month;
- ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory:[];ws.goalHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,actor:a.name,faction:a.faction,completed:old,next:goal.primary});ws.goalHistory=ws.goalHistory.slice(0,80);
+ ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory:[];ws.goalHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,actor:a.name,faction:a.faction,completed:old,next:goal.primary});ws.goalHistory=ws.goalHistory.slice(0,60);
  if(a.importance>=96)news(a.name+' franchit un cap',old+' devient un jalon de sa trajectoire. Nouvel objectif : '+goal.primary+'.','major')
 }
 function recordWorldActorAction(a,intent,outcome,impact){
  var ws=game.world.worldState;if(!ws)return;var goal=ws.actorGoals[a.name]||(ws.actorGoals[a.name]={primary:a.goal||'Tracer sa route',progress:0,stage:'pursuing'}),gain=Math.max(0,impact==null?2:impact);
  goal.progress=cl((goal.progress||0)+gain,0,100);goal.stage=goal.progress>=100?'established':goal.progress>=65?'advancing':'pursuing';if(goal.progress>=100)completeActorWorldGoal(a,goal);goal.lastAction=intent||'';goal.lastOutcome=outcome||'';goal.updatedAt=game.world.year*12+game.world.month;a.worldGoal=goal;
  if(a.faction&&a.faction!=='Indépendant')updateCollectiveGoal(factionWorldGoal(a.faction),gain*.05);
- ws.actorHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,actor:a.name,faction:a.faction,region:a.region,intent:intent||'',outcome:outcome||'',impact:gain,goalProgress:Math.round(goal.progress)});ws.actorHistory=ws.actorHistory.slice(0,120)
+ ws.actorHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,actor:a.name,faction:a.faction,region:a.region,intent:intent||'',outcome:outcome||'',impact:gain,goalProgress:Math.round(goal.progress)});ws.actorHistory=ws.actorHistory.slice(0,90)
 }
 function snapshotWorldTerritories(){
  var w=game.world,ws=w.worldState;if(!ws)return;var changed=[];Object.keys(w.territories).forEach(function(n){var t=w.territories[n],key='territory:'+n,prev=ws[key],now={controller:t.controller,contested:!!t.contested,stability:Math.round(t.stability||0),influence:Math.round(t.influence||0)};if(prev&&(prev.controller!==now.controller||prev.contested!==now.contested||Math.abs(prev.stability-now.stability)>=12)){changed.push({name:n,from:prev.controller,to:now.controller,contested:now.contested,stability:now.stability});if(now.stability-prev.stability>=12)updateCollectiveGoal(factionWorldGoal(now.controller),.8);var cause=t.lastWorldCause||'ambient';ws.territoryHistory.unshift({seq:++ws.seq,year:w.year,month:w.month,name:n,from:prev.controller,to:now.controller,contested:now.contested,stability:now.stability,cause:cause});if(prev.controller!==now.controller)recordGeopoliticalShift(n,cause,prev.controller,now.controller);t.lastWorldCause=null}ws[key]=now});
- ws.territoryHistory=ws.territoryHistory.slice(0,100);if(changed.length){ws.monthlyChanges.unshift({year:w.year,month:w.month,type:'territory',items:changed.slice(0,5)});ws.monthlyChanges=ws.monthlyChanges.slice(0,48)}
+ ws.territoryHistory=ws.territoryHistory.slice(0,80);if(changed.length){ws.monthlyChanges.unshift({year:w.year,month:w.month,type:'territory',items:changed.slice(0,5)});ws.monthlyChanges=ws.monthlyChanges.slice(0,36)}
 }
 function crewWorldGoal(c){
  var ws=game.world.worldState,g=ws.crewGoals[c.id];if(g){g.scope='crew';g.owner=c.id;g.faction=c.faction;return g}var primary=c.faction==='Pirates'?'Gagner en réputation et étendre sa zone':c.faction==='Révolutionnaires'?'Étendre son réseau et affaiblir le pouvoir':'Accumuler ressources et contrats';return ws.crewGoals[c.id]={primary:primary,progress:0,stage:'pursuing',completed:0,scope:'crew',owner:c.id,faction:c.faction}
@@ -262,20 +262,20 @@ function nextCollectiveGoal(g){
  var old=g.primary||'',choices=pool.filter(function(x){return x!==old});return choices.length?choices[Math.floor(R('world')*choices.length)]:old
 }
 function updateCollectiveGoal(g,delta){
- g.progress=cl((g.progress||0)+Math.max(0,delta||0),0,100);g.stage=g.progress>=70?'advancing':'pursuing';if(g.progress>=100){var old=g.primary||'',ws=game.world.worldState;g.completed=(g.completed||0)+1;g.lastCompleted=old;g.primary=nextCollectiveGoal(g);g.progress=8+Math.min(10,g.completed*1.5);g.stage='pursuing';g.updatedAt=game.world.year*12+game.world.month;var label=g.scope==='crew'?((game.world.crews.find(function(x){return x.id===g.owner})||{}).name||g.owner):g.owner;ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory:[];ws.goalHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,actor:label,faction:g.faction||g.owner,scope:g.scope||'collective',completed:old,next:g.primary});ws.goalHistory=ws.goalHistory.slice(0,80)}return g
+ g.progress=cl((g.progress||0)+Math.max(0,delta||0),0,100);g.stage=g.progress>=70?'advancing':'pursuing';if(g.progress>=100){var old=g.primary||'',ws=game.world.worldState;g.completed=(g.completed||0)+1;g.lastCompleted=old;g.primary=nextCollectiveGoal(g);g.progress=8+Math.min(10,g.completed*1.5);g.stage='pursuing';g.updatedAt=game.world.year*12+game.world.month;var label=g.scope==='crew'?((game.world.crews.find(function(x){return x.id===g.owner})||{}).name||g.owner):g.owner;ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory:[];ws.goalHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,actor:label,faction:g.faction||g.owner,scope:g.scope||'collective',completed:old,next:g.primary});ws.goalHistory=ws.goalHistory.slice(0,60)}return g
 }
 function updateFactionWorldGoals(){
  var fs=['Pirates','Marine','Révolutionnaires','Gouvernement','Civil','Chasseur de primes'];fs.forEach(function(f){var g=factionWorldGoal(f);g.progress=cl(g.progress||0,0,100);g.stage=g.progress>=70?'advancing':'pursuing'})
 }
 function recordGeopoliticalShift(name,cause,from,to){
- var ws=game.world.worldState;if(!ws)return;ws.geopoliticalHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,name:name,cause:cause||'world',from:from,to:to});ws.geopoliticalHistory=ws.geopoliticalHistory.slice(0,100);
+ var ws=game.world.worldState;if(!ws)return;ws.geopoliticalHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,name:name,cause:cause||'world',from:from,to:to});ws.geopoliticalHistory=ws.geopoliticalHistory.slice(0,80);
  if(to&&to!==from)updateCollectiveGoal(factionWorldGoal(to),2.5);if(from&&from!==to){var lost=factionWorldGoal(from);lost.progress=cl((lost.progress||0)-1,0,100);lost.stage=lost.progress>=70?'advancing':'pursuing'}
  if(from&&to&&from!==to&&String(cause||'').indexOf('war:')!==0&&String(cause||'')!=='ambient'&&game.world.globalTension>=45&&R('world')<.10)startWorldSaga('power',infStatic(name).region,from,to,'shift:'+name+':'+ws.seq)
 }
 function recordWorldCrewAction(c,intent,outcome,impact){
  var ws=game.world.worldState;if(!ws)return;var goal=crewWorldGoal(c),affinity=intent==='Revendiquer une zone'?3:intent==='Étendre son réseau'?2.4:intent==='Chercher un affrontement'?1.6:1;updateCollectiveGoal(goal,(impact||1)*affinity);
  var factionAffinity=intent==='Revendiquer une zone'?1.5:intent==='Étendre son réseau'?1.2:intent==='Traquer une cible'?1:.35;updateCollectiveGoal(factionWorldGoal(c.faction),(impact||1)*factionAffinity*.18);
- ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory:[];ws.crewHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,crew:c.id,name:c.name,faction:c.faction,region:c.region,intent:intent||'',outcome:outcome||'',impact:impact||1});ws.crewHistory=ws.crewHistory.slice(0,100)
+ ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory:[];ws.crewHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,crew:c.id,name:c.name,faction:c.faction,region:c.region,intent:intent||'',outcome:outcome||'',impact:impact||1});ws.crewHistory=ws.crewHistory.slice(0,70)
 }
 function actorRegionalFootprint(a){
  var w=game.world,names=Object.keys(w.territories).filter(function(n){return infStatic(n).region===a.region}),friendly=names.filter(function(n){return w.territories[n].controller===a.faction}),hostile=names.filter(function(n){var t=w.territories[n];return t.controller!==a.faction&&diplomacy(a.faction,t.controller)<-25}),crews=w.crews.filter(function(c){return c.status==='active'&&c.region===a.region&&c.faction===a.faction});
@@ -296,10 +296,10 @@ function startWorldSaga(type,region,a,b,source){
  var w=game.world,ws=w.worldState;if(!ws)return null;ws.worldSagas=ws.worldSagas||[];var key=sagaKey(type,region,a,b),existing=ws.worldSagas.find(function(x){return x.status==='active'&&x.key===key});if(existing){if(source&&existing.lastPressureSource!==source){existing.pressure=cl(existing.pressure+3,0,100);existing.lastPressureSource=source}return existing}
  if(type==='rivalry'){var now=w.year*12+w.month,recent=(ws.sagaHistory||[]).find(function(x){return x.key===key&&now-((x.year||0)*12+(x.month||0))<84});if(recent)return null}
  var titles={war:'Guerre pour '+region,rivalry:'Rivalité de '+region,canon:'Chronologie brisée à '+region,power:'Lutte d’influence à '+region},basePressure=type==='war'?38:type==='canon'?34:type==='rivalry'?30:28,saga={id:'saga-'+(++ws.seq),key:key,type:type,region:region||null,a:a||null,b:b||null,source:source||'world',lastPressureSource:source||'world',title:titles[type]||'Crise de '+region,status:'active',stage:'Tensions',pressure:basePressure,months:0,startedYear:w.year,startedMonth:w.month,events:0};
- ws.worldSagas.unshift(saga);ws.worldSagas=ws.worldSagas.slice(0,40);return saga
+ ws.worldSagas.unshift(saga);ws.worldSagas=ws.worldSagas.slice(0,32);return saga
 }
 function resolveWorldSaga(saga,outcome){
- var w=game.world,ws=w.worldState;saga.status='resolved';saga.outcome=outcome;saga.resolvedYear=w.year;saga.resolvedMonth=w.month;ws.sagaHistory.unshift({seq:++ws.seq,id:saga.id,key:saga.key,title:saga.title,type:saga.type,region:saga.region,outcome:outcome,months:saga.months,year:w.year,month:w.month,playerInvolved:!!saga.playerInvolved,playerFaction:saga.playerFaction||null,playerPeakPower:saga.playerPeakPower||0,playerPresenceMonths:saga.playerPresenceMonths||0,playerRole:saga.playerRole||'present',playerImpact:Math.round((saga.playerImpact||0)*10)/10,playerResponsible:!!saga.playerResponsible,playerSources:(saga.playerSources||[]).slice(-8)});ws.sagaHistory=ws.sagaHistory.slice(0,80);if(saga.pressure>=70)news('Fin de saga : '+saga.title,outcome==='rupture'?'La crise redessine durablement les rapports de force.':'Un nouvel équilibre se forme après des mois de confrontation.','major')
+ var w=game.world,ws=w.worldState;saga.status='resolved';saga.outcome=outcome;saga.resolvedYear=w.year;saga.resolvedMonth=w.month;ws.sagaHistory.unshift({seq:++ws.seq,id:saga.id,key:saga.key,title:saga.title,type:saga.type,region:saga.region,outcome:outcome,months:saga.months,year:w.year,month:w.month,playerInvolved:!!saga.playerInvolved,playerFaction:saga.playerFaction||null,playerPeakPower:saga.playerPeakPower||0,playerPresenceMonths:saga.playerPresenceMonths||0,playerRole:saga.playerRole||'present',playerImpact:Math.round((saga.playerImpact||0)*10)/10,playerResponsible:!!saga.playerResponsible,playerSources:(saga.playerSources||[]).slice(-8)});ws.sagaHistory=ws.sagaHistory.slice(0,60);if(saga.pressure>=70)news('Fin de saga : '+saga.title,outcome==='rupture'?'La crise redessine durablement les rapports de force.':'Un nouvel équilibre se forme après des mois de confrontation.','major')
 }
 function discoverWorldSagas(){
  var w=game.world,ws=w.worldState;if(!ws)return;
@@ -315,7 +315,7 @@ function simulateWorldSagas(){
   s.pressure=cl(s.pressure+(war?2.1:0)+(branch?1.3:0)+conflict*.9+(rivalryLive?.65:0)-(!driver?2.4:0)+(R('world')-.5)*1.6,0,100);s.stage=s.pressure>=75?'Point culminant':s.pressure>=50?'Escalade':s.pressure>=28?'Confrontation':'Tensions';
   if(driver)s.events++;
   if(s.months>=6&&!driver&&s.pressure<28)resolveWorldSaga(s,'stabilisation');else if(s.months>=12&&s.pressure>=88&&R('world')<.065)resolveWorldSaga(s,'rupture');else if(s.months>=30&&R('world')<.075)resolveWorldSaga(s,s.pressure>=60?'rupture':'nouvel équilibre')
- });ws.worldSagas=ws.worldSagas.slice(0,40)
+ });ws.worldSagas=ws.worldSagas.slice(0,32)
 }
 function worldStateSummary(){
  var w=game.world,ws=w.worldState||{},actors=(w.actors||[]).filter(function(a){return a.status==='active'}).sort(function(a,b){return actorPower(b)-actorPower(a)}).slice(0,5);
@@ -893,7 +893,7 @@ function processConsequences(){
 function advancePlan(){
  var p=game.player,j=migrateJustice(p),danger=inf().danger||0,severe=p.health<45||(p.conditions||[]).some(function(c){return(c.severity||1)>=2});
  if(game.pending)return{key:'decision',label:'Décision en attente',tone:'urgent',min:0,max:0,reason:'Une décision importante interrompt automatiquement le temps.'};var storyWait=awaitingStory();if(storyWait)return{key:'story-decision',label:'Fil narratif à décider',tone:'urgent',min:0,max:0,reason:storyWait.title+' attend ta décision avant que le temps continue.'};
- if(j.detained&&j.prison)return{key:'detention',label:'Détention',tone:'urgent',min:.5,max:1,limit:j.prison.remaining,reason:'Le temps avance lentement en détention.'};
+ if(j.detained&&j.prison){var prisonCritical=p.health<50||(j.prison.security||0)>=82;return{key:'detention',label:'Détention',tone:prisonCritical?'urgent':'active',min:prisonCritical?1:2,max:prisonCritical?2:4,limit:j.prison.remaining,reason:prisonCritical?'La détention reste suivie de près car ton état ou le niveau de sécurité exige davantage de vigilance.':'Les semaines ordinaires de détention sont regroupées ; seuls les incidents, décisions et la libération méritent une interruption.'}};
  if(game.mission)return{key:'mission',label:'Mission en cours',tone:'active',min:Math.min(1.25,game.mission.remaining),max:Math.min(3,game.mission.remaining),limit:game.mission.remaining,reason:'Le temps avance jusqu’à une étape significative de la mission.'};
  if(p.travel){if(p.travel.source==='career-transfer')return{key:'travel-director',label:'Mutation en cours',tone:'active',min:Math.min(6,p.travel.remaining),max:Math.min(6,p.travel.remaining),limit:p.travel.remaining,reason:'Le Life Director regroupe cette mutation en une traversée compacte et ne t’interrompt que pour un événement réellement majeur.'};return{key:'travel',label:'Navigation',tone:'active',min:Math.min(1,p.travel.remaining),max:Math.min(2.5,p.travel.remaining),limit:p.travel.remaining,reason:'La traversée avance jusqu’à un incident utile ou l’arrivée.'}};
  if(severe)return{key:'recovery',label:'Récupération',tone:'urgent',min:.5,max:1.5,reason:'Blessures ou santé fragile : la simulation surveille de près ton état.'};
@@ -2379,20 +2379,20 @@ function canonTimelineMode(){
  return d>=60||modified>=8?'Timeline divergente':d>=25||modified>=3?'Canon flexible':'Canon protégé'
 }
 function recordCanonCausality(c,state,status){
- var ws=game.world.worldState;if(!ws)return;ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality:[];ws.canonCausality.unshift({seq:++ws.seq,id:c.id,title:c.title,status:status,year:game.world.year,month:game.world.month,mode:canonTimelineMode(),missingEvents:(state.missingEvents||[]).slice(),alteredEvents:(state.alteredEvents||[]).slice(),missingActors:(state.missingActors||[]).slice()});ws.canonCausality=ws.canonCausality.slice(0,100)
+ var ws=game.world.worldState;if(!ws)return;ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality:[];ws.canonCausality.unshift({seq:++ws.seq,id:c.id,title:c.title,status:status,year:game.world.year,month:game.world.month,mode:canonTimelineMode(),missingEvents:(state.missingEvents||[]).slice(),alteredEvents:(state.alteredEvents||[]).slice(),missingActors:(state.missingActors||[]).slice()});ws.canonCausality=ws.canonCausality.slice(0,80)
 }
 function createCanonBranch(c,causal){
  var w=game.world,ws=w.worldState;if(!ws)return null;ws.canonBranches=Array.isArray(ws.canonBranches)?ws.canonBranches:[];
  var causes=[].concat(causal.missingEvents||[],causal.missingActors||[],causal.alteredEvents||[]),region=c.location?infStatic(c.location).region:null;
  var branch={seq:++ws.seq,id:'branch-'+c.id+'-'+ws.seq,source:c.id,title:'Conséquence de '+c.title,year:w.year,month:w.month,location:c.location||null,region:region,factions:(c.factions||[]).slice(),causes:causes.slice(0,6),status:'active',pressure:cl(20+w.divergence*.45+causes.length*7,20,90)};
- ws.canonBranches.unshift(branch);ws.canonBranches=ws.canonBranches.slice(0,60);
+ ws.canonBranches.unshift(branch);ws.canonBranches=ws.canonBranches.slice(0,50);
  if(c.location&&w.territories[c.location]){var t=w.territories[c.location];t.stability=cl(t.stability-(3+branch.pressure*.05),0,100);if(t.stability<35)t.contested=true}
  return branch
 }
 function markPlayerCanonImpact(c,kind,detail){
  var w=game.world,ws=w.worldState,p=game.player;if(!ws||!p)return null;ws.playerCanonImpact=Array.isArray(ws.playerCanonImpact)?ws.playerCanonImpact:[];
  var rec={seq:++ws.seq,eventId:c&&c.id||null,eventTitle:c&&c.title||'Chronologie',kind:kind||'intervention',detail:detail||'',year:w.year,month:w.month,age:p.ageMonths,faction:p.faction,region:p.region,island:p.island,power:Math.round(power()*10)/10};
- ws.playerCanonImpact.unshift(rec);ws.playerCanonImpact=ws.playerCanonImpact.slice(0,60);w.divergence=cl(w.divergence+(kind==='major'?4:kind==='direct'?2.5:1),0,100);
+ ws.playerCanonImpact.unshift(rec);ws.playerCanonImpact=ws.playerCanonImpact.slice(0,50);w.divergence=cl(w.divergence+(kind==='major'?4:kind==='direct'?2.5:1),0,100);
  (c&&c.factions||[]).forEach(function(f){var aligned=f===p.faction?1:-1;adjustRep(f,aligned*(kind==='major'?3:1.5))});
  return rec
 }
@@ -2412,7 +2412,7 @@ function resolveCanonBranch(branch,outcome){
  if(outcome==='escalation'){var fs=(branch.factions||[]).filter(function(f){return f!=='Civil'}),def=t?t.controller:null,att=fs.find(function(f){return f!==def&&diplomacy(f,def)<-20});if(att&&def){spawnConflict(branch.location,att,def,cl(38+branch.pressure*.45,40,82),'canon:'+branch.source);branch.status='escalated';w.globalTension=cl(w.globalTension+4,0,100)}}
  else if(outcome==='new-balance'){if(t){t.stability=cl(t.stability+8,0,100);t.contested=t.stability<35}w.divergence=cl(w.divergence+1.5,0,100)}
  else{if(t){t.stability=cl(t.stability+12,0,100);t.contested=false}w.divergence=cl(w.divergence-.8,0,100)}
- ws.canonBranchHistory=Array.isArray(ws.canonBranchHistory)?ws.canonBranchHistory:[];ws.canonBranchHistory.unshift({seq:++ws.seq,id:branch.id,source:branch.source,title:branch.title,outcome:outcome,year:w.year,month:w.month,pressure:Math.round(branch.pressure)});ws.canonBranchHistory=ws.canonBranchHistory.slice(0,80);
+ ws.canonBranchHistory=Array.isArray(ws.canonBranchHistory)?ws.canonBranchHistory:[];ws.canonBranchHistory.unshift({seq:++ws.seq,id:branch.id,source:branch.source,title:branch.title,outcome:outcome,year:w.year,month:w.month,pressure:Math.round(branch.pressure)});ws.canonBranchHistory=ws.canonBranchHistory.slice(0,60);
  news(branch.title,outcome==='escalation'?'La divergence dégénère en confrontation ouverte.':outcome==='new-balance'?'Un nouvel équilibre durable remplace progressivement la trajectoire canonique.':'La perturbation se résorbe sans restaurer totalement la chronologie originale.',outcome==='escalation'?'war':'major')
 }
 function simulateCanonBranches(){
@@ -2423,7 +2423,7 @@ function simulateCanonBranches(){
   if(actors.length&&R('canon')<.08){var lead=actors[0];lead.region=b.region;b.leadActor=lead.name;if(lead.importance>=96)news('Divergence : '+lead.name,lead.name+' intervient dans les conséquences de '+b.title+'.','major')}
   if(b.months>=3){var escalation=cl((b.pressure-52)/85+instability*.18,0,.48),settle=cl(.10+b.months*.025+(t&&t.stability>55?.08:0),.10,.42),r=R('canon');if(r<escalation)resolveCanonBranch(b,'escalation');else if(r<escalation+settle)resolveCanonBranch(b,b.pressure>=48?'new-balance':'resolved')}
  });
- ws.canonBranches=ws.canonBranches.slice(0,60)
+ ws.canonBranches=ws.canonBranches.slice(0,50)
 }
 function resolveCanonEvent(c){
  var w=game.world,p=game.player,required=c.required||[],causal=canonDependencyState(c),missing=causal.missingActors,terr=w.territories[c.location],instability=terr?100-terr.stability:30,pressure=w.divergence+instability*.08+(terr&&terr.contested?8:0)+causal.alteredEvents.length*6,modified=false;
