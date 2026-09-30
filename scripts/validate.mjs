@@ -10,7 +10,7 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('<title>ONE PIECE LIFE — V3.1</title>') || !html.includes('V3.1 • Career Depth')) throw new Error('index.html does not expose V3.1 consistently');
+if(!html.includes('<title>ONE PIECE LIFE — V3.1</title>') || !html.includes('V3.1 • Living Endgame')) throw new Error('index.html does not expose V3.1 consistently');
 if(!app.includes('version:28') || !app.includes('g.version=28')) throw new Error('compatible GameState 28 migration is missing');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
