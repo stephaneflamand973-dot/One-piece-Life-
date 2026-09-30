@@ -343,3 +343,5 @@ await import('file:///tmp/qa-v30-runtime.mjs');
 // V4.0 final RC after economy persistence correction
 
 // V4.0 final release audit after PWA cache refresh
+
+// V4.0 final workflow-metadata-aligned release audit
