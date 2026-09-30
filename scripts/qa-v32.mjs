@@ -1301,6 +1301,9 @@ test('V3.1 veteran pirates compress ordinary high-risk time without becoming saf
 test('V3.1 extreme pirate heat still keeps short urgent windows',()=>{
  const g=fresh(24001),p=g.player;p.ageMonths=300;q.join('Pirates');Object.keys(p.stats).forEach(k=>p.stats[k]=65);Object.keys(p.skills).forEach(k=>p.skills[k]=65);p.health=100;p.conditions=[];p.bounty=900000000;p.region='New World';p.island='Wano';p.justice.regionalHeat['New World']=95;p.region='New World';p.island='Wano';const plan=q.advancePlan();assert(plan.key==='high-risk','extreme pirate heat not high-risk');assert(plan.max<=1.5,'extreme heat was over-compressed');return plan.label+' '+plan.min+'-'+plan.max;
 });
+test('V4.0 veteran pirates compress sustained pursuit without trivializing extreme heat',()=>{
+ const g=fresh(24002),p=g.player;p.ageMonths=300;q.join('Pirates');Object.keys(p.stats).forEach(k=>p.stats[k]=72);Object.keys(p.skills).forEach(k=>p.skills[k]=72);p.health=100;p.conditions=[];p.bounty=600000000;p.region='New World';p.island='Dressrosa';p.justice.regionalHeat['New World']=88;const plan=q.advancePlan();assert(plan.key==='high-risk','sustained pursuit not high-risk');assert(plan.min>=1.25&&plan.max>=2.5,'veteran pursuit still fragments time: '+plan.min+'-'+plan.max);assert(plan.max<4,'sustained pursuit became too calm');return plan.label+' '+plan.min+'-'+plan.max;
+});
 test('V3.1 every adult faction receives concrete endgame milestones',()=>{
  const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];const counts=[];factions.forEach((f,i)=>{const g=fresh(24100+i),p=g.player;p.ageMonths=360;q.join(f);const goals=q.endgameMilestones();assert(goals.length>=3,'missing endgame goals for '+f);assert(goals.every(x=>x.label&&typeof x.progress==='number'),'invalid endgame goal for '+f);counts.push(f+':'+goals.length)});return counts.join(' / ');
 });
@@ -1426,6 +1429,9 @@ test('V4.0 world recognition uses lived-world consequences',()=>{
 
 test('V4.0 faction ambitions require real causal activity',()=>{
  const g=fresh(40205),goal=q.factionWorldGoal('Pirates'),before=goal.progress;for(let i=0;i<240;i++)q.updateFactionWorldGoals();assert(goal.progress===before,'faction goal progressed on calendar time alone');q.recordGeopoliticalShift(g.player.island,'qa-conquest','Marine','Pirates');assert(goal.progress>before,'real geopolitical action did not progress faction goal');return before+' → '+goal.progress;
+});
+test('V4.0 completed collective ambitions evolve instead of looping forever',()=>{
+ const g=fresh(40206),goal=q.factionWorldGoal('Pirates'),old=goal.primary;goal.progress=99;q.recordGeopoliticalShift(g.player.island,'qa-conquest','Marine','Pirates');assert(goal.completed===1,'faction completion not recorded');assert(goal.progress<40,'completed faction goal did not restart');assert(goal.primary!==old,'completed faction goal did not evolve');const crew=g.world.crews.find(x=>x.status==='active'&&x.faction==='Pirates');const cg=q.crewWorldGoal(crew),cold=cg.primary;cg.progress=99;crew.intention='S’entraîner';crew.intentionMonths=0;q.resolveCrewIntent(crew);assert(cg.completed===1,'crew completion not recorded');assert(cg.primary!==cold,'crew goal did not evolve');return old+' → '+goal.primary+' / '+cold+' → '+cg.primary;
 });
 test('V4.0 non-pirate legends do not require territorial domains',()=>{
  const cases=[['Marine','Vice-amiral'],['Révolutionnaires','Commandant régional'],['Gouvernement','CP0'],['Chasseur de primes',''],['Civil','Scientifique']];const out=[];
