@@ -127,6 +127,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
       achievements:JSON.stringify(g.achievements||{}).length,
       dynasty:JSON.stringify(g.dynasty||{}).length
     },
+    worldStorageParts:Object.keys(g.world||{}).reduce((a,k)=>{a[k]=JSON.stringify(g.world[k]||null).length;return a},{}),
     careerMomentum:+((q.careerRecord&&q.careerRecord().momentum)||0).toFixed(2),
     careerSuccessRate:(q.careerRecord&&((q.careerRecord().successes||0)+(q.careerRecord().failures||0)))?+((q.careerRecord().successes||0)/((q.careerRecord().successes||0)+(q.careerRecord().failures||0))).toFixed(2):0,
     careerDistinctions:q.careerRecord?(q.careerRecord().distinctions||0):0,
@@ -162,6 +163,7 @@ let postCareerRows=[],postCareerProfiles=[];
       clicksPerYear:+(rs.reduce((a,x)=>a+x.clicksPerYear,0)/rs.length).toFixed(2),
       arcHistory:+(rs.reduce((a,x)=>a+x.arcHistoryDelta,0)/rs.length).toFixed(1),
       founding:+(rs.reduce((a,x)=>a+x.founding,0)/rs.length).toFixed(1),
+      planCounts:rs.reduce((a,x)=>{Object.entries(x.planCounts||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
       avgRecognition:+(rs.reduce((a,x)=>a+(x.recognition&&x.recognition.score||0),0)/rs.length).toFixed(1),
       organicEndgameShare:+(rs.filter(x=>x.endgame&&x.endgame.organic).length/rs.length).toFixed(2),
       avgMissionSuccessRate:+(rs.reduce((a,x)=>a+(x.careerSuccessRate||0),0)/rs.length).toFixed(2),
@@ -247,7 +249,8 @@ let postCareerRows=[],postCareerProfiles=[];
       storage:{
         avgSaveKB:+(rows.reduce((a,x)=>a+(x.saveBytes||0),0)/rows.length/1024).toFixed(1),
         maxSaveKB:+(Math.max(...rows.map(x=>x.saveBytes||0))/1024).toFixed(1),
-        avgPartsKB:['player','relations','timeline','world','loop','story','codex','achievements','dynasty'].reduce((a,k)=>{a[k]=+(rows.reduce((s,x)=>s+((x.storageParts&&x.storageParts[k])||0),0)/rows.length/1024).toFixed(1);return a},{})
+        avgPartsKB:['player','relations','timeline','world','loop','story','codex','achievements','dynasty'].reduce((a,k)=>{a[k]=+(rows.reduce((s,x)=>s+((x.storageParts&&x.storageParts[k])||0),0)/rows.length/1024).toFixed(1);return a},{}),
+        avgWorldPartsKB:Array.from(new Set(rows.flatMap(x=>Object.keys(x.worldStorageParts||{})))).reduce((a,k)=>{a[k]=+(rows.reduce((s,x)=>s+((x.worldStorageParts&&x.worldStorageParts[k])||0),0)/rows.length/1024).toFixed(1);return a},{})
       },
       lifeDirector:{
         avgAcceptedMoves:avg('directorJourneys'),
