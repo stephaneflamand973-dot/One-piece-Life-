@@ -1086,7 +1086,7 @@ function storyRelation(story){return story&&story.participantId?relationById(sto
 function storyNoveltyWeight(id){var recent=migrateStoryEngine(game).recentTypes||[],i=recent.indexOf(id);return i<0?1:i===0?.2:i===1?.4:i===2?.62:i<=4?.78:.9}
 function directorTravelCandidate(){
  var p=game.player,d=migrateLifeDirector(p),routes=(PL[p.island]&&PL[p.island][2]||[]).filter(function(n){return req(n)[0]});
- if(!routes.length||p.travel||p.ageMonths-d.lastMobilityAge<48)return null;
+ if(!routes.length||p.travel||p.ageMonths-d.lastMobilityAge<36)return null;
  var fresh=routes.filter(function(n){return p.visited.indexOf(n)<0}),pool=fresh.length?fresh:routes.filter(function(n){return n!==p.island});
  if(!pool.length)return null;
  pool.sort(function(a,b){var av=p.visited.indexOf(a)<0?12:0,bv=p.visited.indexOf(b)<0?12:0,ar=inf(a).region!==p.region?5:0,br=inf(b).region!==p.region?5:0;return(bv+br-inf(b).danger*.03)-(av+ar-inf(a).danger*.03)});
@@ -1117,7 +1117,7 @@ function storyEligibleTypes(){
  if(p.ageMonths>=216&&(partner||(p.children||[]).some(function(c){return c.status==='active'})))add('family-crossroads',.82);
  var romanceCandidate=directorRomanceCandidate();if(romanceCandidate)add('relationship-opening',1.02);
  var familyFuture=directorFamilyOpportunity();if(familyFuture)add('family-future',familyFuture==='child'?1.55:1.28);
- var transfer=directorTravelCandidate();if(p.ageMonths>=216&&p.career!=='Aucune'&&transfer)add('career-transfer',p.ambition==='Explorer le monde'?1.15:p.faction==='Pirates'?.95:.72);
+ var transfer=directorTravelCandidate();if(p.ageMonths>=216&&p.career!=='Aucune'&&transfer)add('career-transfer',p.ambition==='Explorer le monde'?1.60:p.faction==='Pirates'?1.35:1.05);
  if(p.ageMonths>=180&&!p.travel&&site.familiarity>=30)add('horizon-call',.78+(p.activity==='Explorer'?.35:0));
  return types
 }
