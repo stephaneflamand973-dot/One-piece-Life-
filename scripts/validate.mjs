@@ -10,7 +10,7 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('<title>ONE PIECE LIFE — V4.0</title>') || !html.includes('V4.0 • Living World')) throw new Error('index.html does not expose V4.0 consistently');
+if(!html.includes('<title>ONE PIECE LIFE — V5.0</title>') || !html.includes('V5.0 • Grand Journey')) throw new Error('index.html does not expose V5.0 consistently');
 if(!app.includes('version:28') || !app.includes('g.version=28')) throw new Error('compatible GameState 28 migration is missing');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
@@ -131,8 +131,9 @@ if(!app.includes('function showStoryDecision') || !app.includes('function render
 if(!html.includes('id="storyEngineBadge"') || !html.includes('id="storySummary"') || !html.includes('id="activeStories"') || !html.includes('id="storyHistory"')) throw new Error('V2.0 story UI missing');
 if(!app.includes("id:'story-first'") || !app.includes("id:'story-weaver'") || !app.includes("id:'story-decisions'")) throw new Error('V2.0 story achievements missing');
 if(!app.includes("if(awaitingStory())return showStoryDecision()")) throw new Error('V2.0 AVANCER story gate missing');
-console.log('ONE PIECE LIFE V2.6 validation OK');
+console.log('ONE PIECE LIFE V5.0 validation OK');
 
 if(!app.includes('function missionOutcomeFlavor') || !app.includes('function endgameMilestones') || !app.includes('function migrateWorldFoundations') || !app.includes('function worldStateSummary') || !app.includes("id==='navigation'") || !app.includes("id==='trade'")) throw new Error('V3.2 career-specific mission outcomes missing');
 
 if(!app.includes('function simulateWorldSagas') || !app.includes('function playerWorldRecognition') || !app.includes('function updateFactionWorldGoals') || !app.includes('function playerSagaPresence')) throw new Error('V4.0 Living World systems missing');
+if(!app.includes('function defaultLifeDirector') || !app.includes('function directorTravelCandidate') || !app.includes('function directorRomanceCandidate') || !app.includes('function directorFamilyOpportunity') || !app.includes('function beginJourney')) throw new Error('V5.0 Grand Journey Life Director missing');
