@@ -56,10 +56,10 @@ window.__qa={
  setMode:function(v){mode=v},getMode:function(){return mode},
  getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,purgeSaveSlot:purgeSaveSlot,deleteSaveSlot:deleteSaveSlot,slotKey:slotKey,slotMetaKey:slotMetaKey,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,simulateActors:simulateActors,simulateCrews:simulateCrews,actorIntentPool:actorIntentPool,assignActorIntent:assignActorIntent,resolveActorIntent:resolveActorIntent,actorIntentTick:actorIntentTick,crewIntentPool:crewIntentPool,assignCrewIntent:assignCrewIntent,resolveCrewIntent:resolveCrewIntent,crewIntentTick:crewIntentTick,
- advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,resolveAmbientDanger:resolveAmbientDanger,dangerAlternativeScore:dangerAlternativeScore,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,recordSignatureMoment:recordSignatureMoment,scheduleConsequence:scheduleConsequence,resolveConsequence:resolveConsequence,processConsequences:processConsequences,consequenceRelation:consequenceRelation,registerArcSignal:registerArcSignal,signalArcFromConsequence:signalArcFromConsequence,arcPressureFor:arcPressureFor,arcTick:arcTick,closeArc:closeArc,rememberFoundingMoment:rememberFoundingMoment,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
+ advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,resolveAmbientDanger:resolveAmbientDanger,dangerAlternativeScore:dangerAlternativeScore,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,recordSignatureMoment:recordSignatureMoment,scheduleConsequence:scheduleConsequence,resolveConsequence:resolveConsequence,processConsequences:processConsequences,consequenceRelation:consequenceRelation,registerArcSignal:registerArcSignal,signalArcFromConsequence:signalArcFromConsequence,arcStageFor:arcStageFor,arcPressureFor:arcPressureFor,arcTick:arcTick,closeArc:closeArc,rememberFoundingMoment:rememberFoundingMoment,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
  power:power,styleMastery:styleMastery,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,focusOptions:focusOptions,recommendedFocus:recommendedFocus,normalizeActivityFocus:normalizeActivityFocus,currentFocus:currentFocus,simpleFocusKeys:simpleFocusKeys,styleFocusKeys:styleFocusKeys,careerFocusKeys:careerFocusKeys,hasPowerFocus:hasPowerFocus,
  developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,setSectionState:function(name,value){sectionState[name]=value},getSectionState:function(){return Object.assign({},sectionState)},
- join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,missionImportance:missionImportance,missionStakes:missionStakes,missionNoveltyKey:missionNoveltyKey,missionNoveltyScore:missionNoveltyScore,rememberMission:rememberMission,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionGuidance:missionGuidance,missionRecommendationScore:missionRecommendationScore,missionResolution:missionResolution,
+ join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,missionImportance:missionImportance,missionStakes:missionStakes,missionNoveltyKey:missionNoveltyKey,missionNoveltyScore:missionNoveltyScore,missionVariant:missionVariant,missionViabilityThreshold:missionViabilityThreshold,rememberMission:rememberMission,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionGuidance:missionGuidance,missionRecommendationScore:missionRecommendationScore,missionResolution:missionResolution,
  createRelation:createRelation,pursueRomance:pursueRomance,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,renderRel:renderRel,renderRelClose:renderRelClose,renderRelNetwork:renderRelNetwork,relationActionDecision:relationActionDecision,
  normalizeRelation:normalizeRelation,npcTick:npcTick,npcIntentPool:npcIntentPool,assignNpcIntent:assignNpcIntent,npcCareerPromotionChance:npcCareerPromotionChance,tryNpcCareerPromotion:tryNpcCareerPromotion,resolveNpcIntent:resolveNpcIntent,npcIntentTick:npcIntentTick,npcSocialTick:npcSocialTick,npcLinkBetween:npcLinkBetween,ensureNpcLink:ensureNpcLink,npcNearby:npcNearby,bondCanonicalActor:bondCanonicalActor,relationForActor:relationForActor,relationPower:relationPower,npcCareerRank:npcCareerRank,trainWithMentor:trainWithMentor,challengeRival:challengeRival,rivalStage:rivalStage,syncRivalryMilestone:syncRivalryMilestone,reconcileRival:reconcileRival,recruitKnownRelation:recruitKnownRelation,askMentorship:askMentorship,declareRivalry:declareRivalry,seekMentor:seekMentor,canonActor:canonActor,helpRelation:helpRelation,askRelationFavor:askRelationFavor,approachCanonicalActor:approachCanonicalActor,favorLabel:favorLabel,realignRelationsAfterFactionChange:realignRelationsAfterFactionChange,
  ensureOrganization:ensureOrganization,syncOrganizationRole:syncOrganizationRole,organizationPower:organizationPower,organizationCapacity:organizationCapacity,organizationTick:organizationTick,
@@ -1244,6 +1244,68 @@ test('V2.8 arc transitions surface in AVANCER report',()=>{
 });
 test('V2.8 active arc registry remains compact',()=>{
   const g=fresh(18012),p=g.player;p.ageMonths=300;for(let i=0;i<9;i++)q.registerArcSignal('crew','crew','crew-'+i,'Crew '+i,60+i,{});assert(g.loop.arcs.length<=4,'active arcs exceeded cap');assert(g.loop.arcHistory.length>=1,'dropped arcs left no history');return g.loop.arcs.length+' active / '+g.loop.arcHistory.length+' history';
+});
+
+
+{
+  const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'],rows=[];
+  function resolveAttention(g){
+    if(g.pending)g.pending=null;
+    const st=q.awaitingStory();
+    if(st){const cs=q.storyChoices(st);if(cs.length)q.storyChoice(st.id,cs[0].id)}
+  }
+  function growToAdult(seed){
+    const g=fresh(seed),p=g.player;let guard=0;
+    while(p.ageMonths<180&&guard++<100&&g.alive){resolveAttention(g);q.advance()}
+    if(g.pending)g.pending=null;
+    return g
+  }
+  factions.forEach((faction,fi)=>{
+    for(let i=0;i<4;i++){
+      const g=growToAdult(19000+fi*100+i),p=g.player;
+      if(!g.alive){rows.push({faction,earlyDeath:true});continue}
+      p.factionRep[faction]=100;q.join(faction);p.focus='Auto';
+      let clicks=0,missions=0,routine=0,lastMission=-999,maxArcStage=0,maxActiveArcs=0,storyChoices=0;
+      const titles=[];
+      while(p.ageMonths<420&&clicks<180&&g.alive){
+        if(g.pending)g.pending=null;
+        const st=q.awaitingStory();if(st){const cs=q.storyChoices(st);if(cs.length){q.storyChoice(st.id,cs[0].id);storyChoices++}}
+        if(!g.mission&&p.ageMonths-lastMission>=9){
+          const b=q.board(),pick=b.find(x=>x.recommended)||b.slice().sort((a,b)=>b.chance-a.chance)[0];
+          if(pick){titles.push(pick.title);routine+=pick.routine?1:0;q.startMission(pick.id);missions++;lastMission=p.ageMonths}
+        }
+        q.advance();clicks++;
+        const l=g.loop||{};maxArcStage=Math.max(maxArcStage,...(l.arcs||[]).map(a=>a.stage||0),...(l.arcHistory||[]).map(a=>a.stage==='Tournant'?3:a.stage==='Héritage'?4:a.stage==='Escalade'?2:a.stage==='En cours'?1:0));maxActiveArcs=Math.max(maxActiveArcs,(l.arcs||[]).length);
+      }
+      const l=g.loop||{},unique=new Set(titles).size;
+      rows.push({faction,earlyDeath:false,alive:g.alive,years:(p.ageMonths-180)/12,clicks,missions,routine,routineShare:missions?routine/missions:0,unique,repeat:missions?1-unique/missions:0,arcHistory:(l.arcHistory||[]).length,activeArcs:(l.arcs||[]).length,founding:(l.foundingMemories||[]).length,maxArcStage,maxActiveArcs,storyChoices,relations:g.relations.length,nemeses:g.relations.filter(r=>r.nemesisRecognized).length,death:g.death&&g.death.cause||null});
+    }
+  });
+  const live=rows.filter(x=>!x.earlyDeath);
+  const avg=k=>+(live.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,live.length)).toFixed(2);
+  const byFaction={};factions.forEach(f=>{const rs=live.filter(x=>x.faction===f),av=k=>+(rs.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,rs.length)).toFixed(2);byFaction[f]={sample:rs.length,aliveAt35:rs.filter(x=>x.alive&&x.years>=19.5).length,missions:av('missions'),routineShare:av('routineShare'),repeatRate:av('repeat'),arcHistory:av('arcHistory'),maxArcStage:av('maxArcStage'),relations:av('relations'),deaths:rs.reduce((o,x)=>{if(x.death)o[x.death]=(o[x.death]||0)+1;return o},{})}});
+  metrics.v28LongRun={sample:live.length,aliveAt35:live.filter(x=>x.alive&&x.years>=19.5).length,clicksPerYear:+(live.reduce((a,x)=>a+x.clicks,0)/Math.max(1,live.reduce((a,x)=>a+x.years,0))).toFixed(2),missions:avg('missions'),routineShare:avg('routineShare'),repeatRate:avg('repeat'),arcHistory:avg('arcHistory'),activeArcs:avg('activeArcs'),founding:avg('founding'),maxArcStage:avg('maxArcStage'),maxActiveArcs:Math.max(...live.map(x=>x.maxActiveArcs)),storyChoices:avg('storyChoices'),relations:avg('relations'),nemeses:avg('nemeses'),byFaction};
+}
+
+test('V2.8.1 migration preserves existing arc interaction history',()=>{
+  let g=fresh(19100),p=g.player;p.ageMonths=300;q.registerArcSignal('crew','crew','legacy-arc','Legacy Arc',70,{});q.registerArcSignal('crew','crew','legacy-arc','Legacy Arc',70,{});const a=g.loop.arcs[0],hits=a.hits;delete a.externalHits;delete a.pulses;delete a.lastExternalAge;delete a.lastPulseAge;g=q.migrate(JSON.parse(JSON.stringify(g)));q.setGame(g);const m=g.loop.arcs[0];assert(m.externalHits===hits,'legacy arc lost interaction count');assert(Number.isFinite(m.lastExternalAge)&&Number.isFinite(m.lastPulseAge),'legacy arc timing not backfilled');return hits+' interactions preserved';
+});
+test('V2.8.1 static missions rotate contextual variants over time',()=>{
+  const g=fresh(19101),p=g.player;p.ageMonths=180;p.factionRep.Civil=100;q.join('Civil');const base={title:'Livraison côtière',baseTitle:'Livraison côtière',danger:18,reward:6500,xp:10,tier:0,spec:null,months:1,worldGenerated:false,profile:'navigation'},titles=new Set();
+  for(let i=0;i<8;i++){p.ageMonths=180+i*6;titles.add(q.missionVariant(base).title)}
+  assert(titles.size>=6,'mission variants remain too repetitive: '+[...titles].join(' / '));return titles.size+' variants';
+});
+test('V2.8.1 combat missions require a stronger recommendation threshold',()=>{
+  const g=fresh(19102),p=g.player;p.ageMonths=180;const combat={title:'QA combat',danger:30,reward:1,xp:1,tier:0,profile:'combat'},nav={title:'QA nav',danger:30,reward:1,xp:1,tier:0,profile:'navigation'};
+  assert(q.missionViabilityThreshold(combat)>=.58,'combat threshold too low');assert(q.missionViabilityThreshold(nav)<=.52,'noncombat threshold too punitive');return q.missionViabilityThreshold(combat)+' / '+q.missionViabilityThreshold(nav);
+});
+test('V2.8.1 autonomous arc beat can escalate but not replace real interactions',()=>{
+  const g=fresh(19103),p=g.player;p.ageMonths=300;const r=q.createRelation('ami');q.registerArcSignal('relation','relation',r.id,r.name,70,{});q.registerArcSignal('relation','relation',r.id,r.name,70,{});const a=g.loop.arcs.find(x=>String(x.sourceId)===String(r.id));assert(a&&a.stage===1&&a.externalHits===2,'arc did not form correctly');a.lastPulseAge=270;for(let i=0;i<12&&a.stage<2;i++)q.arcTick(12);assert(a.stage>=2,'autonomous beat did not create escalation');assert(a.externalHits===2,'autonomous beat counted as real interaction');for(let i=0;i<5;i++){p.ageMonths+=18;a.lastPulseAge=p.ageMonths-20;q.arcTick(12)}assert(a.stage<3,'arc reached turning point without a third real interaction');return 'stage '+a.stage+' / '+a.externalHits+' real / '+a.pulses+' pulses';
+});
+test('V2.8.1 narrative rival duels progress the correct rivalry record',()=>{
+  const g=fresh(19104),p=g.player;p.ageMonths=300,g.relations=[];const r=q.createRelation('rival');r.rivalry=78;r.respect=70;r.trust=50;r.affection=45;r.npcAgeMonths=300;r.location=p.island;r.region=p.region;
+  for(let i=0;i<4;i++){const st=q.startStory('rival-challenge');assert(st,'rival story failed to start');st.awaiting=true;q.storyChoice(st.id,'accept');st.nextAge=p.ageMonths;q.storyTick(0);p.ageMonths+=7}
+  const total=(r.rivalWins||0)+(r.rivalLosses||0);assert(total===4,'narrative duels not counted correctly: '+total);assert(r.nemesisRecognized,'four meaningful narrative duels did not create a nemesis');assert(r.rivalMilestones.includes('Rival confirmé')&&r.rivalMilestones.includes('Némésis'),'rival milestones missing');return r.rivalWins+' rival wins / '+r.rivalLosses+' rival losses';
 });
 
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
