@@ -1084,13 +1084,23 @@ function activeStories(){return migrateStoryEngine(game).active.filter(function(
 function awaitingStory(){return activeStories().find(function(s){return s.awaiting})||null}
 function storyRelation(story){return story&&story.participantId?relationById(story.participantId):null}
 function storyNoveltyWeight(id){var recent=migrateStoryEngine(game).recentTypes||[],i=recent.indexOf(id);return i<0?1:i===0?.2:i===1?.4:i===2?.62:i<=4?.78:.9}
+function directorTravelContext(name){
+ var p=game.player,w=game.world,info=infStatic(name),t=w.territories[name]||{controller:'Civil',stability:55,contested:false},rp=w.pressures[info.region]||{},fresh=p.visited.indexOf(name)<0,score=(fresh?14:0)+(info.region!==p.region?5:0)-info.danger*.02,reason='une opportunité cohérente avec ta carrière';
+ if(p.faction==='Marine'){score+=(t.controller==='Pirates'?12:t.controller==='Révolutionnaires'?9:t.contested?6:0)+(100-(t.stability||55))*.045;reason=(t.controller==='Pirates'||t.controller==='Révolutionnaires')?'renforcer une zone sous pression de '+t.controller:'stabiliser une zone stratégique'}
+ else if(p.faction==='Pirates'){score+=((t.controller==='Marine'||t.controller==='Gouvernement')?10:t.controller==='Civil'?3:0)+(rp.Piraterie||0)*.035+info.danger*.025;reason=(t.controller==='Marine'||t.controller==='Gouvernement')?'ouvrir une nouvelle zone d’influence face à '+t.controller:'chercher de nouvelles opportunités sur une route active'}
+ else if(p.faction==='Révolutionnaires'){score+=(t.controller==='Gouvernement'?13:t.controller==='Marine'?9:t.contested?5:0)+(rp.Révolution||0)*.04;reason=(t.controller==='Gouvernement'||t.controller==='Marine')?'soutenir un réseau sous contrôle de '+t.controller:'renforcer un relais révolutionnaire'}
+ else if(p.faction==='Gouvernement'){score+=((t.controller==='Pirates'||t.controller==='Révolutionnaires')?11:t.contested?6:0)+(100-(t.stability||55))*.04;reason=(t.controller==='Pirates'||t.controller==='Révolutionnaires')?'rétablir l’ordre face à '+t.controller:'consolider une zone sensible'}
+ else if(p.faction==='Chasseur de primes'){score+=(t.controller==='Pirates'?12:0)+(rp.Criminalité||0)*.06+info.danger*.025;reason=t.controller==='Pirates'?'suivre une forte activité pirate':'chercher des contrats dans une zone criminelle'}
+ else{score+=(t.stability||55)*.025+(rp.Prospérité||0)*.035;if(p.specialization==='Navigateur'){score+=fresh?5:0;reason='ouvrir un itinéraire utile à ton activité'}else if(p.specialization==='Scientifique'){score+=fresh?4:0;reason='étudier un territoire encore peu connu'}else reason='développer ton activité dans une zone prometteuse'}
+ return{score:score,reason:reason,controller:t.controller,stability:t.stability||0,region:info.region,danger:info.danger}
+}
 function directorTravelCandidate(){
  var p=game.player,d=migrateLifeDirector(p),partner=partnerRelation(),routes=(PL[p.island]&&PL[p.island][2]||[]).filter(function(n){return req(n)[0]});
  if(!routes.length||p.travel||p.ageMonths-d.lastMobilityAge<27)return null;
  if(partner&&p.life.relationshipStatus==='En couple'&&(partner.relationshipMonths||0)<12)return null;
  var fresh=routes.filter(function(n){return p.visited.indexOf(n)<0}),pool=fresh.length?fresh:routes.filter(function(n){return n!==p.island});
  if(!pool.length)return null;
- pool.sort(function(a,b){var av=p.visited.indexOf(a)<0?12:0,bv=p.visited.indexOf(b)<0?12:0,ar=inf(a).region!==p.region?5:0,br=inf(b).region!==p.region?5:0;return(bv+br-inf(b).danger*.03)-(av+ar-inf(a).danger*.03)});
+ pool.sort(function(a,b){return directorTravelContext(b).score-directorTravelContext(a).score});
  return pool[0]
 }
 function directorRomanceCandidate(){
@@ -1139,7 +1149,7 @@ function storyBase(type){
  else if(type==='family-crossroads'){r=partner||null;title='Ce que tu protèges';summary='Ta vie d’aventure entre en tension avec les personnes qui comptent le plus pour toi.';data.hasPartner=!!partner}
  else if(type==='relationship-opening'){r=directorRomanceCandidate();if(!r)return{title:'',summary:'',participant:null,data:{}};if(!npcNearby(r)&&!r.canonical){r.location=p.island;r.region=p.region;addRelationMemory(r,'Vos routes se recroisent à '+p.island+' après une période à distance.','reunion')}title='Un lien change avec '+r.name;summary='Votre relation commence à ressembler à autre chose qu’une simple proximité.';data.director=true}
  else if(type==='family-future'){r=partner;var future=directorFamilyOpportunity();if(!r||!future)return{title:'',summary:'',participant:null,data:{}};data.future=future;title=future==='marriage'?'Construire une vie avec '+r.name:'La famille peut s’agrandir';summary=future==='marriage'?'Votre relation est assez solide pour envisager un engagement durable.':'Votre couple arrive à un moment où une nouvelle génération devient une vraie possibilité.'}
- else if(type==='career-transfer'){var destination=directorTravelCandidate();if(!destination)return{title:'',summary:'',participant:null,data:{}};title='Une nouvelle affectation à '+destination;summary=(CAREERS[p.faction]?CAREERS[p.faction].label:p.faction)+' ouvre une opportunité loin de '+p.island+'.';data.destination=destination;data.from=p.island;data.director=true}
+ else if(type==='career-transfer'){var destination=directorTravelCandidate();if(!destination)return{title:'',summary:'',participant:null,data:{}};var travelContext=directorTravelContext(destination);title='Une nouvelle affectation à '+destination;summary=(CAREERS[p.faction]?CAREERS[p.faction].label:p.faction)+' te propose de '+travelContext.reason+' à '+destination+'.';data.destination=destination;data.from=p.island;data.reason=travelContext.reason;data.director=true}
  else if(type==='horizon-call'){title='Une route hors des habitudes';summary='Une rumeur crédible évoque une opportunité que peu de voyageurs semblent avoir remarquée.';data.danger=inf().danger;data.signature=profile.signature}
  return{title:title,summary:summary,participant:r,data:data}
 }
