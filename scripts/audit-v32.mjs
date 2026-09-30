@@ -474,18 +474,21 @@ let postCareerRows=[],postCareerProfiles=[];
 }
 
 {
-  const g=fresh(33800),places=Object.keys(q.constants.PL),initialBytes=JSON.stringify(g).length,sizes=[],targetGenerations=28;
+  const g=fresh(33800),places=Object.keys(q.constants.PL),initialBytes=JSON.stringify(g).length,sizes=[],targetGenerations=28;let legacyOpportunities=0,legacyChoices=0;
   for(let gen=1;gen<=targetGenerations;gen++){
     const p=g.player;
     p.ageMonths=Math.max(p.ageMonths||0,420);p.money=500000+gen*25000;p.reputation=Math.min(100,35+gen*2);
     p.visited=places.slice(0,Math.min(12,2+(gen%11)));
-    q.signalPersonalChapter('career','Chapitre dynastique '+gen,18,'audit-career-a-'+gen,'dynasty-'+gen);
+    q.signalPersonalChapter('career','Chapitre dynastique '+gen,26,'audit-career-a-'+gen,'dynasty-'+gen);
     p.ageMonths+=6;
-    q.signalPersonalChapter('career','Chapitre dynastique '+gen,20,'audit-career-b-'+gen,'dynasty-'+gen);
+    q.signalPersonalChapter('career','Chapitre dynastique '+gen,24,'audit-career-b-'+gen,'dynasty-'+gen);
+    if(p.lifeDirector&&p.lifeDirector.activeChapters&&p.lifeDirector.activeChapters.length)q.closePersonalChapter(p.lifeDirector.activeChapters[0],'audit dynastique');
     q.recordSignatureMoment('Moment génération '+gen,'Une trace majeure transmise à la génération suivante.','life-chapter',78);
     const child={id:'audit-heir-'+gen,name:'Héritier '+gen,ageMonths:220,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:82};
     p.children=[child];g.death={cause:'Audit dynastique génération '+gen};
     q.buildHeir(child);
+    const legacyOpportunity=q.directorLegacyOpportunity();
+    if(legacyOpportunity){legacyOpportunities++;const st=q.startStory('legacy-crossroads');if(st){st.awaiting=true;q.storyChoice(st.id,gen%2?'embrace-legacy':'own-path');if(g.player.lifeDirector&&g.player.lifeDirector.legacyChoice)legacyChoices++}}
     if(g.version!==28)throw new Error('V5.0 dynasty stress changed GameState version at generation '+gen);
     if(g.dynasty.ancestors.length>20)throw new Error('V5.0 ancestor history exceeded cap at generation '+gen+': '+g.dynasty.ancestors.length);
     sizes.push(JSON.stringify(g).length);
@@ -496,6 +499,8 @@ let postCareerRows=[],postCareerProfiles=[];
     finalGeneration:g.dynasty.generation,
     retainedAncestors:ancestors.length,
     legacyShare:+(legacyCount/Math.max(1,ancestors.length)).toFixed(2),
+    legacyOpportunityShare:+(legacyOpportunities/targetGenerations).toFixed(2),
+    legacyChoiceShare:+(legacyChoices/targetGenerations).toFixed(2),
     initialSaveKB:+(initialBytes/1024).toFixed(1),
     finalSaveKB:+(finalBytes/1024).toFixed(1),
     saveGrowthKB:+((finalBytes-initialBytes)/1024).toFixed(1),
@@ -504,6 +509,7 @@ let postCareerRows=[],postCareerProfiles=[];
   };
   if(ancestors.length!==20)throw new Error('V5.0 dynasty retention cap not exercised: '+ancestors.length);
   if(metrics.v50DynastyStress.legacyShare<1)throw new Error('V5.0 dynasty lost legacy snapshots: '+metrics.v50DynastyStress.legacyShare);
+  if(metrics.v50DynastyStress.legacyOpportunityShare<.9||metrics.v50DynastyStress.legacyChoiceShare<.9)throw new Error('V5.0 generational legacy crossroads became dormant: '+metrics.v50DynastyStress.legacyOpportunityShare+' offers / '+metrics.v50DynastyStress.legacyChoiceShare+' choices');
   if(metrics.v50DynastyStress.saveGrowthKB>100)throw new Error('V5.0 dynasty save growth is excessive: '+metrics.v50DynastyStress.saveGrowthKB+' KB');
   if(metrics.v50DynastyStress.dynastyKB>60)throw new Error('V5.0 dynasty metadata is excessive: '+metrics.v50DynastyStress.dynastyKB+' KB');
 }
