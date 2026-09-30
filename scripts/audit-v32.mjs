@@ -61,7 +61,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
   p.activity='Carrière';
   const start=p.ageMonths,target=start+years*12;
   let clicks=0,lastMissionAge=-999,started=0,routine=0,adaptive=0,worldGenerated=0,signature=0;
-  const titles=[],guidance={},chances=[];let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
+  const titles=[],guidance={},chances=[],heatSamples=[];const planCounts={};let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
   while(p.ageMonths<target&&clicks<years*18&&g.alive){
     qaResolveInterruptions(g);
     if(!g.mission&&p.ageMonths-lastMissionAge>=10){
@@ -72,6 +72,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
         q.startMission(ix);lastMissionAge=p.ageMonths;
       }
     }
+    const plan=q.advancePlan(),planKey=plan.label||plan.key;planCounts[planKey]=(planCounts[planKey]||0)+1;heatSamples.push((p.justice&&p.justice.regionalHeat&&p.justice.regionalHeat[p.region])||0);
     q.advance();clicks++;qaResolveInterruptions(g);
     arcPeak=Math.max(arcPeak,(g.loop.arcs||[]).length);
   }
@@ -89,6 +90,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
     founding:(g.loop.foundingMemories||[]).length,
     nemeses:g.relations.filter(r=>r.nemesisRecognized&&r.status==='active').length,
     deathCause:g.death&&g.death.cause||null,
+    avgHeat:heatSamples.length?+(heatSamples.reduce((a,b)=>a+b,0)/heatSamples.length).toFixed(1):0,planCounts,
     recognition:q.playerWorldRecognition(),
     endgame:q.endgameStage()
   };
@@ -135,6 +137,17 @@ function qaLongCareer(seed,faction,spec,profile,years){
     avgArcHistory:+(sum('arcHistoryDelta')/rows.length).toFixed(1),
     avgFounding:+(sum('founding')/rows.length).toFixed(1),
     byProfile
+  };
+}
+{
+  const rows=[];for(let s=0;s<24;s++)rows.push(qaLongCareer(34500+s,'Pirates','Duelliste','combat',20));
+  const plans=rows.reduce((a,x)=>{Object.entries(x.planCounts||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{});
+  metrics.v40PirateFlowStress={
+    sample:rows.length,survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
+    avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+    avgHeat:+(rows.reduce((a,x)=>a+x.avgHeat,0)/rows.length).toFixed(1),
+    deathCauses:rows.filter(x=>!x.alive).reduce((a,x)=>{const k=x.deathCause||'unknown';a[k]=(a[k]||0)+1;return a},{}),
+    planCounts:plans
   };
 }
 {
@@ -263,7 +276,8 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
   livingWorld:metrics.v40LivingWorld,
   passiveSaga:metrics.v40PlayerSagaBaseline,
   factionAutopilot:metrics.v40FactionAutopilot,
-  elitePaths:metrics.v40EndgameElitePaths
+  elitePaths:metrics.v40EndgameElitePaths,
+  pirateFlow:metrics.v40PirateFlowStress
 }));
 
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
