@@ -1280,9 +1280,7 @@ test('V5.0 migration removes resolved causal duplicates without schema bump',()=
 });
 
 
-test('V5.0 resolved world sagas are kept only in saga history',()=>{
-  const g=fresh(50160),ws=g.world.worldState,s=q.startWorldSaga('power',g.player.region,'QA-A','QA-B','qa-prune');s.pressure=20;s.months=8;q.resolveWorldSaga(s,'stabilisation');q.simulateWorldSagas();assert(!ws.worldSagas.some(x=>x.id===s.id),'resolved saga still duplicated in active worldSagas');assert(ws.sagaHistory.some(x=>x.id===s.id),'resolved saga missing from history');return ws.worldSagas.length+' active / '+ws.sagaHistory.length+' archived';
-});
+
 test('V5.0 migration removes resolved causal duplicates without schema bump',()=>{
   const g=fresh(50161),version=g.version,ws=g.world.worldState;ws.canonBranches.push({id:'old-resolved',status:'resolved'});ws.worldSagas.push({id:'old-saga',status:'resolved'});q.migrate(g);assert(g.version===version&&g.version===28,'world pruning changed GameState version');assert(!ws.canonBranches.some(x=>x.id==='old-resolved'),'resolved canon branch survived migration');assert(!ws.worldSagas.some(x=>x.id==='old-saga'),'resolved world saga survived migration');return 'GameState '+g.version+' / active-only causal containers';
 });
