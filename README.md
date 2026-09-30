@@ -14,9 +14,9 @@ La V5.0 part du constat post-V4.0 : le monde sait désormais vivre sans le joueu
 ## État actuel de la V5.0
 - **Mobilité organique** : des opportunités professionnelles peuvent provoquer de vraies traversées sans passage obligatoire par le menu Monde.
 - **Continuité du foyer** : conjoint et distance géographique réagissent aux mutations ; les étapes familiales exigent une proximité réelle.
-- **Momentum de carrière** : réussites et échecs modifient temporairement la vitesse de progression professionnelle, puis l'effet revient vers la normale.
+- **Momentum de carrière** : réussites et échecs modifient temporairement la vitesse de progression professionnelle, puis l'effet revient vers la normale. Les promotions supérieures demandent aussi un dossier de missions crédible.
 - **Chapitres personnels** : promotions, missions majeures, rivalités, voyages et famille peuvent se regrouper en arcs de vie mémorables sans ajouter d'écran.
-- **Fluidité** : vie active ordinaire compressée en fenêtres de 3,5 à 5,5 mois ; périodes adultes calmes en 5 à 7 mois.
+- **Fluidité** : vie active ordinaire compressée en fenêtres de 4 à 6 mois ; périodes adultes calmes en 5 à 7 mois.
 - Les historiques V5.0 restent bornés et le GameState reste en **version 28**.
 
 ## Philosophie V5.0
