@@ -56,10 +56,10 @@ window.__qa={
  setMode:function(v){mode=v},getMode:function(){return mode},
  getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,purgeSaveSlot:purgeSaveSlot,deleteSaveSlot:deleteSaveSlot,slotKey:slotKey,slotMetaKey:slotMetaKey,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,simulateActors:simulateActors,simulateCrews:simulateCrews,actorIntentPool:actorIntentPool,assignActorIntent:assignActorIntent,resolveActorIntent:resolveActorIntent,actorIntentTick:actorIntentTick,crewIntentPool:crewIntentPool,assignCrewIntent:assignCrewIntent,resolveCrewIntent:resolveCrewIntent,crewIntentTick:crewIntentTick,
- advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,resolveAmbientDanger:resolveAmbientDanger,dangerAlternativeScore:dangerAlternativeScore,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,recordSignatureMoment:recordSignatureMoment,scheduleConsequence:scheduleConsequence,resolveConsequence:resolveConsequence,processConsequences:processConsequences,consequenceRelation:consequenceRelation,registerArcSignal:registerArcSignal,signalArcFromConsequence:signalArcFromConsequence,arcPressureFor:arcPressureFor,arcTick:arcTick,closeArc:closeArc,rememberFoundingMoment:rememberFoundingMoment,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
+ advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,resolveAmbientDanger:resolveAmbientDanger,dangerAlternativeScore:dangerAlternativeScore,dangerEscapeProfile:dangerEscapeProfile,forcedFightEscapeChance:forcedFightEscapeChance,tryAvoidForcedFight:tryAvoidForcedFight,pursuitEncounter:pursuitEncounter,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,recordSignatureMoment:recordSignatureMoment,scheduleConsequence:scheduleConsequence,resolveConsequence:resolveConsequence,processConsequences:processConsequences,consequenceRelation:consequenceRelation,registerArcSignal:registerArcSignal,signalArcFromConsequence:signalArcFromConsequence,arcPressureFor:arcPressureFor,arcTick:arcTick,closeArc:closeArc,rememberFoundingMoment:rememberFoundingMoment,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
  power:power,styleMastery:styleMastery,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,focusOptions:focusOptions,recommendedFocus:recommendedFocus,normalizeActivityFocus:normalizeActivityFocus,currentFocus:currentFocus,simpleFocusKeys:simpleFocusKeys,styleFocusKeys:styleFocusKeys,careerFocusKeys:careerFocusKeys,hasPowerFocus:hasPowerFocus,
  developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,setSectionState:function(name,value){sectionState[name]=value},getSectionState:function(){return Object.assign({},sectionState)},
- join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,missionImportance:missionImportance,missionStakes:missionStakes,missionNoveltyKey:missionNoveltyKey,missionNoveltyScore:missionNoveltyScore,rememberMission:rememberMission,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionGuidance:missionGuidance,missionRecommendationScore:missionRecommendationScore,missionResolution:missionResolution,
+ join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,missionImportance:missionImportance,missionStakes:missionStakes,missionNoveltyKey:missionNoveltyKey,missionNoveltyScore:missionNoveltyScore,rememberMission:rememberMission,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionGuidance:missionGuidance,missionCanRecommend:missionCanRecommend,missionRecommendationScore:missionRecommendationScore,missionResolution:missionResolution,
  createRelation:createRelation,pursueRomance:pursueRomance,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,renderRel:renderRel,renderRelClose:renderRelClose,renderRelNetwork:renderRelNetwork,relationActionDecision:relationActionDecision,
  normalizeRelation:normalizeRelation,npcTick:npcTick,npcIntentPool:npcIntentPool,assignNpcIntent:assignNpcIntent,npcCareerPromotionChance:npcCareerPromotionChance,tryNpcCareerPromotion:tryNpcCareerPromotion,resolveNpcIntent:resolveNpcIntent,npcIntentTick:npcIntentTick,npcSocialTick:npcSocialTick,npcLinkBetween:npcLinkBetween,ensureNpcLink:ensureNpcLink,npcNearby:npcNearby,bondCanonicalActor:bondCanonicalActor,relationForActor:relationForActor,relationPower:relationPower,npcCareerRank:npcCareerRank,trainWithMentor:trainWithMentor,challengeRival:challengeRival,rivalStage:rivalStage,syncRivalryMilestone:syncRivalryMilestone,reconcileRival:reconcileRival,recruitKnownRelation:recruitKnownRelation,askMentorship:askMentorship,declareRivalry:declareRivalry,seekMentor:seekMentor,canonActor:canonActor,helpRelation:helpRelation,askRelationFavor:askRelationFavor,approachCanonicalActor:approachCanonicalActor,favorLabel:favorLabel,realignRelationsAfterFactionChange:realignRelationsAfterFactionChange,
  ensureOrganization:ensureOrganization,syncOrganizationRole:syncOrganizationRole,organizationPower:organizationPower,organizationCapacity:organizationCapacity,organizationTick:organizationTick,
@@ -1245,6 +1245,133 @@ test('V2.8 arc transitions surface in AVANCER report',()=>{
 test('V2.8 active arc registry remains compact',()=>{
   const g=fresh(18012),p=g.player;p.ageMonths=300;for(let i=0;i<9;i++)q.registerArcSignal('crew','crew','crew-'+i,'Crew '+i,60+i,{});assert(g.loop.arcs.length<=4,'active arcs exceeded cap');assert(g.loop.arcHistory.length>=1,'dropped arcs left no history');return g.loop.arcs.length+' active / '+g.loop.arcHistory.length+' history';
 });
+test('V2.8.1 every faction has several genuine entry missions',()=>{
+  const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'],out={};
+  factions.forEach(f=>{const list=q.constants.MISSIONS[f]||[],entry=list.filter(m=>(m.tier||0)===0);out[f]=entry.length;assert(entry.length>=3,f+' has only '+entry.length+' tier-0 missions')});
+  return JSON.stringify(out);
+});
+test('V2.8.1 combat recommendations require a stronger safety floor',()=>{
+  const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];let checked=0;
+  factions.forEach((faction,ix)=>{const g=fresh(18600+ix),p=g.player;p.ageMonths=180;p.factionRep[faction]=100;q.join(faction);const pick=q.board().find(x=>x.recommended);if(!pick)return;const id=q.missionProfile(pick).id;if(id==='combat'||id==='mixed'){checked++;assert(pick.chance>=.55,'combat recommendation below 55% for '+faction+': '+Math.round(pick.chance*100)+'%')}});
+  const synthetic={title:'Piller un convoi',profile:'combat',chance:.54};assert(!q.missionCanRecommend(synthetic),'54% combat mission incorrectly recommendable');synthetic.chance=.55;assert(q.missionCanRecommend(synthetic),'55% combat mission should meet the floor');return checked+' natural combat/mixed recommendation(s) + synthetic boundary';
+});
+test('V2.8.1 a surviving arc seed becomes an active arc once',()=>{
+  const g=fresh(18620),p=g.player;p.ageMonths=300;const c=g.world.crews[0];c.status='active';const a=q.registerArcSignal('crew','crew',c.id,c.name,65,{region:c.region});assert(a.stage===0&&a.hits===1,'seed did not start at stage 0');a.nextPulseAge=p.ageMonths;q.arcTick(1);assert(a.stage>=1&&a.hits>=2,'seed never became active');const hits=a.hits;q.arcTick(1);assert(a.hits===hits,'passive pulse repeated more than once');return a.title+' -> stage '+a.stage;
+});
+test('V2.8.1 overwhelming ambient danger can trigger a tactical retreat',()=>{
+  let escaped=0,fought=0;
+  for(let seed=18700;seed<18730;seed++){
+    const g=fresh(seed),p=g.player;p.ageMonths=240;
+    Object.keys(p.stats).forEach(k=>p.stats[k]=24);Object.keys(p.skills).forEach(k=>p.skills[k]=22);
+    p.stats.Réflexes=34;p.stats.Agilité=32;p.skills.Navigation=28;g.lastCombat=null;
+    q.resolveAmbientDanger('QA overmatch',58);
+    if(g.lastCombat)fought++;else escaped++;
+  }
+  assert(escaped>=4,'overwhelmed characters almost never retreat: '+escaped+'/30');
+  assert(fought>=8,'retreat became too automatic: '+escaped+'/30 escaped');
+  return escaped+'/30 retreats';
+});
+test('V2.8.1 authority pursuit is at least as escapable as an ambient overmatch',()=>{
+  const g=fresh(18740),p=g.player;p.ageMonths=240;Object.keys(p.stats).forEach(k=>p.stats[k]=25);Object.keys(p.skills).forEach(k=>p.skills[k]=24);p.stats.Réflexes=36;p.stats.Agilité=34;p.skills.Discrétion=30;
+  const ambient=q.forcedFightEscapeChance(58,'ambient'),justice=q.forcedFightEscapeChance(58,'justice');
+  assert(justice>=ambient,'authority pursuit did not preserve a flee path');assert(justice<=.76,'escape chance exceeded cap');return ambient.toFixed(2)+' -> '+justice.toFixed(2);
+});
+test('V2.8.1 career missions carry deterministic world context',()=>{
+  const g=fresh(18760),p=g.player;p.ageMonths=180;p.factionRep.Civil=100;q.join('Civil');
+  const a=q.board().filter(x=>!x.worldGenerated),first=a[0];assert(first&&first.contextLabel&&first.contextKey,'static mission has no context');
+  const again=q.board().find(x=>x.title===first.title&&!x.worldGenerated);assert(again&&again.contextKey===first.contextKey,'mission context changes between renders');
+  const seen=new Set();for(let step=0;step<5;step++){p.ageMonths=180+step*24;const x=q.board().find(m=>!m.worldGenerated);if(x)seen.add(x.contextKey)}
+  assert(seen.size>=2,'mission context never evolves across multi-year periods');return first.contextLabel+' / '+seen.size+' contexts';
+});
+test('V2.8.1 forced encounters are less lethal than deliberate equivalent fights',()=>{
+  function deaths(lethality){let n=0;for(let seed=18800;seed<18860;seed++){const g=fresh(seed),p=g.player;p.ageMonths=240;Object.keys(p.stats).forEach(k=>p.stats[k]=28);Object.keys(p.skills).forEach(k=>p.skills[k]=26);q.fight(62,'QA lethal comparison',{lethality});if(!g.alive)n++}return n}
+  const full=deaths(1),forced=deaths(.35);assert(forced<full,'reduced-lethality forced combat did not reduce deaths: '+forced+' vs '+full);return forced+' forced vs '+full+' deliberate deaths';
+});
+test('V2.8.1 high-risk pacing stays tense without returning to monthly clicking',()=>{
+  const g=fresh(18880),p=g.player;p.ageMonths=300;p.justice.regionalHeat[p.region]=60;let plan=q.advancePlan(),high=plan;assert(plan.key==='high-risk','expected high-risk plan');assert(plan.min>=1.5&&plan.max>=3,'high-risk window still too granular: '+plan.min+'-'+plan.max);
+  p.justice.regionalHeat[p.region]=82;plan=q.advancePlan();assert(plan.key==='critical-risk','critical heat did not preserve close tracking');assert(plan.max<=1.75,'critical risk became too compressed');return 'high '+q.durationText(high.min)+'-'+q.durationText(high.max)+' / critical '+q.durationText(plan.min)+'-'+q.durationText(plan.max);
+});
+test('V2.8.1 recovery only becomes week-scale when health is truly critical',()=>{
+  const g=fresh(18881),p=g.player;p.ageMonths=300;p.health=40;let plan=q.advancePlan();assert(plan.key==='recovery'&&plan.min>=1,'ordinary recovery remains too granular');
+  p.health=20;plan=q.advancePlan();assert(plan.key==='critical-recovery'&&plan.max<=1.25,'critical recovery lost close monitoring');return 'recovery tiers coherent';
+});
+
+
+
+
+
+
+{
+  function resolveAuto(g){
+    if(g.pending){
+      const c=g.pending.choices&&g.pending.choices[0];
+      if(c&&typeof c[2]==='function')c[2]();
+      g.pending=null;
+    }
+    const st=q.awaitingStory();
+    if(st){const cs=q.storyChoices(st);if(cs.length)q.storyChoice(st.id,cs[0].id)}
+  }
+  function growToAdult(seed){
+    const g=fresh(seed),p=g.player;let clicks=0;
+    while(p.ageMonths<180&&clicks<100&&g.alive){resolveAuto(g);q.advance();clicks++}
+    if(g.pending)g.pending=null;
+    return g;
+  }
+  const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'],byFaction={};
+  for(let fi=0;fi<factions.length;fi++){
+    const faction=factions[fi],rows=[];
+    for(let n=0;n<4;n++){
+      const g=growToAdult(19000+fi*100+n),p=g.player;
+      if(!g.alive){rows.push({alive:false,early:true});continue}
+      p.factionRep[faction]=100;q.join(faction);p.focus='Auto';p.activity='Carrière';
+      let clicks=0,lastMissionAge=-999,missions=0,routine=0,worldMissions=0,recommendedChance=0,arcPeak=0;
+      const titles=[],missionKeys=[];
+      while(p.ageMonths<360&&clicks<180&&g.alive){
+        resolveAuto(g);
+        if(!g.mission&&p.ageMonths-lastMissionAge>=12){
+          const b=q.board(),pick=b.find(x=>x.recommended)||b[0];
+          if(pick){
+            missions++;titles.push(pick.title);missionKeys.push(q.missionNoveltyKey(pick));recommendedChance+=pick.chance||0;
+            if(pick.routine)routine++;
+            if(pick.worldGenerated)worldMissions++;
+            q.startMission(pick.id);lastMissionAge=p.ageMonths;
+          }
+        }
+        q.advance();clicks++;
+        const labelStage={Graine:0,'En cours':1,Escalade:2,Tournant:3,Héritage:4,Résolution:0},stages=(g.loop.arcs||[]).map(a=>Number(a.stage)||0).concat((g.loop.arcHistory||[]).map(a=>Number(a.maxStage)||labelStage[a.stage]||0));
+        if(stages.length)arcPeak=Math.max(arcPeak,...stages);
+      }
+      rows.push({
+        alive:g.alive,years:Math.max(.01,(p.ageMonths-180)/12),clicks,missions,routine,worldMissions,
+        recommendedChance:missions?recommendedChance/missions:0,
+        uniqueTitles:new Set(titles).size,uniqueMissionKeys:new Set(missionKeys).size,repeatRate:missions?1-new Set(missionKeys).size/missions:0,
+        arcSeq:g.loop.arcSeq||0,activeArcs:(g.loop.arcs||[]).length,arcHistory:(g.loop.arcHistory||[]).length,arcPeak,
+        founding:(g.loop.foundingMemories||[]).length,consequences:(g.loop.consequenceHistory||[]).length,
+        relations:g.relations.length,power:q.power(),death:g.death?{cause:g.death.cause,combat:g.lastCombat&&g.lastCombat.title||null,chance:g.lastCombat&&g.lastCombat.chance||null,damage:g.lastCombat&&g.lastCombat.damage||null}:null
+      });
+    }
+    const live=rows.filter(x=>!x.early),avg=k=>+(live.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,live.length)).toFixed(2);
+    const survivors=live.filter(x=>x.alive&&x.years>=14.5),lifeRates=live.map(x=>+(x.clicks/Math.max(.01,x.years)).toFixed(2));
+    byFaction[faction]={
+      sample:live.length,aliveAt30:survivors.length,
+      clicksPerYear:+(live.reduce((a,x)=>a+(x.clicks||0),0)/Math.max(.01,live.reduce((a,x)=>a+(x.years||0),0))).toFixed(2),
+      survivorClicksPerYear:+(survivors.reduce((a,x)=>a+(x.clicks||0),0)/Math.max(.01,survivors.reduce((a,x)=>a+(x.years||0),0))).toFixed(2),
+      maxLifeClicksPerYear:lifeRates.length?Math.max(...lifeRates):0,
+      missions:avg('missions'),routineShare:+(live.reduce((a,x)=>a+(x.routine||0),0)/Math.max(1,live.reduce((a,x)=>a+(x.missions||0),0))).toFixed(2),
+      worldShare:+(live.reduce((a,x)=>a+(x.worldMissions||0),0)/Math.max(1,live.reduce((a,x)=>a+(x.missions||0),0))).toFixed(2),
+      avgRecommendedChance:avg('recommendedChance'),missionRepeatRate:avg('repeatRate'),avgUniqueMissionKeys:avg('uniqueMissionKeys'),
+      arcsCreated:avg('arcSeq'),arcHistory:avg('arcHistory'),arcPeak:Math.max(0,...live.map(x=>x.arcPeak||0)),
+      founding:avg('founding'),consequences:avg('consequences'),relations:avg('relations'),finalPower:avg('power'),
+      deaths:live.filter(x=>!x.alive).map(x=>x.death)
+    };
+  }
+  metrics.v281LongCareerAudit=byFaction;
+  assert(byFaction['Chasseur de primes'].routineShare<=.15,'routine fallback still dominates bounty hunting: '+byFaction['Chasseur de primes'].routineShare);
+  assert(byFaction.Pirates.aliveAt30>=2,'pirate career remains excessively lethal: '+byFaction.Pirates.aliveAt30+'/4 alive at 30');
+  assert(byFaction.Pirates.survivorClicksPerYear<=8.5,'surviving pirate careers remain too click-heavy: '+byFaction.Pirates.survivorClicksPerYear);
+  assert(Object.values(byFaction).every(x=>x.arcPeak>=1),'at least one career family still fails to activate emergent arcs');
+  assert(byFaction.Civil.missionRepeatRate<=.55&&byFaction.Marine.missionRepeatRate<=.65&&byFaction.Gouvernement.missionRepeatRate<=.65,'contextual mission variety remains too repetitive');
+}
 
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
