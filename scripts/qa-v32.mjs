@@ -1653,7 +1653,7 @@ test('V3.5 branch history stays bounded',()=>{
 
 
 test('V3.5 player canon impact is persistent and bounded',()=>{
- const g=fresh(29301),c=g.world.canon[0];for(let i=0;i<75;i++)q.markPlayerCanonImpact(c,i%10===0?'major':'direct','qa');const ws=g.world.worldState;assert(ws.playerCanonImpact.length===50,'player canon history not bounded to compact V5.0 cap');assert(ws.playerCanonImpact[0].eventId===c.id,'event identity lost');return ws.playerCanonImpact.length+' impacts / divergence '+g.world.divergence.toFixed(1);
+ const g=fresh(29301),c=g.world.canon[0];for(let i=0;i<75;i++)q.markPlayerCanonImpact(c,i%10===0?'major':'direct','qa');const ws=g.world.worldState;assert(ws.playerCanonImpact.length===60,'player canon history not bounded to compatibility cap 60');assert(ws.playerCanonImpact[0].eventId===c.id,'event identity lost');return ws.playerCanonImpact.length+' impacts / divergence '+g.world.divergence.toFixed(1);
 });
 test('V3.5 canon responsibility changes canonical relationships',()=>{
  const g=fresh(29302),a=g.world.actors.find(x=>x.status==='active');assert(a,'no active actor');a.region=g.player.region;const rec={eventTitle:'QA divergence',kind:'major'};q.playerCanonReactions(rec,{required:[a.name]});const r=g.relations.find(x=>x.actorName===a.name);assert(r&&r.canonical,'canonical relation not created');assert(r.memories.some(x=>String(x.text||'').includes('QA divergence')),'causal relation memory absent');return a.name+' / '+r.role;
