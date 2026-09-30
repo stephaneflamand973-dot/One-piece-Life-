@@ -30,7 +30,7 @@ Les sauvegardes V2.6 migrent automatiquement vers la nouvelle structure de mémo
 
 ### QA V2.7
 
-La release V2.7 passe **200/200 scénarios fonctionnels** : les 191 garde-fous hérités de V2.6 et **9 nouveaux scénarios** dédiés à Living Consequences. La suite complète est exécutée automatiquement via `scripts/qa-v27.mjs` et GitHub Actions.
+La release V2.7 passe **202/202 scénarios fonctionnels** : les 191 garde-fous hérités de V2.6 et **11 nouveaux scénarios** dédiés à Living Consequences. La suite complète est exécutée automatiquement via `scripts/qa-v27.mjs` et GitHub Actions.
 
 Les nouveaux garde-fous couvrent notamment :
 
@@ -43,6 +43,8 @@ Les nouveaux garde-fous couvrent notamment :
 - affichage des callbacks dans le rapport AVANCER ;
 - programmation automatique d’un écho après un fil narratif résolu ;
 - programmation automatique d’une conséquence après une mission signature.
+- réaction contextuelle d’un rival : rivalité et respect plutôt qu’un gain générique de confiance ;
+- comportement cohérent d’un équipage victorieux, qui prend de l’élan au lieu de passer artificiellement en récupération.
 
 Mesures V2.7 validées :
 
