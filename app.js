@@ -1133,7 +1133,7 @@ function startStory(type){
  eng.active.push(story);eng.stats.started++;eng.lastStartAge=p.ageMonths;eng.recentTypes.unshift(type);eng.recentTypes=eng.recentTypes.slice(0,6);tl('Nouveau fil — '+story.title,story.summary,'story');return story
 }
 function maybeStartStory(m){
- var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;return!!startStory(pickStoryType(types))
+ var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;var st=startStory(pickStoryType(types));if(st&&['relationship-opening','family-future','career-transfer'].indexOf(st.type)>=0)setStoryAwaiting(st);return!!st
 }
 function storyPrompt(story){
  if(story.type==='youth-promise')return story.participantName+' te propose de vous fixer un objectif commun pour les mois qui viennent.';
