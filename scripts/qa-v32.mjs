@@ -1107,6 +1107,11 @@ test('V5.0 first-child opportunity unlocks after one year of stable marriage',()
   assert(q.directorFamilyOpportunity()===null,'first-child opportunity ignored 12-month cooldown');p.lifeDirector.lastFamilyAge=p.ageMonths-12;assert(q.directorFamilyOpportunity()==='child','first-child opportunity did not unlock after 12 months');return 'child opportunity after 12m';
 });
 
+
+test('V5.0 organic journey cadence stays meaningful without becoming spam',()=>{
+  const g=fresh(50050),p=g.player;p.ageMonths=300;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));q.join('Marine');p.lifeDirector.lastMobilityAge=265;assert(q.directorTravelCandidate()===null,'mobility offer returned before 36-month cooldown');p.lifeDirector.lastMobilityAge=264;assert(q.directorTravelCandidate(),'mobility offer missing after 36-month cooldown');return '36-month mobility floor';
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
