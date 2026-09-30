@@ -1020,6 +1020,14 @@ test('V2.7 signature mission automatically schedules a future consequence',()=>{
   const g=fresh(17009),p=g.player;p.ageMonths=300;p.factionRep.Civil=100;q.join('Civil');Object.keys(p.stats).forEach(k=>p.stats[k]=95);Object.keys(p.skills).forEach(k=>p.skills[k]=95);g.mission={title:'Mission signature QA',danger:2,reward:1000,xp:4,tier:0,spec:null,profile:'science',remaining:0,worldGenerated:false,sourceType:null,sourceId:null,sourceName:null,importance:70,stakes:'Exceptionnelle',signature:true};q.resolveMission();const queued=g.loop.consequences.find(x=>x.kind==='mission'&&x.title==='Mission signature QA');assert(queued,'signature mission did not schedule future consequence');assert(g.lastMission&&g.lastMission.signature,'signature mission result not retained');return g.lastMission.success?'success callback':'failure callback';
 });
 
+
+test('V2.7 rival story callback strengthens rivalry instead of generic friendship',()=>{
+  const g=fresh(17010),p=g.player;p.ageMonths=300;const r=q.createRelation('rival');r.rivalry=60;r.trust=55;r.respect=50;const trust=r.trust,respect=r.respect;q.scheduleConsequence('story','Ancien duel','',0,{closure:'resolved',storyType:'rival-challenge',relationId:r.id,relationName:r.name},72,'qa:rival-story');q.processConsequences();assert(r.rivalry>60,'rivalry did not intensify');assert(r.respect>respect,'rival respect did not evolve');assert(r.trust===trust,'rival callback incorrectly used generic friendship trust gain');return 'rivalry '+r.rivalry.toFixed(1);
+});
+test('V2.7 crew victory creates momentum instead of recovery behavior',()=>{
+  const g=fresh(17011),p=g.player;p.ageMonths=300;const c=g.world.crews.find(x=>x.faction==='Pirates')||g.world.crews[0];c.status='active';c.faction='Pirates';c.morale=50;q.scheduleConsequence('mission','Échec contre '+c.name,'',0,{success:false,sourceType:'crew',sourceId:c.id,sourceName:c.name},70,'qa:crew-win');q.processConsequences();assert(c.intention==='Chercher un butin','victorious pirate crew entered wrong intent: '+c.intention);assert(c.morale>50,'victorious crew did not gain morale');return c.intention+' / morale '+c.morale.toFixed(1);
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
