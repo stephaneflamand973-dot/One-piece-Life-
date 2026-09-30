@@ -11,6 +11,7 @@ on:
       - 'styles.css'
       - 'manifest.webmanifest'
       - 'sw.js'
+      - 'icon.svg'
       - 'scripts/qa-v32.mjs'
       - 'scripts/audit-v32.mjs'
       - 'scripts/validate.mjs'
