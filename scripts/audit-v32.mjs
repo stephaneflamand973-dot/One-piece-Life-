@@ -393,6 +393,43 @@ let postCareerRows=[],postCareerProfiles=[];
   });
   metrics.v40EndgameElitePaths=out;
 }
+
+{
+  const g=fresh(33800),places=Object.keys(q.constants.PL),initialBytes=JSON.stringify(g).length,sizes=[],targetGenerations=28;
+  for(let gen=1;gen<=targetGenerations;gen++){
+    const p=g.player;
+    p.ageMonths=Math.max(p.ageMonths||0,420);p.money=500000+gen*25000;p.reputation=Math.min(100,35+gen*2);
+    p.visited=places.slice(0,Math.min(12,2+(gen%11)));
+    q.signalPersonalChapter('career','Chapitre dynastique '+gen,18,'audit-career-a-'+gen,'dynasty-'+gen);
+    p.ageMonths+=6;
+    q.signalPersonalChapter('career','Chapitre dynastique '+gen,20,'audit-career-b-'+gen,'dynasty-'+gen);
+    q.recordSignatureMoment('Moment génération '+gen,'Une trace majeure transmise à la génération suivante.','life-chapter',78);
+    const child={id:'audit-heir-'+gen,name:'Héritier '+gen,ageMonths:220,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:82};
+    p.children=[child];g.death={cause:'Audit dynastique génération '+gen};
+    q.buildHeir(child);
+    if(g.version!==28)throw new Error('V5.0 dynasty stress changed GameState version at generation '+gen);
+    if(g.dynasty.ancestors.length>20)throw new Error('V5.0 ancestor history exceeded cap at generation '+gen+': '+g.dynasty.ancestors.length);
+    sizes.push(JSON.stringify(g).length);
+  }
+  const ancestors=g.dynasty.ancestors||[],legacyCount=ancestors.filter(a=>a.legacy&&Array.isArray(a.legacy.visited)&&Array.isArray(a.legacy.signatureMoments)&&Array.isArray(a.legacy.chapters)).length,finalBytes=JSON.stringify(g).length,dynastyBytes=JSON.stringify(g.dynasty).length;
+  metrics.v50DynastyStress={
+    simulatedGenerations:targetGenerations,
+    finalGeneration:g.dynasty.generation,
+    retainedAncestors:ancestors.length,
+    legacyShare:+(legacyCount/Math.max(1,ancestors.length)).toFixed(2),
+    initialSaveKB:+(initialBytes/1024).toFixed(1),
+    finalSaveKB:+(finalBytes/1024).toFixed(1),
+    saveGrowthKB:+((finalBytes-initialBytes)/1024).toFixed(1),
+    dynastyKB:+(dynastyBytes/1024).toFixed(1),
+    maxSaveKB:+(Math.max(...sizes)/1024).toFixed(1)
+  };
+  if(ancestors.length!==20)throw new Error('V5.0 dynasty retention cap not exercised: '+ancestors.length);
+  if(metrics.v50DynastyStress.legacyShare<1)throw new Error('V5.0 dynasty lost legacy snapshots: '+metrics.v50DynastyStress.legacyShare);
+  if(metrics.v50DynastyStress.saveGrowthKB>100)throw new Error('V5.0 dynasty save growth is excessive: '+metrics.v50DynastyStress.saveGrowthKB+' KB');
+  if(metrics.v50DynastyStress.dynastyKB>60)throw new Error('V5.0 dynasty metadata is excessive: '+metrics.v50DynastyStress.dynastyKB+' KB');
+}
+console.log('V50_DYNASTY_AUDIT '+JSON.stringify(metrics.v50DynastyStress));
+
 {
   const lw=metrics.v40LivingWorld,pf=metrics.v40PirateFlowStress;
   if(lw.sagas.avgCreatedPerDecade>6)throw new Error('V4.0 saga density regression: '+lw.sagas.avgCreatedPerDecade+' created/decade');
@@ -427,7 +464,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
 }));
 
 console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
-console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow}));
+console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,dynasty:metrics.v50DynastyStress}));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
