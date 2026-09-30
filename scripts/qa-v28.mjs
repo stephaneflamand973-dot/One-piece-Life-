@@ -1307,6 +1307,39 @@ test('V2.8 active arc registry remains compact',()=>{
   console.log('\nV28_DEEP_AUDIT '+JSON.stringify(metrics.v28DeepCareerAudit));
 }
 
+
+{
+  function resolvePirateAttention(g){
+    if(g.pending){const c=g.pending.choices&&g.pending.choices[0];if(c&&typeof c[2]==='function')c[2]();g.pending=null}
+    const st=q.awaitingStory();if(st){const cs=q.storyChoices(st);if(cs&&cs.length)q.storyChoice(st.id,cs[0].id)}
+  }
+  function maturePirateAudit(seed){
+    const g=fresh(seed),p=g.player;let clicks=0;
+    while(p.ageMonths<180&&clicks<100&&g.alive){if(g.pending)g.pending=null;const st=q.awaitingStory();if(st){const cs=q.storyChoices(st);if(cs.length)q.storyChoice(st.id,cs[0].id)}q.advance();clicks++}
+    if(g.pending)g.pending=null;return g
+  }
+  const rows=[];
+  for(let i=0;i<20;i++){
+    const g=maturePirateAudit(36000+i),p=g.player;if(!g.alive){rows.push({earlyDeath:true});continue}
+    p.factionRep.Pirates=100;q.join('Pirates');p.focus='Auto';p.activity='Carrière';
+    let clicks=0,missions=0,lastMission=-999,highRisk=0,missionPlan=0,avgChance=0,minChance=1,combatMissions=0,routine=0,start=p.ageMonths;
+    while(p.ageMonths<420&&clicks<260&&g.alive){
+      resolvePirateAttention(g);
+      if(!g.mission&&p.ageMonths-lastMission>=10){
+        const b=q.board(),pick=b.find(x=>x.recommended)||b[0];
+        if(pick){avgChance+=pick.chance;minChance=Math.min(minChance,pick.chance);if(q.missionProfile(pick).config.combat)combatMissions++;if(pick.routine)routine++;q.startMission(b.indexOf(pick));missions++;lastMission=p.ageMonths}
+      }
+      const plan=q.advancePlan();if(plan.key==='high-risk')highRisk++;if(plan.key==='mission')missionPlan++;
+      q.advance();clicks++;
+    }
+    rows.push({earlyDeath:false,alive:g.alive,years:(p.ageMonths-start)/12,clicks,missions,avgChance:missions?avgChance/missions:0,minChance:missions?minChance:0,combatMissions,routine,highRisk,missionPlan,pursuits:p.justice.pursuits||0,bounty:p.bounty||0,heat:p.justice.regionalHeat[p.region]||0,death:g.death&&g.death.cause||null,wins:p.wins,losses:p.losses,power:q.power()});
+  }
+  const live=rows.filter(x=>!x.earlyDeath),avg=k=>+(live.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,live.length)).toFixed(2),deaths={};
+  live.filter(x=>!x.alive).forEach(x=>{deaths[x.death||'unknown']=(deaths[x.death||'unknown']||0)+1});
+  metrics.v28PirateAudit={sample:live.length,aliveAt35:live.filter(x=>x.alive&&x.years>=19.5).length,avgYears:avg('years'),clicksPerYear:+(live.reduce((a,x)=>a+x.clicks,0)/Math.max(1,live.reduce((a,x)=>a+x.years,0))).toFixed(2),avgMissions:avg('missions'),avgChance:avg('avgChance'),minObservedChance:+Math.min(...live.filter(x=>x.missions).map(x=>x.minChance)).toFixed(2),avgCombatMissions:avg('combatMissions'),avgHighRiskClicks:avg('highRisk'),avgMissionClicks:avg('missionPlan'),avgPursuits:avg('pursuits'),avgHeat:avg('heat'),avgBounty:avg('bounty'),avgPower:avg('power'),deaths};
+  console.log('\nV28_PIRATE_AUDIT '+JSON.stringify(metrics.v28PirateAudit));
+}
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
