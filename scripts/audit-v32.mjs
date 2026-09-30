@@ -117,6 +117,8 @@ function qaLongCareer(seed,faction,spec,profile,years){
     directorFamilyOffers:p.lifeDirector&&p.lifeDirector.familyOffers||0,
     careerMomentum:+((q.careerRecord&&q.careerRecord().momentum)||0).toFixed(2),
     careerSuccessRate:(q.careerRecord&&((q.careerRecord().successes||0)+(q.careerRecord().failures||0)))?+((q.careerRecord().successes||0)/((q.careerRecord().successes||0)+(q.careerRecord().failures||0))).toFixed(2):0,
+    careerDistinctions:q.careerRecord?(q.careerRecord().distinctions||0):0,
+    recentMissionRate:q.careerRecord&&q.careerRecord().recentResults&&q.careerRecord().recentResults.length?+(q.careerRecord().recentResults.reduce((a,b)=>a+b,0)/q.careerRecord().recentResults.length).toFixed(2):0,
     personalChapters:p.lifeDirector&&p.lifeDirector.chapterHistory?p.lifeDirector.chapterHistory.length:0,
     activePersonalChapters:p.lifeDirector&&p.lifeDirector.activeChapters?p.lifeDirector.activeChapters.length:0
   };
@@ -186,6 +188,8 @@ let postCareerRows=[],postCareerProfiles=[];
         avgRankVariety:+(profiles.reduce((a,cfg)=>{const key=cfg[0]+' / '+cfg[1];return a+Object.keys(rankSpread[key]||{}).length},0)/profiles.length).toFixed(2),
         avgFinalMomentum:avg('careerMomentum'),
         avgMissionSuccessRate:+(rows.reduce((a,x)=>a+(x.careerSuccessRate||0),0)/rows.length).toFixed(2),
+        avgRecentMissionRate:+(rows.reduce((a,x)=>a+(x.recentMissionRate||0),0)/rows.length).toFixed(2),
+        avgDistinctions:avg('careerDistinctions'),
         finalRanks:rankSpread
       },
       personalLife:{
@@ -400,7 +404,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
 }));
 
 console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
-console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,personalLife:metrics.v40PostReleaseAudit.personalLife,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow}));
+console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow}));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
