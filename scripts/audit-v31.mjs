@@ -176,3 +176,5 @@ fs.writeFileSync('/tmp/qa-v30-runtime.mjs',out,'utf8');
 await import('file:///tmp/qa-v30-runtime.mjs');
 
 // V3.1 final trigger: veteran pirate pacing + faction endgame.
+
+// rerun after corrected New World QA fixture
