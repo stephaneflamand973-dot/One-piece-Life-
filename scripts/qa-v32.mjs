@@ -1159,6 +1159,10 @@ test('V5.0 senior review separates recent form from lifetime record',()=>{
   const g=fresh(50071),p=g.player;p.ageMonths=420;q.join('Civil');const rec=q.careerRecord();rec.successes=18;rec.failures=2;rec.distinctions=4;rec.recentResults=[1,1,1,1,0,0,0,0];rec.momentum=0;const review=q.careerPerformanceReview(rec,3);assert(review.successRate>.85,'lifetime fixture wrong');assert(review.recentRate<review.recentRequired,'recent form fixture wrong');assert(!review.met,'stale lifetime record bypassed recent form');return Math.round(review.successRate*100)+'% lifetime / '+Math.round(review.recentRate*100)+'% recent';
 });
 
+test('V5.0 legacy career records migrate into recent-form dossiers without GameState bump',()=>{
+  const g=fresh(50072),p=g.player;p.ageMonths=360;p.careerRecords.Marine={xp:420,months:96,rank:'Commandant',specialization:'Combat',successes:12,failures:3};p.faction='Marine';p.career='Marine';p.rank='Commandant';p.specialization='Combat';const migrated=q.migrate(JSON.parse(JSON.stringify(g))),rec=migrated.player.careerRecords.Marine;assert(migrated.version===28,'career dossier migration bumped GameState');assert(rec.xp===420&&rec.rank==='Commandant','legacy career progression changed');game=migrated;const live=q.careerRecord('Marine');assert(Array.isArray(live.recentResults)&&live.recentResults.length>0&&live.recentResults.length<=10,'recent form was not reconstructed');assert(Number.isFinite(live.distinctions)&&live.distinctions>=0,'distinctions migration invalid');return live.recentResults.length+' recent / '+live.distinctions+' distinctions';
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
