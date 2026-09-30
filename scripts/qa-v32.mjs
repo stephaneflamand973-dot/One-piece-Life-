@@ -1071,6 +1071,14 @@ test('V5.0 long-distance couple cannot trigger family milestones',()=>{
   assert(q.directorFamilyOpportunity()==='marriage','baseline marriage opportunity missing');const d=q.directorTravelCandidate();assert(d,'no relocation route');assert(q.beginJourney(d,'career-transfer'),'relocation failed');assert(r.longDistance===true&&p.travel.partnerFollows===false,'partner should remain behind');assert(q.directorFamilyOpportunity()===null,'family milestone survived long-distance separation');return 'distance to '+d;
 });
 
+
+test('V5.0 returning home reunites a long-distance household',()=>{
+  const g=fresh(50032),p=g.player;p.ageMonths=330;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));q.join('Marine');
+  const home=p.island,r=q.createRelation('ami');r.npcAgeMonths=330;r.location=home;r.region=p.region;r.affection=78;r.trust=66;r.loyalty=45;r.relationshipMonths=18;r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='En couple';
+  const d=q.directorTravelCandidate();assert(d,'no outbound relocation');q.beginJourney(d,'career-transfer');assert(r.longDistance,'distance state missing');p.travel.remaining=.1;p.travel.danger=0;p.travel.condition='calm';q.travel(.25);assert(p.island===d&&r.longDistance,'outbound relocation did not preserve separation');
+  assert(q.beginJourney(home,'manual'),'return journey failed');p.travel.remaining=.1;p.travel.danger=0;p.travel.condition='calm';q.travel(.25);assert(p.island===home&&!r.longDistance,'return home did not reunite household');return 'reunited at '+home;
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
