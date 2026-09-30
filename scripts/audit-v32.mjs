@@ -533,7 +533,7 @@ console.log('V50_DYNASTY_AUDIT '+JSON.stringify(metrics.v50DynastyStress));
   if(v5.personalLife.parentShare<=0)throw new Error('V5.0 family legacy never emerged in long careers');
   if(v5.career.avgRankVariety<1.15)throw new Error('V5.0 career trajectories remain too uniform: '+v5.career.avgRankVariety+' ranks/profile');
   if(v5.narrative.avgPersonalChapters<.5)throw new Error('V5.0 personal chapters too dormant: '+v5.narrative.avgPersonalChapters+' per career');
-  if(v5.storage&&v5.storage.avgPartsKB&&v5.storage.avgPartsKB.markets>32)throw new Error('V5.0 market save state remains too large: '+v5.storage.avgPartsKB.markets+' KB');
+  if(v5.storage&&v5.storage.avgWorldPartsKB&&v5.storage.avgWorldPartsKB.markets>32)throw new Error('V5.0 market save state remains too large: '+v5.storage.avgWorldPartsKB.markets+' KB');
   if(v5.career.organicLegendShare>.20)throw new Error('V5.0 legends became too automatic by 20 years: '+v5.career.organicLegendShare);
   if(v5.lifeDirector.avgCareerTurns>1.75)throw new Error('V5.0 career turning points became micromanagement: '+v5.lifeDirector.avgCareerTurns+' turns/20y');
 }
