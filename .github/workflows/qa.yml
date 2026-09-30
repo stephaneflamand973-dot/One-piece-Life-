@@ -19,6 +19,10 @@ on:
       - '.github/workflows/qa.yml'
   workflow_dispatch:
 
+concurrency:
+  group: v5-qa-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
