@@ -144,3 +144,4 @@ if(!app.includes("Chapitre actuel : ")) throw new Error('V5.0 active chapter is 
 if(!app.includes('partnerFollows') || !app.includes('longDistance') || !app.includes("Vous vous installez ensemble à")) throw new Error('V5.0 household relocation continuity missing');
 if(!app.includes('function settleCareerNetwork') || !app.includes("if(r.id===p.life.partnerId&&!r.longDistance)")) throw new Error('V5.0 relocation social continuity missing');
 if(!app.includes("overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=54)") || !app.includes("overdueTransfer&&R('story')<.78?'career-transfer'")) throw new Error('V5.0 overdue journey priority missing');
+if(!app.includes('repeatPenalty=(m.novelty||1)<.10?.48') || !app.includes("safePool=safeOptions.filter(function(x){return x.chance>=topSafe-.08&&(x.novelty||1)>.10})")) throw new Error('V5.0 mission variety protection missing');
