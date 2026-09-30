@@ -1573,8 +1573,11 @@ function huntBountyTarget(id){
  var p=game.player,j=migrateJustice(p);if(p.faction!=='Chasseur de primes')return toast('Réservé aux chasseurs de primes.');if(j.detained)return toast('Tu es actuellement détenu.');var target=game.world.crews.find(function(c){return c.id===id&&c.status==='active'});if(!target||target.region!==p.region)return toast('Cette cible n’est plus disponible dans la région.');if(p.health<40)return toast('Ta santé est trop basse pour lancer une traque.');
  var d=cl(target.power+8+target.members*.18,18,96),ok=fight(d,'Traque : '+target.name);if(!game.alive)return;if(ok){target.status='captured';target.defeats=(target.defeats||0)+1;var reward=Math.round(Math.min(target.bounty*.7,50000000));p.money+=reward;j.captures++;j.bountiesClaimed+=reward;adjustRep('Marine',3);adjustRep('Civil',2);var rec=careerRecord();rec.xp+=10+Math.round(target.power/5);p.reputation+=5;tl('Prime encaissée',target.name+' est capturé. Récompense : '+reward.toLocaleString('fr-FR')+' B.','major');news('Capture de '+target.name,p.name+' remet cet équipage aux autorités.','major')}else tl('Cible échappée',target.name+' échappe à ta tentative de capture.','danger');save();render()
 }
+function pirateMissionCrimeSeverity(m){
+ var title=String(m&&m.title||''),tier=m&&m.tier||0;if(/Piller|Raid contre|Voler|Prendre le contrôle/i.test(title))return tier>=4?5:tier>=2?3:2;if(/Affronter/i.test(title))return Math.max(2,Math.min(4,tier+1));if(m&&m.worldGenerated&&(m.sourceType==='conflict'||m.sourceType==='crew'))return Math.max(2,Math.min(4,tier+1));return 0
+}
 function justiceMissionImpact(ok,m){
- var p=game.player;if(!ok)return;if(p.faction==='Pirates'){var sev=m.tier>=4?5:m.tier>=2?3:2;if(/trésor/i.test(m.title))sev=1;registerCrime(m.title,sev,null)}
+ var p=game.player;if(!ok)return;if(p.faction==='Pirates'){var sev=pirateMissionCrimeSeverity(m);if(sev>0)registerCrime(m.title,sev,null)}
  else if(p.faction==='Révolutionnaires'&&/(Saboter|Libérer|Infiltrer)/i.test(m.title))registerCrime(m.title,m.tier>=4?5:3,null);
  else if(p.faction==='Chasseur de primes'){migrateJustice(p).notoriety=cl(migrateJustice(p).notoriety-1,0,100)}
 }
