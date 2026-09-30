@@ -113,6 +113,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
     organizationLeader:!!(p.organization&&p.organization.authority==='leader')
   };
 }
+let postCareerRows=[],postCareerProfiles=[];
 {
   const profiles=[
     ['Civil','Scientifique','science'],
@@ -156,8 +157,10 @@ function qaLongCareer(seed,faction,spec,profile,years){
     avgFounding:+(sum('founding')/rows.length).toFixed(1),
     byProfile
   };
+  postCareerRows=rows;postCareerProfiles=profiles;
 }
-  {
+{
+    const rows=postCareerRows,profiles=postCareerProfiles;
     const avg=k=>+(rows.reduce((a,x)=>a+(x[k]||0),0)/rows.length).toFixed(1);
     const ordered=k=>rows.map(x=>x[k]||0).sort((a,b)=>a-b);
     const median=k=>{const a=ordered(k);return a.length?+a[Math.floor(a.length/2)].toFixed(1):0};
