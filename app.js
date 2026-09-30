@@ -1819,6 +1819,13 @@ function endgameStage(){
  var goals=endgameMilestones();if(!goals.length)return null;var done=goals.filter(function(g){return g.done}).length,avg=goals.reduce(function(a,g){return a+(g.progress||0)},0)/goals.length,recognition=playerWorldRecognition(),organic=recognition.score>=(recognition.legendThreshold||88)&&recognition.legendQualified;
  return{label:organic?'Légende accomplie':done>=Math.ceil(goals.length/2)?'Puissance établie':'Ascension majeure',done:done,total:goals.length,progress:Math.round((avg*.65+recognition.score*.35)),goals:goals,recognition:recognition,organic:organic}
 }
+function legendRecognitionTick(){
+ var p=game.player;if(p.ageMonths<300)return false;var r=playerWorldRecognition(),threshold=r.legendThreshold||88;if(!r.legendQualified||r.score<threshold)return false;
+ var l=migrateLifeLoop(game),title=r.role,already=(l.signatureMoments||[]).some(function(x){return x.kind==='legend'&&x.title==='Légende reconnue — '+title});if(already)return false;
+ var added=addTitle(title),desc=p.name+' est désormais reconnu dans le monde comme « '+title+' » après une carrière dont les conséquences dépassent sa seule réputation.';
+ if(!added){tl('LÉGENDE — '+title,desc,'major');news('Une légende est reconnue',desc,'major')}
+ recordSignatureMoment('Légende reconnue — '+title,desc,'legend',96);return true
+}
 function evaluateTitles(){
  var p=game.player,x=influenceMetrics(),org=p.organization,ageY=p.ageMonths/12,rank=p.rank||'';if(p.ageMonths<180)return x;
  if(x.fame>=22)addTitle('Nom montant');
@@ -2502,6 +2509,7 @@ function advanceSlice(m){
  if(!game.alive)return;
  if(p.ageMonths>=72&&p.situation==='Enfance'){p.situation='Formation';p.activity='Formation';p.focus='Auto';tl('Formation','Tu commences une formation structurée.','major')}
  if(p.ageMonths>=180&&p.career==='Aucune'&&!game.pending&&!awaitingStory())career();
+ if(!game.pending&&!awaitingStory())legendRecognitionTick();
  p.danger=p.conditions.length?'Moyen':inf().danger>45?'Élevé':inf().danger>20?'Moyen':'Faible'
 }
 function advance(){
