@@ -221,13 +221,27 @@ function initLivingWorld(g,w){
 }
 function migrateWorldFoundations(g,w){
  w.worldState=w.worldState||{version:1,seq:0,actorHistory:[],territoryHistory:[],monthlyChanges:[],actorGoals:{}};
- var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(-120):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(-100):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(-48):[];ws.actorGoals=ws.actorGoals||{};ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(-100):[];
+ var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(-120):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(-100):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(-48):[];ws.actorGoals=ws.actorGoals||{};ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory.slice(-80):[];ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(-100):[];
  (w.actors||[]).forEach(function(a){var goal=ws.actorGoals[a.name]||{};goal.primary=goal.primary||a.goal||'Tracer sa route';goal.progress=cl(goal.progress||0,0,100);goal.stage=goal.stage||'pursuing';goal.lastAction=goal.lastAction||'';goal.lastOutcome=goal.lastOutcome||'';goal.updatedAt=goal.updatedAt||0;ws.actorGoals[a.name]=goal;a.worldGoal=goal});
  return w
 }
+function nextActorWorldGoal(a,goal){
+ var fp=actorRegionalFootprint(a),power=actorPower(a),pool=[];
+ if(a.faction==='Pirates'){if(fp.friendly<2)pool.push('Étendre son influence sur les mers');if(power>=65)pool.push('S’imposer face aux grandes puissances');pool.push('Renforcer son équipage et sa réputation')}
+ else if(a.faction==='Marine'){if(fp.hostile||fp.contested)pool.push('Rétablir l’ordre dans sa zone');if(power>=68)pool.push('Peser sur l’équilibre mondial');pool.push('Renforcer l’autorité de la Marine')}
+ else if(a.faction==='Révolutionnaires'){pool.push('Étendre le réseau révolutionnaire');if(fp.hostile)pool.push('Affaiblir une puissance hostile');if(power>=65)pool.push('Modifier durablement l’équilibre politique')}
+ else if(a.faction==='Gouvernement'){pool.push('Consolider l’influence du Gouvernement');if(fp.contested)pool.push('Neutraliser les foyers d’instabilité');if(power>=70)pool.push('Préserver l’ordre mondial')}
+ else{pool.push('Dépasser ses limites','Tracer une nouvelle route','Affronter un défi à sa mesure')}
+ var previous=goal&&goal.primary||'';pool=pool.filter(function(x){return x!==previous});return pool.length?pool[Math.floor(R('world')*pool.length)]:(a.goal||'Tracer sa route')
+}
+function completeActorWorldGoal(a,goal){
+ var ws=game.world.worldState,old=goal.primary||a.goal||'Tracer sa route';goal.completed=(goal.completed||0)+1;goal.lastCompleted=old;goal.primary=nextActorWorldGoal(a,goal);goal.progress=Math.min(18,4+goal.completed*2);goal.stage='pursuing';goal.updatedAt=game.world.year*12+game.world.month;
+ ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory:[];ws.goalHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,actor:a.name,faction:a.faction,completed:old,next:goal.primary});ws.goalHistory=ws.goalHistory.slice(0,80);
+ if(a.importance>=96)news(a.name+' franchit un cap',old+' devient un jalon de sa trajectoire. Nouvel objectif : '+goal.primary+'.','major')
+}
 function recordWorldActorAction(a,intent,outcome,impact){
  var ws=game.world.worldState;if(!ws)return;var goal=ws.actorGoals[a.name]||(ws.actorGoals[a.name]={primary:a.goal||'Tracer sa route',progress:0,stage:'pursuing'}),gain=Math.max(0,impact==null?2:impact);
- goal.progress=cl((goal.progress||0)+gain,0,100);goal.stage=goal.progress>=100?'established':goal.progress>=65?'advancing':'pursuing';goal.lastAction=intent||'';goal.lastOutcome=outcome||'';goal.updatedAt=game.world.year*12+game.world.month;a.worldGoal=goal;
+ goal.progress=cl((goal.progress||0)+gain,0,100);goal.stage=goal.progress>=100?'established':goal.progress>=65?'advancing':'pursuing';if(goal.progress>=100)completeActorWorldGoal(a,goal);goal.lastAction=intent||'';goal.lastOutcome=outcome||'';goal.updatedAt=game.world.year*12+game.world.month;a.worldGoal=goal;
  ws.actorHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,actor:a.name,faction:a.faction,region:a.region,intent:intent||'',outcome:outcome||'',impact:gain,goalProgress:Math.round(goal.progress)});ws.actorHistory=ws.actorHistory.slice(0,120)
 }
 function snapshotWorldTerritories(){
@@ -253,7 +267,7 @@ function propagateActorWorldImpact(a,intent){
 }
 function worldStateSummary(){
  var w=game.world,ws=w.worldState||{},actors=(w.actors||[]).filter(function(a){return a.status==='active'}).sort(function(a,b){return actorPower(b)-actorPower(a)}).slice(0,5);
- return{year:w.year,month:w.month,divergence:Math.round(w.divergence||0),tension:Math.round(w.globalTension||0),leadingActors:actors.map(function(a){var g=ws.actorGoals&&ws.actorGoals[a.name];return{name:a.name,faction:a.faction,region:a.region,power:Math.round(actorPower(a)),goal:g&&g.primary||a.goal,goalProgress:g?Math.round(g.progress||0):0}}),recentActions:(ws.actorHistory||[]).slice(0,5),recentCrewActions:(ws.crewHistory||[]).slice(0,5),recentTerritoryChanges:(ws.territoryHistory||[]).slice(0,5)}
+ return{year:w.year,month:w.month,divergence:Math.round(w.divergence||0),tension:Math.round(w.globalTension||0),leadingActors:actors.map(function(a){var g=ws.actorGoals&&ws.actorGoals[a.name];return{name:a.name,faction:a.faction,region:a.region,power:Math.round(actorPower(a)),goal:g&&g.primary||a.goal,goalProgress:g?Math.round(g.progress||0):0}}),recentActions:(ws.actorHistory||[]).slice(0,5),recentGoalMilestones:(ws.goalHistory||[]).slice(0,5),recentCrewActions:(ws.crewHistory||[]).slice(0,5),recentTerritoryChanges:(ws.territoryHistory||[]).slice(0,5)}
 }
 function diplomacy(a,b){if(a===b)return 100;if(a==='Indépendant'||b==='Indépendant')return 0;return game.world.diplomacy[pairKey(a,b)]||0}
 function actorPower(a){var y=game.world.year||0;if(a.status==='inactive')return 0;var start=a.activeFrom||0,t=cl((y-start)/Math.max(1,a.growth||15),0,1),base=a.base+(a.peak-a.base)*t;return cl(base+(a.momentum||0),1,100)}
