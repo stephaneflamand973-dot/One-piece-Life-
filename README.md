@@ -1,3 +1,28 @@
+# ONE PIECE LIFE — V3.1 Living Endgame
+
+La V3.1 poursuit la refonte de fluidité sans rajouter de micro-gestion. Deux cibles : réduire la densité d'interruptions des pirates vétérans sans rendre le Nouveau Monde inoffensif, et donner aux carrières longues des objectifs de fin de partie propres à leur voie.
+
+## V3.1 — Living Endgame
+
+### Rythme pirate vétéran
+À partir d'une carrière pirate établie, un personnage suffisamment puissant absorbe les incidents mineurs dans des blocs de temps plus longs. Le contexte reste classé **haut risque** : seules les interruptions banales sont compressées. Une pression judiciaire extrême rétablit immédiatement le rythme court et urgent.
+
+### Objectifs de fin de carrière
+À partir de 25 ans, chaque grande voie reçoit des jalons mesurables plutôt qu'un simple grind de statistiques :
+- Pirates : Nouveau Monde, territoires, flotte, puissance mondiale ;
+- Marine : haut commandement, statut de figure majeure, influence sur l'équilibre des mers ;
+- Révolutionnaires : réseau, commandement, divergence mondiale ;
+- Gouvernement : opérations d'élite, réseau d'influence, autorité mondiale ;
+- Chasseurs de primes : captures, fortune, reconnaissance ;
+- Civils : maîtrise professionnelle, fortune et héritage.
+
+Ces jalons utilisent les systèmes déjà présents. Ils ne créent donc ni nouvelle monnaie ni écran de gestion supplémentaire.
+
+### Compatibilité
+Le **GameState reste en version interne 28**. Les sauvegardes V2.8, V2.9 et V3.0 restent compatibles.
+
+---
+
 # ONE PIECE LIFE — V2.9 Living Missions
 
 La V2.9 vient d'un stress-test longue durée de la V2.8 : le moteur était stable, mais une carrière de vingt ans finissait encore par revoir trop souvent les mêmes missions. Cette release corrige ce problème sans ajouter d'écran, de monnaie ni de micro-gestion.
