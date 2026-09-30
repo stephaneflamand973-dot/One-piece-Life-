@@ -186,3 +186,5 @@ await import('file:///tmp/qa-v30-runtime.mjs');
 // rerun after validator alignment
 
 // cross-world propagation stress pass
+
+// living world pulse final stress pass
