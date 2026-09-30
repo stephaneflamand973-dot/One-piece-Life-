@@ -192,3 +192,5 @@ await import('file:///tmp/qa-v30-runtime.mjs');
 // 40-year autonomous world coherence audit
 
 // evolving ambitions multi-decade pass
+
+// final V3.2 pirate pacing and bounded-memory regression pass
