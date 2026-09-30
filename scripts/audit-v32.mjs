@@ -150,6 +150,9 @@ let postCareerRows=[],postCareerProfiles=[];
       founding:+(rs.reduce((a,x)=>a+x.founding,0)/rs.length).toFixed(1),
       avgRecognition:+(rs.reduce((a,x)=>a+(x.recognition&&x.recognition.score||0),0)/rs.length).toFixed(1),
       organicEndgameShare:+(rs.filter(x=>x.endgame&&x.endgame.organic).length/rs.length).toFixed(2),
+      avgMissionSuccessRate:+(rs.reduce((a,x)=>a+(x.careerSuccessRate||0),0)/rs.length).toFixed(2),
+      minMissionSuccessRate:+Math.min(...rs.map(x=>x.careerSuccessRate||0)).toFixed(2),
+      maxMissionSuccessRate:+Math.max(...rs.map(x=>x.careerSuccessRate||0)).toFixed(2),
       deathCauses:rs.filter(x=>!x.alive).reduce((a,x)=>{const k=x.deathCause||'unknown';a[k]=(a[k]||0)+1;return a},{})
     };
   });
