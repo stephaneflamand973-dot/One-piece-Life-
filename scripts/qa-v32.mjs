@@ -1397,6 +1397,12 @@ test('V5.0 legacy choice is persistent and never repeats in same life',()=>{
   const rel=q.createRelation('ami');rel.type='legacy';rel.status='active';const respect=rel.respect,st=q.startStory('legacy-crossroads');st.awaiting=true;q.storyChoice(st.id,'embrace-legacy');assert(p.lifeDirector.legacyChoice==='embraced','legacy choice not persisted');assert(rel.respect>respect,'family legacy relation did not react');assert(q.directorLegacyOpportunity()===null,'legacy crossroads repeated after choice');return p.lifeDirector.legacyChoice;
 });
 
+
+test('V5.0 meaningful legacy crossroads remains available through age 40 only',()=>{
+  const g=fresh(50123),p=g.player;g.dynasty.generation=2;g.dynasty.ancestors.push({name:'Mira',generation:1,career:'Marine',rank:'Vice-amiral',legacy:{worldRole:'Pilier de l’ordre mondial',recognitionScore:84,chapters:[{title:'Service des mers',score:66,beats:4}],chronicle:'Mira a durablement marqué la Marine.'}});
+  p.ageMonths=480;assert(q.directorLegacyOpportunity(),'meaningful legacy disappeared at age 40');p.ageMonths=481;assert(q.directorLegacyOpportunity()===null,'legacy crossroads remained available after age 40');return 'available through 40 years';
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
