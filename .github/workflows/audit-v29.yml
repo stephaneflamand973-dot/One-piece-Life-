@@ -7,7 +7,7 @@ on:
     paths:
       - 'app.js'
       - 'content-v1.js'
-      - 'scripts/qa-v28.mjs'
+      - 'scripts/qa-v29.mjs'
       - 'scripts/audit-v29.mjs'
       - '.github/workflows/audit-v29.yml'
 
