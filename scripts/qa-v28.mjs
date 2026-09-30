@@ -1253,7 +1253,7 @@ test('V2.8.1 every faction has several genuine entry missions',()=>{
 test('V2.8.1 combat recommendations require a stronger safety floor',()=>{
   const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];let checked=0;
   factions.forEach((faction,ix)=>{const g=fresh(18600+ix),p=g.player;p.ageMonths=180;p.factionRep[faction]=100;q.join(faction);const pick=q.board().find(x=>x.recommended);if(!pick)return;const id=q.missionProfile(pick).id;if(id==='combat'||id==='mixed'){checked++;assert(pick.chance>=.55,'combat recommendation below 55% for '+faction+': '+Math.round(pick.chance*100)+'%')}});
-  return checked+' combat/mixed recommendation(s) checked';
+  const synthetic={title:'Piller un convoi',profile:'combat',chance:.54};assert(!q.missionCanRecommend(synthetic),'54% combat mission incorrectly recommendable');synthetic.chance=.55;assert(q.missionCanRecommend(synthetic),'55% combat mission should meet the floor');return checked+' natural combat/mixed recommendation(s) + synthetic boundary';
 });
 test('V2.8.1 a surviving arc seed becomes an active arc once',()=>{
   const g=fresh(18620),p=g.player;p.ageMonths=300;const c=g.world.crews[0];c.status='active';const a=q.registerArcSignal('crew','crew',c.id,c.name,65,{region:c.region});assert(a.stage===0&&a.hits===1,'seed did not start at stage 0');a.nextPulseAge=p.ageMonths;q.arcTick(1);assert(a.stage>=1&&a.hits>=2,'seed never became active');const hits=a.hits;q.arcTick(1);assert(a.hits===hits,'passive pulse repeated more than once');return a.title+' -> stage '+a.stage;
@@ -1276,6 +1276,18 @@ test('V2.8.1 authority pursuit is at least as escapable as an ambient overmatch'
   const ambient=q.forcedFightEscapeChance(58,'ambient'),justice=q.forcedFightEscapeChance(58,'justice');
   assert(justice>=ambient,'authority pursuit did not preserve a flee path');assert(justice<=.76,'escape chance exceeded cap');return ambient.toFixed(2)+' -> '+justice.toFixed(2);
 });
+test('V2.8.1 career missions carry deterministic world context',()=>{
+  const g=fresh(18760),p=g.player;p.ageMonths=180;p.factionRep.Civil=100;q.join('Civil');
+  const a=q.board().filter(x=>!x.worldGenerated),first=a[0];assert(first&&first.contextLabel&&first.contextKey,'static mission has no context');
+  const again=q.board().find(x=>x.title===first.title&&!x.worldGenerated);assert(again&&again.contextKey===first.contextKey,'mission context changes between renders');
+  const seen=new Set();for(let step=0;step<5;step++){p.ageMonths=180+step*24;const x=q.board().find(m=>!m.worldGenerated);if(x)seen.add(x.contextKey)}
+  assert(seen.size>=2,'mission context never evolves across multi-year periods');return first.contextLabel+' / '+seen.size+' contexts';
+});
+test('V2.8.1 forced encounters are less lethal than deliberate equivalent fights',()=>{
+  function deaths(lethality){let n=0;for(let seed=18800;seed<18860;seed++){const g=fresh(seed),p=g.player;p.ageMonths=240;Object.keys(p.stats).forEach(k=>p.stats[k]=28);Object.keys(p.skills).forEach(k=>p.skills[k]=26);q.fight(62,'QA lethal comparison',{lethality});if(!g.alive)n++}return n}
+  const full=deaths(1),forced=deaths(.35);assert(forced<full,'reduced-lethality forced combat did not reduce deaths: '+forced+' vs '+full);return forced+' forced vs '+full+' deliberate deaths';
+});
+
 
 
 
@@ -1304,26 +1316,26 @@ test('V2.8.1 authority pursuit is at least as escapable as an ambient overmatch'
       if(!g.alive){rows.push({alive:false,early:true});continue}
       p.factionRep[faction]=100;q.join(faction);p.focus='Auto';p.activity='Carrière';
       let clicks=0,lastMissionAge=-999,missions=0,routine=0,worldMissions=0,recommendedChance=0,arcPeak=0;
-      const titles=[];
+      const titles=[],missionKeys=[];
       while(p.ageMonths<360&&clicks<180&&g.alive){
         resolveAuto(g);
         if(!g.mission&&p.ageMonths-lastMissionAge>=12){
           const b=q.board(),pick=b.find(x=>x.recommended)||b[0];
           if(pick){
-            missions++;titles.push(pick.title);recommendedChance+=pick.chance||0;
+            missions++;titles.push(pick.title);missionKeys.push(q.missionNoveltyKey(pick));recommendedChance+=pick.chance||0;
             if(pick.routine)routine++;
             if(pick.worldGenerated)worldMissions++;
             q.startMission(pick.id);lastMissionAge=p.ageMonths;
           }
         }
         q.advance();clicks++;
-        const stages=(g.loop.arcs||[]).map(a=>a.stage||0).concat((g.loop.arcHistory||[]).map(a=>a.maxStage||a.stage||0));
+        const labelStage={Graine:0,'En cours':1,Escalade:2,Tournant:3,Héritage:4,Résolution:0},stages=(g.loop.arcs||[]).map(a=>Number(a.stage)||0).concat((g.loop.arcHistory||[]).map(a=>Number(a.maxStage)||labelStage[a.stage]||0));
         if(stages.length)arcPeak=Math.max(arcPeak,...stages);
       }
       rows.push({
         alive:g.alive,years:Math.max(.01,(p.ageMonths-180)/12),clicks,missions,routine,worldMissions,
         recommendedChance:missions?recommendedChance/missions:0,
-        uniqueTitles:new Set(titles).size,repeatRate:missions?1-new Set(titles).size/missions:0,
+        uniqueTitles:new Set(titles).size,uniqueMissionKeys:new Set(missionKeys).size,repeatRate:missions?1-new Set(missionKeys).size/missions:0,
         arcSeq:g.loop.arcSeq||0,activeArcs:(g.loop.arcs||[]).length,arcHistory:(g.loop.arcHistory||[]).length,arcPeak,
         founding:(g.loop.foundingMemories||[]).length,consequences:(g.loop.consequenceHistory||[]).length,
         relations:g.relations.length,power:q.power(),death:g.death?{cause:g.death.cause,combat:g.lastCombat&&g.lastCombat.title||null,chance:g.lastCombat&&g.lastCombat.chance||null,damage:g.lastCombat&&g.lastCombat.damage||null}:null
@@ -1335,7 +1347,7 @@ test('V2.8.1 authority pursuit is at least as escapable as an ambient overmatch'
       clicksPerYear:+(live.reduce((a,x)=>a+(x.clicks||0),0)/Math.max(.01,live.reduce((a,x)=>a+(x.years||0),0))).toFixed(2),
       missions:avg('missions'),routineShare:+(live.reduce((a,x)=>a+(x.routine||0),0)/Math.max(1,live.reduce((a,x)=>a+(x.missions||0),0))).toFixed(2),
       worldShare:+(live.reduce((a,x)=>a+(x.worldMissions||0),0)/Math.max(1,live.reduce((a,x)=>a+(x.missions||0),0))).toFixed(2),
-      avgRecommendedChance:avg('recommendedChance'),missionRepeatRate:avg('repeatRate'),
+      avgRecommendedChance:avg('recommendedChance'),missionRepeatRate:avg('repeatRate'),avgUniqueMissionKeys:avg('uniqueMissionKeys'),
       arcsCreated:avg('arcSeq'),arcHistory:avg('arcHistory'),arcPeak:Math.max(0,...live.map(x=>x.arcPeak||0)),
       founding:avg('founding'),consequences:avg('consequences'),relations:avg('relations'),finalPower:avg('power'),
       deaths:live.filter(x=>!x.alive).map(x=>x.death)
