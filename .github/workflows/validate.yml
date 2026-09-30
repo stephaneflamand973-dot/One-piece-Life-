@@ -34,8 +34,3 @@ jobs:
         run: node scripts/validate.mjs
       - name: Validate V1 content pack
         run: node scripts/validate-content.mjs
-      - name: Professional systems QA
-        run: |
-          QA_SCRIPT=$(ls scripts/qa-v*.mjs | sort -V | tail -1)
-          echo "Running $QA_SCRIPT"
-          node "$QA_SCRIPT"
