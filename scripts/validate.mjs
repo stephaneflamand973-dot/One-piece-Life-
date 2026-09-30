@@ -33,7 +33,7 @@ if(!app.includes('var SIMPLE_FOCUS=') || !app.includes('function recommendedFocu
 if(!app.includes("label:'Progresser'") || !app.includes("label:'Situation'") || !app.includes("label:'Monde'")) throw new Error('V2.3 simplified navigation missing');
 if(!app.includes('function specializationDecision') || !app.includes('function ambitionDecision')) throw new Error('V2.3 simplified choice flows missing');
 if(!app.includes("'Auto':{label:'Auto'") || !app.includes("if(p.focus==='Auto')return recommendedFocus()")) throw new Error('V2.4 Auto focus missing');
-if(!app.includes("min:5,max:7") || !app.includes("min:4,max:6")) throw new Error('V5.0 flow pacing missing');
+if(!app.includes("min:5.5,max:7.5") || !app.includes("min:4,max:6")) throw new Error('V5.0 flow pacing missing');
 if(!app.includes('function advanceSlice') || !app.includes('tooManyMoments=loop.momentSeq-startMoments>=4')) throw new Error('V2.4 segmented advance engine missing');
 if(!app.includes('timelineExpanded') || !app.includes('Voir toute l’histoire')) throw new Error('V2.4 compact timeline expansion missing');
 if(!app.includes("group=sectionState.character||'profile'")) throw new Error('V2.4 lazy character rendering missing');
