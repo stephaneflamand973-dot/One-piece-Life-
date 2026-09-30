@@ -885,7 +885,7 @@ function advancePlan(){
  if(p.ageMonths<180)return{key:'formation',label:'Formation',tone:'active',min:3.5,max:5.5,reason:'La progression reste suivie, mais les périodes ordinaires sont davantage compressées.'};
  if(danger>=58||currentHeat()>55){var pirateVeteran=p.faction==='Pirates'&&p.ageMonths>=240&&power()>=48&&!severe,heat=currentHeat();if(pirateVeteran&&heat<82)return{key:'high-risk',label:'Mer dangereuse maîtrisée',tone:'active',min:2,max:4,reason:'Ton expérience pirate absorbe désormais les incidents mineurs ; seuls les vrais tournants interrompent la période.'};if(pirateVeteran&&heat<94)return{key:'high-risk',label:'Traque soutenue',tone:'active',min:1.25,max:2.75,reason:'La pression reste forte, mais ton expérience permet de regrouper les incidents secondaires en périodes plus longues.'};return{key:'high-risk',label:'Contexte tendu',tone:'urgent',min:.5,max:1.5,reason:'Danger local ou pression judiciaire extrême : les périodes restent courtes.'}};
  if(p.activity==='Explorer')return{key:'exploration',label:'Exploration',tone:'active',min:1.5,max:3,reason:'L’exploration avance par blocs jusqu’à une découverte ou un incident notable.'};
- if(p.career!=='Aucune')return{key:'active-life',label:'Vie active',tone:'active',min:2.5,max:4.5,reason:'La carrière progresse en blocs plus longs ; le moteur t’interrompt quand quelque chose mérite ton attention.'};
+ if(p.career!=='Aucune')return{key:'active-life',label:'Vie active',tone:'active',min:3,max:5,reason:'La V5.0 compresse davantage la vie active ordinaire ; le moteur t’interrompt seulement quand un vrai tournant mérite ton attention.'};
  return{key:'calm-life',label:'Période calme',tone:'calm',min:4.5,max:6.5,reason:'Le moteur laisse passer plusieurs mois tant qu’aucun événement important ne réclame ton attention.'}
 }
 function chooseAdvanceDuration(plan){
@@ -1133,7 +1133,7 @@ function startStory(type){
  eng.active.push(story);eng.stats.started++;eng.lastStartAge=p.ageMonths;eng.recentTypes.unshift(type);eng.recentTypes=eng.recentTypes.slice(0,6);tl('Nouveau fil — '+story.title,story.summary,'story');return story
 }
 function maybeStartStory(m){
- var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;var st=startStory(pickStoryType(types));if(st&&['relationship-opening','family-future','career-transfer'].indexOf(st.type)>=0)setStoryAwaiting(st);return!!st
+ var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;return!!startStory(pickStoryType(types))
 }
 function storyPrompt(story){
  if(story.type==='youth-promise')return story.participantName+' te propose de vous fixer un objectif commun pour les mois qui viennent.';
