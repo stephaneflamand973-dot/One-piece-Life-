@@ -115,6 +115,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
     directorJourneyOffers:p.lifeDirector&&p.lifeDirector.journeyOffers||0,
     directorRomanceOffers:p.lifeDirector&&p.lifeDirector.romanceOffers||0,
     directorFamilyOffers:p.lifeDirector&&p.lifeDirector.familyOffers||0,
+    saveBytes:JSON.stringify(g).length,
     careerMomentum:+((q.careerRecord&&q.careerRecord().momentum)||0).toFixed(2),
     careerSuccessRate:(q.careerRecord&&((q.careerRecord().successes||0)+(q.careerRecord().failures||0)))?+((q.careerRecord().successes||0)/((q.careerRecord().successes||0)+(q.careerRecord().failures||0))).toFixed(2):0,
     careerDistinctions:q.careerRecord?(q.careerRecord().distinctions||0):0,
@@ -231,6 +232,10 @@ let postCareerRows=[],postCareerProfiles=[];
         avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
         avgMissionsPerYear:+(rows.reduce((a,x)=>a+x.missionPerYear,0)/rows.length).toFixed(2),
         survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2)
+      },
+      storage:{
+        avgSaveKB:+(rows.reduce((a,x)=>a+(x.saveBytes||0),0)/rows.length/1024).toFixed(1),
+        maxSaveKB:+(Math.max(...rows.map(x=>x.saveBytes||0))/1024).toFixed(1)
       },
       lifeDirector:{
         avgAcceptedMoves:avg('directorJourneys'),
@@ -393,6 +398,7 @@ let postCareerRows=[],postCareerProfiles=[];
   const v5=metrics.v40PostReleaseAudit;
   if(v5.flow.avgClicksPerYear>6.2)throw new Error('V5.0 flow regression: '+v5.flow.avgClicksPerYear+' clicks/year');
   if(v5.flow.survival<.85)throw new Error('V5.0 survival regression: '+v5.flow.survival);
+  if(v5.storage.avgSaveKB>300||v5.storage.maxSaveKB>400)throw new Error('V5.0 career save growth regression: avg '+v5.storage.avgSaveKB+' KB / max '+v5.storage.maxSaveKB+' KB');
   if(v5.breadth.avgVisitedPlaces<2.5)throw new Error('V5.0 Grand Journey too static: '+v5.breadth.avgVisitedPlaces+' places visited/20y');
   if(v5.personalLife.partneredShare<.15)throw new Error('V5.0 personal life too dormant: '+v5.personalLife.partneredShare+' partnered share');
   if(v5.personalLife.parentShare<=0)throw new Error('V5.0 family legacy never emerged in long careers');
