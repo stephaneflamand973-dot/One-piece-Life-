@@ -381,6 +381,16 @@ let postCareerRows=[],postCareerProfiles=[];
   if(pf.survival<.70)throw new Error('V4.0 pirate survival regression: '+pf.survival);
   const runaway=Math.max(...Object.values(lw.factionGoals).map(x=>x.avgCompleted||0));if(runaway>5)throw new Error('V4.0 collective ambition runaway: '+runaway+' completions/40y');
 }
+{
+  const v5=metrics.v40PostReleaseAudit;
+  if(v5.flow.avgClicksPerYear>6.2)throw new Error('V5.0 flow regression: '+v5.flow.avgClicksPerYear+' clicks/year');
+  if(v5.flow.survival<.85)throw new Error('V5.0 survival regression: '+v5.flow.survival);
+  if(v5.breadth.avgVisitedPlaces<2.5)throw new Error('V5.0 Grand Journey too static: '+v5.breadth.avgVisitedPlaces+' places visited/20y');
+  if(v5.personalLife.partneredShare<.15)throw new Error('V5.0 personal life too dormant: '+v5.personalLife.partneredShare+' partnered share');
+  if(v5.personalLife.parentShare<=0)throw new Error('V5.0 family legacy never emerged in long careers');
+  if(v5.career.avgRankVariety<1.15)throw new Error('V5.0 career trajectories remain too uniform: '+v5.career.avgRankVariety+' ranks/profile');
+  if(v5.narrative.avgPersonalChapters<.5)throw new Error('V5.0 personal chapters too dormant: '+v5.narrative.avgPersonalChapters+' per career');
+}
 console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
   livingWorld:metrics.v40LivingWorld,
   passiveSaga:metrics.v40PlayerSagaBaseline,
