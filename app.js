@@ -221,7 +221,7 @@ function initLivingWorld(g,w){
 }
 function migrateWorldFoundations(g,w){
  w.worldState=w.worldState||{version:1,seq:0,actorHistory:[],territoryHistory:[],monthlyChanges:[],actorGoals:{}};
- var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(-120):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(-100):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(-48):[];ws.actorGoals=ws.actorGoals||{};
+ var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(-120):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(-100):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(-48):[];ws.actorGoals=ws.actorGoals||{};ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(-100):[];
  (w.actors||[]).forEach(function(a){var goal=ws.actorGoals[a.name]||{};goal.primary=goal.primary||a.goal||'Tracer sa route';goal.progress=cl(goal.progress||0,0,100);goal.stage=goal.stage||'pursuing';goal.lastAction=goal.lastAction||'';goal.lastOutcome=goal.lastOutcome||'';goal.updatedAt=goal.updatedAt||0;ws.actorGoals[a.name]=goal;a.worldGoal=goal});
  return w
 }
@@ -234,9 +234,26 @@ function snapshotWorldTerritories(){
  var w=game.world,ws=w.worldState;if(!ws)return;var changed=[];Object.keys(w.territories).forEach(function(n){var t=w.territories[n],key='territory:'+n,prev=ws[key],now={controller:t.controller,contested:!!t.contested,stability:Math.round(t.stability||0),influence:Math.round(t.influence||0)};if(prev&&(prev.controller!==now.controller||prev.contested!==now.contested||Math.abs(prev.stability-now.stability)>=12)){changed.push({name:n,from:prev.controller,to:now.controller,contested:now.contested,stability:now.stability});ws.territoryHistory.unshift({seq:++ws.seq,year:w.year,month:w.month,name:n,from:prev.controller,to:now.controller,contested:now.contested,stability:now.stability})}ws[key]=now});
  ws.territoryHistory=ws.territoryHistory.slice(0,100);if(changed.length){ws.monthlyChanges.unshift({year:w.year,month:w.month,type:'territory',items:changed.slice(0,5)});ws.monthlyChanges=ws.monthlyChanges.slice(0,48)}
 }
+function recordWorldCrewAction(c,intent,outcome,impact){
+ var ws=game.world.worldState;if(!ws)return;ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory:[];ws.crewHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,crew:c.id,name:c.name,faction:c.faction,region:c.region,intent:intent||'',outcome:outcome||'',impact:impact||1});ws.crewHistory=ws.crewHistory.slice(0,100)
+}
+function actorRegionalFootprint(a){
+ var w=game.world,names=Object.keys(w.territories).filter(function(n){return infStatic(n).region===a.region}),friendly=names.filter(function(n){return w.territories[n].controller===a.faction}),hostile=names.filter(function(n){var t=w.territories[n];return t.controller!==a.faction&&diplomacy(a.faction,t.controller)<-25}),crews=w.crews.filter(function(c){return c.status==='active'&&c.region===a.region&&c.faction===a.faction});
+ return{territories:names.length,friendly:friendly.length,hostile:hostile.length,alliedCrews:crews.length,contested:names.filter(function(n){return w.territories[n].contested}).length}
+}
+function propagateActorWorldImpact(a,intent){
+ var w=game.world,fp=actorRegionalFootprint(a),powerFactor=actorPower(a)/100,goal=a.worldGoal||{},impact=1;
+ if(intent==='Étendre son influence'){var targets=Object.keys(w.territories).filter(function(n){var t=w.territories[n];return infStatic(n).region===a.region&&t.controller!==a.faction});if(targets.length){var name=targets.sort(function(x,y){return w.territories[x].stability-w.territories[y].stability})[0],t=w.territories[name];t.stability=cl(t.stability-(1.5+powerFactor*2.5),0,100);t.contested=t.contested||t.stability<35;if(diplomacy(a.faction,t.controller)<-30&&actorPower(a)>=62&&t.stability<34&&R('world')<.18+powerFactor*.16)spawnConflict(name,a.faction,t.controller,32+actorPower(a)*.42,'actor:'+a.name);impact=3+fp.hostile*.25}}
+ else if(intent==='Sécuriser sa région'){Object.keys(w.territories).filter(function(n){return infStatic(n).region===a.region&&w.territories[n].controller===a.faction}).slice(0,3).forEach(function(n){var t=w.territories[n];t.stability=cl(t.stability+1+powerFactor*2,0,100);t.influence=cl(t.influence+.5+powerFactor,0,100)});impact=2+fp.friendly*.18}
+ else if(intent==='Consolider ses alliances'){var crews=w.crews.filter(function(c){return c.status==='active'&&c.region===a.region&&c.faction===a.faction});if(crews.length){var c=crews.sort(function(x,y){return y.power-x.power})[0];c.morale=cl(c.morale+2+powerFactor*3,0,100);c.resources=cl(c.resources+1+powerFactor*2,0,100)}impact=2+fp.alliedCrews*.2}
+ else if(intent==='Chercher un affrontement')impact=2.5;
+ else if(intent==='S’entraîner')impact=1.4;
+ else if(intent==='Voyager')impact=1.2;
+ if(goal.progress>=65)impact*=1.12;return impact
+}
 function worldStateSummary(){
  var w=game.world,ws=w.worldState||{},actors=(w.actors||[]).filter(function(a){return a.status==='active'}).sort(function(a,b){return actorPower(b)-actorPower(a)}).slice(0,5);
- return{year:w.year,month:w.month,divergence:Math.round(w.divergence||0),tension:Math.round(w.globalTension||0),leadingActors:actors.map(function(a){var g=ws.actorGoals&&ws.actorGoals[a.name];return{name:a.name,faction:a.faction,region:a.region,power:Math.round(actorPower(a)),goal:g&&g.primary||a.goal,goalProgress:g?Math.round(g.progress||0):0}}),recentActions:(ws.actorHistory||[]).slice(0,5),recentTerritoryChanges:(ws.territoryHistory||[]).slice(0,5)}
+ return{year:w.year,month:w.month,divergence:Math.round(w.divergence||0),tension:Math.round(w.globalTension||0),leadingActors:actors.map(function(a){var g=ws.actorGoals&&ws.actorGoals[a.name];return{name:a.name,faction:a.faction,region:a.region,power:Math.round(actorPower(a)),goal:g&&g.primary||a.goal,goalProgress:g?Math.round(g.progress||0):0}}),recentActions:(ws.actorHistory||[]).slice(0,5),recentCrewActions:(ws.crewHistory||[]).slice(0,5),recentTerritoryChanges:(ws.territoryHistory||[]).slice(0,5)}
 }
 function diplomacy(a,b){if(a===b)return 100;if(a==='Indépendant'||b==='Indépendant')return 0;return game.world.diplomacy[pairKey(a,b)]||0}
 function actorPower(a){var y=game.world.year||0;if(a.status==='inactive')return 0;var start=a.activeFrom||0,t=cl((y-start)/Math.max(1,a.growth||15),0,1),base=a.base+(a.peak-a.base)*t;return cl(base+(a.momentum||0),1,100)}
@@ -289,7 +306,7 @@ function resolveActorIntent(a){
  }else if(intent==='Consolider ses alliances'){
   var choices=WORLD_FACTIONS.filter(function(f){return f!==a.faction&&diplomacy(a.faction,f)>-25});if(choices.length){var f=pk(choices,'world'),k=pairKey(a.faction,f);w.diplomacy[k]=cl((w.diplomacy[k]||0)+1+R('world')*3,-100,100);outcome='renforce ses liens avec '+f}else outcome='reste isolé diplomatiquement'
  }
- a.lastIntentOutcome=outcome;recordWorldActorAction(a,intent,outcome,intent==='Étendre son influence'?4:intent==='Chercher un affrontement'?3:intent==='Sécuriser sa région'?2.5:1.5);a.intention=null;a.intentionMonths=0;if(a.importance>=98&&R('world')<.35)news(a.name+' poursuit son objectif',outcome+'.','');return outcome
+ a.lastIntentOutcome=outcome;var worldImpact=propagateActorWorldImpact(a,intent);recordWorldActorAction(a,intent,outcome,worldImpact);a.intention=null;a.intentionMonths=0;if(a.importance>=98&&R('world')<.35)news(a.name+' poursuit son objectif',outcome+'.','');return outcome
 }
 function actorIntentTick(a){if(a.status!=='active')return;if(!a.intention)assignActorIntent(a);a.intentionMonths=Math.max(0,(a.intentionMonths||0)-1);a.momentum=cl((a.momentum||0)*.997,-8,12);if(a.intentionMonths<=0)resolveActorIntent(a)}
 function crewIntentPool(c){
@@ -323,7 +340,7 @@ function resolveCrewIntent(c){
  else if(intent==='Revendiquer une zone'){var terrs=Object.keys(w.territories).filter(function(n){return infStatic(n).region===c.region}),name=terrs.length?pk(terrs,'world'):null,t=name&&w.territories[name];if(t&&t.controller!==c.faction&&diplomacy(c.faction,t.controller)<-15){spawnConflict(name,c.faction,t.controller,34+c.power*.5,c.id);outcome='conteste '+name}else outcome='cherche une zone vulnérable'}
  else if(intent==='Traquer le joueur'){var target=game.player.region;if(c.region!==target){var links=REGION_LINKS[c.region]||[];if(links.indexOf(target)>=0)c.region=target;else if(links.length)c.region=pk(links,'world');outcome='se rapproche de la trajectoire de '+game.player.name}else{c.morale=cl(c.morale+2,0,100);var rp3=w.pressures[c.region];if(rp3)rp3.Instabilité=cl((rp3.Instabilité||0)+2,0,100);outcome='cherche activement '+game.player.name+' dans '+c.region;registerArcSignal('crew','crew',c.id,c.name,68,{region:c.region});news(c.name+' te cherche',c.name+' transforme sa rancune en véritable chasse.','major')}}
  if(!outcome)outcome='poursuit ses activités dans '+c.region;
- c.lastIntentOutcome=outcome;c.intention=null;c.intentionMonths=0;if(c.power>=65&&R('world')<.22)news(c.name+' agit',outcome+'.','');return outcome
+ c.lastIntentOutcome=outcome;recordWorldCrewAction(c,intent,outcome,intent==='Revendiquer une zone'?3:intent==='Étendre son réseau'?2.5:1);c.intention=null;c.intentionMonths=0;if(c.power>=65&&R('world')<.22)news(c.name+' agit',outcome+'.','');return outcome
 }
 function crewIntentTick(c){if(c.status!=='active')return;if(!c.intention)assignCrewIntent(c);c.intentionMonths=Math.max(0,(c.intentionMonths||0)-1);if(c.intentionMonths<=0)resolveCrewIntent(c)}
 
