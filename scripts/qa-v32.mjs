@@ -1426,6 +1426,9 @@ test('V4.0 crews and factions retain persistent ambitions',()=>{
 test('V4.0 geopolitical changes preserve their cause',()=>{
  const g=fresh(40202),ws=g.world.worldState;q.recordGeopoliticalShift(g.player.island,'qa-war','Marine','Pirates');const h=ws.geopoliticalHistory[0];assert(h&&h.cause==='qa-war','geopolitical cause lost');assert(h.from==='Marine'&&h.to==='Pirates','controller transition lost');return h.name+' : '+h.from+' → '+h.to;
 });
+test('V4.0 canon responsibility propagates into later canon sagas',()=>{
+ const g=fresh(402025),ws=g.world.worldState,source='qa-canon-cause';ws.playerCanonImpact.push({eventId:source,kind:'major',year:g.world.year,month:g.world.month,faction:g.player.faction,power:71});ws.canonBranches.push({id:'qa-canon-branch',source:source,region:g.player.region,factions:['Pirates','Marine'],status:'active',pressure:55,months:2});q.simulateWorldSagas();const saga=ws.worldSagas.find(x=>x.source==='qa-canon-branch');assert(saga&&saga.type==='canon','canon branch did not become saga');assert(saga.playerInvolved&&saga.playerResponsible,'canon responsibility was not inherited');assert(saga.playerRole==='responsible','canon saga role not responsible');assert((saga.playerSources||[]).includes('canon:'+source),'canon causal source missing');return saga.title+' / '+saga.playerRole;
+});
 test('V4.0 real player participation persists with a causal role',()=>{
  const g=fresh(40203),saga=q.startWorldSaga('power',g.player.region,g.player.faction,'Marine','qa');g.player.stats.Force=80;g.player.stats.Endurance=80;g.player.stats.Agilité=80;q.playerSagaPresence();q.registerPlayerSagaImpact('decisive','qa-action',30);assert(saga.playerInvolved,'real action did not attach player to saga');assert(saga.playerRole==='decisive','decisive role not persisted');assert(saga.playerSources.includes('qa-action'),'causal source missing');return saga.title+' / '+saga.playerRole+' / '+Math.round(saga.playerImpact);
 });
