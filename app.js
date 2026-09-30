@@ -221,7 +221,7 @@ function initLivingWorld(g,w){
 }
 function migrateWorldFoundations(g,w){
  w.worldState=w.worldState||{version:1,seq:0,actorHistory:[],territoryHistory:[],monthlyChanges:[],actorGoals:{}};
- var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(0,90):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(0,80):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(0,36):[];ws.actorGoals=ws.actorGoals||{};ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory.slice(0,60):[];ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality.slice(0,80):[];ws.canonBranches=Array.isArray(ws.canonBranches)?ws.canonBranches.filter(function(x){return x&&x.status==='active'}).slice(0,50):[];ws.canonBranchHistory=Array.isArray(ws.canonBranchHistory)?ws.canonBranchHistory.slice(0,60):[];ws.playerCanonImpact=Array.isArray(ws.playerCanonImpact)?ws.playerCanonImpact.slice(0,50):[];ws.worldSagas=Array.isArray(ws.worldSagas)?ws.worldSagas.filter(function(x){return x&&x.status==='active'}).slice(0,32):[];ws.sagaCooldowns=ws.sagaCooldowns||{};ws.sagaHistory=Array.isArray(ws.sagaHistory)?ws.sagaHistory.slice(0,60):[];ws.crewGoals=ws.crewGoals||{};var liveCrewGoals={};(w.crews||[]).forEach(function(c){if(ws.crewGoals[c.id])liveCrewGoals[c.id]=ws.crewGoals[c.id]});ws.crewGoals=liveCrewGoals;ws.factionGoals=ws.factionGoals||{};ws.geopoliticalHistory=Array.isArray(ws.geopoliticalHistory)?ws.geopoliticalHistory.slice(0,80):[];ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(0,70):[];
+ var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(0,90):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(0,80):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(0,36):[];ws.actorGoals=ws.actorGoals||{};ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory.slice(0,60):[];ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality.slice(0,80):[];ws.canonBranches=Array.isArray(ws.canonBranches)?ws.canonBranches.filter(function(x){return x&&x.status==='active'}).slice(0,50):[];ws.canonBranchHistory=Array.isArray(ws.canonBranchHistory)?ws.canonBranchHistory.slice(0,60):[];ws.playerCanonImpact=Array.isArray(ws.playerCanonImpact)?ws.playerCanonImpact.slice(0,60):[];ws.worldSagas=Array.isArray(ws.worldSagas)?ws.worldSagas.filter(function(x){return x&&x.status==='active'}).slice(0,32):[];ws.sagaCooldowns=ws.sagaCooldowns||{};ws.sagaHistory=Array.isArray(ws.sagaHistory)?ws.sagaHistory.slice(0,60):[];ws.crewGoals=ws.crewGoals||{};var liveCrewGoals={};(w.crews||[]).forEach(function(c){if(ws.crewGoals[c.id])liveCrewGoals[c.id]=ws.crewGoals[c.id]});ws.crewGoals=liveCrewGoals;ws.factionGoals=ws.factionGoals||{};ws.geopoliticalHistory=Array.isArray(ws.geopoliticalHistory)?ws.geopoliticalHistory.slice(0,80):[];ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(0,70):[];
  (w.actors||[]).forEach(function(a){var goal=ws.actorGoals[a.name]||{};goal.primary=goal.primary||a.goal||'Tracer sa route';goal.progress=cl(goal.progress||0,0,100);goal.stage=goal.stage||'pursuing';goal.lastAction=goal.lastAction||'';goal.lastOutcome=goal.lastOutcome||'';goal.updatedAt=goal.updatedAt||0;ws.actorGoals[a.name]=goal;try{delete a.worldGoal;Object.defineProperty(a,'worldGoal',{value:goal,writable:true,configurable:true,enumerable:false})}catch(x){a.worldGoal=goal}});
  return w
 }
@@ -1201,7 +1201,13 @@ function startStory(type){
 }
 function maybeStartStory(m){
  var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;
- var family=types.find(function(x){return x.id==='family-future'}),romance=types.find(function(x){return x.id==='relationship-opening'}),transfer=types.find(function(x){return x.id==='career-transfer'}),turn=types.find(function(x){return x.id==='career-turn'}),director=migrateLifeDirector(p),overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=54),overdueTurn=!!(turn&&p.ageMonths-(director.lastCareerTurnAge||-999)>=72),chosen=family?'family-future':overdueTurn&&R('story')<.82?'career-turn':overdueTransfer&&R('story')<.78?'career-transfer':romance&&R('story')<.72?'relationship-opening':pickStoryType(types);return!!startStory(chosen)
+ var family=types.find(function(x){return x.id==='family-future'}),romance=types.find(function(x){return x.id==='relationship-opening'}),transfer=types.find(function(x){return x.id==='career-transfer'}),turn=types.find(function(x){return x.id==='career-turn'}),director=migrateLifeDirector(p),overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=54),overdueTurn=!!(turn&&p.ageMonths-(director.lastCareerTurnAge||-999)>=72),chosen=null;
+ if(family&&R('story')<.68)chosen='family-future';
+ else if(overdueTurn&&R('story')<.82)chosen='career-turn';
+ else if(overdueTransfer&&R('story')<.76)chosen='career-transfer';
+ else if(romance&&R('story')<.68)chosen='relationship-opening';
+ else chosen=pickStoryType(types);
+ return!!startStory(chosen)
 }
 function storyPrompt(story){
  if(story.type==='youth-promise')return story.participantName+' te propose de vous fixer un objectif commun pour les mois qui viennent.';
@@ -2392,7 +2398,7 @@ function createCanonBranch(c,causal){
 function markPlayerCanonImpact(c,kind,detail){
  var w=game.world,ws=w.worldState,p=game.player;if(!ws||!p)return null;ws.playerCanonImpact=Array.isArray(ws.playerCanonImpact)?ws.playerCanonImpact:[];
  var rec={seq:++ws.seq,eventId:c&&c.id||null,eventTitle:c&&c.title||'Chronologie',kind:kind||'intervention',detail:detail||'',year:w.year,month:w.month,age:p.ageMonths,faction:p.faction,region:p.region,island:p.island,power:Math.round(power()*10)/10};
- ws.playerCanonImpact.unshift(rec);ws.playerCanonImpact=ws.playerCanonImpact.slice(0,50);w.divergence=cl(w.divergence+(kind==='major'?4:kind==='direct'?2.5:1),0,100);
+ ws.playerCanonImpact.unshift(rec);ws.playerCanonImpact=ws.playerCanonImpact.slice(0,60);w.divergence=cl(w.divergence+(kind==='major'?4:kind==='direct'?2.5:1),0,100);
  (c&&c.factions||[]).forEach(function(f){var aligned=f===p.faction?1:-1;adjustRep(f,aligned*(kind==='major'?3:1.5))});
  return rec
 }
