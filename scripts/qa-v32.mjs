@@ -1343,6 +1343,14 @@ test('V3.2 completed actor ambitions open a new chapter',()=>{
  const g=fresh(28201),a=g.world.actors.find(x=>x.status==='active'&&x.faction==='Pirates');assert(a,'no pirate actor');const goal=g.world.worldState.actorGoals[a.name];goal.progress=99;a.intention='S’entraîner';a.intentionMonths=0;const old=goal.primary;q.resolveActorIntent(a);assert(g.world.worldState.goalHistory.length===1,'goal milestone not recorded');assert(goal.completed===1,'completion count missing');assert(goal.primary!==old||goal.progress<100,'completed goal remained frozen');assert(goal.progress<100,'new chapter should restart below 100');return a.name+' : '+old+' -> '+goal.primary+' ('+goal.progress+'%)';
 });
 
+
+test('V3.2 veteran pirate pacing uses longer meaningful windows',()=>{
+ const g=adultPirate(28301),p=g.player;p.region='New World';p.island='Dressrosa';p.justice.regionalHeat['New World']=65;const plan=q.advancePlan();assert(plan.key==='high-risk','expected high-risk plan');assert(plan.min>=2&&plan.max>=4,'veteran pirate window still too fragmented');return plan.min+'-'+plan.max+' months';
+});
+test('V3.2 world histories stay bounded after forty years',()=>{
+ const g=fresh(28302);for(let m=0;m<480;m++)q.worldMonthStep();const ws=g.world.worldState;assert(ws.actorHistory.length<=120,'actor history unbounded');assert(ws.crewHistory.length<=100,'crew history unbounded');assert(ws.territoryHistory.length<=100,'territory history unbounded');assert(ws.goalHistory.length<=80,'goal history unbounded');assert(ws.monthlyChanges.length<=48,'monthly history unbounded');return [ws.actorHistory.length,ws.crewHistory.length,ws.territoryHistory.length,ws.goalHistory.length,ws.monthlyChanges.length].join('/');
+});
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
