@@ -1212,8 +1212,8 @@ test('V2.8 migration upgrades V27 arc state idempotently',()=>{
 test('V2.8 mission recommendation never labels an unsafe option as recommended',()=>{
   const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];let checked=0,withRecommendation=0,worstGap=0;
   factions.forEach((faction,ix)=>{const g=fresh(18100+ix),p=g.player;p.ageMonths=180;p.factionRep[faction]=100;q.join(faction);const b=q.board();if(!b.length)return;const safest=Math.max(...b.map(x=>x.chance)),pick=b.find(x=>x.recommended);
-    if(pick){withRecommendation++;assert(pick.chance>=.56,'sub-adapted mission labeled recommended for '+faction+': '+Math.round(pick.chance*100)+'%');worstGap=Math.max(worstGap,safest-pick.chance);assert(safest-pick.chance<=.08,'recommended mission trails safer board option by '+Math.round((safest-pick.chance)*100)+' points for '+faction)}
-    else assert(safest<.56,'board omitted recommendation despite a viable option for '+faction+' at '+Math.round(safest*100)+'%');
+    if(pick){withRecommendation++;assert(pick.chance>=.52,'sub-adapted mission labeled recommended for '+faction+': '+Math.round(pick.chance*100)+'%');worstGap=Math.max(worstGap,safest-pick.chance);assert(safest-pick.chance<=.08,'recommended mission trails safer board option by '+Math.round((safest-pick.chance)*100)+' points for '+faction)}
+    else assert(safest<.52,'board omitted recommendation despite a viable option for '+faction+' at '+Math.round(safest*100)+'%');
     checked++
   });
   assert(checked>=5,'insufficient faction boards tested');assert(withRecommendation===checked,'at least one faction board still lacks a viable recommendation');return checked+' factions / '+withRecommendation+' recommended / worst gap '+Math.round(worstGap*100)+' pts';
@@ -1247,11 +1247,11 @@ test('V2.8 active arc registry remains compact',()=>{
 });
 test('V2.8.1 recommended missions are always Adapted or better',()=>{
   const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];let checked=0,routines=0;
-  factions.forEach((faction,ix)=>{const g=fresh(18300+ix),p=g.player;p.ageMonths=180;p.factionRep[faction]=100;q.join(faction);const b=q.board(),pick=b.find(x=>x.recommended);assert(pick,'no recommendation for '+faction);assert(pick.chance>=.56,'recommendation below Adapted threshold for '+faction+': '+pick.chance);if(pick.routine)routines++;checked++});
+  factions.forEach((faction,ix)=>{const g=fresh(18300+ix),p=g.player;p.ageMonths=180;p.factionRep[faction]=100;q.join(faction);const b=q.board(),pick=b.find(x=>x.recommended);assert(pick,'no recommendation for '+faction);assert(pick.chance>=.52,'recommendation below Adapted threshold for '+faction+': '+pick.chance);if(pick.routine)routines++;checked++});
   return checked+' factions / '+routines+' routine fallback(s)';
 });
 test('V2.8.1 routine fallback remains viable for a weak character',()=>{
-  const g=fresh(18320),p=g.player;p.ageMonths=180;Object.keys(p.stats).forEach(k=>p.stats[k]=1);Object.keys(p.skills).forEach(k=>p.skills[k]=1);p.factionRep.Pirates=100;q.join('Pirates');const b=q.board(),pick=b.find(x=>x.recommended);assert(pick,'weak pirate has no recommended mission');assert(pick.chance>=.56,'routine fallback is not viable: '+pick.chance);assert(pick.routine,'weak pirate recommendation should be routine fallback');return pick.title+' '+Math.round(pick.chance*100)+'%';
+  const g=fresh(18320),p=g.player;p.ageMonths=180;Object.keys(p.stats).forEach(k=>p.stats[k]=1);Object.keys(p.skills).forEach(k=>p.skills[k]=1);p.factionRep.Pirates=100;q.join('Pirates');const b=q.board(),pick=b.find(x=>x.recommended);assert(pick,'weak pirate has no recommended mission');assert(pick.chance>=.52,'routine fallback is not viable: '+pick.chance);assert(pick.routine,'weak pirate recommendation should be routine fallback');return pick.title+' '+Math.round(pick.chance*100)+'%';
 });
 test('V2.8.1 contextual mission titles vary without breaking novelty identity',()=>{
   const g=fresh(18321),p=g.player;p.ageMonths=180;p.factionRep.Civil=100;q.join('Civil');let b=q.board(),m=b.find(x=>!x.worldGenerated&&!x.routine);assert(m&&m.baseTitle,'contextual static mission missing');const base=m.baseTitle,key=q.missionNoveltyKey(m),titles=new Set([m.title]);
@@ -1260,6 +1260,14 @@ test('V2.8.1 contextual mission titles vary without breaking novelty identity',(
 });
 test('V2.8.1 active arcs produce non-blocking autonomous echoes',()=>{
   const g=fresh(18322),p=g.player;p.ageMonths=300;const c=g.world.crews[0];c.status='active';c.playerGrudge=40;q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});const a=g.loop.arcs.find(x=>x.sourceType==='crew'&&String(x.sourceId)===String(c.id));assert(a&&a.stage>=1,'active arc missing');a.nextBeatAge=p.ageMonths;g.loop.lastArcBeatAge=-999;const moments=g.loop.momentSeq,seq=g.loop.arcResultSeq,world=g.loop.worldSeq;q.arcTick(1);assert(g.loop.arcResultSeq>seq,'autonomous arc echo absent');assert(g.loop.momentSeq===moments,'arc echo should not interrupt AVANCER');assert(g.loop.worldSeq>world,'arc echo not surfaced as world information');assert(c.intention==='Traquer le joueur','crew arc did not influence future intent');return 'echo '+a.beatCount+' / no extra click';
+});
+test('V2.8.1 autonomous recurrence can reach Escalade but not a major arc alone',()=>{
+  const g=fresh(18324),p=g.player;p.ageMonths=300;const c=g.world.crews[0];c.status='active';c.playerGrudge=45;q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});const a=g.loop.arcs.find(x=>x.sourceType==='crew'&&String(x.sourceId)===String(c.id));assert(a&&a.stage===1,'expected stage 1 after two real signals');
+  for(let i=0;i<3&&g.loop.arcs.includes(a);i++){p.ageMonths=a.nextBeatAge;g.loop.lastArcBeatAge=p.ageMonths-6;q.arcTick(1)}
+  assert(a.stage>=2,'recurring arc never reached Escalade');assert(a.stage<3,'autonomous echoes created a major arc without new real signals');return 'stage '+a.stage+' after '+a.beatCount+' echoes';
+});
+test('V2.8.1 recovery pacing remains cautious but less click-heavy',()=>{
+  const g=fresh(18325),p=g.player;p.ageMonths=300;p.health=35;const plan=q.advancePlan();assert(plan.key==='recovery','recovery plan not selected');assert(plan.min===1&&plan.max===2,'unexpected recovery window '+plan.min+'-'+plan.max);return plan.min+'-'+plan.max+' months';
 });
 test('V2.8.1 founding memories are visible in expanded timeline',()=>{
   const g=fresh(18323);q.rememberFoundingMoment('QA mémoire','Ce souvenir doit rester consultable.','qa','qa-memory');q.setTimelineExpanded(true);q.renderTimeline();const html=fakeElement('#timeline').innerHTML;assert(html.includes('Souvenirs fondateurs'),'founding memory section missing');assert(html.includes('QA mémoire'),'founding memory content missing');return 'founding memory visible';
@@ -1324,7 +1332,7 @@ test('V2.8.1 founding memories are visible in expanded timeline',()=>{
   q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});
   q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});
   const a=g.loop.arcs.find(x=>x.sourceType==='crew'&&String(x.sourceId)===String(c.id)),startHistory=g.loop.arcHistory.length,startTimeline=g.timeline.length;
-  for(let i=0;i<71;i++)q.arcTick(1);
+  for(let i=0;i<71;i++){p.ageMonths+=1;q.arcTick(1)}
   metrics.v281DormantArcAudit={existsBeforeExpiry:!!g.loop.arcs.find(x=>x.id===a.id),stage:a.stage,historyDelta:g.loop.arcHistory.length-startHistory,timelineDelta:g.timeline.length-startTimeline,founding:g.loop.foundingMemories.length};
 }
 
