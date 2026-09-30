@@ -2166,7 +2166,11 @@ function resolveConflict(c){
  var dp=defendBase+t.influence*(war?.14:.34)+R('world')*24+playerDomainDefense(c.location)*(war?.75:1);
  var winner=ap>dp?c.attacker:c.defender,loser=winner===c.attacker?c.defender:c.attacker,margin=Math.abs(ap-dp),pc=t.playerControl&&t.playerControl.ownerKey===dynastyKey()?t.playerControl:null;
  c.status='resolved';c.winner=winner;c.months=Math.max(1,c.months);
- if(winner!==t.controller){var old=t.controller;t.controller=winner;t.lastWorldCause=c.source||'conflict';t.influence=Math.round(cl(48+margin*.45,42,76));t.stability=Math.round(cl(t.stability-12-R('world')*16,8,100));t.lastChange='Année '+w.year+', mois '+(Math.floor(w.month)+1);w.divergence=cl(w.divergence+(c.intensity/100)*1.5,0,100);news('Changement de contrôle',winner+' prend le contrôle de '+c.location+' au détriment de '+old+'.','major')}
+ if(winner!==t.controller){
+  var old=t.controller,crewSource=c.source&&String(c.source).indexOf('crew-')===0?w.crews.find(function(x){return x.id===c.source}):null,ambientSource=c.source==='world',majorOccupation=!crewSource&&!ambientSource||!!war||(crewSource&&crewSource.power>=68&&c.intensity>=64&&margin>=14)||(ambientSource&&c.intensity>=72&&margin>=18&&w.globalTension>=58);
+  if(majorOccupation){t.controller=winner;t.lastWorldCause=c.source||'conflict';t.influence=Math.round(cl(48+margin*.45,42,76));t.stability=Math.round(cl(t.stability-12-R('world')*16,8,100));t.lastChange='Année '+w.year+', mois '+(Math.floor(w.month)+1);w.divergence=cl(w.divergence+(c.intensity/100)*1.5,0,100);news('Changement de contrôle',winner+' prend le contrôle de '+c.location+' au détriment de '+old+'.','major')}
+  else{t.influence=cl(t.influence-(6+margin*.16),20,100);t.stability=cl(t.stability-(4+R('world')*7),8,100);t.contested=true;t.lastWorldCause=c.source||'conflict';news('Zone déstabilisée',winner+' remporte l’affrontement sans parvenir à renverser durablement le contrôle de '+old+' à '+c.location+'.','war')}
+ }
  else{t.influence=cl(t.influence+5+margin*.12,0,100);t.stability=cl(t.stability+3-R('world')*4,0,100);news('Offensive repoussée',c.defender+' conserve '+c.location+' face à '+c.attacker+'.','war')}
  if(pc){if(winner===pc.faction)pc.control=cl(pc.control+5+margin*.08,0,100);else if(diplomacy(winner,pc.faction)<-20){pc.control=cl(pc.control-(18+margin*.22),0,100);if(pc.control<=20)loseDomain(c.location,'défaite militaire')}}
  t.contested=false;w.globalTension=cl(w.globalTension-1,0,100);
