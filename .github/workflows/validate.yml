@@ -5,6 +5,16 @@ on:
     branches:
       - main
       - 'v*'
+    paths:
+      - 'app.js'
+      - 'index.html'
+      - 'content-v1.js'
+      - 'manifest.webmanifest'
+      - 'sw.js'
+      - 'scripts/validate.mjs'
+      - 'scripts/validate-content.mjs'
+      - 'scripts/qa-v32.mjs'
+      - '.github/workflows/validate.yml'
   workflow_dispatch:
 
 permissions:
