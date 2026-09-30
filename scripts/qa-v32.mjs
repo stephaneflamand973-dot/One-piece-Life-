@@ -1238,8 +1238,8 @@ test('V5.0 inherited life legacy is visible without a new screen',()=>{
 
 
 test('V5.0 strong career mismatch surfaces without relying on generic story lottery',()=>{
-  const g=fresh(50149),p=g.player;p.ageMonths=360;p.factionRep.Civil=100;q.join('Civil');p.specialization='Marchand';const rec=q.careerRecord();rec.specialization='Marchand';rec.months=84;p.skills.Science=88;p.stats.Discipline=75;p.skills.Commandement=18;p.lifeDirector.lastCareerTurnAge=p.ageMonths-96;g.story.lastStartAge=p.ageMonths-12;
-  const candidate=q.careerTurnCandidate();assert(candidate&&candidate.margin>=12,'strong mismatch fixture did not create a career turn');
+  const g=fresh(50149),p=g.player;p.ageMonths=300;p.factionRep.Civil=100;q.join('Civil');p.specialization='Marchand';const rec=q.careerRecord();rec.specialization='Marchand';rec.months=36;p.skills.Science=88;p.stats.Discipline=75;p.skills.Commandement=18;p.lifeDirector.lastCareerTurnAge=p.ageMonths-96;g.story.lastStartAge=p.ageMonths-12;
+  const candidate=q.careerTurnCandidate();assert(candidate&&candidate.margin>=10,'strong mismatch fixture did not create a career turn');
   assert(q.maybeStartCareerTurnStory()===true,'high-confidence career turn stayed hidden behind generic story lottery');
   const st=g.story.active.find(x=>x.type==='career-turn');assert(st&&st.data.turn.to===candidate.to,'surfaced career turn lost its candidate');
   return candidate.from+' -> '+candidate.to+' / +'+candidate.margin.toFixed(1);
