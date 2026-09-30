@@ -1306,6 +1306,14 @@ test('V5.0 world-history migration preserves the most recent entries',()=>{
   const g=fresh(50162),ws=g.world.worldState,version=g.version;ws.actorHistory=Array.from({length:110},(_,i)=>({seq:110-i,actor:'A'+(110-i)}));ws.crewHistory=Array.from({length:90},(_,i)=>({seq:90-i,crew:'C'+(90-i)}));q.migrate(g);assert(g.version===version&&g.version===28,'history migration changed GameState version');assert(ws.actorHistory.length===90&&ws.actorHistory[0].seq===110&&ws.actorHistory[89].seq===21,'actor history did not retain newest entries');assert(ws.crewHistory.length===70&&ws.crewHistory[0].seq===90&&ws.crewHistory[69].seq===21,'crew history did not retain newest entries');return 'recent history preserved / GameState '+g.version;
 });
 
+
+test('V5.0 early career mismatch surfaces before passive self-reinforcement',()=>{
+  const g=fresh(50150),p=g.player;p.ageMonths=252;p.factionRep.Civil=100;q.join('Civil');p.specialization='Marchand';const rec=q.careerRecord();rec.specialization='Marchand';rec.months=36;p.skills.Science=70;p.stats.Intelligence=68;p.stats.Discipline=56;p.skills.Navigation=42;p.skills.Commandement=32;p.lifeDirector.lastCareerTurnAge=-999;g.story.lastStartAge=p.ageMonths-8;
+  const turn=q.careerTurnCandidate();assert(turn&&turn.to==='Scientifique'&&turn.margin>=10,'early mismatch not detected: '+JSON.stringify(turn));
+  assert(q.maybeStartCareerTurnStory()===true,'early strong mismatch did not surface');
+  return turn.from+' -> '+turn.to+' / +'+turn.margin.toFixed(1);
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
