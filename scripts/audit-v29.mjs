@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const base=fs.readFileSync('scripts/qa-v28.mjs','utf8');
+const base=fs.readFileSync('scripts/qa-v29.mjs','utf8');
 const marker="console.log('\\nQA_METRICS '+JSON.stringify(metrics));";
 if(!base.includes(marker)) throw new Error('V2.9 audit marker not found in qa-v28.mjs');
 
@@ -59,14 +59,14 @@ function qaLongCareer(seed,faction,spec,profile,years){
   if(spec){p.specialization=spec;const rec=q.careerRecord();if(rec)rec.specialization=spec}
   p.activity='Carrière';
   const start=p.ageMonths,target=start+years*12;
-  let clicks=0,lastMissionAge=-999,started=0,routine=0,worldGenerated=0,signature=0;
+  let clicks=0,lastMissionAge=-999,started=0,routine=0,adaptive=0,worldGenerated=0,signature=0;
   const titles=[],guidance={},chances=[];let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
   while(p.ageMonths<target&&clicks<years*18&&g.alive){
     qaResolveInterruptions(g);
     if(!g.mission&&p.ageMonths-lastMissionAge>=10){
       const b=q.board(),ix=qaMissionPick(b);
       if(ix>=0){
-        const m=b[ix];titles.push(m.title);started++;if(m.routine)routine++;if(m.worldGenerated)worldGenerated++;if(m.signature)signature++;
+        const m=b[ix];titles.push(m.title);started++;if(m.routine)routine++;if(m.adaptive)adaptive++;if(m.worldGenerated)worldGenerated++;if(m.signature)signature++;
         guidance[m.guidance]=(guidance[m.guidance]||0)+1;chances.push(m.chance||0);
         q.startMission(ix);lastMissionAge=p.ageMonths;
       }
@@ -82,7 +82,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
     clicks,clicksPerYear:+(clicks/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
     missions:started,missionPerYear:+(started/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
     uniqueTitles:new Set(titles).size,repeatShare:started?+(repeated/started).toFixed(2):0,consecutiveRepeatShare:started?+(consecutive/started).toFixed(2):0,
-    routineShare:started?+(routine/started).toFixed(2):0,worldShare:started?+(worldGenerated/started).toFixed(2):0,signatureShare:started?+(signature/started).toFixed(2):0,
+    routineShare:started?+(routine/started).toFixed(2):0,adaptiveShare:started?+(adaptive/started).toFixed(2):0,worldShare:started?+(worldGenerated/started).toFixed(2):0,signatureShare:started?+(signature/started).toFixed(2):0,
     avgChance:chances.length?+(chances.reduce((a,b)=>a+b,0)/chances.length).toFixed(2):0,guidance,
     activeArcs:(g.loop.arcs||[]).length,arcHistoryDelta:(g.loop.arcHistory||[]).length-arcTransitions0,arcPeak,
     founding:(g.loop.foundingMemories||[]).length,
@@ -110,6 +110,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
       repeatShare:+(rs.reduce((a,x)=>a+x.repeatShare,0)/rs.length).toFixed(2),
       consecutiveRepeatShare:+(rs.reduce((a,x)=>a+x.consecutiveRepeatShare,0)/rs.length).toFixed(2),
       routineShare:+(rs.reduce((a,x)=>a+x.routineShare,0)/rs.length).toFixed(2),
+      adaptiveShare:+(rs.reduce((a,x)=>a+x.adaptiveShare,0)/rs.length).toFixed(2),
       worldShare:+(rs.reduce((a,x)=>a+x.worldShare,0)/rs.length).toFixed(2),
       clicksPerYear:+(rs.reduce((a,x)=>a+x.clicksPerYear,0)/rs.length).toFixed(2),
       arcHistory:+(rs.reduce((a,x)=>a+x.arcHistoryDelta,0)/rs.length).toFixed(1),
@@ -121,6 +122,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
     avgRepeatShare:+(sum('repeatShare')/rows.length).toFixed(2),
     avgConsecutiveRepeatShare:+(sum('consecutiveRepeatShare')/rows.length).toFixed(2),
     avgRoutineShare:+(sum('routineShare')/rows.length).toFixed(2),
+    avgAdaptiveShare:+(sum('adaptiveShare')/rows.length).toFixed(2),
     avgWorldShare:+(sum('worldShare')/rows.length).toFixed(2),
     avgClicksPerYear:+(sum('clicksPerYear')/rows.length).toFixed(2),
     avgArcHistory:+(sum('arcHistoryDelta')/rows.length).toFixed(1),
