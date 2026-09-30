@@ -160,6 +160,7 @@ if(!app.includes('p.ageMonths>480') || !app.includes("legacy&&p.ageMonths>=216")
 if(!app.includes('function latestDynastyLegacy') || !app.includes("Héritage de '+e(ancestor.name)")) throw new Error('V5.0 visible generational legacy missing');
 if(!app.includes("Chapitre actuel : ")) throw new Error('V5.0 active chapter is not surfaced in AVANCER');
 if(!app.includes('partnerFollows') || !app.includes('longDistance') || !app.includes("Vous vous installez ensemble à")) throw new Error('V5.0 household relocation continuity missing');
+if(app.includes("$('[data-heir]').forEach")) throw new Error('V5.0 multi-heir choice uses a single-element selector as a list');
 if(!app.includes('function settleCareerNetwork') || !app.includes("if(r.id===p.life.partnerId&&!r.longDistance)")) throw new Error('V5.0 relocation social continuity missing');
 if(!app.includes('function directorMobilityWording') || !app.includes("f==='Pirates')return{noun:'nouveau cap'")) throw new Error('V5.0 faction-aware journey wording missing');
 if(!app.includes("overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=54)") || !app.includes("overdueTransfer&&R('story')<.76") || !app.includes("chosen='career-transfer'")) throw new Error('V5.0 overdue journey priority missing');
