@@ -1,3 +1,21 @@
+# ONE PIECE LIFE — V3.5 Canon Engine
+
+La V3.5 transforme la chronologie canonique en système causal vivant plutôt qu'en calendrier figé.
+
+## Canon Engine
+- Les grands événements possèdent désormais des dépendances historiques explicites.
+- La chronologie évolue entre **Canon protégé**, **Canon flexible** et **Timeline divergente**.
+- Un événement modifié ou annulé génère une branche alternative persistante.
+- Ces branches évoluent mois après mois selon l'instabilité locale, les factions et les acteurs présents.
+- Une branche peut se résorber, créer un nouvel équilibre ou dégénérer en conflit territorial réel.
+- Le joueur peut être enregistré comme cause directe d'une divergence lorsque son implication est effectivement plausible.
+- Cette responsabilité influence sa réputation et ses relations avec les personnages canoniques concernés.
+- Les conséquences importantes remontent dans le compte rendu compact **AVANCER**, sans nouvel écran de micro-gestion.
+- Les historiques canoniques sont bornés afin de préserver les longues carrières et la taille des sauvegardes.
+- Le **GameState interne reste en version 28** afin de conserver la compatibilité des sauvegardes existantes.
+
+---
+
 # ONE PIECE LIFE — V3.2 World Foundations
 
 La V3.2 transforme les systèmes autonomes existants en une mémoire mondiale persistante, sans ajouter de micro-gestion.
