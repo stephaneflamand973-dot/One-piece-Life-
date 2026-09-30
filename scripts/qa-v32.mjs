@@ -1173,8 +1173,8 @@ test('V5.0 legacy career records migrate into recent-form dossiers without GameS
 });
 
 
-test('V5.0 AVANCER surfaces the strongest active personal chapter',()=>{
-  const g=fresh(50060),p=g.player;p.ageMonths=300;q.signalPersonalChapter('career','Ascension décisive',18,'qa-1','Marine');q.signalPersonalChapter('journey','Voyages à travers les mers',34,'qa-2','journey');q.renderAdvanceLoop();const txt=document.querySelector('#advancePreview').textContent;assert(txt.includes('Chapitre actuel : Voyages à travers les mers.'),'AVANCER did not surface strongest chapter: '+txt);return txt;
+test('V5.0 AVANCER surfaces the strongest meaningful personal chapter',()=>{
+  const g=fresh(50060),p=g.player;p.ageMonths=300;q.signalPersonalChapter('career','Ascension décisive',12,'qa-1','Marine');q.signalPersonalChapter('career','Ascension décisive',10,'qa-2','Marine');q.signalPersonalChapter('journey','Voyages à travers les mers',20,'qa-3','journey');q.signalPersonalChapter('journey','Voyages à travers les mers',18,'qa-4','journey');q.renderAdvanceLoop();const txt=document.querySelector('#advancePreview').textContent;assert(txt.includes('Chapitre actuel : Voyages à travers les mers.'),'AVANCER did not surface strongest meaningful chapter: '+txt);return txt;
 });
 
 
@@ -1209,7 +1209,7 @@ test('V5.0 Life Director preserves player agency on personal choices',()=>{
 
 
 test('V5.0 explorer ambition favors genuinely new journey destinations',()=>{
-  const g=fresh(50120),p=g.player;p.ageMonths=300;p.skills.Navigation=50;p.ambition='Explorer le monde';Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],50));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');const fresh=q.directorTravelContext(d);p.visited.push(d);const known=q.directorTravelContext(d);assert(fresh.fresh&&!known.fresh,'fresh destination flag broken');assert(fresh.score>known.score+15,'explorer ambition does not meaningfully reward novelty');return (fresh.score-known.score).toFixed(1)+' novelty points';
+  const g=fresh(50120),p=g.player;p.ageMonths=300;p.skills.Navigation=50;p.ambition='Explorer le monde';Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],50));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');const freshCtx=q.directorTravelContext(d);p.visited.push(d);const known=q.directorTravelContext(d);assert(freshCtx.fresh&&!known.fresh,'fresh destination flag broken');assert(freshCtx.score>known.score+15,'explorer ambition does not meaningfully reward novelty');return (freshCtx.score-known.score).toFixed(1)+' novelty points';
 });
 test('V5.0 journey director penalizes recent backtracking without banning causal returns',()=>{
   const g=fresh(50121),p=g.player;p.ageMonths=300;p.skills.Navigation=50;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],50));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');p.visited.push(d);const before=q.directorTravelContext(d);q.recordLifeDirector('mobility','QA move',{destination:d});const after=q.directorTravelContext(d);assert(after.backtrackPenalty>0,'recent destination has no backtrack penalty');assert(after.score<before.score,'recent backtracking was not discouraged');assert(Number.isFinite(after.score),'causal return became invalid');return before.score.toFixed(1)+' -> '+after.score.toFixed(1);
