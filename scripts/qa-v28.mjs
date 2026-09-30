@@ -56,7 +56,7 @@ window.__qa={
  setMode:function(v){mode=v},getMode:function(){return mode},
  getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,purgeSaveSlot:purgeSaveSlot,deleteSaveSlot:deleteSaveSlot,slotKey:slotKey,slotMetaKey:slotMetaKey,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,simulateActors:simulateActors,simulateCrews:simulateCrews,actorIntentPool:actorIntentPool,assignActorIntent:assignActorIntent,resolveActorIntent:resolveActorIntent,actorIntentTick:actorIntentTick,crewIntentPool:crewIntentPool,assignCrewIntent:assignCrewIntent,resolveCrewIntent:resolveCrewIntent,crewIntentTick:crewIntentTick,
- advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,resolveAmbientDanger:resolveAmbientDanger,dangerAlternativeScore:dangerAlternativeScore,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,recordSignatureMoment:recordSignatureMoment,scheduleConsequence:scheduleConsequence,resolveConsequence:resolveConsequence,processConsequences:processConsequences,consequenceRelation:consequenceRelation,registerArcSignal:registerArcSignal,signalArcFromConsequence:signalArcFromConsequence,arcPressureFor:arcPressureFor,arcTick:arcTick,closeArc:closeArc,rememberFoundingMoment:rememberFoundingMoment,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
+ advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,resolveAmbientDanger:resolveAmbientDanger,dangerAlternativeScore:dangerAlternativeScore,dangerEscapeProfile:dangerEscapeProfile,forcedFightEscapeChance:forcedFightEscapeChance,tryAvoidForcedFight:tryAvoidForcedFight,pursuitEncounter:pursuitEncounter,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,recordSignatureMoment:recordSignatureMoment,scheduleConsequence:scheduleConsequence,resolveConsequence:resolveConsequence,processConsequences:processConsequences,consequenceRelation:consequenceRelation,registerArcSignal:registerArcSignal,signalArcFromConsequence:signalArcFromConsequence,arcPressureFor:arcPressureFor,arcTick:arcTick,closeArc:closeArc,rememberFoundingMoment:rememberFoundingMoment,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
  power:power,styleMastery:styleMastery,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,focusOptions:focusOptions,recommendedFocus:recommendedFocus,normalizeActivityFocus:normalizeActivityFocus,currentFocus:currentFocus,simpleFocusKeys:simpleFocusKeys,styleFocusKeys:styleFocusKeys,careerFocusKeys:careerFocusKeys,hasPowerFocus:hasPowerFocus,
  developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,setSectionState:function(name,value){sectionState[name]=value},getSectionState:function(){return Object.assign({},sectionState)},
  join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,missionImportance:missionImportance,missionStakes:missionStakes,missionNoveltyKey:missionNoveltyKey,missionNoveltyScore:missionNoveltyScore,rememberMission:rememberMission,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionGuidance:missionGuidance,missionCanRecommend:missionCanRecommend,missionRecommendationScore:missionRecommendationScore,missionResolution:missionResolution,
@@ -1258,6 +1258,25 @@ test('V2.8.1 combat recommendations require a stronger safety floor',()=>{
 test('V2.8.1 a surviving arc seed becomes an active arc once',()=>{
   const g=fresh(18620),p=g.player;p.ageMonths=300;const c=g.world.crews[0];c.status='active';const a=q.registerArcSignal('crew','crew',c.id,c.name,65,{region:c.region});assert(a.stage===0&&a.hits===1,'seed did not start at stage 0');a.nextPulseAge=p.ageMonths;q.arcTick(1);assert(a.stage>=1&&a.hits>=2,'seed never became active');const hits=a.hits;q.arcTick(1);assert(a.hits===hits,'passive pulse repeated more than once');return a.title+' -> stage '+a.stage;
 });
+test('V2.8.1 overwhelming ambient danger can trigger a tactical retreat',()=>{
+  let escaped=0,fought=0;
+  for(let seed=18700;seed<18730;seed++){
+    const g=fresh(seed),p=g.player;p.ageMonths=240;
+    Object.keys(p.stats).forEach(k=>p.stats[k]=24);Object.keys(p.skills).forEach(k=>p.skills[k]=22);
+    p.stats.Réflexes=34;p.stats.Agilité=32;p.skills.Navigation=28;g.lastCombat=null;
+    q.resolveAmbientDanger('QA overmatch',58);
+    if(g.lastCombat)fought++;else escaped++;
+  }
+  assert(escaped>=4,'overwhelmed characters almost never retreat: '+escaped+'/30');
+  assert(fought>=8,'retreat became too automatic: '+escaped+'/30 escaped');
+  return escaped+'/30 retreats';
+});
+test('V2.8.1 authority pursuit is at least as escapable as an ambient overmatch',()=>{
+  const g=fresh(18740),p=g.player;p.ageMonths=240;Object.keys(p.stats).forEach(k=>p.stats[k]=25);Object.keys(p.skills).forEach(k=>p.skills[k]=24);p.stats.Réflexes=36;p.stats.Agilité=34;p.skills.Discrétion=30;
+  const ambient=q.forcedFightEscapeChance(58,'ambient'),justice=q.forcedFightEscapeChance(58,'justice');
+  assert(justice>=ambient,'authority pursuit did not preserve a flee path');assert(justice<=.76,'escape chance exceeded cap');return ambient.toFixed(2)+' -> '+justice.toFixed(2);
+});
+
 
 
 
