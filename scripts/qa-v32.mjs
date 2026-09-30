@@ -1271,6 +1271,14 @@ test('V5.0 actor world goal is runtime-only, not duplicated in saves',()=>{
   const g=fresh(50163),a=g.world.actors[0];assert(a&&a.worldGoal,'actor world goal missing at runtime');assert(!Object.prototype.propertyIsEnumerable.call(a,'worldGoal'),'actor world goal still enumerable');assert(!JSON.stringify(a).includes('"worldGoal"'),'actor world goal duplicated into JSON');return a.name+' goal bound without serialization';
 });
 
+
+test('V5.0 resolved world sagas are kept only in saga history',()=>{
+  const g=fresh(50160),ws=g.world.worldState,s=q.startWorldSaga('power',g.player.region,'QA-A','QA-B','qa-prune');s.pressure=20;s.months=8;q.resolveWorldSaga(s,'stabilisation');q.simulateWorldSagas();assert(!ws.worldSagas.some(x=>x.id===s.id),'resolved saga still duplicated in active worldSagas');assert(ws.sagaHistory.some(x=>x.id===s.id),'resolved saga missing from history');return ws.worldSagas.length+' active / '+ws.sagaHistory.length+' archived';
+});
+test('V5.0 migration removes resolved causal duplicates without schema bump',()=>{
+  const g=fresh(50161),version=g.version,ws=g.world.worldState;ws.canonBranches.push({id:'old-resolved',status:'resolved'});ws.worldSagas.push({id:'old-saga',status:'resolved'});q.migrate(g);assert(g.version===version&&g.version===28,'world pruning changed GameState version');assert(!ws.canonBranches.some(x=>x.id==='old-resolved'),'resolved canon branch survived migration');assert(!ws.worldSagas.some(x=>x.id==='old-saga'),'resolved world saga survived migration');return 'GameState '+g.version+' / active-only causal containers';
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
@@ -1617,8 +1625,8 @@ test('V3.5 divergent canon creates a persistent alternate branch',()=>{
 });
 
 
-test('V3.5 canon branches evolve and eventually resolve',()=>{
- const g=fresh(29201),ws=g.world.worldState,loc=g.player.island;ws.canonBranches=[{seq:1,id:'branch-qa',source:'qa',title:'QA divergence',year:g.world.year,month:g.world.month,location:loc,region:g.player.region,factions:['Pirates','Marine'],causes:['qa-cause'],status:'active',pressure:58,months:4}];let guard=0;while(ws.canonBranches[0].status==='active'&&guard++<60)q.simulateCanonBranches();assert(ws.canonBranches[0].status!=='active','branch never resolved');assert(ws.canonBranchHistory.length===1,'branch outcome not recorded');return ws.canonBranches[0].status+' / '+ws.canonBranchHistory[0].outcome+' / '+guard+'m';
+test('V3.5 canon branches evolve, resolve and leave the active set',()=>{
+ const g=fresh(29201),ws=g.world.worldState,loc=g.player.island;ws.canonBranches=[{seq:1,id:'branch-qa',source:'qa',title:'QA divergence',year:g.world.year,month:g.world.month,location:loc,region:g.player.region,factions:['Pirates','Marine'],causes:['qa-cause'],status:'active',pressure:58,months:4}];let guard=0;while(ws.canonBranches.some(b=>b.id==='branch-qa'&&b.status==='active')&&guard++<60)q.simulateCanonBranches();assert(!ws.canonBranches.some(b=>b.id==='branch-qa'),'resolved branch remained duplicated in active container');assert(ws.canonBranchHistory.length===1,'branch outcome not recorded');return ws.canonBranchHistory[0].outcome+' / '+guard+'m';
 });
 test('V3.5 branch history stays bounded',()=>{
  const g=fresh(29202),ws=g.world.worldState;for(let i=0;i<100;i++){const b={id:'b'+i,source:'q',title:'Q'+i,location:g.player.island,region:g.player.region,factions:['Pirates','Marine'],status:'active',pressure:30};q.resolveCanonBranch(b,'resolved')}assert(ws.canonBranchHistory.length<=80,'branch history unbounded');return ws.canonBranchHistory.length;
