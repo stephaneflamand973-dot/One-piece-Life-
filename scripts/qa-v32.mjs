@@ -1195,6 +1195,18 @@ test('V5.0 journey wording matches faction identity',()=>{
   return 'Pirates / Marine / Chasseur / Civil';
 });
 
+
+test('V5.0 Life Director preserves player agency on personal choices',()=>{
+  const g=fresh(50061),p=g.player;p.ageMonths=360;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));p.factionRep.Civil=100;q.join('Civil');
+  const r=q.createRelation('ami');r.npcAgeMonths=360;r.location=p.island;r.region=p.region;r.affection=82;r.trust=80;r.attraction=76;
+  let st=q.startStory('relationship-opening');assert(st&&st.participantId===r.id,'agency romance setup failed');st.awaiting=true;q.storyChoice(st.id,'friendship');assert(!p.life.partnerId&&p.life.relationshipStatus==='Célibataire','declined romance was forced anyway');
+  p.life.partnerId=r.id;p.life.relationshipStatus='Marié';r.type='partner';r.role='conjoint';r.relationshipMonths=30;r.affection=90;r.trust=90;p.lifeDirector.lastFamilyAge=p.ageMonths-30;
+  st=q.startStory('family-future');assert(st&&st.data.future==='child','agency family setup failed');st.awaiting=true;q.storyChoice(st.id,'wait');assert((p.children||[]).length===0,'declined child choice created a child');
+  p.life.partnerId=null;p.life.relationshipStatus='Célibataire';p.lifeDirector.lastMobilityAge=p.ageMonths-40;
+  st=q.startStory('career-transfer');assert(st&&st.data.destination,'agency transfer setup failed');st.awaiting=true;q.storyChoice(st.id,'decline-transfer');assert(!p.travel,'declined transfer started travel');
+  return 'romance / family / mobility remain optional';
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
