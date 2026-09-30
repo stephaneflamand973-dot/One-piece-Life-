@@ -217,7 +217,26 @@ function initLivingWorld(g,w){
  w.conflicts=w.conflicts||[];w.worldHistory=w.worldHistory||[];w.npcLinks=Array.isArray(w.npcLinks)?w.npcLinks.slice(-40):[];w.simRemainder=w.simRemainder||0;w.nextCrewId=w.nextCrewId||w.crews.length;w.globalTension=w.globalTension==null?34:w.globalTension;
  var fruitNames=(CONTENT.fruits||[]).map(function(x){return x[0]});w.fruits=[].concat(w.fruits||[],fruitNames).filter(function(v,i,a){return a.indexOf(v)===i});w.fruitRegistry=w.fruitRegistry||{};
  w.fruits.forEach(function(n){if(!w.fruitRegistry[n])w.fruitRegistry[n]={status:'available',holder:null}});
- initCanonState(w);return w
+ initCanonState(w);migrateWorldFoundations(g,w);return w
+}
+function migrateWorldFoundations(g,w){
+ w.worldState=w.worldState||{version:1,seq:0,actorHistory:[],territoryHistory:[],monthlyChanges:[],actorGoals:{}};
+ var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(-120):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(-100):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(-48):[];ws.actorGoals=ws.actorGoals||{};
+ (w.actors||[]).forEach(function(a){var goal=ws.actorGoals[a.name]||{};goal.primary=goal.primary||a.goal||'Tracer sa route';goal.progress=cl(goal.progress||0,0,100);goal.stage=goal.stage||'pursuing';goal.lastAction=goal.lastAction||'';goal.lastOutcome=goal.lastOutcome||'';goal.updatedAt=goal.updatedAt||0;ws.actorGoals[a.name]=goal;a.worldGoal=goal});
+ return w
+}
+function recordWorldActorAction(a,intent,outcome,impact){
+ var ws=game.world.worldState;if(!ws)return;var goal=ws.actorGoals[a.name]||(ws.actorGoals[a.name]={primary:a.goal||'Tracer sa route',progress:0,stage:'pursuing'}),gain=Math.max(0,impact==null?2:impact);
+ goal.progress=cl((goal.progress||0)+gain,0,100);goal.stage=goal.progress>=100?'established':goal.progress>=65?'advancing':'pursuing';goal.lastAction=intent||'';goal.lastOutcome=outcome||'';goal.updatedAt=game.world.year*12+game.world.month;a.worldGoal=goal;
+ ws.actorHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,actor:a.name,faction:a.faction,region:a.region,intent:intent||'',outcome:outcome||'',impact:gain,goalProgress:Math.round(goal.progress)});ws.actorHistory=ws.actorHistory.slice(0,120)
+}
+function snapshotWorldTerritories(){
+ var w=game.world,ws=w.worldState;if(!ws)return;var changed=[];Object.keys(w.territories).forEach(function(n){var t=w.territories[n],key='territory:'+n,prev=ws[key],now={controller:t.controller,contested:!!t.contested,stability:Math.round(t.stability||0),influence:Math.round(t.influence||0)};if(prev&&(prev.controller!==now.controller||prev.contested!==now.contested||Math.abs(prev.stability-now.stability)>=12)){changed.push({name:n,from:prev.controller,to:now.controller,contested:now.contested,stability:now.stability});ws.territoryHistory.unshift({seq:++ws.seq,year:w.year,month:w.month,name:n,from:prev.controller,to:now.controller,contested:now.contested,stability:now.stability})}ws[key]=now});
+ ws.territoryHistory=ws.territoryHistory.slice(0,100);if(changed.length){ws.monthlyChanges.unshift({year:w.year,month:w.month,type:'territory',items:changed.slice(0,5)});ws.monthlyChanges=ws.monthlyChanges.slice(0,48)}
+}
+function worldStateSummary(){
+ var w=game.world,ws=w.worldState||{},actors=(w.actors||[]).filter(function(a){return a.status==='active'}).sort(function(a,b){return actorPower(b)-actorPower(a)}).slice(0,5);
+ return{year:w.year,month:w.month,divergence:Math.round(w.divergence||0),tension:Math.round(w.globalTension||0),leadingActors:actors.map(function(a){var g=ws.actorGoals&&ws.actorGoals[a.name];return{name:a.name,faction:a.faction,region:a.region,power:Math.round(actorPower(a)),goal:g&&g.primary||a.goal,goalProgress:g?Math.round(g.progress||0):0}}),recentActions:(ws.actorHistory||[]).slice(0,5),recentTerritoryChanges:(ws.territoryHistory||[]).slice(0,5)}
 }
 function diplomacy(a,b){if(a===b)return 100;if(a==='Indépendant'||b==='Indépendant')return 0;return game.world.diplomacy[pairKey(a,b)]||0}
 function actorPower(a){var y=game.world.year||0;if(a.status==='inactive')return 0;var start=a.activeFrom||0,t=cl((y-start)/Math.max(1,a.growth||15),0,1),base=a.base+(a.peak-a.base)*t;return cl(base+(a.momentum||0),1,100)}
@@ -270,7 +289,7 @@ function resolveActorIntent(a){
  }else if(intent==='Consolider ses alliances'){
   var choices=WORLD_FACTIONS.filter(function(f){return f!==a.faction&&diplomacy(a.faction,f)>-25});if(choices.length){var f=pk(choices,'world'),k=pairKey(a.faction,f);w.diplomacy[k]=cl((w.diplomacy[k]||0)+1+R('world')*3,-100,100);outcome='renforce ses liens avec '+f}else outcome='reste isolé diplomatiquement'
  }
- a.lastIntentOutcome=outcome;a.intention=null;a.intentionMonths=0;if(a.importance>=98&&R('world')<.35)news(a.name+' poursuit son objectif',outcome+'.','');return outcome
+ a.lastIntentOutcome=outcome;recordWorldActorAction(a,intent,outcome,intent==='Étendre son influence'?4:intent==='Chercher un affrontement'?3:intent==='Sécuriser sa région'?2.5:1.5);a.intention=null;a.intentionMonths=0;if(a.importance>=98&&R('world')<.35)news(a.name+' poursuit son objectif',outcome+'.','');return outcome
 }
 function actorIntentTick(a){if(a.status!=='active')return;if(!a.intention)assignActorIntent(a);a.intentionMonths=Math.max(0,(a.intentionMonths||0)-1);a.momentum=cl((a.momentum||0)*.997,-8,12);if(a.intentionMonths<=0)resolveActorIntent(a)}
 function crewIntentPool(c){
@@ -2075,7 +2094,7 @@ function resolveCanonEvent(c){
  if(game.codex.events.indexOf(c.title)<0)game.codex.events.push(c.title);w.canonHistory.push({id:c.id,status:c.status,year:w.year,month:w.month});w.canonHistory=w.canonHistory.slice(-80)
 }
 function processCanonEvents(){var w=game.world,now=w.year*12+Math.floor(w.month);syncActorAvailability();w.canon.forEach(function(c){if(c.status==='future'&&now>=canonMonth(c))resolveCanonEvent(c)})}
-function worldMonthStep(){syncActorAvailability();fruitMarketTick();syncCanonicalFruits();processCanonEvents();simulateTerritories();simulateCrews();simulateActors();simulateConflicts();simulateDiplomacy();strategyTick();simulateEconomy();var w=game.world;w.globalTension=cl(w.globalTension+(R('world')-.5)*2,0,100);REG.forEach(function(r){var rp=w.pressures[r];if(!rp)return;Object.keys(rp).forEach(function(k){rp[k]=cl(rp[k]+(R('world')-.5)*2.2,0,100)})})}
+function worldMonthStep(){syncActorAvailability();migrateWorldFoundations(game,game.world);fruitMarketTick();syncCanonicalFruits();processCanonEvents();simulateTerritories();simulateCrews();simulateActors();simulateConflicts();simulateDiplomacy();strategyTick();simulateEconomy();snapshotWorldTerritories();var w=game.world;w.globalTension=cl(w.globalTension+(R('world')-.5)*2,0,100);REG.forEach(function(r){var rp=w.pressures[r];if(!rp)return;Object.keys(rp).forEach(function(k){rp[k]=cl(rp[k]+(R('world')-.5)*2.2,0,100)})})}
 function world(m){var w=game.world;if(!w.v1ClockMigrated){var frac=(w.month||0)%1;w.month=Math.floor(w.month||0);w.simRemainder=(w.simRemainder||0)+frac;w.v1ClockMigrated=true}w.simRemainder=(w.simRemainder||0)+m;while(w.simRemainder>=1){w.simRemainder-=1;w.month++;if(w.month>=12){w.month=0;w.year++;if(R('world')<.55)news('Bilan annuel',pk(['La Marine réorganise plusieurs bases.','De nouveaux équipages se font un nom.','Des réseaux clandestins gagnent du terrain.','Plusieurs routes commerciales changent de mains.'],'world'),'')}worldMonthStep()}}
 function runLocalEvent(){var p=game.player,candidates=LOCAL_EVENTS.filter(function(x){return x.regions.indexOf(p.region)>=0});if(!candidates.length)return false;var ev=pk(candidates,'local');if(ev.kind==='economy'){var v=1200+Math.round(R('local')*9000);if(R('local')<.58){p.money-=Math.min(Math.max(0,p.money),v);tl(ev.title,'Une transaction locale te coûte '+v.toLocaleString('fr-FR')+' B.')}else{p.money+=v;tl(ev.title,'Une opportunité commerciale te rapporte '+v.toLocaleString('fr-FR')+' B.')}}else if(ev.kind==='danger'){resolveAmbientDanger(ev.title,inf().danger+8+R('local')*24)}else if(ev.kind==='faction'){adjustRep(p.faction,1+R('local')*2);tl(ev.title,'Tes activités attirent l’attention des organisations présentes dans la zone.')}else if(ev.kind==='world'){news(ev.title,'Une information circule dans '+p.region+' et modifie les rumeurs locales.','');tl(ev.title,'Tu obtiens de nouvelles informations sur les forces locales.')}else if(ev.kind==='discovery'){var site=explorationSite(p.island),gain=3+R('local')*7;site.familiarity=cl(site.familiarity+gain,0,100);var found=discoverByKnowledge(p.island);if(!found)learnLocalRumor(p.island);var value=300+Math.round(R('local')*2200);p.money+=value;tl(ev.title,'Ton exploration enrichit ta connaissance de '+p.island+' et te rapporte '+value.toLocaleString('fr-FR')+' B.')}return true}
 function dangerAlternativeScore(){
