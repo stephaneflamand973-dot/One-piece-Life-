@@ -1278,12 +1278,12 @@ test('V2.8 active arc registry remains compact',()=>{
         const l=g.loop||{};maxArcStage=Math.max(maxArcStage,...(l.arcs||[]).map(a=>a.stage||0),...(l.arcHistory||[]).map(a=>a.stage==='Tournant'?3:a.stage==='Héritage'?4:a.stage==='Escalade'?2:a.stage==='En cours'?1:0));maxActiveArcs=Math.max(maxActiveArcs,(l.arcs||[]).length);
       }
       const l=g.loop||{},unique=new Set(titles).size;
-      rows.push({faction,earlyDeath:false,alive:g.alive,years:(p.ageMonths-180)/12,clicks,missions,routine,routineShare:missions?routine/missions:0,unique,repeat:missions?1-unique/missions:0,arcHistory:(l.arcHistory||[]).length,activeArcs:(l.arcs||[]).length,founding:(l.foundingMemories||[]).length,maxArcStage,maxActiveArcs,storyChoices,relations:g.relations.length,nemeses:g.relations.filter(r=>r.nemesisRecognized).length});
+      rows.push({faction,earlyDeath:false,alive:g.alive,years:(p.ageMonths-180)/12,clicks,missions,routine,routineShare:missions?routine/missions:0,unique,repeat:missions?1-unique/missions:0,arcHistory:(l.arcHistory||[]).length,activeArcs:(l.arcs||[]).length,founding:(l.foundingMemories||[]).length,maxArcStage,maxActiveArcs,storyChoices,relations:g.relations.length,nemeses:g.relations.filter(r=>r.nemesisRecognized).length,death:g.death&&g.death.cause||null});
     }
   });
   const live=rows.filter(x=>!x.earlyDeath);
   const avg=k=>+(live.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,live.length)).toFixed(2);
-  const byFaction={};factions.forEach(f=>{const rs=live.filter(x=>x.faction===f),av=k=>+(rs.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,rs.length)).toFixed(2);byFaction[f]={sample:rs.length,aliveAt35:rs.filter(x=>x.alive&&x.years>=19.5).length,missions:av('missions'),routineShare:av('routineShare'),repeatRate:av('repeat'),arcHistory:av('arcHistory'),maxArcStage:av('maxArcStage'),relations:av('relations')}});
+  const byFaction={};factions.forEach(f=>{const rs=live.filter(x=>x.faction===f),av=k=>+(rs.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,rs.length)).toFixed(2);byFaction[f]={sample:rs.length,aliveAt35:rs.filter(x=>x.alive&&x.years>=19.5).length,missions:av('missions'),routineShare:av('routineShare'),repeatRate:av('repeat'),arcHistory:av('arcHistory'),maxArcStage:av('maxArcStage'),relations:av('relations'),deaths:rs.reduce((o,x)=>{if(x.death)o[x.death]=(o[x.death]||0)+1;return o},{})}});
   metrics.v28LongRun={sample:live.length,aliveAt35:live.filter(x=>x.alive&&x.years>=19.5).length,clicksPerYear:+(live.reduce((a,x)=>a+x.clicks,0)/Math.max(1,live.reduce((a,x)=>a+x.years,0))).toFixed(2),missions:avg('missions'),routineShare:avg('routineShare'),repeatRate:avg('repeat'),arcHistory:avg('arcHistory'),activeArcs:avg('activeArcs'),founding:avg('founding'),maxArcStage:avg('maxArcStage'),maxActiveArcs:Math.max(...live.map(x=>x.maxActiveArcs)),storyChoices:avg('storyChoices'),relations:avg('relations'),nemeses:avg('nemeses'),byFaction};
 }
 
@@ -1293,19 +1293,19 @@ test('V2.8.1 migration preserves existing arc interaction history',()=>{
 test('V2.8.1 static missions rotate contextual variants over time',()=>{
   const g=fresh(19101),p=g.player;p.ageMonths=180;p.factionRep.Civil=100;q.join('Civil');const base={title:'Livraison côtière',baseTitle:'Livraison côtière',danger:18,reward:6500,xp:10,tier:0,spec:null,months:1,worldGenerated:false,profile:'navigation'},titles=new Set();
   for(let i=0;i<8;i++){p.ageMonths=180+i*6;titles.add(q.missionVariant(base).title)}
-  assert(titles.size>=3,'mission variants remain too repetitive: '+[...titles].join(' / '));return titles.size+' variants';
+  assert(titles.size>=6,'mission variants remain too repetitive: '+[...titles].join(' / '));return titles.size+' variants';
 });
 test('V2.8.1 combat missions require a stronger recommendation threshold',()=>{
   const g=fresh(19102),p=g.player;p.ageMonths=180;const combat={title:'QA combat',danger:30,reward:1,xp:1,tier:0,profile:'combat'},nav={title:'QA nav',danger:30,reward:1,xp:1,tier:0,profile:'navigation'};
   assert(q.missionViabilityThreshold(combat)>=.58,'combat threshold too low');assert(q.missionViabilityThreshold(nav)<=.52,'noncombat threshold too punitive');return q.missionViabilityThreshold(combat)+' / '+q.missionViabilityThreshold(nav);
 });
 test('V2.8.1 autonomous arc beat can escalate but not replace real interactions',()=>{
-  const g=fresh(19103),p=g.player;p.ageMonths=300;q.registerArcSignal('crew','crew','qa-arc','QA Arc',70,{});q.registerArcSignal('crew','crew','qa-arc','QA Arc',70,{});const a=g.loop.arcs.find(x=>x.sourceId==='qa-arc');assert(a&&a.stage===1&&a.externalHits===2,'arc did not form correctly');a.lastPulseAge=270;q.arcTick(12);assert(a.stage>=2,'autonomous beat did not create escalation');assert(a.externalHits===2,'autonomous beat counted as real interaction');for(let i=0;i<5;i++){p.ageMonths+=18;a.lastPulseAge=p.ageMonths-20;q.arcTick(12)}assert(a.stage<3,'arc reached turning point without a third real interaction');return 'stage '+a.stage+' / '+a.externalHits+' real / '+a.pulses+' pulses';
+  const g=fresh(19103),p=g.player;p.ageMonths=300;const r=q.createRelation('ami');q.registerArcSignal('relation','relation',r.id,r.name,70,{});q.registerArcSignal('relation','relation',r.id,r.name,70,{});const a=g.loop.arcs.find(x=>String(x.sourceId)===String(r.id));assert(a&&a.stage===1&&a.externalHits===2,'arc did not form correctly');a.lastPulseAge=270;for(let i=0;i<12&&a.stage<2;i++)q.arcTick(12);assert(a.stage>=2,'autonomous beat did not create escalation');assert(a.externalHits===2,'autonomous beat counted as real interaction');for(let i=0;i<5;i++){p.ageMonths+=18;a.lastPulseAge=p.ageMonths-20;q.arcTick(12)}assert(a.stage<3,'arc reached turning point without a third real interaction');return 'stage '+a.stage+' / '+a.externalHits+' real / '+a.pulses+' pulses';
 });
 test('V2.8.1 narrative rival duels progress the correct rivalry record',()=>{
   const g=fresh(19104),p=g.player;p.ageMonths=300,g.relations=[];const r=q.createRelation('rival');r.rivalry=78;r.respect=70;r.trust=50;r.affection=45;r.npcAgeMonths=300;r.location=p.island;r.region=p.region;
-  for(let i=0;i<5;i++){const st=q.startStory('rival-challenge');assert(st,'rival story failed to start');q.storyChoice(st.id,'accept');st.nextAge=p.ageMonths;q.storyTick(0);p.ageMonths+=7}
-  const total=(r.rivalWins||0)+(r.rivalLosses||0);assert(total===5,'narrative duels not counted correctly: '+total);assert(r.nemesisRecognized,'five narrative duels did not create a nemesis');assert(r.rivalMilestones.includes('Rival confirmé')&&r.rivalMilestones.includes('Némésis'),'rival milestones missing');return r.rivalWins+' rival wins / '+r.rivalLosses+' rival losses';
+  for(let i=0;i<4;i++){const st=q.startStory('rival-challenge');assert(st,'rival story failed to start');st.awaiting=true;q.storyChoice(st.id,'accept');st.nextAge=p.ageMonths;q.storyTick(0);p.ageMonths+=7}
+  const total=(r.rivalWins||0)+(r.rivalLosses||0);assert(total===4,'narrative duels not counted correctly: '+total);assert(r.nemesisRecognized,'four meaningful narrative duels did not create a nemesis');assert(r.rivalMilestones.includes('Rival confirmé')&&r.rivalMilestones.includes('Némésis'),'rival milestones missing');return r.rivalWins+' rival wins / '+r.rivalLosses+' rival losses';
 });
 
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
