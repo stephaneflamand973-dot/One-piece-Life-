@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const base=fs.readFileSync('scripts/qa-v30.mjs','utf8');
+// V3.0 career-depth audit: mission outcomes now carry profile-specific mechanical consequences.
 const marker="console.log('\\nQA_METRICS '+JSON.stringify(metrics));";
 if(!base.includes(marker)) throw new Error('V2.9 audit marker not found in qa-v28.mjs');
 
