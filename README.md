@@ -19,6 +19,17 @@ La V5.0 part du constat post-V4.0 : le monde sait désormais vivre sans le joueu
 - **Fluidité** : vie active ordinaire compressée en fenêtres de 4 à 6 mois ; périodes adultes calmes en 5 à 7 mois.
 - Les historiques V5.0 restent bornés et le GameState reste en **version 28**.
 
+## Baseline auditée V5.0
+Dernier audit complet après Life Director, mobilité organique, continuité du foyer, dossiers de carrière et chapitres personnels :
+- QA : **304/304** ;
+- survie 20 ans : **98 %** ;
+- fluidité : **5,43 AVANCER/an** ;
+- lieux visités : **2,5** en moyenne sur 20 ans ;
+- opportunité de couple : **94 %** ; mariage : **77 %** ; parentalité : **75 %** lorsque les choix d’audit sont acceptés ;
+- chapitres personnels résolus : **3,9** par carrière ;
+- variété moyenne de rang final : **1,17** par profil ;
+- sauvegarde moyenne 20 ans : **256,6 KB**, maximum observé **273 KB**.
+
 ## Philosophie V5.0
 Le moteur doit proposer le prochain tournant intéressant. Le joueur décide. Les actions ordinaires restent automatiques.
 
