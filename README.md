@@ -1,3 +1,21 @@
+# ONE PIECE LIFE — V5.0 Grand Journey
+
+La V5.0 part du constat post-V4.0 : le monde sait désormais vivre sans le joueur, mais la vie du joueur doit devenir tout aussi organique.
+
+## Life Director
+- Un **Life Director** persistant fonctionne en arrière-plan sans créer de nouvelle jauge ni nouvel onglet.
+- Les carrières peuvent maintenant faire émerger des **opportunités de mobilité** qui proposent de voyager vers une destination réellement accessible.
+- Accepter une mutation déclenche une vraie traversée avec les systèmes maritimes existants et mémorise la cause du déplacement.
+- Les liens sociaux forts peuvent faire émerger naturellement une **possibilité sentimentale**, sans obliger le joueur à fouiller le menu Relations.
+- Un couple établi peut faire apparaître des étapes familiales importantes comme le mariage ou l’arrivée d’un enfant, toujours sous forme de décision explicite du joueur.
+- Les historiques du Life Director sont bornés afin de préserver les longues sauvegardes.
+- Le GameState interne reste en **version 28**.
+
+## Philosophie V5.0
+Le moteur doit proposer le prochain tournant intéressant. Le joueur décide. Les actions ordinaires restent automatiques.
+
+---
+
 # ONE PIECE LIFE — V4.0 Living World
 
 La V4.0 fait passer la simulation d'une carrière dans One Piece à une simulation du monde de One Piece autour de cette carrière.
