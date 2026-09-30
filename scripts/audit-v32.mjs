@@ -87,7 +87,10 @@ function qaLongCareer(seed,faction,spec,profile,years){
     avgChance:chances.length?+(chances.reduce((a,b)=>a+b,0)/chances.length).toFixed(2):0,guidance,
     activeArcs:(g.loop.arcs||[]).length,arcHistoryDelta:(g.loop.arcHistory||[]).length-arcTransitions0,arcPeak,
     founding:(g.loop.foundingMemories||[]).length,
-    nemeses:g.relations.filter(r=>r.nemesisRecognized&&r.status==='active').length
+    nemeses:g.relations.filter(r=>r.nemesisRecognized&&r.status==='active').length,
+    deathCause:g.death&&g.death.cause||null,
+    recognition:q.playerWorldRecognition(),
+    endgame:q.endgameStage()
   };
 }
 {
@@ -115,7 +118,10 @@ function qaLongCareer(seed,faction,spec,profile,years){
       worldShare:+(rs.reduce((a,x)=>a+x.worldShare,0)/rs.length).toFixed(2),
       clicksPerYear:+(rs.reduce((a,x)=>a+x.clicksPerYear,0)/rs.length).toFixed(2),
       arcHistory:+(rs.reduce((a,x)=>a+x.arcHistoryDelta,0)/rs.length).toFixed(1),
-      founding:+(rs.reduce((a,x)=>a+x.founding,0)/rs.length).toFixed(1)
+      founding:+(rs.reduce((a,x)=>a+x.founding,0)/rs.length).toFixed(1),
+      avgRecognition:+(rs.reduce((a,x)=>a+(x.recognition&&x.recognition.score||0),0)/rs.length).toFixed(1),
+      organicEndgameShare:+(rs.filter(x=>x.endgame&&x.endgame.organic).length/rs.length).toFixed(2),
+      deathCauses:rs.filter(x=>!x.alive).reduce((a,x)=>{const k=x.deathCause||'unknown';a[k]=(a[k]||0)+1;return a},{})
     };
   });
   metrics.v32CareerStress={
@@ -214,7 +220,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
   });
   metrics.v40LivingWorld={
     samples:rows.length,years:40,
-    sagas:{avgActive:+(sum('avgActive')/rows.length).toFixed(2),avgCreatedPerDecade:+(sum('created')/rows.length/4).toFixed(2),avgResolved:+(sum('resolved')/rows.length).toFixed(1),avgDuration:+(sum('avgDuration')/rows.length).toFixed(1),maxActive:Math.max(...rows.map(x=>x.maxActive)),types:typeTotals,outcomes:outcomeTotals},
+    sagas:{avgActive:+(sum('avgActive')/rows.length).toFixed(2),avgCreatedPerDecade:+(sum('created')/rows.length/4).toFixed(2),avgResolved:+(sum('resolved')/rows.length).toFixed(1),resolutionRate:+(sum('resolved')/Math.max(1,sum('created'))).toFixed(2),avgDuration:+(sum('avgDuration')/rows.length).toFixed(1),maxActive:Math.max(...rows.map(x=>x.maxActive)),types:typeTotals,outcomes:outcomeTotals,ruptureRate:+((outcomeTotals['rupture']||0)/Math.max(1,sum('resolved'))).toFixed(2),stabilizationRate:+((outcomeTotals['stabilisation']||0)/Math.max(1,sum('resolved'))).toFixed(2),newBalanceRate:+((outcomeTotals['nouvel équilibre']||0)/Math.max(1,sum('resolved'))).toFixed(2)},
     geopolitics:{avgShifts:+(sum('geoEvents')/rows.length).toFixed(1),causes:causeTotals,avgMaxFlips:+(sum('maxFlips')/rows.length).toFixed(1),avgDominantShare:+(sum('dominantShare')/rows.length).toFixed(2),avgActiveWars:+(sum('avgWars')/rows.length).toFixed(2),avgWarDuration:+(sum('avgWarDuration')/rows.length).toFixed(1)},
     factionGoals:goalSummary,
     performance:{avgInitialSaveKB:+(sum('initialBytes')/rows.length/1024).toFixed(1),avgFinalSaveKB:+(sum('finalBytes')/rows.length/1024).toFixed(1),avgWorldMonthMs:+(sum('elapsedMs')/rows.length/months).toFixed(2)}
@@ -223,7 +229,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
 {
   const g=fresh(33601),ws=g.world.worldState,s=q.startWorldSaga('rivalry',g.player.region,'Alpha','Beta','audit'),before=s.pressure;
   for(let i=0;i<12;i++)q.playerSagaPresence();
-  metrics.v40PlayerSagaBaseline={involved:!!s.playerInvolved,playerMonths:s.playerMonths||0,pressureGain:+(s.pressure-before).toFixed(1),peakPower:s.playerPeakPower||0};
+  metrics.v40PlayerSagaBaseline={involved:!!s.playerInvolved,role:s.playerRole||null,presenceMonths:s.playerPresenceMonths||0,impact:s.playerImpact||0,pressureGain:+(s.pressure-before).toFixed(1),peakPower:s.playerPeakPower||0};
 }
 {
   const g=fresh(33602),factions=['Pirates','Marine','Révolutionnaires','Gouvernement','Civil','Chasseur de primes'],out={};
@@ -239,13 +245,14 @@ function qaLongCareer(seed,faction,spec,profile,years){
     Object.keys(p.stats).forEach(k=>{p.stats[k]=90;p.caps[k]=98;p.absoluteCaps[k]=100});
     Object.keys(p.skills).forEach(k=>{p.skills[k]=88;p.caps[k]=98;p.absoluteCaps[k]=100});
     p.factionRep[f]=95;if(f!=='Civil')q.join(f);
-    const x=q.influenceMetrics();x.score=90;x.fame=85;x.infamy=f==='Pirates'?75:10;x.domains=[];x.affiliates=[];
-    if(f==='Pirates'){x.domains=['Foosha Village','Orange Town','Syrup Village'];x.affiliates=['qa1','qa2','qa3'];p.bounty=1200000000}
+    if(f==='Pirates'){p.bounty=1200000000;['Foosha Village','Orange Town','Syrup Village'].forEach(n=>{if(g.world.territories[n])g.world.territories[n].playerControl={ownerKey:String(g.seed),ownerName:p.name,faction:'Pirates',control:80,mode:'conquest'}});g.world.crews.filter(c=>c.faction==='Pirates').slice(0,3).forEach(c=>c.affiliation={ownerKey:String(g.seed),ownerName:p.name})}
     if(f==='Marine')p.rank='Vice-amiral';
     if(f==='Révolutionnaires')p.rank='Commandant régional';
     if(f==='Gouvernement')p.rank='CP0';
     if(f==='Chasseur de primes'){p.justice.captures=20;p.justice.bountiesClaimed=250000000}
     if(f==='Civil'){p.specialization='Scientifique';p.skills.Science=95}
+    for(let n=0;n<5;n++)g.world.worldState.sagaHistory.push({id:'elite-'+f+'-'+n,playerInvolved:true,playerRole:n<2?'responsible':'decisive',region:p.region,months:18});
+    for(let n=0;n<8;n++)g.world.worldState.playerCanonImpact.push({eventId:'elite-canon-'+n,kind:n<2?'major':'direct'});
     const r=q.playerWorldRecognition(),e=q.endgameStage();
     out[f]={score:r.score,role:r.role,organic:!!(e&&e.organic),stage:e&&e.label};
   });
