@@ -1079,11 +1079,11 @@ function directorTravelCandidate(){
  return pool[0]
 }
 function directorRomanceCandidate(){
- var p=game.player,d=migrateLifeDirector(p);if(p.ageMonths<216||p.life.partnerId||p.ageMonths-d.lastRomanceAge<18)return null;
+ var p=game.player,d=migrateLifeDirector(p);if(p.ageMonths<216||p.career==='Aucune'||p.life.partnerId||p.ageMonths-d.lastRomanceAge<18)return null;
  return game.relations.filter(function(r){return r.status==='active'&&r.npcAgeMonths>=216&&npcNearby(r)&&r.role!=='rival'&&r.role!=='mentor'&&r.role!=='parent'&&r.role!=='frère / sœur'}).sort(function(a,b){var as=(a.affection||0)+(a.trust||0)+(a.attraction||0)*1.2,bs=(b.affection||0)+(b.trust||0)+(b.attraction||0)*1.2;return bs-as}).filter(function(r){return(r.affection||0)>=52&&(r.trust||0)>=48&&((r.attraction||0)>=30||(r.affection||0)>=68)})[0]||null
 }
 function directorFamilyOpportunity(){
- var p=game.player,d=migrateLifeDirector(p),r=partnerRelation();if(!r||p.ageMonths<216||p.ageMonths-d.lastFamilyAge<24)return null;
+ var p=game.player,d=migrateLifeDirector(p),r=partnerRelation();if(!r||p.ageMonths<216||p.career==='Aucune'||p.ageMonths-d.lastFamilyAge<24)return null;
  if(p.life.relationshipStatus==='En couple'&&(r.relationshipMonths||0)>=12&&r.trust>=62&&r.affection>=65)return'marriage';
  if(p.life.relationshipStatus==='Marié'&&(p.children||[]).length<3&&r.trust>=58&&r.affection>=60)return'child';
  return null
