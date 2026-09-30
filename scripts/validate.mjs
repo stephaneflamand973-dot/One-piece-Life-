@@ -153,6 +153,7 @@ if(!app.includes('function legendRecognitionTick') || !app.includes("kind==='leg
 if(!app.includes('delete m.goods[x.id].activity') || !app.includes('delete m.goods[x.id].lastPrice') || !app.includes('delete m.lastShockMonth') || !app.includes('w.economy.shocks.slice(0,24)')) throw new Error('V5.0 market save compaction missing');
 if(!app.includes('function generationLegacySnapshot') || !app.includes('g.dynasty.ancestors.slice(-20)') || !app.includes('legacy:legacy')) throw new Error('V5.0 bounded generational legacy missing');
 if(!app.includes('function lifeChronicle') || !app.includes('chronicle:chronicle.summary') || !app.includes("chronicle.headline")) throw new Error('V5.0 compact life chronicle payoff missing');
+if(!app.includes('function directorLegacyOpportunity') || !app.includes("'legacy-crossroads'") || !app.includes('legacyChoice') || !app.includes("embrace-legacy")) throw new Error('V5.0 generational legacy crossroads missing');
 if(!app.includes('function latestDynastyLegacy') || !app.includes("Héritage de '+e(ancestor.name)")) throw new Error('V5.0 visible generational legacy missing');
 if(!app.includes("Chapitre actuel : ")) throw new Error('V5.0 active chapter is not surfaced in AVANCER');
 if(!app.includes('partnerFollows') || !app.includes('longDistance') || !app.includes("Vous vous installez ensemble à")) throw new Error('V5.0 household relocation continuity missing');
