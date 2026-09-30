@@ -10,7 +10,7 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('<title>ONE PIECE LIFE — V3.5</title>') || !html.includes('V3.5 • Canon Engine')) throw new Error('index.html does not expose V3.5 consistently');
+if(!html.includes('<title>ONE PIECE LIFE — V4.0</title>') || !html.includes('V4.0 • Living World')) throw new Error('index.html does not expose V4.0 consistently');
 if(!app.includes('version:28') || !app.includes('g.version=28')) throw new Error('compatible GameState 28 migration is missing');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
@@ -134,3 +134,5 @@ if(!app.includes("if(awaitingStory())return showStoryDecision()")) throw new Err
 console.log('ONE PIECE LIFE V2.6 validation OK');
 
 if(!app.includes('function missionOutcomeFlavor') || !app.includes('function endgameMilestones') || !app.includes('function migrateWorldFoundations') || !app.includes('function worldStateSummary') || !app.includes("id==='navigation'") || !app.includes("id==='trade'")) throw new Error('V3.2 career-specific mission outcomes missing');
+
+if(!app.includes('function simulateWorldSagas') || !app.includes('function playerWorldRecognition') || !app.includes('function updateFactionWorldGoals') || !app.includes('function playerSagaPresence')) throw new Error('V4.0 Living World systems missing');
