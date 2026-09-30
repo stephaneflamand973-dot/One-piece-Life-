@@ -697,7 +697,7 @@ function migrateLifeLoop(g){
 }
 function scheduleConsequence(kind,title,desc,delay,payload,weight,sourceKey){
  var l=migrateLifeLoop(game),key=sourceKey||'',existing=key&&l.consequences.find(function(x){return x.sourceKey===key});if(existing)return existing;
- var d=Math.max(.25,delay==null?6+R('memory')*8:delay),item={id:++l.consequenceSeq,kind:kind||'life',title:title||'Un souvenir revient',desc:desc||'',createdAge:game.player.ageMonths,dueAge:game.player.ageMonths+d,weight:weight==null?60:weight,sourceKey:key,payload:payload||{},resolved:false};
+ var d=Math.max(0,delay==null?6+R('memory')*8:delay),item={id:++l.consequenceSeq,kind:kind||'life',title:title||'Un souvenir revient',desc:desc||'',createdAge:game.player.ageMonths,dueAge:game.player.ageMonths+d,weight:weight==null?60:weight,sourceKey:key,payload:payload||{},resolved:false};
  l.consequences.push(item);l.consequences.sort(function(a,b){return a.dueAge-b.dueAge||b.weight-a.weight});l.consequences=l.consequences.slice(0,18);return item
 }
 function consequenceRelation(data){
