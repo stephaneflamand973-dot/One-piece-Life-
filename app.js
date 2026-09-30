@@ -2059,14 +2059,14 @@ function advanceSlice(m){
 }
 function advance(){
  if(!game||!game.alive)return;if(game.pending)return showDecision();if(awaitingStory())return showStoryDecision();
- var p=game.player,plan=advancePlan(),target=chooseAdvanceDuration(plan),before=captureAdvanceState(),loop=migrateLifeLoop(game),total=0,startMajor=loop.majorSeq,startMoments=loop.momentSeq,adult=p.ageMonths>=180,hadMission=!!game.mission,hadTravel=!!p.travel;
+ var p=game.player,plan=advancePlan(),target=chooseAdvanceDuration(plan),before=captureAdvanceState(),loop=migrateLifeLoop(game),total=0,startMajor=loop.majorSeq,startMoments=loop.momentSeq,startSignature=loop.signatureSeq||0,startDetained=!!migrateJustice(p).detained,startSevere=p.health<45||(p.conditions||[]).some(function(c){return(c.severity||1)>=2}),adult=p.ageMonths>=180,hadMission=!!game.mission,hadTravel=!!p.travel;
  if(!adult&&!hadMission&&!hadTravel&&plan.key!=='detention'){advanceSlice(target);total=target}
  else{
   var remaining=target,guard=0;
   while(remaining>.001&&guard++<12&&game.alive){
    var slice=Math.min(1,remaining);advanceSlice(slice);total+=slice;remaining-=slice;
-   var missionEnded=hadMission&&!game.mission,travelEnded=hadTravel&&!p.travel,important=loop.majorSeq>startMajor,tooManyMoments=loop.momentSeq-startMoments>=4;
-   if(game.pending||awaitingStory()||missionEnded||travelEnded||important||tooManyMoments)break
+   var missionEnded=hadMission&&!game.mission,travelEnded=hadTravel&&!p.travel,majorCount=loop.majorSeq-startMajor,important=majorCount>0,signature=(loop.signatureSeq||0)>startSignature,detentionChanged=!!migrateJustice(p).detained!==startDetained,severeNow=p.health<45||(p.conditions||[]).some(function(c){return(c.severity||1)>=2}),newSevere=!startSevere&&severeNow,tooManyMoments=loop.momentSeq-startMoments>=4,canAbsorbOneMajor=plan.key==='high-risk'&&majorCount===1&&!signature&&!detentionChanged&&!newSevere;
+   if(game.pending||awaitingStory()||missionEnded||travelEnded||signature||detentionChanged||newSevere||(important&&!canAbsorbOneMajor)||tooManyMoments)break
   }
  }
  if(total<=0)return;
