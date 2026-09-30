@@ -188,3 +188,5 @@ await import('file:///tmp/qa-v30-runtime.mjs');
 // cross-world propagation stress pass
 
 // living world pulse final stress pass
+
+// 40-year autonomous world coherence audit
