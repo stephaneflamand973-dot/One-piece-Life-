@@ -1,4 +1,4 @@
-name: V3.2 Long Audit
+name: V3.5 Long Audit
 
 on:
   workflow_dispatch:
@@ -24,5 +24,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run 10-20 year stress audit
+      - name: Run V3.5 long-career and canon stress audit
         run: node scripts/audit-v32.mjs
