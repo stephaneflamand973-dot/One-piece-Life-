@@ -1293,6 +1293,11 @@ test('V5.0 migration preserves newest-first world history',()=>{
 
 
 
+
+test('V5.0 world-history migration preserves the most recent entries',()=>{
+  const g=fresh(50162),ws=g.world.worldState,version=g.version;ws.actorHistory=Array.from({length:110},(_,i)=>({seq:110-i,actor:'A'+(110-i)}));ws.crewHistory=Array.from({length:90},(_,i)=>({seq:90-i,crew:'C'+(90-i)}));q.migrate(g);assert(g.version===version&&g.version===28,'history migration changed GameState version');assert(ws.actorHistory.length===90&&ws.actorHistory[0].seq===110&&ws.actorHistory[89].seq===21,'actor history did not retain newest entries');assert(ws.crewHistory.length===70&&ws.crewHistory[0].seq===90&&ws.crewHistory[69].seq===21,'crew history did not retain newest entries');return 'recent history preserved / GameState '+g.version;
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
