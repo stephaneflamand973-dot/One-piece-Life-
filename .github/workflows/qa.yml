@@ -1,4 +1,4 @@
-name: V2.7 QA
+name: V2.8 QA
 
 on:
   push:
@@ -21,4 +21,4 @@ jobs:
         with:
           node-version: '22'
       - name: Run full simulation QA
-        run: node scripts/qa-v27.mjs
+        run: node scripts/qa-v28.mjs
