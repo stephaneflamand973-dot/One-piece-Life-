@@ -221,7 +221,7 @@ function initLivingWorld(g,w){
 }
 function migrateWorldFoundations(g,w){
  w.worldState=w.worldState||{version:1,seq:0,actorHistory:[],territoryHistory:[],monthlyChanges:[],actorGoals:{}};
- var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(-120):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(-100):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(-48):[];ws.actorGoals=ws.actorGoals||{};ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory.slice(-80):[];ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality.slice(-100):[];ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(-100):[];
+ var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(-120):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(-100):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(-48):[];ws.actorGoals=ws.actorGoals||{};ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory.slice(-80):[];ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality.slice(-100):[];ws.canonBranches=Array.isArray(ws.canonBranches)?ws.canonBranches.slice(-60):[];ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(-100):[];
  (w.actors||[]).forEach(function(a){var goal=ws.actorGoals[a.name]||{};goal.primary=goal.primary||a.goal||'Tracer sa route';goal.progress=cl(goal.progress||0,0,100);goal.stage=goal.stage||'pursuing';goal.lastAction=goal.lastAction||'';goal.lastOutcome=goal.lastOutcome||'';goal.updatedAt=goal.updatedAt||0;ws.actorGoals[a.name]=goal;a.worldGoal=goal});
  return w
 }
@@ -267,7 +267,7 @@ function propagateActorWorldImpact(a,intent){
 }
 function worldStateSummary(){
  var w=game.world,ws=w.worldState||{},actors=(w.actors||[]).filter(function(a){return a.status==='active'}).sort(function(a,b){return actorPower(b)-actorPower(a)}).slice(0,5);
- return{year:w.year,month:w.month,divergence:Math.round(w.divergence||0),tension:Math.round(w.globalTension||0),leadingActors:actors.map(function(a){var g=ws.actorGoals&&ws.actorGoals[a.name];return{name:a.name,faction:a.faction,region:a.region,power:Math.round(actorPower(a)),goal:g&&g.primary||a.goal,goalProgress:g?Math.round(g.progress||0):0}}),recentActions:(ws.actorHistory||[]).slice(0,5),recentGoalMilestones:(ws.goalHistory||[]).slice(0,5),timelineMode:canonTimelineMode(),recentCanonCausality:(ws.canonCausality||[]).slice(0,5),recentCrewActions:(ws.crewHistory||[]).slice(0,5),recentTerritoryChanges:(ws.territoryHistory||[]).slice(0,5)}
+ return{year:w.year,month:w.month,divergence:Math.round(w.divergence||0),tension:Math.round(w.globalTension||0),leadingActors:actors.map(function(a){var g=ws.actorGoals&&ws.actorGoals[a.name];return{name:a.name,faction:a.faction,region:a.region,power:Math.round(actorPower(a)),goal:g&&g.primary||a.goal,goalProgress:g?Math.round(g.progress||0):0}}),recentActions:(ws.actorHistory||[]).slice(0,5),recentGoalMilestones:(ws.goalHistory||[]).slice(0,5),timelineMode:canonTimelineMode(),recentCanonCausality:(ws.canonCausality||[]).slice(0,5),activeCanonBranches:(ws.canonBranches||[]).filter(function(x){return x.status==='active'}).slice(0,5),recentCrewActions:(ws.crewHistory||[]).slice(0,5),recentTerritoryChanges:(ws.territoryHistory||[]).slice(0,5)}
 }
 function diplomacy(a,b){if(a===b)return 100;if(a==='Indépendant'||b==='Indépendant')return 0;return game.world.diplomacy[pairKey(a,b)]||0}
 function actorPower(a){var y=game.world.year||0;if(a.status==='inactive')return 0;var start=a.activeFrom||0,t=cl((y-start)/Math.max(1,a.growth||15),0,1),base=a.base+(a.peak-a.base)*t;return cl(base+(a.momentum||0),1,100)}
@@ -2135,6 +2135,14 @@ function canonTimelineMode(){
 function recordCanonCausality(c,state,status){
  var ws=game.world.worldState;if(!ws)return;ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality:[];ws.canonCausality.unshift({seq:++ws.seq,id:c.id,title:c.title,status:status,year:game.world.year,month:game.world.month,mode:canonTimelineMode(),missingEvents:(state.missingEvents||[]).slice(),alteredEvents:(state.alteredEvents||[]).slice(),missingActors:(state.missingActors||[]).slice()});ws.canonCausality=ws.canonCausality.slice(0,100)
 }
+function createCanonBranch(c,causal){
+ var w=game.world,ws=w.worldState;if(!ws)return null;ws.canonBranches=Array.isArray(ws.canonBranches)?ws.canonBranches:[];
+ var causes=[].concat(causal.missingEvents||[],causal.missingActors||[],causal.alteredEvents||[]),region=c.location?infStatic(c.location).region:null;
+ var branch={seq:++ws.seq,id:'branch-'+c.id+'-'+ws.seq,source:c.id,title:'Conséquence de '+c.title,year:w.year,month:w.month,location:c.location||null,region:region,factions:(c.factions||[]).slice(),causes:causes.slice(0,6),status:'active',pressure:cl(20+w.divergence*.45+causes.length*7,20,90)};
+ ws.canonBranches.unshift(branch);ws.canonBranches=ws.canonBranches.slice(0,60);
+ if(c.location&&w.territories[c.location]){var t=w.territories[c.location];t.stability=cl(t.stability-(3+branch.pressure*.05),0,100);if(t.stability<35)t.contested=true}
+ return branch
+}
 function resolveCanonEvent(c){
  var w=game.world,p=game.player,required=c.required||[],causal=canonDependencyState(c),missing=causal.missingActors,terr=w.territories[c.location],instability=terr?100-terr.stability:30,pressure=w.divergence+instability*.08+(terr&&terr.contested?8:0)+causal.alteredEvents.length*6,modified=false;
  if(causal.missingEvents.length||missing.length){c.status='cancelled';w.divergence=cl(w.divergence+Math.max(2,(100-c.resistance)*.16+missing.length*2+causal.missingEvents.length*3),0,100)}
@@ -2142,7 +2150,7 @@ function resolveCanonEvent(c){
  if(c.status==='completed'){required.forEach(function(n){var a=canonActor(n);if(a&&c.location){a.region=infStatic(c.location).region;a.status='active'}});if(terr){terr.stability=cl(terr.stability-(c.type==='anchor'?8:4),0,100)}}
  var detail=c.status==='cancelled'?'Événement annulé : '+([].concat(missing,causal.missingEvents).join(', ')||'chaîne causale rompue')+' manque(nt) à la chaîne causale.':c.status==='modified'?'L’événement se produit sous une forme divergente.':c.description;
  news(c.title,detail,c.status==='completed'?'major':'war');if(p.island===c.location||p.region===infStatic(c.location).region)tl(c.title,detail,'canon');
- if(game.codex.events.indexOf(c.title)<0)game.codex.events.push(c.title);recordCanonCausality(c,causal,c.status);w.canonHistory.push({id:c.id,status:c.status,year:w.year,month:w.month});w.canonHistory=w.canonHistory.slice(-80)
+ if(game.codex.events.indexOf(c.title)<0)game.codex.events.push(c.title);if(c.status==='cancelled'||c.status==='modified')createCanonBranch(c,causal);recordCanonCausality(c,causal,c.status);w.canonHistory.push({id:c.id,status:c.status,year:w.year,month:w.month});w.canonHistory=w.canonHistory.slice(-80)
 }
 function processCanonEvents(){var w=game.world,now=w.year*12+Math.floor(w.month);syncActorAvailability();w.canon.forEach(function(c){if(c.status==='future'&&now>=canonMonth(c))resolveCanonEvent(c)})}
 function worldMonthStep(){syncActorAvailability();migrateWorldFoundations(game,game.world);fruitMarketTick();syncCanonicalFruits();processCanonEvents();simulateTerritories();simulateCrews();simulateActors();simulateConflicts();simulateDiplomacy();strategyTick();simulateEconomy();snapshotWorldTerritories();var w=game.world;w.globalTension=cl(w.globalTension+(R('world')-.5)*2,0,100);REG.forEach(function(r){var rp=w.pressures[r];if(!rp)return;Object.keys(rp).forEach(function(k){rp[k]=cl(rp[k]+(R('world')-.5)*2.2,0,100)})})}
