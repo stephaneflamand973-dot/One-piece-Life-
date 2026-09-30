@@ -114,7 +114,9 @@ function qaLongCareer(seed,faction,spec,profile,years){
     directorJourneys:p.lifeDirector&&p.lifeDirector.acceptedMoves||0,
     directorJourneyOffers:p.lifeDirector&&p.lifeDirector.journeyOffers||0,
     directorRomanceOffers:p.lifeDirector&&p.lifeDirector.romanceOffers||0,
-    directorFamilyOffers:p.lifeDirector&&p.lifeDirector.familyOffers||0
+    directorFamilyOffers:p.lifeDirector&&p.lifeDirector.familyOffers||0,
+    careerMomentum:+((q.careerRecord&&q.careerRecord().momentum)||0).toFixed(2),
+    careerSuccessRate:(q.careerRecord&&((q.careerRecord().successes||0)+(q.careerRecord().failures||0)))?+((q.careerRecord().successes||0)/((q.careerRecord().successes||0)+(q.careerRecord().failures||0))).toFixed(2):0
   };
 }
 let postCareerRows=[],postCareerProfiles=[];
@@ -177,6 +179,8 @@ let postCareerRows=[],postCareerProfiles=[];
         organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
         avgCareerHistory:avg('careerHistory'),
         avgRankVariety:+(profiles.reduce((a,cfg)=>{const key=cfg[0]+' / '+cfg[1];return a+Object.keys(rankSpread[key]||{}).length},0)/profiles.length).toFixed(2),
+        avgFinalMomentum:avg('careerMomentum'),
+        avgMissionSuccessRate:+(rows.reduce((a,x)=>a+(x.careerSuccessRate||0),0)/rows.length).toFixed(2),
         finalRanks:rankSpread
       },
       personalLife:{
