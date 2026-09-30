@@ -1128,6 +1128,31 @@ function directorFamilyOpportunity(){
  if(p.life.relationshipStatus==='Marié'&&kids<3&&r.relationshipMonths>=18&&r.trust>=58&&r.affection>=60)return'child';
  return null
 }
+function careerSpecializationFit(sp){
+ var p=game.player,w=game.world,profile=specProfile(sp),score=careerExpertise(sp),rp=w.pressures[p.region]||{},o=p.organization;
+ if(!profile)return score;
+ if(p.ambition==='Explorer le monde'&&(sp==='Navigation'||sp==='Navigateur'||sp==='Traqueur'))score+=8;
+ if(p.ambition==='Devenir puissant'&&profile.combatWeight>=.55)score+=6;
+ if(p.ambition==='Faire fortune'&&sp==='Marchand')score+=9;
+ if(p.ambition==='Entrer dans l’histoire'&&(sp==='Renseignement'||sp==='Infiltration'||sp==='Cipher Pol'||profile.combatWeight>=.7))score+=4;
+ var criminal=rp.Criminalité||0,instability=rp.Instabilité||0,prosperity=rp.Prospérité||0;
+ if(sp==='Renseignement'||sp==='Infiltration'||sp==='Investigateur'||sp==='Cipher Pol')score+=criminal/18+instability/28;
+ if(sp==='Traqueur')score+=criminal/16;
+ if(profile.combatWeight>=.7)score+=instability/24;
+ if(sp==='Marchand')score+=prosperity/18;
+ if(sp==='Scientifique'||sp==='Administration')score+=prosperity/32;
+ if((sp==='Logistique'||sp==='Quartier-maître')&&o)score+=Math.max(0,55-(o.supplies||0))*.13+Math.max(0,65-(o.morale||0))*.06;
+ if((sp==='Médecine'||sp==='Médecin')&&p.health<75)score+=(75-p.health)*.08;
+ return score
+}
+function careerTurnCandidate(){
+ var p=game.player,d=migrateLifeDirector(p),cfg=CAREERS[p.faction]||CAREERS.Civil,rec=careerRecord();
+ if(p.ageMonths<240||p.career==='Aucune'||!p.specialization||p.travel||game.mission||rec.months<36||p.ageMonths-d.lastCareerTurnAge<48)return null;
+ var current=p.specialization,currentFit=careerSpecializationFit(current),choices=(cfg.specs||[]).filter(function(sp){return sp!==current&&specEligibility(sp)[0]}).map(function(sp){return{sp:sp,fit:careerSpecializationFit(sp)}}).sort(function(a,b){return b.fit-a.fit});
+ if(!choices.length)return null;var best=choices[0],margin=best.fit-currentFit;if(margin<8)return null;
+ var reason=margin>=16?'tes aptitudes et le contexte de ta carrière pointent nettement vers '+best.sp:margin>=11?'ton évolution récente correspond davantage à '+best.sp:'une nouvelle spécialité correspond mieux à la direction prise par ta carrière';
+ return{from:current,to:best.sp,currentFit:currentFit,newFit:best.fit,margin:margin,reason:reason}
+}
 function storyEligibleTypes(){
  var p=game.player,types=[],active=activeStories(),used=active.map(function(s){return s.type}),rels=game.relations.filter(function(r){return r.status==='active'&&(r.location===p.island||r.region===p.region)}),rivals=rels.filter(function(r){return r.role==='rival'}),mentors=rels.filter(function(r){return r.role==='mentor'}),partner=partnerRelation(),hostileCrews=game.world.crews.filter(function(c){return c.status==='active'&&c.region===p.region&&diplomacy(p.faction,c.faction)<-20}),site=explorationSite(p.island),j=migrateJustice(p);
  function add(id,w){if(used.indexOf(id)<0&&w>0)types.push({id:id,weight:w*storyNoveltyWeight(id)})}
@@ -1143,6 +1168,7 @@ function storyEligibleTypes(){
  if(p.ageMonths>=216&&(partner||(p.children||[]).some(function(c){return c.status==='active'})))add('family-crossroads',.82);
  var romanceCandidate=directorRomanceCandidate();if(romanceCandidate)add('relationship-opening',1.02);
  var familyFuture=directorFamilyOpportunity();if(familyFuture)add('family-future',familyFuture==='child'?1.55:1.28);
+ var careerTurn=careerTurnCandidate();if(careerTurn)add('career-turn',.95);
  var transfer=directorTravelCandidate();if(p.ageMonths>=216&&p.career!=='Aucune'&&transfer)add('career-transfer',p.ambition==='Explorer le monde'?1.85:p.faction==='Pirates'?1.55:1.25);
  if(p.ageMonths>=180&&!p.travel&&site.familiarity>=30)add('horizon-call',.78+(p.activity==='Explorer'?.35:0));
  return types
@@ -1164,6 +1190,7 @@ function storyBase(type){
  else if(type==='family-crossroads'){r=partner||null;title='Ce que tu protèges';summary='Ta vie d’aventure entre en tension avec les personnes qui comptent le plus pour toi.';data.hasPartner=!!partner}
  else if(type==='relationship-opening'){r=directorRomanceCandidate();if(!r)return{title:'',summary:'',participant:null,data:{}};if(!npcNearby(r)&&!r.canonical){r.location=p.island;r.region=p.region;addRelationMemory(r,'Vos routes se recroisent à '+p.island+' après une période à distance.','reunion')}title='Un lien change avec '+r.name;summary='Votre relation commence à ressembler à autre chose qu’une simple proximité.';data.director=true}
  else if(type==='family-future'){r=partner;var future=directorFamilyOpportunity();if(!r||!future)return{title:'',summary:'',participant:null,data:{}};data.future=future;title=future==='marriage'?'Construire une vie avec '+r.name:'La famille peut s’agrandir';summary=future==='marriage'?'Votre relation est assez solide pour envisager un engagement durable.':'Votre couple arrive à un moment où une nouvelle génération devient une vraie possibilité.'}
+ else if(type==='career-turn'){var turn=careerTurnCandidate();if(!turn)return{title:'',summary:'',participant:null,data:{}};title='Un tournant dans ta carrière';summary=turn.reason+'.';data.turn=turn;data.director=true}
  else if(type==='career-transfer'){var destination=directorTravelCandidate();if(!destination)return{title:'',summary:'',participant:null,data:{}};var travelContext=directorTravelContext(destination),mobility=directorMobilityWording();title=mobility.noun.charAt(0).toUpperCase()+mobility.noun.slice(1)+' : '+destination;summary=(CAREERS[p.faction]?CAREERS[p.faction].label:p.faction)+' t’offre une occasion de '+travelContext.reason+' à '+destination+'.';data.destination=destination;data.from=p.island;data.reason=travelContext.reason;data.director=true}
  else if(type==='horizon-call'){title='Une route hors des habitudes';summary='Une rumeur crédible évoque une opportunité que peu de voyageurs semblent avoir remarquée.';data.danger=inf().danger;data.signature=profile.signature}
  return{title:title,summary:summary,participant:r,data:data}
@@ -1174,7 +1201,7 @@ function startStory(type){
 }
 function maybeStartStory(m){
  var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;
- var family=types.find(function(x){return x.id==='family-future'}),romance=types.find(function(x){return x.id==='relationship-opening'}),transfer=types.find(function(x){return x.id==='career-transfer'}),director=migrateLifeDirector(p),overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=54),chosen=overdueTransfer&&R('story')<.78?'career-transfer':family?'family-future':romance&&R('story')<.72?'relationship-opening':pickStoryType(types);return!!startStory(chosen)
+ var family=types.find(function(x){return x.id==='family-future'}),romance=types.find(function(x){return x.id==='relationship-opening'}),transfer=types.find(function(x){return x.id==='career-transfer'}),turn=types.find(function(x){return x.id==='career-turn'}),director=migrateLifeDirector(p),overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=54),overdueTurn=!!(turn&&p.ageMonths-(director.lastCareerTurnAge||-999)>=72),chosen=family?'family-future':overdueTransfer&&R('story')<.78?'career-transfer':romance&&R('story')<.72?'relationship-opening':overdueTurn&&R('story')<.55?'career-turn':pickStoryType(types);return!!startStory(chosen)
 }
 function storyPrompt(story){
  if(story.type==='youth-promise')return story.participantName+' te propose de vous fixer un objectif commun pour les mois qui viennent.';
@@ -1189,6 +1216,7 @@ function storyPrompt(story){
  if(story.type==='family-crossroads')return'Tu dois décider si cette période sera consacrée à tes proches ou à ton ambition personnelle.';
  if(story.type==='relationship-opening')return story.participantName+' laisse clairement entendre que votre lien pourrait devenir plus intime. Tu peux choisir de l’explorer ou de préserver votre relation actuelle.';
  if(story.type==='family-future')return story.data.future==='marriage'?'Votre relation est assez solide pour envisager le mariage, sans que cela soit une obligation.':'Vous pouvez choisir d’accueillir un enfant ou de laisser cette possibilité pour plus tard.';
+ if(story.type==='career-turn')return story.data.turn.reason+'. Tu peux te réorienter vers '+story.data.turn.to+' ou poursuivre comme '+story.data.turn.from+'.';
  if(story.type==='career-transfer'){var mw=directorMobilityWording();return mw.noun.charAt(0).toUpperCase()+mw.noun.slice(1)+' vers '+story.data.destination+'. Tu peux '+mw.verb+' ou conserver ta trajectoire actuelle.'}
  if(story.type==='horizon-call')return'La piste semble exploitable maintenant. Tu peux la suivre toi-même ou monnayer l’information.';
  return story.summary
@@ -1206,6 +1234,7 @@ function storyChoices(story){
  if(story.type==='family-crossroads')return[{id:'presence',label:'Être présent',desc:'Donner du temps à tes proches et renforcer les liens.'},{id:'ambition',label:'Prioriser ton ambition',desc:'Accélérer ta trajectoire personnelle avec un coût relationnel possible.'}];
  if(story.type==='relationship-opening')return[{id:'explore',label:'Explorer ce lien',desc:'Laisser cette relation devenir une vraie possibilité sentimentale.'},{id:'friendship',label:'Rester proches',desc:'Préserver le lien sans changer sa nature.'}];
  if(story.type==='family-future')return story.data.future==='marriage'?[{id:'commit',label:'Se marier',desc:'Faire de cette relation un engagement durable.'},{id:'wait',label:'Pas maintenant',desc:'Continuer ensemble sans précipiter cette étape.'}]:[{id:'child',label:'Accueillir un enfant',desc:'Faire une place à une nouvelle génération.'},{id:'wait',label:'Pas maintenant',desc:'Conserver votre équilibre actuel.'}];
+ if(story.type==='career-turn')return[{id:'pivot-career',label:'Se réorienter vers '+story.data.turn.to,desc:'Changer de spécialisation en conservant ta faction et ton parcours.'},{id:'stay-career',label:'Rester '+story.data.turn.from,desc:'Conserver ta spécialisation actuelle.'}];
  if(story.type==='career-transfer'){var mw=directorMobilityWording();return[{id:'accept-transfer',label:mw.accept,desc:'Prendre la mer vers '+story.data.destination+' et poursuivre ta trajectoire ailleurs.'},{id:'decline-transfer',label:mw.decline,desc:'Refuser cette opportunité sans changer de voie.'}]}
  if(story.type==='horizon-call')return[{id:'pursue',label:'Suivre la piste',desc:'Miser sur Navigation, Discipline et connaissance locale.'},{id:'sell',label:'Vendre l’information',desc:'Prendre un gain immédiat sans poursuivre l’aventure.'}];
  return[]
@@ -1270,6 +1299,11 @@ function storyChoice(storyId,choiceId){
  if(story.type==='social-favor'&&choiceId==='help'){var need=Math.max(0,story.data.cost||0),cost=Math.min(Math.max(0,game.player.money),need);game.player.money-=cost;story.data.paid=cost;story.data.unpaid=Math.max(0,need-cost)}
  if(story.type==='rival-challenge'&&choiceId==='decline'){var rr=storyRelation(story);if(rr){rr.rivalry=cl(rr.rivalry+3,0,100);rr.respect=cl(rr.respect-3,0,100)}return closeStory(story,'duel reporté','Tu refuses cette confrontation. Ton rival ne l’oublie pas.',false,'abandoned')}
  if(story.type==='organization-crisis'&&choiceId==='fund'){var need=story.data.cost||5000;if(game.player.money<need){story.choice='rally'}else game.player.money-=need}
+ if(story.type==='career-turn'){
+  var dc=migrateLifeDirector(game.player),ct=story.data&&story.data.turn;dc.lastCareerTurnAge=game.player.ageMonths;
+  if(choiceId==='pivot-career'&&ct){var changed=applyCareerSpecialization(ct.to,'life-director');if(changed){dc.careerTurns++;recordLifeDirector('career-turn','Réorientation de '+ct.from+' vers '+ct.to,{from:ct.from,to:ct.to,margin:Math.round(ct.margin*10)/10});signalPersonalChapter('career','Évolution de carrière',18,'career-turn:'+ct.to,game.player.faction);tl('Tournant de carrière','Tu te réorientes de '+ct.from+' vers '+ct.to+'.','major');return closeStory(story,'réorientation','Ta carrière prend une nouvelle direction vers '+ct.to+'.',false)}}
+  recordLifeDirector('career-turn','Spécialisation conservée : '+game.player.specialization,{from:ct&&ct.from||game.player.specialization,to:ct&&ct.to||null,declined:true});return closeStory(story,'cap maintenu','Tu conserves ta spécialisation actuelle malgré cette possibilité de réorientation.',false,'abandoned')
+ }
  if(story.type==='relationship-opening'){
   var dr=migrateLifeDirector(game.player),rr=storyRelation(story);dr.lastRomanceAge=game.player.ageMonths;dr.romanceOffers++;migrateStoryEngine(game).lastStartAge=game.player.ageMonths+8;
   if(choiceId==='explore'&&rr){game.player.life.partnerId=rr.id;game.player.life.relationshipStatus='En couple';rr.type='partner';rr.role='partenaire';rr.relationshipMonths=0;rr.affection=cl(rr.affection+7,0,100);rr.trust=cl(rr.trust+5,0,100);recordLifeDirector('relationship','Relation commencée avec '+rr.name,{relationId:rr.id});signalPersonalChapter('relationship','Lien avec '+rr.name,18,'relationship:'+rr.id,rr.id);return closeStory(story,'relation commencée','Votre proximité devient une relation. Le moteur continuera à faire évoluer ce lien sans te demander de l’entretenir chaque mois.',false)}
@@ -1983,7 +2017,13 @@ function career(){decision('Choisir une voie','Ta vie adulte commence. Chaque vo
  ['Gouvernement Mondial','Administration, renseignement et accès potentiel au Cipher Pol.',function(){join('Gouvernement','Agent junior')}]
  ])}
 function specEligibility(sp){var p=game.player;if(sp==='Cipher Pol'){if(p.faction!=='Gouvernement')return[false,'Réservé au Gouvernement'];if((p.skills.Discrétion||0)<18||(p.skills.Combat||0)<18)return[false,'Combat 18 + Discrétion 18'];if((p.factionRep.Gouvernement||0)<15)return[false,'Réputation Gouvernement 15']}return[true,'']}
-function chooseSpecialization(sp){var p=game.player,rec=careerRecord(),q=specEligibility(sp),oldSpec=rec.specialization||null,oldRank=p.rank;if(!q[0])return toast(q[1]);if(rec.specialization&&rec.specialization!==sp){rec.xp*=.9;tl('Réorientation','Tu quittes la spécialisation '+rec.specialization+' pour '+sp+'. Une partie de ton expérience de carrière est perdue.','major')}else if(!rec.specialization)tl('Spécialisation','Tu te spécialises en '+sp+'.','major');rec.specialization=sp;p.specialization=sp;p.careerHistory.push({age:age(),type:'specialization',faction:p.faction,from:oldSpec,to:sp});if(p.faction==='Gouvernement'&&sp==='Cipher Pol'&&rankIndex()<2&&rec.xp>=105){p.rank='Stagiaire Cipher Pol';rec.rank=p.rank;p.careerHistory.push({age:age(),type:'promotion',faction:p.faction,from:oldRank,to:p.rank,source:'specialization'})}p.careerHistory=p.careerHistory.slice(-60);save();renderChar()}
+function applyCareerSpecialization(sp,source){
+ var p=game.player,rec=careerRecord(),q=specEligibility(sp),oldSpec=rec.specialization||null,oldRank=p.rank;if(!q[0]||sp===oldSpec)return null;
+ if(oldSpec)rec.xp*=.9;rec.specialization=sp;p.specialization=sp;p.careerHistory.push({age:age(),ageMonths:p.ageMonths,type:'specialization',faction:p.faction,from:oldSpec,to:sp,source:source||'manual'});
+ if(p.faction==='Gouvernement'&&sp==='Cipher Pol'&&rankIndex()<2&&rec.xp>=105){p.rank='Stagiaire Cipher Pol';rec.rank=p.rank;p.careerHistory.push({age:age(),ageMonths:p.ageMonths,type:'promotion',faction:p.faction,from:oldRank,to:p.rank,source:'specialization'})}
+ p.careerHistory=p.careerHistory.slice(-60);return{from:oldSpec,to:sp}
+}
+function chooseSpecialization(sp){var p=game.player,oldSpec=p.specialization,changed=applyCareerSpecialization(sp,'manual');if(!changed){var q=specEligibility(sp);if(!q[0])return toast(q[1]);return}if(oldSpec)tl('Réorientation','Tu quittes la spécialisation '+oldSpec+' pour '+sp+'. Une partie de ton expérience de carrière est perdue.','major');else tl('Spécialisation','Tu te spécialises en '+sp+'.','major');save();renderChar()}
 function specializationDecision(){
  var p=game.player,cfg=CAREERS[p.faction]||CAREERS.Civil,ch=[];
  cfg.specs.forEach(function(sp){var q=specEligibility(sp);if(sp===p.specialization)return;if(q[0])ch.push([sp,p.specialization?'Se réorienter vers '+sp+'.':'Choisir '+sp+'.',function(){chooseSpecialization(sp)}])});
