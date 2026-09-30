@@ -87,6 +87,39 @@ Le GameState passe en **version interne 28**. Les sauvegardes V2.7 sont migrées
 - souvenirs fondateurs ;
 - compteurs associés.
 
+### Mission de routine adaptative
+
+Si une faction ne propose momentanément aucune mission à **45 % de réussite ou plus**, le moteur ajoute une mission de routine adaptée au niveau et, lorsque possible, à la spécialisation du personnage. Elle reste volontairement moins prestigieuse que les opportunités normales et ne remplace pas la mission générée par le monde vivant.
+
+### QA V2.8
+
+La release finale passe **214/214 tests** avec **0 échec** via `scripts/qa-v28.mjs`.
+
+Les nouveaux garde-fous couvrent notamment :
+
+- migration V27 → V28 idempotente ;
+- arcs émergents persistants et registre actif plafonné ;
+- exploitation réelle des rancunes d'équipage ;
+- Némésis influençant l'IA des PNJ ;
+- callbacks narratifs retrouvant le bon protagoniste ;
+- breakthroughs non-combat ;
+- alternatives contextuelles aux combats imposés ;
+- lecture Sûre / Adaptée / Ambitieuse / Extrême ;
+- présence d'une recommandation viable pour les **6 factions sur 6** dans le scénario de contrôle ;
+- conservation des opportunités provenant du monde vivant ;
+- remontée des transitions d'arc dans **AVANCER**.
+
+Mesures de non-régression finales :
+
+- fluidité adulte : **5,08 AVANCER/an** ;
+- carrière active : **6,11 AVANCER/an** et **0,94 mission/an** ;
+- exploration : **5,24 AVANCER/an** ;
+- variété narrative : **4,3 archétypes distincts** en moyenne sur dix ans ;
+- progression joueur à 25 ans : puissance moyenne **34,9** ;
+- progression de 120 PNJ sur 15 ans : gain moyen **+18,4**, maximum **89,7** ;
+- courbe de victoire à statistiques intermédiaires : **90 % / 57 % / 41 % / 17 %** pour des dangers 20 / 40 / 60 / 80 ;
+- monde sur 30 ans : **33,6 %** de divergence moyenne, **4 guerres** et **8 équipages actifs** en moyenne.
+
 ---
 
 # ONE PIECE LIFE — V2.7 Living Consequences
