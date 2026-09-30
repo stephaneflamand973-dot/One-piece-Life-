@@ -272,6 +272,19 @@ function qaLongCareer(seed,faction,spec,profile,years){
   });
   metrics.v40EndgameElitePaths=out;
 }
+{
+  const lw=metrics.v40LivingWorld,pf=metrics.v40PirateFlowStress;
+  if(lw.sagas.avgCreatedPerDecade>6)throw new Error('V4.0 saga density regression: '+lw.sagas.avgCreatedPerDecade+' created/decade');
+  if(lw.sagas.avgActive>1.5)throw new Error('V4.0 saga concurrency regression: '+lw.sagas.avgActive+' active average');
+  if(lw.sagas.resolutionRate<.7)throw new Error('V4.0 saga resolution regression: '+lw.sagas.resolutionRate);
+  if(lw.geopolitics.avgDominantShare>.60)throw new Error('V4.0 territorial monopoly regression: '+lw.geopolitics.avgDominantShare);
+  if(lw.geopolitics.avgShifts>35)throw new Error('V4.0 territorial churn regression: '+lw.geopolitics.avgShifts+' shifts/40y');
+  if(lw.performance.avgFinalSaveKB>300)throw new Error('V4.0 save growth regression: '+lw.performance.avgFinalSaveKB+' KB');
+  if(lw.performance.avgWorldMonthMs>12)throw new Error('V4.0 world simulation regression: '+lw.performance.avgWorldMonthMs+' ms/month');
+  if(pf.avgClicksPerYear>8.5)throw new Error('V4.0 pirate flow regression: '+pf.avgClicksPerYear+' clicks/year');
+  if(pf.survival<.70)throw new Error('V4.0 pirate survival regression: '+pf.survival);
+  const runaway=Math.max(...Object.values(lw.factionGoals).map(x=>x.avgCompleted||0));if(runaway>5)throw new Error('V4.0 collective ambition runaway: '+runaway+' completions/40y');
+}
 console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
   livingWorld:metrics.v40LivingWorld,
   passiveSaga:metrics.v40PlayerSagaBaseline,
