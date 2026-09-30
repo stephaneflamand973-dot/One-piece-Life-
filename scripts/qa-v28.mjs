@@ -1246,6 +1246,67 @@ test('V2.8 active arc registry remains compact',()=>{
   const g=fresh(18012),p=g.player;p.ageMonths=300;for(let i=0;i<9;i++)q.registerArcSignal('crew','crew','crew-'+i,'Crew '+i,60+i,{});assert(g.loop.arcs.length<=4,'active arcs exceeded cap');assert(g.loop.arcHistory.length>=1,'dropped arcs left no history');return g.loop.arcs.length+' active / '+g.loop.arcHistory.length+' history';
 });
 
+
+{
+  function resolveAuditAttention(g){
+    if(g.pending){const c=g.pending.choices&&g.pending.choices[0];if(c&&typeof c[2]==='function')c[2]();g.pending=null}
+    const st=q.awaitingStory();if(st){const cs=q.storyChoices(st);if(cs&&cs.length)q.storyChoice(st.id,cs[0].id)}
+  }
+  function matureAudit(seed){
+    const g=fresh(seed),p=g.player;let clicks=0;
+    while(p.ageMonths<180&&clicks<100&&g.alive){
+      if(g.pending)g.pending=null;
+      const st=q.awaitingStory();if(st){const cs=q.storyChoices(st);if(cs&&cs.length)q.storyChoice(st.id,cs[0].id)}
+      q.advance();clicks++;
+    }
+    if(g.pending)g.pending=null;
+    return g
+  }
+  const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];
+  const rows=[];
+  factions.forEach((faction,fi)=>{
+    for(let i=0;i<5;i++){
+      const g=matureAudit(30000+fi*100+i),p=g.player;
+      if(!g.alive){rows.push({faction,earlyDeath:true});continue}
+      p.factionRep[faction]=100;q.join(faction);p.focus='Auto';p.activity='Carrière';
+      let clicks=0,missions=0,routines=0,lastMission=-999,maxActiveArcs=0;
+      const titles=[],ages=[],start=p.ageMonths;
+      while(p.ageMonths<420&&clicks<240&&g.alive){
+        resolveAuditAttention(g);
+        if(!g.mission&&p.ageMonths-lastMission>=10){
+          const b=q.board(),pick=b.find(x=>x.recommended)||b[0];
+          if(pick){titles.push(pick.title);ages.push(p.ageMonths);if(pick.routine)routines++;const idx=b.indexOf(pick);q.startMission(idx);missions++;lastMission=p.ageMonths}
+        }
+        q.advance();clicks++;maxActiveArcs=Math.max(maxActiveArcs,g.loop.arcs.length);
+      }
+      rows.push({
+        faction,earlyDeath:false,alive:g.alive,years:(p.ageMonths-start)/12,clicks,missions,routines,
+        unique:new Set(titles).size,repeatRate:missions?1-new Set(titles).size/missions:0,
+        arcsCreated:(g.loop.arcHistory||[]).length+(g.loop.arcs||[]).length,
+        activeArcs:(g.loop.arcs||[]).length,maxActiveArcs,
+        founding:(g.loop.foundingMemories||[]).length,
+        consequences:(g.loop.consequenceHistory||[]).length
+      })
+    }
+  });
+  const liveRows=rows.filter(x=>!x.earlyDeath);
+  function avgSubset(arr,key){return +(arr.reduce((a,x)=>a+(x[key]||0),0)/Math.max(1,arr.length)).toFixed(2)}
+  const byFaction={};
+  factions.forEach(f=>{
+    const a=liveRows.filter(x=>x.faction===f);
+    byFaction[f]={sample:a.length,aliveAt35:a.filter(x=>x.alive&&x.years>=19.5).length,missions:avgSubset(a,'missions'),routineShare:+(a.reduce((z,x)=>z+(x.missions?x.routines/x.missions:0),0)/Math.max(1,a.length)).toFixed(2),repeatRate:avgSubset(a,'repeatRate'),arcs:avgSubset(a,'arcsCreated'),founding:avgSubset(a,'founding'),clicksPerYear:+(a.reduce((z,x)=>z+x.clicks,0)/Math.max(1,a.reduce((z,x)=>z+x.years,0))).toFixed(2)}
+  });
+  metrics.v28DeepCareerAudit={sample:liveRows.length,byFaction,
+    overallRoutineShare:+(liveRows.reduce((z,x)=>z+(x.missions?x.routines/x.missions:0),0)/Math.max(1,liveRows.length)).toFixed(2),
+    overallRepeatRate:avgSubset(liveRows,'repeatRate'),
+    avgArcs:avgSubset(liveRows,'arcsCreated'),
+    livesWithArc:liveRows.filter(x=>x.arcsCreated>0).length,
+    avgFounding:avgSubset(liveRows,'founding'),
+    maxActiveArcs:Math.max(0,...liveRows.map(x=>x.maxActiveArcs))
+  };
+  console.log('\nV28_DEEP_AUDIT '+JSON.stringify(metrics.v28DeepCareerAudit));
+}
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
