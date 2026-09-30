@@ -1331,7 +1331,7 @@ function storyChoice(storyId,choiceId){
 }
 function maybeStartCareerTurnStory(){
  var p=game.player,eng=migrateStoryEngine(game),d=migrateLifeDirector(p),active=activeStories();if(p.travel||game.mission||awaitingStory()||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;
- var turn=careerTurnCandidate();if(!turn)return false;var rec=careerRecord(),sinceTurn=p.ageMonths-(d.lastCareerTurnAge==null?-999:d.lastCareerTurnAge),strong=turn.margin>=12&&rec.months>=60,overdue=sinceTurn>=72;
+ var turn=careerTurnCandidate();if(!turn)return false;var rec=careerRecord(),sinceTurn=p.ageMonths-(d.lastCareerTurnAge==null?-999:d.lastCareerTurnAge),strong=turn.margin>=10&&rec.months>=36,overdue=sinceTurn>=72;
  if(!strong||!overdue)return false;return!!startStory('career-turn')
 }
 function storyTick(m){
