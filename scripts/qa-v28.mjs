@@ -1246,6 +1246,46 @@ test('V2.8 active arc registry remains compact',()=>{
   const g=fresh(18012),p=g.player;p.ageMonths=300;for(let i=0;i<9;i++)q.registerArcSignal('crew','crew','crew-'+i,'Crew '+i,60+i,{});assert(g.loop.arcs.length<=4,'active arcs exceeded cap');assert(g.loop.arcHistory.length>=1,'dropped arcs left no history');return g.loop.arcs.length+' active / '+g.loop.arcHistory.length+' history';
 });
 
+
+{
+  const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'],rows=[];
+  function resolveAttention(g){
+    if(g.pending)g.pending=null;
+    const st=q.awaitingStory();
+    if(st){const cs=q.storyChoices(st);if(cs.length)q.storyChoice(st.id,cs[0].id)}
+  }
+  function growToAdult(seed){
+    const g=fresh(seed),p=g.player;let guard=0;
+    while(p.ageMonths<180&&guard++<100&&g.alive){resolveAttention(g);q.advance()}
+    if(g.pending)g.pending=null;
+    return g
+  }
+  factions.forEach((faction,fi)=>{
+    for(let i=0;i<4;i++){
+      const g=growToAdult(19000+fi*100+i),p=g.player;
+      if(!g.alive){rows.push({faction,earlyDeath:true});continue}
+      p.factionRep[faction]=100;q.join(faction);p.focus='Auto';
+      let clicks=0,missions=0,routine=0,lastMission=-999,maxArcStage=0,maxActiveArcs=0,storyChoices=0;
+      const titles=[];
+      while(p.ageMonths<420&&clicks<180&&g.alive){
+        if(g.pending)g.pending=null;
+        const st=q.awaitingStory();if(st){const cs=q.storyChoices(st);if(cs.length){q.storyChoice(st.id,cs[0].id);storyChoices++}}
+        if(!g.mission&&p.ageMonths-lastMission>=9){
+          const b=q.board(),pick=b.find(x=>x.recommended)||b.slice().sort((a,b)=>b.chance-a.chance)[0];
+          if(pick){titles.push(pick.title);routine+=pick.routine?1:0;q.startMission(pick.id);missions++;lastMission=p.ageMonths}
+        }
+        q.advance();clicks++;
+        const l=g.loop||{};maxArcStage=Math.max(maxArcStage,...(l.arcs||[]).map(a=>a.stage||0),...(l.arcHistory||[]).map(a=>a.stage==='Tournant'?3:a.stage==='Héritage'?4:a.stage==='Escalade'?2:a.stage==='En cours'?1:0));maxActiveArcs=Math.max(maxActiveArcs,(l.arcs||[]).length);
+      }
+      const l=g.loop||{},unique=new Set(titles).size;
+      rows.push({faction,earlyDeath:false,alive:g.alive,years:(p.ageMonths-180)/12,clicks,missions,routine,routineShare:missions?routine/missions:0,unique,repeat:missions?1-unique/missions:0,arcHistory:(l.arcHistory||[]).length,activeArcs:(l.arcs||[]).length,founding:(l.foundingMemories||[]).length,maxArcStage,maxActiveArcs,storyChoices,relations:g.relations.length,nemeses:g.relations.filter(r=>r.nemesisRecognized).length});
+    }
+  });
+  const live=rows.filter(x=>!x.earlyDeath);
+  const avg=k=>+(live.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,live.length)).toFixed(2);
+  const byFaction={};factions.forEach(f=>{const rs=live.filter(x=>x.faction===f),av=k=>+(rs.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,rs.length)).toFixed(2);byFaction[f]={sample:rs.length,aliveAt35:rs.filter(x=>x.alive&&x.years>=19.5).length,missions:av('missions'),routineShare:av('routineShare'),repeatRate:av('repeat'),arcHistory:av('arcHistory'),maxArcStage:av('maxArcStage'),relations:av('relations')}});
+  metrics.v28LongRun={sample:live.length,aliveAt35:live.filter(x=>x.alive&&x.years>=19.5).length,clicksPerYear:+(live.reduce((a,x)=>a+x.clicks,0)/Math.max(1,live.reduce((a,x)=>a+x.years,0))).toFixed(2),missions:avg('missions'),routineShare:avg('routineShare'),repeatRate:avg('repeat'),arcHistory:avg('arcHistory'),activeArcs:avg('activeArcs'),founding:avg('founding'),maxArcStage:avg('maxArcStage'),maxActiveArcs:Math.max(...live.map(x=>x.maxActiveArcs)),storyChoices:avg('storyChoices'),relations:avg('relations'),nemeses:avg('nemeses'),byFaction};
+}
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
