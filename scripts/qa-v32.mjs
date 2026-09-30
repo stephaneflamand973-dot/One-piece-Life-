@@ -771,9 +771,9 @@ test('V5.0 fun flow: calm adult pacing uses 5–7 month windows',()=>{
   const g=fresh(14003),p=g.player;p.ageMonths=300;p.career='Aucune';p.activity='Routine';p.focus='Auto';p.health=100;p.energy=100;p.conditions=[];p.ambition='Explorer le monde';
   const plan=q.advancePlan();assert(plan.key==='calm-life','expected calm-life, got '+plan.key);assert(plan.min===5&&plan.max===7,'calm window is not 5–7 months');return plan.min+'-'+plan.max;
 });
-test('V5.0 quiet career pacing uses 3–5 month windows',()=>{
+test('V5.0 quiet career pacing uses 3.5–5.5 month windows',()=>{
   const g=fresh(14004),p=g.player;p.ageMonths=300;q.join('Civil');p.activity='Carrière';p.focus='Auto';p.health=100;p.energy=100;p.conditions=[];
-  const plan=q.advancePlan();assert(plan.key==='active-life','expected active-life, got '+plan.key);assert(plan.min===3&&plan.max===5,'career window is not 3–5 months');return plan.min+'-'+plan.max;
+  const plan=q.advancePlan();assert(plan.key==='active-life','expected active-life, got '+plan.key);assert(plan.min===3.5&&plan.max===5.5,'career window is not 3.5–5.5 months');return plan.min+'-'+plan.max;
 });
 test('V2.4 event progression reads persistent focus rather than temporary activity',()=>{
   const g=fresh(14005),p=g.player;p.ageMonths=300;p.activity='Routine';p.focus='Combat';p.style='Sabreur';
