@@ -56,13 +56,13 @@ window.__qa={
  setMode:function(v){mode=v},getMode:function(){return mode},
  getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,purgeSaveSlot:purgeSaveSlot,deleteSaveSlot:deleteSaveSlot,slotKey:slotKey,slotMetaKey:slotMetaKey,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,simulateActors:simulateActors,simulateCrews:simulateCrews,actorIntentPool:actorIntentPool,assignActorIntent:assignActorIntent,resolveActorIntent:resolveActorIntent,actorIntentTick:actorIntentTick,crewIntentPool:crewIntentPool,assignCrewIntent:assignCrewIntent,resolveCrewIntent:resolveCrewIntent,crewIntentTick:crewIntentTick,
- advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,resolveAmbientDanger:resolveAmbientDanger,dangerAlternativeScore:dangerAlternativeScore,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,recordSignatureMoment:recordSignatureMoment,scheduleConsequence:scheduleConsequence,resolveConsequence:resolveConsequence,processConsequences:processConsequences,consequenceRelation:consequenceRelation,registerArcSignal:registerArcSignal,signalArcFromConsequence:signalArcFromConsequence,arcPressureFor:arcPressureFor,arcTick:arcTick,closeArc:closeArc,rememberFoundingMoment:rememberFoundingMoment,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
+ advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,resolveAmbientDanger:resolveAmbientDanger,dangerAlternativeScore:dangerAlternativeScore,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,recordSignatureMoment:recordSignatureMoment,scheduleConsequence:scheduleConsequence,resolveConsequence:resolveConsequence,processConsequences:processConsequences,consequenceRelation:consequenceRelation,registerArcSignal:registerArcSignal,signalArcFromConsequence:signalArcFromConsequence,arcPressureFor:arcPressureFor,emitArcBeat:emitArcBeat,arcTick:arcTick,closeArc:closeArc,rememberFoundingMoment:rememberFoundingMoment,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,setTimelineExpanded:function(v){timelineExpanded=!!v},
  power:power,styleMastery:styleMastery,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,focusOptions:focusOptions,recommendedFocus:recommendedFocus,normalizeActivityFocus:normalizeActivityFocus,currentFocus:currentFocus,simpleFocusKeys:simpleFocusKeys,styleFocusKeys:styleFocusKeys,careerFocusKeys:careerFocusKeys,hasPowerFocus:hasPowerFocus,
  developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,setSectionState:function(name,value){sectionState[name]=value},getSectionState:function(){return Object.assign({},sectionState)},
- join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,missionImportance:missionImportance,missionStakes:missionStakes,missionNoveltyKey:missionNoveltyKey,missionNoveltyScore:missionNoveltyScore,rememberMission:rememberMission,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionGuidance:missionGuidance,missionRecommendationScore:missionRecommendationScore,missionResolution:missionResolution,
+ join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,missionImportance:missionImportance,missionStakes:missionStakes,missionNoveltyKey:missionNoveltyKey,missionNoveltyScore:missionNoveltyScore,rememberMission:rememberMission,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionGuidance:missionGuidance,applyMissionContext:applyMissionContext,routineMission:routineMission,missionRecommendationScore:missionRecommendationScore,missionResolution:missionResolution,
  createRelation:createRelation,pursueRomance:pursueRomance,marryPartner:marryPartner,welcomeChild:welcomeChild,buildHeir:buildHeir,lifeTick:lifeTick,renderRel:renderRel,renderRelClose:renderRelClose,renderRelNetwork:renderRelNetwork,relationActionDecision:relationActionDecision,
  normalizeRelation:normalizeRelation,npcTick:npcTick,npcIntentPool:npcIntentPool,assignNpcIntent:assignNpcIntent,npcCareerPromotionChance:npcCareerPromotionChance,tryNpcCareerPromotion:tryNpcCareerPromotion,resolveNpcIntent:resolveNpcIntent,npcIntentTick:npcIntentTick,npcSocialTick:npcSocialTick,npcLinkBetween:npcLinkBetween,ensureNpcLink:ensureNpcLink,npcNearby:npcNearby,bondCanonicalActor:bondCanonicalActor,relationForActor:relationForActor,relationPower:relationPower,npcCareerRank:npcCareerRank,trainWithMentor:trainWithMentor,challengeRival:challengeRival,rivalStage:rivalStage,syncRivalryMilestone:syncRivalryMilestone,reconcileRival:reconcileRival,recruitKnownRelation:recruitKnownRelation,askMentorship:askMentorship,declareRivalry:declareRivalry,seekMentor:seekMentor,canonActor:canonActor,helpRelation:helpRelation,askRelationFavor:askRelationFavor,approachCanonicalActor:approachCanonicalActor,favorLabel:favorLabel,realignRelationsAfterFactionChange:realignRelationsAfterFactionChange,
- ensureOrganization:ensureOrganization,syncOrganizationRole:syncOrganizationRole,organizationPower:organizationPower,organizationCapacity:organizationCapacity,organizationTick:organizationTick,
+ ensureOrganization:ensureOrganization,syncOrganizationRole:syncOrganizationRole,organizationPower:organizationPower,organizationCapacity:organizationCapacity,organizationTick:organizationTick,organizationMissionDanger:organizationMissionDanger,
  upgradeOrganizationShip:upgradeOrganizationShip,generateRecruitCandidate:generateRecruitCandidate,
  registerCrime:registerCrime,arrestPlayer:arrestPlayer,prisonTick:prisonTick,attemptEscape:attemptEscape,justiceTick:justiceTick,
  influenceMetrics:influenceMetrics,establishDomain:establishDomain,fortifyDomain:fortifyDomain,influenceTick:influenceTick,
@@ -1212,8 +1212,8 @@ test('V2.8 migration upgrades V27 arc state idempotently',()=>{
 test('V2.8 mission recommendation never labels an unsafe option as recommended',()=>{
   const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];let checked=0,withRecommendation=0,worstGap=0;
   factions.forEach((faction,ix)=>{const g=fresh(18100+ix),p=g.player;p.ageMonths=180;p.factionRep[faction]=100;q.join(faction);const b=q.board();if(!b.length)return;const safest=Math.max(...b.map(x=>x.chance)),pick=b.find(x=>x.recommended);
-    if(pick){withRecommendation++;assert(pick.chance>=.45,'unsafe mission labeled recommended for '+faction+': '+Math.round(pick.chance*100)+'%');worstGap=Math.max(worstGap,safest-pick.chance);assert(safest-pick.chance<=.08,'recommended mission trails safer board option by '+Math.round((safest-pick.chance)*100)+' points for '+faction)}
-    else assert(safest<.45,'board omitted recommendation despite a viable option for '+faction+' at '+Math.round(safest*100)+'%');
+    if(pick){withRecommendation++;assert(pick.chance>=.52,'sub-adapted mission labeled recommended for '+faction+': '+Math.round(pick.chance*100)+'%');worstGap=Math.max(worstGap,safest-pick.chance);assert(safest-pick.chance<=.08,'recommended mission trails safer board option by '+Math.round((safest-pick.chance)*100)+' points for '+faction)}
+    else assert(safest<.52,'board omitted recommendation despite a viable option for '+faction+' at '+Math.round(safest*100)+'%');
     checked++
   });
   assert(checked>=5,'insufficient faction boards tested');assert(withRecommendation===checked,'at least one faction board still lacks a viable recommendation');return checked+' factions / '+withRecommendation+' recommended / worst gap '+Math.round(worstGap*100)+' pts';
@@ -1245,6 +1245,99 @@ test('V2.8 arc transitions surface in AVANCER report',()=>{
 test('V2.8 active arc registry remains compact',()=>{
   const g=fresh(18012),p=g.player;p.ageMonths=300;for(let i=0;i<9;i++)q.registerArcSignal('crew','crew','crew-'+i,'Crew '+i,60+i,{});assert(g.loop.arcs.length<=4,'active arcs exceeded cap');assert(g.loop.arcHistory.length>=1,'dropped arcs left no history');return g.loop.arcs.length+' active / '+g.loop.arcHistory.length+' history';
 });
+test('V2.8.1 recommended missions are always Adapted or better',()=>{
+  const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];let checked=0,routines=0;
+  factions.forEach((faction,ix)=>{const g=fresh(18300+ix),p=g.player;p.ageMonths=180;p.factionRep[faction]=100;q.join(faction);const b=q.board(),pick=b.find(x=>x.recommended);assert(pick,'no recommendation for '+faction);assert(pick.chance>=.52,'recommendation below Adapted threshold for '+faction+': '+pick.chance);if(pick.routine)routines++;checked++});
+  return checked+' factions / '+routines+' routine fallback(s)';
+});
+test('V2.8.1 routine fallback remains viable for a weak character',()=>{
+  const g=fresh(18320),p=g.player;p.ageMonths=180;Object.keys(p.stats).forEach(k=>p.stats[k]=1);Object.keys(p.skills).forEach(k=>p.skills[k]=1);p.factionRep.Pirates=100;q.join('Pirates');const b=q.board(),pick=b.find(x=>x.recommended);assert(pick,'weak pirate has no recommended mission');assert(pick.chance>=.52,'routine fallback is not viable: '+pick.chance);assert(pick.routine,'weak pirate recommendation should be routine fallback');return pick.title+' '+Math.round(pick.chance*100)+'%';
+});
+test('V2.8.1 contextual mission titles vary without breaking novelty identity',()=>{
+  const g=fresh(18321),p=g.player;p.ageMonths=180;p.factionRep.Civil=100;q.join('Civil');let b=q.board(),m=b.find(x=>!x.worldGenerated&&!x.routine);assert(m&&m.baseTitle,'contextual static mission missing');const base=m.baseTitle,key=q.missionNoveltyKey(m),titles=new Set([m.title]);
+  for(let cycle=1;cycle<=5;cycle++){p.ageMonths=180+cycle*24;b=q.board();const same=b.find(x=>x.baseTitle===base);if(same){titles.add(same.title);assert(q.missionNoveltyKey(same)===key,'context changed novelty identity')}}
+  assert(titles.size>=2,'contextual mission title never changed across cycles');return base+' -> '+titles.size+' contextual variants';
+});
+test('V2.8.1 active arcs produce non-blocking autonomous echoes',()=>{
+  const g=fresh(18322),p=g.player;p.ageMonths=300;const c=g.world.crews[0];c.status='active';c.playerGrudge=40;q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});const a=g.loop.arcs.find(x=>x.sourceType==='crew'&&String(x.sourceId)===String(c.id));assert(a&&a.stage>=1,'active arc missing');a.nextBeatAge=p.ageMonths;g.loop.lastArcBeatAge=-999;const moments=g.loop.momentSeq,seq=g.loop.arcResultSeq,world=g.loop.worldSeq;q.arcTick(1);assert(g.loop.arcResultSeq>seq,'autonomous arc echo absent');assert(g.loop.momentSeq===moments,'arc echo should not interrupt AVANCER');assert(g.loop.worldSeq>world,'arc echo not surfaced as world information');assert(c.intention==='Traquer le joueur','crew arc did not influence future intent');return 'echo '+a.beatCount+' / no extra click';
+});
+test('V2.8.1 autonomous recurrence can reach Escalade but not a major arc alone',()=>{
+  const g=fresh(18324),p=g.player;p.ageMonths=300;const c=g.world.crews[0];c.status='active';c.playerGrudge=45;q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});const a=g.loop.arcs.find(x=>x.sourceType==='crew'&&String(x.sourceId)===String(c.id));assert(a&&a.stage===1,'expected stage 1 after two real signals');
+  for(let i=0;i<3&&g.loop.arcs.includes(a);i++){p.ageMonths=a.nextBeatAge;g.loop.lastArcBeatAge=p.ageMonths-6;q.arcTick(1)}
+  assert(a.stage>=2,'recurring arc never reached Escalade');assert(a.stage<3,'autonomous echoes created a major arc without new real signals');return 'stage '+a.stage+' after '+a.beatCount+' echoes';
+});
+test('V2.8.1 entry missions receive bounded rookie support',()=>{
+  const g=fresh(18326),p=g.player;p.ageMonths=180;p.factionRep.Pirates=100;q.join('Pirates');const starter={title:'QA starter',danger:25,tier:0,profile:'adventure'},advanced={title:'QA advanced',danger:25,tier:1,profile:'adventure'},d0=q.organizationMissionDanger(starter),d1=q.organizationMissionDanger(advanced);assert(d0<=d1-3.9,'rookie support missing or too weak: '+d0+' vs '+d1);assert(d0>=5,'starter danger fell below floor');return d0.toFixed(1)+' vs '+d1.toFixed(1);
+});
+test('V2.8.1 recovery pacing remains cautious but less click-heavy',()=>{
+  const g=fresh(18325),p=g.player;p.ageMonths=300;p.health=35;const plan=q.advancePlan();assert(plan.key==='recovery','recovery plan not selected');assert(plan.min===1&&plan.max===2,'unexpected recovery window '+plan.min+'-'+plan.max);return plan.min+'-'+plan.max+' months';
+});
+test('V2.8.1 founding memories are visible in expanded timeline',()=>{
+  const g=fresh(18323);q.rememberFoundingMoment('QA mémoire','Ce souvenir doit rester consultable.','qa','qa-memory');q.setTimelineExpanded(true);q.renderTimeline();const html=fakeElement('#timeline').innerHTML;assert(html.includes('Souvenirs fondateurs'),'founding memory section missing');assert(html.includes('QA mémoire'),'founding memory content missing');return 'founding memory visible';
+});
+
+
+
+{
+  const rows=[];
+  function resolveAuditAttention(g){
+    if(g.pending){const c=g.pending.choices&&g.pending.choices[0];if(c&&typeof c[2]==='function')c[2]();g.pending=null}
+    const st=q.awaitingStory();if(st){const cs=q.storyChoices(st);if(cs.length)q.storyChoice(st.id,cs[0].id)}
+  }
+  function matureAudit(seed){
+    const g=fresh(seed),p=g.player;let clicks=0;
+    while(p.ageMonths<180&&clicks<100&&g.alive){if(g.pending)g.pending=null;resolveAuditAttention(g);q.advance();clicks++}
+    if(g.pending)g.pending=null;return g
+  }
+  const setups=[
+    {name:'Civil-Scientifique',faction:'Civil',spec:'Scientifique'},
+    {name:'Pirates',faction:'Pirates',spec:null}
+  ];
+  setups.forEach((setup,si)=>{
+    for(let n=0;n<6;n++){
+      const g=matureAudit(19000+si*100+n),p=g.player;if(!g.alive){rows.push({type:setup.name,alive:false,early:true});continue}
+      p.factionRep[setup.faction]=100;q.join(setup.faction);if(setup.spec){p.specialization=setup.spec;q.careerRecord().specialization=setup.spec}
+      p.focus='Auto';p.activity='Carrière';
+      let clicks=0,missions=0,routine=0,world=0,lastMissionAge=-999,maxArcStage=0,start=p.ageMonths;const titles=[];
+      while(p.ageMonths<420&&clicks<220&&g.alive){
+        resolveAuditAttention(g);
+        if(!g.mission&&p.ageMonths-lastMissionAge>=12){
+          const b=q.board(),pick=b.find(x=>x.recommended)||b[0];
+          if(pick){titles.push(pick.title);routine+=pick.routine?1:0;world+=pick.worldGenerated?1:0;q.startMission(pick.id);missions++;lastMissionAge=p.ageMonths}
+        }
+        q.advance();clicks++;maxArcStage=Math.max(maxArcStage,...g.loop.arcs.map(a=>a.stage||0),...g.loop.arcHistory.map(a=>a.stage==='Héritage'?4:a.stage==='Tournant'?3:a.stage==='Escalade'?2:a.stage==='En cours'?1:0));
+      }
+      rows.push({type:setup.name,alive:g.alive,early:false,years:(p.ageMonths-start)/12,clicks,missions,routine,world,unique:new Set(titles).size,repeat:missions?1-new Set(titles).size/missions:0,arcActive:g.loop.arcs.length,arcHistory:g.loop.arcHistory.length,maxArcStage,founding:g.loop.foundingMemories.length,consequences:g.loop.consequenceHistory.length,stories:g.story.history.length});
+    }
+  });
+  const groups={};
+  setups.forEach(setup=>{
+    const rs=rows.filter(x=>x.type===setup.name&&!x.early),den=Math.max(1,rs.length),years=Math.max(.01,rs.reduce((a,x)=>a+(x.years||0),0));
+    groups[setup.name]={
+      sample:rs.length,aliveAt35:rs.filter(x=>x.alive&&x.years>=19.5).length,
+      clicksPerYear:+(rs.reduce((a,x)=>a+x.clicks,0)/years).toFixed(2),
+      missions:+(rs.reduce((a,x)=>a+x.missions,0)/den).toFixed(1),
+      missionRepeatRate:+(rs.reduce((a,x)=>a+x.repeat,0)/den).toFixed(2),
+      routineShare:+(rs.reduce((a,x)=>a+x.routine,0)/Math.max(1,rs.reduce((a,x)=>a+x.missions,0))).toFixed(2),
+      worldMissionShare:+(rs.reduce((a,x)=>a+x.world,0)/Math.max(1,rs.reduce((a,x)=>a+x.missions,0))).toFixed(2),
+      avgArcHistory:+(rs.reduce((a,x)=>a+x.arcHistory,0)/den).toFixed(1),
+      avgActiveArcs:+(rs.reduce((a,x)=>a+x.arcActive,0)/den).toFixed(1),
+      maxArcStage:Math.max(0,...rs.map(x=>x.maxArcStage)),
+      avgFoundingMemories:+(rs.reduce((a,x)=>a+x.founding,0)/den).toFixed(1),
+      avgConsequences:+(rs.reduce((a,x)=>a+x.consequences,0)/den).toFixed(1),
+      avgStories:+(rs.reduce((a,x)=>a+x.stories,0)/den).toFixed(1)
+    };
+  });
+  metrics.v281LongCareerAudit=groups;
+}
+{
+  const g=fresh(19250),p=g.player;p.ageMonths=300;const c=g.world.crews[0];c.status='active';
+  q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});
+  q.registerArcSignal('crew','crew',c.id,c.name,80,{region:c.region});
+  const a=g.loop.arcs.find(x=>x.sourceType==='crew'&&String(x.sourceId)===String(c.id)),startHistory=g.loop.arcHistory.length,startTimeline=g.timeline.length;
+  for(let i=0;i<71;i++){p.ageMonths+=1;q.arcTick(1)}
+  metrics.v281DormantArcAudit={existsBeforeExpiry:!!g.loop.arcs.find(x=>x.id===a.id),stage:a.stage,historyDelta:g.loop.arcHistory.length-startHistory,timelineDelta:g.timeline.length-startTimeline,founding:g.loop.foundingMemories.length};
+}
 
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
