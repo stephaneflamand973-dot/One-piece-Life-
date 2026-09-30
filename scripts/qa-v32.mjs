@@ -1383,6 +1383,11 @@ test('V3.5 compact world pulse surfaces player canon impact',()=>{
  const g=fresh(29303),ws=g.world.worldState,seq=ws.seq;q.markPlayerCanonImpact(g.world.canon[0],'major','qa');const pulse=q.worldPulseSince(seq);assert(pulse.some(x=>x.kind==='canon-player'),'player canon impact missing from pulse');return pulse.map(x=>x.title).join(' | ');
 });
 
+
+test('V3.5 long-term world tension does not permanently saturate',()=>{
+ const vals=[];for(let seed=29400;seed<29406;seed++){const g=fresh(seed);for(let m=0;m<480;m++)q.worldMonthStep();vals.push(g.world.globalTension)}const avg=vals.reduce((a,b)=>a+b,0)/vals.length;assert(avg<90,'world tension remains saturated');assert(avg>10,'world tension collapsed');return 'avg '+avg.toFixed(1)+' / '+vals.map(x=>x.toFixed(0)).join(',');
+});
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
