@@ -1,3 +1,94 @@
+# ONE PIECE LIFE — V2.8 Emergent Arcs
+
+La V2.8 transforme la mémoire causale de V2.7 en **moteur de trajectoires persistantes**. Le jeu ne se contente plus de se souvenir qu'un événement a eu lieu : il peut maintenant utiliser ce passé pour modifier les décisions du monde, les opportunités futures et la trajectoire d'un rival ou d'un équipage.
+
+## V2.8 — Emergent Arcs
+
+### Arcs émergents
+
+Les conséquences répétées liées à une même source peuvent désormais former un arc compact et sérialisable :
+
+- Graine ;
+- En cours ;
+- Escalade ;
+- Tournant ;
+- Héritage.
+
+Le registre actif est volontairement limité à quatre arcs. Les anciens arcs sont résolus ou expirent afin de préserver la fluidité et la lisibilité.
+
+Les arcs peuvent être alimentés par :
+
+- un équipage déjà affronté ;
+- une rivalité ou une Némésis ;
+- un conflit du monde ;
+- un acteur récurrent ;
+- une relation importante.
+
+Les changements de stade remontent directement dans le rapport **AVANCER**.
+
+### Mémoire causale réellement exploitée
+
+La rancune d'un équipage n'est plus une valeur passive. Un équipage qui te connaît suffisamment peut désormais modifier ses intentions et commencer à te traquer.
+
+Une Némésis reconnue influence maintenant réellement le moteur de décision du PNJ : elle peut se rapprocher de ta région, progresser et préparer une nouvelle confrontation.
+
+Les anciennes histoires utilisent également correctement l'identité de leur protagoniste lorsqu'un écho différé revient.
+
+### Mission & Risk Intelligence
+
+Le tableau de missions privilégie désormais beaucoup plus fortement l'adéquation avec le personnage et la probabilité réelle de réussite.
+
+Les missions affichent une lecture simple :
+
+- **Sûre** ;
+- **Adaptée** ;
+- **Ambitieuse** ;
+- **Extrême** ;
+- **Signature extrême**.
+
+Une mission rare ou narrative ne devient donc plus automatiquement « recommandée » simplement parce qu'elle est intéressante.
+
+### Breakthroughs universels
+
+Le dépassement du plafond naturel n'est plus réservé aux combattants.
+
+Des exploits difficiles peuvent maintenant provoquer un breakthrough dans des domaines comme :
+
+- Navigation ;
+- Science ;
+- Discrétion ;
+- Commandement ;
+- Réflexes ;
+- Discipline ;
+- autres compétences pertinentes selon l'épreuve.
+
+Les grands breakthroughs sont également enregistrés comme moments signatures.
+
+### Danger contextuel
+
+Les événements dangereux hors missions ne forcent plus systématiquement un personnage non combattant à résoudre la situation par un duel.
+
+Un personnage suffisamment compétent peut parfois éviter l'affrontement grâce à :
+
+- Navigation ;
+- Discrétion ;
+- Commandement ;
+- Réflexes ;
+- Agilité.
+
+La mort reste possible, mais la construction du personnage compte davantage dans la manière de survivre.
+
+### Compatibilité
+
+Le GameState passe en **version interne 28**. Les sauvegardes V2.7 sont migrées automatiquement avec :
+
+- registre d'arcs actifs ;
+- historique compact d'arcs ;
+- souvenirs fondateurs ;
+- compteurs associés.
+
+---
+
 # ONE PIECE LIFE — V2.7 Living Consequences
 
 La V2.7 conserve la fluidité de V2.6 mais change une règle fondamentale : **les grands événements ne disparaissent plus une fois résolus**.
