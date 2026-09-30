@@ -1257,4 +1257,4 @@ const summary={
 console.log('\nQA_SUMMARY '+JSON.stringify(summary));
 if(failed.length) process.exitCode=1;
 
-// V2.8 Emergent Arcs release candidate
+// V2.8 Emergent Arcs final validation
