@@ -1329,12 +1329,17 @@ function storyChoice(storyId,choiceId){
  }
  story.stage=1;story.nextAge=game.player.ageMonths+1+R('story')*3;story.deadlineAge=Math.max(story.deadlineAge,story.nextAge+4);story.lastBeat='Conséquence en attente';story.summary='Ta décision est prise. Il faut maintenant laisser la situation évoluer.';tl('Choix — '+story.title,storyChoices(story).find(function(x){return x.id===choiceId})?.label||choiceId);return true
 }
+function maybeStartCareerTurnStory(){
+ var p=game.player,eng=migrateStoryEngine(game),d=migrateLifeDirector(p),active=activeStories();if(p.travel||game.mission||awaitingStory()||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;
+ var turn=careerTurnCandidate();if(!turn)return false;var rec=careerRecord(),sinceTurn=p.ageMonths-(d.lastCareerTurnAge==null?-999:d.lastCareerTurnAge),strong=turn.margin>=12&&rec.months>=60,overdue=sinceTurn>=72;
+ if(!strong||!overdue)return false;return!!startStory('career-turn')
+}
 function storyTick(m){
  var p=game.player,eng=migrateStoryEngine(game),list=activeStories().slice();for(var i=0;i<list.length;i++){var story=list[i];if(story.type==='island-secret'&&p.travel&&p.travel.from===story.location){closeStory(story,'piste laissée derrière','Tu prends la mer avant d’avoir résolu ce mystère local.',true,'interrupted');continue}if(story.awaiting)continue;if(p.ageMonths>story.deadlineAge){closeStory(story,'échéance dépassée','La situation se referme avant que tu puisses aller au bout.',true);continue}if(p.ageMonths<story.nextAge)continue;
   if(story.stage===0){setStoryAwaiting(story);continue}
   if(story.stage===1)storyResolve(story)
  }
- if(!awaitingStory()&&!migrateJustice(p).detained)maybeStartStory(m)
+ if(!awaitingStory()&&!migrateJustice(p).detained&&!maybeStartCareerTurnStory())maybeStartStory(m)
 }
 function showStoryDecision(id){
  var story=id?activeStories().find(function(s){return s.id===id}):awaitingStory();if(!story||!story.awaiting)return false;var choices=storyChoices(story).map(function(c){return[c.label,c.desc,function(){storyChoice(story.id,c.id)}]});if(!choices.length)return false;decision(story.title,storyPrompt(story),choices);return true
