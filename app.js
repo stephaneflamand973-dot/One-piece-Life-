@@ -221,7 +221,7 @@ function initLivingWorld(g,w){
 }
 function migrateWorldFoundations(g,w){
  w.worldState=w.worldState||{version:1,seq:0,actorHistory:[],territoryHistory:[],monthlyChanges:[],actorGoals:{}};
- var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(-120):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(-100):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(-48):[];ws.actorGoals=ws.actorGoals||{};ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory.slice(-80):[];ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality.slice(-100):[];ws.canonBranches=Array.isArray(ws.canonBranches)?ws.canonBranches.slice(-60):[];ws.canonBranchHistory=Array.isArray(ws.canonBranchHistory)?ws.canonBranchHistory.slice(-80):[];ws.playerCanonImpact=Array.isArray(ws.playerCanonImpact)?ws.playerCanonImpact.slice(-60):[];ws.worldSagas=Array.isArray(ws.worldSagas)?ws.worldSagas.slice(-40):[];ws.sagaHistory=Array.isArray(ws.sagaHistory)?ws.sagaHistory.slice(-80):[];ws.crewGoals=ws.crewGoals||{};ws.factionGoals=ws.factionGoals||{};ws.geopoliticalHistory=Array.isArray(ws.geopoliticalHistory)?ws.geopoliticalHistory.slice(-100):[];ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(-100):[];
+ var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(-120):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(-100):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(-48):[];ws.actorGoals=ws.actorGoals||{};ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory.slice(-80):[];ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality.slice(-100):[];ws.canonBranches=Array.isArray(ws.canonBranches)?ws.canonBranches.slice(-60):[];ws.canonBranchHistory=Array.isArray(ws.canonBranchHistory)?ws.canonBranchHistory.slice(-80):[];ws.playerCanonImpact=Array.isArray(ws.playerCanonImpact)?ws.playerCanonImpact.slice(-60):[];ws.worldSagas=Array.isArray(ws.worldSagas)?ws.worldSagas.slice(-40):[];ws.sagaCooldowns=ws.sagaCooldowns||{};ws.sagaHistory=Array.isArray(ws.sagaHistory)?ws.sagaHistory.slice(-80):[];ws.crewGoals=ws.crewGoals||{};ws.factionGoals=ws.factionGoals||{};ws.geopoliticalHistory=Array.isArray(ws.geopoliticalHistory)?ws.geopoliticalHistory.slice(-100):[];ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(-100):[];
  (w.actors||[]).forEach(function(a){var goal=ws.actorGoals[a.name]||{};goal.primary=goal.primary||a.goal||'Tracer sa route';goal.progress=cl(goal.progress||0,0,100);goal.stage=goal.stage||'pursuing';goal.lastAction=goal.lastAction||'';goal.lastOutcome=goal.lastOutcome||'';goal.updatedAt=goal.updatedAt||0;ws.actorGoals[a.name]=goal;a.worldGoal=goal});
  return w
 }
@@ -295,7 +295,7 @@ function discoverWorldSagas(){
  var w=game.world,ws=w.worldState;if(!ws)return;
  (w.wars||[]).filter(function(x){return x.status==='active'}).forEach(function(x){startWorldSaga('war',x.region,x.attacker,x.defender,x.id)});
  (ws.canonBranches||[]).filter(function(x){return x.status==='active'&&x.pressure>=45}).forEach(function(x){startWorldSaga('canon',x.region,(x.factions||[])[0],(x.factions||[])[1],x.id)});
- REG.forEach(function(region){var actors=w.actors.filter(function(a){return a.status==='active'&&a.region===region}).sort(function(a,b){return actorPower(b)-actorPower(a)}).slice(0,5);for(var i=0;i<actors.length;i++)for(var j=i+1;j<actors.length;j++){if(diplomacy(actors[i].faction,actors[j].faction)<-55&&actorPower(actors[i])+actorPower(actors[j])>=125){startWorldSaga('rivalry',region,actors[i].name,actors[j].name,'actors');return}}})
+ REG.forEach(function(region){var cd=ws.sagaCooldowns[region]||0;if(cd>0){ws.sagaCooldowns[region]=cd-1;return}if((ws.worldSagas||[]).some(function(s){return s.status==='active'&&s.region===region&&s.type==='rivalry'}))return;var actors=w.actors.filter(function(a){return a.status==='active'&&a.region===region}).sort(function(a,b){return actorPower(b)-actorPower(a)}).slice(0,5);for(var i=0;i<actors.length;i++)for(var j=i+1;j<actors.length;j++){var hostility=diplomacy(actors[i].faction,actors[j].faction),combined=actorPower(actors[i])+actorPower(actors[j]);if(hostility<-62&&combined>=140&&R('world')<.14){startWorldSaga('rivalry',region,actors[i].name,actors[j].name,'actors');ws.sagaCooldowns[region]=30+Math.floor(R('world')*31);return}}})
 }
 function simulateWorldSagas(){
  var w=game.world,ws=w.worldState;if(!ws)return;discoverWorldSagas();(ws.worldSagas||[]).filter(function(x){return x.status==='active'}).forEach(function(s){
@@ -1600,10 +1600,20 @@ function registerPlayerSagaImpact(kind,source,amount){
 function playerSagaPresence(){
  var p=game.player,ws=game.world.worldState||{},sagas=(ws.worldSagas||[]).filter(function(s){return s.status==='active'&&s.region===p.region});sagas.forEach(function(s){s.playerPresenceMonths=(s.playerPresenceMonths||0)+1;s.playerPeakPower=Math.max(s.playerPeakPower||0,Math.round(power()));s.playerFaction=p.faction;if(!s.playerRole)s.playerRole='present';var aligned=s.a===p.faction||s.b===p.faction;s.playerAlignment=aligned?'aligned':'independent'})
 }
+function factionCareerLegacy(){
+ var p=game.player,f=p.faction||'Civil',v=0;
+ if(f==='Pirates')v=Math.min(18,Math.log10(Math.max(1,(p.bounty||0)+1))*2.1);
+ else if(f==='Marine')v=['Vice-amiral','Amiral'].indexOf(p.rank)>=0?18:Math.min(14,rankIndex()*2.5);
+ else if(f==='Révolutionnaires')v=['Commandant régional','Bras droit'].indexOf(p.rank)>=0?18:Math.min(14,rankIndex()*2.5);
+ else if(f==='Gouvernement')v=p.rank==='CP0'?18:p.rank==='Candidat CP0'?14:Math.min(12,rankIndex()*2);
+ else if(f==='Chasseur de primes')v=Math.min(18,((p.justice&&p.justice.captures)||0)*.65+Math.log10(Math.max(1,((p.justice&&p.justice.bountiesClaimed)||0)+1)));
+ else v=Math.min(18,careerExpertise(p.specialization)*.12+Math.log10(Math.max(1,netWorth()+1)));
+ return v
+}
 function playerWorldRecognition(){
  var p=game.player,x=influenceMetrics(),ws=game.world.worldState||{},active=(ws.worldSagas||[]).filter(function(s){return s.status==='active'&&s.playerInvolved}),history=(ws.sagaHistory||[]).filter(function(s){return s.playerInvolved}),canon=(ws.playerCanonImpact||[]).length,domains=x.domains.length,allies=x.affiliates.length,rep=p.factionRep&&p.factionRep[p.faction]||0;
  var sagaWeight=history.reduce(function(a,s){var r=sagaPlayerRoleRank(s.playerRole||'indirect');return a+(r>=4?4:r===3?3:r===2?1.8:.8)},0)+active.reduce(function(a,s){return a+(sagaPlayerRoleRank(s.playerRole||'indirect')>=2?1:.35)},0),decisive=history.filter(function(s){return sagaPlayerRoleRank(s.playerRole||'indirect')>=3}).length;
- var worldScore=cl(x.score*.42+power()*.18+domains*3.8+allies*2.2+Math.min(14,sagaWeight)+Math.min(10,canon*1.35)+Math.min(8,rep*.08),0,100),role='Figure régionale',legendQualified=false;
+ var legacy=factionCareerLegacy(),worldScore=cl(x.score*.52+power()*.22+domains*3.8+allies*2.2+Math.min(14,sagaWeight)+Math.min(10,canon*1.35)+Math.min(9,rep*.09)+legacy,0,100),role='Figure régionale',legendQualified=false;
  if(p.faction==='Pirates')legendQualified=domains>=3||allies>=3;
  else if(p.faction==='Marine')legendQualified=rep>=85&&(['Vice-amiral','Amiral'].indexOf(p.rank)>=0||decisive>=2);
  else if(p.faction==='Révolutionnaires')legendQualified=rep>=80&&(['Commandant régional','Bras droit'].indexOf(p.rank)>=0||decisive>=2);
@@ -1612,7 +1622,7 @@ function playerWorldRecognition(){
  else legendQualified=careerExpertise(p.specialization)>=85||netWorth()>=5000000;
  if(worldScore>=88&&legendQualified)role=p.faction==='Pirates'?'Puissance pirate mondiale':p.faction==='Marine'?'Pilier de l’ordre mondial':p.faction==='Révolutionnaires'?'Symbole de la Révolution':p.faction==='Gouvernement'?'Autorité mondiale':p.faction==='Chasseur de primes'?'Légende des primes':'Icône des mers';
  else if(worldScore>=72)role='Puissance établie';else if(worldScore>=52)role='Acteur majeur';
- return{score:Math.round(worldScore),role:role,activeSagas:active.length,resolvedSagas:history.length,canonImpact:canon,domains:domains,allies:allies,decisiveSagas:decisive,legendQualified:legendQualified}
+ return{score:Math.round(worldScore),role:role,activeSagas:active.length,resolvedSagas:history.length,canonImpact:canon,domains:domains,allies:allies,decisiveSagas:decisive,legendQualified:legendQualified,careerLegacy:Math.round(legacy)}
 }
 function endgameMilestones(){
  var p=game.player,x=influenceMetrics(),org=p.organization,goals=[];
