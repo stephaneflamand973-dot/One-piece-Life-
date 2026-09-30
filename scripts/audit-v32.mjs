@@ -184,3 +184,5 @@ await import('file:///tmp/qa-v30-runtime.mjs');
 // trigger final V3.2 world audit
 
 // rerun after validator alignment
+
+// cross-world propagation stress pass
