@@ -1209,10 +1209,14 @@ test('V2.8 creation initializes emergent arc memory',()=>{
 test('V2.8 migration upgrades V27 arc state idempotently',()=>{
   let g=fresh(18002);g.version=27;delete g.loop.arcs;delete g.loop.arcHistory;delete g.loop.foundingMemories;delete g.loop.arcSeq;delete g.loop.arcResultSeq;g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===28,'V27 save not upgraded');assert(Array.isArray(g.loop.arcs)&&Array.isArray(g.loop.arcHistory),'arc fields missing');q.registerArcSignal('crew','crew','qa-crew','QA Crew',70,{region:g.player.region});const count=g.loop.arcs.length;g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.loop.arcs.length===count,'migration duplicated arcs');return count+' forming arc';
 });
-test('V2.8 mission recommendation does not ignore a much safer option',()=>{
-  const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];let checked=0,worstGap=0;
-  factions.forEach((faction,ix)=>{const g=fresh(18100+ix),p=g.player;p.ageMonths=180;p.factionRep[faction]=100;q.join(faction);const b=q.board();if(!b.length)return;const safest=Math.max(...b.map(x=>x.chance)),recommended=b[0].chance;worstGap=Math.max(worstGap,safest-recommended);assert(safest-recommended<=.08,'recommended mission trails safer board option by '+Math.round((safest-recommended)*100)+' points for '+faction);checked++});
-  assert(checked>=5,'insufficient faction boards tested');return checked+' factions / worst gap '+Math.round(worstGap*100)+' pts';
+test('V2.8 mission recommendation never labels an unsafe option as recommended',()=>{
+  const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'];let checked=0,withRecommendation=0,worstGap=0;
+  factions.forEach((faction,ix)=>{const g=fresh(18100+ix),p=g.player;p.ageMonths=180;p.factionRep[faction]=100;q.join(faction);const b=q.board();if(!b.length)return;const safest=Math.max(...b.map(x=>x.chance)),pick=b.find(x=>x.recommended);
+    if(pick){withRecommendation++;assert(pick.chance>=.45,'unsafe mission labeled recommended for '+faction+': '+Math.round(pick.chance*100)+'%');worstGap=Math.max(worstGap,safest-pick.chance);assert(safest-pick.chance<=.08,'recommended mission trails safer board option by '+Math.round((safest-pick.chance)*100)+' points for '+faction)}
+    else assert(safest<.45,'board omitted recommendation despite a viable option for '+faction+' at '+Math.round(safest*100)+'%');
+    checked++
+  });
+  assert(checked>=5,'insufficient faction boards tested');assert(withRecommendation>=3,'too few faction boards surface a recommendation');return checked+' factions / '+withRecommendation+' recommended / worst gap '+Math.round(worstGap*100)+' pts';
 });
 test('V2.8 mission guidance exposes readable risk classes',()=>{
   const g=fresh(18004),p=g.player;p.ageMonths=300;p.factionRep.Civil=100;q.join('Civil');const labels=q.board().map(x=>x.guidance);assert(labels.length&&labels.every(x=>['Sûre','Adaptée','Ambitieuse','Extrême','Signature extrême'].includes(x)),'invalid guidance '+labels.join(','));return labels.join(' / ');
