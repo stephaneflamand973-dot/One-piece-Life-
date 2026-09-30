@@ -1433,6 +1433,9 @@ test('V4.0 world recognition uses lived-world consequences',()=>{
  const g=fresh(40204),base=q.playerWorldRecognition();g.world.worldState.sagaHistory.push({region:g.player.region,playerInvolved:true});g.world.worldState.playerCanonImpact.push({eventId:'qa'});const after=q.playerWorldRecognition();assert(after.score>=base.score,'world consequences did not improve recognition');return base.score+' → '+after.score;
 });
 
+test('V4.0 orphaned crew ambitions are pruned without schema bump',()=>{
+ const g=fresh(402045),ws=g.world.worldState,c=g.world.crews[0];q.crewWorldGoal(c);ws.crewGoals['crew-orphan']={primary:'Fantôme',progress:77};const version=g.version;q.migrateWorldFoundations(g,g.world);assert(g.version===version,'GameState version changed');assert(ws.crewGoals[c.id],'live crew goal was lost');assert(!ws.crewGoals['crew-orphan'],'orphan crew goal survived migration');return 'GameState '+g.version+' / '+Object.keys(ws.crewGoals).length+' crew goals';
+});
 test('V4.0 faction ambitions require real causal activity',()=>{
  const g=fresh(40205),goal=q.factionWorldGoal('Pirates'),before=goal.progress;for(let i=0;i<240;i++)q.updateFactionWorldGoals();assert(goal.progress===before,'faction goal progressed on calendar time alone');q.recordGeopoliticalShift(g.player.island,'qa-conquest','Marine','Pirates');assert(goal.progress>before,'real geopolitical action did not progress faction goal');return before+' → '+goal.progress;
 });
