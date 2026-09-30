@@ -1168,7 +1168,7 @@ function storyEligibleTypes(){
  if(p.ageMonths>=216&&(partner||(p.children||[]).some(function(c){return c.status==='active'})))add('family-crossroads',.82);
  var romanceCandidate=directorRomanceCandidate();if(romanceCandidate)add('relationship-opening',1.02);
  var familyFuture=directorFamilyOpportunity();if(familyFuture)add('family-future',familyFuture==='child'?1.55:1.28);
- var careerTurn=careerTurnCandidate();if(careerTurn)add('career-turn',.95);
+ var careerTurn=careerTurnCandidate();if(careerTurn)add('career-turn',1.30);
  var transfer=directorTravelCandidate();if(p.ageMonths>=216&&p.career!=='Aucune'&&transfer)add('career-transfer',p.ambition==='Explorer le monde'?1.85:p.faction==='Pirates'?1.55:1.25);
  if(p.ageMonths>=180&&!p.travel&&site.familiarity>=30)add('horizon-call',.78+(p.activity==='Explorer'?.35:0));
  return types
@@ -1201,7 +1201,7 @@ function startStory(type){
 }
 function maybeStartStory(m){
  var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;
- var family=types.find(function(x){return x.id==='family-future'}),romance=types.find(function(x){return x.id==='relationship-opening'}),transfer=types.find(function(x){return x.id==='career-transfer'}),turn=types.find(function(x){return x.id==='career-turn'}),director=migrateLifeDirector(p),overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=54),overdueTurn=!!(turn&&p.ageMonths-(director.lastCareerTurnAge||-999)>=72),chosen=family?'family-future':overdueTransfer&&R('story')<.78?'career-transfer':romance&&R('story')<.72?'relationship-opening':overdueTurn&&R('story')<.55?'career-turn':pickStoryType(types);return!!startStory(chosen)
+ var family=types.find(function(x){return x.id==='family-future'}),romance=types.find(function(x){return x.id==='relationship-opening'}),transfer=types.find(function(x){return x.id==='career-transfer'}),turn=types.find(function(x){return x.id==='career-turn'}),director=migrateLifeDirector(p),overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=54),overdueTurn=!!(turn&&p.ageMonths-(director.lastCareerTurnAge||-999)>=72),chosen=family?'family-future':overdueTurn&&R('story')<.82?'career-turn':overdueTransfer&&R('story')<.78?'career-transfer':romance&&R('story')<.72?'relationship-opening':pickStoryType(types);return!!startStory(chosen)
 }
 function storyPrompt(story){
  if(story.type==='youth-promise')return story.participantName+' te propose de vous fixer un objectif commun pour les mois qui viennent.';
