@@ -494,9 +494,10 @@ function rivalStage(r){
  var total=(r.rivalWins||0)+(r.rivalLosses||0);if(r.role!=='rival')return'';if(total>=4&&r.rivalry>=76)return'Némésis';if(total>=2)return'Rival confirmé';return'Rivalité naissante'
 }
 function syncRivalryMilestone(r,previousStage){
- r.rivalMilestones=Array.isArray(r.rivalMilestones)?r.rivalMilestones:[];var stage=rivalStage(r);if(stage===previousStage||r.rivalMilestones.indexOf(stage)>=0)return stage;r.rivalMilestones.push(stage);
+ r.rivalMilestones=Array.isArray(r.rivalMilestones)?r.rivalMilestones:[];var stage=rivalStage(r),known=r.rivalMilestones.indexOf(stage)>=0;
+ if(stage==='Némésis'&&!r.nemesisRecognized){r.nemesisRecognized=true;if(!known)r.rivalMilestones.push(stage);registerArcSignal('rival','relation',r.id,r.name,92,{region:npcRegion(r)});r.rivalry=cl(Math.max(r.rivalry,82),0,100);addRelationMemory(r,'Votre rivalité est désormais connue comme une véritable némésis.','nemesis');tl('Némésis',r.name+' devient ton adversaire personnel le plus marquant.','major');recordSignatureMoment('Némésis — '+r.name,'Cette rivalité devient l’un des fils majeurs de ta carrière.','rivalry',92);scheduleConsequence('rivalry','Némésis — '+r.name,'Une véritable némésis ne disparaît pas simplement parce que quelques mois passent.',4+R('memory')*7,{relationId:r.id||null,relationName:r.name,stage:stage},92,'rival:'+(r.id||r.name)+':nemesis');return stage}
+ if(known||stage===previousStage)return stage;r.rivalMilestones.push(stage);
  if(stage==='Rival confirmé'){tl('Rivalité confirmée',r.name+' devient un adversaire récurrent de ta trajectoire.','major');recordSignatureMoment('Rivalité — '+r.name,'Votre opposition devient une rivalité confirmée.','rivalry',64);scheduleConsequence('rivalry','Rivalité — '+r.name,'Votre opposition cherche une nouvelle occasion de refaire surface.',6+R('memory')*8,{relationId:r.id||null,relationName:r.name,stage:stage},72,'rival:'+(r.id||r.name)+':confirmed')}
- else if(stage==='Némésis'){r.nemesisRecognized=true;registerArcSignal('rival','relation',r.id,r.name,92,{region:npcRegion(r)});r.rivalry=cl(Math.max(r.rivalry,82),0,100);addRelationMemory(r,'Votre rivalité est désormais connue comme une véritable némésis.','nemesis');tl('Némésis',r.name+' devient ton adversaire personnel le plus marquant.','major');recordSignatureMoment('Némésis — '+r.name,'Cette rivalité devient l’un des fils majeurs de ta carrière.','rivalry',92);scheduleConsequence('rivalry','Némésis — '+r.name,'Une véritable némésis ne disparaît pas simplement parce que quelques mois passent.',4+R('memory')*7,{relationId:r.id||null,relationName:r.name,stage:stage},92,'rival:'+(r.id||r.name)+':nemesis')}
  return stage
 }
 function reconcileRival(id){
@@ -1116,12 +1117,18 @@ function storyChoice(storyId,choiceId){
  if(story.type==='organization-crisis'&&choiceId==='fund'){var need=story.data.cost||5000;if(game.player.money<need){story.choice='rally'}else game.player.money-=need}
  story.stage=1;story.nextAge=game.player.ageMonths+1+R('story')*3;story.deadlineAge=Math.max(story.deadlineAge,story.nextAge+4);story.lastBeat='Conséquence en attente';story.summary='Ta décision est prise. Il faut maintenant laisser la situation évoluer.';tl('Choix — '+story.title,storyChoices(story).find(function(x){return x.id===choiceId})?.label||choiceId);return true
 }
+function maybeStartReadyRivalStory(m){
+ var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<180||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<3)return false;
+ if(active.some(function(s){return s.type==='rival-challenge'}))return false;
+ var ready=game.relations.filter(function(r){return r.status==='active'&&r.role==='rival'&&r.challengeReady&&npcNearby(r)&&p.ageMonths-r.lastDuelAge>=4}).sort(function(a,b){return ((b.nemesisRecognized?40:0)+(b.rivalry||0)+arcPressureFor('relation',b.id))-((a.nemesisRecognized?40:0)+(a.rivalry||0)+arcPressureFor('relation',a.id))});
+ if(!ready.length)return false;var r=ready[0],chance=cl(.008+(r.rivalry||0)/3000+arcPressureFor('relation',r.id)/2200+(r.nemesisRecognized?.015:0),.018,.065)*Math.max(.5,m||1);if(R('story')>=chance)return false;return!!startStory('rival-challenge')
+}
 function storyTick(m){
  var p=game.player,eng=migrateStoryEngine(game),list=activeStories().slice();for(var i=0;i<list.length;i++){var story=list[i];if(story.type==='island-secret'&&p.travel&&p.travel.from===story.location){closeStory(story,'piste laissée derrière','Tu prends la mer avant d’avoir résolu ce mystère local.',true,'interrupted');continue}if(story.awaiting)continue;if(p.ageMonths>story.deadlineAge){closeStory(story,'échéance dépassée','La situation se referme avant que tu puisses aller au bout.',true);continue}if(p.ageMonths<story.nextAge)continue;
   if(story.stage===0){setStoryAwaiting(story);continue}
   if(story.stage===1)storyResolve(story)
  }
- if(!awaitingStory()&&!migrateJustice(p).detained)maybeStartStory(m)
+ if(!awaitingStory()&&!migrateJustice(p).detained){if(!maybeStartReadyRivalStory(m))maybeStartStory(m)}
 }
 function showStoryDecision(id){
  var story=id?activeStories().find(function(s){return s.id===id}):awaitingStory();if(!story||!story.awaiting)return false;var choices=storyChoices(story).map(function(c){return[c.label,c.desc,function(){storyChoice(story.id,c.id)}]});if(!choices.length)return false;decision(story.title,storyPrompt(story),choices);return true
