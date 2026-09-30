@@ -155,6 +155,10 @@ let postCareerRows=[],postCareerProfiles=[];
       avgMissionSuccessRate:+(rs.reduce((a,x)=>a+(x.careerSuccessRate||0),0)/rs.length).toFixed(2),
       minMissionSuccessRate:+Math.min(...rs.map(x=>x.careerSuccessRate||0)).toFixed(2),
       maxMissionSuccessRate:+Math.max(...rs.map(x=>x.careerSuccessRate||0)).toFixed(2),
+      avgVisitedPlaces:+(rs.reduce((a,x)=>a+(x.visited||0),0)/rs.length).toFixed(1),
+      partneredShare:+(rs.filter(x=>x.relationshipStatus!=='Célibataire').length/rs.length).toFixed(2),
+      parentShare:+(rs.filter(x=>x.children>0).length/rs.length).toFixed(2),
+      avgAcceptedMoves:+(rs.reduce((a,x)=>a+(x.directorJourneys||0),0)/rs.length).toFixed(1),
       deathCauses:rs.filter(x=>!x.alive).reduce((a,x)=>{const k=x.deathCause||'unknown';a[k]=(a[k]||0)+1;return a},{})
     };
   });
