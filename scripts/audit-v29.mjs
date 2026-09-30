@@ -60,7 +60,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
   p.activity='Carrière';
   const start=p.ageMonths,target=start+years*12;
   let clicks=0,lastMissionAge=-999,started=0,routine=0,worldGenerated=0,signature=0;
-  const titles=[],guidance={},chances=[],arcPeak=0,arcTransitions0=(g.loop.arcHistory||[]).length;
+  const titles=[],guidance={},chances=[];let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
   while(p.ageMonths<target&&clicks<years*18&&g.alive){
     qaResolveInterruptions(g);
     if(!g.mission&&p.ageMonths-lastMissionAge>=10){
