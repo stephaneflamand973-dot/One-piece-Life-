@@ -1059,6 +1059,18 @@ test('V5.0 career momentum remains bounded and decays',()=>{
   const g=fresh(50022),p=g.player;p.ageMonths=300;q.join('Marine');const rec=q.careerRecord();for(let i=0;i<20;i++)q.updateCareerMomentum(rec,true,100);assert(rec.momentum<=12,'career momentum exceeded cap');const before=rec.momentum;q.careerTick(24);assert(Math.abs(rec.momentum)<Math.abs(before),'career momentum did not decay toward neutral');return before.toFixed(1)+' -> '+rec.momentum.toFixed(1);
 });
 
+
+test('V5.0 married household follows an accepted career relocation',()=>{
+  const g=fresh(50030),p=g.player;p.ageMonths=300;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));q.join('Marine');
+  const r=q.createRelation('ami');r.npcAgeMonths=300;r.location=p.island;r.region=p.region;r.affection=82;r.trust=75;r.loyalty=55;r.relationshipMonths=20;r.type='partner';r.role='conjoint';p.life.partnerId=r.id;p.life.relationshipStatus='Marié';
+  const d=q.directorTravelCandidate();assert(d,'no relocation route for household QA');assert(q.beginJourney(d,'career-transfer'),'career relocation failed to start');assert(p.travel.partnerFollows===true,'married partner did not follow relocation');p.travel.remaining=.1;p.travel.danger=0;p.travel.condition='calm';q.travel(.25);assert(p.island===d,'player did not arrive');assert(r.location===d&&r.region===p.region&&!r.longDistance,'household did not relocate together');return r.name+' -> '+d;
+});
+test('V5.0 long-distance couple cannot trigger family milestones',()=>{
+  const g=fresh(50031),p=g.player;p.ageMonths=330;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));q.join('Marine');
+  const r=q.createRelation('ami');r.npcAgeMonths=330;r.location=p.island;r.region=p.region;r.affection=80;r.trust=68;r.loyalty=50;r.relationshipMonths=18;r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='En couple';
+  assert(q.directorFamilyOpportunity()==='marriage','baseline marriage opportunity missing');const d=q.directorTravelCandidate();assert(d,'no relocation route');assert(q.beginJourney(d,'career-transfer'),'relocation failed');assert(r.longDistance===true&&p.travel.partnerFollows===false,'partner should remain behind');assert(q.directorFamilyOpportunity()===null,'family milestone survived long-distance separation');return 'distance to '+d;
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
