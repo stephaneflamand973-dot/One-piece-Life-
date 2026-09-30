@@ -1433,6 +1433,14 @@ test('V4.0 non-pirate legends do not require territorial domains',()=>{
  return out.join(' / ');
 });
 
+
+test('V4.0 passive presence never becomes saga participation',()=>{
+ const g=fresh(40401),saga=q.startWorldSaga('power',g.player.region,'Alpha','Beta','qa');for(let i=0;i<24;i++)q.playerSagaPresence();assert(!saga.playerInvolved,'passive presence became involvement');assert((saga.playerRole||'present')==='present','passive presence gained a causal role');return saga.playerPresenceMonths+'m / '+(saga.playerRole||'present');
+});
+test('V4.0 rivalry sagas remain exceptional over a decade',()=>{
+ const g=fresh(40402),ws=g.world.worldState,seen=new Set();for(let m=0;m<120;m++){q.worldMonthStep();(ws.worldSagas||[]).filter(x=>x.type==='rivalry').forEach(x=>seen.add(x.id))}assert(seen.size<=12,'rivalry sagas became routine: '+seen.size);return seen.size+' rivalry sagas / decade';
+});
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
