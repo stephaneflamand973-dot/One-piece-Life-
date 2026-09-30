@@ -1391,7 +1391,7 @@ function organizationTick(m){
  var avg=active.length?active.reduce(function(a,x){return a+x.morale},0)/active.length:o.morale;o.morale=cl(o.morale+(avg-o.morale)*.08+(o.supplies>20?.2:-.25)*m,0,100);
  if(o.morale<12&&o.authority==='leader'&&active.length>1&&R('org')<.025*m){var rebel=active.slice().sort(function(a,b){return a.loyalty-b.loyalty})[0];if(rebel){rebel.status='left';var loss=Math.min(o.treasury,Math.round(o.treasury*.15));o.treasury-=loss;tl('Crise de commandement',rebel.name+' quitte le groupe avec '+loss.toLocaleString('fr-FR')+' B de la caisse.','danger')}}
 }
-function organizationMissionDanger(m){return Math.max(5,m.danger-organizationSupport(m))}
+function organizationMissionDanger(m){var starter=m&&(m.tier||0)===0&&rankIndex()===0?4:0;return Math.max(5,m.danger-organizationSupport(m)-starter)}
 function organizationMissionResult(ok,m,reward){
  var o=ensureOrganization();if(!o)return reward;o.missions++;if(ok)o.successes++;else o.failures++;var share=ok?Math.round(reward*(o.authority==='leader'?.18:o.authority==='officer'?.08:.03)):0;if(share){o.treasury+=share;reward-=share}o.renown=cl(o.renown+(ok?2+(m.tier||0):-.8),0,100);o.morale=cl(o.morale+(ok?2:-4),0,100);o.cohesion=cl(o.cohesion+(ok?1:-2),0,100);if(!ok&&o.members.length&&R('org')<.28){var active=o.members.filter(function(x){return x.status==='active'});if(active.length){var hurt=pk(active,'org');hurt.injuryMonths=1+R('org')*3;hurt.morale=cl(hurt.morale-6,0,100);tl('Blessure dans le groupe',hurt.name+' est blessé pendant la mission.','danger')}}return reward
 }
