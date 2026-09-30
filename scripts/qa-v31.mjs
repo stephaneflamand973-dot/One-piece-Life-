@@ -1296,7 +1296,7 @@ test('V3.0 failed trade mission cannot create negative cash',()=>{
 
 
 test('V3.1 veteran pirates compress ordinary high-risk time without becoming safe',()=>{
- const g=fresh(24000),p=g.player;p.ageMonths=300;q.join('Pirates');Object.keys(p.stats).forEach(k=>p.stats[k]=62);Object.keys(p.skills).forEach(k=>p.skills[k]=62);p.health=100;p.conditions=[];p.bounty=250000000;p.region='New World';p.island='Dressrosa';p.justice.regionalHeat['New World']=55;const plan=q.advancePlan();assert(plan.key==='high-risk','pirate did not remain high-risk');assert(plan.min>=1.25&&plan.max>=2.5,'veteran pirate pacing was not compressed');return plan.label+' '+plan.min+'-'+plan.max;
+ const g=fresh(24000),p=g.player;p.ageMonths=300;q.join('Pirates');Object.keys(p.stats).forEach(k=>p.stats[k]=62);Object.keys(p.skills).forEach(k=>p.skills[k]=62);p.health=100;p.conditions=[];p.bounty=250000000;p.region='New World';p.island='Dressrosa';p.justice.regionalHeat['New World']=65;const plan=q.advancePlan();assert(plan.key==='high-risk','pirate did not remain high-risk');assert(plan.min>=1.25&&plan.max>=2.5,'veteran pirate pacing was not compressed');return plan.label+' '+plan.min+'-'+plan.max;
 });
 test('V3.1 extreme pirate heat still keeps short urgent windows',()=>{
  const g=fresh(24001),p=g.player;p.ageMonths=300;q.join('Pirates');Object.keys(p.stats).forEach(k=>p.stats[k]=65);Object.keys(p.skills).forEach(k=>p.skills[k]=65);p.health=100;p.conditions=[];p.bounty=900000000;p.region='New World';p.island='Wano';p.justice.regionalHeat['New World']=95;const plan=q.advancePlan();assert(plan.key==='high-risk','extreme pirate heat not high-risk');assert(plan.max<=1.5,'extreme heat was over-compressed');return plan.label+' '+plan.min+'-'+plan.max;
