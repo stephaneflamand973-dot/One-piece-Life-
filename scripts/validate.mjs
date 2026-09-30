@@ -55,7 +55,7 @@ if(!app.includes('function npcCareerPromotionChance') || !app.includes('function
 if(!app.includes('function worldMissionOpportunities') || !app.includes('function applyWorldMissionOutcome')) throw new Error('V2.5 causal mission engine missing');
 if(!app.includes("sourceType:'conflict',sourceId:cf.id") || !app.includes("x.id===sid") || !app.includes('function migrateWorldMissionSource') || !app.includes("c.status==='active'&&(c.region===region||c.location===p.island)") || app.includes("sid.indexOf('|')>=0){var parts")) throw new Error('V2.5 conflict causal identity hardening missing');
 if(!app.includes('function purgeSaveSlot') || !app.includes('function deleteSaveSlot') || !app.includes('save-delete')) throw new Error('V2.5 save deletion missing');
-if(!app.includes('var ADAPTIVE_MISSION_TEMPLATES=') || !app.includes('function adaptiveMissionOpportunity') || !app.includes("m.adaptive?'adaptive:'")) throw new Error('V2.9 adaptive mission variety engine missing');
+if(!app.includes('var ADAPTIVE_MISSION_TEMPLATES=') || !app.includes('function adaptiveMissionOpportunity') || !app.includes("m.adaptive?'adaptive:'")) throw new Error('V3.0 adaptive mission variety engine missing');
 if(!app.includes("r.nemesisRecognized&&!r.challengeReady") || !app.includes("bonus['Poursuivre sa némésis']=2.0")) throw new Error('V2.9 nemesis pursuit pacing missing');
 if(!app.includes('var MISSION_PROFILE_CONFIG=') || !app.includes('function missionResolution') || !app.includes('function missionChance')) throw new Error('V2.2 mission profile engine missing');
 if(!app.includes('function styleMastery')) throw new Error('V2.2 style mastery missing');
@@ -132,3 +132,5 @@ if(!html.includes('id="storyEngineBadge"') || !html.includes('id="storySummary"'
 if(!app.includes("id:'story-first'") || !app.includes("id:'story-weaver'") || !app.includes("id:'story-decisions'")) throw new Error('V2.0 story achievements missing');
 if(!app.includes("if(awaitingStory())return showStoryDecision()")) throw new Error('V2.0 AVANCER story gate missing');
 console.log('ONE PIECE LIFE V2.6 validation OK');
+
+if(!app.includes('function missionOutcomeFlavor') || !app.includes("id==='navigation'") || !app.includes("id==='trade'")) throw new Error('V3.0 career-specific mission outcomes missing');
