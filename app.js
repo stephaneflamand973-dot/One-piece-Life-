@@ -1584,6 +1584,12 @@ function influenceMetrics(){
 function addTitle(t){
  var x=migrateInfluence(game.player);if(x.titles.indexOf(t)>=0)return false;x.titles.push(t);x.primaryTitle=t;x.history.unshift({age:age(),title:t});x.history=x.history.slice(0,30);tl('Nouveau titre',game.player.name+' est désormais connu comme « '+t+' ».','major');news('Un nouveau nom circule',game.player.name+' gagne le titre « '+t+' ».','major');return true
 }
+function playerWorldRecognition(){
+ var p=game.player,x=influenceMetrics(),ws=game.world.worldState||{},sagas=(ws.worldSagas||[]).filter(function(s){return s.status==='active'&&s.region===p.region}),history=(ws.sagaHistory||[]).filter(function(s){return s.region===p.region}),canon=(ws.playerCanonImpact||[]).length,domains=x.domains.length,allies=x.affiliates.length,worldScore=cl(x.score*.48+power()*.22+domains*5+allies*3+Math.min(12,history.length*2)+Math.min(10,canon*1.5),0,100),role='Figure régionale';
+ if(worldScore>=88&&domains>=3)role=p.faction==='Pirates'?'Puissance pirate mondiale':p.faction==='Marine'?'Pilier de l’ordre mondial':p.faction==='Révolutionnaires'?'Symbole de la Révolution':p.faction==='Gouvernement'?'Autorité mondiale':'Légende des mers';
+ else if(worldScore>=72)role='Puissance établie';else if(worldScore>=52)role='Acteur majeur';
+ return{score:Math.round(worldScore),role:role,activeSagas:sagas.length,resolvedSagas:history.length,canonImpact:canon,domains:domains,allies:allies}
+}
 function endgameMilestones(){
  var p=game.player,x=influenceMetrics(),org=p.organization,goals=[];
  if(p.ageMonths<300)return goals;
@@ -1608,8 +1614,8 @@ function endgameMilestones(){
  return goals
 }
 function endgameStage(){
- var goals=endgameMilestones();if(!goals.length)return null;var done=goals.filter(function(g){return g.done}).length,avg=goals.reduce(function(a,g){return a+(g.progress||0)},0)/goals.length;
- return{label:done===goals.length?'Légende accomplie':done>=Math.ceil(goals.length/2)?'Puissance établie':'Ascension majeure',done:done,total:goals.length,progress:Math.round(avg),goals:goals}
+ var goals=endgameMilestones();if(!goals.length)return null;var done=goals.filter(function(g){return g.done}).length,avg=goals.reduce(function(a,g){return a+(g.progress||0)},0)/goals.length,recognition=playerWorldRecognition(),organic=recognition.score>=88&&recognition.domains>=2;
+ return{label:organic?'Légende accomplie':done>=Math.ceil(goals.length/2)?'Puissance établie':'Ascension majeure',done:done,total:goals.length,progress:Math.round((avg*.65+recognition.score*.35)),goals:goals,recognition:recognition,organic:organic}
 }
 function evaluateTitles(){
  var p=game.player,x=influenceMetrics(),org=p.organization,ageY=p.ageMonths/12,rank=p.rank||'';if(p.ageMonths<180)return x;
