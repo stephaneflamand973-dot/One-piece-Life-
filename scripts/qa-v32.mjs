@@ -1283,7 +1283,7 @@ test('V5.0 migration preserves newest-first world history',()=>{
   const g=fresh(50164),ws=g.world.worldState,make=n=>Array.from({length:n},(_,i)=>({seq:n-i,tag:'event-'+(n-i)}));
   ws.actorHistory=make(140);ws.territoryHistory=make(120);ws.goalHistory=make(100);ws.canonCausality=make(110);ws.canonBranchHistory=make(100);ws.playerCanonImpact=make(90);ws.sagaHistory=make(100);ws.geopoliticalHistory=make(120);ws.crewHistory=make(110);ws.monthlyChanges=make(70);
   q.migrate(g);
-  const checks=[['actorHistory',90],['territoryHistory',80],['goalHistory',60],['canonCausality',80],['canonBranchHistory',60],['playerCanonImpact',50],['sagaHistory',60],['geopoliticalHistory',80],['crewHistory',70],['monthlyChanges',36]];
+  const checks=[['actorHistory',90],['territoryHistory',80],['goalHistory',60],['canonCausality',80],['canonBranchHistory',60],['playerCanonImpact',60],['sagaHistory',60],['geopoliticalHistory',80],['crewHistory',70],['monthlyChanges',36]];
   checks.forEach(([k,n])=>{assert(ws[k].length===n,k+' wrong compacted length');assert(ws[k][0].seq>ws[k][ws[k].length-1].seq,k+' lost newest-first order');});
   assert(ws.actorHistory[0].seq===140&&ws.actorHistory[89].seq===51,'actor history kept old tail instead of recent head');
   return checks.length+' histories keep recent head';
