@@ -1130,7 +1130,7 @@ function directorFamilyOpportunity(){
  return null
 }
 function directorLegacyOpportunity(){
- var p=game.player,d=migrateLifeDirector(p),a=latestDynastyLegacy();if(!a||d.legacyChoice||p.ageMonths<180||p.ageMonths>420)return null;
+ var p=game.player,d=migrateLifeDirector(p),a=latestDynastyLegacy();if(!a||d.legacyChoice||p.ageMonths<180||p.ageMonths>480)return null;
  var lg=a.legacy||{},score=lg.recognitionScore||0,strong=(lg.chapters||[]).filter(function(x){return(x.score||0)>=45&&(x.beats||0)>=2}).length,legend=/Légende|Puissance|Pilier|Symbole|Autorité|Icône/.test(lg.worldRole||'');
  if(score<52&&strong<1&&!legend)return null;
  return{ancestor:a,legacy:lg,weight:Math.min(2,1+(score-50)/60+strong*.18+(legend?.25:0))}
@@ -1210,8 +1210,9 @@ function startStory(type){
 }
 function maybeStartStory(m){
  var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;
- var family=types.find(function(x){return x.id==='family-future'}),romance=types.find(function(x){return x.id==='relationship-opening'}),transfer=types.find(function(x){return x.id==='career-transfer'}),turn=types.find(function(x){return x.id==='career-turn'}),director=migrateLifeDirector(p),overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=54),overdueTurn=!!(turn&&p.ageMonths-(director.lastCareerTurnAge||-999)>=72),chosen=null;
- if(family&&R('story')<.68)chosen='family-future';
+ var family=types.find(function(x){return x.id==='family-future'}),romance=types.find(function(x){return x.id==='relationship-opening'}),legacy=types.find(function(x){return x.id==='legacy-crossroads'}),transfer=types.find(function(x){return x.id==='career-transfer'}),turn=types.find(function(x){return x.id==='career-turn'}),director=migrateLifeDirector(p),overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=54),overdueTurn=!!(turn&&p.ageMonths-(director.lastCareerTurnAge||-999)>=72),chosen=null;
+ if(legacy&&p.ageMonths>=216&&R('story')<.72)chosen='legacy-crossroads';
+ else if(family&&R('story')<.68)chosen='family-future';
  else if(overdueTurn&&R('story')<.82)chosen='career-turn';
  else if(overdueTransfer&&R('story')<.76)chosen='career-transfer';
  else if(romance&&R('story')<.68)chosen='relationship-opening';
