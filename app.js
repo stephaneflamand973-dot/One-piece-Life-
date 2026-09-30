@@ -878,7 +878,7 @@ function advancePlan(){
  if(game.pending)return{key:'decision',label:'Décision en attente',tone:'urgent',min:0,max:0,reason:'Une décision importante interrompt automatiquement le temps.'};var storyWait=awaitingStory();if(storyWait)return{key:'story-decision',label:'Fil narratif à décider',tone:'urgent',min:0,max:0,reason:storyWait.title+' attend ta décision avant que le temps continue.'};
  if(j.detained&&j.prison)return{key:'detention',label:'Détention',tone:'urgent',min:.5,max:1,limit:j.prison.remaining,reason:'Le temps avance lentement en détention.'};
  if(game.mission)return{key:'mission',label:'Mission en cours',tone:'active',min:Math.min(1.25,game.mission.remaining),max:Math.min(3,game.mission.remaining),limit:game.mission.remaining,reason:'Le temps avance jusqu’à une étape significative de la mission.'};
- if(p.travel){if(p.travel.source==='career-transfer')return{key:'travel-director',label:'Mutation en cours',tone:'active',min:Math.min(2,p.travel.remaining),max:Math.min(4.5,p.travel.remaining),limit:p.travel.remaining,reason:'Le Life Director compresse les incidents mineurs de cette mutation et t’interrompt seulement si la traversée devient réellement importante.'};return{key:'travel',label:'Navigation',tone:'active',min:Math.min(1,p.travel.remaining),max:Math.min(2.5,p.travel.remaining),limit:p.travel.remaining,reason:'La traversée avance jusqu’à un incident utile ou l’arrivée.'}};
+ if(p.travel){if(p.travel.source==='career-transfer')return{key:'travel-director',label:'Mutation en cours',tone:'active',min:Math.min(6,p.travel.remaining),max:Math.min(6,p.travel.remaining),limit:p.travel.remaining,reason:'Le Life Director regroupe cette mutation en une traversée compacte et ne t’interrompt que pour un événement réellement majeur.'};return{key:'travel',label:'Navigation',tone:'active',min:Math.min(1,p.travel.remaining),max:Math.min(2.5,p.travel.remaining),limit:p.travel.remaining,reason:'La traversée avance jusqu’à un incident utile ou l’arrivée.'}};
  if(severe)return{key:'recovery',label:'Récupération',tone:'urgent',min:.5,max:1.5,reason:'Blessures ou santé fragile : la simulation surveille de près ton état.'};
  if(p.ageMonths<24)return{key:'infancy',label:'Petite enfance',tone:'calm',min:6,max:9,reason:'Les mois passent vite tant qu’aucun événement important ne survient.'};
  if(p.ageMonths<72)return{key:'childhood',label:'Enfance',tone:'calm',min:4,max:7,reason:'Le temps avance encore rapidement, avec interruption automatique en cas d’événement.'};
@@ -1072,7 +1072,7 @@ function storyRelation(story){return story&&story.participantId?relationById(sto
 function storyNoveltyWeight(id){var recent=migrateStoryEngine(game).recentTypes||[],i=recent.indexOf(id);return i<0?1:i===0?.2:i===1?.4:i===2?.62:i<=4?.78:.9}
 function directorTravelCandidate(){
  var p=game.player,d=migrateLifeDirector(p),routes=(PL[p.island]&&PL[p.island][2]||[]).filter(function(n){return req(n)[0]});
- if(!routes.length||p.travel||p.ageMonths-d.lastMobilityAge<28)return null;
+ if(!routes.length||p.travel||p.ageMonths-d.lastMobilityAge<48)return null;
  var fresh=routes.filter(function(n){return p.visited.indexOf(n)<0}),pool=fresh.length?fresh:routes.filter(function(n){return n!==p.island});
  if(!pool.length)return null;
  pool.sort(function(a,b){var av=p.visited.indexOf(a)<0?12:0,bv=p.visited.indexOf(b)<0?12:0,ar=inf(a).region!==p.region?5:0,br=inf(b).region!==p.region?5:0;return(bv+br-inf(b).danger*.03)-(av+ar-inf(a).danger*.03)});
