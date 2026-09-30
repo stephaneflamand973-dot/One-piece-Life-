@@ -769,17 +769,18 @@ function processConsequences(){
  var l=migrateLifeLoop(game),due=l.consequences.filter(function(x){return !x.resolved&&x.dueAge<=game.player.ageMonths}).sort(function(a,b){return b.weight-a.weight||a.dueAge-b.dueAge});return due.length?resolveConsequence(due[0]):false
 }
 function advancePlan(){
- var p=game.player,j=migrateJustice(p),danger=inf().danger||0,severe=p.health<45||(p.conditions||[]).some(function(c){return(c.severity||1)>=2});
+ var p=game.player,j=migrateJustice(p),danger=inf().danger||0,criticalRecovery=p.health<25||(p.conditions||[]).some(function(c){return(c.severity||1)>=3}),severe=p.health<45||(p.conditions||[]).some(function(c){return(c.severity||1)>=2});
  if(game.pending)return{key:'decision',label:'Décision en attente',tone:'urgent',min:0,max:0,reason:'Une décision importante interrompt automatiquement le temps.'};var storyWait=awaitingStory();if(storyWait)return{key:'story-decision',label:'Fil narratif à décider',tone:'urgent',min:0,max:0,reason:storyWait.title+' attend ta décision avant que le temps continue.'};
  if(j.detained&&j.prison)return{key:'detention',label:'Détention',tone:'urgent',min:.5,max:1,limit:j.prison.remaining,reason:'Le temps avance lentement en détention.'};
  if(game.mission)return{key:'mission',label:'Mission en cours',tone:'active',min:Math.min(1.25,game.mission.remaining),max:Math.min(3,game.mission.remaining),limit:game.mission.remaining,reason:'Le temps avance jusqu’à une étape significative de la mission.'};
  if(p.travel)return{key:'travel',label:'Navigation',tone:'active',min:Math.min(1,p.travel.remaining),max:Math.min(2.5,p.travel.remaining),limit:p.travel.remaining,reason:'La traversée avance jusqu’à un incident utile ou l’arrivée.'};
- if(severe)return{key:'recovery',label:'Récupération',tone:'urgent',min:.5,max:1.5,reason:'Blessures ou santé fragile : la simulation surveille de près ton état.'};
+ if(criticalRecovery)return{key:'critical-recovery',label:'Récupération critique',tone:'urgent',min:.5,max:1.25,reason:'Ton état reste réellement préoccupant : la simulation avance prudemment.'};
+ if(severe)return{key:'recovery',label:'Récupération',tone:'urgent',min:1,max:2.25,reason:'La récupération reste suivie, mais les semaines sans évolution sont compressées.'};
  if(p.ageMonths<24)return{key:'infancy',label:'Petite enfance',tone:'calm',min:6,max:9,reason:'Les mois passent vite tant qu’aucun événement important ne survient.'};
  if(p.ageMonths<72)return{key:'childhood',label:'Enfance',tone:'calm',min:4,max:7,reason:'Le temps avance encore rapidement, avec interruption automatique en cas d’événement.'};
  if(p.ageMonths<180)return{key:'formation',label:'Formation',tone:'active',min:3.5,max:5.5,reason:'La progression reste suivie, mais les périodes ordinaires sont davantage compressées.'};
  if(danger>=75||currentHeat()>75)return{key:'critical-risk',label:'Danger critique',tone:'urgent',min:.75,max:1.75,reason:'La menace est exceptionnellement élevée : le moteur garde un suivi rapproché.'};
- if(danger>=58||currentHeat()>55)return{key:'high-risk',label:'Contexte tendu',tone:'urgent',min:1.25,max:2.5,reason:'Le contexte reste dangereux, mais le moteur compresse les périodes sans événement significatif.'};
+ if(danger>=58||currentHeat()>55)return{key:'high-risk',label:'Contexte tendu',tone:'urgent',min:1.5,max:3,reason:'Le contexte reste dangereux, mais le moteur compresse les périodes sans événement significatif.'};
  if(p.activity==='Explorer')return{key:'exploration',label:'Exploration',tone:'active',min:1.5,max:3,reason:'L’exploration avance par blocs jusqu’à une découverte ou un incident notable.'};
  if(p.career!=='Aucune')return{key:'active-life',label:'Vie active',tone:'active',min:2.5,max:4.5,reason:'La carrière progresse en blocs plus longs ; le moteur t’interrompt quand quelque chose mérite ton attention.'};
  return{key:'calm-life',label:'Période calme',tone:'calm',min:4.5,max:6.5,reason:'Le moteur laisse passer plusieurs mois tant qu’aucun événement important ne réclame ton attention.'}
