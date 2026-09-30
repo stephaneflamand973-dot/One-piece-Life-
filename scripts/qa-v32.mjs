@@ -1252,6 +1252,25 @@ test('V5.0 accepted career turn persists as a real life transition',()=>{
   const g=fresh(50143),p=g.player,version=g.version;p.ageMonths=360;p.factionRep.Civil=100;q.join('Civil');const rec=q.careerRecord();p.specialization='Marchand';rec.specialization='Marchand';rec.months=72;rec.xp=200;p.skills.Science=92;p.stats.Intelligence=86;p.stats.Discipline=68;p.skills.Navigation=40;p.skills.Commandement=28;p.lifeDirector.lastCareerTurnAge=250;const st=q.startStory('career-turn');assert(st&&st.data.turn&&st.data.turn.to==='Scientifique','career-turn setup failed');st.awaiting=true;q.storyChoice(st.id,'pivot-career');assert(p.specialization==='Scientifique','accepted turn did not change specialization');assert(p.lifeDirector.careerTurns===1,'accepted turn not counted');assert(p.careerHistory.some(x=>x.type==='specialization'&&x.source==='life-director'&&x.to==='Scientifique'),'career history lost organic turn');assert(p.lifeDirector.history.some(x=>x.kind==='career-turn'&&x.data&&x.data.to==='Scientifique'),'Life Director lost career turn cause');assert(g.version===version&&g.version===28,'career turn changed GameState version');return 'Marchand -> '+p.specialization+' / GameState '+g.version;
 });
 
+
+test('V5.0 ordinary detention advances in compact blocks',()=>{
+  const g=fresh(50160),p=g.player;p.ageMonths=300;q.join('Révolutionnaires');p.justice.detained=true;p.justice.prison={location:p.island,region:p.region,security:55,remaining:9,original:9,reason:'QA',attempts:0};p.situation='Détenu';p.activity='Détention';p.health=90;
+  const plan=q.advancePlan();assert(plan.key==='detention','detention plan missing');assert(plan.min===2&&plan.max===4,'ordinary detention not compressed to 2–4 months');assert(plan.limit===9,'detention limit lost');return plan.min+'-'+plan.max+'m';
+});
+test('V5.0 critical detention keeps tighter supervision',()=>{
+  const g=fresh(50161),p=g.player;p.ageMonths=300;q.join('Révolutionnaires');p.justice.detained=true;p.justice.prison={location:p.island,region:p.region,security:88,remaining:7,original:7,reason:'QA',attempts:0};p.situation='Détenu';p.activity='Détention';p.health=46;
+  const plan=q.advancePlan();assert(plan.key==='detention','critical detention plan missing');assert(plan.min===1&&plan.max===2,'critical detention became over-compressed');return plan.min+'-'+plan.max+'m';
+});
+test('V5.0 compact living-world history bounds survive migration',()=>{
+  const g=fresh(50162),ws=g.world.worldState;
+  ws.actorHistory=Array.from({length:140},(_,i)=>({seq:i}));ws.crewHistory=Array.from({length:120},(_,i)=>({seq:i}));ws.territoryHistory=Array.from({length:110},(_,i)=>({seq:i}));ws.goalHistory=Array.from({length:90},(_,i)=>({seq:i}));ws.monthlyChanges=Array.from({length:60},(_,i)=>({seq:i}));ws.sagaHistory=Array.from({length:90},(_,i)=>({seq:i}));ws.geopoliticalHistory=Array.from({length:110},(_,i)=>({seq:i}));
+  q.migrateWorldFoundations(g,g.world);
+  assert(ws.actorHistory.length<=90,'actor history compact bound lost');assert(ws.crewHistory.length<=70,'crew history compact bound lost');assert(ws.territoryHistory.length<=80,'territory history compact bound lost');assert(ws.goalHistory.length<=60,'goal history compact bound lost');assert(ws.monthlyChanges.length<=36,'monthly changes compact bound lost');assert(ws.sagaHistory.length<=60,'saga history compact bound lost');assert(ws.geopoliticalHistory.length<=80,'geopolitical history compact bound lost');return [ws.actorHistory.length,ws.crewHistory.length,ws.territoryHistory.length,ws.goalHistory.length,ws.monthlyChanges.length].join('/');
+});
+test('V5.0 actor world goal is runtime-only, not duplicated in saves',()=>{
+  const g=fresh(50163),a=g.world.actors[0];assert(a&&a.worldGoal,'actor world goal missing at runtime');assert(!Object.prototype.propertyIsEnumerable.call(a,'worldGoal'),'actor world goal still enumerable');assert(!JSON.stringify(a).includes('"worldGoal"'),'actor world goal duplicated into JSON');return a.name+' goal bound without serialization';
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
