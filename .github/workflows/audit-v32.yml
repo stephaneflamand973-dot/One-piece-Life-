@@ -1,4 +1,4 @@
-name: V3.5 Long Audit
+name: V4.0 Long Audit
 
 on:
   workflow_dispatch:
