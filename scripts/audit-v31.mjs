@@ -173,6 +173,6 @@ console.log('V31_LONG_AUDIT '+JSON.stringify({career:metrics.v31CareerStress,nem
 
 const out=base.replace(marker,extra+'\n'+marker);
 fs.writeFileSync('/tmp/qa-v30-runtime.mjs',out,'utf8');
-await import('file:///tmp/qa-v29-runtime.mjs');
+await import('file:///tmp/qa-v30-runtime.mjs');
 
 // V3.1 final trigger: veteran pirate pacing + faction endgame.
