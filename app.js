@@ -491,7 +491,7 @@ function declareRivalry(id){
  var r=relationById(id);if(!r||r.id===game.player.life.partnerId||r.status!=='active')return;if(!npcNearby(r))return toast('Cette personne n’est pas dans ta région.');if(r.canonical&&!canonicalFreedom(r))return toast('Le canon résiste encore à une rivalité personnelle aussi importante.');if(!useSocialAction())return;r.role='rival';r.rivalry=Math.max(r.rivalry,50);r.respect=cl(r.respect+3,0,100);addRelationMemory(r,'Votre relation devient une rivalité assumée.','rival');tl('Nouvelle rivalité',r.name+' devient un rival récurrent.','major');save();render()
 }
 function rivalStage(r){
- var total=(r.rivalWins||0)+(r.rivalLosses||0);if(r.role!=='rival')return'';if(total>=5&&r.rivalry>=78)return'Némésis';if(total>=2)return'Rival confirmé';return'Rivalité naissante'
+ var total=(r.rivalWins||0)+(r.rivalLosses||0);if(r.role!=='rival')return'';if(total>=4&&r.rivalry>=76)return'Némésis';if(total>=2)return'Rival confirmé';return'Rivalité naissante'
 }
 function syncRivalryMilestone(r,previousStage){
  r.rivalMilestones=Array.isArray(r.rivalMilestones)?r.rivalMilestones:[];var stage=rivalStage(r);if(stage===previousStage||r.rivalMilestones.indexOf(stage)>=0)return stage;r.rivalMilestones.push(stage);
@@ -580,7 +580,7 @@ Marine:[
  {title:'Démanteler des contrebandiers',danger:39,reward:19000,xp:25,tier:2},{title:'Intercepter un équipage pirate',danger:52,reward:29000,xp:34,tier:3},
  {title:'Sécuriser un royaume allié',danger:64,reward:42000,xp:46,tier:5},{title:'Opération de renseignement',danger:37,reward:21000,xp:28,tier:2,spec:'Renseignement'}],
 Pirates:[
- {title:'Chasse au trésor',danger:21,reward:15000,xp:13,tier:0},{title:'Piller un convoi',danger:40,reward:24000,xp:21,tier:1},
+ {title:'Chasse au trésor',danger:17,reward:15000,xp:13,tier:0},{title:'Piller un convoi',danger:40,reward:24000,xp:21,tier:1},
  {title:'Affronter un équipage rival',danger:53,reward:36000,xp:31,tier:2},{title:'Raid contre une base Marine',danger:68,reward:54000,xp:45,tier:4},
  {title:'Prendre le contrôle d’une route',danger:77,reward:72000,xp:56,tier:5},{title:'Voler des cartes marines',danger:43,reward:30000,xp:29,tier:2,spec:'Navigateur'}],
 'Chasseur de primes':[
@@ -1793,21 +1793,23 @@ function missionImportance(m,world){
 function missionStakes(m,world){var v=missionImportance(m,world);return v>=72?'Décisive':v>=58?'Exceptionnelle':v>=44?'Importante':'Standard'}
 function missionNoveltyKey(m){return m.worldGenerated?(m.sourceType||'world')+':'+(m.sourceId||m.sourceName||m.title):'static:'+(m.baseTitle||m.title)+':'+(m.variant||m.title)}
 function missionVariant(m){
- if(!m||m.worldGenerated||m.routine)return m;var p=game.player,profile=m.profile||missionProfile(m).id,variants={
- combat:['attaque éclair','opposition mobile','terrain disputé','cible renforcée','fenêtre d’assaut'],
- navigation:['météo instable','courants changeants','route détournée','convoi pressé','zone mal cartographiée'],
- medicine:['urgence médicale','blessés multiples','ressources limitées','diagnostic incertain','évacuation difficile'],
- science:['données contradictoires','échantillon rare','prototype instable','phénomène inhabituel','analyse urgente'],
- stealth:['surveillance renforcée','accès restreint','patrouilles mobiles','fenêtre nocturne','identité compromise'],
- hunt:['piste fragmentaire','cible mobile','témoins rares','zone hostile','trace récente'],
- rescue:['évacuation urgente','accès difficile','zone instable','civils dispersés','temps limité'],
- command:['équipe sous pression','coordination délicate','ordre urgent','ressources dispersées','autorité contestée'],
- trade:['marché instable','cargaison sensible','délai serré','route concurrentielle','prix volatils'],
- exploration:['carte incomplète','indices récents','zone oubliée','accès difficile','rumeur persistante'],
- mixed:['situation mouvante','objectif secondaire','information incomplète','terrain imprévu','enjeu croisé']
- },list=variants[profile]||variants.mixed,bucket=Math.floor((p.ageMonths||0)/6),idx=H(String(game.seed)+':mission:'+p.faction+':'+(m.baseTitle||m.title)+':'+bucket)%list.length,variant=list[idx],delta=[-2,0,2,3,1][idx%5],copy=Object.assign({},m);copy.baseTitle=m.baseTitle||m.title;copy.variant=variant;copy.title=copy.baseTitle+' — '+variant;copy.danger=cl(Math.round(copy.danger+delta),5,95);copy.reward=Math.round(copy.reward*(1+delta*.025));copy.months=Math.max(1,copy.months+(delta>=3?1:0));return copy
+ if(!m||m.worldGenerated||m.routine)return m;
+ var p=game.player,profile=m.profile||missionProfile(m).id,variants={
+  combat:['attaque éclair','opposition mobile','terrain disputé','cible renforcée','fenêtre d’assaut'],
+  navigation:['météo instable','courants changeants','route détournée','convoi pressé','zone mal cartographiée'],
+  medicine:['urgence médicale','blessés multiples','ressources limitées','diagnostic incertain','évacuation difficile'],
+  science:['données contradictoires','échantillon rare','prototype instable','phénomène inhabituel','analyse urgente'],
+  stealth:['surveillance renforcée','accès restreint','patrouilles mobiles','fenêtre nocturne','identité compromise'],
+  hunt:['piste fragmentaire','cible mobile','témoins rares','zone hostile','trace récente'],
+  rescue:['évacuation urgente','accès difficile','zone instable','civils dispersés','temps limité'],
+  command:['équipe sous pression','coordination délicate','ordre urgent','ressources dispersées','autorité contestée'],
+  trade:['marché instable','cargaison sensible','délai serré','route concurrentielle','prix volatils'],
+  exploration:['carte incomplète','indices récents','zone oubliée','accès difficile','rumeur persistante'],
+  mixed:['situation mouvante','objectif secondaire','information incomplète','terrain imprévu','enjeu croisé']
+ },conditions=['délai serré','ressources comptées','zone surveillée','informations partielles','objectif secondaire'],list=variants[profile]||variants.mixed,bucket=Math.floor((p.ageMonths||0)/6),hash=H(String(game.seed)+':mission:'+p.faction+':'+(m.baseTitle||m.title)+':'+bucket),idx=hash%list.length,cidx=Math.floor(hash/list.length)%conditions.length,variant=list[idx],condition=conditions[cidx],delta=[-2,0,2,3,1][(idx+cidx)%5],copy=Object.assign({},m);
+ copy.baseTitle=m.baseTitle||m.title;copy.variant=variant+'|'+condition;copy.title=copy.baseTitle+' — '+variant+', '+condition;copy.danger=cl(Math.round(copy.danger+delta),5,95);copy.reward=Math.round(copy.reward*(1+delta*.025));copy.months=Math.max(1,copy.months+(delta>=3?1:0));return copy
 }
-function missionViabilityThreshold(m){var mp=missionProfile(m);if(mp.config.combat)return .58;if(mp.id==='hunt'||mp.id==='mixed'||mp.id==='rescue')return .53;return .50}
+function missionViabilityThreshold(m){var mp=missionProfile(m);if(mp.config.combat)return .58;if(mp.id==='mixed'||mp.id==='rescue')return .53;if(mp.id==='hunt')return .50;return .50}
 function missionNoveltyScore(m){var recent=migrateLifeLoop(game).recentMissions||[],i=recent.indexOf(missionNoveltyKey(m));return i<0?1:i===0?.2:i===1?.42:i===2?.65:.82}
 function rememberMission(m){var l=migrateLifeLoop(game),key=missionNoveltyKey(m);l.recentMissions=l.recentMissions.filter(function(x){return x!==key});l.recentMissions.unshift(key);l.recentMissions=l.recentMissions.slice(0,6)}
 function missionGuidance(m){var c=m.chance||0;if(c>=.72)return'Sûre';if(c>=.56)return'Adaptée';if(c>=.40)return'Ambitieuse';return m.signature?'Signature extrême':'Extrême'}
