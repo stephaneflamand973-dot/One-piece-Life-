@@ -1216,7 +1216,7 @@ test('V2.8 mission recommendation never labels an unsafe option as recommended',
     else assert(safest<.45,'board omitted recommendation despite a viable option for '+faction+' at '+Math.round(safest*100)+'%');
     checked++
   });
-  assert(checked>=5,'insufficient faction boards tested');assert(withRecommendation>=3,'too few faction boards surface a recommendation');return checked+' factions / '+withRecommendation+' recommended / worst gap '+Math.round(worstGap*100)+' pts';
+  assert(checked>=5,'insufficient faction boards tested');assert(withRecommendation===checked,'at least one faction board still lacks a viable recommendation');return checked+' factions / '+withRecommendation+' recommended / worst gap '+Math.round(worstGap*100)+' pts';
 });
 test('V2.8 mission guidance exposes readable risk classes',()=>{
   const g=fresh(18004),p=g.player;p.ageMonths=300;p.factionRep.Civil=100;q.join('Civil');const labels=q.board().map(x=>x.guidance);assert(labels.length&&labels.every(x=>['Sûre','Adaptée','Ambitieuse','Extrême','Signature extrême'].includes(x)),'invalid guidance '+labels.join(','));return labels.join(' / ');
