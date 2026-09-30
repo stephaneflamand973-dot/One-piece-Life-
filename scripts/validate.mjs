@@ -10,8 +10,8 @@ new Function(app);
 new Function(pack);
 JSON.parse(manifest);
 
-if(!html.includes('<title>ONE PIECE LIFE — V2.6</title>') || !html.includes('V2.6 • Signature Moments')) throw new Error('index.html does not expose V2.6 consistently');
-if(!app.includes('version:26') || !app.includes('g.version=26')) throw new Error('game state is not V2.6 migration version 26');
+if(!html.includes('<title>ONE PIECE LIFE — V2.9</title>') || !html.includes('V2.9 • Living Missions')) throw new Error('index.html does not expose V2.9 consistently');
+if(!app.includes('version:28') || !app.includes('g.version=28')) throw new Error('compatible GameState 28 migration is missing');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
 if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include content-v1.js');
@@ -55,6 +55,8 @@ if(!app.includes('function npcCareerPromotionChance') || !app.includes('function
 if(!app.includes('function worldMissionOpportunities') || !app.includes('function applyWorldMissionOutcome')) throw new Error('V2.5 causal mission engine missing');
 if(!app.includes("sourceType:'conflict',sourceId:cf.id") || !app.includes("x.id===sid") || !app.includes('function migrateWorldMissionSource') || !app.includes("c.status==='active'&&(c.region===region||c.location===p.island)") || app.includes("sid.indexOf('|')>=0){var parts")) throw new Error('V2.5 conflict causal identity hardening missing');
 if(!app.includes('function purgeSaveSlot') || !app.includes('function deleteSaveSlot') || !app.includes('save-delete')) throw new Error('V2.5 save deletion missing');
+if(!app.includes('var ADAPTIVE_MISSION_TEMPLATES=') || !app.includes('function adaptiveMissionOpportunity') || !app.includes("m.adaptive?'adaptive:'")) throw new Error('V2.9 adaptive mission variety engine missing');
+if(!app.includes("r.nemesisRecognized&&!r.challengeReady") || !app.includes("bonus['Poursuivre sa némésis']=2.0")) throw new Error('V2.9 nemesis pursuit pacing missing');
 if(!app.includes('var MISSION_PROFILE_CONFIG=') || !app.includes('function missionResolution') || !app.includes('function missionChance')) throw new Error('V2.2 mission profile engine missing');
 if(!app.includes('function styleMastery')) throw new Error('V2.2 style mastery missing');
 if(!app.includes('debtInterestPaid') || !app.includes('function chargeMoney') || !app.includes('function serviceDebt')) throw new Error('V2.2 debt engine missing');
