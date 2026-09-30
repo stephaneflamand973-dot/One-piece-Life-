@@ -30,7 +30,7 @@ Les sauvegardes V2.6 migrent automatiquement vers la nouvelle structure de mémo
 
 ### QA V2.7
 
-La V2.7 ajoute **9 nouveaux scénarios fonctionnels** dédiés à Living Consequences, en plus des 191 garde-fous V2.6. La suite complète est maintenant exécutable automatiquement via `scripts/qa-v27.mjs` et GitHub Actions.
+La release V2.7 passe **200/200 scénarios fonctionnels** : les 191 garde-fous hérités de V2.6 et **9 nouveaux scénarios** dédiés à Living Consequences. La suite complète est exécutée automatiquement via `scripts/qa-v27.mjs` et GitHub Actions.
 
 Les nouveaux garde-fous couvrent notamment :
 
@@ -43,6 +43,18 @@ Les nouveaux garde-fous couvrent notamment :
 - affichage des callbacks dans le rapport AVANCER ;
 - programmation automatique d’un écho après un fil narratif résolu ;
 - programmation automatique d’une conséquence après une mission signature.
+
+Mesures V2.7 validées :
+
+- enfance jusqu’à 15 ans : **36,4 AVANCER** en moyenne ;
+- variété narrative adulte : **4,3 archétypes distincts** en moyenne sur dix ans ;
+- fluidité adulte : **5,10 AVANCER/an** ;
+- carrière active : **6,09 AVANCER/an** avec **0,92 mission/an** ;
+- exploration : **5,24 AVANCER/an** ;
+- progression joueur à 25 ans : puissance moyenne **34,9** ;
+- progression de 120 PNJ sur 15 ans : gain moyen **+18,4**, maximum **89,7**, aucun PNJ ordinaire à 95+ ;
+- monde simulé sur 30 ans : **33,6 %** de divergence moyenne et **8,0 équipages actifs** ;
+- courbe de victoire à statistiques intermédiaires : **90 % / 57 % / 41 % / 17 %** pour des dangers 20 / 40 / 60 / 80.
 
 ---
 
