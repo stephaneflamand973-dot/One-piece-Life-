@@ -1207,6 +1207,14 @@ test('V5.0 Life Director preserves player agency on personal choices',()=>{
   return 'romance / family / mobility remain optional';
 });
 
+
+test('V5.0 explorer ambition favors genuinely new journey destinations',()=>{
+  const g=fresh(50120),p=g.player;p.ageMonths=300;p.skills.Navigation=50;p.ambition='Explorer le monde';Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],50));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');const fresh=q.directorTravelContext(d);p.visited.push(d);const known=q.directorTravelContext(d);assert(fresh.fresh&&!known.fresh,'fresh destination flag broken');assert(fresh.score>known.score+15,'explorer ambition does not meaningfully reward novelty');return (fresh.score-known.score).toFixed(1)+' novelty points';
+});
+test('V5.0 journey director penalizes recent backtracking without banning causal returns',()=>{
+  const g=fresh(50121),p=g.player;p.ageMonths=300;p.skills.Navigation=50;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],50));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');p.visited.push(d);const before=q.directorTravelContext(d);q.recordLifeDirector('mobility','QA move',{destination:d});const after=q.directorTravelContext(d);assert(after.backtrackPenalty>0,'recent destination has no backtrack penalty');assert(after.score<before.score,'recent backtracking was not discouraged');assert(Number.isFinite(after.score),'causal return became invalid');return before.score.toFixed(1)+' -> '+after.score.toFixed(1);
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
