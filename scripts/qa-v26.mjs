@@ -56,7 +56,7 @@ window.__qa={
  setMode:function(v){mode=v},getMode:function(){return mode},
  getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,purgeSaveSlot:purgeSaveSlot,deleteSaveSlot:deleteSaveSlot,slotKey:slotKey,slotMetaKey:slotMetaKey,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,simulateActors:simulateActors,simulateCrews:simulateCrews,actorIntentPool:actorIntentPool,assignActorIntent:assignActorIntent,resolveActorIntent:resolveActorIntent,actorIntentTick:actorIntentTick,crewIntentPool:crewIntentPool,assignCrewIntent:assignCrewIntent,resolveCrewIntent:resolveCrewIntent,crewIntentTick:crewIntentTick,
- advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,recordSignatureMoment:recordSignatureMoment,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
+ advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,recordSignatureMoment:recordSignatureMoment,scheduleConsequence:scheduleConsequence,resolveConsequence:resolveConsequence,processConsequences:processConsequences,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
  power:power,styleMastery:styleMastery,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,focusOptions:focusOptions,recommendedFocus:recommendedFocus,normalizeActivityFocus:normalizeActivityFocus,currentFocus:currentFocus,simpleFocusKeys:simpleFocusKeys,styleFocusKeys:styleFocusKeys,careerFocusKeys:careerFocusKeys,hasPowerFocus:hasPowerFocus,
  developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,setSectionState:function(name,value){sectionState[name]=value},getSectionState:function(){return Object.assign({},sectionState)},
  join:join,careerTick:careerTick,careerRecord:careerRecord,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,missionImportance:missionImportance,missionStakes:missionStakes,missionNoveltyKey:missionNoveltyKey,missionNoveltyScore:missionNoveltyScore,rememberMission:rememberMission,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionResolution:missionResolution,
@@ -126,7 +126,7 @@ test('Static: no broken dynamic selector pattern',()=>{
   assert(!bad.length,'single-element selector used as list: '+bad.map(x=>x[0]).join(','));return 'selectors clean'
 });
 test('Creation: Custom mode initializes full V2.0 state',()=>{
-  const g=fresh(1111,'custom');assert(g.version===26,'wrong version');assert(g.player.name==='QA Tester','name');assert(g.player.origin==='East Blue','origin');
+  const g=fresh(1111,'custom');assert(g.version===27,'wrong version');assert(g.player.name==='QA Tester','name');assert(g.player.origin==='East Blue','origin');
   assert(Object.keys(g.world.markets).length===Object.keys(q.constants.PL).length,'market coverage mismatch');assert(g.world.treaties.some(t=>t.a==='Marine'&&t.b==='Gouvernement'),'foundation alliance absent');
   assert(g.player.trade&&g.player.strategy&&g.player.influence&&g.player.justice,'new subsystem state missing');bounds(g);return Object.keys(g.world.markets).length+' markets'
 });
@@ -136,7 +136,7 @@ test('Creation: Destiny mode is seed deterministic',()=>{
 });
 test('Migration: legacy state upgrades idempotently to V2.0',()=>{
   let g=fresh(3001);g=JSON.parse(JSON.stringify(g));g.version=9;delete g.player.trade;delete g.player.strategy;delete g.player.influence;delete g.world.markets;delete g.world.economy;delete g.world.wars;delete g.world.treaties;
-  let m=q.migrate(g);assert(m.version===26,'migration version');assert(m.player.trade&&m.player.strategy&&m.player.influence,'player migration missing');assert(Object.keys(m.world.markets).length===Object.keys(q.constants.PL).length,'markets not restored');
+  let m=q.migrate(g);assert(m.version===27,'migration version');assert(m.player.trade&&m.player.strategy&&m.player.influence,'player migration missing');assert(Object.keys(m.world.markets).length===Object.keys(q.constants.PL).length,'markets not restored');
   const counts=[m.world.actors.length,m.world.crews.length,m.world.treaties.length];m=q.migrate(m);assert(counts.join('/')===[m.world.actors.length,m.world.crews.length,m.world.treaties.length].join('/'),'idempotent migration duplicated world entities');q.setGame(m);bounds(m);return 'legacy v9 -> v23'
 });
 test('World simulation: 30 years without numerical corruption',()=>{
@@ -215,7 +215,7 @@ test('Rendering smoke test: main views render on complex state',()=>{
 
 test('V2.0 migration: legacy relations gain persistent NPC state',()=>{
   let g=fresh(4901);g.version=15;g.relations=[{id:'old-rel',name:'Mira',role:'ami',faction:'Civil',status:'active'}];g=q.migrate(JSON.parse(JSON.stringify(g)));q.setGame(g);
-  const r=g.relations[0];assert(g.version===26,'migration did not reach v23');assert(Number.isFinite(r.npcPower)&&Number.isFinite(r.npcPotential),'NPC power state missing');assert(r.npcSpecialty&&r.npcTrajectory&&Array.isArray(r.memories),'NPC profile migration incomplete');return r.npcSpecialty+' / '+r.npcTrajectory
+  const r=g.relations[0];assert(g.version===27,'migration did not reach v23');assert(Number.isFinite(r.npcPower)&&Number.isFinite(r.npcPotential),'NPC power state missing');assert(r.npcSpecialty&&r.npcTrajectory&&Array.isArray(r.memories),'NPC profile migration incomplete');return r.npcSpecialty+' / '+r.npcTrajectory
 });
 test('V2.0 canon: canonical encounter becomes a persistent synchronized bond',()=>{
   const g=fresh(4911),p=g.player;p.ageMonths=300;const a=q.canonActor('Monkey D. Garp');assert(a&&a.status==='active','Garp unavailable');p.region=a.region;
@@ -379,7 +379,7 @@ test('V2.0 event director: quiet streak increases interruption chance',()=>{
   const g=fresh(8006);g.loop.quietAdvances=0;const low=q.eventChance(1);g.loop.quietAdvances=2;const high=q.eventChance(1);assert(high>low+.12,'quiet streak barely changes event chance');assert(high<=.68,'event chance exceeded cap');return low.toFixed(2)+' -> '+high.toFixed(2)
 });
 test('V2.0 migration: V17 save gains life-loop state without losing timeline',()=>{
-  let g=fresh(8007);const len=g.timeline.length;delete g.loop;delete g.player.exploration;g.version=17;g=q.migrate(g);assert(g.version===26,'migration did not reach V26');assert(g.loop&&g.loop.advanceCount===0,'loop state missing');assert(g.player.exploration,'exploration state missing');assert(g.timeline.length===len,'timeline changed during migration');return 'V17 -> V26'
+  let g=fresh(8007);const len=g.timeline.length;delete g.loop;delete g.player.exploration;g.version=17;g=q.migrate(g);assert(g.version===27,'migration did not reach V26');assert(g.loop&&g.loop.advanceCount===0,'loop state missing');assert(g.player.exploration,'exploration state missing');assert(g.timeline.length===len,'timeline changed during migration');return 'V17 -> V26'
 });
 test('V2.0 UI: life screen exposes adaptive rhythm and last-period report',()=>{
   const g=fresh(8008);q.render();assert(html.includes('id="advanceRhythm"')&&html.includes('id="advanceReport"'),'adaptive life-loop UI missing');assert(fakeElement('#advanceWindowBadge').textContent.length>0,'advance window did not render');q.advance();assert(!fakeElement('#advanceReport').classList.contains('hidden'),'advance report stayed hidden after advancing');return fakeElement('#advanceWindowBadge').textContent
@@ -387,7 +387,7 @@ test('V2.0 UI: life screen exposes adaptive rhythm and last-period report',()=>{
 
 
 test('V2.0 exploration: new life starts with coherent birthplace knowledge',()=>{
-  const g=fresh(9001),p=g.player,site=q.explorationSite(p.island);assert(g.version===26,'wrong V2.0 state version');assert(p.exploration&&p.exploration.sites,'exploration state missing');assert(site.familiarity>=20&&site.familiarity<=30,'birthplace familiarity is incoherent');assert(site.visits===1,'birthplace visit count incorrect');return p.island+' '+site.familiarity.toFixed(1)+'%'
+  const g=fresh(9001),p=g.player,site=q.explorationSite(p.island);assert(g.version===27,'wrong V2.0 state version');assert(p.exploration&&p.exploration.sites,'exploration state missing');assert(site.familiarity>=20&&site.familiarity<=30,'birthplace familiarity is incoherent');assert(site.visits===1,'birthplace visit count incorrect');return p.island+' '+site.familiarity.toFixed(1)+'%'
 });
 test('V2.0 exploration: island profiles are deterministic and differentiated',()=>{
   const g=fresh(9002),a=q.islandProfile('Water 7'),b=q.islandProfile('Water 7'),c=q.islandProfile('Wano');assert(JSON.stringify(a)===JSON.stringify(b),'same island profile changed');assert(a.identity!==c.identity,'distinct major islands share identity');assert(a.tags.length>=3&&c.tags.length>=3,'profile tags missing');return a.tags.join('/')+' vs '+c.tags.join('/')
@@ -417,7 +417,7 @@ test('V2.0 exploration: child cannot switch to autonomous exploration',()=>{
   const g=fresh(9010),p=g.player;p.ageMonths=48;p.activity='Grandir';q.setExplorationActivity();assert(p.activity==='Grandir','young child entered autonomous exploration');p.ageMonths=84;q.setExplorationActivity();assert(p.activity==='Explorer','older child could not start exploration');return 'age gate respected'
 });
 test('V2.0 migration: V18 save gains exploration without losing Codex',()=>{
-  let g=fresh(9011);g.codex.people.push('QA Person');delete g.player.exploration;delete g.codex.discoveries;g.version=18;g=q.migrate(g);assert(g.version===26,'migration did not reach V26');assert(g.player.exploration&&g.player.exploration.sites,'exploration state missing');assert(Array.isArray(g.codex.discoveries),'Codex discovery migration missing');assert(g.codex.people.includes('QA Person'),'existing Codex data lost');return 'V18 -> V26'
+  let g=fresh(9011);g.codex.people.push('QA Person');delete g.player.exploration;delete g.codex.discoveries;g.version=18;g=q.migrate(g);assert(g.version===27,'migration did not reach V26');assert(g.player.exploration&&g.player.exploration.sites,'exploration state missing');assert(Array.isArray(g.codex.discoveries),'Codex discovery migration missing');assert(g.codex.people.includes('QA Person'),'existing Codex data lost');return 'V18 -> V26'
 });
 test('V2.0 UI: exploration journey and Codex panels render',()=>{
   const g=fresh(9012);q.renderWorld();for(const id of ['explorationSummary','localDiscoveries','localRumors','codexSummary','codexDiscoveries'])assert(fakeElement('#'+id).innerHTML!==undefined,'UI element unavailable '+id);assert(fakeElement('#explorationBadge').textContent.length>0,'exploration badge empty');return fakeElement('#explorationBadge').textContent
@@ -425,7 +425,7 @@ test('V2.0 UI: exploration journey and Codex panels render',()=>{
 
 
 test('V2.0 story engine: new life initializes persistent narrative state',()=>{
-  const g=fresh(10001);assert(g.version===26,'wrong V2.0 state version');assert(g.story&&Array.isArray(g.story.active)&&Array.isArray(g.story.history),'story state missing');assert(g.story.stats.started===0&&g.story.stats.resolved===0,'story counters not clean');return 'story state ready'
+  const g=fresh(10001);assert(g.version===27,'wrong V2.0 state version');assert(g.story&&Array.isArray(g.story.active)&&Array.isArray(g.story.history),'story state missing');assert(g.story.stats.started===0&&g.story.stats.resolved===0,'story counters not clean');return 'story state ready'
 });
 test('V2.0 story engine: threads are plain serializable data',()=>{
   const g=fresh(10002),p=g.player;p.ageMonths=300;p.activity='Explorer';q.explorationSite(p.island).familiarity=60;const st=q.startStory('island-secret');assert(st&&st.type==='island-secret','story did not start');const copy=JSON.parse(JSON.stringify(g));assert(copy.story.active.length===1,'story disappeared in JSON');assert(copy.story.active[0].id===st.id,'story id changed');assert(!JSON.stringify(copy.story).includes('function'),'function leaked into persisted story');return st.title
@@ -458,7 +458,7 @@ test('V2.0 story engine: death closes every active thread',()=>{
   const g=fresh(10011),p=g.player;p.ageMonths=300;p.activity='Explorer';q.explorationSite(p.island).familiarity=60;q.startStory('island-secret');q.createRelation('ami');q.startStory('social-favor');const count=q.activeStories().length;assert(count>=1,'no active story to test');q.die('QA narrative death');assert(q.activeStories().length===0,'stories survived player death');assert(g.story.stats.interrupted>=count,'death did not archive interrupted stories');return count+' interrupted thread(s)'
 });
 test('V2.0 story engine: migration from V19 preserves existing game data',()=>{
-  let g=fresh(10012);g.codex.people.push('Narrative Witness');delete g.story;g.version=19;g=q.migrate(g);q.setGame(g);assert(g.version===26,'migration did not reach V26');assert(g.story&&Array.isArray(g.story.active),'story engine missing after migration');assert(g.codex.people.includes('Narrative Witness'),'existing save data lost');return 'V19 -> V26'
+  let g=fresh(10012);g.codex.people.push('Narrative Witness');delete g.story;g.version=19;g=q.migrate(g);q.setGame(g);assert(g.version===27,'migration did not reach V26');assert(g.story&&Array.isArray(g.story.active),'story engine missing after migration');assert(g.codex.people.includes('Narrative Witness'),'existing save data lost');return 'V19 -> V26'
 });
 test('V2.0 story UI: active threads and history render independently of callbacks',()=>{
   const g=fresh(10013),p=g.player;p.ageMonths=300;p.activity='Explorer';q.explorationSite(p.island).familiarity=60;const st=q.startStory('island-secret');q.renderStories();assert(fakeElement('#storyEngineBadge').textContent.length>0,'story badge empty');assert(fakeElement('#activeStories').innerHTML.includes(st.title),'active story missing from UI');st.awaiting=true;q.render();assert(!fakeElement('#attentionCard').classList.contains('hidden'),'attention card did not surface story choice');return fakeElement('#storyEngineBadge').textContent
@@ -518,7 +518,7 @@ test('V2.0 UI: every primary tab renders independently',()=>{
 });
 test('V2.0 migration: existing saves gain layered caps without changing current ceilings',()=>{
   let g=fresh(7060);const oldCaps={...g.player.caps};delete g.player.naturalCaps;delete g.player.absoluteCaps;delete g.player.progression;delete g.player.exploration;g.version=18;g=q.migrate(g);
-  assert(g.version===26,'migration did not reach V26');for(const k of [...q.constants.ST,...q.constants.SK]){assert(g.player.caps[k]===oldCaps[k],'current cap changed during migration for '+k);assert(g.player.absoluteCaps[k]>=g.player.caps[k],'absolute cap below current cap for '+k)}
+  assert(g.version===27,'migration did not reach V26');for(const k of [...q.constants.ST,...q.constants.SK]){assert(g.player.caps[k]===oldCaps[k],'current cap changed during migration for '+k);assert(g.player.absoluteCaps[k]>=g.player.caps[k],'absolute cap below current cap for '+k)}
   assert(g.player.progression&&Array.isArray(g.player.progression.snapshots),'progression state missing');return 'layered caps migrated'
 });
 
@@ -558,7 +558,7 @@ test('V2.4 UI: progression surface exposes Auto and only simple manual overrides
 });
 test('V2.1 migration: V20 save upgrades without altering progression values',()=>{
   let g=fresh(11006),p=g.player;p.stats.Agilité=37;p.stats.Vitesse=41;p.skills.Tir=29;g.version=20;
-  g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===26,'migration did not reach V26');assert(g.player.stats.Agilité===37&&g.player.stats.Vitesse===41&&g.player.skills.Tir===29,'progression values changed during V20 -> V26 migration');
+  g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===27,'migration did not reach V26');assert(g.player.stats.Agilité===37&&g.player.stats.Vitesse===41&&g.player.skills.Tir===29,'progression values changed during V20 -> V26 migration');
   return 'V20 -> V26';
 });
 
@@ -572,7 +572,7 @@ test('V2.4 adaptive time: progression focus no longer forces short adult pacing'
 
 
 test('V2.6 creation uses GameState 26',()=>{
-  const g=fresh(12001);assert(g.version===26,'new life did not start on V26');return 'V26';
+  const g=fresh(12001);assert(g.version===27,'new life did not start on V26');return 'V26';
 });
 test('V2.2 mission taxonomy assigns every mission a valid profile',()=>{
   fresh(12002);let count=0;
@@ -604,7 +604,7 @@ test('V2.3 career XP rewards the simple Career focus',()=>{
 });
 test('V2.2 debt migration converts negative cash into explicit debt',()=>{
   let g=fresh(12007);g.version=21;g.player.money=-12500;g.player.life.debt=0;g=q.migrate(JSON.parse(JSON.stringify(g)));
-  assert(g.version===26,'migration did not reach V26');assert(g.player.money===0,'negative cash survived migration');assert(g.player.life.debt>=12500,'debt was not created');return Math.round(g.player.life.debt)+' B debt';
+  assert(g.version===27,'migration did not reach V26');assert(g.player.money===0,'negative cash survived migration');assert(g.player.life.debt>=12500,'debt was not created');return Math.round(g.player.life.debt)+' B debt';
 });
 test('V2.2 living costs create debt without negative Berry',()=>{
   const g=fresh(12008),p=g.player;p.ageMonths=300;p.career='Aucune';p.money=0;p.life.debt=0;q.lifeTick(2);
@@ -708,7 +708,7 @@ test('V2.3 power focus stays contextual',()=>{
   p.ageMonths=180;p.latent.Observation=80;assert(q.focusOptions().includes('Pouvoirs'),'power focus missing with strong latent Haki');return 'contextual';
 });
 test('V2.3 legacy training choices migrate into persistent simple focuses',()=>{
-  let g=fresh(13007),p=g.player;p.ageMonths=300;p.focus=null;p.activity='Mobilité';g.version=22;g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===26,'migration did not reach V26');assert(g.player.focus==='Forme','Mobilité did not migrate to Forme focus');assert(g.player.activity==='Routine','legacy training activity was not simplified');
+  let g=fresh(13007),p=g.player;p.ageMonths=300;p.focus=null;p.activity='Mobilité';g.version=22;g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===27,'migration did not reach V26');assert(g.player.focus==='Forme','Mobilité did not migrate to Forme focus');assert(g.player.activity==='Routine','legacy training activity was not simplified');
   g.player.focus=null;g.player.activity='Médecine';q.normalizeActivityFocus(g.player,g);assert(g.player.focus==='Carrière','Médecine did not normalize to Carrière focus');return 'legacy focus migration';
 });
 test('V2.3 focus migration preserves active travel context',()=>{
@@ -814,7 +814,7 @@ test('V2.4 default timeline renders five recent entries',()=>{
 
 test('V2.5 migration: V24 save gains living intelligence state',()=>{
   let g=fresh(15001);g.version=24;delete g.world.npcLinks;for(const a of g.world.actors){delete a.intention;delete a.intentionMonths;delete a.momentum}for(const c of g.world.crews){delete c.intention;delete c.intentionMonths;delete c.resources}
-  g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===26,'migration did not reach V26');assert(Array.isArray(g.world.npcLinks),'NPC graph missing');assert(g.world.actors.every(a=>a.intentionMonths>=0&&Number.isFinite(a.momentum)),'actor intent state missing');assert(g.world.crews.every(c=>c.intentionMonths>=0&&Number.isFinite(c.resources)),'crew intent state missing');return 'V24 -> V26';
+  g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===27,'migration did not reach V26');assert(Array.isArray(g.world.npcLinks),'NPC graph missing');assert(g.world.actors.every(a=>a.intentionMonths>=0&&Number.isFinite(a.momentum)),'actor intent state missing');assert(g.world.crews.every(c=>c.intentionMonths>=0&&Number.isFinite(c.resources)),'crew intent state missing');return 'V24 -> V26';
 });
 test('V2.5 saves: purging one slot removes save and metadata only',()=>{
   fresh(15002);storage.set(q.slotKey(1),'SAVE1');storage.set(q.slotMetaKey(1),'META1');storage.set(q.slotKey(2),'SAVE2');storage.set(q.slotMetaKey(2),'META2');
@@ -970,7 +970,7 @@ test('V2.5 fun flow: story openings do not interrupt AVANCER as major events',()
 });
 
 test('V2.6 migration: V25 save gains signature-moment state',()=>{
-  let g=fresh(16001);g.version=25;delete g.loop.signatureSeq;delete g.loop.signatureMoments;g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===26,'migration did not reach V26');assert(g.loop.signatureSeq===0&&Array.isArray(g.loop.signatureMoments),'signature state missing after migration');return 'V25 -> V26';
+  let g=fresh(16001);g.version=25;delete g.loop.signatureSeq;delete g.loop.signatureMoments;g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===27,'migration did not reach V26');assert(g.loop.signatureSeq===0&&Array.isArray(g.loop.signatureMoments),'signature state missing after migration');return 'V25 -> V26';
 });
 test('V2.6 signature missions: dangerous world opportunities are classified as exceptional',()=>{
   const g=fresh(16002),c=g.world.crews[0];c.power=88;const m={title:'QA World Mission',danger:76,tier:4,worldGenerated:true,sourceType:'crew',sourceId:c.id,sourceName:c.name};const importance=q.missionImportance(m);assert(importance>=58,'high-stakes world mission was not signature-worthy: '+importance);assert(['Exceptionnelle','Décisive'].includes(q.missionStakes(m)),'wrong stakes label');return importance+' / '+q.missionStakes(m);
@@ -989,6 +989,35 @@ test('V2.6 advance report surfaces newly created signature moments',()=>{
 });
 test('V2.6 migration backfills active mission importance safely',()=>{
   let g=fresh(16007);g.player.ageMonths=300;const c=g.world.crews[0];c.power=90;g.mission={title:'Legacy signature candidate',danger:78,reward:25000,xp:30,tier:4,spec:null,profile:'combat',remaining:2,worldGenerated:true,sourceType:'crew',sourceId:c.id,sourceName:c.name};g.version=25;g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.mission.importance>=58&&g.mission.signature,'active V25 mission was not backfilled');assert(g.mission.stakes,'active mission stakes missing');return g.mission.stakes;
+});
+
+
+test('V2.7 creation initializes persistent consequence memory',()=>{
+  const g=fresh(17001);assert(g.version===27,'wrong V2.7 version');assert(Array.isArray(g.loop.consequences),'consequence queue missing');assert(Array.isArray(g.loop.consequenceHistory),'consequence history missing');assert(g.loop.consequenceSeq===0&&g.loop.consequenceResultSeq===0,'consequence counters not initialized');return 'GameState 27 consequence memory ready';
+});
+test('V2.7 migration upgrades V26 consequence state idempotently',()=>{
+  let g=fresh(17002);g.version=26;delete g.loop.consequences;delete g.loop.consequenceHistory;delete g.loop.consequenceSeq;delete g.loop.consequenceResultSeq;g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.version===27,'V26 save not upgraded');assert(Array.isArray(g.loop.consequences)&&Array.isArray(g.loop.consequenceHistory),'V2.7 memory fields missing');q.scheduleConsequence('life','Migration QA','',8,{},60,'qa:migration');const count=g.loop.consequences.length;g=q.migrate(JSON.parse(JSON.stringify(g)));assert(g.loop.consequences.length===count,'migration duplicated causal entries');return count+' pending echo';
+});
+test('V2.7 story consequence remembers a relationship outcome',()=>{
+  const g=fresh(17003),p=g.player;p.ageMonths=300;const r=q.createRelation('ami'),before=r.trust;q.scheduleConsequence('story','Ancien service','',0,{closure:'resolved',storyType:'social-favor',relationId:r.id,relationName:r.name},70,'qa:story-memory');const hit=q.processConsequences();assert(hit,'due story consequence did not resolve');assert(r.trust>before,'past relationship choice had no future effect');assert(g.loop.consequenceHistory[0]&&g.loop.consequenceHistory[0].kind==='story','story echo absent from history');return r.name+' trust '+before.toFixed(1)+' -> '+r.trust.toFixed(1);
+});
+test('V2.7 mission consequence changes a surviving crew future plan',()=>{
+  const g=fresh(17004),p=g.player;p.ageMonths=300;const c=g.world.crews[0];c.status='active';const before=c.playerGrudge||0;q.scheduleConsequence('mission','Mission contre '+c.name,'',0,{success:true,sourceType:'crew',sourceId:c.id,sourceName:c.name},78,'qa:crew-memory');q.processConsequences();assert((c.playerGrudge||0)>before,'crew did not remember player intervention');assert(c.intention==='S’entraîner'||c.intention==='Traquer une cible','crew future plan was not redirected');return c.name+' grudge '+c.playerGrudge+' / '+c.intention;
+});
+test('V2.7 rivalry consequence reactivates a dormant rival',()=>{
+  const g=fresh(17005),p=g.player;p.ageMonths=300;const r=q.createRelation('rival');r.status='active';r.challengeReady=false;r.npcIntent=null;r.rivalry=82;q.scheduleConsequence('rivalry','Némésis — '+r.name,'',0,{relationId:r.id,relationName:r.name,stage:'Némésis'},92,'qa:nemesis-memory');q.processConsequences();assert(r.challengeReady,'nemesis did not become challenge-ready');assert(r.npcIntent==='Défier son rival','nemesis future intent not redirected');assert(r.rivalry>82,'nemesis rivalry did not intensify');return r.name+' rivalry '+r.rivalry.toFixed(1);
+});
+test('V2.7 consequence processor resolves only one due echo per tick',()=>{
+  const g=fresh(17006),p=g.player;p.ageMonths=300;q.scheduleConsequence('life','Echo A','A',0,{},55,'qa:a');q.scheduleConsequence('life','Echo B','B',0,{},65,'qa:b');const before=g.loop.consequenceHistory.length;q.processConsequences();assert(g.loop.consequenceHistory.length===before+1,'processor resolved more than one consequence');assert(g.loop.consequences.length===1,'unexpected pending consequence count');return g.loop.consequenceHistory[0].title;
+});
+test('V2.7 advance report surfaces causal callbacks',()=>{
+  const g=fresh(17007),p=g.player;p.ageMonths=300;const snapshot=q.captureAdvanceState();q.scheduleConsequence('combat','Combat ancien','',0,{success:true},82,'qa:report');q.processConsequences();const report=q.finalizeAdvanceReport(snapshot,1,{key:'qa',label:'QA'});assert(report.causalHighlights&&report.causalHighlights.length===1,'causal callback absent from advance report');assert(report.causalHighlights[0].title==='Combat ancien','wrong causal highlight');return report.causalHighlights[0].title;
+});
+test('V2.7 resolved story automatically schedules a future callback',()=>{
+  const g=fresh(17008),p=g.player;p.ageMonths=300;const r=q.createRelation('ami'),st=q.startStory('social-favor');assert(st,'story setup failed');q.closeStory(st,'QA résolu','Une décision terminée doit revenir plus tard.',false,'resolved');const queued=g.loop.consequences.find(x=>x.sourceKey==='story:'+st.id);assert(queued,'resolved story did not schedule a callback');assert(queued.dueAge>p.ageMonths,'story callback is not delayed');assert(queued.payload.participantId===r.id||queued.payload.participantName===r.name,'story participant identity lost');return +(queued.dueAge-p.ageMonths).toFixed(1)+' months';
+});
+test('V2.7 signature mission automatically schedules a future consequence',()=>{
+  const g=fresh(17009),p=g.player;p.ageMonths=300;p.factionRep.Civil=100;q.join('Civil');Object.keys(p.stats).forEach(k=>p.stats[k]=95);Object.keys(p.skills).forEach(k=>p.skills[k]=95);g.mission={title:'Mission signature QA',danger:2,reward:1000,xp:4,tier:0,spec:null,profile:'science',remaining:0,worldGenerated:false,sourceType:null,sourceId:null,sourceName:null,importance:70,stakes:'Exceptionnelle',signature:true};q.resolveMission();const queued=g.loop.consequences.find(x=>x.kind==='mission'&&x.title==='Mission signature QA');assert(queued,'signature mission did not schedule future consequence');assert(g.lastMission&&g.lastMission.signature,'signature mission result not retained');return g.lastMission.success?'success callback':'failure callback';
 });
 
 const metrics={};
@@ -1176,4 +1205,4 @@ const summary={
 console.log('\nQA_SUMMARY '+JSON.stringify(summary));
 if(failed.length) process.exitCode=1;
 
-// V2.6 Signature Moments release candidate
+// V2.7 Living Consequences release candidate
