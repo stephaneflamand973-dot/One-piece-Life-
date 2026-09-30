@@ -708,14 +708,26 @@ function resolveConsequence(c){
  if(c.kind==='story'){
   r=consequenceRelation(d);
   if(r&&r.status==='active'){
-   if(d.closure==='resolved'){r.trust=cl(r.trust+2,0,100);r.loyalty=cl(r.loyalty+1,0,100);if(d.storyType==='social-favor')r.respect=cl(r.respect+2,0,100);addRelationMemory(r,'Une ancienne histoire entre vous refait surface et renforce le souvenir du lien.','callback');text=r.name+' se souvient de ce que vous avez vécu. Cette ancienne décision renforce encore légèrement votre lien.'}
+   if(d.storyType==='rival-challenge'){
+    r.rivalry=cl(r.rivalry+(d.closure==='resolved'?4:2),0,100);r.respect=cl(r.respect+(d.closure==='resolved'?2:-1),0,100);r.challengeReady=d.closure==='resolved'||r.challengeReady;addRelationMemory(r,'Votre ancien duel nourrit encore la rivalité.','callback');text='Le souvenir de votre ancien duel ravive la rivalité avec '+r.name+'.'
+   }
+   else if(d.storyType==='mentor-lesson'){
+    if(d.closure==='resolved'){r.respect=cl(r.respect+3,0,100);r.trust=cl(r.trust+1,0,100)}else r.trust=cl(r.trust-2,0,100);addRelationMemory(r,d.closure==='resolved'?'Une ancienne leçon continue de porter ses fruits.':'Une leçon inachevée laisse un goût d’occasion manquée.','callback');text=d.closure==='resolved'?r.name+' constate que son ancienne leçon a laissé une trace durable.':r.name+' se souvient encore de cette leçon restée inachevée.'
+   }
+   else if(d.storyType==='social-favor'){
+    if(d.closure==='resolved'){r.trust=cl(r.trust+3,0,100);r.loyalty=cl(r.loyalty+2,0,100);r.respect=cl(r.respect+2,0,100)}else{r.trust=cl(r.trust-3,0,100);r.affection=cl(r.affection-1,0,100)}addRelationMemory(r,d.closure==='resolved'?'Ton aide passée reste un souvenir important.':'Ton refus passé n’est pas totalement oublié.','callback');text=d.closure==='resolved'?r.name+' se souvient encore de l’aide que tu lui as apportée.':r.name+' n’a pas complètement oublié ton refus.'
+   }
+   else if(d.storyType==='youth-promise'){
+    if(d.closure==='resolved'){r.trust=cl(r.trust+2,0,100);r.affection=cl(r.affection+2,0,100)}else r.trust=cl(r.trust-2,0,100);addRelationMemory(r,d.closure==='resolved'?'Votre ancienne promesse reste un repère commun.':'Une promesse de jeunesse restée inachevée refait surface.','callback');text=d.closure==='resolved'?'La promesse tenue avec '+r.name+' reste un repère dans votre histoire.':'Une ancienne promesse avec '+r.name+' refait surface sans avoir été vraiment refermée.'
+   }
+   else if(d.closure==='resolved'){r.trust=cl(r.trust+2,0,100);r.loyalty=cl(r.loyalty+1,0,100);addRelationMemory(r,'Une ancienne histoire entre vous refait surface et renforce le souvenir du lien.','callback');text=r.name+' se souvient de ce que vous avez vécu. Cette ancienne décision renforce encore légèrement votre lien.'}
    else{r.trust=cl(r.trust-2,0,100);r.affection=cl(r.affection-1,0,100);addRelationMemory(r,'Une ancienne histoire mal terminée refait surface.','callback');text=r.name+' n’a pas complètement oublié la manière dont cette histoire s’est terminée.'}
   }else{text='Cette ancienne histoire continue d’influencer la façon dont ton parcours est perçu, même si ses protagonistes ont changé de route.';p.reputation=Math.max(0,p.reputation+(d.closure==='resolved'?1:0))}
  }
  else if(c.kind==='mission'){
   if(d.sourceType==='crew'){
    var crew=game.world.crews.find(function(x){return x.id===d.sourceId&&x.status==='active'});
-   if(crew){crew.playerGrudge=cl((crew.playerGrudge||0)+(d.success?10:5),0,100);crew.intention=d.success?(crew.faction==='Chasseur de primes'?'Traquer une cible':'S’entraîner'):'Se remettre';crew.intentionMonths=1+Math.floor(R('memory')*3);text=crew.name+' n’a pas oublié ton intervention. L’équipage adapte désormais ses plans en tenant compte de toi.';news('Une ancienne mission laisse des traces',crew.name+' réagit encore à l’intervention de '+p.name+'.','')}
+   if(crew){crew.playerGrudge=cl((crew.playerGrudge||0)+(d.success?10:4),0,100);if(d.success)crew.intention=crew.faction==='Chasseur de primes'?'Traquer une cible':'S’entraîner';else crew.intention=crew.faction==='Pirates'?'Chercher un butin':crew.faction==='Chasseur de primes'?'Traquer une cible':crew.faction==='Révolutionnaires'?'Étendre son réseau':'Recruter';crew.intentionMonths=1+Math.floor(R('memory')*3);if(!d.success)crew.morale=cl((crew.morale||50)+3,0,100);text=d.success?crew.name+' n’a pas oublié ta victoire. L’équipage cherche désormais à se renforcer avant une prochaine confrontation.':crew.name+' transforme son succès contre toi en nouvel élan et poursuit des objectifs plus ambitieux.';news('Une ancienne mission laisse des traces',crew.name+' réagit encore à l’intervention de '+p.name+'.','')}
   }
   else if(d.sourceType==='actor'){
    var a=game.world.actors.find(function(x){return x.name===d.sourceId&&x.status==='active'});if(a){a.momentum=cl((a.momentum||0)+(d.success?-.4:.4),-8,12);text=a.name+' ajuste encore sa trajectoire après votre ancienne confrontation.'}
