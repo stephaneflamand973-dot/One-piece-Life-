@@ -1287,6 +1287,9 @@ test('V2.8 active arc registry remains compact',()=>{
   metrics.v28LongRun={sample:live.length,aliveAt35:live.filter(x=>x.alive&&x.years>=19.5).length,clicksPerYear:+(live.reduce((a,x)=>a+x.clicks,0)/Math.max(1,live.reduce((a,x)=>a+x.years,0))).toFixed(2),missions:avg('missions'),routineShare:avg('routineShare'),repeatRate:avg('repeat'),arcHistory:avg('arcHistory'),activeArcs:avg('activeArcs'),founding:avg('founding'),maxArcStage:avg('maxArcStage'),maxActiveArcs:Math.max(...live.map(x=>x.maxActiveArcs)),storyChoices:avg('storyChoices'),relations:avg('relations'),nemeses:avg('nemeses'),byFaction};
 }
 
+test('V2.8.1 migration preserves existing arc interaction history',()=>{
+  let g=fresh(19100),p=g.player;p.ageMonths=300;q.registerArcSignal('crew','crew','legacy-arc','Legacy Arc',70,{});q.registerArcSignal('crew','crew','legacy-arc','Legacy Arc',70,{});const a=g.loop.arcs[0],hits=a.hits;delete a.externalHits;delete a.pulses;delete a.lastExternalAge;delete a.lastPulseAge;g=q.migrate(JSON.parse(JSON.stringify(g)));q.setGame(g);const m=g.loop.arcs[0];assert(m.externalHits===hits,'legacy arc lost interaction count');assert(Number.isFinite(m.lastExternalAge)&&Number.isFinite(m.lastPulseAge),'legacy arc timing not backfilled');return hits+' interactions preserved';
+});
 test('V2.8.1 static missions rotate contextual variants over time',()=>{
   const g=fresh(19101),p=g.player;p.ageMonths=180;p.factionRep.Civil=100;q.join('Civil');const base={title:'Livraison côtière',baseTitle:'Livraison côtière',danger:18,reward:6500,xp:10,tier:0,spec:null,months:1,worldGenerated:false,profile:'navigation'},titles=new Set();
   for(let i=0;i<8;i++){p.ageMonths=180+i*6;titles.add(q.missionVariant(base).title)}
