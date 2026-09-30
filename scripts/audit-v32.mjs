@@ -196,3 +196,5 @@ await import('file:///tmp/qa-v30-runtime.mjs');
 // final V3.2 pirate pacing and bounded-memory regression pass
 
 // V3.5 canon dependency and alternate branch regression pass
+
+// V3.5 living canon branch lifecycle stress pass
