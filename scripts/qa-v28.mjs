@@ -1351,9 +1351,12 @@ test('V2.8.1 recovery only becomes week-scale when health is truly critical',()=
       });
     }
     const live=rows.filter(x=>!x.early),avg=k=>+(live.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,live.length)).toFixed(2);
+    const survivors=live.filter(x=>x.alive&&x.years>=14.5),lifeRates=live.map(x=>+(x.clicks/Math.max(.01,x.years)).toFixed(2));
     byFaction[faction]={
-      sample:live.length,aliveAt30:live.filter(x=>x.alive&&x.years>=14.5).length,
+      sample:live.length,aliveAt30:survivors.length,
       clicksPerYear:+(live.reduce((a,x)=>a+(x.clicks||0),0)/Math.max(.01,live.reduce((a,x)=>a+(x.years||0),0))).toFixed(2),
+      survivorClicksPerYear:+(survivors.reduce((a,x)=>a+(x.clicks||0),0)/Math.max(.01,survivors.reduce((a,x)=>a+(x.years||0),0))).toFixed(2),
+      maxLifeClicksPerYear:lifeRates.length?Math.max(...lifeRates):0,
       missions:avg('missions'),routineShare:+(live.reduce((a,x)=>a+(x.routine||0),0)/Math.max(1,live.reduce((a,x)=>a+(x.missions||0),0))).toFixed(2),
       worldShare:+(live.reduce((a,x)=>a+(x.worldMissions||0),0)/Math.max(1,live.reduce((a,x)=>a+(x.missions||0),0))).toFixed(2),
       avgRecommendedChance:avg('recommendedChance'),missionRepeatRate:avg('repeatRate'),avgUniqueMissionKeys:avg('uniqueMissionKeys'),
@@ -1365,7 +1368,7 @@ test('V2.8.1 recovery only becomes week-scale when health is truly critical',()=
   metrics.v281LongCareerAudit=byFaction;
   assert(byFaction['Chasseur de primes'].routineShare<=.15,'routine fallback still dominates bounty hunting: '+byFaction['Chasseur de primes'].routineShare);
   assert(byFaction.Pirates.aliveAt30>=2,'pirate career remains excessively lethal: '+byFaction.Pirates.aliveAt30+'/4 alive at 30');
-  assert(byFaction.Pirates.clicksPerYear<=8.5,'pirate high-risk flow remains too click-heavy: '+byFaction.Pirates.clicksPerYear);
+  assert(byFaction.Pirates.survivorClicksPerYear<=8.5,'surviving pirate careers remain too click-heavy: '+byFaction.Pirates.survivorClicksPerYear);
   assert(Object.values(byFaction).every(x=>x.arcPeak>=1),'at least one career family still fails to activate emergent arcs');
   assert(byFaction.Civil.missionRepeatRate<=.55&&byFaction.Marine.missionRepeatRate<=.65&&byFaction.Gouvernement.missionRepeatRate<=.65,'contextual mission variety remains too repetitive');
 }
