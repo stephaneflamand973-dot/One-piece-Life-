@@ -650,8 +650,8 @@ function seekMentor(){
 }
 
 function defaultLife(){return{relationshipStatus:'Célibataire',partnerId:null,housingLevel:0,assets:{property:0,business:0,ship:0,treasure:0},livingCostsPaid:0,debt:0,debtPeak:0,debtInterestPaid:0,netWorthPeak:0,socialActions:2,lastExpense:0,totalBusinessIncome:0}}
-function defaultLifeDirector(){return{lastMobilityAge:-999,lastRomanceAge:-999,lastFamilyAge:-999,lastCareerTurnAge:-999,journeyOffers:0,acceptedMoves:0,romanceOffers:0,familyOffers:0,careerTurns:0,history:[],chapterSeq:0,activeChapters:[],chapterHistory:[]}}
-function migrateLifeDirector(p){p.lifeDirector=p.lifeDirector||defaultLifeDirector();var d=p.lifeDirector;['lastMobilityAge','lastRomanceAge','lastFamilyAge','lastCareerTurnAge'].forEach(function(k){if(d[k]==null)d[k]=-999});['journeyOffers','acceptedMoves','romanceOffers','familyOffers','careerTurns','chapterSeq'].forEach(function(k){d[k]=d[k]||0});d.history=Array.isArray(d.history)?d.history.slice(-30):[];d.activeChapters=Array.isArray(d.activeChapters)?d.activeChapters.slice(-3):[];d.chapterHistory=Array.isArray(d.chapterHistory)?d.chapterHistory.slice(0,20):[];return d}
+function defaultLifeDirector(){return{lastMobilityAge:-999,lastRomanceAge:-999,lastFamilyAge:-999,lastCareerTurnAge:-999,journeyOffers:0,acceptedMoves:0,romanceOffers:0,familyOffers:0,careerTurns:0,legacyChoice:null,history:[],chapterSeq:0,activeChapters:[],chapterHistory:[]}}
+function migrateLifeDirector(p){p.lifeDirector=p.lifeDirector||defaultLifeDirector();var d=p.lifeDirector;['lastMobilityAge','lastRomanceAge','lastFamilyAge','lastCareerTurnAge'].forEach(function(k){if(d[k]==null)d[k]=-999});['journeyOffers','acceptedMoves','romanceOffers','familyOffers','careerTurns','chapterSeq'].forEach(function(k){d[k]=d[k]||0});if(d.legacyChoice===undefined)d.legacyChoice=null;d.history=Array.isArray(d.history)?d.history.slice(-30):[];d.activeChapters=Array.isArray(d.activeChapters)?d.activeChapters.slice(-3):[];d.chapterHistory=Array.isArray(d.chapterHistory)?d.chapterHistory.slice(0,20):[];return d}
 function recordLifeDirector(kind,text,data){var d=migrateLifeDirector(game.player),item={age:age(),kind:kind,text:text||'',data:data||null};d.history.push(item);d.history=d.history.slice(-30);return item}
 function closePersonalChapter(ch,reason){
  var p=game.player,d=migrateLifeDirector(p),i=d.activeChapters.findIndex(function(x){return x.id===ch.id});if(i>=0)d.activeChapters.splice(i,1);if((ch.beats||0)<2&&(ch.score||0)<24)return null;
@@ -1129,6 +1129,12 @@ function directorFamilyOpportunity(){
  if(p.life.relationshipStatus==='Marié'&&kids<3&&r.relationshipMonths>=18&&r.trust>=58&&r.affection>=60)return'child';
  return null
 }
+function directorLegacyOpportunity(){
+ var p=game.player,d=migrateLifeDirector(p),a=latestDynastyLegacy();if(!a||d.legacyChoice||p.ageMonths<180||p.ageMonths>420)return null;
+ var lg=a.legacy||{},score=lg.recognitionScore||0,strong=(lg.chapters||[]).filter(function(x){return(x.score||0)>=45&&(x.beats||0)>=2}).length,legend=/Légende|Puissance|Pilier|Symbole|Autorité|Icône/.test(lg.worldRole||'');
+ if(score<52&&strong<1&&!legend)return null;
+ return{ancestor:a,legacy:lg,weight:Math.min(2,1+(score-50)/60+strong*.18+(legend?.25:0))}
+}
 function careerSpecializationFit(sp){
  var p=game.player,w=game.world,profile=specProfile(sp),score=careerExpertise(sp),rp=w.pressures[p.region]||{},o=p.organization;
  if(!profile)return score;
@@ -1169,6 +1175,7 @@ function storyEligibleTypes(){
  if(p.ageMonths>=216&&(partner||(p.children||[]).some(function(c){return c.status==='active'})))add('family-crossroads',.82);
  var romanceCandidate=directorRomanceCandidate();if(romanceCandidate)add('relationship-opening',1.02);
  var familyFuture=directorFamilyOpportunity();if(familyFuture)add('family-future',familyFuture==='child'?1.55:1.28);
+ var legacyFuture=directorLegacyOpportunity();if(legacyFuture)add('legacy-crossroads',legacyFuture.weight);
  var careerTurn=careerTurnCandidate();if(careerTurn)add('career-turn',1.30);
  var transfer=directorTravelCandidate();if(p.ageMonths>=216&&p.career!=='Aucune'&&transfer)add('career-transfer',p.ambition==='Explorer le monde'?1.85:p.faction==='Pirates'?1.55:1.25);
  if(p.ageMonths>=180&&!p.travel&&site.familiarity>=30)add('horizon-call',.78+(p.activity==='Explorer'?.35:0));
@@ -1191,6 +1198,7 @@ function storyBase(type){
  else if(type==='family-crossroads'){r=partner||null;title='Ce que tu protèges';summary='Ta vie d’aventure entre en tension avec les personnes qui comptent le plus pour toi.';data.hasPartner=!!partner}
  else if(type==='relationship-opening'){r=directorRomanceCandidate();if(!r)return{title:'',summary:'',participant:null,data:{}};if(!npcNearby(r)&&!r.canonical){r.location=p.island;r.region=p.region;addRelationMemory(r,'Vos routes se recroisent à '+p.island+' après une période à distance.','reunion')}title='Un lien change avec '+r.name;summary='Votre relation commence à ressembler à autre chose qu’une simple proximité.';data.director=true}
  else if(type==='family-future'){r=partner;var future=directorFamilyOpportunity();if(!r||!future)return{title:'',summary:'',participant:null,data:{}};data.future=future;title=future==='marriage'?'Construire une vie avec '+r.name:'La famille peut s’agrandir';summary=future==='marriage'?'Votre relation est assez solide pour envisager un engagement durable.':'Votre couple arrive à un moment où une nouvelle génération devient une vraie possibilité.'}
+ else if(type==='legacy-crossroads'){var lf=directorLegacyOpportunity();if(!lf)return{title:'',summary:'',participant:null,data:{}};var anc=lf.ancestor,lg=lf.legacy;title='Le nom de '+anc.name+' te précède';summary=(lg.chronicle||anc.name+' a laissé une trace durable dans le monde.')+' À toi de décider ce que cet héritage signifie pour ta propre vie.';data.ancestorName=anc.name;data.ancestorGeneration=anc.generation||Math.max(1,game.dynasty.generation-1);data.worldRole=lg.worldRole||anc.rank||anc.career;data.recognitionScore=lg.recognitionScore||0}
  else if(type==='career-turn'){var turn=careerTurnCandidate();if(!turn)return{title:'',summary:'',participant:null,data:{}};title='Un tournant dans ta carrière';summary=turn.reason+'.';data.turn=turn;data.director=true}
  else if(type==='career-transfer'){var destination=directorTravelCandidate();if(!destination)return{title:'',summary:'',participant:null,data:{}};var travelContext=directorTravelContext(destination),mobility=directorMobilityWording();title=mobility.noun.charAt(0).toUpperCase()+mobility.noun.slice(1)+' : '+destination;summary=(CAREERS[p.faction]?CAREERS[p.faction].label:p.faction)+' t’offre une occasion de '+travelContext.reason+' à '+destination+'.';data.destination=destination;data.from=p.island;data.reason=travelContext.reason;data.director=true}
  else if(type==='horizon-call'){title='Une route hors des habitudes';summary='Une rumeur crédible évoque une opportunité que peu de voyageurs semblent avoir remarquée.';data.danger=inf().danger;data.signature=profile.signature}
@@ -1223,6 +1231,7 @@ function storyPrompt(story){
  if(story.type==='family-crossroads')return'Tu dois décider si cette période sera consacrée à tes proches ou à ton ambition personnelle.';
  if(story.type==='relationship-opening')return story.participantName+' laisse clairement entendre que votre lien pourrait devenir plus intime. Tu peux choisir de l’explorer ou de préserver votre relation actuelle.';
  if(story.type==='family-future')return story.data.future==='marriage'?'Votre relation est assez solide pour envisager le mariage, sans que cela soit une obligation.':'Vous pouvez choisir d’accueillir un enfant ou de laisser cette possibilité pour plus tard.';
+ if(story.type==='legacy-crossroads')return story.data.ancestorName+' a laissé un nom que le monde reconnaît encore. Tu peux t’appuyer sur cet héritage ou affirmer que ta trajectoire devra être jugée pour elle-même.';
  if(story.type==='career-turn')return story.data.turn.reason+'. Tu peux te réorienter vers '+story.data.turn.to+' ou poursuivre comme '+story.data.turn.from+'.';
  if(story.type==='career-transfer'){var mw=directorMobilityWording();return mw.noun.charAt(0).toUpperCase()+mw.noun.slice(1)+' vers '+story.data.destination+'. Tu peux '+mw.verb+' ou conserver ta trajectoire actuelle.'}
  if(story.type==='horizon-call')return'La piste semble exploitable maintenant. Tu peux la suivre toi-même ou monnayer l’information.';
@@ -1241,6 +1250,7 @@ function storyChoices(story){
  if(story.type==='family-crossroads')return[{id:'presence',label:'Être présent',desc:'Donner du temps à tes proches et renforcer les liens.'},{id:'ambition',label:'Prioriser ton ambition',desc:'Accélérer ta trajectoire personnelle avec un coût relationnel possible.'}];
  if(story.type==='relationship-opening')return[{id:'explore',label:'Explorer ce lien',desc:'Laisser cette relation devenir une vraie possibilité sentimentale.'},{id:'friendship',label:'Rester proches',desc:'Préserver le lien sans changer sa nature.'}];
  if(story.type==='family-future')return story.data.future==='marriage'?[{id:'commit',label:'Se marier',desc:'Faire de cette relation un engagement durable.'},{id:'wait',label:'Pas maintenant',desc:'Continuer ensemble sans précipiter cette étape.'}]:[{id:'child',label:'Accueillir un enfant',desc:'Faire une place à une nouvelle génération.'},{id:'wait',label:'Pas maintenant',desc:'Conserver votre équilibre actuel.'}];
+ if(story.type==='legacy-crossroads')return[{id:'embrace-legacy',label:'Assumer cet héritage',desc:'Accepter que ce nom t’ouvre certaines portes et crée aussi des attentes.'},{id:'own-path',label:'Tracer ma propre voie',desc:'Respecter cette histoire sans vivre dans son ombre.'}];
  if(story.type==='career-turn')return[{id:'pivot-career',label:'Se réorienter vers '+story.data.turn.to,desc:'Changer de spécialisation en conservant ta faction et ton parcours.'},{id:'stay-career',label:'Rester '+story.data.turn.from,desc:'Conserver ta spécialisation actuelle.'}];
  if(story.type==='career-transfer'){var mw=directorMobilityWording();return[{id:'accept-transfer',label:mw.accept,desc:'Prendre la mer vers '+story.data.destination+' et poursuivre ta trajectoire ailleurs.'},{id:'decline-transfer',label:mw.decline,desc:'Refuser cette opportunité sans changer de voie.'}]}
  if(story.type==='horizon-call')return[{id:'pursue',label:'Suivre la piste',desc:'Miser sur Navigation, Discipline et connaissance locale.'},{id:'sell',label:'Vendre l’information',desc:'Prendre un gain immédiat sans poursuivre l’aventure.'}];
@@ -1310,6 +1320,11 @@ function storyChoice(storyId,choiceId){
   var dc=migrateLifeDirector(game.player),ct=story.data&&story.data.turn;dc.lastCareerTurnAge=game.player.ageMonths;
   if(choiceId==='pivot-career'&&ct){var changed=applyCareerSpecialization(ct.to,'life-director');if(changed){dc.careerTurns++;recordLifeDirector('career-turn','Réorientation de '+ct.from+' vers '+ct.to,{from:ct.from,to:ct.to,margin:Math.round(ct.margin*10)/10});signalPersonalChapter('career','Évolution de carrière',18,'career-turn:'+ct.to,game.player.faction);tl('Tournant de carrière','Tu te réorientes de '+ct.from+' vers '+ct.to+'.','major');return closeStory(story,'réorientation','Ta carrière prend une nouvelle direction vers '+ct.to+'.',false)}}
   recordLifeDirector('career-turn','Spécialisation conservée : '+game.player.specialization,{from:ct&&ct.from||game.player.specialization,to:ct&&ct.to||null,declined:true});return closeStory(story,'cap maintenu','Tu conserves ta spécialisation actuelle malgré cette possibilité de réorientation.',false,'abandoned')
+ }
+ if(story.type==='legacy-crossroads'){
+  var dl=migrateLifeDirector(game.player),ancestor=latestDynastyLegacy();dl.legacyChoice=choiceId==='embrace-legacy'?'embraced':'independent';recordLifeDirector('legacy',choiceId==='embrace-legacy'?'Héritage assumé de '+story.data.ancestorName:'Voie propre face à l’héritage de '+story.data.ancestorName,{ancestor:story.data.ancestorName,choice:dl.legacyChoice});
+  if(choiceId==='embrace-legacy'){game.player.reputation+=4;if(ancestor&&ancestor.career===game.player.faction)adjustRep(game.player.faction,4);game.relations.filter(function(r){return r.status==='active'&&r.type==='legacy'}).forEach(function(r){r.respect=cl(r.respect+5,0,100);r.trust=cl(r.trust+2,0,100);addRelationMemory(r,'Tu assumes publiquement l’héritage de '+story.data.ancestorName+'.','legacy')});signalPersonalChapter('legacy','Héritage de '+story.data.ancestorName,24,'legacy-embraced',story.data.ancestorName);return closeStory(story,'héritage assumé','Tu acceptes que le nom de '+story.data.ancestorName+' fasse partie de ta propre histoire. Les anciens liens de la famille te regardent désormais autrement.',false)}
+  var gained=gain('Volonté',.6+R('life')*.5);signalPersonalChapter('legacy','Tracer sa propre voie',22,'legacy-independent',story.data.ancestorName);return closeStory(story,'voie propre','Tu reconnais ce qui t’a précédé sans en faire ton identité. Volonté +'+gained.toFixed(1)+'.',false)
  }
  if(story.type==='relationship-opening'){
   var dr=migrateLifeDirector(game.player),rr=storyRelation(story);dr.lastRomanceAge=game.player.ageMonths;dr.romanceOffers++;migrateStoryEngine(game).lastStartAge=game.player.ageMonths+8;
