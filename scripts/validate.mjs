@@ -141,3 +141,4 @@ if(!app.includes('function careerMomentumFactor') || !app.includes('function upd
 if(!app.includes('function careerPerformanceReview') || !app.includes("Dossier '+Math.round(review.successRate*100)") || !app.includes("familyFuture==='child'?1.55:1.28")) throw new Error('V5.0 promotion review or family pacing missing');
 if(!app.includes('function signalPersonalChapter') || !app.includes('function closePersonalChapter') || !app.includes('function personalChapterTick') || !app.includes('chapterHistory')) throw new Error('V5.0 personal chapter engine missing');
 if(!app.includes('partnerFollows') || !app.includes('longDistance') || !app.includes("Vous vous installez ensemble à")) throw new Error('V5.0 household relocation continuity missing');
+if(!app.includes('function settleCareerNetwork') || !app.includes("if(r.id===p.life.partnerId&&!r.longDistance)")) throw new Error('V5.0 relocation social continuity missing');
