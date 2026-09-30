@@ -116,6 +116,17 @@ function qaLongCareer(seed,faction,spec,profile,years){
     directorRomanceOffers:p.lifeDirector&&p.lifeDirector.romanceOffers||0,
     directorFamilyOffers:p.lifeDirector&&p.lifeDirector.familyOffers||0,
     saveBytes:JSON.stringify(g).length,
+    storageParts:{
+      player:JSON.stringify(g.player||{}).length,
+      relations:JSON.stringify(g.relations||[]).length,
+      timeline:JSON.stringify(g.timeline||[]).length,
+      world:JSON.stringify(g.world||{}).length,
+      loop:JSON.stringify(g.loop||{}).length,
+      story:JSON.stringify(g.story||{}).length,
+      codex:JSON.stringify(g.codex||{}).length,
+      achievements:JSON.stringify(g.achievements||{}).length,
+      dynasty:JSON.stringify(g.dynasty||{}).length
+    },
     careerMomentum:+((q.careerRecord&&q.careerRecord().momentum)||0).toFixed(2),
     careerSuccessRate:(q.careerRecord&&((q.careerRecord().successes||0)+(q.careerRecord().failures||0)))?+((q.careerRecord().successes||0)/((q.careerRecord().successes||0)+(q.careerRecord().failures||0))).toFixed(2):0,
     careerDistinctions:q.careerRecord?(q.careerRecord().distinctions||0):0,
@@ -235,7 +246,8 @@ let postCareerRows=[],postCareerProfiles=[];
       },
       storage:{
         avgSaveKB:+(rows.reduce((a,x)=>a+(x.saveBytes||0),0)/rows.length/1024).toFixed(1),
-        maxSaveKB:+(Math.max(...rows.map(x=>x.saveBytes||0))/1024).toFixed(1)
+        maxSaveKB:+(Math.max(...rows.map(x=>x.saveBytes||0))/1024).toFixed(1),
+        avgPartsKB:['player','relations','timeline','world','loop','story','codex','achievements','dynasty'].reduce((a,k)=>{a[k]=+(rows.reduce((s,x)=>s+((x.storageParts&&x.storageParts[k])||0),0)/rows.length/1024).toFixed(1);return a},{})
       },
       lifeDirector:{
         avgAcceptedMoves:avg('directorJourneys'),
