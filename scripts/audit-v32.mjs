@@ -270,6 +270,30 @@ let postCareerRows=[],postCareerProfiles=[];
       }
     };
   }
+
+{
+  const profiles=[
+    ['Civil','Marchand','science'],
+    ['Marine','Navigation','combat'],
+    ['Pirates','Navigateur','combat'],
+    ['Chasseur de primes','Investigateur','combat'],
+    ['Révolutionnaires','Logistique','stealth'],
+    ['Gouvernement','Administration','stealth']
+  ],rows=[];
+  profiles.forEach((cfg,pi)=>{for(let s=0;s<2;s++)rows.push(qaLongCareer(34900+pi*40+s,cfg[0],cfg[1],cfg[2],20))});
+  metrics.v50CareerTurnStress={
+    sample:rows.length,
+    avgTurns:+(rows.reduce((a,x)=>a+(x.directorCareerTurns||0),0)/rows.length).toFixed(2),
+    turnShare:+(rows.filter(x=>(x.directorCareerTurns||0)>0).length/rows.length).toFixed(2),
+    avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+    survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
+    outcomes:rows.map(x=>({faction:x.faction,start:x.spec,final:x.finalSpecialization,turns:x.directorCareerTurns||0,rank:x.finalRank}))
+  };
+  if(metrics.v50CareerTurnStress.turnShare<.20)throw new Error('V5.0 career turns remain dormant in mismatched careers: '+metrics.v50CareerTurnStress.turnShare);
+  if(metrics.v50CareerTurnStress.avgTurns>1.5)throw new Error('V5.0 career turns became micromanagement under mismatch: '+metrics.v50CareerTurnStress.avgTurns);
+  if(metrics.v50CareerTurnStress.avgClicksPerYear>6.5)throw new Error('V5.0 career turns damage flow: '+metrics.v50CareerTurnStress.avgClicksPerYear+' clicks/year');
+}
+
 {
   const profiles=[
     ['Civil','Scientifique','science'],
@@ -508,7 +532,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
 }));
 
 console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
-console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress}));
+console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress}));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
