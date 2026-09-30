@@ -2,7 +2,7 @@
 'use strict';
 /* V5.0 GRAND JOURNEY RELEASE CANDIDATE */
 var $=function(s){return document.querySelector(s)},$$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
-var game=null,slot=1,mode='destiny',majorOnly=false,timelineExpanded=false,backupMode='export',P='opl-v05-';
+var GAME_RELEASE='V5.0 Grand Journey',game=null,slot=1,mode='destiny',majorOnly=false,timelineExpanded=false,backupMode='export',P='opl-v05-';
 var ORIG=['East Blue','North Blue','West Blue','South Blue'],REG=ORIG.concat(['Grand Line','New World']);
 var ST=['Force','Vitesse','Agilité','Endurance','Résistance','Réflexes','Discipline','Volonté'];
 var SK=['Combat','Sabre','Tir','Navigation','Médecine','Commandement','Discrétion','Science'];
