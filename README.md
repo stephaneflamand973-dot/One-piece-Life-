@@ -1,3 +1,18 @@
+# ONE PIECE LIFE — V3.2 World Foundations
+
+La V3.2 transforme les systèmes autonomes existants en une mémoire mondiale persistante, sans ajouter de micro-gestion.
+
+## Fondations du monde vivant
+- Les acteurs majeurs possèdent désormais une ambition persistante et une progression associée.
+- Leurs actions significatives alimentent un historique causal.
+- Les équipages autonomes disposent également d'un historique persistant.
+- Les ambitions peuvent influencer factions, territoires, stabilité et équipages alliés.
+- Les changements territoriaux significatifs sont mémorisés.
+- Le compte rendu **AVANCER** remonte uniquement les changements mondiaux importants via **Monde vivant**, afin de préserver une interface compacte.
+- Les anciennes sauvegardes restent compatibles avec le GameState interne 28.
+
+---
+
 # ONE PIECE LIFE — V3.1 Living Endgame
 
 La V3.1 poursuit la refonte de fluidité sans rajouter de micro-gestion. Deux cibles : réduire la densité d'interruptions des pirates vétérans sans rendre le Nouveau Monde inoffensif, et donner aux carrières longues des objectifs de fin de partie propres à leur voie.
