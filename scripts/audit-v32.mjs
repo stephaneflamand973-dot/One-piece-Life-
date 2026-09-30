@@ -110,7 +110,11 @@ function qaLongCareer(seed,faction,spec,profile,years){
     storyHistory:(g.story&&g.story.history||[]).length,
     careerHistory:(p.careerHistory||[]).length,
     organizationMembers:p.organization&&Array.isArray(p.organization.members)?p.organization.members.filter(x=>x.status!=='inactive').length:0,
-    organizationLeader:!!(p.organization&&p.organization.authority==='leader')
+    organizationLeader:!!(p.organization&&p.organization.authority==='leader'),
+    directorJourneys:p.lifeDirector&&p.lifeDirector.acceptedMoves||0,
+    directorJourneyOffers:p.lifeDirector&&p.lifeDirector.journeyOffers||0,
+    directorRomanceOffers:p.lifeDirector&&p.lifeDirector.romanceOffers||0,
+    directorFamilyOffers:p.lifeDirector&&p.lifeDirector.familyOffers||0
   };
 }
 let postCareerRows=[],postCareerProfiles=[];
@@ -207,6 +211,12 @@ let postCareerRows=[],postCareerProfiles=[];
         avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
         avgMissionsPerYear:+(rows.reduce((a,x)=>a+x.missionPerYear,0)/rows.length).toFixed(2),
         survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2)
+      },
+      lifeDirector:{
+        avgAcceptedMoves:avg('directorJourneys'),
+        avgJourneyOffers:avg('directorJourneyOffers'),
+        avgRomanceOffers:avg('directorRomanceOffers'),
+        avgFamilyOffers:avg('directorFamilyOffers')
       }
     };
   }
@@ -365,6 +375,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
 }));
 
 console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
+console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,personalLife:metrics.v40PostReleaseAudit.personalLife,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow}));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
