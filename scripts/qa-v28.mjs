@@ -1240,7 +1240,7 @@ test('V2.8 recognized nemesis influences NPC intentions',()=>{
   const g=fresh(18010),p=g.player;p.ageMonths=300;const r=q.createRelation('rival');r.nemesisRecognized=true;const pool=q.npcIntentPool(r);assert(pool.includes('Poursuivre sa némésis'),'nemesis flag is still inert');return pool.filter(x=>x==='Poursuivre sa némésis').length+' nemesis entries';
 });
 test('V2.8 arc transitions surface in AVANCER report',()=>{
-  const g=fresh(18011),p=g.player;p.ageMonths=300,snap=q.captureAdvanceState();q.registerArcSignal('crew','crew','report-crew','Report Crew',80,{});q.registerArcSignal('crew','crew','report-crew','Report Crew',80,{});const report=q.finalizeAdvanceReport(snap,1,{key:'qa',label:'QA'});assert(report.arcHighlights&&report.arcHighlights.length,'arc transition absent from report');return report.arcHighlights[0].title;
+  const g=fresh(18011),p=g.player;p.ageMonths=300;const snap=q.captureAdvanceState();q.registerArcSignal('crew','crew','report-crew','Report Crew',80,{});q.registerArcSignal('crew','crew','report-crew','Report Crew',80,{});const report=q.finalizeAdvanceReport(snap,1,{key:'qa',label:'QA'});assert(report.arcHighlights&&report.arcHighlights.length,'arc transition absent from report');return report.arcHighlights[0].title;
 });
 test('V2.8 active arc registry remains compact',()=>{
   const g=fresh(18012),p=g.player;p.ageMonths=300;for(let i=0;i<9;i++)q.registerArcSignal('crew','crew','crew-'+i,'Crew '+i,60+i,{});assert(g.loop.arcs.length<=4,'active arcs exceeded cap');assert(g.loop.arcHistory.length>=1,'dropped arcs left no history');return g.loop.arcs.length+' active / '+g.loop.arcHistory.length+' history';
