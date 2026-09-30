@@ -176,6 +176,7 @@ let postCareerRows=[],postCareerProfiles=[];
         avgRecognition:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.score||0),0)/rows.length).toFixed(1),
         organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
         avgCareerHistory:avg('careerHistory'),
+        avgRankVariety:+(profiles.reduce((a,cfg)=>{const key=cfg[0]+' / '+cfg[1];return a+Object.keys(rankSpread[key]||{}).length},0)/profiles.length).toFixed(2),
         finalRanks:rankSpread
       },
       personalLife:{
@@ -215,8 +216,11 @@ let postCareerRows=[],postCareerProfiles=[];
       lifeDirector:{
         avgAcceptedMoves:avg('directorJourneys'),
         avgJourneyOffers:avg('directorJourneyOffers'),
+        mobilityAcceptanceRate:+(rows.reduce((a,x)=>a+(x.directorJourneyOffers?Math.min(1,x.directorJourneys/x.directorJourneyOffers):0),0)/rows.length).toFixed(2),
         avgRomanceOffers:avg('directorRomanceOffers'),
-        avgFamilyOffers:avg('directorFamilyOffers')
+        romanceOpportunityShare:+(rows.filter(x=>x.directorRomanceOffers>0).length/rows.length).toFixed(2),
+        avgFamilyOffers:avg('directorFamilyOffers'),
+        familyOpportunityShare:+(rows.filter(x=>x.directorFamilyOffers>0).length/rows.length).toFixed(2)
       }
     };
   }
