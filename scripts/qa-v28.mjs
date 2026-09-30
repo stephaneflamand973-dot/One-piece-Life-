@@ -1288,8 +1288,12 @@ test('V2.8.1 forced encounters are less lethal than deliberate equivalent fights
   const full=deaths(1),forced=deaths(.35);assert(forced<full,'reduced-lethality forced combat did not reduce deaths: '+forced+' vs '+full);return forced+' forced vs '+full+' deliberate deaths';
 });
 test('V2.8.1 high-risk pacing stays tense without returning to monthly clicking',()=>{
-  const g=fresh(18880),p=g.player;p.ageMonths=300;p.justice.regionalHeat[p.region]=60;let plan=q.advancePlan();assert(plan.key==='high-risk','expected high-risk plan');assert(plan.min>=1&&plan.max>=2,'high-risk window still too granular: '+plan.min+'-'+plan.max);
-  p.justice.regionalHeat[p.region]=82;plan=q.advancePlan();assert(plan.key==='critical-risk','critical heat did not preserve close tracking');assert(plan.max<=1.75,'critical risk became too compressed');return 'high '+q.durationText(1.25)+'-'+q.durationText(2.5)+' / critical '+q.durationText(.75)+'-'+q.durationText(1.75);
+  const g=fresh(18880),p=g.player;p.ageMonths=300;p.justice.regionalHeat[p.region]=60;let plan=q.advancePlan(),high=plan;assert(plan.key==='high-risk','expected high-risk plan');assert(plan.min>=1.5&&plan.max>=3,'high-risk window still too granular: '+plan.min+'-'+plan.max);
+  p.justice.regionalHeat[p.region]=82;plan=q.advancePlan();assert(plan.key==='critical-risk','critical heat did not preserve close tracking');assert(plan.max<=1.75,'critical risk became too compressed');return 'high '+q.durationText(high.min)+'-'+q.durationText(high.max)+' / critical '+q.durationText(plan.min)+'-'+q.durationText(plan.max);
+});
+test('V2.8.1 recovery only becomes week-scale when health is truly critical',()=>{
+  const g=fresh(18881),p=g.player;p.ageMonths=300;p.health=40;let plan=q.advancePlan();assert(plan.key==='recovery'&&plan.min>=1,'ordinary recovery remains too granular');
+  p.health=20;plan=q.advancePlan();assert(plan.key==='critical-recovery'&&plan.max<=1.25,'critical recovery lost close monitoring');return 'recovery tiers coherent';
 });
 
 
