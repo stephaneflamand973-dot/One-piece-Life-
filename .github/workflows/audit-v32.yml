@@ -1,0 +1,28 @@
+name: V3.2 Long Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'app.js'
+      - 'content-v1.js'
+      - 'scripts/qa-v32.mjs'
+      - 'scripts/audit-v32.mjs'
+      - '.github/workflows/audit-v30.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run 10-20 year stress audit
+        run: node scripts/audit-v32.mjs
