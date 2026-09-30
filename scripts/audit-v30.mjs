@@ -118,7 +118,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
       founding:+(rs.reduce((a,x)=>a+x.founding,0)/rs.length).toFixed(1)
     };
   });
-  metrics.v29CareerStress={
+  metrics.v30CareerStress={
     sample:rows.length,yearsTarget:20,survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
     avgRepeatShare:+(sum('repeatShare')/rows.length).toFixed(2),
     avgConsecutiveRepeatShare:+(sum('consecutiveRepeatShare')/rows.length).toFixed(2),
@@ -145,7 +145,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
     const a=(g.loop.arcs||[]).find(x=>x.sourceType==='relation'&&String(x.sourceId)===String(r.id));
     rows.push({hunts,peak,stage:a?a.stage:0,pressure:a?a.pressure:0,history:(g.loop.arcHistory||[]).length-startHist,challenge:!!r.challengeReady});
   }
-  metrics.v29NemesisStress={
+  metrics.v30NemesisStress={
     sample:rows.length,avgHuntMonths:+(rows.reduce((a,x)=>a+x.hunts,0)/rows.length).toFixed(1),
     challengeReadyShare:+(rows.filter(x=>x.challenge).length/rows.length).toFixed(2),
     avgStage:+(rows.reduce((a,x)=>a+x.stage,0)/rows.length).toFixed(2),
@@ -166,11 +166,11 @@ function qaLongCareer(seed,faction,spec,profile,years){
     }
   });
   const byFaction={};factions.forEach(f=>{const rs=rows.filter(x=>x.faction===f);byFaction[f]={routineBoard:+(rs.filter(x=>x.hasRoutine).length/rs.length).toFixed(2),routineRecommended:+(rs.filter(x=>x.recommendedRoutine).length/rs.length).toFixed(2),avgBestChance:+(rs.reduce((a,x)=>a+x.bestChance,0)/rs.length).toFixed(2)}});
-  metrics.v29RoutineFallback={sample:rows.length,byFaction};
+  metrics.v30RoutineFallback={sample:rows.length,byFaction};
 }
-console.log('V29_LONG_AUDIT '+JSON.stringify({career:metrics.v29CareerStress,nemesis:metrics.v29NemesisStress,routine:metrics.v29RoutineFallback}));
+console.log('V30_LONG_AUDIT '+JSON.stringify({career:metrics.v30CareerStress,nemesis:metrics.v30NemesisStress,routine:metrics.v30RoutineFallback}));
 `;
 
 const out=base.replace(marker,extra+'\n'+marker);
-fs.writeFileSync('/tmp/qa-v29-runtime.mjs',out,'utf8');
+fs.writeFileSync('/tmp/qa-v30-runtime.mjs',out,'utf8');
 await import('file:///tmp/qa-v29-runtime.mjs');
