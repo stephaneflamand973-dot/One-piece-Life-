@@ -68,7 +68,7 @@ window.__qa={
  influenceMetrics:influenceMetrics,establishDomain:establishDomain,fortifyDomain:fortifyDomain,influenceTick:influenceTick,
  startStrategicWar:startStrategicWar,simulateWars:simulateWars,simulateConflicts:simulateConflicts,resolveConflict:resolveConflict,resolveWar:resolveWar,warBetween:warBetween,
  marketPrice:marketPrice,marketPriceIndex:marketPriceIndex,buyCommodity:buyCommodity,sellCommodity:sellCommodity,tradeRouteOpportunities:tradeRouteOpportunities,
- simulateEconomy:simulateEconomy,cargoUsed:cargoUsed,cargoCapacity:cargoCapacity,cargoBookValue:cargoBookValue,blackMarketRisk:blackMarketRisk,inspectSmugglingAtArrival:inspectSmugglingAtArrival,
+ simulateEconomy:simulateEconomy,initWorldEconomy:initWorldEconomy,initialMarket:initialMarket,cargoUsed:cargoUsed,cargoCapacity:cargoCapacity,cargoBookValue:cargoBookValue,blackMarketRisk:blackMarketRisk,inspectSmugglingAtArrival:inspectSmugglingAtArrival,
  releasePlayerFruits:releasePlayerFruits,checkAchievements:checkAchievements,chargeMoney:chargeMoney,serviceDebt:serviceDebt,netWorth:netWorth,
  explorationSite:explorationSite,islandProfile:islandProfile,discoveryPool:discoveryPool,registerDiscovery:registerDiscovery,discoverByKnowledge:discoverByKnowledge,explorationTick:explorationTick,migrateExploration:migrateExploration,currentRumor:currentRumor,learnLocalRumor:learnLocalRumor,routeEstimate:routeEstimate,chooseSeaCondition:chooseSeaCondition,seaJourneyTick:seaJourneyTick,travel:travel,beginJourney:beginJourney,settleCareerNetwork:settleCareerNetwork,setExplorationActivity:setExplorationActivity,renderExploration:renderExploration,renderJourney:renderJourney,renderCodexExploration:renderCodexExploration,
  defaultStoryEngine:defaultStoryEngine,migrateStoryEngine:migrateStoryEngine,activeStories:activeStories,awaitingStory:awaitingStory,storyNoveltyWeight:storyNoveltyWeight,storyEligibleTypes:storyEligibleTypes,startStory:startStory,maybeStartStory:maybeStartStory,storyPrompt:storyPrompt,storyChoices:storyChoices,storyChoice:storyChoice,storyTick:storyTick,closeStory:closeStory,showStoryDecision:showStoryDecision,renderStories:renderStories,die:die,
@@ -1336,6 +1336,15 @@ test('V5.0 age alone never grants legendary status',()=>{
 });
 test('V5.0 traditional legend routes remain valid beside earned legacy',()=>{
   const g=fresh(50102),p=g.player;p.ageMonths=600;p.factionRep.Pirates=100;q.join('Pirates');Object.keys(p.stats).forEach(k=>p.stats[k]=95);Object.keys(p.skills).forEach(k=>p.skills[k]=90);['Foosha Village','Orange Town','Syrup Village'].forEach(n=>{if(g.world.territories[n])g.world.territories[n].playerControl={ownerKey:String(g.seed),ownerName:p.name,faction:'Pirates',control:85,mode:'conquest'}});const r=q.playerWorldRecognition();assert(r.traditionalLegendQualified,'traditional pirate domain route stopped qualifying');assert(r.legendThreshold===88,'traditional legend threshold changed unexpectedly');return r.score+' / '+r.legendThreshold;
+});
+
+
+test('V5.0 market migration prunes obsolete duplicated fields',()=>{
+  const g=fresh(50110),m=g.world.markets[g.player.island],x=m.goods.provisions;x.activity=17;x.lastPrice=999;m.shock='Pénurie : Provisions';m.lastShockMonth=77;g.world.economy.shocks=Array.from({length:40},(_,i)=>({i}));
+  q.initWorldEconomy(g,g.world);assert(!Object.prototype.hasOwnProperty.call(x,'activity'),'legacy market activity survived migration');assert(!Object.prototype.hasOwnProperty.call(x,'lastPrice'),'legacy market lastPrice survived migration');assert(!Object.prototype.hasOwnProperty.call(m,'shock'),'duplicated market shock string survived migration');assert(!Object.prototype.hasOwnProperty.call(m,'lastShockMonth'),'duplicated shock month survived migration');assert(g.world.economy.shocks.length<=24,'economy shock history remains oversized');return g.world.economy.shocks.length+' shocks retained';
+});
+test('V5.0 compacted market state still simulates prices and stocks',()=>{
+  const g=fresh(50111),name=g.player.island,before=q.marketPrice(name,'provisions',true),stock=g.world.markets[name].goods.provisions.stock;q.simulateEconomy();const after=q.marketPrice(name,'provisions',true),next=g.world.markets[name].goods.provisions.stock;assert(before>0&&after>0,'market price broke after compaction');assert(Number.isFinite(next)&&next>=0,'market stock broke after compaction');return before+' → '+after+' / stock '+Math.round(stock)+' → '+Math.round(next);
 });
 
 const metrics={};
