@@ -1765,19 +1765,32 @@ function factionCareerLegacy(){
  else v=Math.min(20,careerExpertise(p.specialization)*.13+Math.log10(Math.max(1,netWorth()+1)));
  return v
 }
+function organicLegendEvidence(){
+ var p=game.player,rec=careerRecord(),loop=migrateLifeLoop(game),director=migrateLifeDirector(p),ws=game.world.worldState||{},history=(ws.sagaHistory||[]).filter(function(s){return s.playerInvolved}),decisive=history.filter(function(s){return sagaPlayerRoleRank(s.playerRole||'indirect')>=3}).length,canon=(ws.playerCanonImpact||[]).length,strongChapters=(director.chapterHistory||[]).filter(function(ch){return(ch.score||0)>=45&&(ch.beats||0)>=2}).length,highMoments=(loop.signatureMoments||[]).filter(function(x){return(x.weight||0)>=80}).length,founding=(loop.foundingMemories||[]).length,careerYears=(rec.months||0)/12;
+ var score=Math.min(24,(rec.distinctions||0)*2.5)+Math.min(16,strongChapters*2.7)+Math.min(15,founding*5)+Math.min(12,highMoments*2)+Math.min(15,decisive*5)+Math.min(10,canon*2)+Math.min(8,Math.max(0,careerYears-20)*.4);
+ var gate=false,f=p.faction||'Civil',ri=rankIndex();
+ if(f==='Pirates')gate=ri>=4||(p.bounty||0)>=300000000||decisive>=1;
+ else if(f==='Marine')gate=ri>=5||decisive>=1;
+ else if(f==='Révolutionnaires')gate=ri>=4||decisive>=1;
+ else if(f==='Gouvernement')gate=ri>=4||p.rank==='CP9'||p.rank==='Candidat CP0'||p.rank==='CP0'||decisive>=1;
+ else if(f==='Chasseur de primes')gate=((p.justice&&p.justice.captures)||0)>=8||decisive>=1;
+ else gate=careerExpertise(p.specialization)>=70||netWorth()>=2000000;
+ return{score:Math.round(cl(score,0,100)),qualified:score>=62&&gate,gate:gate,distinctions:rec.distinctions||0,strongChapters:strongChapters,founding:founding,highMoments:highMoments,decisiveSagas:decisive,canonImpact:canon,careerYears:Math.round(careerYears*10)/10}
+}
 function playerWorldRecognition(){
  var p=game.player,x=influenceMetrics(),ws=game.world.worldState||{},active=(ws.worldSagas||[]).filter(function(s){return s.status==='active'&&s.playerInvolved}),history=(ws.sagaHistory||[]).filter(function(s){return s.playerInvolved}),canon=(ws.playerCanonImpact||[]).length,domains=x.domains.length,allies=x.affiliates.length,rep=p.factionRep&&p.factionRep[p.faction]||0;
  var sagaWeight=history.reduce(function(a,s){var r=sagaPlayerRoleRank(s.playerRole||'indirect');return a+(r>=4?4:r===3?3:r===2?1.8:.8)},0)+active.reduce(function(a,s){return a+(sagaPlayerRoleRank(s.playerRole||'indirect')>=2?1:.35)},0),decisive=history.filter(function(s){return sagaPlayerRoleRank(s.playerRole||'indirect')>=3}).length;
- var legacy=factionCareerLegacy(),worldScore=cl(x.score*.52+power()*.22+domains*3.8+allies*2.2+Math.min(14,sagaWeight)+Math.min(10,canon*1.35)+Math.min(9,rep*.09)+legacy,0,100),role='Figure régionale',legendQualified=false;
- if(p.faction==='Pirates')legendQualified=domains>=3||allies>=3;
- else if(p.faction==='Marine')legendQualified=rep>=85&&(['Vice-amiral','Amiral'].indexOf(p.rank)>=0||decisive>=2);
- else if(p.faction==='Révolutionnaires')legendQualified=rep>=80&&(['Commandant régional','Bras droit'].indexOf(p.rank)>=0||decisive>=2);
- else if(p.faction==='Gouvernement')legendQualified=rep>=85&&(p.rank==='CP0'||p.rank==='Candidat CP0'||decisive>=2);
- else if(p.faction==='Chasseur de primes')legendQualified=!!(p.justice&&p.justice.captures>=12);
- else legendQualified=careerExpertise(p.specialization)>=85||netWorth()>=5000000;
- if(worldScore>=88&&legendQualified)role=p.faction==='Pirates'?'Puissance pirate mondiale':p.faction==='Marine'?'Pilier de l’ordre mondial':p.faction==='Révolutionnaires'?'Symbole de la Révolution':p.faction==='Gouvernement'?'Autorité mondiale':p.faction==='Chasseur de primes'?'Légende des primes':'Icône des mers';
+ var legacy=factionCareerLegacy(),organicEvidence=organicLegendEvidence(),evidenceBonus=Math.min(12,organicEvidence.score*.16),worldScore=cl(x.score*.52+power()*.22+domains*3.8+allies*2.2+Math.min(14,sagaWeight)+Math.min(10,canon*1.35)+Math.min(9,rep*.09)+legacy+evidenceBonus,0,100),role='Figure régionale',traditionalQualified=false;
+ if(p.faction==='Pirates')traditionalQualified=domains>=3||allies>=3;
+ else if(p.faction==='Marine')traditionalQualified=rep>=85&&(['Vice-amiral','Amiral'].indexOf(p.rank)>=0||decisive>=2);
+ else if(p.faction==='Révolutionnaires')traditionalQualified=rep>=80&&(['Commandant régional','Bras droit'].indexOf(p.rank)>=0||decisive>=2);
+ else if(p.faction==='Gouvernement')traditionalQualified=rep>=85&&(p.rank==='CP0'||p.rank==='Candidat CP0'||decisive>=2);
+ else if(p.faction==='Chasseur de primes')traditionalQualified=!!(p.justice&&p.justice.captures>=12);
+ else traditionalQualified=careerExpertise(p.specialization)>=85||netWorth()>=5000000;
+ var legendQualified=traditionalQualified||organicEvidence.qualified,legendThreshold=traditionalQualified?88:84;
+ if(worldScore>=legendThreshold&&legendQualified)role=p.faction==='Pirates'?'Puissance pirate mondiale':p.faction==='Marine'?'Pilier de l’ordre mondial':p.faction==='Révolutionnaires'?'Symbole de la Révolution':p.faction==='Gouvernement'?'Autorité mondiale':p.faction==='Chasseur de primes'?'Légende des primes':'Icône des mers';
  else if(worldScore>=72)role='Puissance établie';else if(worldScore>=52)role='Acteur majeur';
- return{score:Math.round(worldScore),role:role,activeSagas:active.length,resolvedSagas:history.length,canonImpact:canon,domains:domains,allies:allies,decisiveSagas:decisive,legendQualified:legendQualified,careerLegacy:Math.round(legacy)}
+ return{score:Math.round(worldScore),role:role,activeSagas:active.length,resolvedSagas:history.length,canonImpact:canon,domains:domains,allies:allies,decisiveSagas:decisive,legendQualified:legendQualified,traditionalLegendQualified:traditionalQualified,organicLegendQualified:organicEvidence.qualified,legendThreshold:legendThreshold,careerLegacy:Math.round(legacy),organicEvidence:organicEvidence}
 }
 function endgameMilestones(){
  var p=game.player,x=influenceMetrics(),org=p.organization,goals=[];
@@ -1803,7 +1816,7 @@ function endgameMilestones(){
  return goals
 }
 function endgameStage(){
- var goals=endgameMilestones();if(!goals.length)return null;var done=goals.filter(function(g){return g.done}).length,avg=goals.reduce(function(a,g){return a+(g.progress||0)},0)/goals.length,recognition=playerWorldRecognition(),organic=recognition.score>=88&&recognition.legendQualified;
+ var goals=endgameMilestones();if(!goals.length)return null;var done=goals.filter(function(g){return g.done}).length,avg=goals.reduce(function(a,g){return a+(g.progress||0)},0)/goals.length,recognition=playerWorldRecognition(),organic=recognition.score>=(recognition.legendThreshold||88)&&recognition.legendQualified;
  return{label:organic?'Légende accomplie':done>=Math.ceil(goals.length/2)?'Puissance établie':'Ascension majeure',done:done,total:goals.length,progress:Math.round((avg*.65+recognition.score*.35)),goals:goals,recognition:recognition,organic:organic}
 }
 function evaluateTitles(){
