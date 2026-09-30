@@ -81,6 +81,7 @@ if(instrumented===appSource) throw new Error('QA instrumentation could not repla
 vm.runInContext(instrumented,sandbox,{filename:'app.js'});
 const q=sandbox.__qa;
 
+// V5.0 final gate refresh
 const results=[];
 function assert(cond,msg){if(!cond)throw new Error(msg)}
 function test(name,fn){
