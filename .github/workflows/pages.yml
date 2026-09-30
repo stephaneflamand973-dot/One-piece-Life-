@@ -2,7 +2,7 @@ name: Deploy GitHub Pages
 
 on:
   workflow_run:
-    workflows: ["V5.0 QA"]
+    workflows: ["V5.0 Long Audit"]
     types: [completed]
   workflow_dispatch:
 
