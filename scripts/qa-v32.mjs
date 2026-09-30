@@ -1314,6 +1314,12 @@ test('V5.0 early career mismatch surfaces before passive self-reinforcement',()=
   return turn.from+' -> '+turn.to+' / +'+turn.margin.toFixed(1);
 });
 
+
+test('V5.0 career mismatch is reviewed before specialization self-corrects',()=>{
+  const g=fresh(50153),p=g.player;p.ageMonths=300;p.factionRep.Civil=100;q.join('Civil');p.specialization='Marchand';const rec=q.careerRecord();rec.specialization='Marchand';rec.months=24;p.skills.Science=82;p.stats.Discipline=62;p.skills.Navigation=42;p.skills.Commandement=28;p.lifeDirector.lastCareerTurnAge=190;g.story.lastStartAge=p.ageMonths-12;
+  const turn=q.careerTurnCandidate();assert(turn&&turn.to==='Scientifique'&&turn.margin>=8,'two-year mismatch review did not surface a better specialization: '+JSON.stringify(turn));assert(q.maybeStartCareerTurnStory()===true,'two-year mismatch stayed dormant');return turn.from+' -> '+turn.to+' / +'+turn.margin.toFixed(1);
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
