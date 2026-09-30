@@ -721,7 +721,37 @@ function registerArcSignal(type,sourceType,sourceId,sourceName,weight,meta){
  return a
 }
 function signalArcFromConsequence(c){var d=c&&c.payload||{},r=null;if(!c)return null;if(c.kind==='mission'&&d.sourceType&&d.sourceId)return registerArcSignal(d.sourceType==='crew'?'crew':d.sourceType==='conflict'?'conflict':'world',d.sourceType,d.sourceId,d.sourceName||d.sourceId,c.weight||60,d);if(c.kind==='rivalry'){r=consequenceRelation(d);return r?registerArcSignal('rival','relation',r.id,r.name,c.weight||75,d):null}if(c.kind==='story'){r=consequenceRelation(d);if(r)return registerArcSignal(d.storyType==='rival-challenge'?'rival':d.storyType==='mentor-lesson'?'mentor':'relation','relation',r.id,r.name,c.weight||58,d);if(d.storyType==='crew-pressure'&&d.crewId)return registerArcSignal('crew','crew',d.crewId,d.crewName||d.crewId,c.weight||58,d)}return null}
-function arcTick(m){var l=migrateLifeLoop(game),now=game.player.ageMonths;l.arcs.slice().forEach(function(a){var missing=false;if(a.sourceType==='crew')missing=!game.world.crews.some(function(c){return String(c.id)===String(a.sourceId)&&c.status==='active'});else if(a.sourceType==='relation')missing=!game.relations.some(function(r){return String(r.id)===String(a.sourceId)&&r.status==='active'});else if(a.sourceType==='conflict')missing=!game.world.conflicts.some(function(c){return String(c.id)===String(a.sourceId)&&c.status==='active'});if(missing)return closeArc(a,'resolved','La source de ce conflit disparaît du monde vivant.');if(now-(a.lastExternalAge||a.createdAge||now)>84)return closeArc(a,'expired','Après plusieurs années sans nouvelle interaction réelle, ce fil cesse d’être actif.');a.pressure=cl((a.pressure||0)-.018*m,0,100);var gap=14-Math.min(4,(a.stage||0)*2);if((a.stage||0)>=1&&(a.externalHits||0)>=2&&now-(a.lastPulseAge||a.createdAge||now)>=gap&&R('arc')<.18*m){var before=a.stage||0,text='';if(a.sourceType==='crew'){var c=game.world.crews.find(function(x){return String(x.id)===String(a.sourceId)&&x.status==='active'});if(c){c.playerGrudge=cl((c.playerGrudge||0)+2,0,100);text=c.name+' adapte encore ses plans à votre conflit.'}}else if(a.sourceType==='relation'){var r=game.relations.find(function(x){return String(x.id)===String(a.sourceId)&&x.status==='active'});if(r){if(r.role==='rival'){r.rivalry=cl((r.rivalry||0)+2,0,100);r.challengeReady=true;text=r.name+' prépare une nouvelle étape de votre rivalité.'}else{text=r.name+' reste influencé par votre histoire commune.'}}}else if(a.sourceType==='conflict'){var cf=game.world.conflicts.find(function(x){return String(x.id)===String(a.sourceId)&&x.status==='active'});if(cf){cf.intensity=cl(cf.intensity+1,0,100);text='Le conflit de '+cf.location+' continue d’évoluer autour de tes anciennes interventions.'}}if(text){registerArcSignal(a.type,a.sourceType,a.sourceId,a.sourceName,46,{autonomous:true,region:a.region,location:a.location});if((a.stage||0)===before)tl('Arc vivant — '+a.title,text,'story')}}}})}
+function arcTick(m){
+ var l=migrateLifeLoop(game),now=game.player.ageMonths;
+ l.arcs.slice().forEach(function(a){
+  var missing=false;
+  if(a.sourceType==='crew')missing=!game.world.crews.some(function(c){return String(c.id)===String(a.sourceId)&&c.status==='active'});
+  else if(a.sourceType==='relation')missing=!game.relations.some(function(r){return String(r.id)===String(a.sourceId)&&r.status==='active'});
+  else if(a.sourceType==='conflict')missing=!game.world.conflicts.some(function(c){return String(c.id)===String(a.sourceId)&&c.status==='active'});
+  if(missing){closeArc(a,'resolved','La source de ce conflit disparaît du monde vivant.');return}
+  if(now-(a.lastExternalAge||a.createdAge||now)>84){closeArc(a,'expired','Après plusieurs années sans nouvelle interaction réelle, ce fil cesse d’être actif.');return}
+  a.pressure=cl((a.pressure||0)-.018*m,0,100);
+  var gap=14-Math.min(4,(a.stage||0)*2),pulseDue=(a.stage||0)>=1&&(a.externalHits||0)>=2&&now-(a.lastPulseAge||a.createdAge||now)>=gap;
+  if(!pulseDue||R('arc')>=Math.min(.85,.18*m))return;
+  var before=a.stage||0,text='';
+  if(a.sourceType==='crew'){
+   var c=game.world.crews.find(function(x){return String(x.id)===String(a.sourceId)&&x.status==='active'});
+   if(c){c.playerGrudge=cl((c.playerGrudge||0)+2,0,100);text=c.name+' adapte encore ses plans à votre conflit.'}
+  }else if(a.sourceType==='relation'){
+   var r=game.relations.find(function(x){return String(x.id)===String(a.sourceId)&&x.status==='active'});
+   if(r){
+    if(r.role==='rival'){r.rivalry=cl((r.rivalry||0)+2,0,100);r.challengeReady=true;text=r.name+' prépare une nouvelle étape de votre rivalité.'}
+    else text=r.name+' reste influencé par votre histoire commune.'
+   }
+  }else if(a.sourceType==='conflict'){
+   var cf=game.world.conflicts.find(function(x){return String(x.id)===String(a.sourceId)&&x.status==='active'});
+   if(cf){cf.intensity=cl(cf.intensity+1,0,100);text='Le conflit de '+cf.location+' continue d’évoluer autour de tes anciennes interventions.'}
+  }
+  if(!text)return;
+  registerArcSignal(a.type,a.sourceType,a.sourceId,a.sourceName,46,{autonomous:true,region:a.region,location:a.location});
+  if((a.stage||0)===before)tl('Arc vivant — '+a.title,text,'story')
+ })
+}
 function resolveConsequence(c){
  if(!c||c.resolved||!game.alive)return false;var p=game.player,d=c.payload||{},text='',tone=(c.weight||0)>=72?'major':'story',r=null;
  if(c.kind==='story'){
