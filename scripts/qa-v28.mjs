@@ -1293,7 +1293,7 @@ test('V2.8 active arc registry remains compact',()=>{
         uniqueTitles:new Set(titles).size,repeatRate:missions?1-new Set(titles).size/missions:0,
         arcSeq:g.loop.arcSeq||0,activeArcs:(g.loop.arcs||[]).length,arcHistory:(g.loop.arcHistory||[]).length,arcPeak,
         founding:(g.loop.foundingMemories||[]).length,consequences:(g.loop.consequenceHistory||[]).length,
-        relations:g.relations.length,power:q.power(),death:g.death&&g.death.cause||null
+        relations:g.relations.length,power:q.power(),death:g.death?{cause:g.death.cause,combat:g.lastCombat&&g.lastCombat.title||null,chance:g.lastCombat&&g.lastCombat.chance||null,damage:g.lastCombat&&g.lastCombat.damage||null}:null
       });
     }
     const live=rows.filter(x=>!x.early),avg=k=>+(live.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,live.length)).toFixed(2);
