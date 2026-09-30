@@ -1231,6 +1231,11 @@ test('V5.0 dynasty ancestors keep bounded life summaries across generations',()=
   const g=fresh(50131),p=g.player;p.ageMonths=420;p.money=300000;const r=q.createRelation('partenaire');r.affection=95;r.trust=95;r.attraction=95;r.relationshipMonths=24;p.life.partnerId=r.id;p.life.relationshipStatus='Marié';p.children=[{id:'qa-heir',name:'Héritier QA',ageMonths:220,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:80}];for(let i=0;i<25;i++)g.dynasty.ancestors.push({name:'Ancêtre '+i,generation:i});g.death={cause:'QA legacy'};q.buildHeir(p.children[0]);assert(g.version===28,'GameState version changed');assert(g.dynasty.ancestors.length<=20,'ancestor history is unbounded');const a=g.dynasty.ancestors[g.dynasty.ancestors.length-1];assert(a.legacy&&Array.isArray(a.legacy.visited)&&Array.isArray(a.legacy.signatureMoments),'life legacy snapshot missing');return g.dynasty.ancestors.length+' ancestors / generation '+g.dynasty.generation;
 });
 
+
+test('V5.0 inherited life legacy is visible without a new screen',()=>{
+  const g=fresh(50130),p=g.player;p.ageMonths=300;g.dynasty.generation=2;g.dynasty.ancestors=[{name:'Kael',generation:1,career:'Marine',rank:'Commandant',legacy:{worldRole:'Acteur majeur',chapters:[{title:'Ascension dans la Marine',kind:'career',score:54,beats:4}]}}];q.renderRelClose();const txt=document.querySelector('#familyList').textContent;assert(txt.includes('Héritage de Kael'),'ancestor legacy missing from existing family surface');assert(txt.includes('Acteur majeur'),'world role missing from legacy card');assert(txt.includes('Ascension dans la Marine'),'life chapter missing from legacy card');return txt;
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
