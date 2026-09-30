@@ -152,6 +152,7 @@ if(!app.includes('function careerLifetimeEvidence') || !app.includes('careerPath
 if(!app.includes('function legendRecognitionTick') || !app.includes("kind==='legend'") || !app.includes('Légende reconnue — ') || !app.includes('legendRecognitionTick();')) throw new Error('V5.0 legendary recognition event missing');
 if(!app.includes('delete m.goods[x.id].activity') || !app.includes('delete m.goods[x.id].lastPrice') || !app.includes('delete m.lastShockMonth') || !app.includes('w.economy.shocks.slice(0,24)')) throw new Error('V5.0 market save compaction missing');
 if(!app.includes('function generationLegacySnapshot') || !app.includes('g.dynasty.ancestors.slice(-20)') || !app.includes('legacy:legacy')) throw new Error('V5.0 bounded generational legacy missing');
+if(!app.includes('meaningfulOrg') || !app.includes('organization:meaningfulOrg?')) throw new Error('V5.0 crew-aware life chronicle missing');
 if(!html.includes('id="heirChoices"') || !app.includes('function heirCandidates') || !app.includes("data-heir")) throw new Error('V5.0 explicit heir choice missing');
 if(!app.includes('function lifeChronicle') || !app.includes('chronicle:chronicle.summary') || !app.includes("chronicle.headline")) throw new Error('V5.0 compact life chronicle payoff missing');
 if(!app.includes('function directorLegacyOpportunity') || !app.includes("'legacy-crossroads'") || !app.includes('legacyChoice') || !app.includes("embrace-legacy")) throw new Error('V5.0 generational legacy crossroads missing');
