@@ -1230,18 +1230,18 @@ function storyChoice(storyId,choiceId){
  if(story.type==='rival-challenge'&&choiceId==='decline'){var rr=storyRelation(story);if(rr){rr.rivalry=cl(rr.rivalry+3,0,100);rr.respect=cl(rr.respect-3,0,100)}return closeStory(story,'duel reporté','Tu refuses cette confrontation. Ton rival ne l’oublie pas.',false,'abandoned')}
  if(story.type==='organization-crisis'&&choiceId==='fund'){var need=story.data.cost||5000;if(game.player.money<need){story.choice='rally'}else game.player.money-=need}
  if(story.type==='relationship-opening'){
-  var dr=migrateLifeDirector(game.player),rr=storyRelation(story);dr.lastRomanceAge=game.player.ageMonths;dr.romanceOffers++;
+  var dr=migrateLifeDirector(game.player),rr=storyRelation(story);dr.lastRomanceAge=game.player.ageMonths;dr.romanceOffers++;migrateStoryEngine(game).lastStartAge=game.player.ageMonths+4;
   if(choiceId==='explore'&&rr){game.player.life.partnerId=rr.id;game.player.life.relationshipStatus='En couple';rr.type='partner';rr.role='partenaire';rr.relationshipMonths=0;rr.affection=cl(rr.affection+7,0,100);rr.trust=cl(rr.trust+5,0,100);recordLifeDirector('relationship','Relation commencée avec '+rr.name,{relationId:rr.id});return closeStory(story,'relation commencée','Votre proximité devient une relation. Le moteur continuera à faire évoluer ce lien sans te demander de l’entretenir chaque mois.',false)}
   return closeStory(story,'lien préservé','Vous restez proches sans transformer cette relation en couple.',false,'abandoned')
  }
  if(story.type==='family-future'){
-  var df=migrateLifeDirector(game.player),pr=partnerRelation();df.lastFamilyAge=game.player.ageMonths;df.familyOffers++;
+  var df=migrateLifeDirector(game.player),pr=partnerRelation();df.lastFamilyAge=game.player.ageMonths;df.familyOffers++;migrateStoryEngine(game).lastStartAge=game.player.ageMonths+4;
   if(choiceId==='commit'&&pr){game.player.life.relationshipStatus='Marié';pr.role='conjoint';pr.loyalty=cl(pr.loyalty+10,0,100);pr.trust=cl(pr.trust+7,0,100);recordLifeDirector('family','Mariage avec '+pr.name,{relationId:pr.id});checkAchievements();return closeStory(story,'mariage','Tu épouses '+pr.name+'. Cette étape devient un chapitre de ta vie plutôt qu’une tâche de menu.',false)}
   if(choiceId==='child'&&pr){var i=game.player.children.length,name=pk(PEOPLE_NAMES,'family'),child={id:'child-'+game.dynasty.generation+'-'+Math.floor(R('family')*999999)+'-'+i,name:name,ageMonths:0,birthplace:game.player.island,birthRegion:game.player.region,race:game.player.race,status:'active',bond:60+R('family')*25};game.player.children.push(child);game.player.money-=Math.min(game.player.money,2500);recordLifeDirector('family','Naissance de '+name,{childId:child.id});checkAchievements();return closeStory(story,'nouvelle génération',name+' rejoint ta famille à '+game.player.island+'.',false)}
   return closeStory(story,'étape reportée','Vous choisissez de ne pas précipiter cette étape.',false,'abandoned')
  }
  if(story.type==='career-transfer'){
-  var dm=migrateLifeDirector(game.player);dm.lastMobilityAge=game.player.ageMonths;dm.journeyOffers++;
+  var dm=migrateLifeDirector(game.player);dm.lastMobilityAge=game.player.ageMonths;dm.journeyOffers++;migrateStoryEngine(game).lastStartAge=game.player.ageMonths+4;
   if(choiceId==='accept-transfer'&&beginJourney(story.data.destination,'career-transfer'))return closeStory(story,'mutation acceptée','Tu acceptes cette nouvelle affectation et prends la mer vers '+story.data.destination+'.',false);
   recordLifeDirector('mobility','Mutation refusée vers '+story.data.destination,{destination:story.data.destination});return closeStory(story,'mutation refusée','Tu restes à '+game.player.island+' et poursuis ta trajectoire actuelle.',false,'abandoned')
  }
