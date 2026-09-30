@@ -1,3 +1,92 @@
+# ONE PIECE LIFE — V2.9 Living Missions
+
+La V2.9 vient d'un stress-test longue durée de la V2.8 : le moteur était stable, mais une carrière de vingt ans finissait encore par revoir trop souvent les mêmes missions. Cette release corrige ce problème sans ajouter d'écran, de monnaie ni de micro-gestion.
+
+## V2.9 — Living Missions
+
+### Missions métier adaptatives
+
+Le tableau de carrière peut maintenant générer des briefs adaptés à :
+
+- la faction ;
+- la spécialisation ;
+- le lieu actuel ;
+- la région ;
+- le rang ;
+- le danger local ;
+- les missions récemment acceptées.
+
+Les briefs sont déterministes tant que l'état du jeu ne change pas : ouvrir plusieurs fois le tableau ne consomme pas de RNG et ne permet pas de reroll artificiellement les propositions.
+
+Une mission acceptée est immédiatement pénalisée par le directeur de nouveauté, qui privilégie ensuite une autre combinaison de mission et de contexte.
+
+### Tableau de missions compact
+
+Le tableau reste limité à trois propositions.
+
+Lorsqu'elles existent, le moteur protège désormais trois rôles complémentaires :
+
+1. une option réellement viable ;
+2. une opportunité produite par le monde vivant ;
+3. un brief adaptatif lié au métier du personnage.
+
+Les missions statiques restent disponibles lorsqu'elles sont compétitives. Les missions de routine de V2.8 restent un filet de sécurité uniquement si aucune proposition n'atteint le seuil de viabilité.
+
+### Némésis mieux rythmées
+
+Une Némésis ne répète plus continuellement l'intention « Poursuivre sa némésis » alors qu'un duel est déjà prêt.
+
+La poursuite revient après une période de refroidissement lorsqu'une nouvelle confrontation doit réellement être préparée. Le système conserve donc la pression narrative sans transformer la rivalité en notification mensuelle.
+
+### Compatibilité
+
+La V2.9 ne crée aucune nouvelle donnée persistante obligatoire. Le **GameState reste en version interne 28** : les sauvegardes V2.8 sont directement compatibles et aucune migration artificielle n'est ajoutée.
+
+### Stress-test longue durée
+
+Le banc V2.9 simule **48 carrières de 20 ans** réparties sur six profils :
+
+- Civil / Scientifique ;
+- Civil / Navigateur ;
+- Marine / Combattant ;
+- Pirates / Duelliste ;
+- Révolutionnaires / Infiltration ;
+- Gouvernement / Renseignement.
+
+Comparaison avant / après :
+
+- répétition des titres de missions : **88 % → 37 %** ;
+- répétition immédiate : **57 % → 3 %** ;
+- survie sur l'échantillon : **88 % → 96 %** ;
+- missions recommandées provenant du monde vivant : **23 % avant refonte, 19 % après équilibrage final** ;
+- Némésis en poursuite active : **40,7 mois → 5,3 mois** sur une fenêtre de dix ans, tout en préparant un nouveau défi dans **100 %** des scénarios de contrôle ;
+- fluidité moyenne : **6,91 AVANCER/an** sur l'ensemble du stress-test.
+
+Quelques profils après équilibrage :
+
+- Civil / Scientifique : **43 %** de répétition, **0 %** de répétition immédiate ;
+- Marine / Combattant : **38 % / 10 %** ;
+- Pirates / Duelliste : **38 % / 5 %**, avec **100 %** de survie dans l'échantillon ;
+- Gouvernement / Renseignement : **27 % / 2 %**, dont **43 %** de missions recommandées directement issues du monde vivant.
+
+### QA V2.9
+
+La release finale passe **221/221 tests** avec **0 échec** via `scripts/qa-v29.mjs`.
+
+Les nouveaux garde-fous vérifient notamment :
+
+- déterminisme des briefs sans consommation de RNG ;
+- rotation après acceptation ;
+- couverture des six factions ;
+- identité de nouveauté propre aux missions adaptatives ;
+- conservation simultanée d'un brief adaptatif et d'une mission du monde vivant sur le tableau compact ;
+- arrêt des poursuites répétitives lorsqu'une Némésis a déjà préparé son défi ;
+- reprise correcte de la poursuite après cooldown.
+
+Le stress-test dédié est conservé dans `scripts/audit-v29.mjs` et exécuté automatiquement par le workflow **V2.9 Long Audit**.
+
+---
+
 # ONE PIECE LIFE — V2.8 Emergent Arcs
 
 La V2.8 transforme la mémoire causale de V2.7 en **moteur de trajectoires persistantes**. Le jeu ne se contente plus de se souvenir qu'un événement a eu lieu : il peut maintenant utiliser ce passé pour modifier les décisions du monde, les opportunités futures et la trajectoire d'un rival ou d'un équipage.
