@@ -12,11 +12,12 @@ La V5.0 part du constat post-V4.0 : le monde sait désormais vivre sans le joueu
 - Le GameState interne reste en **version 28**.
 
 ## État actuel de la V5.0
-- **Mobilité organique** : des opportunités professionnelles peuvent provoquer de vraies traversées sans passage obligatoire par le menu Monde.
+- **Mobilité organique** : des opportunités professionnelles peuvent provoquer de vraies traversées sans passage obligatoire par le menu Monde. Les destinations sont pondérées par la faction, l’ambition, l’état géopolitique, la nouveauté et les déplacements récents afin d’éviter les allers-retours artificiels.
 - **Continuité du foyer** : conjoint et distance géographique réagissent aux mutations ; les étapes familiales exigent une proximité réelle.
 - **Momentum de carrière** : réussites et échecs modifient temporairement la vitesse de progression professionnelle, puis l'effet revient vers la normale. Les promotions supérieures demandent aussi un dossier de missions crédible.
 - **Chapitres personnels** : promotions, missions majeures, rivalités, voyages et famille peuvent se regrouper en arcs de vie mémorables sans ajouter d'écran.
-- **Fluidité** : vie active ordinaire compressée en fenêtres de 4 à 6 mois ; périodes adultes calmes en 5 à 7 mois.
+- **Fluidité** : vie active ordinaire compressée en fenêtres de 4 à 6 mois ; périodes adultes réellement calmes en 5,5 à 7,5 mois. Les événements importants interrompent toujours la période immédiatement.
+- **Release gate** : GitHub Pages ne publie désormais qu’un SHA ayant réussi le QA V5.0, puis les validations statiques sont rejouées sur ce même SHA avant déploiement.
 - Les historiques V5.0 restent bornés et le GameState reste en **version 28**.
 
 ## Baseline auditée V5.0
