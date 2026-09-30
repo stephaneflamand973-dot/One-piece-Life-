@@ -6,9 +6,15 @@ on:
     branches: [main]
     paths:
       - 'app.js'
+      - 'index.html'
+      - 'styles.css'
       - 'content-v1.js'
+      - 'manifest.webmanifest'
+      - 'sw.js'
       - 'scripts/qa-v32.mjs'
       - 'scripts/audit-v32.mjs'
+      - 'scripts/validate.mjs'
+      - 'scripts/validate-content.mjs'
       - '.github/workflows/audit-v32.yml'
 
 concurrency:
