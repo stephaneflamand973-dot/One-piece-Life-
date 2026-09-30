@@ -1246,6 +1246,71 @@ test('V2.8 active arc registry remains compact',()=>{
   const g=fresh(18012),p=g.player;p.ageMonths=300;for(let i=0;i<9;i++)q.registerArcSignal('crew','crew','crew-'+i,'Crew '+i,60+i,{});assert(g.loop.arcs.length<=4,'active arcs exceeded cap');assert(g.loop.arcHistory.length>=1,'dropped arcs left no history');return g.loop.arcs.length+' active / '+g.loop.arcHistory.length+' history';
 });
 
+
+{
+  function resolveAuto(g){
+    if(g.pending){
+      const c=g.pending.choices&&g.pending.choices[0];
+      if(c&&typeof c[2]==='function')c[2]();
+      g.pending=null;
+    }
+    const st=q.awaitingStory();
+    if(st){const cs=q.storyChoices(st);if(cs.length)q.storyChoice(st.id,cs[0].id)}
+  }
+  function growToAdult(seed){
+    const g=fresh(seed),p=g.player;let clicks=0;
+    while(p.ageMonths<180&&clicks<100&&g.alive){resolveAuto(g);q.advance();clicks++}
+    if(g.pending)g.pending=null;
+    return g;
+  }
+  const factions=['Civil','Marine','Pirates','Chasseur de primes','Révolutionnaires','Gouvernement'],byFaction={};
+  for(let fi=0;fi<factions.length;fi++){
+    const faction=factions[fi],rows=[];
+    for(let n=0;n<4;n++){
+      const g=growToAdult(19000+fi*100+n),p=g.player;
+      if(!g.alive){rows.push({alive:false,early:true});continue}
+      p.factionRep[faction]=100;q.join(faction);p.focus='Auto';p.activity='Carrière';
+      let clicks=0,lastMissionAge=-999,missions=0,routine=0,worldMissions=0,recommendedChance=0,arcPeak=0;
+      const titles=[];
+      while(p.ageMonths<360&&clicks<180&&g.alive){
+        resolveAuto(g);
+        if(!g.mission&&p.ageMonths-lastMissionAge>=12){
+          const b=q.board(),pick=b.find(x=>x.recommended)||b[0];
+          if(pick){
+            missions++;titles.push(pick.title);recommendedChance+=pick.chance||0;
+            if(pick.routine)routine++;
+            if(pick.worldGenerated)worldMissions++;
+            q.startMission(pick.id);lastMissionAge=p.ageMonths;
+          }
+        }
+        q.advance();clicks++;
+        const stages=(g.loop.arcs||[]).map(a=>a.stage||0).concat((g.loop.arcHistory||[]).map(a=>a.maxStage||a.stage||0));
+        if(stages.length)arcPeak=Math.max(arcPeak,...stages);
+      }
+      rows.push({
+        alive:g.alive,years:Math.max(.01,(p.ageMonths-180)/12),clicks,missions,routine,worldMissions,
+        recommendedChance:missions?recommendedChance/missions:0,
+        uniqueTitles:new Set(titles).size,repeatRate:missions?1-new Set(titles).size/missions:0,
+        arcSeq:g.loop.arcSeq||0,activeArcs:(g.loop.arcs||[]).length,arcHistory:(g.loop.arcHistory||[]).length,arcPeak,
+        founding:(g.loop.foundingMemories||[]).length,consequences:(g.loop.consequenceHistory||[]).length,
+        relations:g.relations.length,power:q.power(),death:g.death&&g.death.cause||null
+      });
+    }
+    const live=rows.filter(x=>!x.early),avg=k=>+(live.reduce((a,x)=>a+(x[k]||0),0)/Math.max(1,live.length)).toFixed(2);
+    byFaction[faction]={
+      sample:live.length,aliveAt30:live.filter(x=>x.alive&&x.years>=14.5).length,
+      clicksPerYear:+(live.reduce((a,x)=>a+(x.clicks||0),0)/Math.max(.01,live.reduce((a,x)=>a+(x.years||0),0))).toFixed(2),
+      missions:avg('missions'),routineShare:+(live.reduce((a,x)=>a+(x.routine||0),0)/Math.max(1,live.reduce((a,x)=>a+(x.missions||0),0))).toFixed(2),
+      worldShare:+(live.reduce((a,x)=>a+(x.worldMissions||0),0)/Math.max(1,live.reduce((a,x)=>a+(x.missions||0),0))).toFixed(2),
+      avgRecommendedChance:avg('recommendedChance'),missionRepeatRate:avg('repeatRate'),
+      arcsCreated:avg('arcSeq'),arcHistory:avg('arcHistory'),arcPeak:Math.max(0,...live.map(x=>x.arcPeak||0)),
+      founding:avg('founding'),consequences:avg('consequences'),relations:avg('relations'),finalPower:avg('power'),
+      deaths:live.filter(x=>!x.alive).map(x=>x.death)
+    };
+  }
+  metrics.v281LongCareerAudit=byFaction;
+}
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
