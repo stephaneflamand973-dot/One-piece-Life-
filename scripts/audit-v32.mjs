@@ -793,6 +793,13 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
   if(pf.avgClicksPerYear>8.5)throw new Error('V4.0 pirate flow regression: '+pf.avgClicksPerYear+' clicks/year');
   if(pf.survival<.70)throw new Error('V4.0 pirate survival regression: '+pf.survival);
   const runaway=Math.max(...Object.values(lw.factionGoals).map(x=>x.avgCompleted||0));if(runaway>5)throw new Error('V4.0 collective ambition runaway: '+runaway+' completions/40y');
+  const passive=metrics.v40PlayerSagaBaseline;
+  if(passive.involved||passive.impact!==0||passive.pressureGain!==0||passive.role!=='present')throw new Error('V4.0 passive regional presence became saga participation: '+JSON.stringify(passive));
+  if((passive.presenceMonths||0)<12)throw new Error('V4.0 passive saga baseline did not exercise a full year of presence');
+  const autopilot=metrics.v40FactionAutopilot,autoProgress=Math.max(...Object.values(autopilot).map(x=>Math.abs(x.progress||0))),autoCompleted=Math.max(...Object.values(autopilot).map(x=>Math.abs(x.completed||0)));
+  if(autoProgress>0||autoCompleted>0)throw new Error('V4.0 faction ambitions progressed without causal impulses: '+JSON.stringify(autopilot));
+  const elite=metrics.v40EndgameElitePaths,elitePaths=['Pirates','Marine','Révolutionnaires','Gouvernement','Chasseur de primes','Civil'];
+  if(elitePaths.some(f=>!elite[f]||!elite[f].organic))throw new Error('V5.0 faction-diverse organic endgame path became unreachable: '+JSON.stringify(elite));
 }
 {
   const v5=metrics.v40PostReleaseAudit;
