@@ -6,8 +6,9 @@ const marker="console.log('\\nQA_METRICS '+JSON.stringify(metrics));";
 if(!base.includes(marker)) throw new Error('V2.9 audit marker not found in qa-v28.mjs');
 
 const extra=String.raw`
-function qaChoiceIndex(g,st,cs){
+function qaChoiceIndex(g,st,cs,policy){
   if(cs.length<2)return 0;
+  if(policy!=='mixed')return st.type==='career-sunset'&&((Number(g.seed)||0)%2===0)?1:0;
   let h=(Number(g.seed)||0)+Math.floor(st.createdAge||0)*17;
   const key=String(st.type||'')+':'+String(st.id||'');
   for(let i=0;i<key.length;i++)h=((h*31)+key.charCodeAt(i))|0;
@@ -17,7 +18,7 @@ function qaChoiceIndex(g,st,cs){
   if(st.type==='career-sunset'||st.type==='legacy-crossroads')return h%2;
   return 0;
 }
-function qaResolveInterruptions(g,stats){
+function qaResolveInterruptions(g,stats,policy){
   let guard=0;
   while(guard++<12){
     if(g.pending){
@@ -31,7 +32,7 @@ function qaResolveInterruptions(g,stats){
     if(st){
       const cs=q.storyChoices(st);
       if(cs.length){
-        const ix=qaChoiceIndex(g,st,cs),chosen=cs[ix]||cs[0];
+        const ix=qaChoiceIndex(g,st,cs,policy),chosen=cs[ix]||cs[0];
         if(stats){
           stats.story++;
           stats.byType[st.type]=(stats.byType[st.type]||0)+1;
@@ -72,7 +73,7 @@ function qaMissionPick(board){
   for(let i=1;i<board.length;i++)if((board[i].chance||0)>(board[best].chance||0))best=i;
   return best;
 }
-function qaLongCareer(seed,faction,spec,profile,years){
+function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline'){
   const g=fresh(seed),p=g.player;
   p.ageMonths=216;p.money=250000;p.reputation=25;p.factionRep[faction]=100;
   qaTuneProfile(p,profile);
@@ -83,7 +84,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
   let clicks=0,lastMissionAge=-999,started=0,routine=0,adaptive=0,worldGenerated=0,signature=0;
   const titles=[],guidance={},chances=[],heatSamples=[];const planCounts={},interruptions={pending:0,story:0,director:0,byType:{},choices:{}};let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
   while(p.ageMonths<target&&clicks<years*18&&g.alive){
-    qaResolveInterruptions(g,interruptions);
+    qaResolveInterruptions(g,interruptions,choicePolicy);
     const missionGap=q.careerRecord&&q.careerRecord().retired?24:10;
     if(!g.mission&&p.ageMonths-lastMissionAge>=missionGap){
       const b=q.board(),ix=qaMissionPick(b);
@@ -94,7 +95,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
       }
     }
     const plan=q.advancePlan(),planKey=plan.label||plan.key;planCounts[planKey]=(planCounts[planKey]||0)+1;heatSamples.push((p.justice&&p.justice.regionalHeat&&p.justice.regionalHeat[p.region])||0);
-    q.advance();clicks++;qaResolveInterruptions(g,interruptions);
+    q.advance();clicks++;qaResolveInterruptions(g,interruptions,choicePolicy);
     arcPeak=Math.max(arcPeak,(g.loop.arcs||[]).length);
   }
   const counts={};titles.forEach(t=>counts[t]=(counts[t]||0)+1);
@@ -107,7 +108,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
   const repeatedChapterRecords=chapterHistory.reduce((n,x)=>n+((chapterTitleCounts[x.title||'Sans titre']||0)>1?1:0),0);
   const chronicle=q.lifeChronicle(p);
   return {
-    faction,spec,profile,alive:g.alive,age:+(p.ageMonths/12).toFixed(1),years:+((p.ageMonths-start)/12).toFixed(1),
+    faction,spec,profile,choicePolicy,alive:g.alive,age:+(p.ageMonths/12).toFixed(1),years:+((p.ageMonths-start)/12).toFixed(1),
     clicks,clicksPerYear:+(clicks/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
     interruptions:interruptions.pending+interruptions.story,
     interruptionsPerYear:+((interruptions.pending+interruptions.story)/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
@@ -430,6 +431,47 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y40.organicLegendShare<.10)throw new Error('V5.0 organic legends remain effectively unreachable after 40 years: '+y40.organicLegendShare);
   if(y40.organicLegendShare>.34)throw new Error('V5.0 organic legends became too common after 40 years: '+y40.organicLegendShare);
 }
+
+{
+  const profiles=[
+    ['Civil','Scientifique','science'],
+    ['Civil','Navigateur','navigation'],
+    ['Marine','Combattant','combat'],
+    ['Pirates','Duelliste','combat'],
+    ['Révolutionnaires','Infiltration','stealth'],
+    ['Gouvernement','Renseignement','stealth']
+  ],rows=[];
+  profiles.forEach((cfg,pi)=>{for(let n=0;n<3;n++)rows.push(qaLongCareer(36100+pi*50+n,cfg[0],cfg[1],cfg[2],20,'mixed'))});
+  const choices=rows.reduce((a,x)=>{Object.entries(x.decisionChoices||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{});
+  const acceptTransfers=choices['career-transfer:accept-transfer']||0,declineTransfers=choices['career-transfer:decline-transfer']||0;
+  const exploreRomance=choices['relationship-opening:explore']||0,keepFriendship=choices['relationship-opening:friendship']||0;
+  const familyProceed=(choices['family-future:commit']||0)+(choices['family-future:child']||0),familyWait=choices['family-future:wait']||0;
+  metrics.v50MixedChoiceStress={
+    sample:rows.length,yearsTarget:20,
+    survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
+    avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+    avgInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.interruptionsPerYear,0)/rows.length).toFixed(2),
+    avgDirectorDecisionsPerYear:+(rows.reduce((a,x)=>a+x.directorDecisionsPerYear,0)/rows.length).toFixed(2),
+    avgVisitedPlaces:+(rows.reduce((a,x)=>a+(x.visited||0),0)/rows.length).toFixed(1),
+    partneredShare:+(rows.filter(x=>x.relationshipStatus!=='Célibataire').length/rows.length).toFixed(2),
+    marriedShare:+(rows.filter(x=>x.relationshipStatus==='Marié').length/rows.length).toFixed(2),
+    parentShare:+(rows.filter(x=>x.children>0).length/rows.length).toFixed(2),
+    avgChronicleHighlights:+(rows.reduce((a,x)=>a+(x.chronicleHighlights||0),0)/rows.length).toFixed(1),
+    choices,
+    mobilityAcceptanceRate:(acceptTransfers+declineTransfers)?+(acceptTransfers/(acceptTransfers+declineTransfers)).toFixed(2):0,
+    romanceExploreRate:(exploreRomance+keepFriendship)?+(exploreRomance/(exploreRomance+keepFriendship)).toFixed(2):0,
+    familyProceedRate:(familyProceed+familyWait)?+(familyProceed/(familyProceed+familyWait)).toFixed(2):0
+  };
+  const mc=metrics.v50MixedChoiceStress;
+  if((acceptTransfers<1||declineTransfers<1))throw new Error('V5.0 mixed-choice audit failed to cover both mobility branches');
+  if((exploreRomance<1||keepFriendship<1))throw new Error('V5.0 mixed-choice audit failed to cover both romance branches');
+  if((familyProceed<1||familyWait<1))throw new Error('V5.0 mixed-choice audit failed to cover both family branches');
+  if(mc.avgInterruptionsPerYear>1.2)throw new Error('V5.0 mixed-choice audit became interruption-heavy: '+mc.avgInterruptionsPerYear+'/year');
+  if(mc.survival<.80)throw new Error('V5.0 mixed-choice career survival collapsed: '+mc.survival);
+  if(mc.avgVisitedPlaces<2)throw new Error('V5.0 mixed-choice careers became geographically static: '+mc.avgVisitedPlaces+' places');
+  if(mc.avgChronicleHighlights<3)throw new Error('V5.0 mixed-choice careers stopped producing a real biography: '+mc.avgChronicleHighlights+' highlights');
+}
+
 {
   const rows=[];for(let s=0;s<24;s++)rows.push(qaLongCareer(34500+s,'Pirates','Duelliste','combat',20));
   const plans=rows.reduce((a,x)=>{Object.entries(x.planCounts||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{});
@@ -684,7 +726,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
 }));
 
 console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
-console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress,mixedDynasty:metrics.v50MixedDynastyStress}));
+console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,mixedChoices:metrics.v50MixedChoiceStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress,mixedDynasty:metrics.v50MixedDynastyStress}));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
