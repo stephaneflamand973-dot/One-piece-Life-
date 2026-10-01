@@ -8,7 +8,8 @@ const sw=fs.readFileSync('sw.js','utf8');
 
 new Function(app);
 new Function(pack);
-JSON.parse(manifest);
+const manifestData=JSON.parse(manifest);
+if(!String(manifestData.description||'').includes('V5.0') || !String(manifestData.description||'').includes('Grand Journey')) throw new Error('manifest.webmanifest does not expose V5.0 Grand Journey consistently');
 
 if(!html.includes('<title>ONE PIECE LIFE — V5.0</title>') || !html.includes('V5.0 • Grand Journey')) throw new Error('index.html does not expose V5.0 consistently');
 if(!app.includes('version:28') || !app.includes('g.version=28')) throw new Error('compatible GameState 28 migration is missing');
