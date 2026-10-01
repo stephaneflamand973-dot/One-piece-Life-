@@ -1098,6 +1098,12 @@ test('V5.0 married household follows an accepted career relocation',()=>{
   const r=q.createRelation('ami');r.npcAgeMonths=300;r.location=p.island;r.region=p.region;r.affection=82;r.trust=75;r.loyalty=55;r.relationshipMonths=20;r.type='partner';r.role='conjoint';p.life.partnerId=r.id;p.life.relationshipStatus='Marié';
   const d=q.directorTravelCandidate();assert(d,'no relocation route for household QA');assert(q.beginJourney(d,'career-transfer'),'career relocation failed to start');assert(p.travel.partnerFollows===true,'married partner did not follow relocation');p.travel.remaining=.1;p.travel.danger=0;p.travel.condition='calm';q.travel(.25);assert(p.island===d,'player did not arrive');assert(p.activity==='Carrière'&&p.situation==='Carrière','career relocation arrived in the wrong activity');assert(r.location===d&&r.region===p.region&&!r.longDistance,'household did not relocate together');return r.name+' -> '+d;
 });
+test('V5.0 manual marriage and child actions require real proximity',()=>{
+  const g=fresh(500521),p=g.player;p.ageMonths=360;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=360;r.type='partner';r.role='partenaire';r.relationshipMonths=24;r.affection=90;r.trust=90;r.loyalty=80;p.life.partnerId=r.id;p.life.relationshipStatus='En couple';
+  const away=(q.constants.PL[p.island][2]||[])[0];assert(away,'no route for family proximity fixture');r.location=away;r.region=q.infStatic(away).region;r.longDistance=true;p.life.socialActions=2;q.marryPartner();assert(p.life.relationshipStatus==='En couple','long-distance marriage bypassed proximity');const before=p.children.length;q.welcomeChild();assert(p.children.length===before,'long-distance child action bypassed proximity');
+  r.location=p.island;r.region=p.region;r.longDistance=false;p.life.socialActions=2;q.marryPartner();assert(p.life.relationshipStatus==='Marié','reunited couple could not marry');p.life.socialActions=2;q.welcomeChild();assert(p.children.length===before+1,'reunited couple could not welcome a child');return away+' blocked / reunion allowed';
+});
+
 test('V5.0 long-distance couple cannot trigger family milestones',()=>{
   const g=fresh(50031),p=g.player;p.ageMonths=330;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));q.join('Marine');
   const r=q.createRelation('ami');r.npcAgeMonths=330;r.location=p.island;r.region=p.region;r.affection=80;r.trust=68;r.loyalty=50;r.relationshipMonths=18;r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='En couple';
