@@ -1522,7 +1522,7 @@ function train(m){
 
 function relationById(id){return game.relations.find(function(r){return r.id===id})||null}
 function partnerRelation(){var id=game.player.life.partnerId;return id?relationById(id):null}
-function familyChildName(){var used=(game.player.children||[]).map(function(c){return c&&c.name}).filter(Boolean),pool=PEOPLE_NAMES.filter(function(name){return used.indexOf(name)<0});return pk(pool.length?pool:PEOPLE_NAMES,'family')}
+function familyChildName(){var p=game.player,used=(p.children||[]).map(function(c){return c&&c.name}).filter(Boolean),partner=partnerRelation();if(p.name)used.push(p.name);if(partner&&partner.name)used.push(partner.name);used=used.filter(function(name,i,a){return a.indexOf(name)===i});var pool=PEOPLE_NAMES.filter(function(name){return used.indexOf(name)<0});return pk(pool.length?pool:PEOPLE_NAMES,'family')}
 function createRelation(role){
  var p=game.player,i=game.socialSeq++,name=pk(PEOPLE_NAMES,'r'),tries=0,years=p.ageMonths/12,roles=years<6?['proche de la famille','connaissance']:years<12?['ami','rival','connaissance']:years<15?['ami','rival','connaissance','mentor']:['ami','rival','mentor','collègue','connaissance'];
  while(game.relations.some(function(r){return r.name===name})&&tries++<12)name=pk(PEOPLE_NAMES,'r');

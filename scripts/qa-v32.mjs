@@ -1348,6 +1348,11 @@ test('V5.0 administrative life remains mobile but distinctly steadier',()=>{
 
 
 
+test('V5.0 child names do not duplicate either parent',()=>{
+  const g=fresh(500530),p=g.player,names=q.peopleNames();p.name=names[0];const r=q.createRelation('ami');r.name=names[1];r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.children=names.slice(2,-1).map((name,i)=>({id:'family-used-'+i,name,ageMonths:0,status:'active'}));
+  const only=q.familyChildName();assert(only===names[names.length-1],'child generator reused a parent name despite an unused option: '+only);return only+' remained distinct';
+});
+
 test('V5.0 sibling names remain unique within one family',()=>{
   const g=fresh(500531),p=g.player,names=q.peopleNames();assert(names.length>6,'family name pool unexpectedly small');
   p.children=names.slice(0,-1).map((name,i)=>({id:'used-name-'+i,name,ageMonths:0,status:'active'}));
