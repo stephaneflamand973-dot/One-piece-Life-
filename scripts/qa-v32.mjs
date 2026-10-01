@@ -1749,6 +1749,14 @@ test('V5.0 master bounty hunter can earn the organic gate through sustained rout
 });
 
 
+test('V5.0 strong active personal chapters already count as organic legend evidence',()=>{
+  const g=fresh(50174),p=g.player;p.ageMonths=600;q.join('Gouvernement');p.rank='Directeur';const rec=q.careerRecord();rec.rank='Directeur';rec.months=360;rec.successes=30;rec.failures=2;
+  p.lifeDirector=q.defaultLifeDirector();p.lifeDirector.activeChapters=[{id:'active-legend-ch',key:'career:qa',kind:'career',title:'Mandat décisif en cours',score:52,beats:3,startedAge:560,lastAge:596}];
+  const active=q.organicLegendEvidence();assert(active.strongChapters===1,'strong active chapter was ignored by legend evidence: '+active.strongChapters);
+  p.lifeDirector.activeChapters[0].score=40;const weak=q.organicLegendEvidence();assert(weak.strongChapters===0,'weak active chapter counted as strong legend evidence');
+  return active.strongChapters+' active strong chapter';
+});
+
 test('V5.0 earned organic legend evidence survives bounded-memory rotation',()=>{
   const g=fresh(50172),p=g.player;p.ageMonths=696;q.join('Gouvernement');p.rank='Directeur';const rec=q.careerRecord();rec.rank='Directeur';rec.months=480;rec.successes=40;rec.failures=2;rec.legendDistinctions=0;rec.distinctions=0;
   p.lifeDirector=q.defaultLifeDirector();
