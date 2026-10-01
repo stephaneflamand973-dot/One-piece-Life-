@@ -1188,7 +1188,7 @@ test('V5.0 senior promotions require a credible mission record',()=>{
   const review=q.careerPerformanceReview(rec,3);assert(review.active&&!review.met,'poor senior record passed review');assert(q.evaluatePromotion()===false&&p.rank==='Expert','poor record still received promotion');return Math.round(review.successRate*100)+'% / '+Math.round(review.required*100)+'%';
 });
 test('V5.0 strong mission record unlocks the same senior promotion',()=>{
-  const g=fresh(50041),p=g.player;p.ageMonths=420;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';p.rank='Expert';rec.rank='Expert';rec.xp=1000;p.factionRep.Civil=100;Object.keys(p.stats).forEach(k=>p.stats[k]=95);Object.keys(p.skills).forEach(k=>p.skills[k]=95);rec.successes=9;rec.failures=1;rec.momentum=4;rec.recentResults=[1,1,1,1,1,1,1,1];rec.distinctions=2;
+  const g=fresh(50041),p=g.player;p.ageMonths=420;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';p.rank='Expert';rec.rank='Expert';rec.xp=1000;p.factionRep.Civil=100;Object.keys(p.stats).forEach(k=>p.stats[k]=95);Object.keys(p.skills).forEach(k=>p.skills[k]=95);rec.successes=11;rec.failures=1;rec.momentum=4;rec.recentResults=[1,1,1,1,1,1,1,1];rec.distinctions=2;
   const review=q.careerPerformanceReview(rec,3);assert(review.met,'strong senior record failed review');assert(q.evaluatePromotion()===true&&p.rank==='Maître','strong record did not promote');return 'promoted at '+Math.round(review.successRate*100)+'%';
 });
 test('V5.0 ultimate career rank requires elite lifetime performance',()=>{
