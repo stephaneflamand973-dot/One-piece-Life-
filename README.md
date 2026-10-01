@@ -1,3 +1,25 @@
+# ONE PIECE LIFE — V5.3 Living Crews & Organizations
+
+La V5.3 transforme les équipages et organisations en structures vivantes plutôt qu'en simples bonus de mission.
+
+## Living Crews & Organizations
+- La voie **Pirates** distingue désormais explicitement **rejoindre un équipage existant** et **fonder son propre équipage**.
+- Rejoindre un équipage conserve son identité, son capitaine et son lien avec le monde vivant. Le joueur commence membre puis peut monter dans la hiérarchie jusqu'à une éventuelle succession.
+- Fonder un équipage rend immédiatement le joueur **Capitaine fondateur**, mais avec moins de membres, de provisions et de cohésion au départ.
+- Un pirate ayant d'abord rejoint un pavillon peut plus tard le quitter pour **fonder son propre équipage**.
+- Les équipages autonomes possèdent maintenant un **leader, un bras droit, des membres notables, une cohésion, une génération et une mémoire interne**.
+- Les leaders peuvent disparaître ou quitter leur groupe, déclenchant une **succession persistante**.
+- Les équipages fragilisés peuvent subir des **départs** ou produire une **scission**, créant un nouvel équipage descendant qui conserve son origine.
+- Les équipages fondés par le joueur sont enregistrés dans le monde comme de vraies forces et restent reliés à sa trajectoire.
+- L'écran Monde montre le leader, la génération, la cohésion et l'origine éventuelle d'une scission sans ajouter de nouvel onglet.
+- Les systèmes de puissance et de combat de la V5.2 restent actifs.
+- Le GameState demeure en version interne **28** pour préserver les sauvegardes existantes.
+
+## Philosophie V5.3
+Un équipage n'est pas une statistique attachée au joueur. C'est une organisation avec une origine, des personnes, une succession et la possibilité de survivre à ceux qui l'ont créée.
+
+---
+
 # ONE PIECE LIFE — V5.2 Living Power World
 
 La V5.2 unifie la puissance, les styles de combat et les personnages du monde. Les adversaires importants ne sont plus de simples valeurs de difficulté : ils possèdent désormais une identité de combat persistante et apprennent de leur histoire.
