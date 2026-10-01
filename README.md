@@ -4,9 +4,10 @@ La V5.3 transforme les équipages et organisations en structures vivantes plutô
 
 ## Living Crews & Organizations
 - La voie **Pirates** distingue désormais explicitement **rejoindre un équipage existant** et **fonder son propre équipage**.
-- Rejoindre un équipage conserve son identité, son capitaine et son lien avec le monde vivant. Le joueur commence membre puis peut monter dans la hiérarchie jusqu'à une éventuelle succession.
-- Fonder un équipage rend immédiatement le joueur **Capitaine fondateur**, mais avec moins de membres, de provisions et de cohésion au départ.
-- Un pirate ayant d'abord rejoint un pavillon peut plus tard le quitter pour **fonder son propre équipage**.
+- Rejoindre un équipage ouvre désormais un **vrai choix entre plusieurs pavillons vivants** avec capitaine, région, taille, puissance et cohésion. Le joueur commence membre et peut progresser jusqu'à **Officier puis Bras droit, jamais Capitaine**.
+- Le **capitanat appartient exclusivement à la voie Fondation** : fonder un équipage rend immédiatement le joueur Capitaine fondateur, mais avec moins de membres, de provisions et de cohésion au départ.
+- Un pirate ayant d'abord rejoint un pavillon peut plus tard le quitter pour **fonder son propre équipage** ; son rang bascule alors réellement vers Capitaine.
+- Les droits dépendent du rôle : un membre participe et contribue, un officier peut encadrer l'entraînement et le recrutement, tandis qu'un capitaine fondateur contrôle aussi la composition du groupe et l'évolution du navire.
 - Les équipages autonomes possèdent maintenant un **leader, un bras droit, des membres notables, une cohésion, une génération et une mémoire interne**.
 - Les leaders peuvent disparaître ou quitter leur groupe, déclenchant une **succession persistante**.
 - Les équipages fragilisés peuvent subir des **départs** ou produire une **scission**, créant un nouvel équipage descendant qui conserve son origine.
