@@ -537,8 +537,8 @@ let postCareerRows=[],postCareerProfiles=[];
     ['Pirates','Duelliste','combat'],
     ['Révolutionnaires','Infiltration','stealth'],
     ['Gouvernement','Renseignement','stealth']
-  ],rows=[];
-  profiles.forEach((cfg,pi)=>{for(let n=0;n<3;n++)rows.push(qaLongCareer(36100+pi*50+n,cfg[0],cfg[1],cfg[2],20,'mixed'))});
+  ],rows=[],baselineRows=[];
+  profiles.forEach((cfg,pi)=>{for(let n=0;n<3;n++){const seed=36100+pi*50+n;rows.push(qaLongCareer(seed,cfg[0],cfg[1],cfg[2],20,'mixed'));baselineRows.push(qaLongCareer(seed,cfg[0],cfg[1],cfg[2],20,'baseline'))}});
   const choices=rows.reduce((a,x)=>{Object.entries(x.decisionChoices||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{});
   const acceptTransfers=choices['career-transfer:accept-transfer']||0,declineTransfers=choices['career-transfer:decline-transfer']||0;
   const exploreRomance=choices['relationship-opening:explore']||0,keepFriendship=choices['relationship-opening:friendship']||0;
@@ -559,6 +559,36 @@ let postCareerRows=[],postCareerProfiles=[];
     romanceExploreRate:(exploreRomance+keepFriendship)?+(exploreRomance/(exploreRomance+keepFriendship)).toFixed(2):0,
     familyProceedRate:(familyProceed+familyWait)?+(familyProceed/(familyProceed+familyWait)).toFixed(2):0
   };
+  const pairedAvg=(list,key)=>+(list.reduce((a,x)=>a+(x[key]||0),0)/list.length).toFixed(2);
+  const pairedShare=(list,pred)=>+(list.filter(pred).length/list.length).toFixed(2);
+  metrics.v50ChoiceConsequenceStress={
+    samplePairs:rows.length,
+    baseline:{
+      avgVisitedPlaces:pairedAvg(baselineRows,'visited'),
+      avgAcceptedMoves:pairedAvg(baselineRows,'directorJourneys'),
+      partneredShare:pairedShare(baselineRows,x=>x.relationshipStatus!=='Célibataire'),
+      marriedShare:pairedShare(baselineRows,x=>x.relationshipStatus==='Marié'),
+      parentShare:pairedShare(baselineRows,x=>x.children>0),
+      avgChronicleHighlights:pairedAvg(baselineRows,'chronicleHighlights')
+    },
+    mixed:{
+      avgVisitedPlaces:pairedAvg(rows,'visited'),
+      avgAcceptedMoves:pairedAvg(rows,'directorJourneys'),
+      partneredShare:pairedShare(rows,x=>x.relationshipStatus!=='Célibataire'),
+      marriedShare:pairedShare(rows,x=>x.relationshipStatus==='Marié'),
+      parentShare:pairedShare(rows,x=>x.children>0),
+      avgChronicleHighlights:pairedAvg(rows,'chronicleHighlights')
+    }
+  };
+  const cc=metrics.v50ChoiceConsequenceStress;
+  cc.deltas={
+    visited:+(cc.mixed.avgVisitedPlaces-cc.baseline.avgVisitedPlaces).toFixed(2),
+    acceptedMoves:+(cc.mixed.avgAcceptedMoves-cc.baseline.avgAcceptedMoves).toFixed(2),
+    partnered:+(cc.mixed.partneredShare-cc.baseline.partneredShare).toFixed(2),
+    married:+(cc.mixed.marriedShare-cc.baseline.marriedShare).toFixed(2),
+    parent:+(cc.mixed.parentShare-cc.baseline.parentShare).toFixed(2),
+    chronicleHighlights:+(cc.mixed.avgChronicleHighlights-cc.baseline.avgChronicleHighlights).toFixed(2)
+  };
   const mc=metrics.v50MixedChoiceStress;
   if((acceptTransfers<1||declineTransfers<1))throw new Error('V5.0 mixed-choice audit failed to cover both mobility branches');
   if((exploreRomance<1||keepFriendship<1))throw new Error('V5.0 mixed-choice audit failed to cover both romance branches');
@@ -567,6 +597,11 @@ let postCareerRows=[],postCareerProfiles=[];
   if(mc.survival<.80)throw new Error('V5.0 mixed-choice career survival collapsed: '+mc.survival);
   if(mc.avgVisitedPlaces<2)throw new Error('V5.0 mixed-choice careers became geographically static: '+mc.avgVisitedPlaces+' places');
   if(mc.avgChronicleHighlights<3)throw new Error('V5.0 mixed-choice careers stopped producing a real biography: '+mc.avgChronicleHighlights+' highlights');
+  if(cc.deltas.acceptedMoves>=-.35)throw new Error('V5.0 declining mobility choices no longer reduce lived relocations on paired careers: '+cc.deltas.acceptedMoves);
+  if(cc.deltas.visited>=-.25)throw new Error('V5.0 declining mobility choices no longer change the map of a life: '+cc.deltas.visited+' places');
+  if(cc.deltas.partnered>=-.05)throw new Error('V5.0 preserving friendships no longer changes long-term relationship outcomes: '+cc.deltas.partnered);
+  if(cc.deltas.parent>=-.05)throw new Error('V5.0 waiting on family choices no longer changes long-term parenthood outcomes: '+cc.deltas.parent);
+  if(cc.mixed.avgChronicleHighlights<3)throw new Error('V5.0 consequential choices damaged biography quality: '+cc.mixed.avgChronicleHighlights+' highlights');
 }
 
 
@@ -875,7 +910,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
 }));
 
 console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
-console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,mobilityProfiles:metrics.v50MobilityProfiles,mixedChoices:metrics.v50MixedChoiceStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,thirtyYearCareer:metrics.v50ThirtyYearCareer,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress,mixedDynasty:metrics.v50MixedDynastyStress}));
+console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,mobilityProfiles:metrics.v50MobilityProfiles,mixedChoices:metrics.v50MixedChoiceStress,choiceConsequences:metrics.v50ChoiceConsequenceStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,thirtyYearCareer:metrics.v50ThirtyYearCareer,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress,mixedDynasty:metrics.v50MixedDynastyStress}));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
