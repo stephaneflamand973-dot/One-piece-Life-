@@ -1937,6 +1937,22 @@ test('V5.0 life chronicle can preserve a decisive saga still in progress',()=>{
   g.world.worldState.worldSagas.unshift({id:'active-qa-saga',title:'Crise active QA',type:'power',region:p.region,status:'active',playerInvolved:true,playerRole:'responsible',playerImpact:81,months:14});
   const out=q.lifeChronicle(p);assert(out.summary.includes('Crise active QA'),'decisive active saga disappeared from life chronicle');assert(out.highlights.some(x=>x.kind==='saga'),'active saga did not become a chronicle highlight');return 'active saga preserved';
 });
+test('V5.0 organization history remains bounded across career changes',()=>{
+  const g=fresh(50165),p=g.player;p.ageMonths=420;
+  for(let i=0;i<28;i++){q.join(i%2?'Marine':'Civil');if(p.organization){p.organization.months=36+i;p.organization.successes=6;p.organization.renown=20}}
+  assert(p.organizationHistory.length<=20,'organization history is unbounded: '+p.organizationHistory.length);
+  return p.organizationHistory.length+' archived organizations';
+});
+test('V5.0 life chronicle preserves a genuinely important previous organization',()=>{
+  const g=fresh(50166),p=g.player;p.ageMonths=540;q.join('Pirates');p.organization.name='Équipage Héritage QA';p.organization.authority='leader';p.organization.playerRole='Chef';p.organization.months=96;p.organization.successes=18;p.organization.renown=72;
+  q.join('Civil');p.organization.name='Atelier récent QA';p.organization.authority='member';p.organization.playerRole='Membre';p.organization.months=3;p.organization.successes=0;p.organization.renown=0;
+  const out=q.lifeChronicle(p);assert(out.organization&&out.organization.name==='Équipage Héritage QA','important previous organization disappeared from chronicle');assert(out.organization.historical===true,'archived organization lost historical identity');assert(out.summary.includes('Équipage Héritage QA'),'previous organization missing from chronicle summary');return out.organization.name;
+});
+test('V5.0 life chronicle ignores an insignificant archived organization',()=>{
+  const g=fresh(50167),p=g.player;p.ageMonths=420;q.join('Marine');p.organization.name='Détour QA';p.organization.months=6;p.organization.successes=1;p.organization.renown=2;q.join('Civil');p.organization.authority='member';p.organization.months=2;p.organization.renown=0;p.organization.members=[];
+  const out=q.lifeChronicle(p);assert(!out.organization,'insignificant archived organization polluted chronicle');return 'minor archive omitted';
+});
+
 test('V5.0 life chronicle does not repeat a chapter as its own signature memory',()=>{
   const g=fresh(50164),p=g.player;p.ageMonths=480;q.join('Civil');
   const ch=q.signalPersonalChapter('career','Ascension QA',22,'qa-a','Civil');q.signalPersonalChapter('career','Ascension QA',24,'qa-b','Civil');q.closePersonalChapter(ch,'qa');
