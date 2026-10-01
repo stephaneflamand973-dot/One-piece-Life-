@@ -1758,6 +1758,20 @@ test('V5.0 death modal exposes every valid heir beyond five',()=>{
 });
 
 
+
+test('V5.0 inherited historical relation keeps NPC career state but resets personal counters',()=>{
+  const g=fresh(50150),p=g.player;p.ageMonths=600;
+  const r=q.createRelation('mentor');r.name='Legacy NPC QA';r.role='mentor';r.type='social';r.trust=88;r.loyalty=82;r.respect=90;r.npcAgeMonths=720;r.npcPower=78;r.npcPotential=91;r.npcSpecialty='Combat';r.npcTrajectory='Stable';r.npcAmbition='Servir sa faction';r.npcWealth=144000;r.careerLevel=5;r.npcWins=19;r.npcLosses=4;r.injuryMonths=3;r.lastIntentOutcome='Mission accomplie';r.mentorSessions=8;r.favorBalance=6;r.rivalWins=2;r.rivalLosses=1;
+  p.children=[{id:'heir-legacy-rel',name:'Héritier Relation QA',ageMonths:216,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:80}];
+  g.death={cause:'QA relation continuity'};q.buildHeir(p.children[0]);
+  const inherited=g.relations.find(x=>x.name==='Legacy NPC QA');assert(inherited&&inherited.type==='legacy','meaningful historical relation was not inherited');
+  assert(inherited.npcAgeMonths===720&&inherited.npcPower===78&&inherited.npcPotential===91,'historical NPC physical state was rerolled');
+  assert(inherited.npcWealth===144000&&inherited.careerLevel===5&&inherited.npcWins===19&&inherited.npcLosses===4,'historical NPC career state was rerolled');
+  assert(inherited.injuryMonths===3&&inherited.lastIntentOutcome==='Mission accomplie','historical NPC current state was lost');
+  assert(inherited.mentorSessions===0&&inherited.favorBalance===0&&inherited.rivalWins===0&&inherited.rivalLosses===0,'parent-specific relationship counters leaked into descendant bond');
+  return inherited.careerLevel+' / '+inherited.npcWins+'-'+inherited.npcLosses+' / personal counters reset';
+});
+
 test('V5.0 surviving parent keeps real identity and location across succession',()=>{
   const g=fresh(50148),p=g.player;p.ageMonths=600;p.money=300000;
   const partner=q.createRelation('ami');partner.name='Parent QA';partner.type='partner';partner.role='conjoint';partner.location=(q.constants.PL[p.island][2]||[])[0]||p.island;partner.region=q.infStatic(partner.location).region;partner.npcAgeMonths=588;partner.npcPower=64;partner.npcPotential=82;partner.npcSpecialty='Navigation';partner.npcTrajectory='Ascension';partner.npcAmbition='Protéger ses proches';partner.npcWealth=88000;partner.careerLevel=4;partner.memories=[{text:'Souvenir familial QA',type:'family',age:'48 ans'}];partner.affection=91;partner.trust=88;partner.loyalty=86;partner.longDistance=partner.location!==p.island;
