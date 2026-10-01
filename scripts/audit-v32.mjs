@@ -338,6 +338,8 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y40.avgVisitedPlaces<5)throw new Error('V5.0 forty-year journey remains too static: '+y40.avgVisitedPlaces+' places');
   if(y40.avgSaveKB>350||y40.maxSaveKB>450)throw new Error('V5.0 forty-year save growth regression: avg '+y40.avgSaveKB+' KB / max '+y40.maxSaveKB+' KB');
   if(y40.avgPersonalChapters<3)throw new Error('V5.0 forty-year life chapters too dormant: '+y40.avgPersonalChapters);
+  if(y40.organicLegendShare<.10)throw new Error('V5.0 organic legends remain effectively unreachable after 40 years: '+y40.organicLegendShare);
+  if(y40.organicLegendShare>.50)throw new Error('V5.0 organic legends became too common after 40 years: '+y40.organicLegendShare);
 }
 {
   const rows=[];for(let s=0;s<24;s++)rows.push(qaLongCareer(34500+s,'Pirates','Duelliste','combat',20));
