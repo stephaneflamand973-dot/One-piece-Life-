@@ -1131,7 +1131,7 @@ function directorFamilyOpportunity(){
 }
 function directorLegacyOpportunity(){
  var p=game.player,d=migrateLifeDirector(p),a=latestDynastyLegacy();if(!a||d.legacyChoice||p.ageMonths<180||p.ageMonths>480)return null;
- var lg=a.legacy||{},score=lg.recognitionScore||0,strong=(lg.chapters||[]).filter(function(x){return(x.score||0)>=45&&(x.beats||0)>=2}).length,legend=/Légende|Puissance|Pilier|Symbole|Autorité|Icône/.test(lg.worldRole||'');
+ var lg=a.legacy||{},score=lg.recognitionScore||0,chapterPool=[].concat(lg.chapters||[],lg.activeChapters||[]),strong=chapterPool.filter(function(x){return(x.score||0)>=45&&(x.beats||0)>=2}).length,legend=/Légende|Puissance|Pilier|Symbole|Autorité|Icône/.test(lg.worldRole||'');
  if(score<52&&strong<1&&!legend)return null;
  return{ancestor:a,legacy:lg,weight:Math.min(2,1+(score-50)/60+strong*.18+(legend?.25:0))}
 }
