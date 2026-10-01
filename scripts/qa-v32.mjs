@@ -1548,6 +1548,24 @@ test('V5.0 heir continuation carries only active siblings into the next generati
   return siblings.join(' / ');
 });
 
+
+test('V5.0 family view exposes only active succession candidates without preselecting one',()=>{
+  const g=fresh(50147),p=g.player;p.ageMonths=520;
+  p.children=[
+    {id:'inactive-oldest',name:'Inactive Oldest',ageMonths:300,status:'inactive',bond:99},
+    {id:'active-a',name:'Active A',ageMonths:220,status:'active',bond:70},
+    {id:'active-b',name:'Active B',ageMonths:200,status:'active',bond:85}
+  ];
+  q.renderRelClose();
+  const html=fakeElement('#familyList').innerHTML,badge=fakeElement('#familyBadge').textContent;
+  assert(html.includes('Active A')&&html.includes('Active B'),'active heirs missing from family view');
+  assert(!html.includes('Inactive Oldest'),'inactive child was displayed as a succession candidate');
+  assert(!html.includes('héritier prioritaire'),'chosen succession UI still preselected an heir');
+  assert((html.match(/candidat à la succession/g)||[]).length===2,'family view did not expose every active candidate');
+  assert(badge==='2 enfants actifs','family badge does not reflect active heirs: '+badge);
+  return badge+' / 2 candidates';
+});
+
 test('V5.0 late-career crossroads appears only after a substantial career',()=>{
   const g=fresh(50110),p=g.player;p.ageMonths=659;q.join('Marine');p.rank='Commandant';const rec=q.careerRecord();rec.rank='Commandant';rec.months=360;rec.distinctions=6;
   assert(q.careerSunsetOpportunity()===null,'late-career choice appeared before age 55');p.ageMonths=660;const opp=q.careerSunsetOpportunity();assert(opp&&opp.serviceMonths===360,'late-career choice missing after a substantial career');return Math.floor(opp.serviceMonths/12)+'y service';
