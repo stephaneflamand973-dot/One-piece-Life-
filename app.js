@@ -1562,12 +1562,19 @@ function maybeStartCareerTurnStory(){
  var turn=careerTurnCandidate();if(!turn)return false;var rec=careerRecord(),sinceTurn=p.ageMonths-(d.lastCareerTurnAge==null?-999:d.lastCareerTurnAge),strong=turn.margin>=8&&rec.months>=24,overdue=sinceTurn>=72;
  if(!strong||!overdue)return false;return!!startStory('career-turn')
 }
+function maybeStartFamilyStory(){
+ var p=game.player,eng=migrateStoryEngine(game),d=migrateLifeDirector(p),active=activeStories();if(p.travel||game.mission||awaitingStory()||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;
+ var future=directorFamilyOpportunity();if(!future)return false;var kids=(p.children||[]).filter(function(c){return c.status==='active'}).length,partner=partnerRelation();if(!partner)return false;
+ var milestone=future==='marriage'||(future==='child'&&kids===0);if(!milestone)return false;
+ var ready=future==='marriage'?(partner.relationshipMonths||0)>=14:(partner.relationshipMonths||0)>=22&&p.ageMonths-(d.lastFamilyAge==null?-999:d.lastFamilyAge)>=14;
+ if(!ready)return false;return!!startStory('family-future')
+}
 function storyTick(m){
  var p=game.player,eng=migrateStoryEngine(game),list=activeStories().slice();for(var i=0;i<list.length;i++){var story=list[i];if(story.type==='island-secret'&&p.travel&&p.travel.from===story.location){closeStory(story,'piste laissée derrière','Tu prends la mer avant d’avoir résolu ce mystère local.',true,'interrupted');continue}if(story.awaiting)continue;if(p.ageMonths>story.deadlineAge){closeStory(story,'échéance dépassée','La situation se referme avant que tu puisses aller au bout.',true);continue}if(p.ageMonths<story.nextAge)continue;
   if(story.stage===0){setStoryAwaiting(story);continue}
   if(story.stage===1)storyResolve(story)
  }
- if(!awaitingStory()&&!migrateJustice(p).detained&&!maybeStartCareerTurnStory()&&!maybeStartMobilityStory())maybeStartStory(m)
+ if(!awaitingStory()&&!migrateJustice(p).detained&&!maybeStartFamilyStory()&&!maybeStartCareerTurnStory()&&!maybeStartMobilityStory())maybeStartStory(m)
 }
 function showStoryDecision(id){
  var story=id?activeStories().find(function(s){return s.id===id}):awaitingStory();if(!story||!story.awaiting)return false;var choices=storyChoices(story).map(function(c){return[c.label,c.desc,function(){storyChoice(story.id,c.id)}]});if(!choices.length)return false;decision(story.title,storyPrompt(story),choices);return true
