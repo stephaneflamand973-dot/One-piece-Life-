@@ -69,7 +69,8 @@ function qaMissionPick(board,policy){
   if(!board.length)return -1;
   if(policy==='saga-seeker'){
     const linked=board.map((x,i)=>({x,i,linked:q.missionSagaTarget&&q.missionSagaTarget(x)})).filter(o=>o.x.worldGenerated&&o.linked);
-    const decisive=linked.filter(o=>(o.x.tier||0)>=4&&(o.x.importance||0)>=72).sort((a,b)=>(b.x.importance||0)-(a.x.importance||0)||(b.x.chance||0)-(a.x.chance||0));
+    // missionStakes() defines "Décisive" from importance >= 72; tier already contributes to importance and must not be double-gated here.
+    const decisive=linked.filter(o=>(o.x.importance||0)>=72).sort((a,b)=>(b.x.importance||0)-(a.x.importance||0)||(b.x.chance||0)-(a.x.chance||0));
     if(decisive.length)return decisive[0].i;
     const continuity=linked.filter(o=>o.x.sourceType==='saga'||(o.x.importance||0)>=58).sort((a,b)=>(b.x.importance||0)-(a.x.importance||0)||(b.x.chance||0)-(a.x.chance||0));
     if(continuity.length)return continuity[0].i;
@@ -96,11 +97,11 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
     const missionGap=q.careerRecord&&q.careerRecord().retired?24:10;
     if(!g.mission&&p.ageMonths-lastMissionAge>=missionGap){
       const b=q.board();
-      b.forEach(opt=>{if(opt.worldGenerated){const linked=q.missionSagaTarget&&q.missionSagaTarget(opt);if(linked){sagaLinkedOffers++;maxSagaLinkedOfferImportance=Math.max(maxSagaLinkedOfferImportance,opt.importance||0);if((opt.importance||0)>=72&&(opt.tier||0)>=4)sagaLinkedDecisiveOffers++;else if((opt.importance||0)>=58)sagaLinkedExceptionalOffers++}}});
+      b.forEach(opt=>{if(opt.worldGenerated){const linked=q.missionSagaTarget&&q.missionSagaTarget(opt);if(linked){sagaLinkedOffers++;maxSagaLinkedOfferImportance=Math.max(maxSagaLinkedOfferImportance,opt.importance||0);if((opt.importance||0)>=72)sagaLinkedDecisiveOffers++;else if((opt.importance||0)>=58)sagaLinkedExceptionalOffers++}}});
       const ix=qaMissionPick(b,choicePolicy);
       if(ix>=0){
         const m=b[ix];titles.push(m.title);started++;if(m.routine)routine++;if(m.adaptive)adaptive++;if(m.worldGenerated)worldGenerated++;if(m.signature)signature++;
-        if(m.worldGenerated){const linked=q.missionSagaTarget&&q.missionSagaTarget(m);if(linked){sagaLinkedMissions++;maxSagaLinkedImportance=Math.max(maxSagaLinkedImportance,m.importance||0);if((m.importance||0)>=72&&(m.tier||0)>=4)sagaLinkedDecisiveCandidates++;else if((m.importance||0)>=58)sagaLinkedExceptionalCandidates++}}
+        if(m.worldGenerated){const linked=q.missionSagaTarget&&q.missionSagaTarget(m);if(linked){sagaLinkedMissions++;maxSagaLinkedImportance=Math.max(maxSagaLinkedImportance,m.importance||0);if((m.importance||0)>=72)sagaLinkedDecisiveCandidates++;else if((m.importance||0)>=58)sagaLinkedExceptionalCandidates++}}
         guidance[m.guidance]=(guidance[m.guidance]||0)+1;chances.push(m.chance||0);
         q.startMission(ix);lastMissionAge=p.ageMonths;
       }
