@@ -1133,6 +1133,18 @@ function directorMobilityTiming(){
  if(p.faction==='Civil'&&sp==='Scientifique'){floor+=2;overdue+=4}
  return{floor:cl(floor,18,34),overdue:cl(overdue,34,60)}
 }
+function directorMobilityPriority(){
+ var p=game.player,d=migrateLifeDirector(p),timing=directorMobilityTiming(),elapsed=p.ageMonths-(d.lastMobilityAge||-999),sp=p.specialization||'';
+ if(elapsed<timing.floor)return 0;
+ var span=Math.max(1,timing.overdue-timing.floor),progress=cl((elapsed-timing.floor)/span,0,1),bonus=0;
+ if(sp==='Navigateur'||sp==='Navigation')bonus+=.16;
+ if(p.faction==='Pirates')bonus+=.10;
+ else if(p.faction==='Chasseur de primes'||p.faction==='Révolutionnaires')bonus+=.04;
+ if(p.ambition==='Explorer le monde')bonus+=.16;
+ if(p.faction==='Gouvernement'&&sp==='Administration')bonus-=.08;
+ if(p.faction==='Civil'&&sp==='Scientifique')bonus-=.06;
+ return cl(.18+progress*.42+bonus,.08,.86)
+}
 function directorTravelCandidate(){
  var p=game.player,d=migrateLifeDirector(p),timing=directorMobilityTiming(),partner=partnerRelation(),routes=(PL[p.island]&&PL[p.island][2]||[]).filter(function(n){return req(n)[0]});
  if(careerRecord().retired||!routes.length||p.travel||p.ageMonths-d.lastMobilityAge<timing.floor)return null;
@@ -1250,12 +1262,13 @@ function startStory(type){
 }
 function maybeStartStory(m){
  var p=game.player,eng=migrateStoryEngine(game),active=activeStories();if(p.ageMonths<72||p.travel||game.mission||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;var types=storyEligibleTypes();if(!types.length)return false;var chance=cl(.025+.035*m+(active.length?0:.025),.03,.18);if(R('story')>chance)return false;
- var family=types.find(function(x){return x.id==='family-future'}),romance=types.find(function(x){return x.id==='relationship-opening'}),legacy=types.find(function(x){return x.id==='legacy-crossroads'}),sunset=types.find(function(x){return x.id==='career-sunset'}),transfer=types.find(function(x){return x.id==='career-transfer'}),turn=types.find(function(x){return x.id==='career-turn'}),director=migrateLifeDirector(p),overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=directorMobilityTiming().overdue),overdueTurn=!!(turn&&p.ageMonths-(director.lastCareerTurnAge||-999)>=72),chosen=null;
+ var family=types.find(function(x){return x.id==='family-future'}),romance=types.find(function(x){return x.id==='relationship-opening'}),legacy=types.find(function(x){return x.id==='legacy-crossroads'}),sunset=types.find(function(x){return x.id==='career-sunset'}),transfer=types.find(function(x){return x.id==='career-transfer'}),turn=types.find(function(x){return x.id==='career-turn'}),director=migrateLifeDirector(p),mobilityTiming=directorMobilityTiming(),mobilityPriority=transfer?directorMobilityPriority():0,overdueTransfer=!!(transfer&&p.ageMonths-(director.lastMobilityAge||-999)>=mobilityTiming.overdue),earlyMobileTransfer=!!(transfer&&!overdueTransfer&&mobilityTiming.floor<27&&mobilityPriority>=.5),overdueTurn=!!(turn&&p.ageMonths-(director.lastCareerTurnAge||-999)>=72),chosen=null;
  if(legacy&&p.ageMonths>=216&&R('story')<.72)chosen='legacy-crossroads';
  else if(family&&R('story')<.68)chosen='family-future';
  else if(sunset&&p.ageMonths>=720&&R('story')<.80)chosen='career-sunset';
  else if(overdueTurn&&R('story')<.82)chosen='career-turn';
  else if(overdueTransfer&&R('story')<.76)chosen='career-transfer';
+ else if(earlyMobileTransfer&&R('story')<mobilityPriority)chosen='career-transfer';
  else if(romance&&R('story')<.68)chosen='relationship-opening';
  else chosen=pickStoryType(types);
  return!!startStory(chosen)
