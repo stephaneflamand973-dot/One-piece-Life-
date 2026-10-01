@@ -1126,15 +1126,17 @@ function directorTravelContext(name){
  return{score:score,reason:reason,controller:t.controller,stability:t.stability||0,region:info.region,danger:info.danger,fresh:fresh,backtrackPenalty:backtrackPenalty}
 }
 function directorMobilityTiming(){
- var p=game.player,floor=27,overdue=54,sp=p.specialization||'';
- if(sp==='Navigateur'||sp==='Navigation'){floor-=4;overdue-=8}
+ var p=game.player,floor=27,overdue=54,sp=p.specialization||'',navigator=(sp==='Navigateur'||sp==='Navigation'),deepExplorer=false;
+ if(navigator){floor-=4;overdue-=8}
  if(p.faction==='Pirates'){floor-=3;overdue-=5}
  else if(p.faction==='Chasseur de primes'||p.faction==='Révolutionnaires'){floor-=1;overdue-=3}
  else if(p.faction==='Gouvernement'&&sp==='Administration'){floor+=3;overdue+=6}
  if(p.ambition==='Explorer le monde'){floor-=3;overdue-=6}
  else if(p.ambition==='Faire fortune'&&sp==='Marchand'){floor-=1;overdue-=2}
  if(p.faction==='Civil'&&sp==='Scientifique'){floor+=2;overdue+=4}
- return{floor:cl(floor,18,34),overdue:cl(overdue,34,60)}
+ deepExplorer=p.faction==='Pirates'&&navigator&&p.ambition==='Explorer le monde';
+ if(deepExplorer){floor-=2;overdue-=3}
+ return{floor:cl(floor,deepExplorer?16:18,34),overdue:cl(overdue,deepExplorer?32:34,60)}
 }
 function directorMobilityPriority(){
  var p=game.player,d=migrateLifeDirector(p),timing=directorMobilityTiming(),elapsed=p.ageMonths-(d.lastMobilityAge||-999),sp=p.specialization||'';

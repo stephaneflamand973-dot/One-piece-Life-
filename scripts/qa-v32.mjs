@@ -1268,7 +1268,7 @@ test('V5.0 pirate navigator receives a genuinely mobile cadence',()=>{
   const g=fresh(50055),p=g.player;p.ageMonths=300;
   q.join('Pirates');p.specialization='Navigateur';q.careerRecord().specialization='Navigateur';p.ambition='Explorer le monde';
   const timing=q.directorMobilityTiming();
-  assert(timing.floor<=20&&timing.overdue<=36,'pirate navigator remains too static: '+timing.floor+'/'+timing.overdue);
+  assert(timing.floor<=16&&timing.overdue<=32,'pirate navigator remains too static: '+timing.floor+'/'+timing.overdue);
   return timing.floor+'/'+timing.overdue+' months';
 });
 test('V5.0 administrative life remains mobile but distinctly steadier',()=>{
