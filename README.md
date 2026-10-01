@@ -1,19 +1,22 @@
 # ONE PIECE LIFE — V5.1 Narrative Convergence
 
-La V5.1 fait converger les systèmes déjà construits au lieu d'ajouter du micro-management.
+La V5.1 fait converger les systèmes déjà construits au lieu d'ajouter du micro-management. La Phase II transforme maintenant ces convergences en histoires causales capables d'évoluer sur plusieurs décisions.
 
-## Narrative Director
-- L'écran **Vie** affiche désormais au maximum deux **fronts narratifs prioritaires** : mission, saga mondiale, rivalité, relation, décision ou chapitre personnel.
-- Le moteur détecte les convergences plausibles entre ces fronts sans forcer artificiellement le joueur à devenir le centre du monde.
-- Une mission reliée à une saga active reçoit un bonus de pertinence dans le tableau de carrière, sans contourner les contraintes de risque, de rang ou de spécialisation.
-- Une saga régionale sous forte pression peut maintenant proposer une **porte d'entrée professionnelle** même avant la première intervention causale du joueur, à condition que sa carrière soit suffisamment avancée.
-- Les missions du monde vivant alimentent des **chapitres Monde** distincts des chapitres Carrière afin que les biographies longues reflètent mieux guerres, conflits et bouleversements vécus.
-- Les missions affichent **fil prioritaire** lorsqu'elles prolongent réellement un front narratif actif.
-- Aucun nouvel onglet, aucune nouvelle ressource et aucune nouvelle jauge de gestion ne sont ajoutés.
-- Le GameState reste en version interne **28** pour préserver les sauvegardes V5.0.
+## Narrative Director — Phase II
+- L'écran **Vie** affiche toujours au maximum deux **fronts narratifs prioritaires**, mais le moteur construit maintenant un **graphe causal** entre mission, saga mondiale, carrière, organisation, rivalité, relation, décision et chapitres personnels.
+- Les croisements crédibles peuvent devenir de véritables **arcs de convergence multi-étapes** : première décision, réaction du monde, complication, seconde décision et conséquence durable.
+- Une **mémoire causale persistante** conserve les missions, combats, relations et convergences marquantes. Un ancien choix peut donc redevenir pertinent plusieurs années plus tard sans créer une nouvelle jauge à gérer.
+- Les PNJ non canoniques gagnent en autonomie : certains peuvent quitter leur faction ou fonder leur propre groupe lorsqu'une trajectoire crédible le permet.
+- Les relations peuvent changer de nature avec le temps : connaissance vers allié durable, mentor vers pair reconnu, rivalité vers rivalité respectueuse ou némésis respectée.
+- L'expérience de combat génère désormais une **signature émergente**. Matchups répétés, terrains maîtrisés, exploits et expérience peuvent créer des traits qui ont un effet mécanique réel sur les futurs affrontements.
+- Les enfants développent avant la succession un tempérament, une vocation, un style préféré et un niveau de développement. La génération suivante hérite donc d'une personne déjà connue plutôt que d'un profil créé au décès.
+- Les missions reliées à une saga conservent une priorité narrative mesurée : elles deviennent plus pertinentes sans contourner risque, rang, spécialisation ou continuité causale.
+- Les audits continuent de mesurer la variété des trajectoires et biographies afin que des profils de carrière similaires ne produisent pas systématiquement la même vie.
+- Aucun nouvel onglet, aucune nouvelle monnaie et aucune boucle de micro-management ne sont ajoutés.
+- Le GameState reste en version interne **28** pour préserver les sauvegardes V5.0/V5.1.
 
 ## Philosophie V5.1
-Le monde produit les situations. La vie du personnage produit les attaches. Le Narrative Director cherche seulement les croisements crédibles entre les deux.
+Le monde produit les situations. La vie du personnage produit les attaches. Le Narrative Director ne se contente plus de voir les croisements : il laisse désormais leurs conséquences fabriquer une histoire propre à chaque sauvegarde.
 
 ---
 
