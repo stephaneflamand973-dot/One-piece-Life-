@@ -382,6 +382,51 @@ let postCareerRows=[],postCareerProfiles=[];
 }
 
 
+
+{
+  const profiles=[
+    ['Civil','Scientifique','science',36500],
+    ['Marine','Combattant','combat',36540],
+    ['Pirates','Duelliste','combat',36580],
+    ['Chasseur de primes','Traqueur','combat',36620],
+    ['Révolutionnaires','Infiltration','stealth',36660],
+    ['Gouvernement','Renseignement','stealth',36700]
+  ];
+  const rows=[];
+  profiles.forEach(cfg=>{for(let n=0;n<2;n++)rows.push(qaLongCareer(cfg[3]+n,cfg[0],cfg[1],cfg[2],20))});
+  const avg=k=>+(rows.reduce((a,x)=>a+(x[k]||0),0)/rows.length).toFixed(1);
+  metrics.v50TwentyYearCareer={
+    sample:rows.length,yearsTarget:20,
+    survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
+    avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+    avgInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.interruptionsPerYear,0)/rows.length).toFixed(2),
+    avgDirectorDecisionsPerYear:+(rows.reduce((a,x)=>a+x.directorDecisionsPerYear,0)/rows.length).toFixed(2),
+    avgVisitedPlaces:avg('visited'),
+    avgPersonalChapters:avg('personalChapters'),
+    avgChronicleHighlights:avg('chronicleHighlights'),
+    avgRecognition:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.score||0),0)/rows.length).toFixed(1),
+    organicLegendCount:rows.filter(x=>x.endgame&&x.endgame.organic).length,
+    organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
+    nearOrganicLegendShare:+(rows.filter(x=>(x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0)>=35).length/rows.length).toFixed(2),
+    survivalByFaction:profiles.reduce((out,cfg)=>{const rs=rows.filter(x=>x.faction===cfg[0]);out[cfg[0]]=+(rs.filter(x=>x.alive).length/Math.max(1,rs.length)).toFixed(2);return out},{}),
+    profiles:rows.map(x=>({
+      faction:x.faction,spec:x.spec,alive:x.alive,rank:x.finalRank,visited:x.visited,chapters:x.personalChapters,
+      recognition:x.recognition&&x.recognition.score||0,role:x.recognition&&x.recognition.role||null,
+      organicQualified:!!(x.recognition&&x.recognition.organicLegendQualified),
+      organicEvidence:x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0
+    }))
+  };
+  const y20=metrics.v50TwentyYearCareer;
+  console.log('V50_20Y_PRE_GATE '+JSON.stringify(y20));
+  if(Object.keys(y20.survivalByFaction||{}).length!==6)throw new Error('V5.0 twenty-year endgame matrix lost faction coverage');
+  if(y20.avgClicksPerYear>6.5)throw new Error('V5.0 twenty-year flow regression: '+y20.avgClicksPerYear+' clicks/year');
+  if(y20.avgInterruptionsPerYear>1.2)throw new Error('V5.0 twenty-year interruption spam: '+y20.avgInterruptionsPerYear+'/year');
+  if(y20.survival<.80)throw new Error('V5.0 twenty-year survival collapse: '+y20.survival);
+  if(y20.avgVisitedPlaces<2.5)throw new Error('V5.0 twenty-year journey remains too static: '+y20.avgVisitedPlaces+' places');
+  if(y20.organicLegendShare>.17)throw new Error('V5.0 organic legends became too common after only 20 years: '+y20.organicLegendShare);
+}
+
+
 {
   const profiles=[
     ['Civil','Scientifique','science',36700],
@@ -929,7 +974,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
 }));
 
 console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
-console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,mobilityProfiles:metrics.v50MobilityProfiles,mixedChoices:metrics.v50MixedChoiceStress,choiceConsequences:metrics.v50ChoiceConsequenceStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,thirtyYearCareer:metrics.v50ThirtyYearCareer,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress,mixedDynasty:metrics.v50MixedDynastyStress}));
+console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,mobilityProfiles:metrics.v50MobilityProfiles,mixedChoices:metrics.v50MixedChoiceStress,choiceConsequences:metrics.v50ChoiceConsequenceStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,twentyYearCareer:metrics.v50TwentyYearCareer,thirtyYearCareer:metrics.v50ThirtyYearCareer,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress,mixedDynasty:metrics.v50MixedDynastyStress}));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
