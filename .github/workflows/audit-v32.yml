@@ -11,6 +11,9 @@ on:
       - 'scripts/qa-v32.mjs'
       - 'scripts/audit-v32.mjs'
       - '.github/workflows/audit-v32.yml'
+      - '.github/workflows/qa.yml'
+      - '.github/workflows/validate.yml'
+      - '.github/workflows/pages.yml'
 
 concurrency:
   group: v5-long-audit-${{ github.ref }}

@@ -14,7 +14,11 @@ on:
       - 'scripts/validate.mjs'
       - 'scripts/validate-content.mjs'
       - 'scripts/qa-v32.mjs'
+      - 'scripts/audit-v32.mjs'
       - '.github/workflows/validate.yml'
+      - '.github/workflows/qa.yml'
+      - '.github/workflows/audit-v32.yml'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 concurrency:

@@ -35,6 +35,8 @@ jobs:
         run: node scripts/validate.mjs
       - name: Validate content pack
         run: node scripts/validate-content.mjs
+      - name: Run full V5.0 QA before deploy
+        run: node scripts/qa-v32.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload validated static site

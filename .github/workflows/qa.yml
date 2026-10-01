@@ -8,7 +8,11 @@ on:
       - 'index.html'
       - 'content-v1.js'
       - 'scripts/qa-v32.mjs'
+      - 'scripts/audit-v32.mjs'
       - '.github/workflows/qa.yml'
+      - '.github/workflows/audit-v32.yml'
+      - '.github/workflows/validate.yml'
+      - '.github/workflows/pages.yml'
   pull_request:
     branches: [main]
     paths:
@@ -16,7 +20,11 @@ on:
       - 'index.html'
       - 'content-v1.js'
       - 'scripts/qa-v32.mjs'
+      - 'scripts/audit-v32.mjs'
       - '.github/workflows/qa.yml'
+      - '.github/workflows/audit-v32.yml'
+      - '.github/workflows/validate.yml'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 concurrency:
