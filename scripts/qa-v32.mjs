@@ -3103,6 +3103,11 @@ test('V5.3 joining pirates offers a real choice of living crews',()=>{
  const chosen=cs[1],choice=g.pending.choices.find(x=>x[0]===chosen.name);assert(choice,'chosen crew not surfaced');choice[2]();g.pending=null;assert(p.organization.worldCrewId===chosen.id,'player did not join selected crew');assert(p.organization.name===chosen.name,'selected crew identity lost');return offered.length+' crews / '+chosen.name;
 });
 
+test('V5.3 joining a large crew never collapses its world-scale membership',()=>{
+ const g=fresh(54010),p=g.player;p.ageMonths=240;const c=q.pirateCrewCandidates(g,p,4)[0];assert(c,'no crew');c.members=30;const beforePower=c.power;q.join('Pirates','Novice',{pirateMode:'joined',worldCrew:c});q.syncPlayerPirateCrewWorld();
+ assert(c.members>=30,'joining collapsed crew size to '+c.members);assert(Math.abs(c.power-beforePower)<3,'joining rewrote autonomous crew power too aggressively: '+beforePower+' -> '+c.power);return c.members+' members / power '+beforePower.toFixed(1)+' → '+c.power.toFixed(1);
+});
+
 test('V5.3 joined pirate career is hard-capped at Bras droit',()=>{
  const g=fresh(54006),p=g.player;p.ageMonths=300;p.reputation=100;p.factionRep.Pirates=100;const wc=q.pirateCrewCandidate(g,p);q.join('Pirates','Novice',{pirateMode:'joined',worldCrew:wc});const rec=q.careerRecord();
  p.rank='Bras droit';rec.rank='Bras droit';rec.xp=5000;q.syncOrganizationRole();
