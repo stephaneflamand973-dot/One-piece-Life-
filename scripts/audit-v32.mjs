@@ -259,7 +259,7 @@ let postCareerRows=[],postCareerProfiles=[];
     const avg=k=>+(rows.reduce((a,x)=>a+(x[k]||0),0)/rows.length).toFixed(1);
     const ordered=k=>rows.map(x=>x[k]||0).sort((a,b)=>a-b);
     const median=k=>{const a=ordered(k);return a.length?+a[Math.floor(a.length/2)].toFixed(1):0};
-    const rankSpread={};profiles.forEach(cfg=>{const key=cfg[0]+' / '+cfg[1],rs=rows.filter(x=>x.faction===cfg[0]&&x.spec===cfg[1]);rankSpread[key]=rs.reduce((a,x)=>{a[x.finalRank]=(a[x.finalRank]||0)+1;return a},{})});const uniformRankProfiles=profiles.filter(cfg=>Object.keys(rankSpread[cfg[0]+' / '+cfg[1]]||{}).length===1).length;
+    const rankSpread={},lifeTrajectorySpread={};profiles.forEach(cfg=>{const key=cfg[0]+' / '+cfg[1],rs=rows.filter(x=>x.faction===cfg[0]&&x.spec===cfg[1]);rankSpread[key]=rs.reduce((a,x)=>{a[x.finalRank]=(a[x.finalRank]||0)+1;return a},{});lifeTrajectorySpread[key]=rs.reduce((a,x)=>{const household=(x.relationshipStatus||'Célibataire')+'|kids:'+(x.children>=2?'2+':x.children||0),mobility=(x.visited||0)>=6?'6+':(x.visited||0)>=4?'4-5':'0-3',chapters=(x.personalChapters||0)>=7?'7+':(x.personalChapters||0)>=4?'4-6':'0-3',role=x.recognition&&x.recognition.role||'none',sig=[x.finalRank||'',household,mobility,chapters,role,x.organizationLeader?'leader':'member'].join('|');a[sig]=(a[sig]||0)+1;return a},{})});const uniformRankProfiles=profiles.filter(cfg=>Object.keys(rankSpread[cfg[0]+' / '+cfg[1]]||{}).length===1).length;
     metrics.v40PostReleaseAudit={
       sample:rows.length,yearsTarget:20,
       career:{
@@ -271,6 +271,9 @@ let postCareerRows=[],postCareerProfiles=[];
         avgCareerHistory:avg('careerHistory'),
         avgRankVariety:+(profiles.reduce((a,cfg)=>{const key=cfg[0]+' / '+cfg[1];return a+Object.keys(rankSpread[key]||{}).length},0)/profiles.length).toFixed(2),
         uniformRankProfiles:uniformRankProfiles,
+        avgLifeTrajectoryVariety:+(profiles.reduce((a,cfg)=>{const key=cfg[0]+' / '+cfg[1];return a+Object.keys(lifeTrajectorySpread[key]||{}).length},0)/profiles.length).toFixed(2),
+        minLifeTrajectoryVariety:Math.min(...profiles.map(cfg=>Object.keys(lifeTrajectorySpread[cfg[0]+' / '+cfg[1]]||{}).length)),
+        lifeTrajectorySpread:lifeTrajectorySpread,
         avgFinalMomentum:avg('careerMomentum'),
         avgMissionSuccessRate:+(rows.reduce((a,x)=>a+(x.careerSuccessRate||0),0)/rows.length).toFixed(2),
         avgRecentMissionRate:+(rows.reduce((a,x)=>a+(x.recentMissionRate||0),0)/rows.length).toFixed(2),
