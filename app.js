@@ -1411,6 +1411,14 @@ function storyChoice(storyId,choiceId){
  }
  story.stage=1;story.nextAge=game.player.ageMonths+1+R('story')*3;story.deadlineAge=Math.max(story.deadlineAge,story.nextAge+4);story.lastBeat='Conséquence en attente';story.summary='Ta décision est prise. Il faut maintenant laisser la situation évoluer.';tl('Choix — '+story.title,storyChoices(story).find(function(x){return x.id===choiceId})?.label||choiceId);return true
 }
+function maybeStartMobilityStory(){
+ var p=game.player,eng=migrateStoryEngine(game),d=migrateLifeDirector(p),active=activeStories();
+ if(p.ageMonths<216||p.career==='Aucune'||p.travel||game.mission||awaitingStory()||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;
+ var destination=directorTravelCandidate();if(!destination)return false;
+ var timing=directorMobilityTiming(),elapsed=p.ageMonths-(d.lastMobilityAge==null?-999:d.lastMobilityAge),priority=directorMobilityPriority();
+ if(elapsed<timing.overdue||priority<.68)return false;
+ return!!startStory('career-transfer')
+}
 function maybeStartCareerTurnStory(){
  var p=game.player,eng=migrateStoryEngine(game),d=migrateLifeDirector(p),active=activeStories();if(p.travel||game.mission||awaitingStory()||active.length>=2||p.ageMonths-eng.lastStartAge<4)return false;
  var turn=careerTurnCandidate();if(!turn)return false;var rec=careerRecord(),sinceTurn=p.ageMonths-(d.lastCareerTurnAge==null?-999:d.lastCareerTurnAge),strong=turn.margin>=8&&rec.months>=24,overdue=sinceTurn>=72;
@@ -1421,7 +1429,7 @@ function storyTick(m){
   if(story.stage===0){setStoryAwaiting(story);continue}
   if(story.stage===1)storyResolve(story)
  }
- if(!awaitingStory()&&!migrateJustice(p).detained&&!maybeStartCareerTurnStory())maybeStartStory(m)
+ if(!awaitingStory()&&!migrateJustice(p).detained&&!maybeStartCareerTurnStory()&&!maybeStartMobilityStory())maybeStartStory(m)
 }
 function showStoryDecision(id){
  var story=id?activeStories().find(function(s){return s.id===id}):awaitingStory();if(!story||!story.awaiting)return false;var choices=storyChoices(story).map(function(c){return[c.label,c.desc,function(){storyChoice(story.id,c.id)}]});if(!choices.length)return false;decision(story.title,storyPrompt(story),choices);return true
