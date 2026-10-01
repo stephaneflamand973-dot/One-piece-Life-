@@ -1937,7 +1937,11 @@ test('V5.0 succession never locks the descendant into the parent career',()=>{
   assert(g.player.rank==='Sans carrière','adult descendant did not restart without a rank');
   const ancestor=g.dynasty.ancestors[g.dynasty.ancestors.length-1];
   assert(ancestor&&ancestor.career==='Marine'&&ancestor.rank==='Commandant','parent career was not preserved in dynasty history');
-  return ancestor.career+' '+ancestor.rank+' -> '+g.player.career;
+  const loaded=q.migrate(JSON.parse(JSON.stringify(g)));
+  assert(loaded.version===28,'succession reload changed GameState version');
+  assert(loaded.player.career==='Aucune'&&loaded.player.faction==='Civil'&&loaded.player.specialization===null,'save migration reintroduced the parent career');
+  assert(Object.keys(loaded.player.careerRecords||{}).length===0&&(loaded.player.careerHistory||[]).length===0,'save migration restored parent career records');
+  return ancestor.career+' '+ancestor.rank+' -> '+loaded.player.career+' after reload';
 });
 
 test('V5.0 succession starts a fresh personal story history',()=>{
