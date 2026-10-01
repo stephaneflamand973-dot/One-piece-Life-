@@ -1961,6 +1961,16 @@ test('V5.0 death succession exposes every active heir instead of forcing the eld
 });
 
 
+test('V5.0 canonical partner death clears the household state and survives in the chronicle',()=>{
+  const g=fresh(501579),p=g.player;p.ageMonths=600;const a=g.world.actors.find(x=>x.status==='active');assert(a,'no canonical actor fixture');
+  const r=q.bondCanonicalActor(a,'QA partner');r.type='partner';r.role='partenaire';r.relationshipMonths=48;r.affection=88;r.trust=84;p.life.partnerId=r.id;p.life.relationshipStatus='Marié';
+  a.status='dead';q.npcTick(1);assert(p.life.partnerId===null&&p.life.relationshipStatus==='En deuil','canonical partner death left a stale active household');
+  const out=q.lifeChronicle(p);assert(out.pastPartner===r.name&&out.summary.includes(r.name),'canonical bereavement disappeared from life chronicle');return r.name+' preserved after death';
+});
+test('V5.0 stale dead partner pointers self-heal on legacy saves',()=>{
+  const g=fresh(501578),p=g.player;const r=q.createRelation('ami');r.status='dead';r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='Marié';
+  assert(q.partnerRelation()===null,'dead partner remained the active partner');assert(p.life.partnerId===null&&p.life.relationshipStatus==='En deuil','stale dead partner state was not repaired');return 'legacy household repaired';
+});
 test('V5.0 life chronicle preserves a long-term partner after bereavement',()=>{
   const g=fresh(50158),p=g.player;p.ageMonths=600;const r=q.createRelation('ami');r.name='Partenaire disparu QA';r.type='partner';r.role='partenaire';r.status='dead';r.relationshipMonths=144;r.trust=88;r.affection=91;p.life.partnerId=null;p.life.relationshipStatus='En deuil';
   const out=q.lifeChronicle(p);assert(out.partner===null&&out.pastPartner==='Partenaire disparu QA','chronicle lost current/past partner distinction');assert(out.summary.includes('Partenaire disparu QA'),'long-term deceased partner disappeared from life chronicle');assert(out.highlights.some(x=>x.kind==='family'),'bereavement lost its family highlight');return out.summary;

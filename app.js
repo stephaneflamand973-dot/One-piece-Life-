@@ -561,7 +561,7 @@ function npcTick(m){
  var p=game.player;
  npcSocialTick(m);game.relations.forEach(function(r){
   r=normalizeRelation(game,r,0);if(r.status==='dead')return;r.npcAgeMonths+=m;
-  if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a){var was=r.status;r.faction=a.faction;r.region=a.region;r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';if(was!=='dead'&&r.status==='dead')addRelationMemory(r,'Sa trajectoire s’achève dans le monde vivant.','death')}return}
+  if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a){var was=r.status;r.faction=a.faction;r.region=a.region;r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';if(was!=='dead'&&r.status==='dead'){addRelationMemory(r,'Sa trajectoire s’achève dans le monde vivant.','death');if(r.id===p.life.partnerId){p.life.partnerId=null;p.life.relationshipStatus='En deuil';tl('Deuil',r.name+' est décédé. Ta vie familiale en est profondément marquée.','major')}}}return}
   if(r.injuryMonths>0){r.injuryMonths-=m;if(r.injuryMonths<=0){r.injuryMonths=0;r.status='active';addRelationMemory(r,'Se remet de ses blessures.','recovery')}return}
   if(r.status!=='active')return;
   npcIntentTick(r,m);
@@ -1521,7 +1521,7 @@ function train(m){
 }
 
 function relationById(id){return game.relations.find(function(r){return r.id===id})||null}
-function partnerRelation(){var id=game.player.life.partnerId;return id?relationById(id):null}
+function partnerRelation(){var p=game.player,id=p.life.partnerId,r=id?relationById(id):null;if(r&&r.status==='dead'){p.life.partnerId=null;if(p.life.relationshipStatus!=='Célibataire')p.life.relationshipStatus='En deuil';return null}return r}
 function familyChildName(){var p=game.player,used=(p.children||[]).map(function(c){return c&&c.name}).filter(Boolean),partner=partnerRelation();if(p.name)used.push(p.name);if(partner&&partner.name)used.push(partner.name);used=used.filter(function(name,i,a){return a.indexOf(name)===i});var pool=PEOPLE_NAMES.filter(function(name){return used.indexOf(name)<0});return pk(pool.length?pool:PEOPLE_NAMES,'family')}
 function createRelation(role){
  var p=game.player,i=game.socialSeq++,name=pk(PEOPLE_NAMES,'r'),tries=0,years=p.ageMonths/12,roles=years<6?['proche de la famille','connaissance']:years<12?['ami','rival','connaissance']:years<15?['ami','rival','connaissance','mentor']:['ami','rival','mentor','collègue','connaissance'];
