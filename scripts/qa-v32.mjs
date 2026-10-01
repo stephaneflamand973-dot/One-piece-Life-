@@ -3178,6 +3178,13 @@ test('V5.3 inactive crew memory compacts without losing lineage',()=>{
  assert(c.generation===3&&c.parentCrewId==='ancestor-qa','lineage lost during compaction');assert(c.history.length<=3,'inactive history not compacted');assert(c.notables.length<=1,'inactive notable roster not compacted');assert(c.second===null,'inactive second-in-command detail retained');return c.history.length+' history / '+c.notables.length+' notable';
 });
 
+test('V5.3 crew life contributes a distinct personal biography chapter',()=>{
+ const g=fresh(54109),p=g.player;p.ageMonths=240;const c=q.pirateCrewCandidate(g,p);q.join('Pirates','Novice',{pirateMode:'joined',worldCrew:c});
+ let ch=(p.lifeDirector.activeChapters||[]).find(x=>x.kind==='organization'&&x.key==='organization:'+p.organization.id);assert(ch,'organization chapter missing after crew join');
+ p.rank='Officier';q.careerRecord().rank='Officier';q.syncOrganizationRole();ch=(p.lifeDirector.activeChapters||[]).find(x=>x.kind==='organization'&&x.key==='organization:'+p.organization.id);assert(ch&&ch.beats>=2,'crew promotion did not deepen organization chapter');
+ return ch.title+' / '+ch.beats+' beats / score '+ch.score.toFixed(1);
+});
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
