@@ -131,3 +131,5 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 @media(max-width:520px){
  .story-summary{grid-template-columns:1fr 1fr}
 }
+
+.narrative-director-card{background:linear-gradient(145deg,#eef5f1,#fff9ed)}.narrative-director-summary{margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5}.narrative-front-list{display:flex;flex-direction:column;gap:8px}.narrative-front{padding:11px 12px;border-radius:14px;background:#fffdf8;border:1px solid rgba(120,100,65,.10)}.narrative-front-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.narrative-front-head strong{font-size:12px}.narrative-front-head span{font-size:9px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--sea)}.narrative-front small{display:block;margin-top:4px;color:var(--muted);font-size:10px;line-height:1.4}.narrative-front.saga{border-left:3px solid var(--gold)}.narrative-front.rivalry{border-left:3px solid var(--red)}.narrative-front.mission{border-left:3px solid var(--sea)}.narrative-front.relationship{border-left:3px solid #8f7b9d}.narrative-empty{font-size:11px;color:var(--muted);padding:8px 2px}
