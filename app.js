@@ -1807,12 +1807,12 @@ function organicLegendEvidence(){
  else if(f==='Gouvernement')gate=ri>=4||p.rank==='CP9'||p.rank==='Candidat CP0'||p.rank==='CP0'||decisive>=1;
  else if(f==='Chasseur de primes')gate=((p.justice&&p.justice.captures)||0)>=8||decisive>=1;
  else gate=careerExpertise(p.specialization)>=70||netWorth()>=2000000;
- return{score:Math.round(cl(score,0,100)),qualified:score>=62&&gate,gate:gate,distinctions:lifetime.distinctions,strongChapters:strongChapters,founding:founding,highMoments:highMoments,decisiveSagas:decisive,canonImpact:canon,careerYears:careerYears,careerPaths:lifetime.careerPaths}
+ return{score:Math.round(cl(score,0,100)),qualified:score>=58&&gate,gate:gate,distinctions:lifetime.distinctions,strongChapters:strongChapters,founding:founding,highMoments:highMoments,decisiveSagas:decisive,canonImpact:canon,careerYears:careerYears,careerPaths:lifetime.careerPaths}
 }
 function playerWorldRecognition(){
  var p=game.player,x=influenceMetrics(),ws=game.world.worldState||{},active=(ws.worldSagas||[]).filter(function(s){return s.status==='active'&&s.playerInvolved}),history=(ws.sagaHistory||[]).filter(function(s){return s.playerInvolved}),canon=(ws.playerCanonImpact||[]).length,domains=x.domains.length,allies=x.affiliates.length,rep=p.factionRep&&p.factionRep[p.faction]||0;
  var sagaWeight=history.reduce(function(a,s){var r=sagaPlayerRoleRank(s.playerRole||'indirect');return a+(r>=4?4:r===3?3:r===2?1.8:.8)},0)+active.reduce(function(a,s){return a+(sagaPlayerRoleRank(s.playerRole||'indirect')>=2?1:.35)},0),decisive=history.filter(function(s){return sagaPlayerRoleRank(s.playerRole||'indirect')>=3}).length;
- var legacy=factionCareerLegacy(),organicEvidence=organicLegendEvidence(),evidenceBonus=organicEvidence.qualified?Math.min(18,organicEvidence.score*.24):Math.min(10,organicEvidence.score*.14),worldScore=cl(x.score*.52+power()*.22+domains*3.8+allies*2.2+Math.min(14,sagaWeight)+Math.min(10,canon*1.35)+Math.min(9,rep*.09)+legacy+evidenceBonus,0,100),role='Figure régionale',traditionalQualified=false;
+ var legacy=factionCareerLegacy(),organicEvidence=organicLegendEvidence(),evidenceBonus=organicEvidence.qualified?Math.min(30,organicEvidence.score*.46):Math.min(8,organicEvidence.score*.10),worldScore=cl(x.score*.52+power()*.22+domains*3.8+allies*2.2+Math.min(14,sagaWeight)+Math.min(10,canon*1.35)+Math.min(9,rep*.09)+legacy+evidenceBonus,0,100),role='Figure régionale',traditionalQualified=false;
  if(p.faction==='Pirates')traditionalQualified=domains>=3||allies>=3;
  else if(p.faction==='Marine')traditionalQualified=rep>=85&&(['Vice-amiral','Amiral'].indexOf(p.rank)>=0||decisive>=2);
  else if(p.faction==='Révolutionnaires')traditionalQualified=rep>=80&&(['Commandant régional','Bras droit'].indexOf(p.rank)>=0||decisive>=2);
