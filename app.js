@@ -724,9 +724,9 @@ function narrativeConvergence(){
 }
 function narrativeMissionBoost(m){
  if(!game||!m)return 0;var boost=0,fronts=narrativeFronts(4),saga=m.worldGenerated?missionSagaTarget(m):null;
- var entry=m.sourceType==='saga'&&m.variantKey==='entry';
- if(saga&&fronts.some(function(f){return f.kind==='saga'&&f.sourceId===saga.id}))boost+=entry?.06:.28;
- if(m.sourceType==='saga')boost+=entry?.04:.12;
+ var entry=m.sourceType==='saga'&&m.variantKey==='entry',softContinuity=!!(saga&&saga.playerDirectorEntry&&m.sourceType==='saga'&&!entry&&(saga.playerCausalMissions||0)<2);
+ if(saga&&fronts.some(function(f){return f.kind==='saga'&&f.sourceId===saga.id}))boost+=entry?.06:softContinuity?.07:.28;
+ if(m.sourceType==='saga')boost+=entry?.04:softContinuity?.04:.12;
  var rival=fronts.find(function(f){return f.kind==='rivalry'});if(rival&&(m.sourceId===rival.sourceId||m.sourceName===rival.title.replace('Rivalité avec ','')))boost+=.14;
  var ch=visiblePersonalChapter();if(ch&&ch.kind==='career'&&!m.worldGenerated)boost+=.05;
  return Math.min(.45,boost)
