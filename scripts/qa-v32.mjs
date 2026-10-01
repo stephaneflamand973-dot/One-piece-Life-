@@ -1113,6 +1113,41 @@ test('V5.0 archived career chapter names the highest promotion reached',()=>{
   const h=q.closePersonalChapter(ch,'qa');assert(h.title==='Ascension jusqu’à Commandant','career archive stayed generic: '+h.title);return h.title;
 });
 
+
+test('V5.0 established relationship becomes a durable personal chapter without extra input',()=>{
+  const g=fresh(50046),p=g.player;p.ageMonths=300;
+  const r=q.createRelation('ami');r.npcAgeMonths=300;r.location=p.island;r.region=p.region;r.affection=82;r.trust=78;r.type='partner';r.role='partenaire';r.relationshipMonths=11;
+  p.life.partnerId=r.id;p.life.relationshipStatus='En couple';
+  q.signalPersonalChapter('relationship','Lien avec '+r.name,18,'relationship:'+r.id,r.id);
+  q.lifeTick(2);
+  const ch=p.lifeDirector.activeChapters.find(x=>x.key==='relationship:'+r.id);
+  assert(ch&&ch.beats===2&&ch.score===30,'established relationship did not become a meaningful chapter');
+  assert(r.relationshipMilestones.includes('established'),'relationship milestone was not persisted');
+  q.lifeTick(2);
+  assert(ch.beats===2,'established relationship milestone repeated');
+  return ch.title+' / '+ch.beats+' beats';
+});
+test('V5.0 durable confirmed rivalry becomes a chapter without requiring nemesis status',()=>{
+  const g=fresh(50047),p=g.player;p.ageMonths=300;
+  const r=q.createRelation('rival');r.role='rival';r.rivalry=65;r.rivalWins=2;r.rivalLosses=0;r.rivalMilestones=['Rival confirmé'];
+  q.signalPersonalChapter('rivalry','Rivalité avec '+r.name,14,'rival-confirmed:'+r.id,r.id);
+  r.rivalWins=4;q.syncRivalryMilestone(r,'Rival confirmé');
+  const ch=p.lifeDirector.activeChapters.find(x=>x.key==='rivalry:'+r.id);
+  assert(ch&&ch.beats===2&&ch.score===26,'durable confirmed rivalry stayed an embryonic chapter');
+  assert(r.rivalMilestones.includes('Rivalité durable'),'durable rivalry marker missing');
+  q.syncRivalryMilestone(r,'Rival confirmé');assert(ch.beats===2,'durable rivalry milestone repeated');
+  return ch.title+' / '+ch.beats+' beats';
+});
+test('V5.0 independent legacy choice survives compact chapter archival',()=>{
+  const g=fresh(50048),p=g.player;p.ageMonths=216;g.dynasty.generation=2;
+  g.dynasty.ancestors.push({name:'Aster QA',generation:1,career:'Civil',rank:'Maître',legacy:{worldRole:'Icône des mers',recognitionScore:76,chapters:[{title:'Grand voyage',score:62,beats:3}],chronicle:'Aster QA a laissé une trace durable.'}});
+  const st=q.startStory('legacy-crossroads');assert(st,'legacy crossroads fixture did not start');st.awaiting=true;q.storyChoice(st.id,'own-path');
+  const ch=p.lifeDirector.activeChapters.find(x=>x.kind==='legacy');assert(ch&&ch.score===24,'independent legacy choice remained below archival weight');
+  p.ageMonths+=31;q.personalChapterTick(1);
+  assert(p.lifeDirector.chapterHistory.some(x=>x.title==='Tracer sa propre voie'),'independent legacy choice disappeared instead of becoming history');
+  return 'independent legacy archived';
+});
+
 test('V5.0 senior promotions require a credible mission record',()=>{
   const g=fresh(50040),p=g.player;p.ageMonths=420;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';p.rank='Expert';rec.rank='Expert';rec.xp=1000;p.factionRep.Civil=100;Object.keys(p.stats).forEach(k=>p.stats[k]=95);Object.keys(p.skills).forEach(k=>p.skills[k]=95);rec.successes=4;rec.failures=6;rec.momentum=0;rec.recentResults=[1,1,1,0,0,0,0,0];rec.distinctions=0;
   const review=q.careerPerformanceReview(rec,3);assert(review.active&&!review.met,'poor senior record passed review');assert(q.evaluatePromotion()===false&&p.rank==='Expert','poor record still received promotion');return Math.round(review.successRate*100)+'% / '+Math.round(review.required*100)+'%';
