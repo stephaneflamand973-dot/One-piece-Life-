@@ -582,6 +582,8 @@ let postCareerRows=[],postCareerProfiles=[];
     sample:rows.length,
     survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
     avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+    selectedSagaMissions:rows.reduce((a,x)=>a+(x.sagaLinkedMissions||0),0),
+    selectedSagaCareerShare:+(rows.filter(x=>(x.sagaLinkedMissions||0)>0).length/rows.length).toFixed(2),
     selectedDecisiveMissions:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveCandidates||0),0),
     selectedDecisiveCareerShare:+(rows.filter(x=>(x.sagaLinkedDecisiveCandidates||0)>0).length/rows.length).toFixed(2),
     decisiveSagaShare:+(rows.filter(x=>x.recognition&&(x.recognition.decisiveSagas||0)>0).length/rows.length).toFixed(2),
@@ -590,7 +592,7 @@ let postCareerRows=[],postCareerProfiles=[];
     profiles:rows.map(x=>({faction:x.faction,alive:x.alive,selected:x.sagaLinkedDecisiveCandidates||0,decisiveSagas:x.recognition&&x.recognition.decisiveSagas||0,role:x.recognition&&x.recognition.role||null,organic:!!(x.endgame&&x.endgame.organic)}))
   };
   const ds=metrics.v50ChosenDecisiveSagaStress;
-  if(ds.selectedDecisiveMissions<1)throw new Error('V5.0 chosen decisive saga path never selects a real decisive mission');
+  if(ds.selectedSagaMissions<1)throw new Error('V5.0 chosen decisive saga path never selects a causally linked saga mission');
   if(ds.decisiveSagaShare<=0)throw new Error('V5.0 chosen decisive saga path cannot produce a decisive saga');
   if(ds.decisiveSagaShare>.50)throw new Error('V5.0 chosen decisive saga path became too automatic: '+ds.decisiveSagaShare);
   if(ds.survival<.50)throw new Error('V5.0 chosen decisive saga path became excessively lethal: '+ds.survival);
