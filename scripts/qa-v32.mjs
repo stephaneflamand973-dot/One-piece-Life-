@@ -1757,6 +1757,33 @@ test('V5.0 death modal exposes every valid heir beyond five',()=>{
   return rendered+' heir choices visible';
 });
 
+
+test('V5.0 surviving parent keeps real identity and location across succession',()=>{
+  const g=fresh(50148),p=g.player;p.ageMonths=600;p.money=300000;
+  const partner=q.createRelation('ami');partner.name='Parent QA';partner.type='partner';partner.role='conjoint';partner.location=(q.constants.PL[p.island][2]||[])[0]||p.island;partner.region=q.infStatic(partner.location).region;partner.npcAgeMonths=588;partner.npcPower=64;partner.npcPotential=82;partner.npcSpecialty='Navigation';partner.npcTrajectory='Ascension';partner.npcAmbition='Protéger ses proches';partner.npcWealth=88000;partner.careerLevel=4;partner.memories=[{text:'Souvenir familial QA',type:'family',age:'48 ans'}];partner.affection=91;partner.trust=88;partner.loyalty=86;partner.longDistance=partner.location!==p.island;
+  p.life.partnerId=partner.id;p.life.relationshipStatus='Marié';
+  p.children=[{id:'heir-parent-qa',name:'Héritier Parent QA',ageMonths:216,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:80}];
+  const expected={location:partner.location,region:partner.region,age:partner.npcAgeMonths,power:partner.npcPower,potential:partner.npcPotential,specialty:partner.npcSpecialty,trajectory:partner.npcTrajectory,ambition:partner.npcAmbition,wealth:partner.npcWealth,career:partner.careerLevel};
+  g.death={cause:'QA parent continuity'};q.buildHeir(p.children[0]);
+  const parent=g.relations.find(r=>r.role==='parent'&&r.name==='Parent QA');assert(parent,'surviving parent disappeared after succession');
+  assert(parent.location===expected.location&&parent.region===expected.region,'surviving parent was teleported during succession');
+  assert(parent.npcAgeMonths===expected.age&&parent.npcPower===expected.power&&parent.npcPotential===expected.potential,'surviving parent age or power was rerolled');
+  assert(parent.npcSpecialty===expected.specialty&&parent.npcTrajectory===expected.trajectory&&parent.npcAmbition===expected.ambition,'surviving parent trajectory was rerolled');
+  assert(parent.npcWealth===expected.wealth&&parent.careerLevel===expected.career,'surviving parent career state was lost');
+  assert((parent.memories||[]).some(m=>m.text==='Souvenir familial QA'),'surviving parent memories were erased');
+  return parent.location+' / '+parent.npcAgeMonths+'m / power '+parent.npcPower;
+});
+test('V5.0 canonical surviving parent keeps canonical identity across succession',()=>{
+  const g=fresh(50149),p=g.player;p.ageMonths=600;
+  const partner=q.createRelation('ami');partner.name='Nami';partner.type='partner';partner.role='conjoint';partner.canonical=true;partner.actorName='Nami';partner.npcAgeMonths=590;partner.npcPower=70;partner.npcPotential=90;partner.location=p.island;partner.region=p.region;partner.affection=90;partner.trust=90;partner.loyalty=90;
+  p.life.partnerId=partner.id;p.life.relationshipStatus='Marié';
+  p.children=[{id:'heir-canon-parent',name:'Héritier Canon QA',ageMonths:216,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:80}];
+  g.death={cause:'QA canonical parent continuity'};q.buildHeir(p.children[0]);
+  const parent=g.relations.find(r=>r.role==='parent'&&r.name==='Nami');assert(parent&&parent.canonical&&parent.actorName==='Nami','canonical parent identity was lost across succession');
+  assert(parent.npcAgeMonths===590&&parent.npcPower===70&&parent.npcPotential===90,'canonical parent stats were rerolled');
+  return parent.actorName+' / canonical parent';
+});
+
 test('V5.0 heir continuation carries only active siblings into the next generation',()=>{
   const g=fresh(50145),p=g.player;p.ageMonths=520;p.money=450000;p.children=[
     {id:'next',name:'Next QA',ageMonths:220,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:82},
