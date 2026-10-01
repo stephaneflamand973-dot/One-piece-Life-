@@ -141,7 +141,7 @@ if(!app.includes("if(awaitingStory())return showStoryDecision()")) throw new Err
 console.log('ONE PIECE LIFE V5.3 validation OK');
 
 if(!app.includes('function worldCrewInternalTick') || !app.includes('function spawnCrewSplinter') || !app.includes('function foundOwnPirateCrew') || !app.includes('function syncPlayerPirateCrewWorld') || !app.includes('function pirateCrewCandidates') || !app.includes('function pirateJoinDecision') || !app.includes('function joinedPirateRankCap')) throw new Error('V5.3 Living Crews systems missing');
-if(!app.includes("Sommet de la hiérarchie accessible : Bras droit") || !app.includes("o.pirateOrigin==='joined'&&i>=joinedPirateRankCap()")) throw new Error('V5.3 joined-pirate captaincy cap missing');
+if(!app.includes("Sommet de la hiérarchie accessible : Bras droit") || !app.includes("p.organization.pirateOrigin==='joined'&&i>=joinedPirateRankCap()")) throw new Error('V5.3 joined-pirate captaincy cap missing');
 
 if(!app.includes('function normalizeNpcCombatProfile') || !app.includes('function actorCombatRating') || !app.includes('function maybeDevelopSignatureTechnique') || !app.includes('function recordNpcCombatLearning')) throw new Error('V5.3 release is missing V5.2 Living Power World combat systems');
 
