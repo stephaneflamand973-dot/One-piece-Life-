@@ -400,6 +400,7 @@ let postCareerRows=[],postCareerProfiles=[];
     avgPersonalChapters:avg('personalChapters'),
     avgChronicleHighlights:avg('chronicleHighlights'),
     avgRecognition:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.score||0),0)/rows.length).toFixed(1),
+    organicLegendCount:rows.filter(x=>x.endgame&&x.endgame.organic).length,
     organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
     legendQualifiedShare:+(rows.filter(x=>x.recognition&&x.recognition.legendQualified).length/rows.length).toFixed(2),
     organicLegendQualifiedShare:+(rows.filter(x=>x.recognition&&x.recognition.organicLegendQualified).length/rows.length).toFixed(2),
@@ -441,6 +442,8 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y30.avgPersonalChapters<4)throw new Error('V5.0 thirty-year life chapters too dormant: '+y30.avgPersonalChapters);
   if(y30.avgChronicleHighlights<3)throw new Error('V5.0 thirty-year biographies became too thin: '+y30.avgChronicleHighlights+' highlights');
   if(y30.avgSaveKB>325||y30.maxSaveKB>400)throw new Error('V5.0 thirty-year save growth regression: avg '+y30.avgSaveKB+' KB / max '+y30.maxSaveKB+' KB');
+  if((y30.organicLegendCount||0)<1)throw new Error('V5.0 exceptional organic legends became unreachable after 30 years: 0/'+y30.sample);
+  if(y30.nearOrganicLegendShare<.10)throw new Error('V5.0 thirty-year careers stopped producing near-legend trajectories: '+y30.nearOrganicLegendShare);
   if(y30.organicLegendShare>.34)throw new Error('V5.0 organic legends became too common after 30 years: '+y30.organicLegendShare);
   if(y30.avgOrganicEvidence<18)throw new Error('V5.0 thirty-year careers stopped accumulating meaningful legend evidence: '+y30.avgOrganicEvidence);
 }
