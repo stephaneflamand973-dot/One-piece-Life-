@@ -1144,6 +1144,16 @@ test('V5.0 archived journey chapters preserve causal destinations',()=>{
   assert(first.title!==second.title,'distinct journey chapters kept the same generic title');
   return first.title+' / '+second.title;
 });
+test('V5.0 new journey archives retain route origin and destination',()=>{
+  const g=fresh(500441),p=g.player;p.ageMonths=300;
+  const a=q.signalPersonalChapter('journey','Voyages à travers les mers',16,'journey:Foosha Village>Loguetown','manual-journey');q.signalPersonalChapter('journey','Voyages à travers les mers',16,'journey:Foosha Village>Loguetown','manual-journey');
+  const h=q.closePersonalChapter(a,'qa');assert(h&&h.title==='Traversée de Foosha Village à Loguetown','route identity lost from journey archive: '+(h&&h.title));return h.title;
+});
+test('V5.0 single-child family archive keeps the child identity',()=>{
+  const g=fresh(500442),p=g.player;p.ageMonths=360;const r=q.createRelation('ami');r.name='Yuna';p.children=[{id:'child-causal-qa',name:'Eden',ageMonths:0,status:'active'}];
+  const ch=q.signalPersonalChapter('family','Foyer avec '+r.name,24,'child:child-causal-qa',r.id),h=q.closePersonalChapter(ch,'qa');
+  assert(h&&h.title==='Naissance de Eden','single-child family archive stayed generic: '+(h&&h.title));return h.title;
+});
 test('V5.0 archived career chapter names the highest promotion reached',()=>{
   const g=fresh(50045),p=g.player;p.ageMonths=300;
   const ch=q.signalPersonalChapter('career','Ascension au sein de la Marine',12,'join:Marine','Marine');q.signalPersonalChapter('career','Ascension au sein de la Marine',11,'promotion:Lieutenant','Marine');q.signalPersonalChapter('career','Ascension au sein de la Marine',12,'promotion:Commandant','Marine');
