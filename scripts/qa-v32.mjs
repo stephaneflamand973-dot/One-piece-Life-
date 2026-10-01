@@ -1194,7 +1194,7 @@ test('V5.0 strong mission record unlocks the same senior promotion',()=>{
 test('V5.0 sustained routine excellence can earn career distinctions without farming a capped window',()=>{
   const g=fresh(50045),p=g.player;p.ageMonths=360;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';rec.distinctions=0;rec.successes=0;rec.failures=0;rec.recentResults=[];rec.missionStreak=0;const m={title:'Recherche régulière',signature:false,worldGenerated:false};
   function success(){rec.successes++;q.recordCareerMissionEvidence(rec,true,m,{chance:.9});q.updateCareerMomentum(rec,true,20)}
-  for(let i=0;i<6;i++)success();assert(rec.distinctions===0,'routine record granted a distinction before a real streak');success();assert(rec.distinctions===1,'seven-success streak did not create earned distinction');for(let i=0;i<3;i++)success();assert(rec.distinctions===2,'ten-success streak did not create second earned distinction');for(let i=0;i<4;i++)success();assert(rec.distinctions===2,'capped ten-result window farmed extra distinctions after the milestone');return rec.distinctions+' earned distinctions after '+rec.missionStreak+' straight wins';
+  for(let i=0;i<6;i++)success();assert(rec.distinctions===0,'routine record granted a distinction before a real streak');success();assert(rec.distinctions===1,'seven-success streak did not create earned distinction');for(let i=0;i<3;i++)success();assert(rec.distinctions===2,'ten-success streak did not create second earned distinction');for(let i=0;i<4;i++)success();assert(rec.distinctions===2,'capped ten-result window farmed extra distinctions after the milestone');assert(rec.legendDistinctions===0,'routine excellence leaked into legendary evidence');return rec.distinctions+' earned distinctions / '+rec.legendDistinctions+' legendary';
 });
 test('V5.0 routine excellence distinction is broken by failure instead of free accumulation',()=>{
   const g=fresh(50046),p=g.player;p.ageMonths=360;q.join('Civil');const rec=q.careerRecord();rec.distinctions=0;rec.successes=0;rec.failures=0;rec.recentResults=[];rec.missionStreak=0;const m={title:'Service régulier',signature:false,worldGenerated:false};
@@ -1306,14 +1306,14 @@ test('V5.0 Life Director can naturally carry a life from bond to parenthood',()=
 
 
 test('V5.0 career distinctions reward consequential missions',()=>{
-  const g=fresh(50070),p=g.player;p.ageMonths=360;q.join('Marine');const rec=q.careerRecord();rec.distinctions=0;rec.recentResults=[];q.recordCareerMissionEvidence(rec,true,{signature:true,worldGenerated:true},{chance:.55});assert(rec.distinctions===4,'signature/world/difficult success did not create four distinction points');assert(rec.recentResults.length===1&&rec.recentResults[0]===1,'recent mission form not recorded');q.recordCareerMissionEvidence(rec,false,{signature:true},{chance:.4});assert(rec.distinctions===3,'signature failure did not reduce distinction');return rec.distinctions+' distinctions';
+  const g=fresh(50070),p=g.player;p.ageMonths=360;q.join('Marine');const rec=q.careerRecord();rec.distinctions=0;rec.legendDistinctions=0;rec.recentResults=[];q.recordCareerMissionEvidence(rec,true,{signature:true,worldGenerated:true},{chance:.55});assert(rec.distinctions===4&&rec.legendDistinctions===4,'signature/world/difficult success did not create four consequential distinction points');assert(rec.recentResults.length===1&&rec.recentResults[0]===1,'recent mission form not recorded');q.recordCareerMissionEvidence(rec,false,{signature:true},{chance:.4});assert(rec.distinctions===3&&rec.legendDistinctions===3,'signature failure did not reduce consequential distinction');return rec.distinctions+' career / '+rec.legendDistinctions+' legendary';
 });
 test('V5.0 senior review separates recent form from lifetime record',()=>{
   const g=fresh(50071),p=g.player;p.ageMonths=420;q.join('Civil');const rec=q.careerRecord();rec.successes=18;rec.failures=2;rec.distinctions=4;rec.recentResults=[1,1,1,1,0,0,0,0];rec.momentum=0;const review=q.careerPerformanceReview(rec,3);assert(review.successRate>.85,'lifetime fixture wrong');assert(review.recentRate<review.recentRequired,'recent form fixture wrong');assert(!review.met,'stale lifetime record bypassed recent form');return Math.round(review.successRate*100)+'% lifetime / '+Math.round(review.recentRate*100)+'% recent';
 });
 
 test('V5.0 legacy career records migrate into recent-form dossiers without GameState bump',()=>{
-  const g=fresh(50072),p=g.player;p.ageMonths=360;p.careerRecords.Marine={xp:420,months:96,rank:'Commandant',specialization:'Combat',successes:12,failures:3};p.faction='Marine';p.career='Marine';p.rank='Commandant';p.specialization='Combat';const migrated=q.migrate(JSON.parse(JSON.stringify(g))),rec=migrated.player.careerRecords.Marine;assert(migrated.version===28,'career dossier migration bumped GameState');assert(rec.xp===420&&rec.rank==='Commandant','legacy career progression changed');q.setGame(migrated);const live=q.careerRecord('Marine');assert(Array.isArray(live.recentResults)&&live.recentResults.length>0&&live.recentResults.length<=10,'recent form was not reconstructed');assert(Number.isFinite(live.distinctions)&&live.distinctions>=0,'distinctions migration invalid');return live.recentResults.length+' recent / '+live.distinctions+' distinctions';
+  const g=fresh(50072),p=g.player;p.ageMonths=360;p.careerRecords.Marine={xp:420,months:96,rank:'Commandant',specialization:'Combat',successes:12,failures:3};p.faction='Marine';p.career='Marine';p.rank='Commandant';p.specialization='Combat';const migrated=q.migrate(JSON.parse(JSON.stringify(g))),rec=migrated.player.careerRecords.Marine;assert(migrated.version===28,'career dossier migration bumped GameState');assert(rec.xp===420&&rec.rank==='Commandant','legacy career progression changed');q.setGame(migrated);const live=q.careerRecord('Marine');assert(Array.isArray(live.recentResults)&&live.recentResults.length>0&&live.recentResults.length<=10,'recent form was not reconstructed');assert(Number.isFinite(live.distinctions)&&live.distinctions>=0,'distinctions migration invalid');assert(Number.isFinite(live.legendDistinctions)&&live.legendDistinctions===live.distinctions,'legacy distinctions were not preserved as historical legend evidence');return live.recentResults.length+' recent / '+live.distinctions+' distinctions';
 });
 
 
@@ -1523,7 +1523,7 @@ test('V5.0 exceptional twenty-year careers can reach organic legend status in ev
     Object.keys(p.skills).forEach(k=>{p.skills[k]=82;p.caps[k]=98;p.absoluteCaps[k]=100});
     p.haki.Observation=75;p.haki.Armement=75;
     q.join(f);p.specialization=spec;p.rank=rank;
-    const rec=q.careerRecord();rec.specialization=spec;rec.rank=rank;rec.months=240;rec.successes=32;rec.failures=2;rec.distinctions=10;rec.recentResults=[1,1,1,1,1,1,1,1];
+    const rec=q.careerRecord();rec.specialization=spec;rec.rank=rank;rec.months=240;rec.successes=32;rec.failures=2;rec.distinctions=10;rec.legendDistinctions=10;rec.recentResults=[1,1,1,1,1,1,1,1];
     if(p.organization){p.organization.renown=95;p.organization.cohesion=90;p.organization.morale=90}
     if(f==='Chasseur de primes'){p.justice.captures=8;p.justice.bountiesClaimed=80000000}
     if(f==='Pirates')p.bounty=150000000;
@@ -1547,7 +1547,7 @@ test('V5.0 exceptional twenty-year careers can reach organic legend status in ev
 });
 
 test('V5.0 earned legacy can create a legend without territorial micromanagement',()=>{
-  const g=fresh(50100),p=g.player;p.ageMonths=780;p.money=2500000;p.reputation=100;p.factionRep.Civil=100;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';rec.months=500;rec.successes=40;rec.failures=2;rec.recentResults=[1,1,1,1,1,1,1,1];rec.distinctions=12;
+  const g=fresh(50100),p=g.player;p.ageMonths=780;p.money=2500000;p.reputation=100;p.factionRep.Civil=100;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';rec.months=500;rec.successes=40;rec.failures=2;rec.recentResults=[1,1,1,1,1,1,1,1];rec.distinctions=12;rec.legendDistinctions=12;
   p.skills.Science=75;p.skills.Discipline=75;p.skills.Navigation=75;Object.keys(p.stats).forEach(k=>p.stats[k]=82);if(p.organization){p.organization.renown=100;p.organization.cohesion=90;p.organization.morale=90}
   p.lifeDirector.chapterHistory=Array.from({length:5},(_,i)=>({id:'legacy-ch-'+i,score:60,beats:4}));
   g.loop.foundingMemories=Array.from({length:3},(_,i)=>({title:'Founding '+i,weight:90}));
@@ -1586,7 +1586,7 @@ test('V5.0 legendary recognition never fires before qualification',()=>{
 test('V5.0 earned legend evidence remembers previous careers',()=>{
   const g=fresh(50130),p=g.player;p.ageMonths=720;p.factionRep.Civil=100;p.factionRep.Marine=100;
   p.careerRecords.Civil={xp:400,months:240,rank:'Maître',specialization:'Scientifique',successes:28,failures:3,momentum:0,missionStreak:0,distinctions:8,recentResults:[1,1,1,1,1,1,1,0]};
-  q.join('Marine');p.rank='Commandant';p.specialization='Combat';const marine=q.careerRecord();marine.rank='Commandant';marine.specialization='Combat';marine.months=36;marine.successes=8;marine.failures=2;marine.distinctions=2;
+  q.join('Marine');p.rank='Commandant';p.specialization='Combat';const marine=q.careerRecord();marine.rank='Commandant';marine.specialization='Combat';marine.months=36;marine.successes=8;marine.failures=2;marine.distinctions=2;marine.legendDistinctions=2;
   const life=q.careerLifetimeEvidence(),e=q.organicLegendEvidence();
   assert(life.careerYears===23,'lifetime career years lost after faction switch: '+life.careerYears);
   assert(life.distinctions===10,'lifetime distinctions lost after faction switch: '+life.distinctions);
