@@ -2607,6 +2607,26 @@ test('V5.0 a real linked career intervention unlocks a phased saga continuation'
  return follow.variantKey+' / '+Math.round(saga.playerImpact)+' impact';
 });
 
+
+test('V5.0 accepted saga mission keeps its causal target until resolution',()=>{
+ const g=fresh(402026),p=g.player;p.ageMonths=420;q.join('Marine');p.rank='Commandant';q.careerRecord().rank='Commandant';
+ Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],72));Object.keys(p.skills).forEach(k=>p.skills[k]=Math.max(p.skills[k],68));
+ const saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-pending-war');saga.pressure=20;saga.months=8;saga.stage='Tensions';
+ g.world.conflicts.push({id:'qa-pending-front',status:'active',region:p.region,location:p.island,attacker:'Marine',defender:'Pirates',warId:'qa-pending-war',intensity:58});
+ const options=q.board(),ix=options.findIndex(x=>x.worldGenerated&&q.missionSagaTarget(x)===saga);
+ assert(ix>=0,'no linked mission available for pending-saga fixture');
+ q.startMission(ix);
+ assert(g.mission&&g.mission.sagaId===saga.id,'accepted mission did not persist its saga target');
+ g.world.conflicts=g.world.conflicts.filter(x=>x.id!=='qa-pending-front');
+ assert(q.missionSagaTarget(g.mission)===saga,'mission lost saga target after source conflict disappeared');
+ q.simulateWorldSagas();
+ assert((g.world.worldState.worldSagas||[]).some(x=>x.id===saga.id&&x.status==='active'),'saga resolved while its causal player mission was still pending');
+ g.mission=null;saga.pressure=0;saga.months=10;
+ q.simulateWorldSagas();
+ assert(!(g.world.worldState.worldSagas||[]).some(x=>x.id===saga.id&&x.status==='active'),'saga stayed artificially locked after player mission ended');
+ return 'target preserved through pending mission';
+});
+
 test('V5.0 saga-linked career missions can become decisive through sustained causal impact',()=>{
  const g=fresh(402031),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-career-war');
  g.world.conflicts.push({id:'qa-career-front',status:'active',region:p.region,location:p.island,attacker:'Marine',defender:'Pirates',warId:'qa-career-war',intensity:78});
