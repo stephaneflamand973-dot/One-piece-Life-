@@ -2557,6 +2557,19 @@ test('V5.0 failed linked intervention remains causal without becoming decisive',
  assert(follow&&follow.sourceId===saga.id,'failed causal intervention did not leave a continuation opportunity');
  return Math.round(saga.playerImpact)+' impact after failure';
 });
+
+test('V5.0 repeated failed saga interventions never earn a decisive role by attrition',()=>{
+ const g=fresh(402027),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-failure-cap');
+ const failed={title:'Échec répété QA',tier:5,worldGenerated:true,sourceType:'saga',sourceId:saga.id,importance:82};
+ for(let i=0;i<8;i++)q.playerWorldImpact(false,failed);
+ assert((saga.playerCausalMissions||0)===8,'failed causal missions were not retained');
+ assert(saga.playerRole==='participant','repeated failures incorrectly earned '+saga.playerRole);
+ assert((saga.playerImpact||0)<=54,'repeated failures crossed decisive impact threshold: '+saga.playerImpact);
+ q.playerWorldImpact(true,failed);
+ assert(saga.playerRole==='decisive'&&(saga.playerImpact||0)>=55,'later success could not convert accumulated causal involvement into a decisive role');
+ return Math.round(saga.playerImpact)+' impact after earned success';
+});
+
 test('V5.0 a real linked career intervention unlocks a phased saga continuation',()=>{
  const g=fresh(402030),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-followup-war');
  g.world.conflicts.push({id:'qa-followup-front',status:'active',region:p.region,location:p.island,attacker:'Marine',defender:'Pirates',warId:'qa-followup-war',intensity:68});
