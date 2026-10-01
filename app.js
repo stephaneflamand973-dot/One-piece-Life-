@@ -1240,7 +1240,7 @@ function storyEligibleTypes(){
  if(p.ageMonths>=180&&p.career!=='Aucune'&&!careerRecord().retired)add('career-crossroads',1.1);
  if(p.ageMonths>=180&&((j.regionalHeat[p.region]||0)>=25||p.bounty>0))add('justice-shadow',.8+(j.regionalHeat[p.region]||0)/100);
  if(p.ageMonths>=180&&rivals.length){var hotRival=rivals.slice().sort(function(a,b){return ((b.nemesisRecognized?30:0)+(b.rivalry||0)+arcPressureFor('relation',b.id))-((a.nemesisRecognized?30:0)+(a.rivalry||0)+arcPressureFor('relation',a.id))})[0];add('rival-challenge',.85+(hotRival&&hotRival.nemesisRecognized?.6:0)+(hotRival?arcPressureFor('relation',hotRival.id)/170:0))}
- if(p.ageMonths>=180&&p.organization&&(p.organization.morale<72||p.organization.supplies<30))add('organization-crisis',1.05);
+ if(p.ageMonths>=180&&p.organization&&!careerRecord().retired&&(p.organization.morale<72||p.organization.supplies<30))add('organization-crisis',1.05);
  if(p.ageMonths>=144&&mentors.length)add('mentor-lesson',.95);
  if(p.ageMonths>=180&&hostileCrews.length){var hotCrew=hostileCrews.slice().sort(function(a,b){return ((b.playerGrudge||0)+arcPressureFor('crew',b.id))-((a.playerGrudge||0)+arcPressureFor('crew',a.id))})[0];add('crew-pressure',.9+Math.min(.5,hotCrew.power/140)+Math.min(.65,(hotCrew.playerGrudge||0)/85)+arcPressureFor('crew',hotCrew.id)/170)}
  if(p.ageMonths>=216&&(partner||(p.children||[]).some(function(c){return c.status==='active'})))add('family-crossroads',.82);

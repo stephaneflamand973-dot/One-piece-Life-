@@ -2174,6 +2174,11 @@ test('V5.0 veteran choice stops automatic promotion while preserving optional mi
   const g=fresh(50111),p=g.player;p.ageMonths=720;q.join('Marine');p.rank='Commandant';p.specialization='Combat';const rec=q.careerRecord();rec.rank='Commandant';rec.months=420;rec.xp=5000;rec.distinctions=10;rec.successes=30;rec.failures=2;p.factionRep.Marine=100;Object.keys(p.stats).forEach(k=>p.stats[k]=95);Object.keys(p.skills).forEach(k=>p.skills[k]=95);
   const st=q.startStory('career-sunset');assert(st,'late-career story not created');st.awaiting=true;q.storyChoice(st.id,'step-back');assert(rec.retired&&rec.retirementChoice==='retired','veteran status not persisted');const xp=rec.xp,money=p.money;q.careerTick(12);assert(rec.xp===xp,'retirement kept adding passive career XP');assert(q.evaluatePromotion()===false,'retired career still promoted');assert(q.advancePlan().key==='veteran-life','retired career did not get veteran pacing');assert(rec.retiredMonths>=12,'retired months not tracked');assert(p.money>=money,'retirement unexpectedly destroyed money');assert(q.board().length>0,'veteran lost access to optional missions');return 'veteran / '+rec.retiredMonths+'m / pension '+q.retirementIncomePerMonth();
 });
+test('V5.0 retirement suppresses routine organization crisis interruptions',()=>{
+  const g=fresh(50169),p=g.player;p.ageMonths=720;q.join('Marine');const rec=q.careerRecord();rec.months=360;rec.retired=true;rec.retirementChoice='retired';p.organization.morale=10;p.organization.supplies=0;
+  const types=q.storyEligibleTypes().map(x=>x.id);assert(!types.includes('organization-crisis'),'retired veteran still received routine organization crisis');return types.join(' / ')||'quiet retirement';
+});
+
 test('V5.0 remaining active prevents repeated late-career prompts',()=>{
   const g=fresh(50112),p=g.player;p.ageMonths=720;q.join('Civil');p.rank='Maître';const rec=q.careerRecord();rec.rank='Maître';rec.months=420;rec.distinctions=8;
   const st=q.startStory('career-sunset');assert(st,'career sunset missing');st.awaiting=true;q.storyChoice(st.id,'continue-career');assert(!rec.retired&&rec.retirementChoice==='active','continue-career choice not persisted');assert(q.careerSunsetOpportunity()===null,'late-career choice was offered again');return 'active choice locked';
