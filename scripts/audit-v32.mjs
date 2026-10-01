@@ -427,7 +427,8 @@ let postCareerRows=[],postCareerProfiles=[];
     ['Révolutionnaires','Infiltration','stealth'],
     ['Gouvernement','Renseignement','stealth']
   ];
-  const rows=profiles.map((cfg,i)=>qaLongCareer(35200+i*37,cfg[0],cfg[1],cfg[2],40));
+  const rows=[];
+  profiles.forEach((cfg,pi)=>{for(let n=0;n<2;n++)rows.push(qaLongCareer(35200+pi*80+n,cfg[0],cfg[1],cfg[2],40))});
   const avg=k=>+(rows.reduce((a,x)=>a+(x[k]||0),0)/rows.length).toFixed(1);
   metrics.v50FortyYearCareer={
     sample:rows.length,yearsTarget:40,
@@ -460,6 +461,7 @@ let postCareerRows=[],postCareerProfiles=[];
     avgRetiredMonths:avg('retiredMonths'),
     avgSaveKB:+(rows.reduce((a,x)=>a+(x.saveBytes||0),0)/rows.length/1024).toFixed(1),
     maxSaveKB:+(Math.max(...rows.map(x=>x.saveBytes||0))/1024).toFixed(1),
+    survivalByFaction:profiles.reduce((out,cfg)=>{const rs=rows.filter(x=>x.faction===cfg[0]);out[cfg[0]]=+(rs.filter(x=>x.alive).length/Math.max(1,rs.length)).toFixed(2);return out},{}),
     deathCauses:rows.filter(x=>!x.alive).reduce((a,x)=>{const k=x.deathCause||'unknown';a[k]=(a[k]||0)+1;return a},{}),
     legendQualifiedShare:+(rows.filter(x=>x.recognition&&x.recognition.legendQualified).length/rows.length).toFixed(2),
     organicLegendQualifiedShare:+(rows.filter(x=>x.recognition&&x.recognition.organicLegendQualified).length/rows.length).toFixed(2),
@@ -472,6 +474,7 @@ let postCareerRows=[],postCareerProfiles=[];
   };
   const y40=metrics.v50FortyYearCareer;
   console.log('V50_40Y_PRE_GATE '+JSON.stringify(y40));
+  if(Object.keys(y40.survivalByFaction||{}).length!==6)throw new Error('V5.0 forty-year endgame matrix lost faction coverage');
   if(y40.avgClicksPerYear>6.5)throw new Error('V5.0 forty-year flow regression: '+y40.avgClicksPerYear+' clicks/year');
   if(y40.avgInterruptionsPerYear>1.1)throw new Error('V5.0 forty-year interruption spam: '+y40.avgInterruptionsPerYear+' interruptions/year');
   if(y40.avgDirectorDecisionsPerYear>.65)throw new Error('V5.0 forty-year Life Director micromanagement: '+y40.avgDirectorDecisionsPerYear+' decisions/year');
