@@ -87,6 +87,7 @@ if(!app.includes('function realignInfluenceAfterFactionChange')) throw new Error
 if(!html.includes('id="publicStanding"') || !html.includes('id="domainList"') || !html.includes('id="affiliateList"')) throw new Error('V1.6 influence UI missing');
 const badDynamicLoops=[...app.matchAll(/(?<!\$)\$\([^;\n]*?\)\.forEach/g)];
 if(badDynamicLoops.length) throw new Error('Single-element selector used as list: '+badDynamicLoops[0][0]);
+if(!app.includes("$('[data-c]').forEach(function(b)")) throw new Error('V5.3 decision choices must bind through the multi-element selector helper');
 if(!app.includes('function strategyTick') || !app.includes('function simulateWars') || !app.includes('function startStrategicWar')) throw new Error('V1.6 strategic war engine missing');
 if(!app.includes('function createTreaty') || !app.includes('function simulateTreaties') || !app.includes('function coalitionFor')) throw new Error('V1.6 alliance engine missing');
 if(!app.includes('function launchCampaign') || !app.includes('function supportStrategicWar') || !app.includes('function joinWarFront') || !app.includes('function proposeStrategicPeace')) throw new Error('V1.6 player strategy actions missing');
