@@ -1773,6 +1773,24 @@ test('V5.0 succession starts a fresh personal story history',()=>{
   return 'fresh story history / dynasty legacy retained';
 });
 
+
+test('V5.0 succession keeps the most meaningful historical relations under the inheritance cap',()=>{
+  const g=fresh(50152),p=g.player;p.ageMonths=600;
+  const partner=q.createRelation('ami');partner.name='Partner Cap QA';partner.type='partner';partner.role='conjoint';partner.trust=99;partner.loyalty=99;partner.respect=90;p.life.partnerId=partner.id;p.life.relationshipStatus='Marié';
+  for(let i=0;i<11;i++){const r=q.createRelation('ami');r.name='Ordinary Legacy '+i;r.role='ami';r.type='social';r.trust=76;r.loyalty=40;r.respect=40;r.monthsKnown=18}
+  const mentor=q.createRelation('mentor');mentor.name='Late Mentor QA';mentor.role='mentor';mentor.type='social';mentor.trust=68;mentor.loyalty=60;mentor.respect=94;mentor.monthsKnown=96;mentor.memories=[{text:'Transmission décisive',type:'mentor',age:'40 ans'}];
+  const rival=q.createRelation('rival');rival.name='Late Nemesis QA';rival.role='rival';rival.type='social';rival.trust=20;rival.loyalty=10;rival.respect=88;rival.rivalry=96;rival.nemesisRecognized=true;rival.monthsKnown=120;rival.memories=[{text:'Rivalité fondatrice',type:'rival',age:'42 ans'}];
+  p.children=[{id:'heir-rel-cap',name:'Héritier Relations QA',ageMonths:216,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:80}];
+  g.death={cause:'QA relation cap'};q.buildHeir(p.children[0]);
+  const historical=g.relations.filter(r=>r.type==='legacy'||r.type==='canonical'),names=historical.map(r=>r.name);
+  assert(historical.length===10,'historical relation inheritance cap changed: '+historical.length);
+  assert(names.includes('Late Mentor QA'),'meaningful mentor was displaced by earlier ordinary contacts');
+  assert(names.includes('Late Nemesis QA'),'recognized nemesis was displaced by earlier ordinary contacts');
+  assert(g.relations.filter(r=>r.name==='Partner Cap QA').length===1&&g.relations.some(r=>r.name==='Partner Cap QA'&&r.role==='parent'),'surviving partner consumed a legacy slot or was duplicated');
+  assert(names.filter(n=>n.indexOf('Ordinary Legacy ')===0).length===8,'ordinary contacts did not yield to stronger inherited bonds');
+  return names.join(' / ');
+});
+
 test('V5.0 inherited historical relation keeps NPC career state but resets personal counters',()=>{
   const g=fresh(50150),p=g.player;p.ageMonths=600;
   const r=q.createRelation('mentor');r.name='Legacy NPC QA';r.role='mentor';r.type='social';r.trust=88;r.loyalty=82;r.respect=90;r.npcAgeMonths=720;r.npcPower=78;r.npcPotential=91;r.npcSpecialty='Combat';r.npcTrajectory='Stable';r.npcAmbition='Servir sa faction';r.npcWealth=144000;r.careerLevel=5;r.npcWins=19;r.npcLosses=4;r.injuryMonths=3;r.lastIntentOutcome='Mission accomplie';r.mentorSessions=8;r.favorBalance=6;r.rivalWins=2;r.rivalLosses=1;
