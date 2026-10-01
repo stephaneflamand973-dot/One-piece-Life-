@@ -99,7 +99,7 @@ function adultPirate(seed=2001){
   const g=fresh(seed);const p=g.player;p.ageMonths=300;p.money=3000000;p.reputation=100;
   Object.keys(p.stats).forEach(k=>{p.stats[k]=88;p.caps[k]=98});
   Object.keys(p.skills).forEach(k=>{p.skills[k]=82;p.caps[k]=98});
-  p.factionRep.Pirates=100;q.join('Pirates','Capitaine');p.rank='Capitaine';q.careerRecord().rank='Capitaine';
+  p.factionRep.Pirates=100;q.join('Pirates','Capitaine',{pirateMode:'founded'});p.rank='Capitaine';q.careerRecord().rank='Capitaine';
   q.syncOrganizationRole();if(p.organization){p.organization.renown=100;p.organization.morale=90;p.organization.cohesion=90;p.organization.treasury=1000000;p.organization.supplies=100}
   return g;
 }
@@ -3087,13 +3087,30 @@ test('V5.3 joining pirates preserves an existing captain and member path',()=>{
 });
 test('V5.3 founding pirates creates a player-led crew in the living world',()=>{
  const g=fresh(54002),p=g.player;p.ageMonths=240;q.join('Pirates','Novice',{pirateMode:'founded'});const o=p.organization,c=g.world.crews.find(x=>x.id===o.worldCrewId);
- assert(o.pirateOrigin==='founded','founded origin missing');assert(o.authority==='leader','founder is not leader');assert(o.founder===p.name,'founder identity missing');assert(c&&c.playerControlled,'founded crew not registered in world');assert(c.leader&&c.leader.name===p.name,'world crew leader is not player');return o.name+' / '+o.playerRole;
+ assert(o.pirateOrigin==='founded','founded origin missing');assert(o.authority==='leader','founder is not leader');assert(p.rank==='Capitaine'||p.rank==='Capitaine renommé','founder does not hold captain rank');assert(o.founder===p.name,'founder identity missing');assert(c&&c.playerControlled,'founded crew not registered in world');assert(c.leader&&c.leader.name===p.name,'world crew leader is not player');return o.name+' / '+o.playerRole;
 });
 test('V5.3 a pirate who joined can later found an independent crew',()=>{
  const g=fresh(54003),p=g.player;p.ageMonths=240;const wc=q.pirateCrewCandidate(g,p);q.join('Pirates','Novice',{pirateMode:'joined',worldCrew:wc});const former=p.organization.name;
  q.foundOwnPirateCrew();assert(g.pending&&g.pending.title==='Fonder ton équipage','founding decision missing');g.pending.choices[0][2]();g.pending=null;
  assert(p.organization.pirateOrigin==='founded','path did not switch to founded');assert(p.organization.name!==former,'crew identity did not change');assert(p.organization.authority==='leader','new founder is not captain');assert((p.organizationHistory||[]).some(x=>x.name===former),'former crew not archived');return former+' → '+p.organization.name;
 });
+test('V5.3 joined pirate career is hard-capped at Bras droit',()=>{
+ const g=fresh(54006),p=g.player;p.ageMonths=300;p.reputation=100;p.factionRep.Pirates=100;const wc=q.pirateCrewCandidate(g,p);q.join('Pirates','Novice',{pirateMode:'joined',worldCrew:wc});const rec=q.careerRecord();
+ p.rank='Bras droit';rec.rank='Bras droit';rec.xp=5000;q.syncOrganizationRole();
+ assert(p.organization.authority==='officer','Bras droit should remain officer, got '+p.organization.authority);assert(q.nextRank()===null,'joined pirate can still promote into captaincy');assert(p.organization.playerRole==='Bras droit','joined top role not labelled Bras droit');
+ return p.rank+' / '+p.organization.authority+' / no captain promotion';
+});
+test('V5.3 joined pirate legacy captain saves migrate back below captaincy',()=>{
+ let g=fresh(54007),p=g.player;p.ageMonths=300;const wc=q.pirateCrewCandidate(g,p);q.join('Pirates','Novice',{pirateMode:'joined',worldCrew:wc});p.rank='Capitaine';q.careerRecord().rank='Capitaine';g=JSON.parse(JSON.stringify(g));g=q.migrate(g);q.setGame(g);p=g.player;q.syncOrganizationRole();
+ assert(p.rank==='Bras droit','legacy joined captain rank not capped: '+p.rank);assert(p.organization.authority==='officer','legacy joined captain still leads crew');return 'Capitaine → '+p.rank;
+});
+test('V5.3 pirate crew paths expose different command functions',()=>{
+ const g=fresh(54008),p=g.player;p.ageMonths=300;const wc=q.pirateCrewCandidate(g,p);q.join('Pirates','Novice',{pirateMode:'joined',worldCrew:wc});q.setSectionState('character','situation');q.renderChar();let html=fakeElement('#organizationActions').innerHTML;
+ assert(!html.includes('orgRecruitBtn')&&!html.includes('orgTrainBtn'),'ordinary joined member has officer controls');assert(html.includes('foundPirateCrewBtn'),'joined member cannot choose independence');
+ p.rank='Officier';q.careerRecord().rank='Officier';q.syncOrganizationRole();q.renderChar();html=fakeElement('#organizationActions').innerHTML;assert(html.includes('orgRecruitBtn')&&html.includes('orgTrainBtn'),'officer controls missing');assert(!html.includes('orgUpgradeBtn'),'joined officer can upgrade captain ship');
+ q.join('Pirates','Capitaine',{pirateMode:'founded'});q.setSectionState('character','situation');q.renderChar();html=fakeElement('#organizationActions').innerHTML;assert(html.includes('orgRecruitBtn')&&html.includes('orgTrainBtn'),'founder command controls missing');assert(!html.includes('foundPirateCrewBtn'),'founder still offered to found another crew');return 'member ≠ officer ≠ founder';
+});
+
 test('V5.3 autonomous crews support leadership succession',()=>{
  const g=fresh(54004),c=g.world.crews.find(x=>x.faction==='Pirates')||g.world.crews[0];q.normalizeWorldCrew(c,g);c.second=c.second||{name:'QA Second',power:55,loyalty:70,status:'active',role:'Bras droit',tenureMonths:10};const old=c.leader.name,gen=c.generation;c.leader.status='dead';const ok=q.promoteWorldCrewLeader(c,'un test de succession');
  assert(ok,'succession failed');assert(c.generation===gen+1,'generation did not advance');assert(c.leader.name!==old,'leader did not change');assert(c.legacy.successions>=1,'succession legacy missing');return old+' → '+c.leader.name+' / génération '+c.generation;
