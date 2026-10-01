@@ -2812,8 +2812,12 @@ test('V5.1 a real linked career intervention unlocks sustained saga continuation
  const culmination=q.sagaFollowupMissionOpportunity();
  assert(culmination&&culmination.sourceId===saga.id,'culmination continuation did not remain available');
  q.playerWorldImpact(true,culmination);
- assert((saga.playerCausalMissions||0)===3&&saga.playerRole==='decisive'&&saga.playerImpact>=55,'sustained saga continuation could not become decisive');
- return culmination.variantKey+' / '+Math.round(saga.playerImpact)+' impact';
+ assert((saga.playerCausalMissions||0)===3&&saga.playerRole==='participant'&&saga.playerImpact<55,'third linked intervention became decisive before sustained continuity');
+ const decisive=q.sagaFollowupMissionOpportunity();
+ assert(decisive&&decisive.sourceId===saga.id,'decisive continuation did not remain available after three interventions');
+ q.playerWorldImpact(true,decisive);
+ assert((saga.playerCausalMissions||0)===4&&saga.playerRole==='decisive'&&saga.playerImpact>=55,'four sustained saga interventions did not become decisive');
+ return decisive.variantKey+' / '+Math.round(saga.playerImpact)+' impact';
 });
 
 
@@ -2848,8 +2852,10 @@ test('V5.1 saga-linked career missions become decisive through sustained causal 
  const second=Object.assign({},major,{title:'Deuxième intervention majeure QA',sagaId:saga.id});q.playerWorldImpact(true,second);
  assert(saga.playerRole==='participant'&&saga.playerImpact<55,'second decisive-stakes mission bypassed continuity');
  const third=Object.assign({},major,{title:'Troisième intervention majeure QA',sagaId:saga.id});q.playerWorldImpact(true,third);
- assert(saga.playerRole==='decisive'&&saga.playerImpact>=55,'three sustained decisive-stakes missions did not earn a decisive role');
- assert((saga.playerSources||[]).includes('mission:'+third.title),'decisive mission cause was not preserved');
+ assert(saga.playerRole==='participant'&&saga.playerImpact<55,'third decisive-stakes mission bypassed four-step continuity');
+ const fourth=Object.assign({},major,{title:'Quatrième intervention majeure QA',sagaId:saga.id});q.playerWorldImpact(true,fourth);
+ assert(saga.playerRole==='decisive'&&saga.playerImpact>=55,'four sustained decisive-stakes missions did not earn a decisive role');
+ assert((saga.playerSources||[]).includes('mission:'+fourth.title),'decisive mission cause was not preserved');
  return saga.playerRole+' / '+Math.round(saga.playerImpact)+' impact';
 });
 test('V5.0 saga-linked exceptional mission still needs accumulated impact below decisive stakes',()=>{
@@ -2922,13 +2928,14 @@ test('V5.1 local saga can create an organic career entry mission',()=>{
  const g=fresh(51002),p=g.player;p.ageMonths=330;q.join('Marine','Lieutenant');const rec=q.careerRecord();p.rank='Lieutenant';rec.rank='Lieutenant';const saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-v51-entry');saga.pressure=72;saga.playerCausalMissions=0;saga.playerRole='present';const m=q.sagaFollowupMissionOpportunity();assert(m&&m.sourceType==='saga','high-pressure local saga offered no career entry mission');assert(m.sourceId===saga.id,'entry mission targeted wrong saga');const boost=q.narrativeMissionBoost(m);assert(boost>0,'narrative director did not surface the linked saga mission');assert(boost<.18,'first saga entry is over-prioritized for cautious play: '+boost);return m.title+' / boost '+boost.toFixed(2);
 });
 test('V5.1 first saga entry cannot become decisive without continuity',()=>{
- const g=fresh(51003),p=g.player;p.ageMonths=360;q.join('Marine');p.rank='Commandant';q.careerRecord().rank='Commandant';const saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-v51-continuity');saga.pressure=88;saga.stage='Point culminant';const entry={title:'Entrée décisive QA',tier:5,worldGenerated:true,sourceType:'saga',sourceId:saga.id,variantKey:'entry',importance:82};q.playerWorldImpact(true,entry);assert(saga.playerRole==='participant','first saga entry jumped directly to '+saga.playerRole);assert((saga.playerImpact||0)<55,'first saga entry crossed decisive threshold: '+saga.playerImpact);const follow={title:'Suite décisive QA',tier:5,worldGenerated:true,sourceType:'saga',sourceId:saga.id,variantKey:'escalation',importance:82};q.playerWorldImpact(true,follow);assert(saga.playerRole==='participant'&&(saga.playerImpact||0)<55,'second saga mission became decisive too early');const culmination={title:'Culmination décisive QA',tier:5,worldGenerated:true,sourceType:'saga',sourceId:saga.id,variantKey:'culmination',importance:82};q.playerWorldImpact(true,culmination);assert(saga.playerRole==='decisive'&&(saga.playerImpact||0)>=55,'sustained successful involvement could not become decisive');return Math.round(saga.playerImpact)+' impact after sustained continuity';
+ const g=fresh(51003),p=g.player;p.ageMonths=360;q.join('Marine');p.rank='Commandant';q.careerRecord().rank='Commandant';const saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-v51-continuity');saga.pressure=88;saga.stage='Point culminant';const entry={title:'Entrée décisive QA',tier:5,worldGenerated:true,sourceType:'saga',sourceId:saga.id,variantKey:'entry',importance:82};q.playerWorldImpact(true,entry);assert(saga.playerRole==='participant','first saga entry jumped directly to '+saga.playerRole);assert((saga.playerImpact||0)<55,'first saga entry crossed decisive threshold: '+saga.playerImpact);const follow={title:'Suite décisive QA',tier:5,worldGenerated:true,sourceType:'saga',sourceId:saga.id,variantKey:'escalation',importance:82};q.playerWorldImpact(true,follow);assert(saga.playerRole==='participant'&&(saga.playerImpact||0)<55,'second saga mission became decisive too early');const culmination={title:'Culmination décisive QA',tier:5,worldGenerated:true,sourceType:'saga',sourceId:saga.id,variantKey:'culmination',importance:82};q.playerWorldImpact(true,culmination);assert(saga.playerRole==='participant'&&(saga.playerImpact||0)<55,'third saga mission became decisive too early');const decisive=Object.assign({},culmination,{title:'Acte décisif QA'});q.playerWorldImpact(true,decisive);assert(saga.playerRole==='decisive'&&(saga.playerImpact||0)>=55,'four sustained successful interventions could not become decisive');return Math.round(saga.playerImpact)+' impact after sustained continuity';
 });
 test('V5.1 all saga-linked mission sources require continuity',()=>{
  const g=fresh(51004),p=g.player;p.ageMonths=360;q.join('Marine');p.rank='Commandant';q.careerRecord().rank='Commandant';const saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-v51-source-continuity');saga.pressure=90;saga.stage='Point culminant';
  const first={title:'Conflit lié QA',tier:5,worldGenerated:true,sourceType:'conflict',sourceId:'qa-conflict',sagaId:saga.id,importance:82};q.playerWorldImpact(true,first);assert((saga.playerImpact||0)<55&&saga.playerRole!=='decisive','conflict-linked first mission bypassed continuity');
  const second={title:'Équipage lié QA',tier:5,worldGenerated:true,sourceType:'crew',sourceId:'qa-crew',sagaId:saga.id,importance:82};q.playerWorldImpact(true,second);assert((saga.playerImpact||0)<55&&saga.playerRole!=='decisive','crew-linked second mission bypassed continuity');
- const third={title:'Acteur lié QA',tier:5,worldGenerated:true,sourceType:'actor',sourceId:'qa-actor',sagaId:saga.id,importance:82};q.playerWorldImpact(true,third);assert((saga.playerImpact||0)>=55&&saga.playerRole==='decisive','third linked mission failed to unlock decisive continuity');
+ const third={title:'Acteur lié QA',tier:5,worldGenerated:true,sourceType:'actor',sourceId:'qa-actor',sagaId:saga.id,importance:82};q.playerWorldImpact(true,third);assert((saga.playerImpact||0)<55&&saga.playerRole!=='decisive','third linked mission bypassed four-step continuity');
+ const fourth={title:'Quatrième source liée QA',tier:5,worldGenerated:true,sourceType:'conflict',sourceId:'qa-conflict-2',sagaId:saga.id,importance:82};q.playerWorldImpact(true,fourth);assert((saga.playerImpact||0)>=55&&saga.playerRole==='decisive','fourth linked mission failed to unlock decisive continuity');
  return Math.round(saga.playerImpact)+' impact across linked sources';
 });
 test('V5.1 cautious director follow-up stays visible without becoming dominant',()=>{
