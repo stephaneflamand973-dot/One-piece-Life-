@@ -714,6 +714,7 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y40.avgVisitedPlaces<5)throw new Error('V5.0 forty-year journey remains too static: '+y40.avgVisitedPlaces+' places');
   if(y40.avgSaveKB>300||y40.maxSaveKB>325)throw new Error('V5.0 forty-year save growth regression: avg '+y40.avgSaveKB+' KB / max '+y40.maxSaveKB+' KB');
   if(y40.avgPersonalChapters<5)throw new Error('V5.0 forty-year life chapters too dormant: '+y40.avgPersonalChapters);
+  if(y40.avgMeaningfulPersonalChapters<1.5)throw new Error('V5.0 forty-year meaningful life chapters became too dormant: '+y40.avgMeaningfulPersonalChapters);
   if(y40.avgChapterRepeatShare>.35)throw new Error('V5.0 forty-year personal chapter archive became too repetitive: '+y40.avgChapterRepeatShare);
   if(y40.avgMeaningfulChapterRepeatShare>.25)throw new Error('V5.0 forty-year meaningful personal chapters became too repetitive: '+y40.avgMeaningfulChapterRepeatShare);
   if(y40.avgChronicleHighlights<3||y40.avgChronicleHighlights>8)throw new Error('V5.0 forty-year chronicle lost compact highlight density: '+y40.avgChronicleHighlights);
@@ -1113,6 +1114,7 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
   if((v5.career.minLifeTrajectoryVariety||0)<3)throw new Error('V5.0 similar careers collapsed into too few distinct lives: '+v5.career.minLifeTrajectoryVariety+' minimum biography patterns');
   if((v5.career.avgLifeTrajectoryVariety||0)<5)throw new Error('V5.0 biography diversity regressed across identical career profiles: '+v5.career.avgLifeTrajectoryVariety+' average patterns');
   if(v5.narrative.avgPersonalChapters<2.5)throw new Error('V5.0 personal chapters too dormant: '+v5.narrative.avgPersonalChapters+' per career');
+  if(v5.narrative.avgMeaningfulPersonalChapters<1.5)throw new Error('V5.0 meaningful personal chapters too dormant: '+v5.narrative.avgMeaningfulPersonalChapters+' per career');
   if(v5.narrative.avgChapterRepeatShare>.25)throw new Error('V5.0 personal chapter archive became too repetitive: '+v5.narrative.avgChapterRepeatShare);
   if(v5.narrative.avgMeaningfulChapterRepeatShare>.15)throw new Error('V5.0 meaningful personal chapters became too repetitive: '+v5.narrative.avgMeaningfulChapterRepeatShare);
   if(v5.narrative.maxActiveChapterIdleMonths>=30)throw new Error('V5.0 personal chapter stayed idle too long: '+v5.narrative.maxActiveChapterIdleMonths+' months');
