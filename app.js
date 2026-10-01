@@ -2282,6 +2282,7 @@ function missionImportance(m,world){
  if(m.sourceType==='crew'){var c=(w.crews||[]).find(function(x){return x.id===m.sourceId});if(c)score+=(c.power||0)*.12+(c.playerGrudge||0)*.15+arcPressureFor('crew',c.id)*.08}
  else if(m.sourceType==='conflict'){var cf=(w.conflicts||[]).find(function(x){return x.id===m.sourceId});if(cf)score+=(cf.intensity||0)*.16}
  else if(m.sourceType==='actor'){var a=(w.actors||[]).find(function(x){return x.name===m.sourceId});if(a)score+=Math.min(18,(a.importance||1)*4)}
+ if(m.worldGenerated&&game&&w===game.world){var saga=missionSagaTarget(m);if(saga){var pressure=saga.pressure||0,months=saga.months||0,urgency=Math.max(0,pressure-60)*.22+Math.max(0,months-12)*.08+(saga.stage==='Point culminant'?3:saga.stage==='Escalade'?1:0);score+=Math.min(10,urgency)}}
  return Math.round(cl(score,0,100))
 }
 function missionStakes(m,world){var v=missionImportance(m,world);return v>=72?'Décisive':v>=58?'Exceptionnelle':v>=44?'Importante':'Standard'}

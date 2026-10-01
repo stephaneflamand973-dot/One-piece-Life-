@@ -2497,6 +2497,38 @@ test('V4.0 real player participation persists with a causal role',()=>{
  const g=fresh(40203),saga=q.startWorldSaga('power',g.player.region,g.player.faction,'Marine','qa');g.player.stats.Force=80;g.player.stats.Endurance=80;g.player.stats.Agilité=80;q.playerSagaPresence();q.registerPlayerSagaImpact('decisive','qa-action',30);assert(saga.playerInvolved,'real action did not attach player to saga');assert(saga.playerRole==='decisive','decisive role not persisted');assert(saga.playerSources.includes('qa-action'),'causal source missing');return saga.title+' / '+saga.playerRole+' / '+Math.round(saga.playerImpact);
 });
 
+
+test('V5.0 mature saga pressure can elevate a causally linked mission without lowering decisive thresholds',()=>{
+ const g=fresh(402030),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-mature-war');
+ saga.pressure=78;saga.stage='Point culminant';saga.months=18;
+ g.world.conflicts.push({id:'qa-mature-front',status:'active',region:p.region,location:p.island,attacker:'Marine',defender:'Pirates',warId:'qa-mature-war',intensity:68});
+ const m={title:'Mission liée à une saga mûre',danger:60,tier:4,worldGenerated:true,sourceType:'conflict',sourceId:'qa-mature-front'};
+ assert(q.missionSagaTarget(m)===saga,'mature mission fixture lost its causal saga link');
+ const importance=q.missionImportance(m);
+ assert(importance>=72,'mature saga did not elevate a causally linked mission to decisive stakes: '+importance);
+ assert(q.missionStakes(m)==='Décisive','mature mission stayed below the existing decisive threshold');
+ return importance+' / '+q.missionStakes(m);
+});
+test('V5.0 young saga does not inflate an ordinary linked mission into decisive stakes',()=>{
+ const g=fresh(402034),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-young-war');
+ saga.pressure=42;saga.stage='Confrontation';saga.months=4;
+ g.world.conflicts.push({id:'qa-young-front',status:'active',region:p.region,location:p.island,attacker:'Marine',defender:'Pirates',warId:'qa-young-war',intensity:68});
+ const m={title:'Mission liée à une jeune saga',danger:60,tier:4,worldGenerated:true,sourceType:'conflict',sourceId:'qa-young-front'};
+ const importance=q.missionImportance(m);
+ assert(importance<72,'young saga inflated mission into decisive stakes: '+importance);
+ return importance+' / '+q.missionStakes(m);
+});
+test('V5.0 unrelated world mission receives no saga urgency bonus',()=>{
+ const g=fresh(402035),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-other-war');
+ saga.pressure=92;saga.stage='Point culminant';saga.months=24;
+ g.world.crews.push({id:'qa-unrelated-urgency',name:'Unrelated Urgency QA',status:'active',region:p.region,faction:'Civil',power:50,playerGrudge:0});
+ const m={title:'Mission mondiale sans lien',danger:60,tier:4,worldGenerated:true,sourceType:'crew',sourceId:'qa-unrelated-urgency'};
+ assert(q.missionSagaTarget(m)===null,'unrelated mission unexpectedly linked to mature saga');
+ const importance=q.missionImportance(m);
+ assert(importance<72,'unrelated mission inherited saga urgency: '+importance);
+ return importance+' / '+q.missionStakes(m);
+});
+
 test('V5.0 saga-linked career missions can become decisive through sustained causal impact',()=>{
  const g=fresh(402031),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-career-war');
  g.world.conflicts.push({id:'qa-career-front',status:'active',region:p.region,location:p.island,attacker:'Marine',defender:'Pirates',warId:'qa-career-war',intensity:78});
