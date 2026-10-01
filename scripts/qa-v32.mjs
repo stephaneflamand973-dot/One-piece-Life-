@@ -1760,6 +1760,19 @@ test('V5.0 life chronicle summarizes earned history without new state',()=>{
   const g=fresh(50100),p=g.player;p.ageMonths=480;q.join('Marine');p.rank='Commandant';p.careerRecords.Marine.rank='Commandant';p.visited=['Loguetown','Water 7','Sabaody'];q.signalPersonalChapter('career','Ascension dans la Marine',28,'qa-promotion','Marine');q.signalPersonalChapter('career','Ascension dans la Marine',24,'qa-command','Marine');const d=p.lifeDirector,ch=d.activeChapters[0];q.closePersonalChapter(ch,'qa');const out=q.lifeChronicle(p);assert(out&&out.summary&&out.summary.includes('Marine'),'chronicle missed career identity');assert(out.visitedCount===3,'chronicle missed journey history');assert(out.chapters.length>=1,'chronicle missed personal chapters');return out.headline+' / '+out.visitedCount+' lieux';
 });
 
+test('V5.0 life chronicle preserves significant previous careers but ignores brief detours',()=>{
+  const g=fresh(50102),p=g.player;p.ageMonths=600;p.factionRep.Civil=100;p.factionRep.Pirates=100;p.factionRep.Marine=100;
+  q.join('Civil');let civil=q.careerRecord();civil.months=180;civil.rank='Maître';civil.successes=18;civil.failures=2;civil.distinctions=4;p.rank='Maître';
+  q.join('Pirates');let pirate=q.careerRecord();pirate.months=6;pirate.rank='Membre';pirate.successes=1;pirate.failures=0;p.rank='Membre';
+  q.join('Marine');let marine=q.careerRecord();marine.months=72;marine.rank='Commandant';marine.successes=12;marine.failures=2;marine.distinctions=3;p.rank='Commandant';
+  const out=q.lifeChronicle(p);
+  assert(out.summary.includes('Civil'),'significant previous Civil career disappeared from life chronicle');
+  assert(out.summary.includes('Marine'),'current Marine career disappeared from life chronicle');
+  assert(!out.summary.includes('Pirates'),'brief pirate detour polluted life chronicle');
+  assert(out.highlights.filter(x=>x.kind==='career').length===1,'multi-career biography escaped the compact single-career highlight');
+  return out.summary;
+});
+
 test('V5.0 life chronicle ignores repeated but insignificant chapter noise',()=>{
   const g=fresh(50103),p=g.player;p.ageMonths=420;
   q.signalPersonalChapter('journey','Petite routine QA',3,'tiny-a','tiny-life');p.ageMonths+=2;q.signalPersonalChapter('journey','Petite routine QA',3,'tiny-b','tiny-life');
