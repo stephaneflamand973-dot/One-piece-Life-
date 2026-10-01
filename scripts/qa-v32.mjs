@@ -1484,6 +1484,18 @@ test('V5.0 bounty career missions build capture legacy without manual hunting',(
   return j.captures+' captures / '+j.bountiesClaimed.toLocaleString('fr-FR')+' B claimed';
 });
 
+test('V5.0 sustained mission excellence becomes late-career legend evidence without rewarding volume alone',()=>{
+  const g=fresh(50198),p=g.player;p.ageMonths=600;q.join('Marine');const rec=q.careerRecord();rec.months=360;rec.distinctions=0;
+  rec.successes=20;rec.failures=0;const short=q.organicLegendEvidence();
+  rec.successes=22;rec.failures=10;const weak=q.organicLegendEvidence();
+  rec.successes=30;rec.failures=2;const strong=q.organicLegendEvidence();
+  assert(short.missionExcellence===0,'short high-success career earned mission excellence too early');
+  assert(weak.missionExcellence===0,'low-success mission volume earned mission excellence');
+  assert(strong.missionExcellence>0&&strong.score>weak.score,'sustained high-success mission career did not add organic evidence');
+  assert(strong.missionCount===32&&strong.missionSuccessRate>.9,'mission excellence evidence lost its causal mission record');
+  return short.missionExcellence+' / '+weak.missionExcellence+' / '+strong.missionExcellence+' evidence';
+});
+
 test('V5.0 earned legacy can create a legend without territorial micromanagement',()=>{
   const g=fresh(50100),p=g.player;p.ageMonths=780;p.money=2500000;p.reputation=100;p.factionRep.Civil=100;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';rec.months=500;rec.successes=40;rec.failures=2;rec.recentResults=[1,1,1,1,1,1,1,1];rec.distinctions=12;
   p.skills.Science=75;p.skills.Discipline=75;p.skills.Navigation=75;Object.keys(p.stats).forEach(k=>p.stats[k]=82);if(p.organization){p.organization.renown=100;p.organization.cohesion=90;p.organization.morale=90}
