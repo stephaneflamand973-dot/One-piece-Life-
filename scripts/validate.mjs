@@ -156,6 +156,7 @@ if(!app.includes('meaningfulOrg') || !app.includes('organization:meaningfulOrg?'
 if(!html.includes('id="heirChoices"') || !app.includes('function heirCandidates') || !app.includes("data-heir")) throw new Error('V5.0 explicit heir choice missing');
 if(!app.includes('function lifeChronicle') || !app.includes('chronicle:chronicle.summary') || !app.includes("chronicle.headline")) throw new Error('V5.0 compact life chronicle payoff missing');
 if(!app.includes('function directorLegacyOpportunity') || !app.includes("'legacy-crossroads'") || !app.includes('legacyChoice') || !app.includes("embrace-legacy")) throw new Error('V5.0 generational legacy crossroads missing');
+if(!app.includes("chapterPool=[].concat(lg.chapters||[],lg.activeChapters||[])")) throw new Error('V5.0 inherited active life chapters missing from legacy crossroads');
 if(!app.includes('p.ageMonths>480') || !app.includes("legacy&&p.ageMonths>=216")) throw new Error('V5.0 meaningful legacy crossroads pacing missing');
 if(!app.includes('function latestDynastyLegacy') || !app.includes("Héritage de '+e(ancestor.name)")) throw new Error('V5.0 visible generational legacy missing');
 if(!app.includes("Chapitre actuel : ")) throw new Error('V5.0 active chapter is not surfaced in AVANCER');
