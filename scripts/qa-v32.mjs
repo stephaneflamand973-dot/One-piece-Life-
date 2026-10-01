@@ -1635,6 +1635,21 @@ test('V5.0 exceptional twenty-year careers can reach organic legend status in ev
 });
 
 
+
+test('V5.0 organic legend qualification matches the displayed rounded evidence score',()=>{
+  const g=fresh(50171),p=g.player;p.ageMonths=720;q.join('Chasseur de primes');p.specialization='Traqueur';p.rank='Maître chasseur';
+  const rec=q.careerRecord();rec.specialization='Traqueur';rec.rank='Maître chasseur';rec.months=480;rec.successes=38;rec.failures=3;rec.distinctions=3;rec.legendDistinctions=3;
+  p.justice.captures=12;p.justice.bountiesClaimed=90000000;
+  p.visited=['Foosha Village','Orange Town','Syrup Village','Loguetown','Reverse Mountain','Whisky Peak','Little Garden','Drum','Alabasta','Jaya'];
+  p.lifeDirector.chapterHistory=[{id:'rounding-ch',kind:'career',title:'Traque durable',score:50,beats:3,duration:18}];
+  g.loop.foundingMemories=[{title:'Fondation A',weight:86},{title:'Fondation B',weight:84}];
+  g.loop.signatureMoments=[{id:1,title:'Moment A',kind:'career',weight:84},{id:2,title:'Moment B',kind:'career',weight:82}];
+  const ev=q.organicLegendEvidence();
+  assert(ev.score===58,'rounding fixture no longer targets displayed threshold: '+ev.score);
+  assert(ev.gate&&ev.qualified,'displayed 58-point evidence did not qualify at the 58-point threshold');
+  return ev.score+' displayed evidence / qualified';
+});
+
 test('V5.0 route breadth becomes capped legend evidence only for route careers',()=>{
   const g=fresh(50170),p=g.player;p.ageMonths=720;q.join('Chasseur de primes');p.specialization='Traqueur';q.careerRecord().specialization='Traqueur';
   const rec=q.careerRecord();rec.months=360;rec.successes=30;rec.failures=2;p.visited=['Foosha Village','Orange Town','Syrup Village','Loguetown','Reverse Mountain','Whisky Peak','Little Garden','Drum','Alabasta','Jaya'];
