@@ -2693,6 +2693,12 @@ test('V4.0 real player participation persists with a causal role',()=>{
 });
 
 
+test('V5.0 strategic war impact cannot leak into an unrelated saga in the same region',()=>{
+ const g=adultPirate(402029),p=g.player;g.world.diplomacy[['Marine','Pirates'].sort().join('|')]=-100;const target=Object.keys(g.world.territories).find(n=>g.world.territories[n].controller==='Marine');assert(target,'no Marine target for saga isolation fixture');
+ const war=q.startStrategicWar('Pirates','Marine','territory',target,'player');assert(war&&war.status==='active','strategic war fixture failed');const warSaga=q.startWorldSaga('war',war.region,war.attacker,war.defender,war.id),decoy=q.startWorldSaga('power',war.region,'Révolutionnaires','Gouvernement','qa-unrelated-saga');assert(warSaga&&decoy&&warSaga.id!==decoy.id,'saga isolation fixture collapsed');
+ q.resolveWar(war,'attacker');assert(warSaga.playerInvolved&&warSaga.playerRole==='responsible','player-led war did not attach to its own saga');assert(!(decoy.playerImpact>0)&&!decoy.playerInvolved,'strategic war impact leaked into unrelated same-region saga');return warSaga.playerRole+' / decoy '+(decoy.playerImpact||0);
+});
+
 test('V5.0 mature saga pressure can elevate a causally linked mission without lowering decisive thresholds',()=>{
  const g=fresh(402030),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-mature-war');
  saga.pressure=78;saga.stage='Point culminant';saga.months=18;
