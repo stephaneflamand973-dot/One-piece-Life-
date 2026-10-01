@@ -699,6 +699,13 @@ let postCareerRows=[],postCareerProfiles=[];
   };
   const y40=metrics.v50FortyYearCareer;
   console.log('V50_40Y_PRE_GATE '+JSON.stringify(y40));
+  const v53StorageBreakdown={
+    avgPartsKB:['player','relations','timeline','world','loop','story','codex','achievements','dynasty'].reduce((a,k)=>{a[k]=+(rows.reduce((sum,x)=>sum+((x.storageParts&&x.storageParts[k])||0),0)/rows.length/1024).toFixed(1);return a},{}),
+    avgWorldPartsKB:Array.from(new Set(rows.flatMap(x=>Object.keys(x.worldStorageParts||{})))).reduce((a,k)=>{a[k]=+(rows.reduce((sum,x)=>sum+((x.worldStorageParts&&x.worldStorageParts[k])||0),0)/rows.length/1024).toFixed(1);return a},{}),
+    avgWorldStatePartsKB:Array.from(new Set(rows.flatMap(x=>Object.keys(x.worldStateStorageParts||{})))).reduce((a,k)=>{a[k]=+(rows.reduce((sum,x)=>sum+((x.worldStateStorageParts&&x.worldStateStorageParts[k])||0),0)/rows.length/1024).toFixed(1);return a},{})
+  };
+  console.log('V53_40Y_STORAGE '+JSON.stringify(v53StorageBreakdown));
+
   if(Object.keys(y40.survivalByFaction||{}).length!==6)throw new Error('V5.0 forty-year endgame matrix lost faction coverage');
   if(y40.avgClicksPerYear>6.5)throw new Error('V5.0 forty-year flow regression: '+y40.avgClicksPerYear+' clicks/year');
   if(y40.avgAdvanceReportChars<40)throw new Error('V5.0 forty-year advance report measurement became empty: '+y40.avgAdvanceReportChars+' chars');
