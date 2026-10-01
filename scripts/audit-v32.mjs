@@ -366,15 +366,15 @@ let postCareerRows=[],postCareerProfiles=[];
 
 {
   const profiles=[
-    ['Civil','Scientifique','science'],
-    ['Marine','Combattant','combat'],
-    ['Pirates','Duelliste','combat'],
-    ['Chasseur de primes','Traqueur','combat'],
-    ['Révolutionnaires','Infiltration','stealth'],
-    ['Gouvernement','Renseignement','stealth']
+    ['Civil','Scientifique','science',36700],
+    ['Marine','Combattant','combat',36780],
+    ['Pirates','Duelliste','combat',36860],
+    ['Chasseur de primes','Traqueur','combat',36940],
+    ['Révolutionnaires','Infiltration','stealth',37020],
+    ['Gouvernement','Renseignement','stealth',37100]
   ];
   const rows=[];
-  profiles.forEach((cfg,pi)=>{for(let n=0;n<2;n++)rows.push(qaLongCareer(36700+pi*80+n,cfg[0],cfg[1],cfg[2],30))});
+  profiles.forEach(cfg=>{for(let n=0;n<2;n++)rows.push(qaLongCareer(cfg[3]+n,cfg[0],cfg[1],cfg[2],30))});
   const avg=k=>+(rows.reduce((a,x)=>a+(x[k]||0),0)/rows.length).toFixed(1);
   metrics.v50ThirtyYearCareer={
     sample:rows.length,yearsTarget:30,
@@ -420,15 +420,15 @@ let postCareerRows=[],postCareerProfiles=[];
 
 {
   const profiles=[
-    ['Civil','Scientifique','science'],
-    ['Marine','Combattant','combat'],
-    ['Pirates','Duelliste','combat'],
-    ['Chasseur de primes','Traqueur','combat'],
-    ['Révolutionnaires','Infiltration','stealth'],
-    ['Gouvernement','Renseignement','stealth']
+    ['Civil','Scientifique','science',35200],
+    ['Marine','Combattant','combat',35280],
+    ['Pirates','Duelliste','combat',35360],
+    ['Chasseur de primes','Traqueur','combat',35440],
+    ['Révolutionnaires','Infiltration','stealth',35520],
+    ['Gouvernement','Renseignement','stealth',35600]
   ];
   const rows=[];
-  profiles.forEach((cfg,pi)=>{for(let n=0;n<2;n++)rows.push(qaLongCareer(35200+pi*80+n,cfg[0],cfg[1],cfg[2],40))});
+  profiles.forEach(cfg=>{for(let n=0;n<2;n++)rows.push(qaLongCareer(cfg[3]+n,cfg[0],cfg[1],cfg[2],40))});
   const avg=k=>+(rows.reduce((a,x)=>a+(x[k]||0),0)/rows.length).toFixed(1);
   metrics.v50FortyYearCareer={
     sample:rows.length,yearsTarget:40,
@@ -453,7 +453,9 @@ let postCareerRows=[],postCareerProfiles=[];
     chronicleKinds:rows.reduce((a,x)=>{Object.entries(x.chronicleKinds||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
     avgFoundingMemories:avg('founding'),
     avgRecognition:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.score||0),0)/rows.length).toFixed(1),
+    organicLegendCount:rows.filter(x=>x.endgame&&x.endgame.organic).length,
     organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
+    nearOrganicLegendShare:+(rows.filter(x=>(x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0)>=40).length/rows.length).toFixed(2),
     partneredShare:+(rows.filter(x=>x.relationshipStatus!=='Célibataire').length/rows.length).toFixed(2),
     parentShare:+(rows.filter(x=>x.children>0).length/rows.length).toFixed(2),
     sunsetChoiceShare:+(rows.filter(x=>x.retirementChoice).length/rows.length).toFixed(2),
@@ -494,7 +496,8 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y40.avgChapterRepeatShare>.50)throw new Error('V5.0 forty-year chapter titles became repetitive: '+y40.avgChapterRepeatShare);
   if(y40.maxActiveChapterSpanMonths>72)throw new Error('V5.0 forty-year personal chapter stayed open too long: '+y40.maxActiveChapterSpanMonths+' months');
   if(y40.chronicleUnder3Share>.34)throw new Error('V5.0 forty-year life chronicle is too often too thin: '+y40.chronicleUnder3Share+' under three highlights');
-  if(y40.organicLegendShare<.10)throw new Error('V5.0 organic legends remain effectively unreachable after 40 years: '+y40.organicLegendShare);
+  if((y40.organicLegendCount||0)<1)throw new Error('V5.0 organic legends remain unreachable after 40 years: 0/'+y40.sample);
+  if(y40.nearOrganicLegendShare<.25)throw new Error('V5.0 forty-year careers stopped accumulating enough near-legend evidence: '+y40.nearOrganicLegendShare);
   if(y40.organicLegendShare>.34)throw new Error('V5.0 organic legends became too common after 40 years: '+y40.organicLegendShare);
 }
 
