@@ -3203,6 +3203,16 @@ test('V5.3 compact histories preserve recent world pulse semantics',()=>{
  return ws.actorHistory.length+'/'+ws.crewHistory.length+'/'+ws.territoryHistory.length+' • pulse '+pulse.length;
 });
 
+test('V5.3 declined life choices remain visible in the final chronicle',()=>{
+ const g=fresh(53151),p=g.player;p.ageMonths=360;
+ q.recordLifeDirector('mobility','Mutation refusée vers Water 7',{destination:'Water 7',declined:true});
+ q.recordLifeDirector('family','Étape familiale repoussée',{future:'child',declined:true});
+ const c=q.lifeChronicle(p),titles=(c.highlights||[]).map(x=>x.title);
+ assert(titles.includes('Mutation refusée'),'declined mobility choice missing from chronicle');
+ assert(titles.includes('Projet familial repoussé'),'deferred family choice missing from chronicle');
+ return titles.filter(x=>x==='Mutation refusée'||x==='Projet familial repoussé').join(' / ');
+});
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
