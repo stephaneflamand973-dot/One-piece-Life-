@@ -1738,6 +1738,20 @@ test('V5.0 age alone never grants legendary status',()=>{
   const evidence=q.organicLegendEvidence(),r=q.playerWorldRecognition();assert(!evidence.qualified,'longevity alone qualified as legend');assert(evidence.veteranExcellence===0,'longevity alone received veteran excellence');assert(!r.organicLegendQualified,'longevity alone activated organic legend route');assert(r.role!=='Icône des mers','longevity alone produced legendary role');return evidence.score+' evidence';
 });
 
+
+test('V5.0 exceptional forty-year career can cross the organic evidence gate without saga shortcuts',()=>{
+  const g=fresh(50106),p=g.player;p.ageMonths=696;p.factionRep.Gouvernement=100;q.join('Gouvernement');p.specialization='Renseignement';p.rank='Directeur';
+  const rec=q.careerRecord();rec.rank='Directeur';rec.specialization='Renseignement';rec.months=480;rec.successes=39;rec.failures=3;rec.distinctions=3;rec.legendDistinctions=3;rec.recentResults=[1,1,1,1,1,1,1,0];
+  p.lifeDirector.chapterHistory=[{id:'forty-a',kind:'career',title:'Service durable',score:50,beats:3},{id:'forty-b',kind:'career',title:'Autorité confirmée',score:48,beats:3}];
+  g.loop.foundingMemories=[{title:'Fondation A',weight:88},{title:'Fondation B',weight:86},{title:'Fondation C',weight:84}];
+  g.loop.signatureMoments=[{id:1,title:'Moment A',kind:'career',weight:86},{id:2,title:'Moment B',kind:'career',weight:84},{id:3,title:'Moment C',kind:'career',weight:82}];
+  const evidence=q.organicLegendEvidence();
+  assert(evidence.careerYears===40&&evidence.missionCount===42,'forty-year fixture drifted');
+  assert(evidence.decisiveSagas===0&&evidence.canonImpact===0,'fixture accidentally used saga/canon shortcuts');
+  assert(evidence.score===58&&evidence.qualified,'exceptional forty-year career failed the organic evidence threshold: '+JSON.stringify(evidence));
+  return evidence.score+' evidence / '+Math.round(evidence.missionSuccessRate*100)+'% success';
+});
+
 test('V5.0 decades of sustained excellence can become veteran legend evidence only with support',()=>{
   const g=fresh(50104),p=g.player;p.ageMonths=696;p.money=2500000;p.factionRep.Civil=100;q.join('Civil');p.specialization='Scientifique';p.rank='Maître';const rec=q.careerRecord();rec.rank='Maître';rec.specialization='Scientifique';rec.months=480;rec.successes=38;rec.failures=4;rec.distinctions=4;rec.legendDistinctions=2;rec.recentResults=[1,1,1,1,1,1,1,0];p.skills.Science=76;p.lifeDirector.chapterHistory=[{id:'veteran-a',kind:'career',title:'Longue carrière',score:52,beats:4},{id:'veteran-b',kind:'career',title:'Œuvre durable',score:48,beats:3}];g.loop.foundingMemories=[{title:'Mémoire fondatrice A',weight:86},{title:'Mémoire fondatrice B',weight:84}];
   const evidence=q.organicLegendEvidence();assert(evidence.veteranExcellence>=8&&evidence.veteranExcellence<=10,'veteran excellence bonus not earned coherently: '+evidence.veteranExcellence);assert(evidence.careerYears>=40&&evidence.missionSuccessRate>.8,'veteran fixture did not represent sustained excellence');return evidence.veteranExcellence+' veteran evidence';
