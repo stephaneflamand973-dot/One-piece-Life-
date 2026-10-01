@@ -817,6 +817,7 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
 }
 {
   const v5=metrics.v40PostReleaseAudit;
+  console.log('V50_RANK_DIAGNOSTICS '+JSON.stringify(metrics.v32CareerStress&&metrics.v32CareerStress.byProfile||{}));
   console.log('V50_PRE_GATE '+JSON.stringify({lifeDirector:v5.lifeDirector,career:v5.career,personalLife:v5.personalLife,narrative:v5.narrative,breadth:v5.breadth,flow:v5.flow,storage:v5.storage}));
   if(v5.flow.avgClicksPerYear>6.2)throw new Error('V5.0 flow regression: '+v5.flow.avgClicksPerYear+' clicks/year');
   if(v5.flow.avgInterruptionsPerYear>1.2)throw new Error('V5.0 decision interruption spam: '+v5.flow.avgInterruptionsPerYear+' interruptions/year');
