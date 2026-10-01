@@ -779,13 +779,17 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
 
 {
   const lw=metrics.v40LivingWorld,pf=metrics.v40PirateFlowStress;
-  if(lw.sagas.avgCreatedPerDecade>6)throw new Error('V4.0 saga density regression: '+lw.sagas.avgCreatedPerDecade+' created/decade');
-  if(lw.sagas.avgActive>1.5)throw new Error('V4.0 saga concurrency regression: '+lw.sagas.avgActive+' active average');
-  if(lw.sagas.resolutionRate<.7)throw new Error('V4.0 saga resolution regression: '+lw.sagas.resolutionRate);
-  if(lw.geopolitics.avgDominantShare>.60)throw new Error('V4.0 territorial monopoly regression: '+lw.geopolitics.avgDominantShare);
-  if(lw.geopolitics.avgShifts>35)throw new Error('V4.0 territorial churn regression: '+lw.geopolitics.avgShifts+' shifts/40y');
-  if(lw.performance.avgFinalSaveKB>300)throw new Error('V4.0 save growth regression: '+lw.performance.avgFinalSaveKB+' KB');
-  if(lw.performance.avgWorldMonthMs>12)throw new Error('V4.0 world simulation regression: '+lw.performance.avgWorldMonthMs+' ms/month');
+  if(lw.sagas.avgCreatedPerDecade>4.5)throw new Error('V4.0 saga density regression: '+lw.sagas.avgCreatedPerDecade+' created/decade');
+  if(lw.sagas.avgCreatedPerDecade<1.2)throw new Error('V4.0 living world became too quiet: '+lw.sagas.avgCreatedPerDecade+' sagas/decade');
+  if(lw.sagas.avgActive>1.0)throw new Error('V4.0 saga concurrency regression: '+lw.sagas.avgActive+' active average');
+  if(lw.sagas.avgActive<.15)throw new Error('V4.0 saga layer became effectively dormant: '+lw.sagas.avgActive+' active average');
+  if(lw.sagas.resolutionRate<.9)throw new Error('V4.0 saga resolution regression: '+lw.sagas.resolutionRate);
+  if(lw.sagas.avgDuration<12||lw.sagas.avgDuration>36)throw new Error('V4.0 saga duration left healthy range: '+lw.sagas.avgDuration+' months');
+  if(lw.geopolitics.avgDominantShare>.58)throw new Error('V4.0 territorial monopoly regression: '+lw.geopolitics.avgDominantShare);
+  if(lw.geopolitics.avgShifts>32)throw new Error('V4.0 territorial churn regression: '+lw.geopolitics.avgShifts+' shifts/40y');
+  if(lw.geopolitics.avgShifts<10)throw new Error('V4.0 geopolitics became too static: '+lw.geopolitics.avgShifts+' shifts/40y');
+  if(lw.performance.avgFinalSaveKB>250)throw new Error('V4.0 save growth regression: '+lw.performance.avgFinalSaveKB+' KB');
+  if(lw.performance.avgWorldMonthMs>7)throw new Error('V4.0 world simulation regression: '+lw.performance.avgWorldMonthMs+' ms/month');
   if(pf.avgClicksPerYear>8.5)throw new Error('V4.0 pirate flow regression: '+pf.avgClicksPerYear+' clicks/year');
   if(pf.survival<.70)throw new Error('V4.0 pirate survival regression: '+pf.survival);
   const runaway=Math.max(...Object.values(lw.factionGoals).map(x=>x.avgCompleted||0));if(runaway>5)throw new Error('V4.0 collective ambition runaway: '+runaway+' completions/40y');
