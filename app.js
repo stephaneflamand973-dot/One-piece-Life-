@@ -333,7 +333,7 @@ function actorCombatProxy(a){
  if(!a)return null;var proxy={id:'world-actor-'+a.name,name:a.name,actorName:a.name,canonical:true,npcPower:actorPower(a),npcPotential:a.peak||100,npcSpecialty:'Combat',status:a.status,npcCombat:a.combatProfile||null,npcFruit:a.npcFruit||null};normalizeNpcCombatProfile(game,proxy);a.combatProfile=proxy.npcCombat;return proxy
 }
 function actorCombatRating(a,b){
- var ar=actorCombatProxy(a),br=actorCombatProxy(b),ac=npcCombatScores(ar),bc=npcCombatScores(br),edge=styleEdge(ac.style,bc.style),learn=npcAdaptationBonus(ar,bc.style,null),core=ac.offense*.58+ac.defense*.34+ac.stamina*.08;return core+edge+learn
+ var ar=actorCombatProxy(a),br=actorCombatProxy(b),ac=npcCombatScores(ar),bc=npcCombatScores(br),edge=styleEdge(ac.style,bc.style),learn=npcAdaptationBonus(ar,bc.style,null),core=ac.offense*.58+ac.defense*.34+ac.stamina*.08;return core+edge*.35+learn*.4
 }
 function recordActorCombatLearning(actor,opponent,won){
  var ar=actorCombatProxy(actor),br=actorCombatProxy(opponent),c=ar.npcCombat,style=br.npcCombat.style,a=c.adaptations[style]||(c.adaptations[style]={fights:0,wins:0,losses:0,level:0,terrain:null});a.fights++;if(won)a.wins++;else a.losses++;var previous=a.level||0;a.level=cl(Math.floor(a.losses/2)+Math.floor(a.fights/6),0,4);c.fights=(c.fights||0)+1;if(won)c.wins=(c.wins||0)+1;else c.losses=(c.losses||0)+1;if(a.level>previous)npcAdaptationKeys(style).forEach(function(k){c.stats[k]=cl((c.stats[k]||0)+.45,0,100)});actor.combatProfile=c;return a
@@ -517,7 +517,7 @@ function normalizeNpcCombatProfile(g,r){
  if(c.powerOffset==null)c.powerOffset=target-npcCombatRawPower(c);r.npcCombat=c;return c
 }
 function npcCombatPower(r){
- var c=normalizeNpcCombatProfile(game,r),trajectory=(r.npcPower==null?c.anchorPower:r.npcPower)-c.anchorPower,injury=r.status==='wounded'||(r.injuryMonths||0)>0?Math.min(10,2+(r.injuryMonths||0)*1.2):0;return cl(npcCombatRawPower(c)+(c.powerOffset||0)+trajectory*.72-injury,1,100)
+ var c=normalizeNpcCombatProfile(game,r),trajectory=(r.npcPower==null?c.anchorPower:r.npcPower)-c.anchorPower,injury=r.status==='wounded'||(r.injuryMonths||0)>0?Math.min(10,2+(r.injuryMonths||0)*1.2):0;return cl(npcCombatRawPower(c)+(c.powerOffset||0)+trajectory*(r.canonical?1:.72)-injury,1,100)
 }
 function npcCombatScores(r){
  var c=normalizeNpcCombatProfile(game,r),st=c.stats,h=c.haki,mastery=npcStyleMasteryFrom(c),offMod=c.style==='Corps-à-corps'?2:c.style==='Sabreur'||c.style==='Tireur'?1:c.style==='Mobile / esquive'?-1:0,defMod=c.style==='Mobile / esquive'?3:c.style==='Équilibré'?1:0,tech=npcTechniqueBudget(c),fruit=c.fruit?(c.fruitMastery||0):0;
@@ -988,7 +988,7 @@ function signatureTechniqueTemplates(style){
  var map={'Équilibré':['Convergence parfaite','Riposte des marées','Cycle souverain'],'Corps-à-corps':['Impact du titan','Rafale du conquérant','Poing des tempêtes'],'Sabreur':['Lame du sillage','Croissant des abysses','Iai de l’horizon'],'Tireur':['Ligne parfaite','Étoile balistique','Dernier horizon'],'Mobile / esquive':['Pas fantôme','Angle impossible','Danse du cyclone']};return map[style]||map['Équilibré']
 }
 function signatureTechniqueBonus(){
- var ci=migrateProgression(game,game.player).combatIdentity,s=ci.signatureTechnique;if(!s)return 0;return (s.bonus||0)*(.35+.65*cl(s.mastery||1,0,100)/100)
+ var pr=game&&game.player&&game.player.progression,ci=pr&&pr.combatIdentity,s=ci&&ci.signatureTechnique;if(!s)return 0;return (s.bonus||0)*(.35+.65*cl(s.mastery||1,0,100)/100)
 }
 function maybeDevelopSignatureTechnique(){
  var p=game.player,ci=migrateProgression(game,p).combatIdentity;if(ci.signatureTechnique||ci.fights<12||ci.wins<7||styleMastery()<50)return ci.signatureTechnique;
@@ -1008,7 +1008,7 @@ function progressionSnapshot(){
  var p=game.player;return{ageMonths:p.ageMonths,power:+power().toFixed(2),stats:Object.assign({},p.stats),skills:Object.assign({},p.skills),haki:Object.assign({},p.haki),fruit:+(p.fruitMastery||0).toFixed(2)}
 }
 function recordProgressSnapshot(force){
- var p=game.player,pr=migrateProgression(game,p),ageNow=p.ageMonths||0;if(!force&&ageNow-(pr.lastSnapshotAge||0)<6)return false;pr.snapshots.push(progressionSnapshot());pr.snapshots=pr.snapshots.slice(-30);pr.lastSnapshotAge=ageNow;return true
+ var p=game.player,pr=migrateProgression(game,p),ageNow=p.ageMonths||0;if(!force&&ageNow-(pr.lastSnapshotAge||0)<6)return false;var snap=progressionSnapshot();pr=migrateProgression(game,p);pr.snapshots.push(snap);pr.snapshots=pr.snapshots.slice(-30);pr.lastSnapshotAge=ageNow;return true
 }
 function progressionDelta(){
  var pr=migrateProgression(game,game.player),ss=pr.snapshots;if(ss.length<2)return{power:0,months:0};var a=ss[ss.length-2],b=ss[ss.length-1];return{power:b.power-a.power,months:b.ageMonths-a.ageMonths}
