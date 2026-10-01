@@ -1417,7 +1417,7 @@ function storyChoice(storyId,choiceId){
  if(story.type==='family-future'){
   var df=migrateLifeDirector(game.player),pr=partnerRelation();df.lastFamilyAge=game.player.ageMonths;df.familyOffers++;migrateStoryEngine(game).lastStartAge=game.player.ageMonths+8;
   if(choiceId==='commit'&&pr){game.player.life.relationshipStatus='Marié';pr.role='conjoint';pr.loyalty=cl(pr.loyalty+10,0,100);pr.trust=cl(pr.trust+7,0,100);recordLifeDirector('family','Mariage avec '+pr.name,{relationId:pr.id});signalPersonalChapter('family','Foyer avec '+pr.name,22,'marriage:'+pr.id,pr.id);checkAchievements();return closeStory(story,'mariage','Tu épouses '+pr.name+'. Cette étape devient un chapitre de ta vie plutôt qu’une tâche de menu.',false)}
-  if(choiceId==='child'&&pr){var i=game.player.children.length,name=pk(PEOPLE_NAMES,'family'),child={id:'child-'+game.dynasty.generation+'-'+Math.floor(R('family')*999999)+'-'+i,name:name,ageMonths:0,birthplace:game.player.island,birthRegion:game.player.region,race:game.player.race,status:'active',bond:60+R('family')*25};game.player.children.push(child);game.player.money-=Math.min(game.player.money,2500);recordLifeDirector('family','Naissance de '+name,{childId:child.id});signalPersonalChapter('family','Foyer avec '+pr.name,24,'child:'+child.id,pr.id);checkAchievements();return closeStory(story,'nouvelle génération',name+' rejoint ta famille à '+game.player.island+'.',false)}
+  if(choiceId==='child'&&pr){var i=game.player.children.length,name=familyChildName(),child={id:'child-'+game.dynasty.generation+'-'+Math.floor(R('family')*999999)+'-'+i,name:name,ageMonths:0,birthplace:game.player.island,birthRegion:game.player.region,race:game.player.race,status:'active',bond:60+R('family')*25};game.player.children.push(child);game.player.money-=Math.min(game.player.money,2500);recordLifeDirector('family','Naissance de '+name,{childId:child.id});signalPersonalChapter('family','Foyer avec '+pr.name,24,'child:'+child.id,pr.id);checkAchievements();return closeStory(story,'nouvelle génération',name+' rejoint ta famille à '+game.player.island+'.',false)}
   return closeStory(story,'étape reportée','Vous choisissez de ne pas précipiter cette étape.',false,'abandoned')
  }
  if(story.type==='career-transfer'){
@@ -1522,6 +1522,7 @@ function train(m){
 
 function relationById(id){return game.relations.find(function(r){return r.id===id})||null}
 function partnerRelation(){var id=game.player.life.partnerId;return id?relationById(id):null}
+function familyChildName(){var used=(game.player.children||[]).map(function(c){return c&&c.name}).filter(Boolean),pool=PEOPLE_NAMES.filter(function(name){return used.indexOf(name)<0});return pk(pool.length?pool:PEOPLE_NAMES,'family')}
 function createRelation(role){
  var p=game.player,i=game.socialSeq++,name=pk(PEOPLE_NAMES,'r'),tries=0,years=p.ageMonths/12,roles=years<6?['proche de la famille','connaissance']:years<12?['ami','rival','connaissance']:years<15?['ami','rival','connaissance','mentor']:['ami','rival','mentor','collègue','connaissance'];
  while(game.relations.some(function(r){return r.name===name})&&tries++<12)name=pk(PEOPLE_NAMES,'r');
@@ -1570,7 +1571,7 @@ function breakup(){
  ])}
 function welcomeChild(){
  var p=game.player,r=partnerRelation();if(!r||p.ageMonths<216)return toast('Il faut être adulte et en couple.');if(r.trust<50||r.affection<55)return toast('Votre relation n’est pas assez stable.');if((p.children||[]).length>=5)return toast('Ta famille est déjà très nombreuse.');if(!useSocialAction())return;
- var i=p.children.length,name=pk(PEOPLE_NAMES,'family'),child={id:'child-'+game.dynasty.generation+'-'+Math.floor(R('family')*999999)+'-'+i,name:name,ageMonths:0,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:55+R('family')*30};
+ var i=p.children.length,name=familyChildName(),child={id:'child-'+game.dynasty.generation+'-'+Math.floor(R('family')*999999)+'-'+i,name:name,ageMonths:0,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:55+R('family')*30};
  p.children.push(child);p.money-=Math.min(p.money,2500);migrateLifeDirector(p).lastFamilyAge=p.ageMonths;signalPersonalChapter('family','Foyer avec '+r.name,24,'manual-child:'+child.id,r.id);tl('Nouvelle génération',name+' rejoint ta famille à '+p.island+'.','major');checkAchievements();save();render()
 }
 function upgradeHousing(){
