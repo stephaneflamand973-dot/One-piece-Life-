@@ -9,6 +9,8 @@ on:
       - 'index.html'
       - 'content-v1.js'
       - 'scripts/qa-v32.mjs'
+      - 'scripts/validate.mjs'
+      - 'scripts/validate-content.mjs'
       - 'scripts/audit-v32.mjs'
       - '.github/workflows/audit-v32.yml'
       - '.github/workflows/qa.yml'
