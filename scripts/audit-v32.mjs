@@ -18,8 +18,10 @@ function qaResolveInterruptions(g){
     const st=q.awaitingStory();
     if(st){
       const cs=q.storyChoices(st);
-      if(cs.length)q.storyChoice(st.id,cs[0].id);
-      else q.closeStory(st,'Audit','Audit',false,'failed');
+      if(cs.length){
+        const ix=st.type==='career-sunset'&&cs.length>1&&((Number(g.seed)||0)%2===0)?1:0;
+        q.storyChoice(st.id,cs[ix].id);
+      }else q.closeStory(st,'Audit','Audit',false,'failed');
       continue;
     }
     break;
@@ -64,7 +66,8 @@ function qaLongCareer(seed,faction,spec,profile,years){
   const titles=[],guidance={},chances=[],heatSamples=[];const planCounts={};let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
   while(p.ageMonths<target&&clicks<years*18&&g.alive){
     qaResolveInterruptions(g);
-    if(!g.mission&&p.ageMonths-lastMissionAge>=10){
+    const missionGap=q.careerRecord&&q.careerRecord().retired?24:10;
+    if(!g.mission&&p.ageMonths-lastMissionAge>=missionGap){
       const b=q.board(),ix=qaMissionPick(b);
       if(ix>=0){
         const m=b[ix];titles.push(m.title);started++;if(m.routine)routine++;if(m.adaptive)adaptive++;if(m.worldGenerated)worldGenerated++;if(m.signature)signature++;
@@ -136,7 +139,10 @@ function qaLongCareer(seed,faction,spec,profile,years){
     careerDistinctions:q.careerRecord?(q.careerRecord().distinctions||0):0,
     recentMissionRate:q.careerRecord&&q.careerRecord().recentResults&&q.careerRecord().recentResults.length?+(q.careerRecord().recentResults.reduce((a,b)=>a+b,0)/q.careerRecord().recentResults.length).toFixed(2):0,
     personalChapters:p.lifeDirector&&p.lifeDirector.chapterHistory?p.lifeDirector.chapterHistory.length:0,
-    activePersonalChapters:p.lifeDirector&&p.lifeDirector.activeChapters?p.lifeDirector.activeChapters.length:0
+    activePersonalChapters:p.lifeDirector&&p.lifeDirector.activeChapters?p.lifeDirector.activeChapters.length:0,
+    retirementChoice:q.careerRecord&&q.careerRecord().retirementChoice||null,
+    retired:!!(q.careerRecord&&q.careerRecord().retired),
+    retiredMonths:q.careerRecord?(q.careerRecord().retiredMonths||0):0
   };
 }
 let postCareerRows=[],postCareerProfiles=[];
@@ -320,6 +326,9 @@ let postCareerRows=[],postCareerProfiles=[];
     organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
     partneredShare:+(rows.filter(x=>x.relationshipStatus!=='Célibataire').length/rows.length).toFixed(2),
     parentShare:+(rows.filter(x=>x.children>0).length/rows.length).toFixed(2),
+    sunsetChoiceShare:+(rows.filter(x=>x.retirementChoice).length/rows.length).toFixed(2),
+    retiredShare:+(rows.filter(x=>x.retired).length/rows.length).toFixed(2),
+    avgRetiredMonths:avg('retiredMonths'),
     avgSaveKB:+(rows.reduce((a,x)=>a+(x.saveBytes||0),0)/rows.length/1024).toFixed(1),
     maxSaveKB:+(Math.max(...rows.map(x=>x.saveBytes||0))/1024).toFixed(1),
     deathCauses:rows.filter(x=>!x.alive).reduce((a,x)=>{const k=x.deathCause||'unknown';a[k]=(a[k]||0)+1;return a},{}),
@@ -330,7 +339,7 @@ let postCareerRows=[],postCareerProfiles=[];
     avgDecisiveSagas:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.decisiveSagas||0),0)/rows.length).toFixed(1),
     avgDomains:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.domains||0),0)/rows.length).toFixed(1),
     avgAllies:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.allies||0),0)/rows.length).toFixed(1),
-    profiles:rows.map(x=>({faction:x.faction,spec:x.spec,alive:x.alive,death:x.deathCause||null,rank:x.finalRank,visited:x.visited,chapters:x.personalChapters,founding:x.founding,recognition:x.recognition&&x.recognition.score||0,role:x.recognition&&x.recognition.role||null,legendQualified:!!(x.recognition&&x.recognition.legendQualified),organicQualified:!!(x.recognition&&x.recognition.organicLegendQualified),traditionalQualified:!!(x.recognition&&x.recognition.traditionalLegendQualified),organicEvidence:x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0,legendThreshold:x.recognition&&x.recognition.legendThreshold||88,decisiveSagas:x.recognition&&x.recognition.decisiveSagas||0,domains:x.recognition&&x.recognition.domains||0,allies:x.recognition&&x.recognition.allies||0,saveKB:+((x.saveBytes||0)/1024).toFixed(1)}))
+    profiles:rows.map(x=>({faction:x.faction,spec:x.spec,alive:x.alive,death:x.deathCause||null,rank:x.finalRank,visited:x.visited,chapters:x.personalChapters,founding:x.founding,recognition:x.recognition&&x.recognition.score||0,role:x.recognition&&x.recognition.role||null,legendQualified:!!(x.recognition&&x.recognition.legendQualified),organicQualified:!!(x.recognition&&x.recognition.organicLegendQualified),traditionalQualified:!!(x.recognition&&x.recognition.traditionalLegendQualified),organicEvidence:x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0,legendThreshold:x.recognition&&x.recognition.legendThreshold||88,decisiveSagas:x.recognition&&x.recognition.decisiveSagas||0,domains:x.recognition&&x.recognition.domains||0,allies:x.recognition&&x.recognition.allies||0,retirementChoice:x.retirementChoice||null,retired:!!x.retired,retiredMonths:x.retiredMonths||0,saveKB:+((x.saveBytes||0)/1024).toFixed(1)}))
   };
   const y40=metrics.v50FortyYearCareer;
   if(y40.avgClicksPerYear>6.5)throw new Error('V5.0 forty-year flow regression: '+y40.avgClicksPerYear+' clicks/year');
