@@ -117,6 +117,8 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
   const chapterKinds=chapterHistory.reduce((a,x)=>{const k=x.kind||'other';a[k]=(a[k]||0)+1;return a},{});
   const chapterTitleCounts=chapterHistory.reduce((a,x)=>{const k=x.title||'Sans titre';a[k]=(a[k]||0)+1;return a},{});
   const repeatedChapterRecords=chapterHistory.reduce((n,x)=>n+((chapterTitleCounts[x.title||'Sans titre']||0)>1?1:0),0);
+  const repeatedChapterTitles=Object.entries(chapterTitleCounts).filter(([,count])=>count>1).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([title,count])=>({title,count}));
+  const repeatedChapterKinds=chapterHistory.reduce((a,x)=>{if((chapterTitleCounts[x.title||'Sans titre']||0)>1){const k=x.kind||'other';a[k]=(a[k]||0)+1}return a},{});
   const chronicle=q.lifeChronicle(p);
   return {
     faction,spec,profile,choicePolicy,alive:g.alive,age:+(p.ageMonths/12).toFixed(1),years:+((p.ageMonths-start)/12).toFixed(1),
@@ -194,6 +196,8 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
     chapterAvgDuration:chapterHistory.length?+(chapterHistory.reduce((a,x)=>a+(x.duration||0),0)/chapterHistory.length).toFixed(1):0,
     chapterSignatureShare:chapterHistory.length?+(chapterHistory.filter(x=>(x.score||0)>=36&&(x.beats||0)>=2).length/chapterHistory.length).toFixed(2):0,
     chapterRepeatShare:chapterHistory.length?+(repeatedChapterRecords/chapterHistory.length).toFixed(2):0,
+    chapterRepeatTitles:repeatedChapterTitles,
+    chapterRepeatKinds:repeatedChapterKinds,
     chapterKinds,
     maxActiveChapterIdleMonths:activeChapterList.length?+Math.max(...activeChapterList.map(x=>Math.max(0,p.ageMonths-(x.lastAge==null?p.ageMonths:x.lastAge)))).toFixed(1):0,
     maxActiveChapterSpanMonths:activeChapterList.length?+Math.max(...activeChapterList.map(x=>Math.max(0,p.ageMonths-(x.startedAge==null?p.ageMonths:x.startedAge)))).toFixed(1):0,
@@ -631,6 +635,8 @@ let postCareerRows=[],postCareerProfiles=[];
     avgChapterDurationMonths:avg('chapterAvgDuration'),
     avgChapterSignatureShare:+(rows.reduce((a,x)=>a+(x.chapterSignatureShare||0),0)/rows.length).toFixed(2),
     avgChapterRepeatShare:+(rows.reduce((a,x)=>a+(x.chapterRepeatShare||0),0)/rows.length).toFixed(2),
+    chapterRepeatKinds:rows.reduce((a,x)=>{Object.entries(x.chapterRepeatKinds||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
+    chapterRepeatTitles:Object.entries(rows.reduce((a,x)=>{(x.chapterRepeatTitles||[]).forEach(r=>a[r.title]=(a[r.title]||0)+r.count);return a},{})).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,12).map(([title,count])=>({title,count})),
     maxActiveChapterIdleMonths:Math.max(...rows.map(x=>x.maxActiveChapterIdleMonths||0)),
     maxActiveChapterSpanMonths:Math.max(...rows.map(x=>x.maxActiveChapterSpanMonths||0)),
     avgChronicleHighlights:avg('chronicleHighlights'),
