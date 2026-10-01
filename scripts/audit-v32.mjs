@@ -68,8 +68,11 @@ function qaTuneProfile(p,profile){
 function qaMissionPick(board,policy){
   if(!board.length)return -1;
   if(policy==='saga-seeker'){
-    const decisive=board.map((x,i)=>({x,i})).filter(o=>o.x.worldGenerated&&(o.x.tier||0)>=4&&(o.x.importance||0)>=72&&(o.x.chance||0)>=.35&&q.missionSagaTarget&&q.missionSagaTarget(o.x)).sort((a,b)=>(b.x.chance||0)-(a.x.chance||0));
+    const linked=board.map((x,i)=>({x,i,linked:q.missionSagaTarget&&q.missionSagaTarget(x)})).filter(o=>o.x.worldGenerated&&o.linked&&(o.x.chance||0)>=.35);
+    const decisive=linked.filter(o=>(o.x.tier||0)>=4&&(o.x.importance||0)>=72).sort((a,b)=>(b.x.importance||0)-(a.x.importance||0)||(b.x.chance||0)-(a.x.chance||0));
     if(decisive.length)return decisive[0].i;
+    const continuity=linked.filter(o=>o.x.sourceType==='saga'||(o.x.importance||0)>=58).sort((a,b)=>(b.x.importance||0)-(a.x.importance||0)||(b.x.chance||0)-(a.x.chance||0));
+    if(continuity.length)return continuity[0].i;
   }
   const rec=board.findIndex(x=>x.recommended);
   if(rec>=0)return rec;
