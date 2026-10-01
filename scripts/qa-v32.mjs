@@ -1288,6 +1288,16 @@ test('V5.0 pirate navigator receives a genuinely mobile cadence',()=>{
   assert(timing.floor<=16&&timing.overdue<=32,'pirate navigator remains too static: '+timing.floor+'/'+timing.overdue);
   return timing.floor+'/'+timing.overdue+' months';
 });
+
+test('V5.0 bounty hunter route careers get a distinct mid-mobility cadence',()=>{
+  const g=fresh(50060),p=g.player;p.ageMonths=360;q.join('Chasseur de primes');p.specialization='Traqueur';q.careerRecord().specialization='Traqueur';p.ambition='Survivre';
+  const timing=q.directorMobilityTiming();p.lifeDirector.lastMobilityAge=p.ageMonths-timing.overdue;
+  const priority=q.directorMobilityPriority();
+  assert(timing.floor<=24&&timing.overdue<=47,'bounty hunter route cadence remained too static: '+timing.floor+'/'+timing.overdue);
+  assert(priority>=.68,'overdue bounty hunter never reaches direct mobility priority: '+priority.toFixed(2));
+  return timing.floor+'/'+timing.overdue+'m / priority '+priority.toFixed(2);
+});
+
 test('V5.0 administrative life remains mobile but distinctly steadier',()=>{
   const g=fresh(50056),p=g.player;p.ageMonths=300;
   q.join('Gouvernement');p.specialization='Administration';q.careerRecord().specialization='Administration';p.ambition='Survivre';

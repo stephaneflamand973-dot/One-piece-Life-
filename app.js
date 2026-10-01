@@ -1126,8 +1126,9 @@ function directorTravelContext(name){
  return{score:score,reason:reason,controller:t.controller,stability:t.stability||0,region:info.region,danger:info.danger,fresh:fresh,backtrackPenalty:backtrackPenalty}
 }
 function directorMobilityTiming(){
- var p=game.player,floor=27,overdue=54,sp=p.specialization||'',navigator=(sp==='Navigateur'||sp==='Navigation'),deepExplorer=false;
+ var p=game.player,floor=27,overdue=54,sp=p.specialization||'',navigator=(sp==='Navigateur'||sp==='Navigation'),hunterRoute=(sp==='Traqueur'||sp==='Investigateur'),deepExplorer=false;
  if(navigator){floor-=4;overdue-=8}
+ if(hunterRoute){floor-=2;overdue-=4}
  if(p.faction==='Pirates'){floor-=3;overdue-=5}
  else if(p.faction==='Chasseur de primes'||p.faction==='Révolutionnaires'){floor-=1;overdue-=3}
  else if(p.faction==='Gouvernement'&&sp==='Administration'){floor+=3;overdue+=6}
@@ -1143,6 +1144,7 @@ function directorMobilityPriority(){
  if(elapsed<timing.floor)return 0;
  var span=Math.max(1,timing.overdue-timing.floor),progress=cl((elapsed-timing.floor)/span,0,1),bonus=0;
  if(sp==='Navigateur'||sp==='Navigation')bonus+=.16;
+ if(sp==='Traqueur'||sp==='Investigateur')bonus+=.08;
  if(p.faction==='Pirates')bonus+=.10;
  else if(p.faction==='Chasseur de primes'||p.faction==='Révolutionnaires')bonus+=.04;
  if(p.ambition==='Explorer le monde')bonus+=.16;
