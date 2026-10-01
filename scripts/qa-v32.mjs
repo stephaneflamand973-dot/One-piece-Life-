@@ -1353,6 +1353,12 @@ test('V5.0 zero child bond remains a real persistent consequence',()=>{
   q.lifeTick(1);assert(p.children[0].bond<2,'zero child bond silently reset toward a friendly default: '+p.children[0].bond);return p.children[0].bond.toFixed(2);
 });
 
+test('V5.0 adult children stop inflating parental household costs',()=>{
+  const g=fresh(500528),p=g.player;p.ageMonths=600;p.children=[{id:'dependent-kid',name:'Ari',ageMonths:215,status:'active'}];
+  const dependent=q.livingCostPerMonth();p.children[0].ageMonths=216;const adult=q.livingCostPerMonth();
+  assert(Math.round(dependent-adult)===850,'adult child still charged as a dependent: '+dependent+' -> '+adult);return Math.round(dependent)+' -> '+Math.round(adult);
+});
+
 test('V5.0 inactive children do not inflate current household costs',()=>{
   const g=fresh(500529),p=g.player;p.ageMonths=360;p.children=[{id:'active-kid',name:'Ari',ageMonths:60,status:'active'},{id:'inactive-kid',name:'Bela',ageMonths:120,status:'inactive'}];
   const one=q.livingCostPerMonth();p.children[1].status='active';const two=q.livingCostPerMonth();assert(Math.round(two-one)===850,'inactive child still affected household cost: '+one+' -> '+two);return Math.round(one)+' -> '+Math.round(two);
