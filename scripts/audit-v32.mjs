@@ -802,6 +802,7 @@ let postCareerRows=[],postCareerProfiles=[];
     parent:+(cc.mixed.parentShare-cc.baseline.parentShare).toFixed(2),
     chronicleHighlights:+(cc.mixed.avgChronicleHighlights-cc.baseline.avgChronicleHighlights).toFixed(2)
   };
+  console.log('V50_CHOICE_CONSEQUENCE_PRE_GATE '+JSON.stringify(metrics.v50ChoiceConsequenceStress));
   const mc=metrics.v50MixedChoiceStress;
   if((acceptTransfers<1||declineTransfers<1))throw new Error('V5.0 mixed-choice audit failed to cover both mobility branches');
   if((exploreRomance<1||keepFriendship<1))throw new Error('V5.0 mixed-choice audit failed to cover both romance branches');
