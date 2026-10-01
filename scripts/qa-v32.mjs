@@ -1464,6 +1464,11 @@ test('V5.0 AVANCER surfaces the strongest meaningful personal chapter',()=>{
 });
 
 
+test('V5.0 mobility preserves zero territorial stability as a real causal signal',()=>{
+  const g=fresh(500609),p=g.player;p.ageMonths=360;p.skills.Navigation=60;p.island='Loguetown';p.region='East Blue';p.visited=['Loguetown','Shells Town'];p.factionRep.Marine=100;q.join('Marine');
+  const t=g.world.territories['Shells Town'];assert(t,'Shells Town territory fixture missing');t.controller='Civil';t.contested=false;t.stability=0;const collapsed=q.directorTravelContext('Shells Town');t.stability=55;const neutral=q.directorTravelContext('Shells Town');
+  assert(collapsed.stability===0,'zero stability was normalized away');assert(collapsed.score>neutral.score+2,'Marine mobility treated collapsed territory like neutral stability: '+collapsed.score+' / '+neutral.score);return collapsed.score.toFixed(2)+' vs '+neutral.score.toFixed(2);
+});
 test('V5.0 career transfer destinations react to factional world context',()=>{
   const g=fresh(50061),p=g.player;p.ageMonths=360;p.skills.Navigation=60;p.island='Loguetown';p.region='East Blue';p.visited=['Loguetown'];p.travel=null;p.life.partnerId=null;p.life.relationshipStatus='Célibataire';p.factionRep.Marine=100;q.join('Marine');const routes=(q.constants.PL[p.island][2]||[]).filter(x=>q.req(x)[0]);routes.forEach(n=>{if(g.world.territories[n]){g.world.territories[n].controller='Civil';g.world.territories[n].stability=82;g.world.territories[n].contested=false}});assert(routes.includes('Shells Town'),'fixture route Shells Town missing');g.world.territories['Shells Town'].controller='Pirates';g.world.territories['Shells Town'].stability=28;p.lifeDirector.lastMobilityAge=300;const hostile=q.directorTravelContext('Shells Town'),candidate=q.directorTravelCandidate(),candidateCtx=q.directorTravelContext(candidate),neutralMax=Math.max(...routes.filter(n=>n!=='Shells Town').map(n=>q.directorTravelContext(n).score));assert(hostile.score>neutralMax,'Marine context did not rank pirate pressure first: '+hostile.score+' <= '+neutralMax);assert(candidate==='Shells Town','director ignored normalized causal destination ranking: '+candidate+' / '+candidateCtx.score+' vs '+hostile.score);return hostile.reason;
 });
