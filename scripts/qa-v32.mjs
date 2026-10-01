@@ -1104,6 +1104,12 @@ test('V5.0 strong social bond can surface romance without menu hunting',()=>{
 test('V5.0 family future can emerge after an established relationship',()=>{
   const g=fresh(50005),p=g.player;p.ageMonths=360;p.factionRep.Civil=100;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=360;r.location=p.island;r.region=p.region;r.affection=80;r.trust=78;r.relationshipMonths=18;p.life.partnerId=r.id;p.life.relationshipStatus='En couple';const kind=q.directorFamilyOpportunity();assert(kind==='marriage','marriage opportunity not recognized');const st=q.startStory('family-future');assert(st&&st.data.future==='marriage','family story wrong stage');st.awaiting=true;q.storyChoice(st.id,'commit');assert(p.life.relationshipStatus==='Marié'&&r.role==='conjoint','marriage did not persist');return 'married '+r.name;
 });
+test('V5.1 deferred family choice creates a real multi-year consequence',()=>{
+  const g=fresh(51008),p=g.player;p.ageMonths=360;p.factionRep.Civil=100;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=360;r.location=p.island;r.region=p.region;r.affection=84;r.trust=82;r.relationshipMonths=30;r.type='partner';r.role='conjoint';p.life.partnerId=r.id;p.life.relationshipStatus='Marié';
+  const st=q.startStory('family-future');assert(st&&st.data.future==='child','child opportunity missing');st.awaiting=true;q.storyChoice(st.id,'wait');
+  const d=q.migrateLifeDirector(p),until=d.familyDeferredUntil;assert(until>=p.ageMonths+47,'family deferral is too short');assert(q.directorFamilyOpportunity()===null,'family choice was immediately re-offered');p.ageMonths=until-1;assert(q.directorFamilyOpportunity()===null,'family choice returned before deferral ended');p.ageMonths=until;assert(q.directorFamilyOpportunity()==='child','family choice never becomes available after real deferral');
+  return Math.round(until-360)+' months deferred';
+});
 test('V5.0 Life Director history stays bounded',()=>{
   const g=fresh(50006),p=g.player;for(let i=0;i<80;i++)q.recordLifeDirector('qa','event '+i,{i});assert(p.lifeDirector.history.length<=30,'Life Director history is unbounded');return p.lifeDirector.history.length+' records';
 });
