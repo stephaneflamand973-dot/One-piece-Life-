@@ -564,7 +564,7 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y40.maxActiveChapterIdleMonths>31)throw new Error('V5.0 forty-year personal chapter stayed stale too long: '+y40.maxActiveChapterIdleMonths+' months');
   if(y40.survival<.50)throw new Error('V5.0 forty-year survival collapse: '+y40.survival);
   if(y40.avgVisitedPlaces<5)throw new Error('V5.0 forty-year journey remains too static: '+y40.avgVisitedPlaces+' places');
-  if(y40.avgSaveKB>350||y40.maxSaveKB>450)throw new Error('V5.0 forty-year save growth regression: avg '+y40.avgSaveKB+' KB / max '+y40.maxSaveKB+' KB');
+  if(y40.avgSaveKB>300||y40.maxSaveKB>325)throw new Error('V5.0 forty-year save growth regression: avg '+y40.avgSaveKB+' KB / max '+y40.maxSaveKB+' KB');
   if(y40.avgPersonalChapters<5)throw new Error('V5.0 forty-year life chapters too dormant: '+y40.avgPersonalChapters);
   if(y40.avgChapterRepeatShare>.35)throw new Error('V5.0 forty-year personal chapters became too repetitive: '+y40.avgChapterRepeatShare);
   if(y40.avgChronicleHighlights<3||y40.avgChronicleHighlights>8)throw new Error('V5.0 forty-year chronicle lost compact highlight density: '+y40.avgChronicleHighlights);
@@ -925,7 +925,7 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
   if(lw.geopolitics.avgShifts>32)throw new Error('V4.0 territorial churn regression: '+lw.geopolitics.avgShifts+' shifts/40y');
   if(lw.geopolitics.avgShifts<10)throw new Error('V4.0 geopolitics became too static: '+lw.geopolitics.avgShifts+' shifts/40y');
   if(lw.performance.avgFinalSaveKB>250)throw new Error('V4.0 save growth regression: '+lw.performance.avgFinalSaveKB+' KB');
-  if(lw.performance.avgWorldMonthMs>7)throw new Error('V4.0 world simulation regression: '+lw.performance.avgWorldMonthMs+' ms/month');
+  if(lw.performance.avgWorldMonthMs>6)throw new Error('V4.0 world simulation regression: '+lw.performance.avgWorldMonthMs+' ms/month');
   if(pf.avgClicksPerYear>8.5)throw new Error('V4.0 pirate flow regression: '+pf.avgClicksPerYear+' clicks/year');
   if(pf.survival<.70)throw new Error('V4.0 pirate survival regression: '+pf.survival);
   const runaway=Math.max(...Object.values(lw.factionGoals).map(x=>x.avgCompleted||0));if(runaway>5)throw new Error('V4.0 collective ambition runaway: '+runaway+' completions/40y');
@@ -947,7 +947,7 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
   if(v5.flow.avgDirectorDecisionsPerYear>.70)throw new Error('V5.0 Life Director became micromanagement: '+v5.flow.avgDirectorDecisionsPerYear+' decisions/year');
   if(v5.flow.avgDirectorDecisionsPerYear<.10)throw new Error('V5.0 Life Director became dormant: '+v5.flow.avgDirectorDecisionsPerYear+' decisions/year');
   if(v5.narrative.maxActiveChapterIdleMonths>31)throw new Error('V5.0 personal chapter stayed stale too long: '+v5.narrative.maxActiveChapterIdleMonths+' months');
-  if(v5.flow.survival<.85)throw new Error('V5.0 survival regression: '+v5.flow.survival);
+  if(v5.flow.survival<.90)throw new Error('V5.0 survival regression: '+v5.flow.survival);
   if(v5.storage.avgSaveKB>300||v5.storage.maxSaveKB>400)throw new Error('V5.0 career save growth regression: avg '+v5.storage.avgSaveKB+' KB / max '+v5.storage.maxSaveKB+' KB');
   if(v5.breadth.avgVisitedPlaces<2.5)throw new Error('V5.0 Grand Journey too static: '+v5.breadth.avgVisitedPlaces+' places visited/20y');
   if(v5.personalLife.partneredShare<.15)throw new Error('V5.0 personal life too dormant: '+v5.personalLife.partneredShare+' partnered share');
