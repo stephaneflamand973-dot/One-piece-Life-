@@ -429,6 +429,10 @@ let postCareerRows=[],postCareerProfiles=[];
   console.log('V50_20Y_PRE_GATE '+JSON.stringify(y20));
   if(Object.keys(y20.survivalByFaction||{}).length!==6)throw new Error('V5.0 twenty-year endgame matrix lost faction coverage');
   if(y20.avgClicksPerYear>6.5)throw new Error('V5.0 twenty-year flow regression: '+y20.avgClicksPerYear+' clicks/year');
+  if(y20.avgAdvanceReportChars<40)throw new Error('V5.0 twenty-year advance report measurement became empty: '+y20.avgAdvanceReportChars+' chars');
+  if(y20.avgAdvanceReportChars>380)throw new Error('V5.0 twenty-year advance reports became too dense: '+y20.avgAdvanceReportChars+' chars average');
+  if(y20.maxAdvanceReportChars>700)throw new Error('V5.0 twenty-year advance report became excessively long: '+y20.maxAdvanceReportChars+' chars');
+  if(y20.avgVerboseAdvanceShare>.08)throw new Error('V5.0 twenty-year advance reports became frequently verbose: '+y20.avgVerboseAdvanceShare);
   if(y20.avgAdvanceReportChars>350||y20.maxAdvanceReportChars>650||y20.avgVerboseAdvanceShare>.03)throw new Error('V5.0 twenty-year AVANCER density regression: avg '+y20.avgAdvanceReportChars+' / max '+y20.maxAdvanceReportChars+' / verbose '+y20.avgVerboseAdvanceShare);
   if(y20.avgInterruptionsPerYear>1.2)throw new Error('V5.0 twenty-year interruption spam: '+y20.avgInterruptionsPerYear+'/year');
   if(y20.survival<.80)throw new Error('V5.0 twenty-year survival collapse: '+y20.survival);
@@ -453,6 +457,9 @@ let postCareerRows=[],postCareerProfiles=[];
     sample:rows.length,yearsTarget:30,
     survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
     avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+    avgAdvanceReportChars:+(rows.reduce((a,x)=>a+(x.avgAdvanceReportChars||0),0)/rows.length).toFixed(1),
+    maxAdvanceReportChars:Math.max(...rows.map(x=>x.maxAdvanceReportChars||0)),
+    avgVerboseAdvanceShare:+(rows.reduce((a,x)=>a+(x.verboseAdvanceShare||0),0)/rows.length).toFixed(2),
     avgInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.interruptionsPerYear,0)/rows.length).toFixed(2),
     avgDirectorDecisionsPerYear:+(rows.reduce((a,x)=>a+x.directorDecisionsPerYear,0)/rows.length).toFixed(2),
     avgVisitedPlaces:avg('visited'),
@@ -497,6 +504,10 @@ let postCareerRows=[],postCareerProfiles=[];
   console.log('V50_30Y_PRE_GATE '+JSON.stringify(y30));
   if(Object.keys(y30.survivalByFaction||{}).length!==6)throw new Error('V5.0 thirty-year endgame matrix lost faction coverage');
   if(y30.avgClicksPerYear>6.5)throw new Error('V5.0 thirty-year flow regression: '+y30.avgClicksPerYear+' clicks/year');
+  if(y30.avgAdvanceReportChars<40)throw new Error('V5.0 thirty-year advance report measurement became empty: '+y30.avgAdvanceReportChars+' chars');
+  if(y30.avgAdvanceReportChars>380)throw new Error('V5.0 thirty-year advance reports became too dense: '+y30.avgAdvanceReportChars+' chars average');
+  if(y30.maxAdvanceReportChars>700)throw new Error('V5.0 thirty-year advance report became excessively long: '+y30.maxAdvanceReportChars+' chars');
+  if(y30.avgVerboseAdvanceShare>.08)throw new Error('V5.0 thirty-year advance reports became frequently verbose: '+y30.avgVerboseAdvanceShare);
   if(y30.avgInterruptionsPerYear>1.1)throw new Error('V5.0 thirty-year interruption spam: '+y30.avgInterruptionsPerYear+'/year');
   if(y30.survival<.60)throw new Error('V5.0 thirty-year survival collapse: '+y30.survival);
   if(y30.avgVisitedPlaces<4)throw new Error('V5.0 thirty-year journey remains too static: '+y30.avgVisitedPlaces+' places');
@@ -572,6 +583,10 @@ let postCareerRows=[],postCareerProfiles=[];
   console.log('V50_40Y_PRE_GATE '+JSON.stringify(y40));
   if(Object.keys(y40.survivalByFaction||{}).length!==6)throw new Error('V5.0 forty-year endgame matrix lost faction coverage');
   if(y40.avgClicksPerYear>6.5)throw new Error('V5.0 forty-year flow regression: '+y40.avgClicksPerYear+' clicks/year');
+  if(y40.avgAdvanceReportChars<40)throw new Error('V5.0 forty-year advance report measurement became empty: '+y40.avgAdvanceReportChars+' chars');
+  if(y40.avgAdvanceReportChars>380)throw new Error('V5.0 forty-year advance reports became too dense: '+y40.avgAdvanceReportChars+' chars average');
+  if(y40.maxAdvanceReportChars>700)throw new Error('V5.0 forty-year advance report became excessively long: '+y40.maxAdvanceReportChars+' chars');
+  if(y40.avgVerboseAdvanceShare>.08)throw new Error('V5.0 forty-year advance reports became frequently verbose: '+y40.avgVerboseAdvanceShare);
   if(y40.avgAdvanceReportChars>350)throw new Error('V5.0 forty-year AVANCER reports became too dense: '+y40.avgAdvanceReportChars+' chars average');
   if(y40.maxAdvanceReportChars>650)throw new Error('V5.0 forty-year AVANCER report spike became too verbose: '+y40.maxAdvanceReportChars+' chars');
   if(y40.avgVerboseAdvanceShare>.03)throw new Error('V5.0 too many forty-year AVANCER reports exceed 500 chars: '+y40.avgVerboseAdvanceShare);
@@ -961,6 +976,10 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
   console.log('V50_RANK_DIAGNOSTICS '+JSON.stringify(metrics.v32CareerStress&&metrics.v32CareerStress.byProfile||{}));
   console.log('V50_PRE_GATE '+JSON.stringify({lifeDirector:v5.lifeDirector,career:v5.career,personalLife:v5.personalLife,narrative:v5.narrative,breadth:v5.breadth,flow:v5.flow,storage:v5.storage}));
   if(v5.flow.avgClicksPerYear>6.2)throw new Error('V5.0 flow regression: '+v5.flow.avgClicksPerYear+' clicks/year');
+  if(v5.flow.avgAdvanceReportChars<40)throw new Error('V5.0 advance report measurement became empty: '+v5.flow.avgAdvanceReportChars+' chars');
+  if(v5.flow.avgAdvanceReportChars>380)throw new Error('V5.0 advance reports became too dense: '+v5.flow.avgAdvanceReportChars+' chars average');
+  if(v5.flow.maxAdvanceReportChars>700)throw new Error('V5.0 advance report became excessively long: '+v5.flow.maxAdvanceReportChars+' chars');
+  if(v5.flow.avgVerboseAdvanceShare>.08)throw new Error('V5.0 advance reports became frequently verbose: '+v5.flow.avgVerboseAdvanceShare);
   if(v5.flow.avgAdvanceReportChars>350)throw new Error('V5.0 AVANCER reports became too dense: '+v5.flow.avgAdvanceReportChars+' chars average');
   if(v5.flow.maxAdvanceReportChars>650)throw new Error('V5.0 AVANCER report spike became too verbose: '+v5.flow.maxAdvanceReportChars+' chars');
   if(v5.flow.avgVerboseAdvanceShare>.03)throw new Error('V5.0 too many AVANCER reports exceed 500 chars: '+v5.flow.avgVerboseAdvanceShare);
