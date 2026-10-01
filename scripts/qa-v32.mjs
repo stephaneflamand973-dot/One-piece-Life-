@@ -1937,6 +1937,15 @@ test('V5.0 life chronicle can preserve a decisive saga still in progress',()=>{
   g.world.worldState.worldSagas.unshift({id:'active-qa-saga',title:'Crise active QA',type:'power',region:p.region,status:'active',playerInvolved:true,playerRole:'responsible',playerImpact:81,months:14});
   const out=q.lifeChronicle(p);assert(out.summary.includes('Crise active QA'),'decisive active saga disappeared from life chronicle');assert(out.highlights.some(x=>x.kind==='saga'),'active saga did not become a chronicle highlight');return 'active saga preserved';
 });
+test('V5.0 life chronicle does not repeat a chapter as its own signature memory',()=>{
+  const g=fresh(50164),p=g.player;p.ageMonths=480;q.join('Civil');
+  const ch=q.signalPersonalChapter('career','Ascension QA',22,'qa-a','Civil');q.signalPersonalChapter('career','Ascension QA',24,'qa-b','Civil');q.closePersonalChapter(ch,'qa');
+  const out=q.lifeChronicle(p),chapter=out.highlights.find(x=>x.kind==='chapter');
+  assert(chapter&&chapter.title==='Ascension QA','meaningful chapter missing from chronicle');
+  assert(!out.highlights.some(x=>x.kind==='life-chapter'&&x.title==='Chapitre — Ascension QA'),'chapter signature duplicated the same chronicle beat');
+  return out.highlights.map(x=>x.kind).join(' / ');
+});
+
 test('V5.0 life chronicle ignores routine low-impact organization noise',()=>{
   const g=fresh(50161),p=g.player;p.ageMonths=300;q.join('Civil');p.organization.authority='leader';p.organization.renown=0;const seeded=p.organization.members.filter(x=>x.status==='active').length;assert(seeded>=3,'organization fixture lost its seeded members');const out=q.lifeChronicle(p);assert(out.organization===null,'seeded leadership alone polluted compact chronicle');return 'routine seeded organization omitted';
 });

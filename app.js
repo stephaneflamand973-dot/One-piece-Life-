@@ -1623,7 +1623,7 @@ function lifeChronicle(p){
  if(rival&&rivalScore>=70)addPart('rivalry',rival.name,'Rivalité majeure : '+rival.name+' a marqué durablement cette trajectoire.');
  var saga=sagas[0]||null;if(saga)addPart('saga',saga.title,'Saga mondiale : '+saga.title+' • '+(saga.playerRole==='responsible'?'rôle déterminant':'rôle décisif')+'.');
  if(chapters.length&&!highlights.some(function(h){return h.title===chapters[0].title}))addPart('chapter',chapters[0].title,'Chapitre marquant : '+chapters[0].title+'.');
- var moment=moments.find(function(x){return !highlights.some(function(h){return h.title===x.title||(x.kind==='rivalry'&&h.kind==='rivalry')||(x.kind==='legend'&&h.kind==='career')})});if(moment)addPart(moment.kind||'moment',moment.title,'Souvenir majeur : '+moment.title+'.');
+ var moment=moments.find(function(x){return !highlights.some(function(h){return h.title===x.title||(x.kind==='life-chapter'&&h.kind==='chapter'&&x.title==='Chapitre — '+h.title)||(x.kind==='rivalry'&&h.kind==='rivalry')||(x.kind==='legend'&&h.kind==='career')})});if(moment)addPart(moment.kind||'moment',moment.title,'Souvenir majeur : '+moment.title+'.');
  return{headline:r.role,summary:parts.join(' '),highlights:highlights.slice(0,8),chapters:chapters.map(function(x){return{title:x.title,kind:x.kind||'',score:Math.round(x.score||0),beats:x.beats||0}}),moments:moments.slice(0,3).map(function(x){return{title:x.title,kind:x.kind||'',importance:Math.round(x.importance||x.weight||0)}}),visitedCount:visited.length,partner:partner?partner.name:null,children:kids.length,organization:meaningfulOrg?{name:org.name||org.kind||'',authority:org.authority||'',members:orgMembers,renown:Math.round(org.renown||0)}:null,recognitionScore:r.score}
 }
 function generationLegacySnapshot(p){
