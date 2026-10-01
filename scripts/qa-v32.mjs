@@ -1931,7 +1931,7 @@ test('V5.0 life chronicle can preserve a decisive saga still in progress',()=>{
   const out=q.lifeChronicle(p);assert(out.summary.includes('Crise active QA'),'decisive active saga disappeared from life chronicle');assert(out.highlights.some(x=>x.kind==='saga'),'active saga did not become a chronicle highlight');return 'active saga preserved';
 });
 test('V5.0 life chronicle ignores routine low-impact organization noise',()=>{
-  const g=fresh(50161),p=g.player;p.ageMonths=300;q.join('Civil');p.organization.authority='leader';p.organization.renown=0;p.organization.members=[];const out=q.lifeChronicle(p);assert(out.organization===null,'routine organization polluted compact chronicle');return 'routine organization omitted';
+  const g=fresh(50161),p=g.player;p.ageMonths=300;q.join('Civil');p.organization.authority='leader';p.organization.renown=0;const seeded=p.organization.members.filter(x=>x.status==='active').length;assert(seeded>=3,'organization fixture lost its seeded members');const out=q.lifeChronicle(p);assert(out.organization===null,'seeded leadership alone polluted compact chronicle');return 'routine seeded organization omitted';
 });
 
 
