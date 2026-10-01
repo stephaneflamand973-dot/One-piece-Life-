@@ -2536,10 +2536,26 @@ test('V5.0 passive or unrelated saga presence never creates a career follow-up',
  assert(q.sagaFollowupMissionOpportunity()===null,'passive presence generated a saga follow-up');
  g.world.crews.push({id:'qa-unrelated-followup',name:'Neutral Followup QA',status:'active',region:p.region,faction:'Civil',power:65});
  const unrelated={title:'Mission périphérique QA',tier:3,worldGenerated:true,sourceType:'crew',sourceId:'qa-unrelated-followup',importance:62};
+ const beforeImpact=saga.playerImpact||0;
  q.playerWorldImpact(true,unrelated);
  assert((saga.playerCausalMissions||0)===0,'unrelated mission was counted as a causal saga mission');
- assert(q.sagaFollowupMissionOpportunity()===null,'unrelated indirect impact unlocked saga continuation');
- return 'no false follow-up';
+ assert((saga.playerImpact||0)===beforeImpact&&!saga.playerInvolved&&(saga.playerRole||'present')==='present','unrelated mission created false saga involvement');
+ q.playerWorldImpact(false,unrelated);
+ assert((saga.playerImpact||0)===beforeImpact&&!saga.playerInvolved,'failed unrelated mission created false saga impact');
+ assert(q.sagaFollowupMissionOpportunity()===null,'unrelated mission unlocked saga continuation');
+ return 'no false follow-up or impact';
+});
+test('V5.0 failed linked intervention remains causal without becoming decisive',()=>{
+ const g=fresh(402028),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-failed-followup');
+ g.world.conflicts.push({id:'qa-failed-front',status:'active',region:p.region,location:p.island,attacker:'Marine',defender:'Pirates',warId:'qa-failed-followup',intensity:66});
+ const linked={title:'Intervention ratée QA',tier:3,worldGenerated:true,sourceType:'conflict',sourceId:'qa-failed-front',importance:62};
+ q.playerWorldImpact(false,linked);
+ assert((saga.playerCausalMissions||0)===1,'failed linked mission was erased from causal history');
+ assert(saga.playerInvolved&&saga.playerRole==='participant','failed linked mission did not count as real participation');
+ assert((saga.playerImpact||0)>0&&(saga.playerImpact||0)<55,'failed linked mission became falsely decisive');
+ const follow=q.sagaFollowupMissionOpportunity();
+ assert(follow&&follow.sourceId===saga.id,'failed causal intervention did not leave a continuation opportunity');
+ return Math.round(saga.playerImpact)+' impact after failure';
 });
 test('V5.0 a real linked career intervention unlocks a phased saga continuation',()=>{
  const g=fresh(402030),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-followup-war');
