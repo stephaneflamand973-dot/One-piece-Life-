@@ -1672,6 +1672,31 @@ test('V5.0 master bounty hunter can earn the organic gate through sustained rout
   return 'master gate '+veteran.gate+' / elite gate '+elite.gate;
 });
 
+
+test('V5.0 earned organic legend evidence survives bounded-memory rotation',()=>{
+  const g=fresh(50172),p=g.player;p.ageMonths=696;q.join('Gouvernement');p.rank='Directeur';const rec=q.careerRecord();rec.rank='Directeur';rec.months=480;rec.successes=40;rec.failures=2;rec.legendDistinctions=0;rec.distinctions=0;
+  p.lifeDirector=q.defaultLifeDirector();
+  p.lifeDirector.chapterHistory=Array.from({length:6},(_,i)=>({title:'Grand chapitre '+i,kind:'career',score:52,beats:3,lastAge:400+i}));
+  g.loop.foundingMemories=Array.from({length:3},(_,i)=>({id:i,title:'Fondateur '+i,weight:90}));
+  g.loop.signatureMoments=Array.from({length:5},(_,i)=>({id:i,title:'Moment majeur '+i,kind:'career',weight:86}));
+  const earned=q.organicLegendEvidence();assert(earned.score>=58&&earned.qualified,'fixture failed to earn organic legend evidence: '+earned.score);const peak=earned.peakScore;
+  p.lifeDirector.chapterHistory=[];g.loop.foundingMemories=[];g.loop.signatureMoments=[];
+  const after=q.organicLegendEvidence();
+  assert(after.rawScore<peak,'fixture did not simulate bounded-memory rotation');
+  assert(after.peakScore===peak&&after.score===Math.round(peak),'earned legend evidence decayed after bounded histories rotated: '+peak+' -> '+after.score);
+  assert(after.qualified,'earned organic qualification disappeared after bounded histories rotated');
+  assert(g.version===28,'legend evidence persistence changed GameState version');
+  return peak+' peak / raw '+after.rawScore;
+});
+test('V5.0 organic legend evidence peak resets with the next generation',()=>{
+  const g=fresh(50173),p=g.player;p.ageMonths=600;p.lifeDirector=q.defaultLifeDirector();p.lifeDirector.legendEvidencePeak=72;
+  p.children=[{id:'legend-heir',name:'Heir QA',ageMonths:220,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:80}];
+  q.buildHeir(p.children[0]);const d=q.migrateLifeDirector(g.player);
+  assert(d.legendEvidencePeak===0,'descendant inherited parent organic legend peak: '+d.legendEvidencePeak);
+  assert(g.version===28,'life-scoped legend evidence changed GameState version');
+  return 'parent 72 -> heir '+d.legendEvidencePeak;
+});
+
 test('V5.0 earned legacy can create a legend without territorial micromanagement',()=>{
   const g=fresh(50100),p=g.player;p.ageMonths=780;p.money=2500000;p.reputation=100;p.factionRep.Civil=100;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';rec.months=500;rec.successes=40;rec.failures=2;rec.recentResults=[1,1,1,1,1,1,1,1];rec.distinctions=12;rec.legendDistinctions=12;
   p.skills.Science=75;p.skills.Discipline=75;p.skills.Navigation=75;Object.keys(p.stats).forEach(k=>p.stats[k]=82);if(p.organization){p.organization.renown=100;p.organization.cohesion=90;p.organization.morale=90}
