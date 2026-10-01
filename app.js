@@ -1871,8 +1871,8 @@ function addTitle(t){
  var x=migrateInfluence(game.player);if(x.titles.indexOf(t)>=0)return false;x.titles.push(t);x.primaryTitle=t;x.history.unshift({age:age(),title:t});x.history=x.history.slice(0,30);tl('Nouveau titre',game.player.name+' est désormais connu comme « '+t+' ».','major');news('Un nouveau nom circule',game.player.name+' gagne le titre « '+t+' ».','major');return true
 }
 function sagaPlayerRoleRank(role){return{present:0,indirect:1,participant:2,decisive:3,responsible:4}[role]||0}
-function registerPlayerSagaImpact(kind,source,amount){
- var p=game.player,ws=game.world.worldState||{},sagas=(ws.worldSagas||[]).filter(function(s){return s.status==='active'&&s.region===p.region}),minRole=kind||'indirect',gain=Math.max(0,amount==null?4:amount);
+function registerPlayerSagaImpact(kind,source,amount,targetSagaId){
+ var p=game.player,ws=game.world.worldState||{},sagas=(ws.worldSagas||[]).filter(function(s){return s.status==='active'&&s.region===p.region&&(!targetSagaId||s.id===targetSagaId)}),minRole=kind||'indirect',gain=Math.max(0,amount==null?4:amount);
  sagas.forEach(function(s){var before=s.playerRole||'present';s.playerPeakPower=Math.max(s.playerPeakPower||0,Math.round(power()));s.playerFaction=p.faction;s.playerImpact=cl((s.playerImpact||0)+gain,0,100);s.playerSources=Array.isArray(s.playerSources)?s.playerSources:[];if(source)s.playerSources.push(source);s.playerSources=s.playerSources.slice(-8);
   var earned=s.playerImpact>=55?'decisive':s.playerImpact>=22?'participant':s.playerImpact>=6?'indirect':'present';if(sagaPlayerRoleRank(minRole)>sagaPlayerRoleRank(earned))earned=minRole;if(sagaPlayerRoleRank(earned)>sagaPlayerRoleRank(before))s.playerRole=earned;else s.playerRole=before;
   if(s.playerRole==='responsible')s.playerResponsible=true;s.playerInvolved=sagaPlayerRoleRank(s.playerRole)>=1;
@@ -1881,6 +1881,20 @@ function registerPlayerSagaImpact(kind,source,amount){
 }
 function playerSagaPresence(){
  var p=game.player,ws=game.world.worldState||{},sagas=(ws.worldSagas||[]).filter(function(s){return s.status==='active'&&s.region===p.region});sagas.forEach(function(s){s.playerPresenceMonths=(s.playerPresenceMonths||0)+1;s.playerPeakPower=Math.max(s.playerPeakPower||0,Math.round(power()));s.playerFaction=p.faction;if(!s.playerRole)s.playerRole='present';var aligned=s.a===p.faction||s.b===p.faction;s.playerAlignment=aligned?'aligned':'independent'})
+}
+function missionSagaTarget(m){
+ if(!m||!m.worldGenerated)return null;var p=game.player,w=game.world,ws=w.worldState||{},sagas=(ws.worldSagas||[]).filter(function(s){return s.status==='active'&&s.region===p.region}),source=null;
+ if(m.sourceType==='conflict')source=(w.conflicts||[]).find(function(x){return x.id===m.sourceId});
+ else if(m.sourceType==='crew')source=(w.crews||[]).find(function(x){return x.id===m.sourceId});
+ else if(m.sourceType==='actor')source=(w.actors||[]).find(function(x){return x.name===m.sourceId});
+ if(!source||!sagas.length)return null;
+ var ranked=sagas.map(function(s){var score=0;
+  if(m.sourceType==='conflict'){if(String(s.source||'')===String(source.warId||source.id||''))score+=8;if(s.a===source.attacker||s.b===source.attacker)score+=3;if(s.a===source.defender||s.b===source.defender)score+=3}
+  else if(m.sourceType==='crew'){if(s.a===source.name||s.b===source.name)score+=7;if(s.a===source.faction||s.b===source.faction)score+=3}
+  else if(m.sourceType==='actor'){if(s.a===source.name||s.b===source.name)score+=7;if(s.a===source.faction||s.b===source.faction)score+=3}
+  return{s:s,score:score+(s.pressure||0)/1000}
+ }).filter(function(x){return x.score>=2}).sort(function(a,b){return b.score-a.score});
+ return ranked.length?ranked[0].s:null
 }
 function factionCareerLegacy(){
  var p=game.player,f=p.faction||'Civil',v=0;
@@ -2294,7 +2308,7 @@ function applyWorldMissionOutcome(m,success){
 }
 function startMission(i){if(game.mission||game.player.ageMonths<180)return toast('Mission indisponible.');var m=board()[i];if(!m)return toast('Mission introuvable.');rememberMission(m);var p=game.player;game.mission={title:m.title,danger:m.danger,reward:m.reward,xp:m.xp,tier:m.tier,spec:m.spec,profile:m.profile,remaining:m.months,adaptive:!!m.adaptive,variantKey:m.variantKey||null,worldGenerated:!!m.worldGenerated,sourceType:m.sourceType||null,sourceId:m.sourceId||null,sourceName:m.sourceName||null,importance:m.importance||missionImportance(m),stakes:m.stakes||missionStakes(m),signature:!!m.signature};p.situation='Mission';p.activity='Mission';tl(m.signature?'Mission exceptionnelle acceptée':'Mission acceptée',m.title+' • '+(m.stakes||missionStakes(m))+' • approche principale : '+missionProfile(m).config.label+' • focus '+currentFocus()+' conservé.','major');save();render()}
 function missionReputation(success,m){var p=game.player,d=success?(5+m.tier*2):-(3+m.tier);adjustRep(p.faction,d);if(success){if(p.faction==='Marine'){adjustRep('Gouvernement',1);adjustRep('Pirates',-1)}if(p.faction==='Pirates'){adjustRep('Marine',-2);adjustRep('Gouvernement',-1)}if(p.faction==='Révolutionnaires')adjustRep('Gouvernement',-2);if(p.faction==='Gouvernement')adjustRep('Révolutionnaires',-2);if(p.faction==='Chasseur de primes')adjustRep('Civil',1)}}
-function playerWorldImpact(success,m){var p=game.player,w=game.world,t=w.territories[p.island];if(!t)return;var f=p.faction,scale=(m.tier||0)+1;if(success){if(w.factions[f]!=null)w.factions[f]=cl(w.factions[f]+scale*.18,0,100);if(f==='Civil'||f==='Chasseur de primes'){t.stability=cl(t.stability+scale*2,0,100)}else if(t.controller===f||(f==='Marine'&&t.controller==='Gouvernement')||(f==='Gouvernement'&&t.controller==='Marine')){t.influence=cl(t.influence+scale*2.4,0,100);t.stability=cl(t.stability+scale,0,100)}else{t.influence=cl(t.influence-scale*2.2,0,100);t.stability=cl(t.stability-scale*2,0,100);t.contested=t.influence<55;if((m.tier||0)>=3&&R('world')<.35)spawnConflict(p.island,f,t.controller,45+scale*6,'player')}if((m.tier||0)>=4){w.divergence=cl(w.divergence+.4*scale,0,100);news('Intervention remarquée',p.name+' influence directement l’équilibre autour de '+p.island+'.','major')}}else{t.stability=cl(t.stability-scale*1.2,0,100);if(w.factions[f]!=null)w.factions[f]=cl(w.factions[f]-.08*scale,0,100)}var sagaWeight=scale*(m.worldGenerated?2.2:1.2)*(success?1:.45);if(success||m.worldGenerated)registerPlayerSagaImpact((m.tier||0)>=4&&success?'participant':'indirect','mission:'+m.title,sagaWeight)}
+function playerWorldImpact(success,m){var p=game.player,w=game.world,t=w.territories[p.island];if(!t)return;var f=p.faction,scale=(m.tier||0)+1;if(success){if(w.factions[f]!=null)w.factions[f]=cl(w.factions[f]+scale*.18,0,100);if(f==='Civil'||f==='Chasseur de primes'){t.stability=cl(t.stability+scale*2,0,100)}else if(t.controller===f||(f==='Marine'&&t.controller==='Gouvernement')||(f==='Gouvernement'&&t.controller==='Marine')){t.influence=cl(t.influence+scale*2.4,0,100);t.stability=cl(t.stability+scale,0,100)}else{t.influence=cl(t.influence-scale*2.2,0,100);t.stability=cl(t.stability-scale*2,0,100);t.contested=t.influence<55;if((m.tier||0)>=3&&R('world')<.35)spawnConflict(p.island,f,t.controller,45+scale*6,'player')}if((m.tier||0)>=4){w.divergence=cl(w.divergence+.4*scale,0,100);news('Intervention remarquée',p.name+' influence directement l’équilibre autour de '+p.island+'.','major')}}else{t.stability=cl(t.stability-scale*1.2,0,100);if(w.factions[f]!=null)w.factions[f]=cl(w.factions[f]-.08*scale,0,100)}var linkedSaga=success?missionSagaTarget(m):null,sagaWeight=scale*(m.worldGenerated?2.2:1.2)*(success?1:.45),sagaRole='indirect',targetSagaId=null;if(linkedSaga){var missionWeight=m.importance||missionImportance(m);sagaWeight+=8+scale*1.8+Math.min(8,missionWeight*.1);if((m.tier||0)>=3||missionWeight>=58)sagaRole='participant';targetSagaId=linkedSaga.id}if(success||m.worldGenerated)registerPlayerSagaImpact(sagaRole,'mission:'+m.title,sagaWeight,targetSagaId)}
 function missionOutcomeFlavor(m,mp,ok,effective){
  var p=game.player,id=mp.id,keys=mp.config.keys||[],primary=keys[0]||'Discipline',secondary=keys[1]||primary,roll=R('missionFlavor'),detail='',impact=null;
  if(ok){
