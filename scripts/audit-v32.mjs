@@ -6,10 +6,11 @@ const marker="console.log('\\nQA_METRICS '+JSON.stringify(metrics));";
 if(!base.includes(marker)) throw new Error('V2.9 audit marker not found in qa-v28.mjs');
 
 const extra=String.raw`
-function qaResolveInterruptions(g){
+function qaResolveInterruptions(g,stats){
   let guard=0;
   while(guard++<12){
     if(g.pending){
+      if(stats)stats.pending++;
       const c=g.pending.choices&&g.pending.choices[0];
       if(c&&typeof c[2]==='function')c[2]();
       g.pending=null;
@@ -19,6 +20,11 @@ function qaResolveInterruptions(g){
     if(st){
       const cs=q.storyChoices(st);
       if(cs.length){
+        if(stats){
+          stats.story++;
+          stats.byType[st.type]=(stats.byType[st.type]||0)+1;
+          if(['relationship-opening','family-future','career-transfer','career-turn','career-sunset','legacy-crossroads'].includes(st.type))stats.director++;
+        }
         const ix=st.type==='career-sunset'&&cs.length>1&&((Number(g.seed)||0)%2===0)?1:0;
         q.storyChoice(st.id,cs[ix].id);
       }else q.closeStory(st,'Audit','Audit',false,'failed');
@@ -63,9 +69,9 @@ function qaLongCareer(seed,faction,spec,profile,years){
   p.activity='Carrière';
   const start=p.ageMonths,target=start+years*12;
   let clicks=0,lastMissionAge=-999,started=0,routine=0,adaptive=0,worldGenerated=0,signature=0;
-  const titles=[],guidance={},chances=[],heatSamples=[];const planCounts={};let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
+  const titles=[],guidance={},chances=[],heatSamples=[];const planCounts={},interruptions={pending:0,story:0,director:0,byType:{}};let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
   while(p.ageMonths<target&&clicks<years*18&&g.alive){
-    qaResolveInterruptions(g);
+    qaResolveInterruptions(g,interruptions);
     const missionGap=q.careerRecord&&q.careerRecord().retired?24:10;
     if(!g.mission&&p.ageMonths-lastMissionAge>=missionGap){
       const b=q.board(),ix=qaMissionPick(b);
@@ -76,7 +82,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
       }
     }
     const plan=q.advancePlan(),planKey=plan.label||plan.key;planCounts[planKey]=(planCounts[planKey]||0)+1;heatSamples.push((p.justice&&p.justice.regionalHeat&&p.justice.regionalHeat[p.region])||0);
-    q.advance();clicks++;qaResolveInterruptions(g);
+    q.advance();clicks++;qaResolveInterruptions(g,interruptions);
     arcPeak=Math.max(arcPeak,(g.loop.arcs||[]).length);
   }
   const counts={};titles.forEach(t=>counts[t]=(counts[t]||0)+1);
@@ -85,6 +91,11 @@ function qaLongCareer(seed,faction,spec,profile,years){
   return {
     faction,spec,profile,alive:g.alive,age:+(p.ageMonths/12).toFixed(1),years:+((p.ageMonths-start)/12).toFixed(1),
     clicks,clicksPerYear:+(clicks/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
+    interruptions:interruptions.pending+interruptions.story,
+    interruptionsPerYear:+((interruptions.pending+interruptions.story)/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
+    directorDecisions:interruptions.director,
+    directorDecisionsPerYear:+(interruptions.director/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
+    decisionTypes:interruptions.byType,
     missions:started,missionPerYear:+(started/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
     uniqueTitles:new Set(titles).size,repeatShare:started?+(repeated/started).toFixed(2):0,consecutiveRepeatShare:started?+(consecutive/started).toFixed(2):0,
     routineShare:started?+(routine/started).toFixed(2):0,adaptiveShare:started?+(adaptive/started).toFixed(2):0,worldShare:started?+(worldGenerated/started).toFixed(2):0,signatureShare:started?+(signature/started).toFixed(2):0,
@@ -258,6 +269,9 @@ let postCareerRows=[],postCareerProfiles=[];
       flow:{
         avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
         avgMissionsPerYear:+(rows.reduce((a,x)=>a+x.missionPerYear,0)/rows.length).toFixed(2),
+        avgInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.interruptionsPerYear,0)/rows.length).toFixed(2),
+        avgDirectorDecisionsPerYear:+(rows.reduce((a,x)=>a+x.directorDecisionsPerYear,0)/rows.length).toFixed(2),
+        decisionTypes:rows.reduce((a,x)=>{Object.entries(x.decisionTypes||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
         survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2)
       },
       storage:{
@@ -276,7 +290,9 @@ let postCareerRows=[],postCareerProfiles=[];
         avgFamilyOffers:avg('directorFamilyOffers'),
         familyOpportunityShare:+(rows.filter(x=>x.directorFamilyOffers>0).length/rows.length).toFixed(2),
         avgCareerTurns:avg('directorCareerTurns'),
-        careerTurnShare:+(rows.filter(x=>x.directorCareerTurns>0).length/rows.length).toFixed(2)
+        careerTurnShare:+(rows.filter(x=>x.directorCareerTurns>0).length/rows.length).toFixed(2),
+        avgDecisionInterruptions:+(rows.reduce((a,x)=>a+(x.directorDecisions||0),0)/rows.length).toFixed(1),
+        avgDecisionInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.directorDecisionsPerYear,0)/rows.length).toFixed(2)
       }
     };
   }
@@ -319,6 +335,9 @@ let postCareerRows=[],postCareerProfiles=[];
     sample:rows.length,yearsTarget:40,
     survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
     avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+    avgInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.interruptionsPerYear,0)/rows.length).toFixed(2),
+    avgDirectorDecisionsPerYear:+(rows.reduce((a,x)=>a+x.directorDecisionsPerYear,0)/rows.length).toFixed(2),
+    decisionTypes:rows.reduce((a,x)=>{Object.entries(x.decisionTypes||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
     avgVisitedPlaces:avg('visited'),
     avgPersonalChapters:avg('personalChapters'),
     avgFoundingMemories:avg('founding'),
