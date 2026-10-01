@@ -2915,6 +2915,9 @@ test('V5.1 narrative director surfaces at most two priority fronts',()=>{
 test('V5.1 local saga can create an organic career entry mission',()=>{
  const g=fresh(51002),p=g.player;p.ageMonths=330;q.join('Marine','Lieutenant');const rec=q.careerRecord();p.rank='Lieutenant';rec.rank='Lieutenant';const saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-v51-entry');saga.pressure=72;saga.playerCausalMissions=0;saga.playerRole='present';const m=q.sagaFollowupMissionOpportunity();assert(m&&m.sourceType==='saga','high-pressure local saga offered no career entry mission');assert(m.sourceId===saga.id,'entry mission targeted wrong saga');assert(q.narrativeMissionBoost(m)>0,'narrative director did not prioritize the linked saga mission');return m.title+' / boost '+q.narrativeMissionBoost(m).toFixed(2);
 });
+test('V5.1 first saga entry cannot become decisive without continuity',()=>{
+ const g=fresh(51003),p=g.player;p.ageMonths=360;q.join('Marine');p.rank='Commandant';q.careerRecord().rank='Commandant';const saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-v51-continuity');saga.pressure=88;saga.stage='Point culminant';const entry={title:'Entrée décisive QA',tier:5,worldGenerated:true,sourceType:'saga',sourceId:saga.id,variantKey:'entry',importance:82};q.playerWorldImpact(true,entry);assert(saga.playerRole==='participant','first saga entry jumped directly to '+saga.playerRole);assert((saga.playerImpact||0)<55,'first saga entry crossed decisive threshold: '+saga.playerImpact);const follow={title:'Suite décisive QA',tier:5,worldGenerated:true,sourceType:'saga',sourceId:saga.id,variantKey:'escalation',importance:82};q.playerWorldImpact(true,follow);assert(saga.playerRole==='decisive'&&(saga.playerImpact||0)>=55,'continued successful involvement could not become decisive');return Math.round(saga.playerImpact)+' impact after continuity';
+});
 
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
