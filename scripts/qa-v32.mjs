@@ -1379,10 +1379,32 @@ test('V5.0 lifetime career evidence stays bounded across many records',()=>{
 test('V5.0 life chronicle summarizes earned history without new state',()=>{
   const g=fresh(50100),p=g.player;p.ageMonths=480;q.join('Marine');p.rank='Commandant';p.careerRecords.Marine.rank='Commandant';p.visited=['Loguetown','Water 7','Sabaody'];q.signalPersonalChapter('career','Ascension dans la Marine',28,'qa-promotion','Marine');q.signalPersonalChapter('career','Ascension dans la Marine',24,'qa-command','Marine');const d=p.lifeDirector,ch=d.activeChapters[0];q.closePersonalChapter(ch,'qa');const out=q.lifeChronicle(p);assert(out&&out.summary&&out.summary.includes('Marine'),'chronicle missed career identity');assert(out.visitedCount===3,'chronicle missed journey history');assert(out.chapters.length>=1,'chronicle missed personal chapters');return out.headline+' / '+out.visitedCount+' lieux';
 });
+
+test('V5.0 life chronicle ignores repeated but insignificant chapter noise',()=>{
+  const g=fresh(50103),p=g.player;p.ageMonths=420;
+  q.signalPersonalChapter('journey','Petite routine QA',3,'tiny-a','tiny-life');p.ageMonths+=2;q.signalPersonalChapter('journey','Petite routine QA',3,'tiny-b','tiny-life');
+  const out=q.lifeChronicle(p);assert(!out.summary.includes('Petite routine QA'),'low-score repeated chapter polluted the life chronicle');assert(!out.highlights.some(x=>x.title==='Petite routine QA'),'low-score chapter became a chronicle highlight');return 'minor chapter omitted';
+});
 test('V5.0 dynasty snapshot carries only compact chronicle text',()=>{
   const g=fresh(50101),p=g.player;p.ageMonths=480;q.join('Civil');p.visited=['Loguetown','Water 7'];for(let i=0;i<8;i++){const ch=q.signalPersonalChapter('journey','Voyage '+i,28,'qa-'+i,'j'+i);p.ageMonths+=31;q.personalChapterTick(1)}const snap=q.generationLegacySnapshot(p);assert(typeof snap.chronicle==='string'&&snap.chronicle.length>20,'legacy chronicle missing');assert(snap.chronicle.length<700,'legacy chronicle too large');assert((snap.chapters||[]).length<=6,'legacy chapters exceeded cap');return snap.chronicle.length+' chars / '+snap.chapters.length+' chapters';
 });
 
+
+
+test('V5.0 inherited legacy ranks important chapters above recent noise',()=>{
+  const g=fresh(50104),p=g.player;p.ageMonths=500;
+  q.signalPersonalChapter('career','Grand chapitre ancien',21,'major-a','major-legacy');p.ageMonths+=4;q.signalPersonalChapter('career','Grand chapitre ancien',21,'major-b','major-legacy');
+  let major=p.lifeDirector.activeChapters.find(x=>x.key==='career:major-legacy');q.closePersonalChapter(major,'qa major');
+  for(let i=0;i<7;i++){p.ageMonths+=2;q.signalPersonalChapter('journey','Bruit récent '+i,3,'noise-a-'+i,'noise-'+i);q.signalPersonalChapter('journey','Bruit récent '+i,3,'noise-b-'+i,'noise-'+i);let ch=p.lifeDirector.activeChapters.find(x=>x.key==='journey:noise-'+i);q.closePersonalChapter(ch,'qa noise')}
+  q.signalPersonalChapter('family','Chapitre actif important',16,'active-major-a','active-major');q.signalPersonalChapter('family','Chapitre actif important',16,'active-major-b','active-major');
+  q.signalPersonalChapter('journey','Chapitre actif mineur',4,'active-noise-a','active-noise');q.signalPersonalChapter('journey','Chapitre actif mineur',4,'active-noise-b','active-noise');
+  const snap=q.generationLegacySnapshot(p);
+  assert(snap.chapters.some(x=>x.title==='Grand chapitre ancien'),'older major chapter was displaced by recent noise');
+  assert(!snap.chapters.some(x=>x.title.indexOf('Bruit récent')===0),'minor archived chapters polluted inherited legacy');
+  assert(snap.activeChapters.some(x=>x.title==='Chapitre actif important'),'meaningful active chapter was lost from inheritance');
+  assert(!snap.activeChapters.some(x=>x.title==='Chapitre actif mineur'),'minor active chapter polluted inherited legacy');
+  return snap.chapters.map(x=>x.title).join(' / ')+' | active '+snap.activeChapters.map(x=>x.title).join(' / ');
+});
 
 test('V5.0 meaningful ancestor can create one legacy crossroads',()=>{
   const g=fresh(50120),p=g.player;p.ageMonths=216;g.dynasty.generation=2;g.dynasty.ancestors.push({name:'Aster',generation:1,career:'Civil',rank:'Maître',legacy:{worldRole:'Icône des mers',recognitionScore:76,chapters:[{title:'Grand voyage',score:62,beats:3}],chronicle:'Aster a parcouru les mers et laissé une trace durable.'}});
