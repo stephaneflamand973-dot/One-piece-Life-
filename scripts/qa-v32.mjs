@@ -1127,6 +1127,7 @@ test('V5.0 active personal chapters close after five years even with recurring m
   assert(!p.lifeDirector.activeChapters.some(x=>x.key==='journey:long-period'),'chapter remained open beyond five years');
   const archived=p.lifeDirector.chapterHistory.find(x=>x.key==='journey:long-period');
   assert(archived&&archived.reason==='fin de période','five-year closure did not preserve a clear reason');
+  assert(archived.duration===60,'archived chapter duration stopped at the last beat instead of closure: '+archived.duration+'m');
   return archived.reason+' / '+archived.duration+'m';
 });
 test('V5.0 personal chapter state remains bounded',()=>{

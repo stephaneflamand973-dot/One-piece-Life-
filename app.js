@@ -680,7 +680,7 @@ function personalChapterArchiveTitle(ch){
 }
 function closePersonalChapter(ch,reason){
  var p=game.player,d=migrateLifeDirector(p),i=d.activeChapters.findIndex(function(x){return x.id===ch.id});if(i>=0)d.activeChapters.splice(i,1);if((ch.beats||0)<2&&(ch.score||0)<24)return null;
- var h={id:ch.id,key:ch.key,kind:ch.kind,title:personalChapterArchiveTitle(ch),score:Math.round((ch.score||0)*10)/10,beats:ch.beats||0,startedAge:ch.startedAge,lastAge:ch.lastAge,duration:Math.max(0,(ch.lastAge||p.ageMonths)-(ch.startedAge||p.ageMonths)),reason:reason||'transition',sources:(ch.sources||[]).slice(-8)};d.chapterHistory.unshift(h);d.chapterHistory=d.chapterHistory.slice(0,20);
+ var h={id:ch.id,key:ch.key,kind:ch.kind,title:personalChapterArchiveTitle(ch),score:Math.round((ch.score||0)*10)/10,beats:ch.beats||0,startedAge:ch.startedAge,lastAge:ch.lastAge,duration:Math.max(0,p.ageMonths-(ch.startedAge==null?p.ageMonths:ch.startedAge)),reason:reason||'transition',sources:(ch.sources||[]).slice(-8)};d.chapterHistory.unshift(h);d.chapterHistory=d.chapterHistory.slice(0,20);
  if(h.score>=36&&h.beats>=2)recordSignatureMoment('Chapitre — '+h.title,h.beats+' moments liés finissent par former un vrai chapitre de ta vie.','life-chapter',cl(62+h.score*.5,62,92));
  return h
 }
