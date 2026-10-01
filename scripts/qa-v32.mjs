@@ -1406,6 +1406,17 @@ test('V5.0 inherited legacy ranks important chapters above recent noise',()=>{
   return snap.chapters.map(x=>x.title).join(' / ')+' | active '+snap.activeChapters.map(x=>x.title).join(' / ');
 });
 
+
+test('V5.0 inherited legacy keeps strongest signature moments regardless of recency',()=>{
+  const g=fresh(50118),p=g.player;p.ageMonths=500;
+  g.loop.signatureMoments=Array.from({length:6},(_,i)=>({id:20+i,title:'Recent signature '+i,kind:'life',weight:60+i}));
+  g.loop.signatureMoments.push({id:1,title:'Founding victory',kind:'career',weight:96});
+  const snap=q.generationLegacySnapshot(p);
+  assert(snap.signatureMoments[0]&&snap.signatureMoments[0].title==='Founding victory','strong old signature was displaced by newer weaker moments');
+  assert(snap.signatureMoments.length===6,'signature legacy cap changed unexpectedly');
+  return snap.signatureMoments[0].title;
+});
+
 test('V5.0 meaningful ancestor can create one legacy crossroads',()=>{
   const g=fresh(50120),p=g.player;p.ageMonths=216;g.dynasty.generation=2;g.dynasty.ancestors.push({name:'Aster',generation:1,career:'Civil',rank:'Maître',legacy:{worldRole:'Icône des mers',recognitionScore:76,chapters:[{title:'Grand voyage',score:62,beats:3}],chronicle:'Aster a parcouru les mers et laissé une trace durable.'}});
   const op=q.directorLegacyOpportunity();assert(op&&op.ancestor.name==='Aster','meaningful ancestor did not create legacy opportunity');const st=q.startStory('legacy-crossroads');assert(st&&st.data.ancestorName==='Aster','legacy story lost ancestor identity');return st.title;
