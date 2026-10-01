@@ -415,6 +415,7 @@ let postCareerRows=[],postCareerProfiles=[];
     profiles:rows.map(x=>({faction:x.faction,spec:x.spec,alive:x.alive,death:x.deathCause||null,rank:x.finalRank,visited:x.visited,chapters:x.personalChapters,founding:x.founding,recognition:x.recognition&&x.recognition.score||0,role:x.recognition&&x.recognition.role||null,legendQualified:!!(x.recognition&&x.recognition.legendQualified),organicQualified:!!(x.recognition&&x.recognition.organicLegendQualified),traditionalQualified:!!(x.recognition&&x.recognition.traditionalLegendQualified),organicEvidence:x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0,legendThreshold:x.recognition&&x.recognition.legendThreshold||88,decisiveSagas:x.recognition&&x.recognition.decisiveSagas||0,domains:x.recognition&&x.recognition.domains||0,allies:x.recognition&&x.recognition.allies||0,retirementChoice:x.retirementChoice||null,retired:!!x.retired,retiredMonths:x.retiredMonths||0,saveKB:+((x.saveBytes||0)/1024).toFixed(1)}))
   };
   const y40=metrics.v50FortyYearCareer;
+  console.log('V50_40Y_PRE_GATE '+JSON.stringify(y40));
   if(y40.avgClicksPerYear>6.5)throw new Error('V5.0 forty-year flow regression: '+y40.avgClicksPerYear+' clicks/year');
   if(y40.avgInterruptionsPerYear>1.1)throw new Error('V5.0 forty-year interruption spam: '+y40.avgInterruptionsPerYear+' interruptions/year');
   if(y40.avgDirectorDecisionsPerYear>.65)throw new Error('V5.0 forty-year Life Director micromanagement: '+y40.avgDirectorDecisionsPerYear+' decisions/year');
