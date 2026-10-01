@@ -2798,7 +2798,7 @@ test('V5.0 repeated failed saga interventions never earn a decisive role by attr
  return Math.round(saga.playerImpact)+' impact after earned success';
 });
 
-test('V5.0 a real linked career intervention unlocks a phased saga continuation',()=>{
+test('V5.1 a real linked career intervention unlocks sustained saga continuation',()=>{
  const g=fresh(402030),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-followup-war');
  g.world.conflicts.push({id:'qa-followup-front',status:'active',region:p.region,location:p.island,attacker:'Marine',defender:'Pirates',warId:'qa-followup-war',intensity:68});
  const first={title:'Première intervention QA',tier:3,worldGenerated:true,sourceType:'conflict',sourceId:'qa-followup-front',importance:64};
@@ -2808,9 +2808,12 @@ test('V5.0 a real linked career intervention unlocks a phased saga continuation'
  assert(follow&&follow.sourceType==='saga'&&follow.sourceId===saga.id,'causal saga continuation did not appear');
  assert(q.missionSagaTarget(follow)===saga,'direct saga continuation lost its target');
  q.playerWorldImpact(true,follow);
- assert((saga.playerCausalMissions||0)===2,'follow-up was not preserved as another causal intervention');
- assert(saga.playerRole==='decisive'&&saga.playerImpact>=55,'causal saga continuation could not become decisive');
- return follow.variantKey+' / '+Math.round(saga.playerImpact)+' impact';
+ assert((saga.playerCausalMissions||0)===2&&saga.playerRole==='participant'&&saga.playerImpact<55,'second linked intervention became decisive before sustained continuity');
+ const culmination=q.sagaFollowupMissionOpportunity();
+ assert(culmination&&culmination.sourceId===saga.id,'culmination continuation did not remain available');
+ q.playerWorldImpact(true,culmination);
+ assert((saga.playerCausalMissions||0)===3&&saga.playerRole==='decisive'&&saga.playerImpact>=55,'sustained saga continuation could not become decisive');
+ return culmination.variantKey+' / '+Math.round(saga.playerImpact)+' impact';
 });
 
 
@@ -2833,7 +2836,7 @@ test('V5.0 accepted saga mission keeps its causal target until resolution',()=>{
  return 'target preserved through pending mission';
 });
 
-test('V5.0 saga-linked career missions can become decisive through sustained causal impact',()=>{
+test('V5.1 saga-linked career missions become decisive through sustained causal impact',()=>{
  const g=fresh(402031),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-career-war');
  g.world.conflicts.push({id:'qa-career-front',status:'active',region:p.region,location:p.island,attacker:'Marine',defender:'Pirates',warId:'qa-career-war',intensity:78});
  q.playerSagaPresence();
@@ -2841,9 +2844,12 @@ test('V5.0 saga-linked career missions can become decisive through sustained cau
  const major={title:'Intervention majeure QA',tier:4,worldGenerated:true,sourceType:'conflict',sourceId:'qa-career-front',importance:72};
  assert(q.missionSagaTarget(major)===saga,'world mission was not linked to its causal saga');
  q.playerWorldImpact(true,major);
- assert(saga.playerInvolved&&saga.playerRole==='decisive','successful saga-linked mission already labelled Décisive did not earn a decisive role');
- assert(saga.playerImpact>=55,'decisive mission did not reach the existing 55-impact threshold');
- assert((saga.playerSources||[]).includes('mission:'+major.title),'decisive mission cause was not preserved');
+ assert(saga.playerInvolved&&saga.playerRole==='participant'&&saga.playerImpact<55,'first decisive-stakes mission bypassed continuity');
+ const second=Object.assign({},major,{title:'Deuxième intervention majeure QA',sagaId:saga.id});q.playerWorldImpact(true,second);
+ assert(saga.playerRole==='participant'&&saga.playerImpact<55,'second decisive-stakes mission bypassed continuity');
+ const third=Object.assign({},major,{title:'Troisième intervention majeure QA',sagaId:saga.id});q.playerWorldImpact(true,third);
+ assert(saga.playerRole==='decisive'&&saga.playerImpact>=55,'three sustained decisive-stakes missions did not earn a decisive role');
+ assert((saga.playerSources||[]).includes('mission:'+third.title),'decisive mission cause was not preserved');
  return saga.playerRole+' / '+Math.round(saga.playerImpact)+' impact';
 });
 test('V5.0 saga-linked exceptional mission still needs accumulated impact below decisive stakes',()=>{
