@@ -1663,7 +1663,7 @@ function storyChoice(storyId,choiceId){
  if(story.type==='relationship-opening'){
   var dr=migrateLifeDirector(game.player),rr=storyRelation(story);dr.lastRomanceAge=game.player.ageMonths;dr.romanceOffers++;migrateStoryEngine(game).lastStartAge=game.player.ageMonths+8;
   if(choiceId==='explore'&&rr){dr.familyAutoPaused=false;dr.familyPausedRelationId=null;dr.familyDeferredUntil=0;dr.familyDeferrals=0;game.player.life.partnerId=rr.id;game.player.life.relationshipStatus='En couple';rr.type='partner';rr.role='partenaire';rr.relationshipMonths=0;rr.affection=cl(rr.affection+7,0,100);rr.trust=cl(rr.trust+5,0,100);recordLifeDirector('relationship','Relation commencée avec '+rr.name,{relationId:rr.id});signalPersonalChapter('relationship','Lien avec '+rr.name,18,'relationship:'+rr.id,rr.id);return closeStory(story,'relation commencée','Votre proximité devient une relation. Le moteur continuera à faire évoluer ce lien sans te demander de l’entretenir chaque mois.',false)}
-  return closeStory(story,'lien préservé','Vous restez proches sans transformer cette relation en couple.',false,'abandoned')
+  if(rr)recordLifeDirector('relationship','Amitié préservée avec '+rr.name,{relationId:rr.id,declined:true});return closeStory(story,'lien préservé','Vous restez proches sans transformer cette relation en couple.',false,'abandoned')
  }
  if(story.type==='family-future'){
   var df=migrateLifeDirector(game.player),pr=partnerRelation();df.lastFamilyAge=game.player.ageMonths;df.familyOffers++;migrateStoryEngine(game).lastStartAge=game.player.ageMonths+8;
