@@ -126,6 +126,9 @@ test('Static: no broken dynamic selector pattern',()=>{
   const bad=[...appSource.matchAll(/(?<!\$)\$\([^;\n]*?\)\.forEach/g)];
   assert(!bad.length,'single-element selector used as list: '+bad.map(x=>x[0]).join(','));return 'selectors clean'
 });
+test('V5.3 decision choices bind as a collection',()=>{
+  assert(appSource.includes("$$('[data-c]').forEach"),'decision choice buttons are not bound with the list selector');return 'plural choice binding';
+});
 test('Creation: Custom mode initializes full V2.0 state',()=>{
   const g=fresh(1111,'custom');assert(g.version===28,'wrong version');assert(g.player.name==='QA Tester','name');assert(g.player.origin==='East Blue','origin');
   assert(Object.keys(g.world.markets).length===Object.keys(q.constants.PL).length,'market coverage mismatch');assert(g.world.treaties.some(t=>t.a==='Marine'&&t.b==='Gouvernement'),'foundation alliance absent');
