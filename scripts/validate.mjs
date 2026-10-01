@@ -5,6 +5,7 @@ const html=fs.readFileSync('index.html','utf8');
 const manifest=fs.readFileSync('manifest.webmanifest','utf8');
 const pack=fs.readFileSync('content-v1.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
+const css=fs.readFileSync('styles.css','utf8');
 
 new Function(app);
 new Function(pack);
@@ -16,6 +17,7 @@ if(!app.includes('version:28') || !app.includes('g.version=28')) throw new Error
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
 if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include content-v1.js');
+if(!css.includes('calc(14px + var(--safe))') || !css.includes('100dvh - 28px - var(--safe)') || !css.includes('bottom:calc(110px + var(--safe))')) throw new Error('mobile safe-area protection for modal/toast surfaces missing');
 
 const dynamicIds=new Set(['eatHeldFruit','challengeBtn','martialTrainBtn','changeCareerBtn','careerRecordBtn','upgradeHousingBtn','investBusinessBtn','partnerTimeBtn','marryBtn','breakupBtn','welcomeChildBtn','orgBondBtn','orgRecruitBtn','orgTrainBtn','orgFundBtn','orgSupplyBtn','orgRepairBtn','orgUpgradeBtn','layLowBtn','surrenderBtn','escapeBtn','claimDomainBtn','fortifyDomainBtn','affiliateCrewBtn','launchCampaignBtn','seekMentorBtn','exploreIslandBtn','seekRumorBtn','specializationChoiceBtn','ambitionChoiceBtn','timelineMoreBtn','expandRelationsBtn']);
 const ids=[...app.matchAll(/\$\('#([^']+)'\)/g)].map(m=>m[1]);
