@@ -82,13 +82,15 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
   if(typeof configure==='function')configure(g,p);
   p.activity='Carrière';
   const start=p.ageMonths,target=start+years*12;
-  let clicks=0,lastMissionAge=-999,started=0,routine=0,adaptive=0,worldGenerated=0,signature=0,sagaLinkedMissions=0,sagaLinkedDecisiveCandidates=0,sagaLinkedExceptionalCandidates=0,maxSagaLinkedImportance=0;
+  let clicks=0,lastMissionAge=-999,started=0,routine=0,adaptive=0,worldGenerated=0,signature=0,sagaLinkedMissions=0,sagaLinkedDecisiveCandidates=0,sagaLinkedExceptionalCandidates=0,maxSagaLinkedImportance=0,sagaLinkedOffers=0,sagaLinkedDecisiveOffers=0,sagaLinkedExceptionalOffers=0,maxSagaLinkedOfferImportance=0;
   const titles=[],guidance={},chances=[],heatSamples=[],advanceTextChars=[];const planCounts={},interruptions={pending:0,story:0,director:0,byType:{},choices:{}};let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
   while(p.ageMonths<target&&clicks<years*18&&g.alive){
     qaResolveInterruptions(g,interruptions,choicePolicy);
     const missionGap=q.careerRecord&&q.careerRecord().retired?24:10;
     if(!g.mission&&p.ageMonths-lastMissionAge>=missionGap){
-      const b=q.board(),ix=qaMissionPick(b);
+      const b=q.board();
+      b.forEach(opt=>{if(opt.worldGenerated){const linked=q.missionSagaTarget&&q.missionSagaTarget(opt);if(linked){sagaLinkedOffers++;maxSagaLinkedOfferImportance=Math.max(maxSagaLinkedOfferImportance,opt.importance||0);if((opt.importance||0)>=72&&(opt.tier||0)>=4)sagaLinkedDecisiveOffers++;else if((opt.importance||0)>=58)sagaLinkedExceptionalOffers++}}});
+      const ix=qaMissionPick(b);
       if(ix>=0){
         const m=b[ix];titles.push(m.title);started++;if(m.routine)routine++;if(m.adaptive)adaptive++;if(m.worldGenerated)worldGenerated++;if(m.signature)signature++;
         if(m.worldGenerated){const linked=q.missionSagaTarget&&q.missionSagaTarget(m);if(linked){sagaLinkedMissions++;maxSagaLinkedImportance=Math.max(maxSagaLinkedImportance,m.importance||0);if((m.importance||0)>=72&&(m.tier||0)>=4)sagaLinkedDecisiveCandidates++;else if((m.importance||0)>=58)sagaLinkedExceptionalCandidates++}}
@@ -124,7 +126,7 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
     missions:started,missionPerYear:+(started/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
     uniqueTitles:new Set(titles).size,repeatShare:started?+(repeated/started).toFixed(2):0,consecutiveRepeatShare:started?+(consecutive/started).toFixed(2):0,
     routineShare:started?+(routine/started).toFixed(2):0,adaptiveShare:started?+(adaptive/started).toFixed(2):0,worldShare:started?+(worldGenerated/started).toFixed(2):0,signatureShare:started?+(signature/started).toFixed(2):0,
-    sagaLinkedMissions,sagaLinkedDecisiveCandidates,sagaLinkedExceptionalCandidates,maxSagaLinkedImportance,
+    sagaLinkedMissions,sagaLinkedDecisiveCandidates,sagaLinkedExceptionalCandidates,maxSagaLinkedImportance,sagaLinkedOffers,sagaLinkedDecisiveOffers,sagaLinkedExceptionalOffers,maxSagaLinkedOfferImportance,
     avgChance:chances.length?+(chances.reduce((a,b)=>a+b,0)/chances.length).toFixed(2):0,guidance,
     activeArcs:(g.loop.arcs||[]).length,arcHistoryDelta:(g.loop.arcHistory||[]).length-arcTransitions0,arcPeak,
     founding:(g.loop.foundingMemories||[]).length,
@@ -426,6 +428,11 @@ let postCareerRows=[],postCareerProfiles=[];
     totalSagaLinkedDecisiveCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveCandidates||0),0),
     totalSagaLinkedExceptionalCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedExceptionalCandidates||0),0),
     maxSagaLinkedImportance:Math.max(...rows.map(x=>x.maxSagaLinkedImportance||0)),
+    avgSagaLinkedOffers:+(rows.reduce((a,x)=>a+(x.sagaLinkedOffers||0),0)/rows.length).toFixed(2),
+    sagaLinkedDecisiveOfferShare:+(rows.filter(x=>(x.sagaLinkedDecisiveOffers||0)>0).length/rows.length).toFixed(2),
+    totalSagaLinkedDecisiveOffers:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveOffers||0),0),
+    totalSagaLinkedExceptionalOffers:rows.reduce((a,x)=>a+(x.sagaLinkedExceptionalOffers||0),0),
+    maxSagaLinkedOfferImportance:Math.max(...rows.map(x=>x.maxSagaLinkedOfferImportance||0)),
     organicLegendCount:rows.filter(x=>x.endgame&&x.endgame.organic).length,
     organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
     nearOrganicLegendShare:+(rows.filter(x=>(x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0)>=35).length/rows.length).toFixed(2),
@@ -488,6 +495,11 @@ let postCareerRows=[],postCareerProfiles=[];
     totalSagaLinkedDecisiveCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveCandidates||0),0),
     totalSagaLinkedExceptionalCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedExceptionalCandidates||0),0),
     maxSagaLinkedImportance:Math.max(...rows.map(x=>x.maxSagaLinkedImportance||0)),
+    avgSagaLinkedOffers:+(rows.reduce((a,x)=>a+(x.sagaLinkedOffers||0),0)/rows.length).toFixed(2),
+    sagaLinkedDecisiveOfferShare:+(rows.filter(x=>(x.sagaLinkedDecisiveOffers||0)>0).length/rows.length).toFixed(2),
+    totalSagaLinkedDecisiveOffers:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveOffers||0),0),
+    totalSagaLinkedExceptionalOffers:rows.reduce((a,x)=>a+(x.sagaLinkedExceptionalOffers||0),0),
+    maxSagaLinkedOfferImportance:Math.max(...rows.map(x=>x.maxSagaLinkedOfferImportance||0)),
     organicLegendCount:rows.filter(x=>x.endgame&&x.endgame.organic).length,
     organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
     legendQualifiedShare:+(rows.filter(x=>x.recognition&&x.recognition.legendQualified).length/rows.length).toFixed(2),
@@ -609,6 +621,11 @@ let postCareerRows=[],postCareerProfiles=[];
     totalSagaLinkedDecisiveCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveCandidates||0),0),
     totalSagaLinkedExceptionalCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedExceptionalCandidates||0),0),
     maxSagaLinkedImportance:Math.max(...rows.map(x=>x.maxSagaLinkedImportance||0)),
+    avgSagaLinkedOffers:+(rows.reduce((a,x)=>a+(x.sagaLinkedOffers||0),0)/rows.length).toFixed(2),
+    sagaLinkedDecisiveOfferShare:+(rows.filter(x=>(x.sagaLinkedDecisiveOffers||0)>0).length/rows.length).toFixed(2),
+    totalSagaLinkedDecisiveOffers:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveOffers||0),0),
+    totalSagaLinkedExceptionalOffers:rows.reduce((a,x)=>a+(x.sagaLinkedExceptionalOffers||0),0),
+    maxSagaLinkedOfferImportance:Math.max(...rows.map(x=>x.maxSagaLinkedOfferImportance||0)),
     avgDomains:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.domains||0),0)/rows.length).toFixed(1),
     avgAllies:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.allies||0),0)/rows.length).toFixed(1),
     profiles:rows.map(x=>({faction:x.faction,spec:x.spec,alive:x.alive,death:x.deathCause||null,rank:x.finalRank,visited:x.visited,chapters:x.personalChapters,founding:x.founding,recognition:x.recognition&&x.recognition.score||0,role:x.recognition&&x.recognition.role||null,legendQualified:!!(x.recognition&&x.recognition.legendQualified),organicQualified:!!(x.recognition&&x.recognition.organicLegendQualified),traditionalQualified:!!(x.recognition&&x.recognition.traditionalLegendQualified),organicEvidence:x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0,organicBreakdown:x.recognition&&x.recognition.organicEvidence?{careerYears:x.recognition.organicEvidence.careerYears||0,missionCount:x.recognition.organicEvidence.missionCount||0,missionSuccessRate:x.recognition.organicEvidence.missionSuccessRate||0,legendDistinctions:x.recognition.organicEvidence.legendDistinctions||0,strongChapters:x.recognition.organicEvidence.strongChapters||0,founding:x.recognition.organicEvidence.founding||0,highMoments:x.recognition.organicEvidence.highMoments||0,decisiveSagas:x.recognition.organicEvidence.decisiveSagas||0,canonImpact:x.recognition.organicEvidence.canonImpact||0,missionExcellence:x.recognition.organicEvidence.missionExcellence||0,veteranExcellence:x.recognition.organicEvidence.veteranExcellence||0}:null,legendThreshold:x.recognition&&x.recognition.legendThreshold||88,decisiveSagas:x.recognition&&x.recognition.decisiveSagas||0,domains:x.recognition&&x.recognition.domains||0,allies:x.recognition&&x.recognition.allies||0,retirementChoice:x.retirementChoice||null,retired:!!x.retired,retiredMonths:x.retiredMonths||0,saveKB:+((x.saveBytes||0)/1024).toFixed(1)}))
