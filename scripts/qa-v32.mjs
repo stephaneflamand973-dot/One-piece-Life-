@@ -1348,6 +1348,11 @@ test('V5.0 administrative life remains mobile but distinctly steadier',()=>{
 
 
 
+test('V5.0 zero child bond remains a real persistent consequence',()=>{
+  const g=fresh(500527),p=g.player;p.ageMonths=360;p.children=[{id:'estranged-child',name:'Ari',ageMonths:120,status:'active',bond:0}];
+  q.lifeTick(1);assert(p.children[0].bond<2,'zero child bond silently reset toward a friendly default: '+p.children[0].bond);return p.children[0].bond.toFixed(2);
+});
+
 test('V5.0 inactive children do not inflate current household costs',()=>{
   const g=fresh(500529),p=g.player;p.ageMonths=360;p.children=[{id:'active-kid',name:'Ari',ageMonths:60,status:'active'},{id:'inactive-kid',name:'Bela',ageMonths:120,status:'inactive'}];
   const one=q.livingCostPerMonth();p.children[1].status='active';const two=q.livingCostPerMonth();assert(Math.round(two-one)===850,'inactive child still affected household cost: '+one+' -> '+two);return Math.round(one)+' -> '+Math.round(two);
