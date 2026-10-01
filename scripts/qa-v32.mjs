@@ -1658,6 +1658,20 @@ test('V5.0 route breadth becomes capped legend evidence only for route careers',
   return 'Traqueur +'+tracker.journeyEvidence+' / Duelliste +'+duelist.journeyEvidence;
 });
 
+test('V5.0 master bounty hunter can earn the organic gate through sustained route excellence',()=>{
+  const g=fresh(50171),p=g.player;p.ageMonths=700;q.join('Chasseur de primes');p.specialization='Traqueur';p.rank='Maître chasseur';
+  const rec=q.careerRecord();rec.specialization='Traqueur';rec.rank='Maître chasseur';rec.months=420;rec.successes=37;rec.failures=3;
+  p.visited=['Foosha Village','Orange Town','Syrup Village','Loguetown','Reverse Mountain','Whisky Peak','Little Garden','Drum','Alabasta'];
+  p.justice.captures=0;
+  const veteran=q.organicLegendEvidence();
+  assert(veteran.gate,'master route hunter stayed locked behind capture-only gate');
+  assert(veteran.journeyEvidence>=6,'route excellence was not substantial enough for gate fixture');
+  p.rank='Chasseur d’élite';rec.rank='Chasseur d’élite';
+  const elite=q.organicLegendEvidence();
+  assert(!elite.gate,'sub-master hunter bypassed organic gate through travel alone');
+  return 'master gate '+veteran.gate+' / elite gate '+elite.gate;
+});
+
 test('V5.0 earned legacy can create a legend without territorial micromanagement',()=>{
   const g=fresh(50100),p=g.player;p.ageMonths=780;p.money=2500000;p.reputation=100;p.factionRep.Civil=100;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';rec.months=500;rec.successes=40;rec.failures=2;rec.recentResults=[1,1,1,1,1,1,1,1];rec.distinctions=12;rec.legendDistinctions=12;
   p.skills.Science=75;p.skills.Discipline=75;p.skills.Navigation=75;Object.keys(p.stats).forEach(k=>p.stats[k]=82);if(p.organization){p.organization.renown=100;p.organization.cohesion=90;p.organization.morale=90}
