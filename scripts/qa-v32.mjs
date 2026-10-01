@@ -1149,6 +1149,18 @@ test('V5.0 organic rival challenge reaches the same confirmed milestone as a man
   assert(ch&&ch.beats===1&&ch.score===14,'organic duel did not feed the rivalry chapter');
   return 'confirmed via organic duel';
 });
+
+test('V5.0 organic rivalry records the duel result from the rival perspective consistently',()=>{
+  const g=fresh(50051),p=g.player;p.ageMonths=300;
+  const r=q.createRelation('rival');r.role='rival';r.rivalry=55;r.rivalWins=0;r.rivalLosses=0;r.rivalMilestones=[];r.location=p.island;r.region=p.region;
+  const pw=p.wins,pl=p.losses,rw=r.rivalWins,rl=r.rivalLosses,st=q.startStory('rival-challenge');assert(st&&st.participantId===r.id,'organic rivalry fixture did not bind rival');
+  q.storyResolve(st);
+  if(p.wins===pw+1){assert(r.rivalLosses===rl+1&&r.rivalWins===rw,'player victory was not recorded as rival loss')}
+  else if(p.losses===pl+1){assert(r.rivalWins===rw+1&&r.rivalLosses===rl,'player loss was not recorded as rival victory')}
+  else throw new Error('organic rival duel recorded no player result');
+  return p.wins>pw?'player win ↔ rival loss':'player loss ↔ rival win';
+});
+
 test('V5.0 repeated organic rival challenge can make a rivalry durable',()=>{
   const g=fresh(50050),p=g.player;p.ageMonths=300;
   const r=q.createRelation('rival');r.role='rival';r.rivalry=72;r.rivalWins=3;r.rivalLosses=0;r.rivalMilestones=['Rival confirmé'];r.location=p.island;r.region=p.region;
