@@ -373,7 +373,8 @@ let postCareerRows=[],postCareerProfiles=[];
     ['Révolutionnaires','Infiltration','stealth'],
     ['Gouvernement','Renseignement','stealth']
   ];
-  const rows=profiles.map((cfg,i)=>qaLongCareer(36700+i*43,cfg[0],cfg[1],cfg[2],30));
+  const rows=[];
+  profiles.forEach((cfg,pi)=>{for(let n=0;n<2;n++)rows.push(qaLongCareer(36700+pi*80+n,cfg[0],cfg[1],cfg[2],30))});
   const avg=k=>+(rows.reduce((a,x)=>a+(x[k]||0),0)/rows.length).toFixed(1);
   metrics.v50ThirtyYearCareer={
     sample:rows.length,yearsTarget:30,
@@ -390,6 +391,8 @@ let postCareerRows=[],postCareerProfiles=[];
     organicLegendQualifiedShare:+(rows.filter(x=>x.recognition&&x.recognition.organicLegendQualified).length/rows.length).toFixed(2),
     avgOrganicEvidence:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0),0)/rows.length).toFixed(1),
     nearOrganicLegendShare:+(rows.filter(x=>(x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0)>=40).length/rows.length).toFixed(2),
+    survivalByFaction:profiles.reduce((out,cfg)=>{const rs=rows.filter(x=>x.faction===cfg[0]);out[cfg[0]]=+(rs.filter(x=>x.alive).length/Math.max(1,rs.length)).toFixed(2);return out},{}),
+    deathCauses:rows.filter(x=>!x.alive).reduce((out,x)=>{const k=x.deathCause||'unknown';out[k]=(out[k]||0)+1;return out},{}),
     avgSaveKB:+(rows.reduce((a,x)=>a+(x.saveBytes||0),0)/rows.length/1024).toFixed(1),
     maxSaveKB:+(Math.max(...rows.map(x=>x.saveBytes||0))/1024).toFixed(1),
     profiles:rows.map(x=>({
@@ -402,6 +405,8 @@ let postCareerRows=[],postCareerProfiles=[];
     }))
   };
   const y30=metrics.v50ThirtyYearCareer;
+  console.log('V50_30Y_PRE_GATE '+JSON.stringify(y30));
+  if(Object.keys(y30.survivalByFaction||{}).length!==6)throw new Error('V5.0 thirty-year endgame matrix lost faction coverage');
   if(y30.avgClicksPerYear>6.5)throw new Error('V5.0 thirty-year flow regression: '+y30.avgClicksPerYear+' clicks/year');
   if(y30.avgInterruptionsPerYear>1.1)throw new Error('V5.0 thirty-year interruption spam: '+y30.avgInterruptionsPerYear+'/year');
   if(y30.survival<.60)throw new Error('V5.0 thirty-year survival collapse: '+y30.survival);
