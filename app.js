@@ -1521,7 +1521,7 @@ function train(m){
 }
 
 function relationById(id){return game.relations.find(function(r){return r.id===id})||null}
-function partnerRelation(){var p=game.player,id=p.life.partnerId,r=id?relationById(id):null;if(r&&r.status==='dead'){p.life.partnerId=null;if(p.life.relationshipStatus!=='Célibataire')p.life.relationshipStatus='En deuil';return null}return r}
+function partnerRelation(){var p=game.player,id=p.life.partnerId,r=id?relationById(id):null;if(r&&r.status==='dead'){p.life.partnerId=null;if(p.life.relationshipStatus!=='Célibataire')p.life.relationshipStatus='En deuil';return null}if(!r&&(p.life.relationshipStatus==='En couple'||p.life.relationshipStatus==='Marié')){r=(game.relations||[]).filter(function(x){return x&&x.status==='active'&&(x.type==='partner'||x.role==='partenaire'||x.role==='conjoint')}).sort(function(a,b){return(b.relationshipMonths||0)-(a.relationshipMonths||0)||(b.trust||0)-(a.trust||0)})[0]||null;if(r)p.life.partnerId=r.id}return r}
 function familyChildName(){var p=game.player,used=(p.children||[]).map(function(c){return c&&c.name}).filter(Boolean),partner=partnerRelation();if(p.name)used.push(p.name);if(partner&&partner.name)used.push(partner.name);used=used.filter(function(name,i,a){return a.indexOf(name)===i});var pool=PEOPLE_NAMES.filter(function(name){return used.indexOf(name)<0});return pk(pool.length?pool:PEOPLE_NAMES,'family')}
 function createRelation(role){
  var p=game.player,i=game.socialSeq++,name=pk(PEOPLE_NAMES,'r'),tries=0,years=p.ageMonths/12,roles=years<6?['proche de la famille','connaissance']:years<12?['ami','rival','connaissance']:years<15?['ami','rival','connaissance','mentor']:['ami','rival','mentor','collègue','connaissance'];

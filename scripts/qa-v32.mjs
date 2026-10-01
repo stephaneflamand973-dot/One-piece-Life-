@@ -1975,6 +1975,10 @@ test('V5.0 automatic breakup starts the same romance cooldown as a manual separa
   const g=fresh(501577),p=g.player;p.ageMonths=420;const r=q.createRelation('ami');r.type='partner';r.role='partenaire';r.affection=0;r.trust=0;r.relationshipMonths=24;p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.lifeDirector.lastRomanceAge=-999;
   q.lifeTick(0);assert(p.life.partnerId===null&&p.life.relationshipStatus==='Célibataire','automatic breakup did not end the relationship');assert(p.lifeDirector.lastRomanceAge===p.ageMonths,'automatic breakup skipped romance cooldown');return 'cooldown from '+p.lifeDirector.lastRomanceAge;
 });
+test('V5.0 legacy saves recover a missing active partner pointer',()=>{
+  const g=fresh(501576),p=g.player;const r=q.createRelation('ami');r.type='partner';r.role='conjoint';r.status='active';r.relationshipMonths=72;r.trust=86;p.life.partnerId=null;p.life.relationshipStatus='Marié';
+  const recovered=q.partnerRelation();assert(recovered&&recovered.id===r.id,'active spouse was not recovered from legacy relationship state');assert(p.life.partnerId===r.id,'recovered spouse pointer was not restored');return r.name+' recovered';
+});
 test('V5.0 stale dead partner pointers self-heal on legacy saves',()=>{
   const g=fresh(501578),p=g.player;const r=q.createRelation('ami');r.status='dead';r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='Marié';
   assert(q.partnerRelation()===null,'dead partner remained the active partner');assert(p.life.partnerId===null&&p.life.relationshipStatus==='En deuil','stale dead partner state was not repaired');return 'legacy household repaired';
