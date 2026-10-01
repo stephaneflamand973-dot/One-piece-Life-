@@ -1634,6 +1634,15 @@ test('V5.0 exceptional twenty-year careers can reach organic legend status in ev
   return out.join(' • ');
 });
 
+
+test('V5.0 route breadth becomes capped legend evidence only for route careers',()=>{
+  const g=fresh(50170),p=g.player;p.ageMonths=720;q.join('Chasseur de primes');p.specialization='Traqueur';q.careerRecord().specialization='Traqueur';
+  const rec=q.careerRecord();rec.months=360;rec.successes=30;rec.failures=2;p.visited=['Foosha Village','Orange Town','Syrup Village','Loguetown','Reverse Mountain','Whisky Peak','Little Garden','Drum','Alabasta','Jaya'];
+  const tracker=q.organicLegendEvidence();assert(tracker.journeyEvidence===10,'route breadth evidence did not reach its 10-point cap: '+tracker.journeyEvidence);assert(tracker.visitedCount===10,'route breadth lost unique visited count');
+  p.specialization='Duelliste';rec.specialization='Duelliste';const duelist=q.organicLegendEvidence();assert(duelist.journeyEvidence===0,'non-route specialization received travel legend evidence');
+  return 'Traqueur +'+tracker.journeyEvidence+' / Duelliste +'+duelist.journeyEvidence;
+});
+
 test('V5.0 earned legacy can create a legend without territorial micromanagement',()=>{
   const g=fresh(50100),p=g.player;p.ageMonths=780;p.money=2500000;p.reputation=100;p.factionRep.Civil=100;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';rec.months=500;rec.successes=40;rec.failures=2;rec.recentResults=[1,1,1,1,1,1,1,1];rec.distinctions=12;rec.legendDistinctions=12;
   p.skills.Science=75;p.skills.Discipline=75;p.skills.Navigation=75;Object.keys(p.stats).forEach(k=>p.stats[k]=82);if(p.organization){p.organization.renown=100;p.organization.cohesion=90;p.organization.morale=90}
