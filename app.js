@@ -1821,7 +1821,7 @@ function surrenderPlayer(){
  var p=game.player,j=migrateJustice(p);if(j.detained)return;if((p.bounty||0)<=0&&currentHeat()<18)return toast('Les autorités ne te recherchent pas activement.');arrestPlayer('Reddition volontaire');if(j.prison)j.prison.remaining=Math.max(1,Math.round(j.prison.remaining*.72));tl('Reddition','Ta coopération réduit légèrement la durée de détention.');save();render()
 }
 function arrestPlayer(reason){
- var p=game.player,j=migrateJustice(p);if(j.detained)return;var security=cl(inf().danger*.62+(game.world.pressures[p.region].Marine||30)*.38,18,96),months=Math.max(2,Math.round(2+Math.log10(Math.max(10,p.bounty+10))*1.8+currentHeat()/16+R('justice')*4));
+ var p=game.player,j=migrateJustice(p);if(j.detained)return;var security=cl(inf().danger*.62+(game.world.pressures[p.region].Marine==null?30:game.world.pressures[p.region].Marine)*.38,18,96),months=Math.max(2,Math.round(2+Math.log10(Math.max(10,p.bounty+10))*1.8+currentHeat()/16+R('justice')*4));
  j.detained=true;j.prison={location:p.island,region:p.region,security:security,remaining:months,original:months,reason:reason||'Arrestation',attempts:0};p.situation='Détenu';p.activity='Détention';p.travel=null;game.mission=null;
  if(p.organization){p.organization.morale=cl(p.organization.morale-7,0,100);p.organization.cohesion=cl(p.organization.cohesion-3,0,100)}
  tl('ARRESTATION',p.name+' est capturé. Peine estimée : '+months+' mois.','danger');news('Arrestation de '+p.name,'Les autorités annoncent la capture du recherché.','major')

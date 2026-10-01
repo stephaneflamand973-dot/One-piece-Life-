@@ -174,6 +174,11 @@ test('Relationships: marriage, child and legacy handoff',()=>{
   const g=fresh(3801),p=g.player;p.ageMonths=360;p.money=500000;const r=q.createRelation('partenaire');r.affection=95;r.trust=95;r.attraction=95;r.relationshipMonths=18;p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.life.socialActions=2;q.marryPartner();assert(p.life.relationshipStatus==='Marié','marriage failed');
   p.life.socialActions=2;q.welcomeChild();assert(p.children.length===1,'child creation failed');p.children[0].ageMonths=220;const childName=p.children[0].name,generation=g.dynasty.generation;g.death={cause:'QA'};q.buildHeir(p.children[0]);assert(g.dynasty.generation===generation+1,'generation not advanced');assert(g.player.name===childName,'heir not selected');return 'generation '+g.dynasty.generation
 });
+test('V5.0 zero Marine pressure remains causal in arrest security',()=>{
+  let g=fresh(3900),p=g.player;p.ageMonths=360;g.world.pressures[p.region].Marine=0;q.arrestPlayer('QA zero pressure');const zero=q.getGame().player.justice.prison.security;
+  g=fresh(3900);p=g.player;p.ageMonths=360;g.world.pressures[p.region].Marine=30;q.arrestPlayer('QA normal pressure');const normal=q.getGame().player.justice.prison.security;
+  assert(zero<normal,'zero Marine pressure was normalized to default arrest security: '+zero+' / '+normal);return zero.toFixed(1)+' vs '+normal.toFixed(1);
+});
 test('Justice: witnessed crime -> bounty -> detention -> release',()=>{
   const g=adultPirate(3901),p=g.player;const b=p.bounty;q.registerCrime('QA raid',4,true);assert(p.bounty>b,'bounty did not increase');assert(p.justice.regionalHeat[p.region]>0,'heat did not increase');q.arrestPlayer('QA arrest');assert(p.justice.detained,'arrest failed');const months=p.justice.prison.remaining;for(let i=0;i<Math.ceil(months)+2&&p.justice.detained;i++)q.prisonTick(1);assert(!p.justice.detained,'prison did not release');return 'bounty '+p.bounty.toLocaleString('fr-FR')+' B'
 });

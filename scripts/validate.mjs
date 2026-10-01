@@ -27,7 +27,7 @@ if(missing.length) throw new Error('Missing HTML ids: '+missing.join(', '));
 
 if(!app.includes('function careerTick') || !app.includes('var CAREERS=')) throw new Error('career engine missing');
 if(!app.includes('function worldMonthStep') || !app.includes('function simulateCrews') || !app.includes('function simulateActors') || !app.includes('function simulateConflicts')) throw new Error('living world engine missing');
-if(/rp\.(?:Prospérité|Marine|Instabilité|Criminalité)\|\|(?:20|25|40|50)/.test(app)) throw new Error('zero-valued regional pressure is being normalized to a nonzero default');
+if(/rp\.(?:Prospérité|Marine|Instabilité|Criminalité)\|\|(?:20|25|40|50)/.test(app)||/pressures\[[^\]]+\]\.Marine\|\|30/.test(app)) throw new Error('zero-valued regional pressure is being normalized to a nonzero default');
 if(!app.includes('function lifeTick') || !app.includes('function continueWithHeir') || !app.includes('function checkAchievements')) throw new Error('life simulator engine missing');
 if(!app.includes('function processCanonEvents') || !app.includes('function resolveCanonEvent') || !app.includes('function simulateCanonBranches') || !app.includes('function markPlayerCanonImpact') || !app.includes('function canonTimelineMode')) throw new Error('V3.5 causal canon engine missing');
 if(!app.includes('CANON_EVENTS') || !app.includes('SPECIAL_TECHNIQUES') || !app.includes('pickFruit')) throw new Error('V1 content integration missing');
