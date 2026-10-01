@@ -3164,6 +3164,15 @@ test('V5.3 founded captains get doctrine while joined crews do not',()=>{
  g=fresh(54105);p=g.player;p.ageMonths=300;const c=q.pirateCrewCandidate(g,p);q.join('Pirates','Novice',{pirateMode:'joined',worldCrew:c});assert(!p.organization.pirateDirective,'joined crew incorrectly gives player captain doctrine');return 'founder directive isolated';
 });
 
+test('V5.3 joined crew roster reflects its real captain and officers',()=>{
+ const g=fresh(54106),p=g.player;p.ageMonths=260;const c=q.pirateCrewCandidate(g,p);q.normalizeWorldCrew(c,g);const captain=c.leader.name,second=c.second&&c.second.name;q.join('Pirates','Novice',{pirateMode:'joined',worldCrew:c});const names=p.organization.members.map(x=>x.name);
+ assert(names.includes(captain),'real captain missing from local roster');if(second)assert(names.includes(second),'real second-in-command missing from local roster');return captain+(second?' / '+second:'');
+});
+test('V5.3 joined crew remains world-led without autonomous travel away from player',()=>{
+ const g=fresh(54107),p=g.player;p.ageMonths=260;const c=q.pirateCrewCandidate(g,p);q.join('Pirates','Novice',{pirateMode:'joined',worldCrew:c});c.playerJoined=true;const pool=q.crewIntentPool(c);
+ assert(!pool.includes('Voyager'),'joined crew can autonomously sail away from player');assert(pool.includes('S’entraîner'),'joined crew lost autonomous internal activity');return pool.join(' / ');
+});
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
