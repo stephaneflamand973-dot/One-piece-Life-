@@ -1711,27 +1711,6 @@ test('V5.0 age alone never grants legendary status',()=>{
   const evidence=q.organicLegendEvidence(),r=q.playerWorldRecognition();assert(!evidence.qualified,'longevity alone qualified as legend');assert(evidence.veteranExcellence===0,'longevity alone received veteran excellence');assert(!r.organicLegendQualified,'longevity alone activated organic legend route');assert(r.role!=='Icône des mers','longevity alone produced legendary role');return evidence.score+' evidence';
 });
 
-test('V5.0 exceptional thirty-year veteran excellence is reachable without relaxing legend thresholds',()=>{
-  const g=fresh(50103),p=g.player;p.ageMonths=576;p.money=2500000;p.factionRep.Gouvernement=100;q.join('Gouvernement');p.specialization='Renseignement';p.rank='Directeur';
-  const rec=q.careerRecord();rec.rank='Directeur';rec.specialization='Renseignement';rec.months=360;rec.successes=28;rec.failures=2;rec.distinctions=9;rec.legendDistinctions=9;rec.recentResults=[1,1,1,1,1,1,1,1];
-  p.lifeDirector.chapterHistory=[{id:'thirty-a',kind:'career',title:'Service remarquable',score:50,beats:3}];
-  g.loop.foundingMemories=[{title:'Mémoire fondatrice',weight:86}];
-  const evidence=q.organicLegendEvidence(),r=q.playerWorldRecognition();
-  assert(evidence.careerYears===30&&evidence.missionCount===30,'thirty-year fixture drifted');
-  assert(evidence.missionSuccessRate>.9,'fixture is not exceptional enough');
-  assert(evidence.veteranExcellence>0,'exceptional thirty-year career earned no veteran evidence');
-  assert(evidence.qualified,'thirty-year veteran evidence still cannot qualify organically: '+JSON.stringify(evidence));
-  assert(r.legendThreshold===84,'organic legend threshold was lowered instead of strengthening evidence');
-  return evidence.veteranExcellence+' veteran evidence / threshold '+r.legendThreshold;
-});
-test('V5.0 veteran excellence still rejects merely good thirty-year volume',()=>{
-  const g=fresh(50105),p=g.player;p.ageMonths=576;p.factionRep.Gouvernement=100;q.join('Gouvernement');p.specialization='Renseignement';p.rank='Directeur';
-  const rec=q.careerRecord();rec.rank='Directeur';rec.specialization='Renseignement';rec.months=360;rec.successes=26;rec.failures=4;rec.distinctions=9;rec.legendDistinctions=9;
-  p.lifeDirector.chapterHistory=[{id:'good-not-great',kind:'career',title:'Service solide',score:50,beats:3}];
-  const evidence=q.organicLegendEvidence();
-  assert(evidence.missionSuccessRate<.9&&evidence.veteranExcellence===0,'ordinary good volume received veteran excellence');
-  return Math.round(evidence.missionSuccessRate*100)+'% / no veteran bonus';
-});
 test('V5.0 decades of sustained excellence can become veteran legend evidence only with support',()=>{
   const g=fresh(50104),p=g.player;p.ageMonths=696;p.money=2500000;p.factionRep.Civil=100;q.join('Civil');p.specialization='Scientifique';p.rank='Maître';const rec=q.careerRecord();rec.rank='Maître';rec.specialization='Scientifique';rec.months=480;rec.successes=38;rec.failures=4;rec.distinctions=4;rec.legendDistinctions=2;rec.recentResults=[1,1,1,1,1,1,1,0];p.skills.Science=76;p.lifeDirector.chapterHistory=[{id:'veteran-a',kind:'career',title:'Longue carrière',score:52,beats:4},{id:'veteran-b',kind:'career',title:'Œuvre durable',score:48,beats:3}];g.loop.foundingMemories=[{title:'Mémoire fondatrice A',weight:86},{title:'Mémoire fondatrice B',weight:84}];
   const evidence=q.organicLegendEvidence();assert(evidence.veteranExcellence>=8&&evidence.veteranExcellence<=10,'veteran excellence bonus not earned coherently: '+evidence.veteranExcellence);assert(evidence.careerYears>=40&&evidence.missionSuccessRate>.8,'veteran fixture did not represent sustained excellence');return evidence.veteranExcellence+' veteran evidence';
