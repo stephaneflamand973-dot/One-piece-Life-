@@ -1946,6 +1946,11 @@ test('V5.0 death succession exposes every active heir instead of forcing the eld
 });
 
 
+test('V5.0 life chronicle preserves historical parenthood when no heir remains active',()=>{
+  const g=fresh(50159),p=g.player;p.ageMonths=540;p.children=[{id:'inactive-child',name:'Ari',ageMonths:240,status:'inactive',bond:40}];
+  const out=q.lifeChronicle(p);assert(out.children===0&&out.childrenTotal===1,'chronicle lost active/total child distinction');assert(out.highlights.some(x=>x.kind==='family'),'historical parenthood disappeared from life chronicle');assert(out.summary.includes('1 enfant a marqué cette vie'),'historical child trace missing from compact summary');return out.summary;
+});
+
 test('V5.0 life chronicle preserves a meaningful crew or organization',()=>{
   const g=fresh(50160),p=g.player;p.ageMonths=360;p.factionRep.Pirates=100;q.join('Pirates');p.organization.name='Équipage QA';p.organization.authority='leader';p.organization.renown=55;p.organization.members.push({id:'qa-org-extra',name:'Membre QA',status:'active',power:35,loyalty:70,morale:70});const out=q.lifeChronicle(p);assert(out.organization&&out.organization.name==='Équipage QA','meaningful organization missing from chronicle');assert(out.summary.includes('Équipage QA'),'organization absent from chronicle summary');return out.organization.name+' / '+out.organization.members+' membres';
 });
