@@ -2163,6 +2163,11 @@ test('V5.0 inherited historical relation keeps NPC career state but resets perso
   return inherited.careerLevel+' / '+inherited.npcWins+'-'+inherited.npcLosses+' / personal counters reset';
 });
 
+test('V5.0 family screen preserves bereavement instead of showing generic single status',()=>{
+  const g=fresh(501479),p=g.player;p.ageMonths=540;p.life.partnerId=null;p.life.relationshipStatus='En deuil';q.renderRelClose();
+  assert(document.querySelector('#romanceBadge').textContent==='En deuil','bereavement badge collapsed to generic single status');
+  assert(document.querySelector('#romanceCard').textContent.includes('En deuil'),'family view erased bereavement state');return 'bereavement visible';
+});
 test('V5.0 surviving parent keeps real identity and location across succession',()=>{
   const g=fresh(50148),p=g.player;p.ageMonths=600;p.money=300000;
   const partner=q.createRelation('ami');partner.name='Parent QA';partner.type='partner';partner.role='conjoint';partner.location=(q.constants.PL[p.island][2]||[])[0]||p.island;partner.region=q.infStatic(partner.location).region;partner.npcAgeMonths=588;partner.npcPower=64;partner.npcPotential=82;partner.npcSpecialty='Navigation';partner.npcTrajectory='Ascension';partner.npcAmbition='Protéger ses proches';partner.npcWealth=88000;partner.careerLevel=4;partner.memories=[{text:'Souvenir familial QA',type:'family',age:'48 ans'}];partner.affection=91;partner.trust=88;partner.loyalty=86;partner.longDistance=partner.location!==p.island;
