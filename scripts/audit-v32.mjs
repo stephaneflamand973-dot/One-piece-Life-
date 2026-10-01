@@ -65,8 +65,12 @@ function qaTuneProfile(p,profile){
   }
   p.health=100;p.energy=100;p.conditions=[];
 }
-function qaMissionPick(board){
+function qaMissionPick(board,policy){
   if(!board.length)return -1;
+  if(policy==='saga-seeker'){
+    const decisive=board.map((x,i)=>({x,i})).filter(o=>o.x.worldGenerated&&(o.x.tier||0)>=4&&(o.x.importance||0)>=72&&(o.x.chance||0)>=.35&&q.missionSagaTarget&&q.missionSagaTarget(o.x)).sort((a,b)=>(b.x.chance||0)-(a.x.chance||0));
+    if(decisive.length)return decisive[0].i;
+  }
   const rec=board.findIndex(x=>x.recommended);
   if(rec>=0)return rec;
   let best=0;
@@ -90,7 +94,7 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
     if(!g.mission&&p.ageMonths-lastMissionAge>=missionGap){
       const b=q.board();
       b.forEach(opt=>{if(opt.worldGenerated){const linked=q.missionSagaTarget&&q.missionSagaTarget(opt);if(linked){sagaLinkedOffers++;maxSagaLinkedOfferImportance=Math.max(maxSagaLinkedOfferImportance,opt.importance||0);if((opt.importance||0)>=72&&(opt.tier||0)>=4)sagaLinkedDecisiveOffers++;else if((opt.importance||0)>=58)sagaLinkedExceptionalOffers++}}});
-      const ix=qaMissionPick(b);
+      const ix=qaMissionPick(b,choicePolicy);
       if(ix>=0){
         const m=b[ix];titles.push(m.title);started++;if(m.routine)routine++;if(m.adaptive)adaptive++;if(m.worldGenerated)worldGenerated++;if(m.signature)signature++;
         if(m.worldGenerated){const linked=q.missionSagaTarget&&q.missionSagaTarget(m);if(linked){sagaLinkedMissions++;maxSagaLinkedImportance=Math.max(maxSagaLinkedImportance,m.importance||0);if((m.importance||0)>=72&&(m.tier||0)>=4)sagaLinkedDecisiveCandidates++;else if((m.importance||0)>=58)sagaLinkedExceptionalCandidates++}}
@@ -557,6 +561,37 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y30.organicLegendShare>.34)throw new Error('V5.0 organic legends became too common after 30 years: '+y30.organicLegendShare);
   if(y30.avgOrganicEvidence<18)throw new Error('V5.0 thirty-year careers stopped accumulating meaningful legend evidence: '+y30.avgOrganicEvidence);
   if((y30.totalSagaLinkedDecisiveOffers||0)<1)throw new Error('V5.0 thirty-year careers lost every decisive saga-linked mission opportunity');
+  if(y30.decisiveSagaShare>.17)throw new Error('V5.0 decisive saga careers became too common under cautious play: '+y30.decisiveSagaShare);
+}
+
+
+{
+  const profiles=[
+    ['Civil','Scientifique','science',36700],
+    ['Marine','Combattant','combat',36780],
+    ['Pirates','Duelliste','combat',36860],
+    ['Chasseur de primes','Traqueur','combat',36940],
+    ['Révolutionnaires','Infiltration','stealth',37020],
+    ['Gouvernement','Renseignement','stealth',37100]
+  ],rows=[];
+  profiles.forEach(cfg=>{for(let n=0;n<2;n++)rows.push(qaLongCareer(cfg[3]+n,cfg[0],cfg[1],cfg[2],30,'saga-seeker'))});
+  metrics.v50ChosenDecisiveSagaStress={
+    sample:rows.length,
+    survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
+    avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+    selectedDecisiveMissions:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveCandidates||0),0),
+    selectedDecisiveCareerShare:+(rows.filter(x=>(x.sagaLinkedDecisiveCandidates||0)>0).length/rows.length).toFixed(2),
+    decisiveSagaShare:+(rows.filter(x=>x.recognition&&(x.recognition.decisiveSagas||0)>0).length/rows.length).toFixed(2),
+    avgDecisiveSagas:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.decisiveSagas||0),0)/rows.length).toFixed(2),
+    organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
+    profiles:rows.map(x=>({faction:x.faction,alive:x.alive,selected:x.sagaLinkedDecisiveCandidates||0,decisiveSagas:x.recognition&&x.recognition.decisiveSagas||0,role:x.recognition&&x.recognition.role||null,organic:!!(x.endgame&&x.endgame.organic)}))
+  };
+  const ds=metrics.v50ChosenDecisiveSagaStress;
+  if(ds.selectedDecisiveMissions<1)throw new Error('V5.0 chosen decisive saga path never selects a real decisive mission');
+  if(ds.decisiveSagaShare<=0)throw new Error('V5.0 chosen decisive saga path cannot produce a decisive saga');
+  if(ds.decisiveSagaShare>.50)throw new Error('V5.0 chosen decisive saga path became too automatic: '+ds.decisiveSagaShare);
+  if(ds.survival<.50)throw new Error('V5.0 chosen decisive saga path became excessively lethal: '+ds.survival);
+  if(ds.avgClicksPerYear>6.5)throw new Error('V5.0 chosen decisive saga path damaged flow: '+ds.avgClicksPerYear+' clicks/year');
 }
 
 {
@@ -1068,7 +1103,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
 }));
 
 console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
-console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,mobilityProfiles:metrics.v50MobilityProfiles,mixedChoices:metrics.v50MixedChoiceStress,choiceConsequences:metrics.v50ChoiceConsequenceStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,twentyYearCareer:metrics.v50TwentyYearCareer,thirtyYearCareer:metrics.v50ThirtyYearCareer,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress,mixedDynasty:metrics.v50MixedDynastyStress}));
+console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,mobilityProfiles:metrics.v50MobilityProfiles,mixedChoices:metrics.v50MixedChoiceStress,choiceConsequences:metrics.v50ChoiceConsequenceStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,twentyYearCareer:metrics.v50TwentyYearCareer,thirtyYearCareer:metrics.v50ThirtyYearCareer,chosenDecisiveSaga:metrics.v50ChosenDecisiveSagaStress,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress,mixedDynasty:metrics.v50MixedDynastyStress}));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
