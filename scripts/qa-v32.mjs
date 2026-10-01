@@ -1946,6 +1946,11 @@ test('V5.0 death succession exposes every active heir instead of forcing the eld
 });
 
 
+test('V5.0 life chronicle preserves a long-term partner after bereavement',()=>{
+  const g=fresh(50158),p=g.player;p.ageMonths=600;const r=q.createRelation('ami');r.name='Partenaire disparu QA';r.type='partner';r.role='partenaire';r.status='dead';r.relationshipMonths=144;r.trust=88;r.affection=91;p.life.partnerId=null;p.life.relationshipStatus='En deuil';
+  const out=q.lifeChronicle(p);assert(out.partner===null&&out.pastPartner==='Partenaire disparu QA','chronicle lost current/past partner distinction');assert(out.summary.includes('Partenaire disparu QA'),'long-term deceased partner disappeared from life chronicle');assert(out.highlights.some(x=>x.kind==='family'),'bereavement lost its family highlight');return out.summary;
+});
+
 test('V5.0 life chronicle preserves historical parenthood when no heir remains active',()=>{
   const g=fresh(50159),p=g.player;p.ageMonths=540;p.children=[{id:'inactive-child',name:'Ari',ageMonths:240,status:'inactive',bond:40}];
   const out=q.lifeChronicle(p);assert(out.children===0&&out.childrenTotal===1,'chronicle lost active/total child distinction');assert(out.highlights.some(x=>x.kind==='family'),'historical parenthood disappeared from life chronicle');assert(out.summary.includes('1 enfant a marqué cette vie'),'historical child trace missing from compact summary');return out.summary;
