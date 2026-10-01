@@ -10,9 +10,9 @@ const css=fs.readFileSync('styles.css','utf8');
 new Function(app);
 new Function(pack);
 const manifestData=JSON.parse(manifest);
-if(!String(manifestData.description||'').includes('V5.2') || !String(manifestData.description||'').includes('Living Power World')) throw new Error('manifest.webmanifest does not expose V5.2 Living Power World consistently');
+if(!String(manifestData.description||'').includes('V5.3') || !String(manifestData.description||'').includes('Living Crews & Organizations')) throw new Error('manifest.webmanifest does not expose V5.3 Living Crews & Organizations consistently');
 
-if(!html.includes('<title>ONE PIECE LIFE — V5.2</title>') || !html.includes('V5.2 • Living Power World')) throw new Error('index.html does not expose V5.2 consistently');
+if(!html.includes('<title>ONE PIECE LIFE — V5.3</title>') || !html.includes('V5.3 • Living Crews & Organizations')) throw new Error('index.html does not expose V5.3 consistently');
 if(!app.includes('version:28') || !app.includes('g.version=28')) throw new Error('compatible GameState 28 migration is missing');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
@@ -138,9 +138,11 @@ if(!app.includes('function showStoryDecision') || !app.includes('function render
 if(!html.includes('id="storyEngineBadge"') || !html.includes('id="storySummary"') || !html.includes('id="activeStories"') || !html.includes('id="storyHistory"')) throw new Error('V2.0 story UI missing');
 if(!app.includes("id:'story-first'") || !app.includes("id:'story-weaver'") || !app.includes("id:'story-decisions'")) throw new Error('V2.0 story achievements missing');
 if(!app.includes("if(awaitingStory())return showStoryDecision()")) throw new Error('V2.0 AVANCER story gate missing');
-console.log('ONE PIECE LIFE V5.2 validation OK');
+console.log('ONE PIECE LIFE V5.3 validation OK');
 
-if(!app.includes('function normalizeNpcCombatProfile') || !app.includes('function actorCombatRating') || !app.includes('function maybeDevelopSignatureTechnique') || !app.includes('function recordNpcCombatLearning')) throw new Error('V5.2 Living Power World combat systems missing');
+if(!app.includes('function worldCrewInternalTick') || !app.includes('function spawnCrewSplinter') || !app.includes('function foundOwnPirateCrew') || !app.includes('function syncPlayerPirateCrewWorld')) throw new Error('V5.3 Living Crews systems missing');
+
+if(!app.includes('function normalizeNpcCombatProfile') || !app.includes('function actorCombatRating') || !app.includes('function maybeDevelopSignatureTechnique') || !app.includes('function recordNpcCombatLearning')) throw new Error('V5.3 release is missing V5.2 Living Power World combat systems');
 
 if(!app.includes('function missionOutcomeFlavor') || !app.includes('function endgameMilestones') || !app.includes('function migrateWorldFoundations') || !app.includes('function worldStateSummary') || !app.includes("id==='navigation'") || !app.includes("id==='trade'")) throw new Error('V3.2 career-specific mission outcomes missing');
 
