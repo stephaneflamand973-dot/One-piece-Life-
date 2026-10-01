@@ -1537,7 +1537,7 @@ function netWorth(){
  var p=game.player,a=p.life.assets||{},debt=Math.max(0,p.life&&p.life.debt||0);return Math.round(Math.max(0,p.money)+(a.property||0)+(a.business||0)+(a.ship||0)+(a.treasure||0)+cargoBookValue()-debt)
 }
 function livingCostPerMonth(){
- var p=game.player;if(p.ageMonths<180)return 0;var h=HOUSING[p.life.housingLevel||0]||HOUSING[0],base=h.monthly+(p.children||[]).length*850;
+ var p=game.player;if(p.ageMonths<180)return 0;var h=HOUSING[p.life.housingLevel||0]||HOUSING[0],activeChildren=(p.children||[]).filter(function(c){return c.status==='active'}).length,base=h.monthly+activeChildren*850;
  if(p.life.relationshipStatus!=='Célibataire')base+=350;return Math.round(base)
 }
 function businessIncomePerMonth(){var p=game.player,asset=(p.life.assets||{}).business||0;if(!asset)return 0;var rp=game.world.pressures[p.region]||{},m=game.world.markets&&game.world.markets[p.island],mult=.72+(rp.Prospérité||50)/180;if(m&&m.blockade)mult*=.58;return Math.round(asset*.008*mult)}
@@ -1570,7 +1570,7 @@ function breakup(){
   ['Rester ensemble','Ne rien changer.',function(){}]
  ])}
 function welcomeChild(){
- var p=game.player,r=partnerRelation();if(!r||p.ageMonths<216)return toast('Il faut être adulte et en couple.');if(r.trust<50||r.affection<55)return toast('Votre relation n’est pas assez stable.');if((p.children||[]).length>=5)return toast('Ta famille est déjà très nombreuse.');if(!useSocialAction())return;
+ var p=game.player,r=partnerRelation();if(!r||p.ageMonths<216)return toast('Il faut être adulte et en couple.');if(r.trust<50||r.affection<55)return toast('Votre relation n’est pas assez stable.');if((p.children||[]).filter(function(c){return c.status==='active'}).length>=5)return toast('Ta famille est déjà très nombreuse.');if(!useSocialAction())return;
  var i=p.children.length,name=familyChildName(),child={id:'child-'+game.dynasty.generation+'-'+Math.floor(R('family')*999999)+'-'+i,name:name,ageMonths:0,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:55+R('family')*30};
  p.children.push(child);p.money-=Math.min(p.money,2500);migrateLifeDirector(p).lastFamilyAge=p.ageMonths;signalPersonalChapter('family','Foyer avec '+r.name,24,'manual-child:'+child.id,r.id);tl('Nouvelle génération',name+' rejoint ta famille à '+p.island+'.','major');checkAchievements();save();render()
 }
