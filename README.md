@@ -17,8 +17,10 @@ La V5.0 part du constat post-V4.0 : le monde sait désormais vivre sans le joueu
 - **Momentum de carrière** : réussites et échecs modifient temporairement la vitesse de progression professionnelle, puis l'effet revient vers la normale. Les promotions supérieures demandent aussi un dossier de missions crédible.
 - **Chapitres personnels** : promotions, missions majeures, rivalités, voyages et famille peuvent se regrouper en arcs de vie mémorables sans ajouter d'écran.
 - **Chronique de vie** : le bilan final synthétise automatiquement reconnaissance, voyages, famille, chapitres et moments signatures. Un équipage ou une organisation n’y apparaît que s’il a réellement compté dans la trajectoire.
-- **Succession choisie** : lorsqu’il existe plusieurs héritiers actifs, le joueur choisit qui portera la génération suivante au lieu de subir automatiquement l’aîné.\n- **Carrefour d’héritage** : lorsqu’un ancêtre a réellement marqué le monde, son descendant reçoit au plus une décision majeure pour assumer cet héritage ou tracer sa propre voie ; les héritages insignifiants ne génèrent aucune interruption.
+- **Succession choisie** : lorsqu’il existe plusieurs héritiers actifs, le joueur choisit qui portera la génération suivante au lieu de subir automatiquement l’aîné.
+- **Carrefour d’héritage** : lorsqu’un ancêtre a réellement marqué le monde, son descendant reçoit au plus une décision majeure pour assumer cet héritage ou tracer sa propre voie ; les héritages insignifiants ne génèrent aucune interruption.
 - **Fluidité** : vie active ordinaire compressée en fenêtres de 4 à 6 mois ; périodes adultes réellement calmes en 5,5 à 7,5 mois. Les événements importants interrompent toujours la période immédiatement.
+- **Fin de carrière organique** : après une longue carrière, le Life Director peut proposer une seule décision tardive : rester en première ligne ou passer en retrait comme vétéran. Le retrait arrête les promotions automatiques, compresse davantage le temps et conserve les missions ponctuelles ; les carrières salariées reçoivent une pension réduite.
 - **Release gate** : GitHub Pages ne publie désormais qu’un SHA ayant réussi le QA V5.0, puis les validations statiques sont rejouées sur ce même SHA avant déploiement.
 - Les historiques V5.0 restent bornés et le GameState reste en **version 28**.
 
