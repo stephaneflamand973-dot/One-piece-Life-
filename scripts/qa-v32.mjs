@@ -1383,6 +1383,10 @@ test('V5.0 sibling names remain unique within one family',()=>{
   return only+' remained available';
 });
 
+test('V5.0 manual romance requires real geographic proximity',()=>{
+  const g=fresh(500509),p=g.player;p.ageMonths=360;const r=q.createRelation('ami');r.npcAgeMonths=360;r.affection=90;r.trust=90;r.attraction=95;r.status='active';const away=Object.keys(q.constants.PL).find(x=>x!==p.island&&q.constants.PL[x][0]!==p.region)||Object.keys(q.constants.PL).find(x=>x!==p.island);assert(away,'no distant location fixture');r.location=away;r.region=q.constants.PL[away][0];p.life.socialActions=2;p.lifeDirector.lastRomanceAge=-999;
+  q.pursueRomance(r.id);assert(p.life.partnerId===null,'distant relation became a partner without reunion');assert(p.life.socialActions===2,'distant romance consumed a social action');assert(p.lifeDirector.lastRomanceAge===-999,'blocked distant romance started a cooldown');return 'blocked at '+away;
+});
 test('V5.0 manual family actions feed the same personal chapter',()=>{
   const g=fresh(50051),p=g.player;p.ageMonths=360;p.money=500000;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=360;r.location=p.island;r.region=p.region;r.affection=95;r.trust=95;r.attraction=95;r.relationshipMonths=18;r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.life.socialActions=2;q.marryPartner();p.life.socialActions=2;q.welcomeChild();const ch=p.lifeDirector.activeChapters.find(x=>x.key==='family:'+r.id);assert(ch&&ch.beats>=2,'manual marriage/child did not merge into family chapter');assert(p.lifeDirector.lastFamilyAge===p.ageMonths,'manual family action did not synchronize Life Director cooldown');return ch.beats+' family beats';
 });

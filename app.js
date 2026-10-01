@@ -1554,7 +1554,7 @@ function spendTime(id){
  tl('Temps partagé','Tu passes du temps avec '+r.name+'.');save();renderRel();renderChar()
 }
 function pursueRomance(id){
- var p=game.player,r=relationById(id);if(!r||p.ageMonths<216||r.npcAgeMonths<216)return toast('La romance est réservée aux personnages adultes.');if(p.life.partnerId)return toast('Tu es déjà engagé dans une relation.');if(!useSocialAction())return;
+ var p=game.player,r=relationById(id);if(!r||p.ageMonths<216||r.npcAgeMonths<216)return toast('La romance est réservée aux personnages adultes.');if(!npcNearby(r))return toast('Cette personne doit être présente dans ta région pour faire évoluer ce lien.');if(p.life.partnerId)return toast('Tu es déjà engagé dans une relation.');if(!useSocialAction())return;
  migrateLifeDirector(p).lastRomanceAge=p.ageMonths;var score=r.affection*.35+r.trust*.25+r.attraction*.4,ch=cl((score-32)/70,.08,.92);
  if(R('life')<ch){p.life.partnerId=r.id;p.life.relationshipStatus='En couple';r.type='partner';r.role='partenaire';r.relationshipMonths=0;r.affection=cl(r.affection+8,0,100);r.trust=cl(r.trust+6,0,100);signalPersonalChapter('relationship','Lien avec '+r.name,18,'manual-relationship:'+r.id,r.id);tl('Nouvelle relation',r.name+' et toi commencez une relation.','major')}
  else{r.attraction=cl(r.attraction-6,0,100);r.trust=cl(r.trust-2,0,100);tl('Sentiments non partagés',r.name+' ne souhaite pas aller plus loin.')}
@@ -2859,7 +2859,7 @@ function relationPriority(r){
 function relationActionDecision(id){
  var p=game.player,r=relationById(id);if(!r||r.status!=='active')return;var near=npcNearby(r),partner=partnerRelation(),isPartner=r.id===p.life.partnerId,ch=[];
  if(near)ch.push(['Passer du temps','Renforcer affection et confiance.',function(){spendTime(id)}]);
- if(!partner&&p.ageMonths>=216&&r.npcAgeMonths>=216&&r.attraction>=25&&!r.canonical)ch.push(['Approche romantique','Tenter de faire évoluer votre relation.',function(){pursueRomance(id)}]);
+ if(near&&!partner&&p.ageMonths>=216&&r.npcAgeMonths>=216&&r.attraction>=25&&!r.canonical)ch.push(['Approche romantique','Tenter de faire évoluer votre relation.',function(){pursueRomance(id)}]);
  if(near&&r.role!=='mentor'&&relationPower(r)>power()+8)ch.push(['Demander un mentorat','Solliciter son expérience.',function(){askMentorship(id)}]);
  if(near&&r.role!=='rival'&&r.role!=='mentor'&&!isPartner)ch.push(['Déclarer une rivalité','Transformer ce lien en rivalité assumée.',function(){declareRivalry(id)}]);
  if(near&&r.trust>=48)ch.push(['Demander un service','Mobiliser la confiance accumulée.',function(){askRelationFavor(id)}]);
