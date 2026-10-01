@@ -1538,7 +1538,7 @@ function netWorth(){
 }
 function livingCostPerMonth(){
  var p=game.player;if(p.ageMonths<180)return 0;var h=HOUSING[p.life.housingLevel||0]||HOUSING[0],dependentChildren=(p.children||[]).filter(function(c){return c.status==='active'&&(c.ageMonths||0)<216}).length,base=h.monthly+dependentChildren*850;
- if(p.life.relationshipStatus!=='Célibataire')base+=350;return Math.round(base)
+ if(partnerRelation())base+=350;return Math.round(base)
 }
 function businessIncomePerMonth(){var p=game.player,asset=(p.life.assets||{}).business||0;if(!asset)return 0;var rp=game.world.pressures[p.region]||{},m=game.world.markets&&game.world.markets[p.island],mult=.72+(rp.Prospérité||50)/180;if(m&&m.blockade)mult*=.58;return Math.round(asset*.008*mult)}
 function chargeMoney(amount){var p=game.player,l=p.life;amount=Math.max(0,amount||0);var paid=Math.min(Math.max(0,p.money),amount);p.money-=paid;var missing=amount-paid;if(missing>0){l.debt=Math.max(0,(l.debt||0)+missing);l.debtPeak=Math.max(l.debtPeak||0,l.debt)}return{paid:paid,debt:missing}}

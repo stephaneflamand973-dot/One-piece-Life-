@@ -1353,6 +1353,10 @@ test('V5.0 zero child bond remains a real persistent consequence',()=>{
   q.lifeTick(1);assert(p.children[0].bond<2,'zero child bond silently reset toward a friendly default: '+p.children[0].bond);return p.children[0].bond.toFixed(2);
 });
 
+test('V5.0 bereavement stops charging a dead partner as household upkeep',()=>{
+  const g=fresh(5005271),p=g.player;p.ageMonths=600;const baseline=q.livingCostPerMonth();const r=q.createRelation('ami');r.type='partner';r.role='partenaire';r.status='active';p.life.partnerId=r.id;p.life.relationshipStatus='Marié';const together=q.livingCostPerMonth();
+  r.status='dead';p.life.relationshipStatus='En deuil';const bereaved=q.livingCostPerMonth();assert(Math.round(together-baseline)===350,'living partner did not add household upkeep');assert(bereaved===baseline,'dead partner kept inflating household cost: '+together+' -> '+bereaved);return together+' -> '+bereaved;
+});
 test('V5.0 adult children stop inflating parental household costs',()=>{
   const g=fresh(500528),p=g.player;p.ageMonths=600;p.children=[{id:'dependent-kid',name:'Ari',ageMonths:215,status:'active'}];
   const dependent=q.livingCostPerMonth();p.children[0].ageMonths=216;const adult=q.livingCostPerMonth();
