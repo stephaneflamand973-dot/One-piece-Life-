@@ -1496,6 +1496,46 @@ test('V5.0 sustained mission excellence becomes late-career legend evidence with
   return short.missionExcellence+' / '+weak.missionExcellence+' / '+strong.missionExcellence+' evidence';
 });
 
+
+test('V5.0 exceptional twenty-year careers can reach organic legend status in every faction without traditional shortcuts',()=>{
+  const paths=[
+    ['Civil','Scientifique','Maître'],
+    ['Marine','Combat','Commandant'],
+    ['Pirates','Combattant','Bras droit'],
+    ['Chasseur de primes','Traqueur','Maître chasseur'],
+    ['Révolutionnaires','Infiltration','Commandant régional'],
+    ['Gouvernement','Renseignement','Directeur']
+  ],out=[];
+  paths.forEach((cfg,i)=>{
+    const g=fresh(50220+i),p=g.player,f=cfg[0],spec=cfg[1],rank=cfg[2];
+    p.ageMonths=456;p.money=2500000;p.reputation=100;p.factionRep[f]=75;
+    Object.keys(p.stats).forEach(k=>{p.stats[k]=82;p.caps[k]=98;p.absoluteCaps[k]=100});
+    Object.keys(p.skills).forEach(k=>{p.skills[k]=82;p.caps[k]=98;p.absoluteCaps[k]=100});
+    p.haki.Observation=75;p.haki.Armement=75;
+    q.join(f);p.specialization=spec;p.rank=rank;
+    const rec=q.careerRecord();rec.specialization=spec;rec.rank=rank;rec.months=240;rec.successes=32;rec.failures=2;rec.distinctions=10;rec.recentResults=[1,1,1,1,1,1,1,1];
+    if(p.organization){p.organization.renown=95;p.organization.cohesion=90;p.organization.morale=90}
+    if(f==='Chasseur de primes'){p.justice.captures=8;p.justice.bountiesClaimed=80000000}
+    if(f==='Pirates')p.bounty=150000000;
+    p.lifeDirector.chapterHistory=Array.from({length:5},(_,n)=>({id:'20y-'+i+'-ch-'+n,title:'Chapitre majeur '+n,kind:'career',score:60,beats:4,duration:18}));
+    g.loop.foundingMemories=Array.from({length:3},(_,n)=>({title:'Fondation '+n,weight:90}));
+    g.loop.signatureMoments=Array.from({length:4},(_,n)=>({id:n+1,title:'Moment majeur '+n,kind:'career',weight:88,importance:88}));
+    const evidence=q.organicLegendEvidence(),recognition=q.playerWorldRecognition(),endgame=q.endgameStage();
+    assert(evidence.careerYears===20,f+' fixture lost exact twenty-year career: '+evidence.careerYears);
+    assert(evidence.missionExcellence>0,f+' sustained mission excellence did not contribute to the exceptional career');
+    assert(evidence.decisiveSagas===0&&evidence.canonImpact===0,f+' fixture accidentally relied on saga or canon evidence');
+    assert(evidence.qualified,f+' exceptional twenty-year career did not qualify organically: '+JSON.stringify(evidence));
+    assert(!recognition.traditionalLegendQualified,f+' fixture accidentally used a traditional legend shortcut');
+    assert(recognition.organicLegendQualified,f+' organic legend qualification missing');
+    assert(recognition.domains===0&&recognition.allies===0,f+' fixture accidentally relied on territory or affiliates');
+    assert(recognition.legendThreshold===84,f+' organic-only threshold changed: '+recognition.legendThreshold);
+    assert(recognition.score>=recognition.legendThreshold,f+' exceptional twenty-year career stayed below recognition threshold: '+recognition.score+'/'+recognition.legendThreshold);
+    assert(endgame&&endgame.organic,f+' endgame did not recognize the earned organic legend');
+    out.push(f+':'+recognition.score+'/'+evidence.score);
+  });
+  return out.join(' • ');
+});
+
 test('V5.0 earned legacy can create a legend without territorial micromanagement',()=>{
   const g=fresh(50100),p=g.player;p.ageMonths=780;p.money=2500000;p.reputation=100;p.factionRep.Civil=100;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';rec.months=500;rec.successes=40;rec.failures=2;rec.recentResults=[1,1,1,1,1,1,1,1];rec.distinctions=12;
   p.skills.Science=75;p.skills.Discipline=75;p.skills.Navigation=75;Object.keys(p.stats).forEach(k=>p.stats[k]=82);if(p.organization){p.organization.renown=100;p.organization.cohesion=90;p.organization.morale=90}
