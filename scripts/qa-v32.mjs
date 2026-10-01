@@ -1207,6 +1207,15 @@ test('V5.0 organic journey cadence stays meaningful without becoming spam',()=>{
   const g=fresh(50050),p=g.player;p.ageMonths=300;p.skills.Navigation=45;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));q.join('Marine');const timing=q.directorMobilityTiming();p.lifeDirector.lastMobilityAge=p.ageMonths-timing.floor+1;assert(q.directorTravelCandidate()===null,'mobility offer returned before profile cooldown');p.lifeDirector.lastMobilityAge=p.ageMonths-timing.floor;assert(q.directorTravelCandidate(),'mobility offer missing at profile cooldown');return timing.floor+'-month mobility floor';
 });
 
+
+test('V5.0 neutral mobility profile preserves the proven V5.0 baseline cadence',()=>{
+  const g=fresh(50053),p=g.player;p.ageMonths=300;
+  q.join('Marine');p.specialization='Combat';q.careerRecord().specialization='Combat';p.ambition='Survivre';
+  const timing=q.directorMobilityTiming();
+  assert(timing.floor===27&&timing.overdue===54,'neutral mobility baseline drifted: '+timing.floor+'/'+timing.overdue);
+  return timing.floor+'/'+timing.overdue+' months';
+});
+
 test('V5.0 mobility cadence differs by lived career profile',()=>{
   const g=fresh(50054),p=g.player;p.ageMonths=300;
   q.join('Civil');p.specialization='Scientifique';q.careerRecord().specialization='Scientifique';p.ambition='Survivre';

@@ -1123,7 +1123,7 @@ function directorTravelContext(name){
  return{score:score,reason:reason,controller:t.controller,stability:t.stability||0,region:info.region,danger:info.danger,fresh:fresh,backtrackPenalty:backtrackPenalty}
 }
 function directorMobilityTiming(){
- var p=game.player,floor=27,overdue=48,sp=p.specialization||'';
+ var p=game.player,floor=27,overdue=54,sp=p.specialization||'';
  if(sp==='Navigateur'||sp==='Navigation'){floor-=4;overdue-=8}
  if(p.faction==='Pirates'){floor-=3;overdue-=5}
  else if(p.faction==='Chasseur de primes'||p.faction==='Révolutionnaires'){floor-=1;overdue-=3}
