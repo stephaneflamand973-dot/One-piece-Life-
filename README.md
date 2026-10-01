@@ -7,13 +7,14 @@ La V5.3 transforme les équipages et organisations en structures vivantes plutô
 - Rejoindre un équipage ouvre désormais un **vrai choix entre plusieurs pavillons vivants** avec capitaine, région, taille, puissance et cohésion. Le joueur commence membre et peut progresser jusqu'à **Officier puis Bras droit, jamais Capitaine**.
 - Le **capitanat appartient exclusivement à la voie Fondation** : fonder un équipage rend immédiatement le joueur Capitaine fondateur, mais avec moins de membres, de provisions et de cohésion au départ.
 - Un pirate ayant d'abord rejoint un pavillon peut plus tard le quitter pour **fonder son propre équipage** ; son rang bascule alors réellement vers Capitaine.
-- Les droits dépendent du rôle : un membre participe et contribue, un officier peut encadrer l'entraînement et le recrutement, tandis qu'un capitaine fondateur contrôle aussi la composition du groupe et l'évolution du navire.
+- Les droits dépendent réellement du rôle : un membre participe aux quarts et construit sa place ; un officier ou Bras droit peut encadrer l'entraînement, proposer une recrue et conseiller le capitaine, mais ne commande pas le pavillon ; un capitaine fondateur contrôle recrutement, rôles, navire et doctrine.
 - Les équipages autonomes possèdent maintenant un **leader, un bras droit, des membres notables, une cohésion, une génération et une mémoire interne**.
 - Les leaders peuvent disparaître ou quitter leur groupe, déclenchant une **succession persistante**.
 - Les équipages fragilisés peuvent subir des **départs** ou produire une **scission**, créant un nouvel équipage descendant qui conserve son origine.
-- Les équipages fondés par le joueur sont enregistrés dans le monde comme de vraies forces et restent reliés à sa trajectoire.
+- Les équipages fondés par le joueur sont enregistrés dans le monde comme de vraies forces et restent reliés à sa trajectoire. Les équipages rejoints conservent au contraire leur taille, leur capitaine et leurs figures importantes du monde vivant.
 - L'écran Monde montre le leader, la génération, la cohésion et l'origine éventuelle d'une scission sans ajouter de nouvel onglet.
 - Les systèmes de puissance et de combat de la V5.2 restent actifs.
+- Les anciennes sauvegardes où le joueur était déjà Capitaine sont migrées comme équipages fondés afin de ne jamais rétrograder un capitaine existant.
 - Le GameState demeure en version interne **28** pour préserver les sauvegardes existantes.
 
 ## Philosophie V5.3
