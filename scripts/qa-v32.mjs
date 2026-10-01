@@ -1925,6 +1925,21 @@ test('V5.0 death modal exposes every valid heir beyond five',()=>{
 
 
 
+
+test('V5.0 succession never locks the descendant into the parent career',()=>{
+  const g=fresh(50150),p=g.player;p.ageMonths=600;p.factionRep.Marine=100;q.join('Marine');p.specialization='Combat';p.rank='Commandant';
+  const rec=q.careerRecord();rec.rank='Commandant';rec.specialization='Combat';rec.months=260;rec.successes=24;rec.failures=3;rec.distinctions=5;p.careerHistory.push({age:'40 ans',type:'promotion',faction:'Marine',rank:'Commandant'});
+  p.children=[{id:'heir-free-path',name:'Héritier Libre QA',ageMonths:216,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:82}];
+  g.death={cause:'QA free path'};q.buildHeir(p.children[0]);
+  assert(g.player.faction==='Civil'&&g.player.career==='Aucune','descendant inherited parent faction or career');
+  assert(g.player.specialization===null&&Object.keys(g.player.careerRecords||{}).length===0,'descendant inherited parent specialization or career dossier');
+  assert((g.player.careerHistory||[]).length===0&&g.player.organization===null,'descendant inherited parent career milestones or organization');
+  assert(g.player.rank==='Sans carrière','adult descendant did not restart without a rank');
+  const ancestor=g.dynasty.ancestors[g.dynasty.ancestors.length-1];
+  assert(ancestor&&ancestor.career==='Marine'&&ancestor.rank==='Commandant','parent career was not preserved in dynasty history');
+  return ancestor.career+' '+ancestor.rank+' -> '+g.player.career;
+});
+
 test('V5.0 succession starts a fresh personal story history',()=>{
   const g=fresh(50151),p=g.player;p.ageMonths=600;
   g.story.history=[
