@@ -1466,6 +1466,22 @@ test('V5.0 career mismatch is reviewed before specialization self-corrects',()=>
 });
 
 
+
+test('V5.0 bounty career missions build capture legacy without manual hunting',()=>{
+  const g=fresh(50169),p=g.player;p.ageMonths=360;q.join('Chasseur de primes');p.specialization='Traqueur';q.careerRecord().specialization='Traqueur';
+  const j=p.justice,startCaptures=j.captures||0,startClaimed=j.bountiesClaimed||0;
+  q.justiceMissionImpact(true,{title:'Traquer un hors-la-loi',profile:'hunt',reward:18000,tier:0});
+  assert(j.captures===startCaptures+1,'successful hunt mission did not count as a career capture');
+  assert(j.bountiesClaimed===startClaimed+18000,'successful hunt mission did not preserve claimed bounty value');
+  q.justiceMissionImpact(true,{title:'Escorte sans capture',profile:'command',reward:10000,tier:1});
+  assert(j.captures===startCaptures+1,'non-hunt mission created a false bounty capture');
+  for(let i=0;i<7;i++)q.justiceMissionImpact(true,{title:'Traque longue distance',profile:'hunt',reward:36000,tier:2});
+  const ev=q.organicLegendEvidence();
+  assert(j.captures===startCaptures+8,'career capture accumulation is incorrect');
+  assert(ev.gate,'earned bounty career captures did not satisfy the organic legend gate');
+  return j.captures+' captures / '+j.bountiesClaimed.toLocaleString('fr-FR')+' B claimed';
+});
+
 test('V5.0 earned legacy can create a legend without territorial micromanagement',()=>{
   const g=fresh(50100),p=g.player;p.ageMonths=780;p.money=2500000;p.reputation=100;p.factionRep.Civil=100;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';rec.months=500;rec.successes=40;rec.failures=2;rec.recentResults=[1,1,1,1,1,1,1,1];rec.distinctions=12;
   p.skills.Science=75;p.skills.Discipline=75;p.skills.Navigation=75;Object.keys(p.stats).forEach(k=>p.stats[k]=82);if(p.organization){p.organization.renown=100;p.organization.cohesion=90;p.organization.morale=90}
