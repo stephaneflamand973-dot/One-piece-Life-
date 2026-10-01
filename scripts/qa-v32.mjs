@@ -1632,6 +1632,13 @@ test('V5.0 inherited legacy keeps strongest signature moments regardless of rece
   return snap.signatureMoments[0].title;
 });
 
+test('V5.0 inherited legacy drops routine organizations but preserves meaningful ones',()=>{
+  const g=fresh(50117),p=g.player;p.ageMonths=480;q.join('Civil');const org=p.organization;assert(org,'organization fixture missing');
+  org.authority='member';org.renown=0;org.members=[];let snap=q.generationLegacySnapshot(p);assert(snap.organization===null,'routine organization polluted inherited legacy');
+  org.authority='leader';org.renown=30;snap=q.generationLegacySnapshot(p);assert(snap.organization&&snap.organization.name===org.name,'meaningful organization disappeared from inherited legacy');
+  return 'routine omitted / '+snap.organization.name+' preserved';
+});
+
 test('V5.0 meaningful ancestor can create one legacy crossroads',()=>{
   const g=fresh(50120),p=g.player;p.ageMonths=216;g.dynasty.generation=2;g.dynasty.ancestors.push({name:'Aster',generation:1,career:'Civil',rank:'Maître',legacy:{worldRole:'Icône des mers',recognitionScore:76,chapters:[{title:'Grand voyage',score:62,beats:3}],chronicle:'Aster a parcouru les mers et laissé une trace durable.'}});
   const op=q.directorLegacyOpportunity();assert(op&&op.ancestor.name==='Aster','meaningful ancestor did not create legacy opportunity');const st=q.startStory('legacy-crossroads');assert(st&&st.data.ancestorName==='Aster','legacy story lost ancestor identity');return st.title;
