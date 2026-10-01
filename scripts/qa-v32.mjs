@@ -1656,7 +1656,7 @@ test('V5.0 compact living-world history bounds survive migration',()=>{
   const g=fresh(50162),ws=g.world.worldState;
   ws.actorHistory=Array.from({length:140},(_,i)=>({seq:i}));ws.crewHistory=Array.from({length:120},(_,i)=>({seq:i}));ws.territoryHistory=Array.from({length:110},(_,i)=>({seq:i}));ws.goalHistory=Array.from({length:90},(_,i)=>({seq:i}));ws.monthlyChanges=Array.from({length:60},(_,i)=>({seq:i}));ws.sagaHistory=Array.from({length:90},(_,i)=>({seq:i}));ws.geopoliticalHistory=Array.from({length:110},(_,i)=>({seq:i}));
   q.migrateWorldFoundations(g,g.world);
-  assert(ws.actorHistory.length<=90,'actor history compact bound lost');assert(ws.crewHistory.length<=70,'crew history compact bound lost');assert(ws.territoryHistory.length<=80,'territory history compact bound lost');assert(ws.goalHistory.length<=60,'goal history compact bound lost');assert(ws.monthlyChanges.length<=36,'monthly changes compact bound lost');assert(ws.sagaHistory.length<=60,'saga history compact bound lost');assert(ws.geopoliticalHistory.length<=80,'geopolitical history compact bound lost');return [ws.actorHistory.length,ws.crewHistory.length,ws.territoryHistory.length,ws.goalHistory.length,ws.monthlyChanges.length].join('/');
+  assert(ws.actorHistory.length<=60,'actor history compact bound lost');assert(ws.crewHistory.length<=40,'crew history compact bound lost');assert(ws.territoryHistory.length<=55,'territory history compact bound lost');assert(ws.goalHistory.length<=40,'goal history compact bound lost');assert(ws.monthlyChanges.length<=24,'monthly changes compact bound lost');assert(ws.sagaHistory.length<=45,'saga history compact bound lost');assert(ws.geopoliticalHistory.length<=60,'geopolitical history compact bound lost');return [ws.actorHistory.length,ws.crewHistory.length,ws.territoryHistory.length,ws.goalHistory.length,ws.monthlyChanges.length].join('/');
 });
 test('V5.0 actor world goal is runtime-only, not duplicated in saves',()=>{
   const g=fresh(50163),a=g.world.actors[0];assert(a&&a.worldGoal,'actor world goal missing at runtime');assert(!Object.prototype.propertyIsEnumerable.call(a,'worldGoal'),'actor world goal still enumerable');assert(!JSON.stringify(a).includes('"worldGoal"'),'actor world goal duplicated into JSON');return a.name+' goal bound without serialization';
@@ -1674,9 +1674,9 @@ test('V5.0 migration preserves newest-first world history',()=>{
   const g=fresh(50164),ws=g.world.worldState,make=n=>Array.from({length:n},(_,i)=>({seq:n-i,tag:'event-'+(n-i)}));
   ws.actorHistory=make(140);ws.territoryHistory=make(120);ws.goalHistory=make(100);ws.canonCausality=make(110);ws.canonBranchHistory=make(100);ws.playerCanonImpact=make(90);ws.sagaHistory=make(100);ws.geopoliticalHistory=make(120);ws.crewHistory=make(110);ws.monthlyChanges=make(70);
   q.migrate(g);
-  const checks=[['actorHistory',90],['territoryHistory',80],['goalHistory',60],['canonCausality',80],['canonBranchHistory',60],['playerCanonImpact',60],['sagaHistory',60],['geopoliticalHistory',80],['crewHistory',70],['monthlyChanges',36]];
+  const checks=[['actorHistory',60],['territoryHistory',55],['goalHistory',40],['canonCausality',80],['canonBranchHistory',60],['playerCanonImpact',60],['sagaHistory',45],['geopoliticalHistory',60],['crewHistory',40],['monthlyChanges',24]];
   checks.forEach(([k,n])=>{assert(ws[k].length===n,k+' wrong compacted length');assert(ws[k][0].seq>ws[k][ws[k].length-1].seq,k+' lost newest-first order');});
-  assert(ws.actorHistory[0].seq===140&&ws.actorHistory[89].seq===51,'actor history kept old tail instead of recent head');
+  assert(ws.actorHistory[0].seq===140&&ws.actorHistory[59].seq===81,'actor history kept old tail instead of recent head');
   return checks.length+' histories keep recent head';
 });
 
@@ -1686,7 +1686,7 @@ test('V5.0 migration preserves newest-first world history',()=>{
 
 
 test('V5.0 world-history migration preserves the most recent entries',()=>{
-  const g=fresh(50162),ws=g.world.worldState,version=g.version;ws.actorHistory=Array.from({length:110},(_,i)=>({seq:110-i,actor:'A'+(110-i)}));ws.crewHistory=Array.from({length:90},(_,i)=>({seq:90-i,crew:'C'+(90-i)}));q.migrate(g);assert(g.version===version&&g.version===28,'history migration changed GameState version');assert(ws.actorHistory.length===90&&ws.actorHistory[0].seq===110&&ws.actorHistory[89].seq===21,'actor history did not retain newest entries');assert(ws.crewHistory.length===70&&ws.crewHistory[0].seq===90&&ws.crewHistory[69].seq===21,'crew history did not retain newest entries');return 'recent history preserved / GameState '+g.version;
+  const g=fresh(50162),ws=g.world.worldState,version=g.version;ws.actorHistory=Array.from({length:110},(_,i)=>({seq:110-i,actor:'A'+(110-i)}));ws.crewHistory=Array.from({length:90},(_,i)=>({seq:90-i,crew:'C'+(90-i)}));q.migrate(g);assert(g.version===version&&g.version===28,'history migration changed GameState version');assert(ws.actorHistory.length===60&&ws.actorHistory[0].seq===110&&ws.actorHistory[59].seq===51,'actor history did not retain newest entries');assert(ws.crewHistory.length===40&&ws.crewHistory[0].seq===90&&ws.crewHistory[39].seq===51,'crew history did not retain newest entries');return 'recent history preserved / GameState '+g.version;
 });
 
 
@@ -3190,6 +3190,17 @@ test('V5.3 inactive crews archive compactly without deleting active crews',()=>{
  q.compactWorldCrewMemory();const afterActive=g.world.crews.filter(c=>c.status==='active').map(c=>c.id),inactive=g.world.crews.filter(c=>c.status!=='active'),archive=g.world.worldState.crewArchive||[];
  assert(beforeActive.every(id=>afterActive.includes(id)),'active crew lost during compaction');assert(inactive.length<=2,'too many full inactive crews retained: '+inactive.length);assert(archive.length===8,'archive did not preserve inactive crew identities: '+archive.length);assert(archive.every(x=>x.generation>=2&&x.parentCrewId&&x.foundedBy),'archive lost lineage fields');
  return afterActive.length+' active / '+inactive.length+' full inactive / '+archive.length+' archived';
+});
+
+test('V5.3 compact histories preserve recent world pulse semantics',()=>{
+ const g=fresh(53150),ws=g.world.worldState;
+ ws.actorHistory=Array.from({length:90},(_,i)=>({seq:90-i,actor:'A'+i,outcome:'action '+i,impact:i<2?4:1}));
+ ws.crewHistory=Array.from({length:70},(_,i)=>({seq:190-i,name:'Crew '+i,outcome:'action '+i,impact:i<2?3:1}));
+ ws.territoryHistory=Array.from({length:80},(_,i)=>({seq:290-i,name:'Zone '+i,from:'Civil',to:i===0?'Pirates':'Civil',contested:i===0,stability:40}));
+ q.migrateWorldFoundations(g,g.world);
+ assert(ws.actorHistory.length===60&&ws.crewHistory.length===40&&ws.territoryHistory.length===55,'compact bounds not applied');
+ const pulse=q.worldPulseSince(0);assert(pulse.length>0&&pulse.length<=3,'recent world pulse broke after compaction');
+ return ws.actorHistory.length+'/'+ws.crewHistory.length+'/'+ws.territoryHistory.length+' • pulse '+pulse.length;
 });
 
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
