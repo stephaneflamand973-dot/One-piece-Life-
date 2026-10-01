@@ -1467,6 +1467,17 @@ test('V5.0 remaining active prevents repeated late-career prompts',()=>{
   const st=q.startStory('career-sunset');assert(st,'career sunset missing');st.awaiting=true;q.storyChoice(st.id,'continue-career');assert(!rec.retired&&rec.retirementChoice==='active','continue-career choice not persisted');assert(q.careerSunsetOpportunity()===null,'late-career choice was offered again');return 'active choice locked';
 });
 
+
+test('V5.0 late-career sunset appears once for an established veteran',()=>{
+  const g=fresh(50170),p=g.player;p.ageMonths=720;p.factionRep.Marine=100;q.join('Marine');const rec=q.careerRecord();rec.months=360;rec.distinctions=6;p.rank='Commandant';rec.rank='Commandant';const op=q.careerSunsetOpportunity();assert(op&&op.serviceMonths===360,'eligible veteran did not receive sunset opportunity');rec.retirementChoice='active';assert(q.careerSunsetOpportunity()===null,'career sunset repeated after a final choice');return op.serviceMonths+' months service';
+});
+test('V5.0 retired career freezes promotion progress but pays reduced pension',()=>{
+  const g=fresh(50171),p=g.player;p.ageMonths=720;p.money=100000;p.factionRep.Marine=100;q.join('Marine');p.rank='Commandant';const rec=q.careerRecord();rec.rank='Commandant';rec.months=360;rec.xp=500;rec.retired=true;rec.retirementChoice='retired';const months=rec.months,xp=rec.xp,money=p.money,pension=q.retirementIncomePerMonth();assert(pension>0,'salaried veteran has no pension');q.careerTick(6);assert(rec.months===months&&rec.xp===xp,'retired career kept accumulating active-service progression');assert(rec.retiredMonths>=6,'retired months not tracked');assert(p.money>=money+pension*6,'retirement pension not paid');assert(q.advancePlan().key==='veteran-life','retired career did not use veteran pacing');return pension+' B/month';
+});
+test('V5.0 retirement does not erase rank or earned career evidence',()=>{
+  const g=fresh(50172),p=g.player;p.ageMonths=720;p.factionRep.Marine=100;q.join('Marine');p.rank='Commandant';const rec=q.careerRecord();rec.rank='Commandant';rec.months=360;rec.successes=30;rec.failures=4;rec.distinctions=8;const before=q.careerLifetimeEvidence();rec.retired=true;rec.retirementChoice='retired';q.careerTick(12);const after=q.careerLifetimeEvidence();assert(p.rank==='Commandant','retirement erased rank');assert(after.careerYears===before.careerYears,'retirement altered earned active-service years');assert(after.distinctions===before.distinctions,'retirement erased distinctions');return p.rank+' / '+after.careerYears+' career years';
+});
+
 const metrics={};
 {
   const origins={},races={},styles={};
