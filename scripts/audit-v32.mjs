@@ -457,6 +457,7 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y20.survival<.80)throw new Error('V5.0 twenty-year survival collapse: '+y20.survival);
   if(y20.avgVisitedPlaces<2.5)throw new Error('V5.0 twenty-year journey remains too static: '+y20.avgVisitedPlaces+' places');
   if(y20.organicLegendShare>.17)throw new Error('V5.0 organic legends became too common after only 20 years: '+y20.organicLegendShare);
+  if((y20.totalSagaLinkedExceptionalOffers||0)<1)throw new Error('V5.0 twenty-year careers lost all exceptional saga-linked mission opportunities');
 }
 
 
@@ -555,6 +556,7 @@ let postCareerRows=[],postCareerProfiles=[];
   if((y30.emergingOrganicLegendCount||0)<1)throw new Error('V5.0 thirty-year careers stopped producing an emerging non-legend trajectory: '+(y30.emergingOrganicLegendCount||0)+'/'+y30.sample);
   if(y30.organicLegendShare>.34)throw new Error('V5.0 organic legends became too common after 30 years: '+y30.organicLegendShare);
   if(y30.avgOrganicEvidence<18)throw new Error('V5.0 thirty-year careers stopped accumulating meaningful legend evidence: '+y30.avgOrganicEvidence);
+  if((y30.totalSagaLinkedDecisiveOffers||0)<1)throw new Error('V5.0 thirty-year careers lost every decisive saga-linked mission opportunity');
 }
 
 {
