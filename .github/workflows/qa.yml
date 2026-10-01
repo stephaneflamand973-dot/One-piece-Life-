@@ -1,4 +1,4 @@
-name: V5.1 QA
+name: V5.2 QA
 
 on:
   push:
@@ -40,7 +40,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: v51-qa-${{ github.ref }}
+  group: v52-qa-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
