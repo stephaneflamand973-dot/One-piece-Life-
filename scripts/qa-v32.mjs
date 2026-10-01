@@ -1107,7 +1107,7 @@ test('V5.0 family future can emerge after an established relationship',()=>{
 test('V5.1 deferred family choice creates a real multi-year consequence',()=>{
   const g=fresh(51008),p=g.player;p.ageMonths=360;p.factionRep.Civil=100;q.join('Civil');const r=q.createRelation('ami');r.npcAgeMonths=360;r.location=p.island;r.region=p.region;r.affection=84;r.trust=82;r.relationshipMonths=30;r.type='partner';r.role='conjoint';p.life.partnerId=r.id;p.life.relationshipStatus='Marié';
   const st=q.startStory('family-future');assert(st&&st.data.future==='child','child opportunity missing');st.awaiting=true;q.storyChoice(st.id,'wait');
-  const d=q.migrateLifeDirector(p),until=d.familyDeferredUntil;assert(until>=p.ageMonths+47,'family deferral is too short');assert(q.directorFamilyOpportunity()===null,'family choice was immediately re-offered');p.ageMonths=until-1;assert(q.directorFamilyOpportunity()===null,'family choice returned before deferral ended');p.ageMonths=until;assert(q.directorFamilyOpportunity()==='child','family choice never becomes available after real deferral');
+  const d=q.migrateLifeDirector(p),until=d.familyDeferredUntil;assert(until>=p.ageMonths+119,'family deferral is too short');assert((d.familyDeferrals||0)===1,'family deferral count was not preserved');assert(q.directorFamilyOpportunity()===null,'family choice was immediately re-offered');p.ageMonths=until-1;assert(q.directorFamilyOpportunity()===null,'family choice returned before deferral ended');p.ageMonths=until;assert(q.directorFamilyOpportunity()==='child','family choice never becomes available after real deferral');
   return Math.round(until-360)+' months deferred';
 });
 test('V5.0 Life Director history stays bounded',()=>{
