@@ -868,11 +868,11 @@ function missionChance(m){var effective=organizationMissionDanger(m),mp=missionP
 function missionRiskLabel(m){var c=missionChance(m);return c>=.8?'Favorable':c>=.62?'Maîtrisé':c>=.45?'Incertain':c>=.28?'Dangereux':'Extrême'}
 
 var TECH={
-'Équilibré':[{id:'garde',name:'Garde adaptative',req:12,skill:'Combat',bonus:3},{id:'contre',name:'Contre opportuniste',req:30,skill:'Combat',bonus:5},{id:'enchaînement',name:'Enchaînement complet',req:55,skill:'Combat',bonus:8}],
+'Équilibré':[{id:'garde',name:'Garde adaptative',req:12,skill:'Combat',bonus:4},{id:'contre',name:'Contre opportuniste',req:30,skill:'Combat',bonus:6},{id:'enchaînement',name:'Enchaînement complet',req:55,skill:'Combat',bonus:9}],
 'Corps-à-corps':[{id:'impact',name:'Impact direct',req:12,skill:'Combat',bonus:4},{id:'rafale',name:'Rafale rapprochée',req:32,skill:'Combat',bonus:6},{id:'briseur',name:'Briseur de garde',req:58,skill:'Combat',bonus:9}],
-'Sabreur':[{id:'coupe',name:'Coupe précise',req:12,skill:'Sabre',bonus:4},{id:'iai',name:'Iai rapide',req:34,skill:'Sabre',bonus:7},{id:'lame-distance',name:'Lame à distance',req:62,skill:'Sabre',bonus:10}],
-'Tireur':[{id:'tir-vise',name:'Tir visé',req:12,skill:'Tir',bonus:4},{id:'tir-mobile',name:'Tir en mouvement',req:34,skill:'Tir',bonus:7},{id:'tir-longue',name:'Tir longue portée',req:62,skill:'Tir',bonus:10}],
-'Mobile / esquive':[{id:'pas-lateral',name:'Pas latéral',req:12,skill:'Combat',bonus:4},{id:'feinte',name:'Feinte éclair',req:34,skill:'Combat',bonus:7},{id:'angle-mort',name:'Angle mort',req:62,skill:'Combat',bonus:10}]
+'Sabreur':[{id:'coupe',name:'Coupe précise',req:12,skill:'Sabre',bonus:4},{id:'iai',name:'Iai rapide',req:34,skill:'Sabre',bonus:6},{id:'lame-distance',name:'Lame à distance',req:62,skill:'Sabre',bonus:9}],
+'Tireur':[{id:'tir-vise',name:'Tir visé',req:12,skill:'Tir',bonus:4},{id:'tir-mobile',name:'Tir en mouvement',req:34,skill:'Tir',bonus:6},{id:'tir-longue',name:'Tir longue portée',req:62,skill:'Tir',bonus:9}],
+'Mobile / esquive':[{id:'pas-lateral',name:'Pas latéral',req:12,skill:'Combat',bonus:4},{id:'feinte',name:'Feinte éclair',req:34,skill:'Combat',bonus:6},{id:'angle-mort',name:'Angle mort',req:62,skill:'Combat',bonus:9}]
 };
 var MATCH={'Corps-à-corps':{'Tireur':6},'Tireur':{'Sabreur':5},'Sabreur':{'Équilibré':4},'Mobile / esquive':{'Sabreur':5},'Équilibré':{'Mobile / esquive':3}};
 var HAKI_APPS={
