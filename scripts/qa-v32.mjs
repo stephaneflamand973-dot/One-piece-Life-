@@ -1475,7 +1475,9 @@ test('V5.0 bounty career missions build capture legacy without manual hunting',(
   assert(j.bountiesClaimed===startClaimed+18000,'successful hunt mission did not preserve claimed bounty value');
   q.justiceMissionImpact(true,{title:'Escorte sans capture',profile:'command',reward:10000,tier:1});
   assert(j.captures===startCaptures+1,'non-hunt mission created a false bounty capture');
-  for(let i=0;i<7;i++)q.justiceMissionImpact(true,{title:'Traque longue distance',profile:'hunt',reward:36000,tier:2});
+  q.justiceMissionImpact(true,{title:'Contrat sur une cible dangereuse',profile:'combat',reward:52000,tier:3});
+  assert(j.captures===startCaptures+2,'named bounty contract was not recognized as a capture mission');
+  for(let i=0;i<6;i++)q.justiceMissionImpact(true,{title:'Traque longue distance',profile:'hunt',reward:36000,tier:2});
   const ev=q.organicLegendEvidence();
   assert(j.captures===startCaptures+8,'career capture accumulation is incorrect');
   assert(ev.gate,'earned bounty career captures did not satisfy the organic legend gate');

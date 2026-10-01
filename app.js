@@ -1818,7 +1818,7 @@ function pirateMissionCrimeSeverity(m){
 function justiceMissionImpact(ok,m){
  var p=game.player;if(!ok)return;if(p.faction==='Pirates'){var sev=pirateMissionCrimeSeverity(m);if(sev>0)registerCrime(m.title,sev,null)}
  else if(p.faction==='Révolutionnaires'&&/(Saboter|Libérer|Infiltrer)/i.test(m.title))registerCrime(m.title,m.tier>=4?5:3,null);
- else if(p.faction==='Chasseur de primes'){var j=migrateJustice(p),mp=missionProfile(m),title=String(m&&m.title||''),isCapture=mp.id==='hunt'||/Traqu|Captur|cible|prime|hors-la-loi/i.test(title);j.notoriety=cl(j.notoriety-1,0,100);if(isCapture){j.captures++;j.bountiesClaimed+=Math.max(0,Math.round((m&&m.reward)||0))}}
+ else if(p.faction==='Chasseur de primes'){var j=migrateJustice(p),mp=missionProfile(m),title=String(m&&m.title||''),isCapture=mp.id==='hunt'||/^(?:Traquer|Capturer)\b|Contrat sur une cible|prime à capturer/i.test(title);j.notoriety=cl(j.notoriety-1,0,100);if(isCapture){j.captures++;j.bountiesClaimed+=Math.max(0,Math.round((m&&m.reward)||0))}}
 }
 
 
