@@ -1269,6 +1269,17 @@ test('V5.0 critical detention keeps tighter supervision',()=>{
   const g=fresh(50161),p=g.player;p.ageMonths=300;q.join('Révolutionnaires');p.justice.detained=true;p.justice.prison={location:p.island,region:p.region,security:88,remaining:7,original:7,reason:'QA',attempts:0};p.situation='Détenu';p.activity='Détention';p.health=46;
   const plan=q.advancePlan();assert(plan.key==='detention','critical detention plan missing');assert(plan.min===1&&plan.max===2,'critical detention became over-compressed');return plan.min+'-'+plan.max+'m';
 });
+
+test('V5.0 detention still closes stale personal chapters',()=>{
+  const g=fresh(50164),p=g.player;p.ageMonths=300;q.join('Révolutionnaires');
+  q.signalPersonalChapter('career','Chapitre avant détention',10,'detention-a','detention-qa');p.ageMonths+=1;q.signalPersonalChapter('career','Chapitre avant détention',10,'detention-b','detention-qa');
+  p.justice.detained=true;p.justice.prison={location:p.island,region:p.region,security:55,remaining:80,original:80,reason:'QA',attempts:0};p.situation='Détenu';p.activity='Détention';p.health=95;
+  q.advanceSlice(31);
+  assert(!p.lifeDirector.activeChapters.some(x=>x.title==='Chapitre avant détention'),'stale chapter remained open during detention');
+  assert(p.lifeDirector.chapterHistory.some(x=>x.title==='Chapitre avant détention'),'detention failed to archive the stale chapter');
+  return 'stale chapter archived during detention';
+});
+
 test('V5.0 compact living-world history bounds survive migration',()=>{
   const g=fresh(50162),ws=g.world.worldState;
   ws.actorHistory=Array.from({length:140},(_,i)=>({seq:i}));ws.crewHistory=Array.from({length:120},(_,i)=>({seq:i}));ws.territoryHistory=Array.from({length:110},(_,i)=>({seq:i}));ws.goalHistory=Array.from({length:90},(_,i)=>({seq:i}));ws.monthlyChanges=Array.from({length:60},(_,i)=>({seq:i}));ws.sagaHistory=Array.from({length:90},(_,i)=>({seq:i}));ws.geopoliticalHistory=Array.from({length:110},(_,i)=>({seq:i}));

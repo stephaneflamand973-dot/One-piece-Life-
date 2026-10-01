@@ -2569,7 +2569,7 @@ function event(m,force){
 function die(c){activeStories().slice().forEach(function(st){closeStory(st,'interrompu par la mort','La mort de '+game.player.name+' met fin à ce fil narratif.',true,'interrupted')});releasePlayerFruits();game.alive=false;game.death={cause:c};game.player.health=0;tl('Mort',c,'danger')}
 function advanceSlice(m){
  var p=game.player,j=migrateJustice(p),loop=migrateLifeLoop(game),sliceMoment=loop.momentSeq;p.ageMonths+=m;world(m);arcTick(m);p.conditions.forEach(function(c){c.months-=m});p.conditions=p.conditions.filter(function(c){return c.months>0});
- if(j.detained){lifeTick(m);influenceTick(m);if(!game.alive)return;prisonTick(m);storyTick(m);processConsequences();p.danger='Détenu';return}
+ if(j.detained){lifeTick(m);personalChapterTick(m);influenceTick(m);if(!game.alive)return;prisonTick(m);storyTick(m);processConsequences();p.danger='Détenu';return}
  p.health=cl(p.health+m*2,0,100);p.energy=cl(p.energy+m*4,0,100);careerTick(m);lifeTick(m);personalChapterTick(m);if(!game.alive)return;justiceTick(m);influenceTick(m);if(!game.alive)return;
  j=migrateJustice(p);if(j.detained){storyTick(m);return}
  if(p.travel){travel(m);storyTick(m);processConsequences()}
