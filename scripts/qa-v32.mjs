@@ -1791,10 +1791,11 @@ test('V5.0 heir continuation carries only active siblings into the next generati
     {id:'sibling-inactive',name:'Sibling Inactive',ageMonths:240,birthplace:p.island,birthRegion:p.region,race:p.race,status:'inactive',bond:95},
     {id:'sibling-dead',name:'Sibling Dead',ageMonths:230,birthplace:p.island,birthRegion:p.region,race:p.race,status:'dead',bond:95}
   ];
-  const estate=q.netWorth();q.continueWithHeir('next');const siblings=g.relations.filter(r=>r.role==='frère / sœur').map(r=>r.name);assert(g.player.money===Math.round(estate/2),'inactive children diluted the valid heirs’ estate share');
+  const estate=q.netWorth();q.continueWithHeir('next');const siblingRels=g.relations.filter(r=>r.role==='frère / sœur'),siblings=siblingRels.map(r=>r.name);assert(g.player.money===Math.round(estate/2),'inactive children diluted the valid heirs’ estate share');
   assert(siblings.includes('Sibling Live'),'active sibling disappeared from inherited family network');
   assert(!siblings.includes('Sibling Inactive')&&!siblings.includes('Sibling Dead'),'inactive child was resurrected as a sibling relation');
-  return siblings.join(' / ');
+  const live=siblingRels.find(r=>r.name==='Sibling Live');assert(live&&live.npcAgeMonths===200,'active sibling age was rerolled across succession');
+  return siblings.join(' / ')+' / '+live.npcAgeMonths+'m';
 });
 
 
