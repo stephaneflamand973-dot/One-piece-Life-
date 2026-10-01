@@ -407,6 +407,11 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y40.avgVisitedPlaces<5)throw new Error('V5.0 forty-year journey remains too static: '+y40.avgVisitedPlaces+' places');
   if(y40.avgSaveKB>350||y40.maxSaveKB>450)throw new Error('V5.0 forty-year save growth regression: avg '+y40.avgSaveKB+' KB / max '+y40.maxSaveKB+' KB');
   if(y40.avgPersonalChapters<3)throw new Error('V5.0 forty-year life chapters too dormant: '+y40.avgPersonalChapters);
+  if(y40.avgPersonalChapters>15)throw new Error('V5.0 forty-year life chapters became too frequent: '+y40.avgPersonalChapters);
+  if(y40.avgChapterScore<18)throw new Error('V5.0 forty-year personal chapters became too weak: '+y40.avgChapterScore);
+  if(y40.avgChapterRepeatShare>.50)throw new Error('V5.0 forty-year chapter titles became repetitive: '+y40.avgChapterRepeatShare);
+  if(y40.maxActiveChapterSpanMonths>72)throw new Error('V5.0 forty-year personal chapter stayed open too long: '+y40.maxActiveChapterSpanMonths+' months');
+  if(y40.chronicleUnder3Share>.34)throw new Error('V5.0 forty-year life chronicle is too often too thin: '+y40.chronicleUnder3Share+' under three highlights');
   if(y40.organicLegendShare<.10)throw new Error('V5.0 organic legends remain effectively unreachable after 40 years: '+y40.organicLegendShare);
   if(y40.organicLegendShare>.34)throw new Error('V5.0 organic legends became too common after 40 years: '+y40.organicLegendShare);
 }
@@ -646,6 +651,11 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
   if(v5.personalLife.parentShare<=0)throw new Error('V5.0 family legacy never emerged in long careers');
   if(v5.career.avgRankVariety<1.15)throw new Error('V5.0 career trajectories remain too uniform: '+v5.career.avgRankVariety+' ranks/profile');
   if(v5.narrative.avgPersonalChapters<.5)throw new Error('V5.0 personal chapters too dormant: '+v5.narrative.avgPersonalChapters+' per career');
+  if(v5.narrative.avgPersonalChapters>8)throw new Error('V5.0 personal chapters became too frequent: '+v5.narrative.avgPersonalChapters+' per 20y career');
+  if(v5.narrative.avgChapterScore<20)throw new Error('V5.0 personal chapters became too weak: '+v5.narrative.avgChapterScore+' average score');
+  if(v5.narrative.avgChapterRepeatShare>.40)throw new Error('V5.0 personal chapter titles became repetitive: '+v5.narrative.avgChapterRepeatShare);
+  if(v5.narrative.maxActiveChapterSpanMonths>72)throw new Error('V5.0 personal chapter stayed open too long: '+v5.narrative.maxActiveChapterSpanMonths+' months');
+  if(v5.narrative.chronicleUnder3Share>.25)throw new Error('V5.0 life chronicle is too often too thin: '+v5.narrative.chronicleUnder3Share+' under three highlights');
   if(v5.storage&&v5.storage.avgWorldPartsKB&&v5.storage.avgWorldPartsKB.markets>32)throw new Error('V5.0 market save state remains too large: '+v5.storage.avgWorldPartsKB.markets+' KB');
   if(v5.career.organicLegendShare>.20)throw new Error('V5.0 legends became too automatic by 20 years: '+v5.career.organicLegendShare);
   if(v5.lifeDirector.avgCareerTurns>1.75)throw new Error('V5.0 career turning points became micromanagement: '+v5.lifeDirector.avgCareerTurns+' turns/20y');
