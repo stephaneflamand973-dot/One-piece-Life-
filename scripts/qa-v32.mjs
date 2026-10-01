@@ -1968,8 +1968,12 @@ test('V5.0 death succession exposes every active heir instead of forcing the eld
 test('V5.0 canonical partner death clears the household state and survives in the chronicle',()=>{
   const g=fresh(501579),p=g.player;p.ageMonths=600;const a=g.world.actors.find(x=>x.status==='active');assert(a,'no canonical actor fixture');
   const r=q.bondCanonicalActor(a,'QA partner');r.type='partner';r.role='partenaire';r.relationshipMonths=48;r.affection=88;r.trust=84;p.life.partnerId=r.id;p.life.relationshipStatus='Marié';
-  a.status='dead';q.npcTick(1);assert(p.life.partnerId===null&&p.life.relationshipStatus==='En deuil','canonical partner death left a stale active household');
+  a.status='dead';q.npcTick(1);assert(p.life.partnerId===null&&p.life.relationshipStatus==='En deuil','canonical partner death left a stale active household');assert(p.lifeDirector.lastRomanceAge===p.ageMonths,'canonical bereavement did not start romance cooldown');
   const out=q.lifeChronicle(p);assert(out.pastPartner===r.name&&out.summary.includes(r.name),'canonical bereavement disappeared from life chronicle');return r.name+' preserved after death';
+});
+test('V5.0 automatic breakup starts the same romance cooldown as a manual separation',()=>{
+  const g=fresh(501577),p=g.player;p.ageMonths=420;const r=q.createRelation('ami');r.type='partner';r.role='partenaire';r.affection=0;r.trust=0;r.relationshipMonths=24;p.life.partnerId=r.id;p.life.relationshipStatus='En couple';p.lifeDirector.lastRomanceAge=-999;
+  q.lifeTick(0);assert(p.life.partnerId===null&&p.life.relationshipStatus==='Célibataire','automatic breakup did not end the relationship');assert(p.lifeDirector.lastRomanceAge===p.ageMonths,'automatic breakup skipped romance cooldown');return 'cooldown from '+p.lifeDirector.lastRomanceAge;
 });
 test('V5.0 stale dead partner pointers self-heal on legacy saves',()=>{
   const g=fresh(501578),p=g.player;const r=q.createRelation('ami');r.status='dead';r.type='partner';r.role='partenaire';p.life.partnerId=r.id;p.life.relationshipStatus='Marié';
