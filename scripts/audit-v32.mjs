@@ -847,7 +847,7 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
   if(v5.personalLife.partneredShare<.15)throw new Error('V5.0 personal life too dormant: '+v5.personalLife.partneredShare+' partnered share');
   if(v5.personalLife.parentShare<=0)throw new Error('V5.0 family legacy never emerged in long careers');
   if(v5.career.avgRankVariety<1.75)throw new Error('V5.0 career trajectories remain too uniform: '+v5.career.avgRankVariety+' ranks/profile');
-  if((v5.career.uniformRankProfiles||0)>2)throw new Error('V5.0 too many career profiles fully converge to one rank: '+v5.career.uniformRankProfiles);
+  if((v5.career.uniformRankProfiles||0)>0)throw new Error('V5.0 identical career profile convergence persists: '+v5.career.uniformRankProfiles+' uniform profiles');
   if(v5.narrative.avgPersonalChapters<2.5)throw new Error('V5.0 personal chapters too dormant: '+v5.narrative.avgPersonalChapters+' per career');
   if(v5.narrative.avgChapterRepeatShare>.25)throw new Error('V5.0 personal chapters became too repetitive: '+v5.narrative.avgChapterRepeatShare);
   if(v5.narrative.maxActiveChapterSpanMonths>72)throw new Error('V5.0 personal chapter span became implausibly long: '+v5.narrative.maxActiveChapterSpanMonths+' months');
