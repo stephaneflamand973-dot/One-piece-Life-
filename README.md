@@ -1,3 +1,22 @@
+# ONE PIECE LIFE — V5.1 Narrative Convergence
+
+La V5.1 fait converger les systèmes déjà construits au lieu d'ajouter du micro-management.
+
+## Narrative Director
+- L'écran **Vie** affiche désormais au maximum deux **fronts narratifs prioritaires** : mission, saga mondiale, rivalité, relation, décision ou chapitre personnel.
+- Le moteur détecte les convergences plausibles entre ces fronts sans forcer artificiellement le joueur à devenir le centre du monde.
+- Une mission reliée à une saga active reçoit un bonus de pertinence dans le tableau de carrière, sans contourner les contraintes de risque, de rang ou de spécialisation.
+- Une saga régionale sous forte pression peut maintenant proposer une **porte d'entrée professionnelle** même avant la première intervention causale du joueur, à condition que sa carrière soit suffisamment avancée.
+- Les missions du monde vivant alimentent des **chapitres Monde** distincts des chapitres Carrière afin que les biographies longues reflètent mieux guerres, conflits et bouleversements vécus.
+- Les missions affichent **fil prioritaire** lorsqu'elles prolongent réellement un front narratif actif.
+- Aucun nouvel onglet, aucune nouvelle ressource et aucune nouvelle jauge de gestion ne sont ajoutés.
+- Le GameState reste en version interne **28** pour préserver les sauvegardes V5.0.
+
+## Philosophie V5.1
+Le monde produit les situations. La vie du personnage produit les attaches. Le Narrative Director cherche seulement les croisements crédibles entre les deux.
+
+---
+
 # ONE PIECE LIFE — V5.0 Grand Journey
 
 La V5.0 part du constat post-V4.0 : le monde sait désormais vivre sans le joueur, mais la vie du joueur doit devenir tout aussi organique.
