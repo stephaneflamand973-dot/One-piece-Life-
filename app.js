@@ -1,8 +1,8 @@
 (function(){
 'use strict';
-/* V5.0 GRAND JOURNEY RELEASE CANDIDATE */
+/* V5.2 LIVING POWER WORLD */
 var $=function(s){return document.querySelector(s)},$$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
-var GAME_RELEASE='V5.0 Grand Journey',game=null,slot=1,mode='destiny',majorOnly=false,timelineExpanded=false,backupMode='export',P='opl-v05-';
+var GAME_RELEASE='V5.2 Living Power World',game=null,slot=1,mode='destiny',majorOnly=false,timelineExpanded=false,backupMode='export',P='opl-v05-';
 var ORIG=['East Blue','North Blue','West Blue','South Blue'],REG=ORIG.concat(['Grand Line','New World']);
 var ST=['Force','Vitesse','Agilité','Endurance','Résistance','Réflexes','Discipline','Volonté'];
 var SK=['Combat','Sabre','Tir','Navigation','Médecine','Commandement','Discrétion','Science'];
@@ -473,9 +473,66 @@ function normalizeRelation(g,r,i){
  r.npcSpecialty=r.npcSpecialty||['Combat','Navigation','Médecine','Sabre','Discrétion','Commandement'][(base>>>18)%6];
  r.npcTrajectory=r.npcTrajectory||['Stable','Ascension','Ascension','Instable','Stable'][(base>>>21)%5];
  r.npcAmbition=r.npcAmbition||['Devenir plus fort','Explorer le monde','Faire fortune','Servir sa faction','Protéger ses proches'][(base>>>24)%5];r.npcIntent=r.npcIntent||null;r.npcIntentMonths=Math.max(0,r.npcIntentMonths||0);r.npcWealth=Math.max(0,r.npcWealth||0);r.lastIntentOutcome=r.lastIntentOutcome||null;
- r.careerLevel=cl(r.careerLevel==null?Math.floor(r.npcPower/18):r.careerLevel,0,6);r.npcWins=r.npcWins||0;r.npcLosses=r.npcLosses||0;r.rivalWins=r.rivalWins||0;r.rivalLosses=r.rivalLosses||0;r.rivalMilestones=Array.isArray(r.rivalMilestones)?r.rivalMilestones:[];
+ r.careerLevel=cl(r.careerLevel==null?Math.floor(r.npcPower/18):r.careerLevel,0,6);r.npcWins=r.npcWins||0;r.npcLosses=r.npcLosses||0;r.rivalWins=r.rivalWins||0;r.rivalLosses=r.rivalLosses||0;r.rivalMilestones=Array.isArray(r.rivalMilestones)?r.rivalMilestones:[];normalizeNpcCombatProfile(g,r);
  r.mentorSessions=r.mentorSessions||0;r.favorBalance=r.favorBalance||0;r.injuryMonths=r.injuryMonths||0;r.lastDuelAge=r.lastDuelAge==null?-999:r.lastDuelAge;r.lastCanonInteractionAge=r.lastCanonInteractionAge==null?-999:r.lastCanonInteractionAge;r.challengeReady=!!r.challengeReady;r.nemesisRecognized=!!r.nemesisRecognized;r.joinedOrganization=!!r.joinedOrganization;r.peerRecognized=!!r.peerRecognized;r.rivalResolved=!!r.rivalResolved;r.relationshipPhase=r.relationshipPhase||null;r.pathHistory=Array.isArray(r.pathHistory)?r.pathHistory.slice(-8):[];
  r.memories=Array.isArray(r.memories)?r.memories.slice(0,12):[];r.region=r.region||(r.location&&PL[r.location]?PL[r.location][0]:(p.region||p.origin||'East Blue'));return r
+}
+
+function npcCanonicalStyle(name){
+ var map={'Dracule Mihawk':'Sabreur','Mihawk':'Sabreur','Shanks':'Sabreur','Silvers Rayleigh':'Sabreur','Rayleigh':'Sabreur','Roronoa Zoro':'Sabreur','Monkey D. Garp':'Corps-à-corps','Garp':'Corps-à-corps','Kaido':'Corps-à-corps','Rob Lucci':'Corps-à-corps','Borsalino':'Mobile / esquive','Kuzan':'Équilibré','Sakazuki':'Corps-à-corps','Edward Newgate':'Corps-à-corps','Charlotte Linlin':'Équilibré','Big Mom':'Équilibré','Monkey D. Luffy':'Corps-à-corps','Trafalgar Law':'Sabreur','Eustass Kid':'Équilibré','Boa Hancock':'Corps-à-corps','Sengoku':'Équilibré','Dragon':'Équilibré'};return map[name]||null
+}
+function npcStyleFor(g,r){
+ var fixed=npcCanonicalStyle(r.actorName||r.name);if(fixed)return fixed;
+ if(r.npcSpecialty==='Sabre')return'Sabreur';if(r.npcSpecialty==='Discrétion'||r.npcSpecialty==='Navigation')return'Mobile / esquive';if(r.npcSpecialty==='Commandement'||r.npcSpecialty==='Médecine')return'Équilibré';
+ var styles=['Équilibré','Corps-à-corps','Mobile / esquive','Corps-à-corps','Équilibré'];return styles[H(String(g.seed||1)+':npc-style:'+String(r.id||r.name))%styles.length]
+}
+function npcFruitFor(g,r){
+ if(r.npcFruit)return r.npcFruit;if(!r.canonical&&!r.actorName)return null;var name=r.actorName||r.name,now=((g.world&&g.world.year)||0)*12+((g.world&&g.world.month)||0),matches=(FRUIT_ASSIGNMENTS||[]).filter(function(x){return x.holder===name&&((x.year||0)*12+(x.month||0))<=now});return matches.length?matches[matches.length-1].fruit:null
+}
+function npcSeedValue(g,r,key,min,max){
+ var h=H(String(g.seed||1)+':npc-combat:'+String(r.id||r.name)+':'+key);return min+(h%10000)/9999*(max-min)
+}
+function npcStyleMasteryFrom(c){
+ var st=c.stats||{},sk=c.skills||{};if(c.style==='Corps-à-corps')return(sk.Combat||0)*.55+(st.Force||0)*.30+(st.Endurance||0)*.15;if(c.style==='Sabreur')return(sk.Sabre||0)*.62+(sk.Combat||0)*.23+(st.Réflexes||0)*.15;if(c.style==='Tireur')return(sk.Tir||0)*.62+(st.Réflexes||0)*.23+(st.Discipline||0)*.15;if(c.style==='Mobile / esquive')return(sk.Combat||0)*.45+(st.Agilité||0)*.33+(st.Vitesse||0)*.22;return(sk.Combat||0)*.62+(st.Discipline||0)*.20+(st.Réflexes||0)*.18
+}
+function npcTechniqueBudget(c){return c.techniqueTier>=3?19:c.techniqueTier===2?10:c.techniqueTier===1?4:0}
+function npcCombatRawPower(c){
+ var st=c.stats||{},h=c.haki||{},physical=((st.Force||0)+(st.Vitesse||0)+(st.Agilité||0)+(st.Endurance||0)+(st.Résistance||0)+(st.Réflexes||0))/6,martial=npcStyleMasteryFrom(c),mental=(st.Discipline||0)*.45+(st.Volonté||0)*.55,f=c.fruit?(4+(c.fruitMastery||0)*.08):0;return physical*.36+martial*.30+mental*.08+(h.Observation||0)*.06+(h.Armement||0)*.08+(h.Conquérant||0)*.10+f+npcTechniqueBudget(c)*.30
+}
+function normalizeNpcCombatProfile(g,r){
+ if(!r)return null;var target=cl(r.npcPower==null?20:r.npcPower,1,100),c=r.npcCombat||{},base=cl(target*1.12+8,10,98),style=c.style||npcStyleFor(g,r),keys=['Force','Vitesse','Agilité','Endurance','Résistance','Réflexes','Discipline','Volonté'];c.style=style;c.stats=c.stats||{};keys.forEach(function(k){if(c.stats[k]==null)c.stats[k]=cl(base+npcSeedValue(g,r,k,-9,9),5,100)});
+ c.skills=c.skills||{};var primary=style==='Sabreur'?'Sabre':style==='Tireur'?'Tir':'Combat';['Combat','Sabre','Tir'].forEach(function(k){if(c.skills[k]==null)c.skills[k]=cl(base*(k===primary?.96:k==='Combat'?.78:.46)+npcSeedValue(g,r,'skill-'+k,-5,5),2,100)});
+ c.haki=c.haki||{};var hakiBase=cl((target-32)*1.15,0,82);if(c.haki.Observation==null)c.haki.Observation=target>=38?cl(hakiBase+npcSeedValue(g,r,'obs',-8,8),0,100):0;if(c.haki.Armement==null)c.haki.Armement=target>=42?cl(hakiBase*.92+npcSeedValue(g,r,'arm',-8,8),0,100):0;
+ if(c.haki.Conquérant==null){var known=['Shanks','Silvers Rayleigh','Rayleigh','Kaido','Charlotte Linlin','Big Mom','Edward Newgate','Monkey D. Luffy','Boa Hancock','Eustass Kid','Sengoku'].indexOf(r.actorName||r.name)>=0;c.haki.Conquérant=known?cl((target-45)*1.2,1,95):target>=78&&npcSeedValue(g,r,'conq-roll',0,1)<.08?cl((target-70)*1.5,1,55):0}
+ c.fruit=c.fruit||npcFruitFor(g,r);if(c.fruitMastery==null)c.fruitMastery=c.fruit?cl(target*.78+npcSeedValue(g,r,'fruit',-9,9),8,96):0;c.techniqueTier=c.techniqueTier==null?(target>=72?3:target>=50?2:target>=28?1:0):cl(c.techniqueTier,0,3);c.adaptations=c.adaptations||{};c.fights=c.fights||0;c.wins=c.wins||0;c.losses=c.losses||0;c.anchorPower=c.anchorPower==null?target:c.anchorPower;
+ if(c.powerOffset==null)c.powerOffset=target-npcCombatRawPower(c);r.npcCombat=c;return c
+}
+function npcCombatPower(r){
+ var c=normalizeNpcCombatProfile(game,r),trajectory=(r.npcPower==null?c.anchorPower:r.npcPower)-c.anchorPower,injury=r.status==='wounded'||(r.injuryMonths||0)>0?Math.min(10,2+(r.injuryMonths||0)*1.2):0;return cl(npcCombatRawPower(c)+(c.powerOffset||0)+trajectory*.72-injury,1,100)
+}
+function npcCombatScores(r){
+ var c=normalizeNpcCombatProfile(game,r),st=c.stats,h=c.haki,mastery=npcStyleMasteryFrom(c),offMod=c.style==='Corps-à-corps'?2:c.style==='Sabreur'||c.style==='Tireur'?1:c.style==='Mobile / esquive'?-1:0,defMod=c.style==='Mobile / esquive'?3:c.style==='Équilibré'?1:0,tech=npcTechniqueBudget(c),fruit=c.fruit?(c.fruitMastery||0):0;
+ var out={style:c.style,offense:st.Force*.15+st.Vitesse*.12+mastery*.34+(c.skills.Combat||0)*.10+(h.Armement||0)*.18+(h.Conquérant||0)*.08+fruit*.12+tech*.35+offMod,defense:st.Résistance*.19+st.Agilité*.17+st.Réflexes*.18+mastery*.10+(c.skills.Combat||0)*.07+(h.Observation||0)*.22+(h.Armement||0)*.08+defMod,stamina:st.Endurance*.65+35};
+ var core=out.offense*.58+out.defense*.34+out.stamina*.08,shift=npcCombatPower(r)-core;out.offense=cl(out.offense+shift,1,110);out.defense=cl(out.defense+shift,1,110);out.stamina=cl(out.stamina+shift,1,110);return out
+}
+function npcAdaptationBonus(r,playerStyle,terrain){
+ if(!r||!r.npcCombat)return 0;var a=r.npcCombat.adaptations&&r.npcCombat.adaptations[playerStyle],bonus=a?Math.min(6,(a.level||0)*1.25+(a.fights||0)*.08):0;if(terrain&&a&&a.terrain===terrain)bonus+=.5;return Math.min(6.5,bonus)
+}
+function npcAdaptationKeys(style){if(style==='Corps-à-corps')return['Résistance','Réflexes'];if(style==='Sabreur')return['Réflexes','Agilité'];if(style==='Tireur')return['Agilité','Réflexes'];if(style==='Mobile / esquive')return['Réflexes','Discipline'];return['Discipline','Réflexes']}
+function recordNpcCombatLearning(r,playerWon,terrain){
+ if(!r)return;var c=normalizeNpcCombatProfile(game,r),style=game.player.style,a=c.adaptations[style]||(c.adaptations[style]={fights:0,wins:0,losses:0,level:0,terrain:null});a.fights++;if(playerWon)a.losses++;else a.wins++;a.terrain=terrain||a.terrain;var previous=a.level||0;a.level=cl(Math.floor(a.losses/2)+Math.floor(a.fights/5),0,5);c.fights++;if(playerWon)c.losses++;else c.wins++;
+ if(a.level>previous){npcAdaptationKeys(style).forEach(function(k){c.stats[k]=cl((c.stats[k]||0)+.6,0,100)});addRelationMemory(r,r.name+' adapte désormais sa préparation à ton style '+style.toLowerCase()+'.','combat-learning');rememberCausalMemory('rivalry',r.name+' apprend à te combattre',68,{kind:'rivalry',relationId:r.id,subjectId:r.id,playerStyle:style,adaptation:a.level,region:npcRegion(r)},'rival-adapt:'+r.id+':'+style+':'+a.level)}
+ return a
+}
+function combatPowerTier(v){return v<20?'Local':v<35?'Combattant régional':v<50?'Grand Line':v<65?'Élite des mers':v<80?'Nouveau Monde':v<92?'Puissance mondiale':'Sommet mondial'}
+function worldPowerStanding(){
+ var pwr=power(),pool=[{name:game.player.name,power:pwr,player:true}];(game.world.actors||[]).filter(function(a){return a.status==='active'}).forEach(function(a){pool.push({name:a.name,power:actorPower(a)})});(game.relations||[]).filter(function(r){return r.status==='active'&&!r.canonical}).forEach(function(r){pool.push({name:r.name,power:npcCombatPower(r)})});pool.sort(function(a,b){return b.power-a.power});var rank=pool.findIndex(function(x){return x.player})+1,percent=Math.max(1,Math.round(rank/pool.length*100));return{rank:rank,total:pool.length,percent:percent,tier:combatPowerTier(pwr)}
+}
+function combatWorldReaction(r,playerWon){
+ if(!r)return;var p=game.player,opp=npcCombatPower(r),importance=cl(opp+(r.canonical?12:0)+(r.nemesisRecognized?10:0),0,100);if(playerWon&&opp>=50)p.reputation=cl(p.reputation+Math.max(1,Math.round((opp-42)/14)),0,100);
+ if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a)a.momentum=cl((a.momentum||0)+(playerWon?-1.2:.65),-8,12)}
+ if(r.npcCrewId){var crew=(game.world.crews||[]).find(function(c){return c.id===r.npcCrewId});if(crew){crew.playerGrudge=cl((crew.playerGrudge||0)+(playerWon?5:2),0,100);crew.morale=cl(crew.morale+(playerWon?-5:4),0,100)}}
+ if(importance>=65){rememberCausalMemory('combat','Duel contre '+r.name,importance,{kind:'combat',relationId:r.id,subjectId:r.id,success:playerWon,opponentPower:Math.round(opp),region:p.region},'living-power-duel:'+r.id+':'+Math.floor(p.ageMonths/6));if(importance>=78)news('Duel remarqué',p.name+(playerWon?' prend l’avantage sur ':' est mis en difficulté par ')+r.name+' dans '+p.region+'.','major')}
 }
 
 function addRelationMemory(r,text,type){
@@ -515,7 +572,7 @@ function bondCanonicalActor(a,context){
  else{r.faction=a.faction;r.region=a.region;r.npcAgeMonths=Math.max(0,((game.world.year||0)-(a.birthYear||0))*12+(game.world.month||0));r.npcPower=actorPower(a);r.status=a.status==='dead'?'dead':a.status==='wounded'?'wounded':'active';r.monthsKnown=Math.max(r.monthsKnown,1)}
  if(context){addRelationMemory(r,context,'canon');r.lastCanonInteractionAge=p.ageMonths}return r
 }
-function relationPower(r){if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a)return actorPower(a)}return r.npcPower||10}
+function relationPower(r){if(!r)return 10;if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a){normalizeNpcCombatProfile(game,r);r.npcPower=actorPower(a);return npcCombatPower(r)}}return npcCombatPower(r)}
 function relationGrowthRate(r){
  var base=r.npcTrajectory==='Ascension'?.09:r.npcTrajectory==='Instable'?.045:r.npcTrajectory==='Déclin'?.018:.055;if(r.role==='rival')base*=1.18;if(r.role==='mentor')base*=.72;return base
 }
