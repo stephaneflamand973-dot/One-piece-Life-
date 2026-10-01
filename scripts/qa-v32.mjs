@@ -845,6 +845,12 @@ test('V2.5 NPC network: people can form autonomous links with each other',()=>{
 test('V2.5 missions: living-world crew creates a contextual opportunity',()=>{
   const g=fresh(15007),p=g.player;p.ageMonths=300;q.join('Marine');p.rank='Sous-officier';q.careerRecord().rank=p.rank;const c=g.world.crews[0];c.status='active';c.faction='Pirates';c.region=p.region;c.power=28;c.intention='Chercher un butin';const list=q.worldMissionOpportunities();const m=list.find(x=>x.sourceType==='crew');assert(m&&m.worldGenerated,'crew did not generate mission');assert(m.sourceName&&m.title.includes(m.sourceName),'mission is not tied to its source crew');return m.title;
 });
+test('V5.0 zero world-state values survive causal mission callbacks',()=>{
+  const g=fresh(150079),crew=g.world.crews.find(x=>x.status==='active'),actor=g.world.actors.find(x=>x.status==='active');assert(crew&&actor,'world-state fixture missing');
+  crew.morale=0;const callback=q.scheduleConsequence('mission','QA zero morale','',0,{sourceType:'crew',sourceId:crew.id,success:false},60,'qa-zero-world');q.resolveConsequence(callback);assert(crew.morale===3,'zero crew morale jumped to a neutral default: '+crew.morale);
+  actor.influence=0;q.applyWorldMissionOutcome({worldGenerated:true,sourceType:'actor',sourceId:actor.name},true);assert(actor.influence===0,'zero actor influence jumped toward a neutral default: '+actor.influence);
+  return 'crew '+crew.morale+' / actor '+actor.influence;
+});
 test('V2.5 missions: resolving a world mission changes its source entity',()=>{
   const g=fresh(15008),p=g.player;p.ageMonths=300;const c=g.world.crews[0];c.status='active';c.morale=70;c.resources=70;c.power=40;const m={worldGenerated:true,sourceType:'crew',sourceId:c.id,sourceName:c.name};const morale=c.morale,res=c.resources;q.applyWorldMissionOutcome(m,true);assert(c.morale<morale&&c.resources<res,'world mission did not weaken source crew');return c.morale.toFixed(0)+' morale / '+c.resources.toFixed(0)+' resources';
 });
