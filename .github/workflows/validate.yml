@@ -9,6 +9,8 @@ on:
       - 'app.js'
       - 'index.html'
       - 'content-v1.js'
+      - 'styles.css'
+      - 'icon.svg'
       - 'manifest.webmanifest'
       - 'sw.js'
       - 'scripts/validate.mjs'
