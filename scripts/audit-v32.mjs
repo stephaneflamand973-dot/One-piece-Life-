@@ -88,6 +88,12 @@ function qaLongCareer(seed,faction,spec,profile,years){
   const counts={};titles.forEach(t=>counts[t]=(counts[t]||0)+1);
   const repeated=titles.reduce((n,t)=>n+((counts[t]||0)>1?1:0),0);
   const consecutive=titles.reduce((n,t,i)=>n+(i>0&&titles[i-1]===t?1:0),0);
+  const chapterHistory=p.lifeDirector&&Array.isArray(p.lifeDirector.chapterHistory)?p.lifeDirector.chapterHistory:[];
+  const activeChapterList=p.lifeDirector&&Array.isArray(p.lifeDirector.activeChapters)?p.lifeDirector.activeChapters:[];
+  const chapterKinds=chapterHistory.reduce((a,x)=>{const k=x.kind||'other';a[k]=(a[k]||0)+1;return a},{});
+  const chapterTitleCounts=chapterHistory.reduce((a,x)=>{const k=x.title||'Sans titre';a[k]=(a[k]||0)+1;return a},{});
+  const repeatedChapterRecords=chapterHistory.reduce((n,x)=>n+((chapterTitleCounts[x.title||'Sans titre']||0)>1?1:0),0);
+  const chronicle=q.lifeChronicle(p);
   return {
     faction,spec,profile,alive:g.alive,age:+(p.ageMonths/12).toFixed(1),years:+((p.ageMonths-start)/12).toFixed(1),
     clicks,clicksPerYear:+(clicks/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
@@ -149,8 +155,18 @@ function qaLongCareer(seed,faction,spec,profile,years){
     careerSuccessRate:(q.careerRecord&&((q.careerRecord().successes||0)+(q.careerRecord().failures||0)))?+((q.careerRecord().successes||0)/((q.careerRecord().successes||0)+(q.careerRecord().failures||0))).toFixed(2):0,
     careerDistinctions:q.careerRecord?(q.careerRecord().distinctions||0):0,
     recentMissionRate:q.careerRecord&&q.careerRecord().recentResults&&q.careerRecord().recentResults.length?+(q.careerRecord().recentResults.reduce((a,b)=>a+b,0)/q.careerRecord().recentResults.length).toFixed(2):0,
-    personalChapters:p.lifeDirector&&p.lifeDirector.chapterHistory?p.lifeDirector.chapterHistory.length:0,
-    activePersonalChapters:p.lifeDirector&&p.lifeDirector.activeChapters?p.lifeDirector.activeChapters.length:0,
+    personalChapters:chapterHistory.length,
+    activePersonalChapters:activeChapterList.length,
+    chapterAvgScore:chapterHistory.length?+(chapterHistory.reduce((a,x)=>a+(x.score||0),0)/chapterHistory.length).toFixed(1):0,
+    chapterAvgDuration:chapterHistory.length?+(chapterHistory.reduce((a,x)=>a+(x.duration||0),0)/chapterHistory.length).toFixed(1):0,
+    chapterSignatureShare:chapterHistory.length?+(chapterHistory.filter(x=>(x.score||0)>=36&&(x.beats||0)>=2).length/chapterHistory.length).toFixed(2):0,
+    chapterRepeatShare:chapterHistory.length?+(repeatedChapterRecords/chapterHistory.length).toFixed(2):0,
+    chapterKinds,
+    maxActiveChapterIdleMonths:activeChapterList.length?+Math.max(...activeChapterList.map(x=>Math.max(0,p.ageMonths-(x.lastAge==null?p.ageMonths:x.lastAge)))).toFixed(1):0,
+    maxActiveChapterSpanMonths:activeChapterList.length?+Math.max(...activeChapterList.map(x=>Math.max(0,p.ageMonths-(x.startedAge==null?p.ageMonths:x.startedAge)))).toFixed(1):0,
+    chronicleHighlights:Array.isArray(chronicle.highlights)?chronicle.highlights.length:0,
+    chronicleChars:(chronicle.summary||'').length,
+    chronicleKinds:(chronicle.highlights||[]).reduce((a,x)=>{const k=x.kind||'other';a[k]=(a[k]||0)+1;return a},{}),
     retirementChoice:q.careerRecord&&q.careerRecord().retirementChoice||null,
     retired:!!(q.careerRecord&&q.careerRecord().retired),
     retiredMonths:q.careerRecord?(q.careerRecord().retiredMonths||0):0
@@ -253,7 +269,18 @@ let postCareerRows=[],postCareerProfiles=[];
         avgFoundingMemories:avg('founding'),
         avgArcResolutions:avg('arcHistoryDelta'),
         avgPersonalChapters:avg('personalChapters'),
-        avgActivePersonalChapters:avg('activePersonalChapters')
+        avgActivePersonalChapters:avg('activePersonalChapters'),
+        avgChapterScore:avg('chapterAvgScore'),
+        avgChapterDurationMonths:avg('chapterAvgDuration'),
+        avgChapterSignatureShare:+(rows.reduce((a,x)=>a+(x.chapterSignatureShare||0),0)/rows.length).toFixed(2),
+        avgChapterRepeatShare:+(rows.reduce((a,x)=>a+(x.chapterRepeatShare||0),0)/rows.length).toFixed(2),
+        chapterKinds:rows.reduce((a,x)=>{Object.entries(x.chapterKinds||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
+        maxActiveChapterIdleMonths:Math.max(...rows.map(x=>x.maxActiveChapterIdleMonths||0)),
+        maxActiveChapterSpanMonths:Math.max(...rows.map(x=>x.maxActiveChapterSpanMonths||0)),
+        avgChronicleHighlights:avg('chronicleHighlights'),
+        chronicleUnder3Share:+(rows.filter(x=>(x.chronicleHighlights||0)<3).length/rows.length).toFixed(2),
+        avgChronicleChars:avg('chronicleChars'),
+        chronicleKinds:rows.reduce((a,x)=>{Object.entries(x.chronicleKinds||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{})
       },
       breadth:{
         avgVisitedPlaces:avg('visited'),
@@ -340,6 +367,17 @@ let postCareerRows=[],postCareerProfiles=[];
     decisionTypes:rows.reduce((a,x)=>{Object.entries(x.decisionTypes||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
     avgVisitedPlaces:avg('visited'),
     avgPersonalChapters:avg('personalChapters'),
+    avgChapterScore:avg('chapterAvgScore'),
+    avgChapterDurationMonths:avg('chapterAvgDuration'),
+    avgChapterSignatureShare:+(rows.reduce((a,x)=>a+(x.chapterSignatureShare||0),0)/rows.length).toFixed(2),
+    avgChapterRepeatShare:+(rows.reduce((a,x)=>a+(x.chapterRepeatShare||0),0)/rows.length).toFixed(2),
+    maxActiveChapterIdleMonths:Math.max(...rows.map(x=>x.maxActiveChapterIdleMonths||0)),
+    maxActiveChapterSpanMonths:Math.max(...rows.map(x=>x.maxActiveChapterSpanMonths||0)),
+    avgChronicleHighlights:avg('chronicleHighlights'),
+    chronicleUnder3Share:+(rows.filter(x=>(x.chronicleHighlights||0)<3).length/rows.length).toFixed(2),
+    avgChronicleChars:avg('chronicleChars'),
+    chapterKinds:rows.reduce((a,x)=>{Object.entries(x.chapterKinds||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
+    chronicleKinds:rows.reduce((a,x)=>{Object.entries(x.chronicleKinds||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
     avgFoundingMemories:avg('founding'),
     avgRecognition:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.score||0),0)/rows.length).toFixed(1),
     organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
