@@ -485,8 +485,15 @@ function npcCareerRank(r){
  var cfg=CAREERS[r.faction]||CAREERS.Civil,track=(r.faction==='Gouvernement'?careerTrack('Gouvernement',null):cfg.ranks)||[];if(!track.length)return r.role||'Indépendant';return track[Math.min(track.length-1,Math.max(0,r.careerLevel||0))].n
 }
 function npcRegion(r){if(r.canonical&&r.actorName){var a=canonActor(r.actorName);if(a)return a.region}return r.region||(r.location&&PL[r.location]?PL[r.location][0]:game.player.region)}
+function partnerNearPlayer(r){
+ var p=game.player;if(!r||r.status!=='active'||r.longDistance)return false;
+ if(p.travel)return!!(p.travel.householdPartnerId===r.id&&p.travel.partnerFollows);
+ if(r.canonical)return npcRegion(r)===p.region;
+ if(r.location)return r.location===p.island;
+ return npcRegion(r)===p.region
+}
 function npcNearby(r){
- var p=game.player;if(!r||r.status!=='active')return false;if(r.joinedOrganization)return true;if(r.id===p.life.partnerId)return!r.longDistance;if(p.travel)return false;if(r.canonical)return npcRegion(r)===p.region;if(r.location)return r.location===p.island;return npcRegion(r)===p.region
+ var p=game.player;if(!r||r.status!=='active')return false;if(r.joinedOrganization)return true;if(r.id===p.life.partnerId)return partnerNearPlayer(r);if(p.travel)return false;if(r.canonical)return npcRegion(r)===p.region;if(r.location)return r.location===p.island;return npcRegion(r)===p.region
 }
 function canonicalFreedom(r){if(!r.canonical)return true;var a=canonActor(r.actorName||r.name),need=a?Math.round((a.importance||90)*.48):48;return game.world.divergence>=need}
 function bondCanonicalActor(a,context){
@@ -568,7 +575,7 @@ function npcTick(m){
   if(r.injuryMonths>0){r.injuryMonths-=m;if(r.injuryMonths<=0){r.injuryMonths=0;r.status='active';addRelationMemory(r,'Se remet de ses blessures.','recovery')}return}
   if(r.status!=='active')return;
   npcIntentTick(r,m);
-  if(r.id===p.life.partnerId&&!r.longDistance){r.region=p.region;r.location=p.island}
+  if(r.id===p.life.partnerId&&!r.longDistance){if(partnerNearPlayer(r)){if(!p.travel){r.region=p.region;r.location=p.island}}else r.longDistance=true}
   if(r.joinedOrganization){var org=p.organization,mem=org&&org.members.find(function(m){return m.linkedRelationId===r.id});if(mem&&mem.status==='active'){r.region=p.region;r.location=p.island;r.npcPower=cl(Math.max(r.npcPower,mem.power),1,100);mem.power=r.npcPower;r.injuryMonths=mem.injuryMonths||0;return}else{r.joinedOrganization=false;if(r.type==='organization')r.type='social';addRelationMemory(r,'N’appartient plus à ton organisation.','organization')}}
   var gap=Math.max(0,r.npcPotential-r.npcPower),ageFactor=r.npcAgeMonths<144?.42:r.npcAgeMonths<180?.68:1,growth=gap/100*relationGrowthRate(r)*m*5*ageFactor;r.npcPower=cl(r.npcPower+growth,1,r.npcPotential);
   if(r.npcTrajectory==='Instable'&&R('npc')<.008*m)r.npcPower=cl(r.npcPower-(1+R('npc')*3),1,r.npcPotential);
