@@ -892,6 +892,8 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
   if(v5.personalLife.parentShare<=0)throw new Error('V5.0 family legacy never emerged in long careers');
   if(v5.career.avgRankVariety<1.75)throw new Error('V5.0 career trajectories remain too uniform: '+v5.career.avgRankVariety+' ranks/profile');
   if((v5.career.uniformRankProfiles||0)>0)throw new Error('V5.0 identical career profile convergence persists: '+v5.career.uniformRankProfiles+' uniform profiles');
+  if((v5.career.minLifeTrajectoryVariety||0)<3)throw new Error('V5.0 similar careers collapsed into too few distinct lives: '+v5.career.minLifeTrajectoryVariety+' minimum biography patterns');
+  if((v5.career.avgLifeTrajectoryVariety||0)<5)throw new Error('V5.0 biography diversity regressed across identical career profiles: '+v5.career.avgLifeTrajectoryVariety+' average patterns');
   if(v5.narrative.avgPersonalChapters<2.5)throw new Error('V5.0 personal chapters too dormant: '+v5.narrative.avgPersonalChapters+' per career');
   if(v5.narrative.avgChapterRepeatShare>.25)throw new Error('V5.0 personal chapters became too repetitive: '+v5.narrative.avgChapterRepeatShare);
   if(v5.narrative.maxActiveChapterIdleMonths>=30)throw new Error('V5.0 personal chapter stayed idle too long: '+v5.narrative.maxActiveChapterIdleMonths+' months');
