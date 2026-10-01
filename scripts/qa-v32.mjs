@@ -1097,6 +1097,22 @@ test('V5.0 personal chapter state remains bounded',()=>{
 });
 
 
+
+test('V5.0 archived journey chapters preserve causal destinations',()=>{
+  const g=fresh(50044),p=g.player;p.ageMonths=300;
+  let a=q.signalPersonalChapter('journey','Voyages à travers les mers',16,'journey:Loguetown','manual-journey');q.signalPersonalChapter('journey','Voyages à travers les mers',16,'journey:Loguetown','manual-journey');const first=q.closePersonalChapter(a,'qa');
+  p.ageMonths+=36;let b=q.signalPersonalChapter('journey','Voyages à travers les mers',16,'journey:Wano','manual-journey');q.signalPersonalChapter('journey','Voyages à travers les mers',16,'journey:Wano','manual-journey');const second=q.closePersonalChapter(b,'qa');
+  assert(first.title==='Traversée vers Loguetown','first journey archive lost destination: '+first.title);
+  assert(second.title==='Traversée vers Wano','second journey archive lost destination: '+second.title);
+  assert(first.title!==second.title,'distinct journey chapters kept the same generic title');
+  return first.title+' / '+second.title;
+});
+test('V5.0 archived career chapter names the highest promotion reached',()=>{
+  const g=fresh(50045),p=g.player;p.ageMonths=300;
+  const ch=q.signalPersonalChapter('career','Ascension au sein de la Marine',12,'join:Marine','Marine');q.signalPersonalChapter('career','Ascension au sein de la Marine',11,'promotion:Lieutenant','Marine');q.signalPersonalChapter('career','Ascension au sein de la Marine',12,'promotion:Commandant','Marine');
+  const h=q.closePersonalChapter(ch,'qa');assert(h.title==='Ascension jusqu’à Commandant','career archive stayed generic: '+h.title);return h.title;
+});
+
 test('V5.0 senior promotions require a credible mission record',()=>{
   const g=fresh(50040),p=g.player;p.ageMonths=420;q.join('Civil');p.specialization='Scientifique';const rec=q.careerRecord();rec.specialization='Scientifique';p.rank='Expert';rec.rank='Expert';rec.xp=1000;p.factionRep.Civil=100;Object.keys(p.stats).forEach(k=>p.stats[k]=95);Object.keys(p.skills).forEach(k=>p.skills[k]=95);rec.successes=4;rec.failures=6;rec.momentum=0;rec.recentResults=[1,1,1,0,0,0,0,0];rec.distinctions=0;
   const review=q.careerPerformanceReview(rec,3);assert(review.active&&!review.met,'poor senior record passed review');assert(q.evaluatePromotion()===false&&p.rank==='Expert','poor record still received promotion');return Math.round(review.successRate*100)+'% / '+Math.round(review.required*100)+'%';

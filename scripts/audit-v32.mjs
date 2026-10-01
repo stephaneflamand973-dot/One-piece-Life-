@@ -587,6 +587,37 @@ let postCareerRows=[],postCareerProfiles=[];
 console.log('V50_DYNASTY_AUDIT '+JSON.stringify(metrics.v50DynastyStress));
 
 {
+  const g=fresh(33840),targetGenerations=12;let strongLives=0,weakLives=0,strongOffers=0,weakOffers=0;
+  for(let gen=1;gen<=targetGenerations;gen++){
+    const p=g.player,isStrong=gen%4===0;
+    p.ageMonths=Math.max(p.ageMonths||0,420);p.reputation=5;p.visited=[p.island];
+    if(isStrong){
+      strongLives++;
+      const ch=q.signalPersonalChapter('career','Héritage marquant '+gen,25,'mixed-strong-a-'+gen,'mixed-strong-'+gen);p.ageMonths+=2;q.signalPersonalChapter('career','Héritage marquant '+gen,25,'mixed-strong-b-'+gen,'mixed-strong-'+gen);q.closePersonalChapter(ch,'audit héritage mixte');
+    }else{
+      weakLives++;
+      q.signalPersonalChapter('journey','Épisode mineur '+gen,8,'mixed-weak-'+gen,'mixed-weak-'+gen);
+    }
+    const child={id:'mixed-heir-'+gen,name:'Héritier mixte '+gen,ageMonths:220,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:70};
+    p.children=[child];g.death={cause:'Audit héritage mixte '+gen};q.buildHeir(child);
+    const op=q.directorLegacyOpportunity();
+    if(isStrong&&op)strongOffers++;
+    if(!isStrong&&op)weakOffers++;
+  }
+  metrics.v50MixedDynastyStress={
+    simulatedGenerations:targetGenerations,strongLives,weakLives,strongOffers,weakOffers,
+    overallOpportunityShare:+((strongOffers+weakOffers)/targetGenerations).toFixed(2),
+    strongOpportunityShare:+(strongOffers/Math.max(1,strongLives)).toFixed(2),
+    weakFalsePositiveShare:+(weakOffers/Math.max(1,weakLives)).toFixed(2)
+  };
+  if(metrics.v50MixedDynastyStress.strongOpportunityShare<.9)throw new Error('V5.0 meaningful mixed-generation legacy became dormant: '+metrics.v50MixedDynastyStress.strongOpportunityShare);
+  if(metrics.v50MixedDynastyStress.weakFalsePositiveShare>0)throw new Error('V5.0 insignificant ancestors create legacy interruptions: '+metrics.v50MixedDynastyStress.weakFalsePositiveShare);
+  if(metrics.v50MixedDynastyStress.overallOpportunityShare>.4)throw new Error('V5.0 mixed-generation legacy crossroads became too common: '+metrics.v50MixedDynastyStress.overallOpportunityShare);
+}
+console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStress));
+
+
+{
   const lw=metrics.v40LivingWorld,pf=metrics.v40PirateFlowStress;
   if(lw.sagas.avgCreatedPerDecade>6)throw new Error('V4.0 saga density regression: '+lw.sagas.avgCreatedPerDecade+' created/decade');
   if(lw.sagas.avgActive>1.5)throw new Error('V4.0 saga concurrency regression: '+lw.sagas.avgActive+' active average');
@@ -628,7 +659,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
 }));
 
 console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
-console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress}));
+console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress,mixedDynasty:metrics.v50MixedDynastyStress}));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
