@@ -1,3 +1,25 @@
+# ONE PIECE LIFE — V5.2 Living Power World
+
+La V5.2 unifie la puissance, les styles de combat et les personnages du monde. Les adversaires importants ne sont plus de simples valeurs de difficulté : ils possèdent désormais une identité de combat persistante et apprennent de leur histoire.
+
+## Living Power World
+- Les relations et rivaux possèdent un **profil de combat persistant** : style, huit attributs, compétences Combat/Sabre/Tir, Haki, Fruit éventuel, techniques, expérience et potentiel.
+- Les anciennes sauvegardes reçoivent automatiquement ces profils de façon déterministe, sans changement de GameState.
+- Les duels de rivalité utilisent le **vrai style du PNJ** et ses capacités au lieu d'un style adverse aléatoire.
+- Un rival battu plusieurs fois peut **apprendre à contrer le style du joueur**. Cette adaptation reste dans sa mémoire et produit un bonus mécanique mesuré lors des rencontres suivantes.
+- Les acteurs autonomes du monde possèdent eux aussi une identité de combat. Leurs affrontements tiennent compte des matchups de styles et de leur expérience accumulée.
+- Les combats importants peuvent modifier réputation, momentum des acteurs, moral d'un groupe lié et mémoire causale du monde.
+- Une **échelle de puissance connue** situe le personnage dans le monde sans ajouter de classement à gérer.
+- L'expérience de combat peut faire émerger une **technique signature personnelle**. Elle naît d'une carrière réellement vécue puis gagne en maîtrise au fil des combats.
+- Les arbres de techniques restent équilibrés entre styles et les garde-fous QA de V5.1 sur la progression restent actifs.
+- Aucun nouvel onglet, aucune nouvelle ressource et aucun micro-management obligatoire ne sont ajoutés.
+- Le GameState reste en version interne **28**, compatible avec les sauvegardes V5.0/V5.1.
+
+## Philosophie V5.2
+Une valeur de puissance décrit un niveau général. Elle ne décide plus, à elle seule, de l'issue d'un combat. Le style, le matchup, l'expérience, le Haki, les techniques et l'histoire entre deux combattants comptent désormais réellement.
+
+---
+
 # ONE PIECE LIFE — V5.1 Narrative Convergence
 
 La V5.1 fait converger les systèmes déjà construits au lieu d'ajouter du micro-management. La Phase II transforme maintenant ces convergences en histoires causales capables d'évoluer sur plusieurs décisions.
