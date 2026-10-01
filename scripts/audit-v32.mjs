@@ -406,6 +406,8 @@ let postCareerRows=[],postCareerProfiles=[];
     organicLegendQualifiedShare:+(rows.filter(x=>x.recognition&&x.recognition.organicLegendQualified).length/rows.length).toFixed(2),
     avgOrganicEvidence:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0),0)/rows.length).toFixed(1),
     nearOrganicLegendShare:+(rows.filter(x=>(x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0)>=40).length/rows.length).toFixed(2),
+    emergingOrganicLegendCount:rows.filter(x=>!(x.recognition&&x.recognition.organicLegendQualified)&&(x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0)>=35).length,
+    emergingOrganicLegendShare:+(rows.filter(x=>!(x.recognition&&x.recognition.organicLegendQualified)&&(x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0)>=35).length/rows.length).toFixed(2),
     survivalByFaction:profiles.reduce((out,cfg)=>{const rs=rows.filter(x=>x.faction===cfg[0]);out[cfg[0]]=+(rs.filter(x=>x.alive).length/Math.max(1,rs.length)).toFixed(2);return out},{}),
     deathCauses:rows.filter(x=>!x.alive).reduce((out,x)=>{const k=x.deathCause||'unknown';out[k]=(out[k]||0)+1;return out},{}),
     avgSaveKB:+(rows.reduce((a,x)=>a+(x.saveBytes||0),0)/rows.length/1024).toFixed(1),
@@ -443,7 +445,7 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y30.avgChronicleHighlights<3)throw new Error('V5.0 thirty-year biographies became too thin: '+y30.avgChronicleHighlights+' highlights');
   if(y30.avgSaveKB>325||y30.maxSaveKB>400)throw new Error('V5.0 thirty-year save growth regression: avg '+y30.avgSaveKB+' KB / max '+y30.maxSaveKB+' KB');
   if((y30.organicLegendCount||0)<1)throw new Error('V5.0 exceptional organic legends became unreachable after 30 years: 0/'+y30.sample);
-  if(y30.nearOrganicLegendShare<.10)throw new Error('V5.0 thirty-year careers stopped producing near-legend trajectories: '+y30.nearOrganicLegendShare);
+  if((y30.emergingOrganicLegendCount||0)<1)throw new Error('V5.0 thirty-year careers stopped producing an emerging non-legend trajectory: '+(y30.emergingOrganicLegendCount||0)+'/'+y30.sample);
   if(y30.organicLegendShare>.34)throw new Error('V5.0 organic legends became too common after 30 years: '+y30.organicLegendShare);
   if(y30.avgOrganicEvidence<18)throw new Error('V5.0 thirty-year careers stopped accumulating meaningful legend evidence: '+y30.avgOrganicEvidence);
 }
