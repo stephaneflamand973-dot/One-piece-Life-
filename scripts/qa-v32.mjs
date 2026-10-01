@@ -1388,6 +1388,11 @@ test('V5.0 meaningful ancestor can create one legacy crossroads',()=>{
   const g=fresh(50120),p=g.player;p.ageMonths=216;g.dynasty.generation=2;g.dynasty.ancestors.push({name:'Aster',generation:1,career:'Civil',rank:'Maître',legacy:{worldRole:'Icône des mers',recognitionScore:76,chapters:[{title:'Grand voyage',score:62,beats:3}],chronicle:'Aster a parcouru les mers et laissé une trace durable.'}});
   const op=q.directorLegacyOpportunity();assert(op&&op.ancestor.name==='Aster','meaningful ancestor did not create legacy opportunity');const st=q.startStory('legacy-crossroads');assert(st&&st.data.ancestorName==='Aster','legacy story lost ancestor identity');return st.title;
 });
+test('V5.0 unfinished but meaningful ancestor chapter still shapes inheritance',()=>{
+  const g=fresh(50119),p=g.player;p.ageMonths=216;g.dynasty.generation=2;g.dynasty.ancestors.push({name:'Orion',generation:1,career:'Pirates',rank:'Capitaine',legacy:{worldRole:'Figure régionale',recognitionScore:38,chapters:[],activeChapters:[{title:'Dernière grande traversée',score:58,beats:3}],chronicle:'Orion est mort avant de refermer sa dernière grande traversée.'}});
+  const op=q.directorLegacyOpportunity();assert(op&&op.ancestor.name==='Orion','active inherited chapter was ignored');return op.ancestor.name+' / active chapter inherited';
+});
+
 test('V5.0 weak ancestor does not force a legacy decision',()=>{
   const g=fresh(50121),p=g.player;p.ageMonths=216;g.dynasty.generation=2;g.dynasty.ancestors.push({name:'Calm',generation:1,career:'Civil',rank:'Apprenti',legacy:{worldRole:'Figure régionale',recognitionScore:24,chapters:[]}});
   assert(q.directorLegacyOpportunity()===null,'weak ancestor generated unnecessary legacy crossroads');return 'no forced legacy';
