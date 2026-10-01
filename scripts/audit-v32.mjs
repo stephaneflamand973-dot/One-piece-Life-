@@ -6,6 +6,17 @@ const marker="console.log('\\nQA_METRICS '+JSON.stringify(metrics));";
 if(!base.includes(marker)) throw new Error('V2.9 audit marker not found in qa-v28.mjs');
 
 const extra=String.raw`
+function qaChoiceIndex(g,st,cs){
+  if(cs.length<2)return 0;
+  let h=(Number(g.seed)||0)+Math.floor(st.createdAge||0)*17;
+  const key=String(st.type||'')+':'+String(st.id||'');
+  for(let i=0;i<key.length;i++)h=((h*31)+key.charCodeAt(i))|0;
+  h=Math.abs(h);
+  if(st.type==='career-transfer'||st.type==='family-future')return h%3===0?1:0;
+  if(st.type==='relationship-opening')return h%4===0?1:0;
+  if(st.type==='career-sunset'||st.type==='legacy-crossroads')return h%2;
+  return 0;
+}
 function qaResolveInterruptions(g,stats){
   let guard=0;
   while(guard++<12){
@@ -20,13 +31,14 @@ function qaResolveInterruptions(g,stats){
     if(st){
       const cs=q.storyChoices(st);
       if(cs.length){
+        const ix=qaChoiceIndex(g,st,cs),chosen=cs[ix]||cs[0];
         if(stats){
           stats.story++;
           stats.byType[st.type]=(stats.byType[st.type]||0)+1;
+          stats.choices[st.type+':'+chosen.id]=(stats.choices[st.type+':'+chosen.id]||0)+1;
           if(['relationship-opening','family-future','career-transfer','career-turn','career-sunset','legacy-crossroads'].includes(st.type))stats.director++;
         }
-        const ix=st.type==='career-sunset'&&cs.length>1&&((Number(g.seed)||0)%2===0)?1:0;
-        q.storyChoice(st.id,cs[ix].id);
+        q.storyChoice(st.id,chosen.id);
       }else q.closeStory(st,'Audit','Audit',false,'failed');
       continue;
     }
@@ -69,7 +81,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
   p.activity='Carrière';
   const start=p.ageMonths,target=start+years*12;
   let clicks=0,lastMissionAge=-999,started=0,routine=0,adaptive=0,worldGenerated=0,signature=0;
-  const titles=[],guidance={},chances=[],heatSamples=[];const planCounts={},interruptions={pending:0,story:0,director:0,byType:{}};let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
+  const titles=[],guidance={},chances=[],heatSamples=[];const planCounts={},interruptions={pending:0,story:0,director:0,byType:{},choices:{}};let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
   while(p.ageMonths<target&&clicks<years*18&&g.alive){
     qaResolveInterruptions(g,interruptions);
     const missionGap=q.careerRecord&&q.careerRecord().retired?24:10;
@@ -102,6 +114,7 @@ function qaLongCareer(seed,faction,spec,profile,years){
     directorDecisions:interruptions.director,
     directorDecisionsPerYear:+(interruptions.director/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
     decisionTypes:interruptions.byType,
+    decisionChoices:interruptions.choices,
     missions:started,missionPerYear:+(started/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
     uniqueTitles:new Set(titles).size,repeatShare:started?+(repeated/started).toFixed(2):0,consecutiveRepeatShare:started?+(consecutive/started).toFixed(2):0,
     routineShare:started?+(routine/started).toFixed(2):0,adaptiveShare:started?+(adaptive/started).toFixed(2):0,worldShare:started?+(worldGenerated/started).toFixed(2):0,signatureShare:started?+(signature/started).toFixed(2):0,
@@ -299,6 +312,7 @@ let postCareerRows=[],postCareerProfiles=[];
         avgInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.interruptionsPerYear,0)/rows.length).toFixed(2),
         avgDirectorDecisionsPerYear:+(rows.reduce((a,x)=>a+x.directorDecisionsPerYear,0)/rows.length).toFixed(2),
         decisionTypes:rows.reduce((a,x)=>{Object.entries(x.decisionTypes||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
+        decisionChoices:rows.reduce((a,x)=>{Object.entries(x.decisionChoices||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
         survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2)
       },
       storage:{
@@ -365,6 +379,7 @@ let postCareerRows=[],postCareerProfiles=[];
     avgInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.interruptionsPerYear,0)/rows.length).toFixed(2),
     avgDirectorDecisionsPerYear:+(rows.reduce((a,x)=>a+x.directorDecisionsPerYear,0)/rows.length).toFixed(2),
     decisionTypes:rows.reduce((a,x)=>{Object.entries(x.decisionTypes||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
+    decisionChoices:rows.reduce((a,x)=>{Object.entries(x.decisionChoices||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
     avgVisitedPlaces:avg('visited'),
     avgPersonalChapters:avg('personalChapters'),
     avgChapterScore:avg('chapterAvgScore'),
