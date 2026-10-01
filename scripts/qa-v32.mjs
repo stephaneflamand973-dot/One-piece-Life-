@@ -71,7 +71,7 @@ window.__qa={
  simulateEconomy:simulateEconomy,initWorldEconomy:initWorldEconomy,initialMarket:initialMarket,cargoUsed:cargoUsed,cargoCapacity:cargoCapacity,cargoBookValue:cargoBookValue,blackMarketRisk:blackMarketRisk,inspectSmugglingAtArrival:inspectSmugglingAtArrival,
  releasePlayerFruits:releasePlayerFruits,checkAchievements:checkAchievements,chargeMoney:chargeMoney,serviceDebt:serviceDebt,netWorth:netWorth,
  explorationSite:explorationSite,islandProfile:islandProfile,discoveryPool:discoveryPool,registerDiscovery:registerDiscovery,discoverByKnowledge:discoverByKnowledge,explorationTick:explorationTick,migrateExploration:migrateExploration,currentRumor:currentRumor,learnLocalRumor:learnLocalRumor,routeEstimate:routeEstimate,chooseSeaCondition:chooseSeaCondition,seaJourneyTick:seaJourneyTick,travel:travel,beginJourney:beginJourney,settleCareerNetwork:settleCareerNetwork,setExplorationActivity:setExplorationActivity,renderExploration:renderExploration,renderJourney:renderJourney,renderCodexExploration:renderCodexExploration,
- defaultStoryEngine:defaultStoryEngine,migrateStoryEngine:migrateStoryEngine,activeStories:activeStories,awaitingStory:awaitingStory,storyNoveltyWeight:storyNoveltyWeight,storyEligibleTypes:storyEligibleTypes,startStory:startStory,maybeStartStory:maybeStartStory,storyPrompt:storyPrompt,storyChoices:storyChoices,storyChoice:storyChoice,storyTick:storyTick,closeStory:closeStory,showStoryDecision:showStoryDecision,renderStories:renderStories,die:die,deathModal:deathModal,
+ defaultStoryEngine:defaultStoryEngine,migrateStoryEngine:migrateStoryEngine,activeStories:activeStories,awaitingStory:awaitingStory,storyNoveltyWeight:storyNoveltyWeight,storyEligibleTypes:storyEligibleTypes,startStory:startStory,maybeStartStory:maybeStartStory,storyPrompt:storyPrompt,storyChoices:storyChoices,storyChoice:storyChoice,storyTick:storyTick,storyResolve:storyResolve,closeStory:closeStory,showStoryDecision:showStoryDecision,renderStories:renderStories,die:die,deathModal:deathModal,
  firstRank:firstRank,rankIndex:rankIndex,nextRank:nextRank,inf:inf,infStatic:infStatic,req:req,
  constants:{PL:PL,REG:REG,ST:ST,SK:SK,TRADE_GOODS:TRADE_GOODS,SHIP_TIERS:SHIP_TIERS,ACHIEVEMENTS:ACHIEVEMENTS,MISSIONS:MISSIONS,MISSION_TITLE_PROFILES:MISSION_TITLE_PROFILES}
 };
@@ -1138,6 +1138,29 @@ test('V5.0 durable confirmed rivalry becomes a chapter without requiring nemesis
   q.syncRivalryMilestone(r,'Rival confirmé');assert(ch.beats===2,'durable rivalry milestone repeated');
   return ch.title+' / '+ch.beats+' beats';
 });
+
+test('V5.0 organic rival challenge reaches the same confirmed milestone as a manual duel',()=>{
+  const g=fresh(50049),p=g.player;p.ageMonths=300;
+  const r=q.createRelation('rival');r.role='rival';r.rivalry=68;r.rivalWins=1;r.rivalLosses=0;r.rivalMilestones=[];r.location=p.island;r.region=p.region;
+  const st=q.startStory('rival-challenge');assert(st&&st.participantId===r.id,'organic rival challenge did not bind the rival');
+  q.storyResolve(st);
+  assert(r.rivalMilestones.includes('Rival confirmé'),'organic duel failed to confirm the rivalry');
+  const ch=p.lifeDirector.activeChapters.find(x=>x.key==='rivalry:'+r.id);
+  assert(ch&&ch.beats===1&&ch.score===14,'organic duel did not feed the rivalry chapter');
+  return 'confirmed via organic duel';
+});
+test('V5.0 repeated organic rival challenge can make a rivalry durable',()=>{
+  const g=fresh(50050),p=g.player;p.ageMonths=300;
+  const r=q.createRelation('rival');r.role='rival';r.rivalry=72;r.rivalWins=3;r.rivalLosses=0;r.rivalMilestones=['Rival confirmé'];r.location=p.island;r.region=p.region;
+  q.signalPersonalChapter('rivalry','Rivalité avec '+r.name,14,'rival-confirmed:'+r.id,r.id);
+  const st=q.startStory('rival-challenge');assert(st&&st.participantId===r.id,'durable rivalry story did not bind the rival');
+  q.storyResolve(st);
+  assert(r.rivalMilestones.includes('Rivalité durable'),'organic repeat duel did not create durable rivalry');
+  const ch=p.lifeDirector.activeChapters.find(x=>x.key==='rivalry:'+r.id);
+  assert(ch&&ch.beats===2&&ch.score===26,'organic repeat duel did not deepen the same rivalry chapter');
+  return ch.title+' / '+ch.beats+' beats';
+});
+
 test('V5.0 independent legacy choice survives compact chapter archival',()=>{
   const g=fresh(50048),p=g.player;p.ageMonths=216;g.dynasty.generation=2;
   g.dynasty.ancestors.push({name:'Aster QA',generation:1,career:'Civil',rank:'Maître',legacy:{worldRole:'Icône des mers',recognitionScore:76,chapters:[{title:'Grand voyage',score:62,beats:3}],chronicle:'Aster QA a laissé une trace durable.'}});
