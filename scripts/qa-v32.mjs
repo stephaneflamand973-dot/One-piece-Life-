@@ -2505,11 +2505,18 @@ test('V5.0 saga-linked career missions can become decisive through sustained cau
  const major={title:'Intervention majeure QA',tier:4,worldGenerated:true,sourceType:'conflict',sourceId:'qa-career-front',importance:72};
  assert(q.missionSagaTarget(major)===saga,'world mission was not linked to its causal saga');
  q.playerWorldImpact(true,major);
- assert(saga.playerInvolved&&saga.playerRole==='participant','first linked major mission did not create real saga participation');
- assert(saga.playerImpact<55,'one linked mission became decisive too easily');
- q.playerWorldImpact(true,major);
- assert(saga.playerRole==='decisive'&&saga.playerImpact>=55,'repeated linked major interventions did not grow into a decisive saga role');
- assert((saga.playerSources||[]).filter(x=>x==='mission:'+major.title).length>=2,'repeated mission causes were not preserved');
+ assert(saga.playerInvolved&&saga.playerRole==='decisive','successful saga-linked mission already labelled Décisive did not earn a decisive role');
+ assert(saga.playerImpact>=55,'decisive mission did not reach the existing 55-impact threshold');
+ assert((saga.playerSources||[]).includes('mission:'+major.title),'decisive mission cause was not preserved');
+ return saga.playerRole+' / '+Math.round(saga.playerImpact)+' impact';
+});
+test('V5.0 saga-linked exceptional mission still needs accumulated impact below decisive stakes',()=>{
+ const g=fresh(402033),p=g.player,saga=q.startWorldSaga('war',p.region,'Marine','Pirates','qa-exceptional-war');
+ g.world.conflicts.push({id:'qa-exceptional-front',status:'active',region:p.region,location:p.island,attacker:'Marine',defender:'Pirates',warId:'qa-exceptional-war',intensity:68});
+ const m={title:'Intervention exceptionnelle QA',tier:3,worldGenerated:true,sourceType:'conflict',sourceId:'qa-exceptional-front',importance:64};
+ q.playerWorldImpact(true,m);
+ assert(saga.playerRole==='participant','linked exceptional mission did not create participation');
+ assert(saga.playerImpact<55,'sub-decisive mission bypassed the 55-impact threshold');
  return saga.playerRole+' / '+Math.round(saga.playerImpact)+' impact';
 });
 test('V5.0 unrelated world mission does not inherit another saga causal link',()=>{
