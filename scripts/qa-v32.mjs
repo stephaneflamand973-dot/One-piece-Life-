@@ -1306,7 +1306,15 @@ test('V5.0 Life Director can naturally carry a life from bond to parenthood',()=
 
 
 test('V5.0 career distinctions reward consequential missions',()=>{
-  const g=fresh(50070),p=g.player;p.ageMonths=360;q.join('Marine');const rec=q.careerRecord();rec.distinctions=0;rec.legendDistinctions=0;rec.recentResults=[];q.recordCareerMissionEvidence(rec,true,{signature:true,worldGenerated:true},{chance:.55});assert(rec.distinctions===4&&rec.legendDistinctions===4,'signature/world/difficult success did not create four consequential distinction points');assert(rec.recentResults.length===1&&rec.recentResults[0]===1,'recent mission form not recorded');q.recordCareerMissionEvidence(rec,false,{signature:true},{chance:.4});assert(rec.distinctions===3&&rec.legendDistinctions===3,'signature failure did not reduce consequential distinction');return rec.distinctions+' career / '+rec.legendDistinctions+' legendary';
+  const g=fresh(50070),p=g.player;p.ageMonths=360;q.join('Marine');const rec=q.careerRecord();rec.distinctions=0;rec.legendDistinctions=0;rec.recentResults=[];q.recordCareerMissionEvidence(rec,true,{signature:true,worldGenerated:true,danger:72,tier:4},{chance:.55});assert(rec.distinctions===4&&rec.legendDistinctions===4,'signature/exceptional-world/difficult success did not create four consequential distinction points');assert(rec.recentResults.length===1&&rec.recentResults[0]===1,'recent mission form not recorded');q.recordCareerMissionEvidence(rec,false,{signature:true},{chance:.4});assert(rec.distinctions===3&&rec.legendDistinctions===3,'signature failure did not reduce consequential distinction');return rec.distinctions+' career / '+rec.legendDistinctions+' legendary';
+});
+test('V5.0 ordinary world-generated work is not automatically a distinction',()=>{
+  const g=fresh(50073),p=g.player;p.ageMonths=360;q.join('Gouvernement');const rec=q.careerRecord();rec.distinctions=0;rec.legendDistinctions=0;rec.recentResults=[];rec.missionStreak=0;
+  const ordinary={title:'Surveillance locale QA',worldGenerated:true,danger:20,tier:1,sourceType:'actor',sourceId:'missing-qa-actor'};
+  const importance=q.missionImportance(ordinary);assert(importance<58,'ordinary world fixture unexpectedly became exceptional: '+importance);
+  q.recordCareerMissionEvidence(rec,true,ordinary,{chance:.9});
+  assert(rec.distinctions===0&&rec.legendDistinctions===0,'worldGenerated flag alone granted a distinction');
+  return 'importance '+importance+' / no automatic distinction';
 });
 test('V5.0 senior review separates recent form from lifetime record',()=>{
   const g=fresh(50071),p=g.player;p.ageMonths=420;q.join('Civil');const rec=q.careerRecord();rec.successes=18;rec.failures=2;rec.distinctions=4;rec.recentResults=[1,1,1,1,0,0,0,0];rec.momentum=0;const review=q.careerPerformanceReview(rec,3);assert(review.successRate>.85,'lifetime fixture wrong');assert(review.recentRate<review.recentRequired,'recent form fixture wrong');assert(!review.met,'stale lifetime record bypassed recent form');return Math.round(review.successRate*100)+'% lifetime / '+Math.round(review.recentRate*100)+'% recent';
