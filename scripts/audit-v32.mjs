@@ -68,7 +68,7 @@ function qaTuneProfile(p,profile){
 function qaMissionPick(board,policy){
   if(!board.length)return -1;
   if(policy==='saga-seeker'){
-    const linked=board.map((x,i)=>({x,i,linked:q.missionSagaTarget&&q.missionSagaTarget(x)})).filter(o=>o.x.worldGenerated&&o.linked&&(o.x.chance||0)>=.35);
+    const linked=board.map((x,i)=>({x,i,linked:q.missionSagaTarget&&q.missionSagaTarget(x)})).filter(o=>o.x.worldGenerated&&o.linked);
     const decisive=linked.filter(o=>(o.x.tier||0)>=4&&(o.x.importance||0)>=72).sort((a,b)=>(b.x.importance||0)-(a.x.importance||0)||(b.x.chance||0)-(a.x.chance||0));
     if(decisive.length)return decisive[0].i;
     const continuity=linked.filter(o=>o.x.sourceType==='saga'||(o.x.importance||0)>=58).sort((a,b)=>(b.x.importance||0)-(a.x.importance||0)||(b.x.chance||0)-(a.x.chance||0));
@@ -584,6 +584,8 @@ let postCareerRows=[],postCareerProfiles=[];
     avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
     selectedSagaMissions:rows.reduce((a,x)=>a+(x.sagaLinkedMissions||0),0),
     selectedSagaCareerShare:+(rows.filter(x=>(x.sagaLinkedMissions||0)>0).length/rows.length).toFixed(2),
+    causalDecisiveCareers:rows.filter(x=>(x.sagaLinkedMissions||0)>0&&x.recognition&&(x.recognition.decisiveSagas||0)>0).length,
+    causalDecisiveCareerShare:+(rows.filter(x=>(x.sagaLinkedMissions||0)>0&&x.recognition&&(x.recognition.decisiveSagas||0)>0).length/rows.length).toFixed(2),
     selectedDecisiveMissions:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveCandidates||0),0),
     selectedDecisiveCareerShare:+(rows.filter(x=>(x.sagaLinkedDecisiveCandidates||0)>0).length/rows.length).toFixed(2),
     decisiveSagaShare:+(rows.filter(x=>x.recognition&&(x.recognition.decisiveSagas||0)>0).length/rows.length).toFixed(2),
@@ -593,6 +595,7 @@ let postCareerRows=[],postCareerProfiles=[];
   };
   const ds=metrics.v50ChosenDecisiveSagaStress;
   if(ds.selectedSagaMissions<1)throw new Error('V5.0 chosen decisive saga path never selects a causally linked saga mission');
+  if(ds.causalDecisiveCareers<1)throw new Error('V5.0 chosen saga pursuit never turns a linked mission career into a decisive saga');
   if(ds.decisiveSagaShare<=0)throw new Error('V5.0 chosen decisive saga path cannot produce a decisive saga');
   if(ds.decisiveSagaShare>.50)throw new Error('V5.0 chosen decisive saga path became too automatic: '+ds.decisiveSagaShare);
   if(ds.survival<.50)throw new Error('V5.0 chosen decisive saga path became excessively lethal: '+ds.survival);

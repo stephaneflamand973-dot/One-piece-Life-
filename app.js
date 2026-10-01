@@ -1882,8 +1882,8 @@ function registerPlayerSagaImpact(kind,source,amount,targetSagaId){
 function playerSagaPresence(){
  var p=game.player,ws=game.world.worldState||{},sagas=(ws.worldSagas||[]).filter(function(s){return s.status==='active'&&s.region===p.region});sagas.forEach(function(s){s.playerPresenceMonths=(s.playerPresenceMonths||0)+1;s.playerPeakPower=Math.max(s.playerPeakPower||0,Math.round(power()));s.playerFaction=p.faction;if(!s.playerRole)s.playerRole='present';var aligned=s.a===p.faction||s.b===p.faction;s.playerAlignment=aligned?'aligned':'independent'})
 }
-function missionSagaTarget(m){
- if(!m||!m.worldGenerated)return null;var p=game.player,w=game.world,ws=w.worldState||{},allSagas=(ws.worldSagas||[]).filter(function(s){return s.status==='active'}),sagas=allSagas.filter(function(s){return s.region===p.region}),source=null;
+function missionSagaTargetFor(m,p,w){
+ if(!m||!m.worldGenerated||!p||!w)return null;var ws=w.worldState||{},allSagas=(ws.worldSagas||[]).filter(function(s){return s.status==='active'}),sagas=allSagas.filter(function(s){return s.region===p.region}),source=null;
  if(m.sagaId)return allSagas.find(function(s){return s.id===m.sagaId})||null;
  if(m.sourceType==='saga')return sagas.find(function(s){return s.id===m.sourceId})||null;
  if(m.sourceType==='conflict')source=(w.conflicts||[]).find(function(x){return x.id===m.sourceId});
@@ -1898,6 +1898,7 @@ function missionSagaTarget(m){
  }).filter(function(x){return x.score>=2}).sort(function(a,b){return b.score-a.score});
  return ranked.length?ranked[0].s:null
 }
+function missionSagaTarget(m){return missionSagaTargetFor(m,game.player,game.world)}
 function factionCareerLegacy(){
  var p=game.player,f=p.faction||'Civil',v=0;
  if(f==='Pirates')v=Math.min(18,Math.log10(Math.max(1,(p.bounty||0)+1))*2.1);
@@ -2307,10 +2308,10 @@ function routineMission(){
 function missionRecommendationScore(m,spec){var fit=m.spec===spec?1:m.spec?-.15:.15,world=m.worldGenerated?.3:0,adaptive=m.adaptive?.04:0,signature=m.signature?.08:0,linked=(m.worldGenerated&&missionSagaTarget(m))?0.18:0,continuity=m.sourceType==='saga'?0.16:0,novel=(m.novelty||1)*.34,safety=(m.chance||0)*1.7,riskPenalty=m.chance<.45?(.45-m.chance)*2.8:0,repeatPenalty=(m.novelty||1)<.10?.48:(m.novelty||1)<.40?.18:0,arc=m.worldGenerated?Math.min(.18,arcPressureFor(m.sourceType,m.sourceId||m.sourceName)/500):0;return safety+fit*.22+world+adaptive+signature+linked+continuity+novel+arc-riskPenalty-repeatPenalty}
 function board(){var p=game.player,a=MISSIONS[p.faction]||MISSIONS.Civil,ri=rankIndex(),spec=p.specialization,adaptive=adaptiveMissionOpportunity();var options=a.filter(function(m){return m.tier<=ri+1&&(!m.spec||m.spec===spec)}).map(function(m){var x={title:m.title,danger:Math.round(m.danger+inf().danger*.22),reward:Math.round(m.reward*(1+ri*.1)),xp:m.xp,tier:m.tier,spec:m.spec||null,months:1+Math.ceil(m.danger/28),worldGenerated:false};x.profile=missionProfile(x).id;return x}).concat(adaptive?[adaptive]:[]).concat(worldMissionOpportunities());options.forEach(function(x){x.approach=missionProfile(x).config.label;x.chance=missionChance(x);x.novelty=missionNoveltyScore(x);x.importance=missionImportance(x);x.stakes=missionStakes(x);x.signature=x.importance>=58;x.guidance=missionGuidance(x);x.recommendationScore=missionRecommendationScore(x,spec)});if(!options.some(function(x){return x.chance>=.45})){var routine=routineMission();routine.approach=missionProfile(routine).config.label;routine.chance=missionChance(routine);routine.novelty=.7;routine.importance=18;routine.stakes='Routine';routine.signature=false;routine.guidance=missionGuidance(routine);routine.recommendationScore=missionRecommendationScore(routine,spec)+.15;options.push(routine)}options.sort(function(x,y){return y.recommendationScore-x.recommendationScore||y.chance-x.chance||y.novelty-x.novelty||x.tier-y.tier});var chosen=[],safeOptions=options.filter(function(x){return x.chance>=.45}),topSafe=safeOptions.reduce(function(a,x){return Math.max(a,x.chance||0)},0),safePool=safeOptions.filter(function(x){var linked=x.worldGenerated&&missionSagaTarget(x);return x.chance>=topSafe-(linked?0.14:0.08)&&(x.novelty||1)>.10}),safeBest=(safePool.length?safePool:safeOptions).sort(function(x,y){return y.recommendationScore-x.recommendationScore||y.chance-x.chance})[0]||null,worldBest=options.find(function(x){return x.worldGenerated}),adaptiveBest=options.find(function(x){return x.adaptive});function addChoice(x){if(x&&chosen.indexOf(x)<0&&chosen.length<3)chosen.push(x)}addChoice(safeBest);addChoice(worldBest);addChoice(adaptiveBest);options.forEach(addChoice);chosen.sort(function(x,y){return y.recommendationScore-x.recommendationScore});var safest=chosen.reduce(function(a,x){return Math.max(a,x.chance||0)},0),recommendable=chosen.filter(function(x){var linked=x.worldGenerated&&missionSagaTarget(x);return x.chance>=.45&&x.chance>=safest-(linked?0.14:0.08)}).sort(function(x,y){return y.recommendationScore-x.recommendationScore||y.chance-x.chance})[0]||null;return chosen.map(function(x,i){x.id=i;x.recommended=!!recommendable&&x===recommendable;return x})}
 function migrateWorldMissionSource(g,w){
- var m=g&&g.mission;if(!m||!m.worldGenerated||m.sourceType!=='conflict')return m;
- var sid=String(m.sourceId||'');if(sid.indexOf('|')<0)return m;var parts=sid.split('|');
- var matches=(w.conflicts||[]).filter(function(x){return x.status==='active'&&x.location===parts[0]&&x.attacker===parts[1]&&x.defender===parts[2]});
- m.sourceId=matches.length===1?matches[0].id:null;return m
+ var m=g&&g.mission;if(!m||!m.worldGenerated)return m;
+ if(m.sourceType==='conflict'){var sid=String(m.sourceId||'');if(sid.indexOf('|')<0){}else{var parts=sid.split('|'),matches=(w.conflicts||[]).filter(function(x){return x.status==='active'&&x.location===parts[0]&&x.attacker===parts[1]&&x.defender===parts[2]});m.sourceId=matches.length===1?matches[0].id:null}}
+ if(!m.sagaId){var target=missionSagaTargetFor(m,g.player,w);if(target)m.sagaId=target.id}
+ return m
 }
 function applyWorldMissionOutcome(m,success){
  if(!m||!m.worldGenerated)return;var w=game.world;

@@ -920,6 +920,33 @@ test('V2.5 migration neutralizes legacy conflict source when original conflict i
 });
 
 
+
+test('V5.0 migration backfills pending saga mission causality without schema bump',()=>{
+  let g=fresh(14114),p=g.player;p.ageMonths=300;
+  const source='qa-migration-war',saga=q.startWorldSaga('war',p.region,'Marine','Pirates',source);
+  const cf={id:'migration-saga-conflict',location:p.island,region:p.region,attacker:'Marine',defender:'Pirates',intensity:72,months:8,status:'active',source:'qa',warId:source};
+  g.world.conflicts=[cf];
+  g.mission={title:'Intervention héritée',danger:62,reward:20000,xp:30,tier:4,spec:null,profile:'mixed',remaining:2,worldGenerated:true,sourceType:'conflict',sourceId:cf.id,sourceName:p.island,importance:72,signature:true};
+  g.version=28;
+  g=q.migrate(JSON.parse(JSON.stringify(g)));
+  assert(g.version===28,'pending saga migration changed GameState version');
+  assert(g.mission.sagaId===saga.id,'pending linked mission lost its saga during V28 migration');
+  q.setGame(g);g.world.conflicts=[];
+  const target=q.missionSagaTarget(g.mission);
+  assert(target&&target.id===saga.id,'migrated saga id did not preserve causality after source conflict vanished');
+  return 'GameState 28 / '+g.mission.sagaId;
+});
+test('V5.0 migration does not invent saga causality for unrelated pending work',()=>{
+  let g=fresh(14115),p=g.player;p.ageMonths=300;
+  q.startWorldSaga('war',p.region,'Marine','Pirates','qa-unrelated-war');
+  const cf={id:'unrelated-migration-conflict',location:p.island,region:p.region,attacker:'Civil',defender:'Chasseur de primes',intensity:60,months:4,status:'active',source:'qa',warId:'different-war'};
+  g.world.conflicts=[cf];
+  g.mission={title:'Travail sans lien',danger:45,reward:10000,xp:20,tier:2,spec:null,profile:'mixed',remaining:2,worldGenerated:true,sourceType:'conflict',sourceId:cf.id,sourceName:p.island};
+  g=q.migrate(JSON.parse(JSON.stringify(g)));
+  assert(!g.mission.sagaId,'unrelated pending mission gained a false saga link');
+  return 'no false saga backfill';
+});
+
 test('V2.5 NPC career chance respects trajectory and seniority',()=>{
   const g=fresh(14109),r=q.createRelation('ami');r.npcAgeMonths=300;r.npcPower=55;r.npcAmbition='Explorer le monde';r.careerLevel=2;r.npcTrajectory='Ascension';const rise=q.npcCareerPromotionChance(r);
   r.npcTrajectory='Déclin';const decline=q.npcCareerPromotionChance(r);r.npcTrajectory='Stable';r.careerLevel=5;const senior=q.npcCareerPromotionChance(r);
