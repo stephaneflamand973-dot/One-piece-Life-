@@ -1,8 +1,8 @@
 (function(){
 'use strict';
-/* V5.2 LIVING POWER WORLD */
+/* V5.3 LIVING CREWS & ORGANIZATIONS */
 var $=function(s){return document.querySelector(s)},$$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
-var GAME_RELEASE='V5.2 Living Power World',game=null,slot=1,mode='destiny',majorOnly=false,timelineExpanded=false,backupMode='export',P='opl-v05-';
+var GAME_RELEASE='V5.3 Living Crews & Organizations',game=null,slot=1,mode='destiny',majorOnly=false,timelineExpanded=false,backupMode='export',P='opl-v05-';
 var ORIG=['East Blue','North Blue','West Blue','South Blue'],REG=ORIG.concat(['Grand Line','New World']);
 var ST=['Force','Vitesse','Agilité','Endurance','Résistance','Réflexes','Discipline','Volonté'];
 var SK=['Combat','Sabre','Tir','Navigation','Médecine','Commandement','Discrétion','Science'];
