@@ -339,7 +339,7 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y40.avgSaveKB>350||y40.maxSaveKB>450)throw new Error('V5.0 forty-year save growth regression: avg '+y40.avgSaveKB+' KB / max '+y40.maxSaveKB+' KB');
   if(y40.avgPersonalChapters<3)throw new Error('V5.0 forty-year life chapters too dormant: '+y40.avgPersonalChapters);
   if(y40.organicLegendShare<.10)throw new Error('V5.0 organic legends remain effectively unreachable after 40 years: '+y40.organicLegendShare);
-  if(y40.organicLegendShare>.50)throw new Error('V5.0 organic legends became too common after 40 years: '+y40.organicLegendShare);
+  if(y40.organicLegendShare>.34)throw new Error('V5.0 organic legends became too common after 40 years: '+y40.organicLegendShare);
 }
 {
   const rows=[];for(let s=0;s<24;s++)rows.push(qaLongCareer(34500+s,'Pirates','Duelliste','combat',20));
@@ -543,8 +543,6 @@ console.log('V50_DYNASTY_AUDIT '+JSON.stringify(metrics.v50DynastyStress));
   if(v5.narrative.avgPersonalChapters<.5)throw new Error('V5.0 personal chapters too dormant: '+v5.narrative.avgPersonalChapters+' per career');
   if(v5.storage&&v5.storage.avgWorldPartsKB&&v5.storage.avgWorldPartsKB.markets>32)throw new Error('V5.0 market save state remains too large: '+v5.storage.avgWorldPartsKB.markets+' KB');
   if(v5.career.organicLegendShare>.20)throw new Error('V5.0 legends became too automatic by 20 years: '+v5.career.organicLegendShare);
-  if(metrics.v50FortyYearCareer.organicLegendShare<=0)throw new Error('V5.0 earned legends remain unreachable in 40-year careers');
-  if(metrics.v50FortyYearCareer.organicLegendShare>.34)throw new Error('V5.0 earned legends became too common in 40-year careers: '+metrics.v50FortyYearCareer.organicLegendShare);
   if(v5.lifeDirector.avgCareerTurns>1.75)throw new Error('V5.0 career turning points became micromanagement: '+v5.lifeDirector.avgCareerTurns+' turns/20y');
 }
 console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
