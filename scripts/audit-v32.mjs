@@ -186,6 +186,7 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
     chronicleHighlights:Array.isArray(chronicle.highlights)?chronicle.highlights.length:0,
     chronicleChars:(chronicle.summary||'').length,
     chronicleKinds:(chronicle.highlights||[]).reduce((a,x)=>{const k=x.kind||'other';a[k]=(a[k]||0)+1;return a},{}),
+    chronicleFingerprint:(chronicle.highlights||[]).map(x=>(x.kind||'other')+':'+(x.title||'')).sort(),
     retirementChoice:q.careerRecord&&q.careerRecord().retirementChoice||null,
     retired:!!(q.careerRecord&&q.careerRecord().retired),
     retiredMonths:q.careerRecord?(q.careerRecord().retiredMonths||0):0
@@ -564,6 +565,13 @@ let postCareerRows=[],postCareerProfiles=[];
   };
   const pairedAvg=(list,key)=>+(list.reduce((a,x)=>a+(x[key]||0),0)/list.length).toFixed(2);
   const pairedShare=(list,pred)=>+(list.filter(pred).length/list.length).toFixed(2);
+  const fingerprintSimilarity=(a,b)=>{
+    const A=new Set(a||[]),B=new Set(b||[]),union=new Set([].concat(Array.from(A),Array.from(B)));
+    if(!union.size)return 1;
+    let common=0;A.forEach(x=>{if(B.has(x))common++});
+    return common/union.size;
+  };
+  const pairedChronicleSimilarity=rows.map((x,i)=>fingerprintSimilarity(x.chronicleFingerprint,baselineRows[i]&&baselineRows[i].chronicleFingerprint));
   metrics.v50ChoiceConsequenceStress={
     samplePairs:rows.length,
     baseline:{
@@ -581,6 +589,12 @@ let postCareerRows=[],postCareerProfiles=[];
       marriedShare:pairedShare(rows,x=>x.relationshipStatus==='Marié'),
       parentShare:pairedShare(rows,x=>x.children>0),
       avgChronicleHighlights:pairedAvg(rows,'chronicleHighlights')
+    },
+    biography:{
+      avgPairedHighlightSimilarity:+(pairedChronicleSimilarity.reduce((a,x)=>a+x,0)/pairedChronicleSimilarity.length).toFixed(2),
+      changedChronicleShare:+(pairedChronicleSimilarity.filter(x=>x<.999).length/pairedChronicleSimilarity.length).toFixed(2),
+      stronglyDivergedShare:+(pairedChronicleSimilarity.filter(x=>x<=.60).length/pairedChronicleSimilarity.length).toFixed(2),
+      similarities:pairedChronicleSimilarity.map(x=>+x.toFixed(2))
     }
   };
   const cc=metrics.v50ChoiceConsequenceStress;
