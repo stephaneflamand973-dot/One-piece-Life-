@@ -594,7 +594,7 @@ let postCareerRows=[],postCareerProfiles=[];
   const navigator=byProfile['Civil / Navigateur explorateur'];
   const pirateNavigator=byProfile['Pirates / Navigateur explorateur'];
   const administration=byProfile['Gouvernement / Administration stable'];
-  if(pirateNavigator.avgVisitedPlaces<scientist.avgVisitedPlaces+.25)throw new Error('V5.0 pirate navigator no longer travels distinctly more than a prudent scientist: '+pirateNavigator.avgVisitedPlaces+' vs '+scientist.avgVisitedPlaces);
+  if(pirateNavigator.avgVisitedPlaces<scientist.avgVisitedPlaces+1)throw new Error('V5.0 pirate navigator no longer travels distinctly more than a prudent scientist: '+pirateNavigator.avgVisitedPlaces+' vs '+scientist.avgVisitedPlaces);
   if(pirateNavigator.avgAcceptedMoves<=administration.avgAcceptedMoves)throw new Error('V5.0 mobile pirate career no longer receives more accepted moves than stable administration: '+pirateNavigator.avgAcceptedMoves+' vs '+administration.avgAcceptedMoves);
   if(navigator.avgVisitedPlaces<scientist.avgVisitedPlaces)throw new Error('V5.0 explorer navigator became less mobile than prudent scientist: '+navigator.avgVisitedPlaces+' vs '+scientist.avgVisitedPlaces);
   if(administration.avgVisitedPlaces>navigator.avgVisitedPlaces)throw new Error('V5.0 stable administration became more mobile than explorer navigator: '+administration.avgVisitedPlaces+' vs '+navigator.avgVisitedPlaces);

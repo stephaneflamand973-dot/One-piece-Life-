@@ -1380,6 +1380,18 @@ test('V5.0 Life Director preserves player agency on personal choices',()=>{
 test('V5.0 explorer ambition favors genuinely new journey destinations',()=>{
   const g=fresh(50120),p=g.player;p.ageMonths=300;p.skills.Navigation=50;p.ambition='Explorer le monde';Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],50));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');const freshCtx=q.directorTravelContext(d);p.visited.push(d);const known=q.directorTravelContext(d);assert(freshCtx.fresh&&!known.fresh,'fresh destination flag broken');assert(freshCtx.score>known.score+15,'explorer ambition does not meaningfully reward novelty');return (freshCtx.score-known.score).toFixed(1)+' novelty points';
 });
+
+test('V5.0 destination novelty reflects career identity instead of a universal travel bonus',()=>{
+  const g=fresh(50124),p=g.player;p.ageMonths=300;p.skills.Navigation=55;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],50));
+  const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');
+  q.join('Pirates');p.specialization='Navigateur';q.careerRecord().specialization='Navigateur';p.ambition='Explorer le monde';
+  const pirateFresh=q.directorTravelContext(d);p.visited.push(d);const pirateKnown=q.directorTravelContext(d),pirateNovelty=pirateFresh.score-pirateKnown.score;
+  p.visited=p.visited.filter(x=>x!==d);p.faction='Civil';p.career='Civil';p.specialization='Scientifique';p.ambition='Survivre';p.careerRecords.Civil=p.careerRecords.Civil||{xp:0,months:0,rank:'Apprenti',specialization:'Scientifique',successes:0,failures:0,distinctions:0,recentResults:[]};p.careerRecords.Civil.specialization='Scientifique';
+  const scientistFresh=q.directorTravelContext(d);p.visited.push(d);const scientistKnown=q.directorTravelContext(d),scientistNovelty=scientistFresh.score-scientistKnown.score;
+  assert(pirateNovelty>=scientistNovelty+12,'career identity barely changes destination novelty: '+pirateNovelty.toFixed(1)+' vs '+scientistNovelty.toFixed(1));
+  return 'pirate navigator +'+pirateNovelty.toFixed(1)+' novelty vs scientist +'+scientistNovelty.toFixed(1);
+});
+
 test('V5.0 journey director penalizes recent backtracking without banning causal returns',()=>{
   const g=fresh(50121),p=g.player;p.ageMonths=300;p.skills.Navigation=50;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],50));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');p.visited.push(d);const before=q.directorTravelContext(d);q.recordLifeDirector('mobility','QA move',{destination:d});const after=q.directorTravelContext(d);assert(after.backtrackPenalty>0,'recent destination has no backtrack penalty');assert(after.score<before.score,'recent backtracking was not discouraged');assert(Number.isFinite(after.score),'causal return became invalid');return before.score.toFixed(1)+' -> '+after.score.toFixed(1);
 });
