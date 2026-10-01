@@ -1092,6 +1092,16 @@ test('V5.0 personal chapters merge related life beats',()=>{
 test('V5.0 meaningful personal chapter closes into bounded memory',()=>{
   const g=fresh(50041),p=g.player;p.ageMonths=300;const a=q.signalPersonalChapter('family','Foyer avec Nami',22,'marriage','rel-x');p.ageMonths+=12;q.signalPersonalChapter('family','Foyer avec Nami',24,'child','rel-x');p.ageMonths+=31;q.personalChapterTick(1);assert(p.lifeDirector.activeChapters.length===0,'stale chapter stayed active');assert(p.lifeDirector.chapterHistory.length===1,'chapter was not archived');assert(g.loop.signatureMoments.some(x=>x.kind==='life-chapter'),'strong life chapter did not become a signature memory');return p.lifeDirector.chapterHistory[0].title;
 });
+test('V5.0 active personal chapters close after five years even with recurring minor beats',()=>{
+  const g=fresh(50043),p=g.player;p.ageMonths=300;
+  q.signalPersonalChapter('journey','Longue période QA',3,'beat-0','long-period');
+  for(let i=1;i<=4;i++){p.ageMonths=300+i*12;q.signalPersonalChapter('journey','Longue période QA',3,'beat-'+i,'long-period');q.personalChapterTick(1);assert(p.lifeDirector.activeChapters.some(x=>x.key==='journey:long-period'),'chapter closed before five-year horizon')}
+  p.ageMonths=360;q.personalChapterTick(1);
+  assert(!p.lifeDirector.activeChapters.some(x=>x.key==='journey:long-period'),'chapter remained open beyond five years');
+  const archived=p.lifeDirector.chapterHistory.find(x=>x.key==='journey:long-period');
+  assert(archived&&archived.reason==='fin de période','five-year closure did not preserve a clear reason');
+  return archived.reason+' / '+archived.duration+'m';
+});
 test('V5.0 personal chapter state remains bounded',()=>{
   const g=fresh(50042),p=g.player;p.ageMonths=300;for(let i=0;i<35;i++){const ch=q.signalPersonalChapter('journey','Voyage '+i,25,'qa:'+i,'subject-'+i);p.ageMonths+=31;q.personalChapterTick(1)}assert(p.lifeDirector.activeChapters.length<=3,'too many active personal chapters');assert(p.lifeDirector.chapterHistory.length<=20,'personal chapter history is unbounded');return p.lifeDirector.chapterHistory.length+' archived';
 });

@@ -676,7 +676,7 @@ function signalPersonalChapter(kind,title,weight,source,subject){
  ch.title=title||ch.title;ch.score=cl((ch.score||0)+Math.max(0,weight||1),0,100);ch.beats=(ch.beats||0)+1;ch.lastAge=p.ageMonths;if(source){ch.sources.push(source);ch.sources=ch.sources.slice(-8)}return ch
 }
 function personalChapterTick(m){
- var p=game.player,d=migrateLifeDirector(p);d.activeChapters.slice().forEach(function(ch){var idle=p.ageMonths-(ch.lastAge||p.ageMonths);if((ch.score>=70&&ch.beats>=5)||idle>=30)closePersonalChapter(ch,ch.score>=70?'accomplissement':'transition')})
+ var p=game.player,d=migrateLifeDirector(p);d.activeChapters.slice().forEach(function(ch){var idle=p.ageMonths-(ch.lastAge||p.ageMonths),span=p.ageMonths-(ch.startedAge||p.ageMonths);if((ch.score>=70&&ch.beats>=5)||idle>=30||span>=60)closePersonalChapter(ch,ch.score>=70?'accomplissement':span>=60?'fin de période':'transition')})
 }
 function visiblePersonalChapter(){
  var d=migrateLifeDirector(game.player);return(d.activeChapters||[]).filter(function(ch){return(ch.beats||0)>=2&&(ch.score||0)>=20}).sort(function(a,b){return(b.score||0)-(a.score||0)})[0]||null
