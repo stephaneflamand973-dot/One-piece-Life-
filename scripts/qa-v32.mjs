@@ -3173,6 +3173,11 @@ test('V5.3 joined crew remains world-led without autonomous travel away from pla
  assert(!pool.includes('Voyager'),'joined crew can autonomously sail away from player');assert(pool.includes('S’entraîner'),'joined crew lost autonomous internal activity');return pool.join(' / ');
 });
 
+test('V5.3 inactive crew memory compacts without losing lineage',()=>{
+ const g=fresh(54108),c=g.world.crews[0];q.normalizeWorldCrew(c,g);c.generation=3;c.parentCrewId='ancestor-qa';c.status='destroyed';c.second={name:'Old second',power:40,loyalty:50,status:'active'};c.notables=Array.from({length:6},(_,i)=>({id:'n'+i,name:'N'+i,power:30+i,loyalty:50,status:'active'}));c.history=Array.from({length:16},(_,i)=>({year:i,month:0,type:'qa',text:'event '+i}));q.normalizeWorldCrew(c,g);
+ assert(c.generation===3&&c.parentCrewId==='ancestor-qa','lineage lost during compaction');assert(c.history.length<=3,'inactive history not compacted');assert(c.notables.length<=1,'inactive notable roster not compacted');assert(c.second===null,'inactive second-in-command detail retained');return c.history.length+' history / '+c.notables.length+' notable';
+});
+
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
 
 const failed=results.filter(r=>r.status==='FAIL');
