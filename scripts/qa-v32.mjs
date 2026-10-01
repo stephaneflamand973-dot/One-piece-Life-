@@ -71,7 +71,7 @@ window.__qa={
  simulateEconomy:simulateEconomy,initWorldEconomy:initWorldEconomy,initialMarket:initialMarket,cargoUsed:cargoUsed,cargoCapacity:cargoCapacity,cargoBookValue:cargoBookValue,blackMarketRisk:blackMarketRisk,inspectSmugglingAtArrival:inspectSmugglingAtArrival,
  releasePlayerFruits:releasePlayerFruits,checkAchievements:checkAchievements,chargeMoney:chargeMoney,serviceDebt:serviceDebt,netWorth:netWorth,
  explorationSite:explorationSite,islandProfile:islandProfile,discoveryPool:discoveryPool,registerDiscovery:registerDiscovery,discoverByKnowledge:discoverByKnowledge,explorationTick:explorationTick,migrateExploration:migrateExploration,currentRumor:currentRumor,learnLocalRumor:learnLocalRumor,routeEstimate:routeEstimate,chooseSeaCondition:chooseSeaCondition,seaJourneyTick:seaJourneyTick,travel:travel,beginJourney:beginJourney,settleCareerNetwork:settleCareerNetwork,setExplorationActivity:setExplorationActivity,renderExploration:renderExploration,renderJourney:renderJourney,renderCodexExploration:renderCodexExploration,
- defaultStoryEngine:defaultStoryEngine,migrateStoryEngine:migrateStoryEngine,activeStories:activeStories,awaitingStory:awaitingStory,storyNoveltyWeight:storyNoveltyWeight,storyEligibleTypes:storyEligibleTypes,startStory:startStory,maybeStartStory:maybeStartStory,storyPrompt:storyPrompt,storyChoices:storyChoices,storyChoice:storyChoice,storyTick:storyTick,closeStory:closeStory,showStoryDecision:showStoryDecision,renderStories:renderStories,die:die,
+ defaultStoryEngine:defaultStoryEngine,migrateStoryEngine:migrateStoryEngine,activeStories:activeStories,awaitingStory:awaitingStory,storyNoveltyWeight:storyNoveltyWeight,storyEligibleTypes:storyEligibleTypes,startStory:startStory,maybeStartStory:maybeStartStory,storyPrompt:storyPrompt,storyChoices:storyChoices,storyChoice:storyChoice,storyTick:storyTick,closeStory:closeStory,showStoryDecision:showStoryDecision,renderStories:renderStories,die:die,deathModal:deathModal,
  firstRank:firstRank,rankIndex:rankIndex,nextRank:nextRank,inf:inf,infStatic:infStatic,req:req,
  constants:{PL:PL,REG:REG,ST:ST,SK:SK,TRADE_GOODS:TRADE_GOODS,SHIP_TIERS:SHIP_TIERS,ACHIEVEMENTS:ACHIEVEMENTS,MISSIONS:MISSIONS,MISSION_TITLE_PROFILES:MISSION_TITLE_PROFILES}
 };
@@ -1453,6 +1453,42 @@ test('V5.0 death modal binds multi-heir choices as a real node list',()=>{
   return 'heir bindings safe';
 });
 
+
+
+test('V5.0 succession stays unavailable when no active heir exists',()=>{
+  const g=fresh(50142),p=g.player,gen=g.dynasty.generation,name=p.name;
+  p.children=[
+    {id:'inactive-heir',name:'Inactive QA',ageMonths:300,status:'inactive',bond:99},
+    {id:'dead-heir',name:'Dead QA',ageMonths:280,status:'dead',bond:99}
+  ];
+  assert(q.heirCandidates().length===0,'inactive or dead child leaked into succession');
+  q.continueWithHeir();
+  assert(g.dynasty.generation===gen&&g.player.name===name,'succession advanced without a valid heir');
+  return 'no valid heir';
+});
+test('V5.0 single valid heir is the only continuation target',()=>{
+  const g=fresh(50143),p=g.player;p.ageMonths=520;
+  p.children=[
+    {id:'older-inactive',name:'Older Inactive',ageMonths:300,birthplace:p.island,birthRegion:p.region,race:p.race,status:'inactive',bond:95},
+    {id:'single-active',name:'Single Active',ageMonths:180,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:60},
+    {id:'dead-younger',name:'Dead Younger',ageMonths:120,birthplace:p.island,birthRegion:p.region,race:p.race,status:'dead',bond:100}
+  ];
+  const kids=q.heirCandidates();assert(kids.length===1&&kids[0].id==='single-active','single active heir was not isolated');
+  q.continueWithHeir();
+  assert(g.player.name==='Single Active','single active heir was not selected');
+  return g.player.name;
+});
+test('V5.0 death modal exposes every valid heir beyond five',()=>{
+  const g=fresh(50144),p=g.player;p.ageMonths=600;g.death={cause:'QA succession'};g.alive=false;
+  p.children=Array.from({length:7},(_,i)=>({id:'heir-'+i,name:'Heir '+(i+1),ageMonths:240-i*6,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:60+i}));
+  assert(q.heirCandidates().length===7,'fixture did not create seven valid heirs');
+  q.deathModal();
+  const html=fakeElement('#heirChoices').innerHTML;
+  const rendered=(html.match(/data-heir=/g)||[]).length;
+  assert(rendered===7,'death modal hid valid heirs: rendered '+rendered+'/7');
+  assert(html.includes('Heir 7'),'youngest valid heir is still hidden from selection');
+  return rendered+' heir choices visible';
+});
 
 test('V5.0 late-career crossroads appears only after a substantial career',()=>{
   const g=fresh(50110),p=g.player;p.ageMonths=659;q.join('Marine');p.rank='Commandant';const rec=q.careerRecord();rec.rank='Commandant';rec.months=360;rec.distinctions=6;
