@@ -82,7 +82,7 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
   if(typeof configure==='function')configure(g,p);
   p.activity='Carrière';
   const start=p.ageMonths,target=start+years*12;
-  let clicks=0,lastMissionAge=-999,started=0,routine=0,adaptive=0,worldGenerated=0,signature=0;
+  let clicks=0,lastMissionAge=-999,started=0,routine=0,adaptive=0,worldGenerated=0,signature=0,sagaLinkedMissions=0,sagaLinkedDecisiveCandidates=0,sagaLinkedExceptionalCandidates=0,maxSagaLinkedImportance=0;
   const titles=[],guidance={},chances=[],heatSamples=[],advanceTextChars=[];const planCounts={},interruptions={pending:0,story:0,director:0,byType:{},choices:{}};let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
   while(p.ageMonths<target&&clicks<years*18&&g.alive){
     qaResolveInterruptions(g,interruptions,choicePolicy);
@@ -91,6 +91,7 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
       const b=q.board(),ix=qaMissionPick(b);
       if(ix>=0){
         const m=b[ix];titles.push(m.title);started++;if(m.routine)routine++;if(m.adaptive)adaptive++;if(m.worldGenerated)worldGenerated++;if(m.signature)signature++;
+        if(m.worldGenerated){const linked=q.missionSagaTarget&&q.missionSagaTarget(m);if(linked){sagaLinkedMissions++;maxSagaLinkedImportance=Math.max(maxSagaLinkedImportance,m.importance||0);if((m.importance||0)>=72&&(m.tier||0)>=4)sagaLinkedDecisiveCandidates++;else if((m.importance||0)>=58)sagaLinkedExceptionalCandidates++}}
         guidance[m.guidance]=(guidance[m.guidance]||0)+1;chances.push(m.chance||0);
         q.startMission(ix);lastMissionAge=p.ageMonths;
       }
@@ -123,6 +124,7 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
     missions:started,missionPerYear:+(started/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
     uniqueTitles:new Set(titles).size,repeatShare:started?+(repeated/started).toFixed(2):0,consecutiveRepeatShare:started?+(consecutive/started).toFixed(2):0,
     routineShare:started?+(routine/started).toFixed(2):0,adaptiveShare:started?+(adaptive/started).toFixed(2):0,worldShare:started?+(worldGenerated/started).toFixed(2):0,signatureShare:started?+(signature/started).toFixed(2):0,
+    sagaLinkedMissions,sagaLinkedDecisiveCandidates,sagaLinkedExceptionalCandidates,maxSagaLinkedImportance,
     avgChance:chances.length?+(chances.reduce((a,b)=>a+b,0)/chances.length).toFixed(2):0,guidance,
     activeArcs:(g.loop.arcs||[]).length,arcHistoryDelta:(g.loop.arcHistory||[]).length-arcTransitions0,arcPeak,
     founding:(g.loop.foundingMemories||[]).length,
@@ -419,6 +421,21 @@ let postCareerRows=[],postCareerProfiles=[];
     decisiveSagaShare:+(rows.filter(x=>x.recognition&&(x.recognition.decisiveSagas||0)>0).length/rows.length).toFixed(2),
     avgResolvedPlayerSagas:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.resolvedSagas||0),0)/rows.length).toFixed(2),
     avgDecisiveSagas:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.decisiveSagas||0),0)/rows.length).toFixed(2),
+    avgSagaLinkedMissions:+(rows.reduce((a,x)=>a+(x.sagaLinkedMissions||0),0)/rows.length).toFixed(2),
+    sagaLinkedDecisiveCandidateShare:+(rows.filter(x=>(x.sagaLinkedDecisiveCandidates||0)>0).length/rows.length).toFixed(2),
+    totalSagaLinkedDecisiveCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveCandidates||0),0),
+    totalSagaLinkedExceptionalCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedExceptionalCandidates||0),0),
+    maxSagaLinkedImportance:Math.max(...rows.map(x=>x.maxSagaLinkedImportance||0)),
+    avgSagaLinkedMissions:+(rows.reduce((a,x)=>a+(x.sagaLinkedMissions||0),0)/rows.length).toFixed(2),
+    sagaLinkedDecisiveCandidateShare:+(rows.filter(x=>(x.sagaLinkedDecisiveCandidates||0)>0).length/rows.length).toFixed(2),
+    totalSagaLinkedDecisiveCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveCandidates||0),0),
+    totalSagaLinkedExceptionalCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedExceptionalCandidates||0),0),
+    maxSagaLinkedImportance:Math.max(...rows.map(x=>x.maxSagaLinkedImportance||0)),
+    avgSagaLinkedMissions:+(rows.reduce((a,x)=>a+(x.sagaLinkedMissions||0),0)/rows.length).toFixed(2),
+    sagaLinkedDecisiveCandidateShare:+(rows.filter(x=>(x.sagaLinkedDecisiveCandidates||0)>0).length/rows.length).toFixed(2),
+    totalSagaLinkedDecisiveCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedDecisiveCandidates||0),0),
+    totalSagaLinkedExceptionalCandidates:rows.reduce((a,x)=>a+(x.sagaLinkedExceptionalCandidates||0),0),
+    maxSagaLinkedImportance:Math.max(...rows.map(x=>x.maxSagaLinkedImportance||0)),
     organicLegendCount:rows.filter(x=>x.endgame&&x.endgame.organic).length,
     organicLegendShare:+(rows.filter(x=>x.endgame&&x.endgame.organic).length/rows.length).toFixed(2),
     nearOrganicLegendShare:+(rows.filter(x=>(x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0)>=35).length/rows.length).toFixed(2),
