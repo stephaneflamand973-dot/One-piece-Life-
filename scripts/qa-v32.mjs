@@ -1954,6 +1954,11 @@ test('V5.0 life chronicle preserves historical parenthood when no heir remains a
 test('V5.0 life chronicle preserves a meaningful crew or organization',()=>{
   const g=fresh(50160),p=g.player;p.ageMonths=360;p.factionRep.Pirates=100;q.join('Pirates');p.organization.name='Équipage QA';p.organization.authority='leader';p.organization.renown=55;p.organization.members.push({id:'qa-org-extra',name:'Membre QA',status:'active',power:35,loyalty:70,morale:70});const out=q.lifeChronicle(p);assert(out.organization&&out.organization.name==='Équipage QA','meaningful organization missing from chronicle');assert(out.summary.includes('Équipage QA'),'organization absent from chronicle summary');return out.organization.name+' / '+out.organization.members+' membres';
 });
+test('V5.0 life chronicle preserves a major rival after that rival becomes inactive',()=>{
+  const g=fresh(501621),p=g.player;p.ageMonths=540;
+  const rival=q.createRelation('rival');rival.name='Ancienne Némésis QA';rival.rivalry=96;rival.nemesisRecognized=true;rival.rivalWins=2;rival.rivalLosses=2;rival.status='dead';
+  const out=q.lifeChronicle(p);assert(out.summary.includes('Ancienne Némésis QA'),'inactive major rival disappeared from life chronicle');assert(out.highlights.some(x=>x.kind==='rivalry'),'inactive major rival lost rivalry highlight');return 'historical rival preserved';
+});
 test('V5.0 life chronicle surfaces decisive journeys rivalries and world sagas compactly',()=>{
   const g=fresh(50162),p=g.player;p.ageMonths=540;p.visited=['Foosha Village','Loguetown','Sabaody','Wano'];p.careerHistory.push({age:'30 ans',type:'relocation',faction:'Civil',to:'Sabaody',source:'life-director'});
   const rival=q.createRelation('rival');rival.name='Némésis QA';rival.rivalry=94;rival.nemesisRecognized=true;rival.status='active';
