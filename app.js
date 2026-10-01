@@ -1118,6 +1118,7 @@ function directorTravelContext(name){
  else if(p.faction==='Chasseur de primes'){score+=(t.controller==='Pirates'?18:0)+(rp.Criminalité||0)*.06+info.danger*.025;reason=t.controller==='Pirates'?'suivre une forte activité pirate':'chercher des contrats dans une zone criminelle'}
  else{score+=(t.stability||55)*.025+(rp.Prospérité||0)*.035;if(sp==='Navigateur'){reason='ouvrir un itinéraire utile à ton activité'}else if(sp==='Scientifique'){reason='étudier un territoire encore peu connu'}else reason='développer ton activité dans une zone prometteuse'}
  if(fresh&&(sp==='Navigateur'||sp==='Navigation'))score+=8;
+ else if(fresh&&(sp==='Traqueur'||sp==='Investigateur'))score+=6;
  else if(fresh&&sp==='Scientifique')score+=2;
  if(p.ambition==='Explorer le monde'&&fresh){score+=10;reason='ouvrir une nouvelle étape de ton voyage'}
  else if(p.ambition==='Faire fortune'){score+=(rp.Prospérité||0)*.025;if((rp.Prospérité||0)>=55)reason='saisir une opportunité économique dans une zone prospère'}

@@ -1392,6 +1392,18 @@ test('V5.0 destination novelty reflects career identity instead of a universal t
   return 'pirate navigator +'+pirateNovelty.toFixed(1)+' novelty vs scientist +'+scientistNovelty.toFixed(1);
 });
 
+
+test('V5.0 bounty-hunting specialties preserve route novelty after profile differentiation',()=>{
+  const g=fresh(50125),p=g.player;p.ageMonths=300;p.skills.Navigation=50;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));
+  const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');
+  q.join('Chasseur de primes');p.specialization='Traqueur';q.careerRecord().specialization='Traqueur';p.ambition='Survivre';
+  const hunterFresh=q.directorTravelContext(d);p.visited.push(d);const hunterKnown=q.directorTravelContext(d),hunterNovelty=hunterFresh.score-hunterKnown.score;
+  p.visited=p.visited.filter(x=>x!==d);p.faction='Civil';p.career='Civil';p.specialization='Scientifique';p.ambition='Survivre';p.careerRecords.Civil=p.careerRecords.Civil||{xp:0,months:0,rank:'Apprenti',specialization:'Scientifique',successes:0,failures:0,distinctions:0,recentResults:[]};p.careerRecords.Civil.specialization='Scientifique';
+  const scientistFresh=q.directorTravelContext(d);p.visited.push(d);const scientistKnown=q.directorTravelContext(d),scientistNovelty=scientistFresh.score-scientistKnown.score;
+  assert(hunterNovelty>=scientistNovelty+4,'hunter route novelty collapsed toward stable scientist behavior: '+hunterNovelty.toFixed(1)+' vs '+scientistNovelty.toFixed(1));
+  return 'hunter +'+hunterNovelty.toFixed(1)+' novelty vs scientist +'+scientistNovelty.toFixed(1);
+});
+
 test('V5.0 journey director penalizes recent backtracking without banning causal returns',()=>{
   const g=fresh(50121),p=g.player;p.ageMonths=300;p.skills.Navigation=50;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],50));const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');p.visited.push(d);const before=q.directorTravelContext(d);q.recordLifeDirector('mobility','QA move',{destination:d});const after=q.directorTravelContext(d);assert(after.backtrackPenalty>0,'recent destination has no backtrack penalty');assert(after.score<before.score,'recent backtracking was not discouraged');assert(Number.isFinite(after.score),'causal return became invalid');return before.score.toFixed(1)+' -> '+after.score.toFixed(1);
 });
