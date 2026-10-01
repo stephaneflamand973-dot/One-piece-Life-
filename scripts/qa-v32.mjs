@@ -1760,6 +1760,15 @@ test('V5.0 life chronicle summarizes earned history without new state',()=>{
   const g=fresh(50100),p=g.player;p.ageMonths=480;q.join('Marine');p.rank='Commandant';p.careerRecords.Marine.rank='Commandant';p.visited=['Loguetown','Water 7','Sabaody'];q.signalPersonalChapter('career','Ascension dans la Marine',28,'qa-promotion','Marine');q.signalPersonalChapter('career','Ascension dans la Marine',24,'qa-command','Marine');const d=p.lifeDirector,ch=d.activeChapters[0];q.closePersonalChapter(ch,'qa');const out=q.lifeChronicle(p);assert(out&&out.summary&&out.summary.includes('Marine'),'chronicle missed career identity');assert(out.visitedCount===3,'chronicle missed journey history');assert(out.chapters.length>=1,'chronicle missed personal chapters');return out.headline+' / '+out.visitedCount+' lieux';
 });
 
+
+test('V5.0 life chronicle never fabricates a career record for an independent life',()=>{
+  const g=fresh(50106),p=g.player;p.ageMonths=300;p.career='Aucune';p.faction='Civil';p.rank='Sans carrière';p.careerRecords={};
+  const before=Object.keys(p.careerRecords).length,out=q.lifeChronicle(p);
+  assert(out.summary.includes('Une vie indépendante'),'independent life lost its career wording');
+  assert(before===0&&Object.keys(p.careerRecords).length===0,'reading the life chronicle fabricated a Civil career record');
+  return '0 career records after chronicle';
+});
+
 test('V5.0 life chronicle preserves significant previous careers but ignores brief detours',()=>{
   const g=fresh(50102),p=g.player;p.ageMonths=600;p.factionRep.Civil=100;p.factionRep.Pirates=100;p.factionRep.Marine=100;
   q.join('Civil');let civil=q.careerRecord();civil.months=180;civil.rank='Maître';civil.successes=18;civil.failures=2;civil.distinctions=4;p.rank='Maître';
