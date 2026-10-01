@@ -259,7 +259,7 @@ let postCareerRows=[],postCareerProfiles=[];
     const avg=k=>+(rows.reduce((a,x)=>a+(x[k]||0),0)/rows.length).toFixed(1);
     const ordered=k=>rows.map(x=>x[k]||0).sort((a,b)=>a-b);
     const median=k=>{const a=ordered(k);return a.length?+a[Math.floor(a.length/2)].toFixed(1):0};
-    const rankSpread={};profiles.forEach(cfg=>{const key=cfg[0]+' / '+cfg[1],rs=rows.filter(x=>x.faction===cfg[0]&&x.spec===cfg[1]);rankSpread[key]=rs.reduce((a,x)=>{a[x.finalRank]=(a[x.finalRank]||0)+1;return a},{})});
+    const rankSpread={};profiles.forEach(cfg=>{const key=cfg[0]+' / '+cfg[1],rs=rows.filter(x=>x.faction===cfg[0]&&x.spec===cfg[1]);rankSpread[key]=rs.reduce((a,x)=>{a[x.finalRank]=(a[x.finalRank]||0)+1;return a},{})});const uniformRankProfiles=profiles.filter(cfg=>Object.keys(rankSpread[cfg[0]+' / '+cfg[1]]||{}).length===1).length;
     metrics.v40PostReleaseAudit={
       sample:rows.length,yearsTarget:20,
       career:{
@@ -270,6 +270,7 @@ let postCareerRows=[],postCareerProfiles=[];
         avgOrganicEvidence:+(rows.reduce((a,x)=>a+(x.recognition&&x.recognition.organicEvidence&&x.recognition.organicEvidence.score||0),0)/rows.length).toFixed(1),
         avgCareerHistory:avg('careerHistory'),
         avgRankVariety:+(profiles.reduce((a,cfg)=>{const key=cfg[0]+' / '+cfg[1];return a+Object.keys(rankSpread[key]||{}).length},0)/profiles.length).toFixed(2),
+        uniformRankProfiles:uniformRankProfiles,
         avgFinalMomentum:avg('careerMomentum'),
         avgMissionSuccessRate:+(rows.reduce((a,x)=>a+(x.careerSuccessRate||0),0)/rows.length).toFixed(2),
         avgRecentMissionRate:+(rows.reduce((a,x)=>a+(x.recentMissionRate||0),0)/rows.length).toFixed(2),
@@ -828,7 +829,8 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
   if(v5.breadth.avgVisitedPlaces<2.5)throw new Error('V5.0 Grand Journey too static: '+v5.breadth.avgVisitedPlaces+' places visited/20y');
   if(v5.personalLife.partneredShare<.15)throw new Error('V5.0 personal life too dormant: '+v5.personalLife.partneredShare+' partnered share');
   if(v5.personalLife.parentShare<=0)throw new Error('V5.0 family legacy never emerged in long careers');
-  if(v5.career.avgRankVariety<1.15)throw new Error('V5.0 career trajectories remain too uniform: '+v5.career.avgRankVariety+' ranks/profile');
+  if(v5.career.avgRankVariety<1.75)throw new Error('V5.0 career trajectories remain too uniform: '+v5.career.avgRankVariety+' ranks/profile');
+  if((v5.career.uniformRankProfiles||0)>2)throw new Error('V5.0 too many career profiles fully converge to one rank: '+v5.career.uniformRankProfiles);
   if(v5.narrative.avgPersonalChapters<2.5)throw new Error('V5.0 personal chapters too dormant: '+v5.narrative.avgPersonalChapters+' per career');
   if(v5.narrative.avgChapterRepeatShare>.25)throw new Error('V5.0 personal chapters became too repetitive: '+v5.narrative.avgChapterRepeatShare);
   if(v5.narrative.maxActiveChapterSpanMonths>72)throw new Error('V5.0 personal chapter span became implausibly long: '+v5.narrative.maxActiveChapterSpanMonths+' months');
