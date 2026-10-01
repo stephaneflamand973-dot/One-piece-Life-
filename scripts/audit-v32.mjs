@@ -119,6 +119,11 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
   const repeatedChapterRecords=chapterHistory.reduce((n,x)=>n+((chapterTitleCounts[x.title||'Sans titre']||0)>1?1:0),0);
   const repeatedChapterTitles=Object.entries(chapterTitleCounts).filter(([,count])=>count>1).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([title,count])=>({title,count}));
   const repeatedChapterKinds=chapterHistory.reduce((a,x)=>{if((chapterTitleCounts[x.title||'Sans titre']||0)>1){const k=x.kind||'other';a[k]=(a[k]||0)+1}return a},{});
+  const meaningfulChapterHistory=chapterHistory.filter(x=>(x.beats||0)>=2&&(x.score||0)>=20);
+  const meaningfulChapterTitleCounts=meaningfulChapterHistory.reduce((a,x)=>{const k=x.title||'Sans titre';a[k]=(a[k]||0)+1;return a},{});
+  const repeatedMeaningfulChapterRecords=meaningfulChapterHistory.reduce((n,x)=>n+((meaningfulChapterTitleCounts[x.title||'Sans titre']||0)>1?1:0),0);
+  const repeatedMeaningfulChapterTitles=Object.entries(meaningfulChapterTitleCounts).filter(([,count])=>count>1).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([title,count])=>({title,count}));
+  const repeatedMeaningfulChapterKinds=meaningfulChapterHistory.reduce((a,x)=>{if((meaningfulChapterTitleCounts[x.title||'Sans titre']||0)>1){const k=x.kind||'other';a[k]=(a[k]||0)+1}return a},{});
   const chronicle=q.lifeChronicle(p);
   return {
     faction,spec,profile,choicePolicy,alive:g.alive,age:+(p.ageMonths/12).toFixed(1),years:+((p.ageMonths-start)/12).toFixed(1),
@@ -198,6 +203,10 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
     chapterRepeatShare:chapterHistory.length?+(repeatedChapterRecords/chapterHistory.length).toFixed(2):0,
     chapterRepeatTitles:repeatedChapterTitles,
     chapterRepeatKinds:repeatedChapterKinds,
+    meaningfulPersonalChapters:meaningfulChapterHistory.length,
+    meaningfulChapterRepeatShare:meaningfulChapterHistory.length?+(repeatedMeaningfulChapterRecords/meaningfulChapterHistory.length).toFixed(2):0,
+    meaningfulChapterRepeatTitles:repeatedMeaningfulChapterTitles,
+    meaningfulChapterRepeatKinds:repeatedMeaningfulChapterKinds,
     chapterKinds,
     maxActiveChapterIdleMonths:activeChapterList.length?+Math.max(...activeChapterList.map(x=>Math.max(0,p.ageMonths-(x.lastAge==null?p.ageMonths:x.lastAge)))).toFixed(1):0,
     maxActiveChapterSpanMonths:activeChapterList.length?+Math.max(...activeChapterList.map(x=>Math.max(0,p.ageMonths-(x.startedAge==null?p.ageMonths:x.startedAge)))).toFixed(1):0,
@@ -325,6 +334,8 @@ let postCareerRows=[],postCareerProfiles=[];
         avgChapterDurationMonths:avg('chapterAvgDuration'),
         avgChapterSignatureShare:+(rows.reduce((a,x)=>a+(x.chapterSignatureShare||0),0)/rows.length).toFixed(2),
         avgChapterRepeatShare:+(rows.reduce((a,x)=>a+(x.chapterRepeatShare||0),0)/rows.length).toFixed(2),
+        avgMeaningfulChapterRepeatShare:+(rows.reduce((a,x)=>a+(x.meaningfulChapterRepeatShare||0),0)/rows.length).toFixed(2),
+        avgMeaningfulPersonalChapters:avg('meaningfulPersonalChapters'),
         chapterKinds:rows.reduce((a,x)=>{Object.entries(x.chapterKinds||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
         maxActiveChapterIdleMonths:Math.max(...rows.map(x=>x.maxActiveChapterIdleMonths||0)),
         maxActiveChapterSpanMonths:Math.max(...rows.map(x=>x.maxActiveChapterSpanMonths||0)),
@@ -637,6 +648,10 @@ let postCareerRows=[],postCareerProfiles=[];
     avgChapterRepeatShare:+(rows.reduce((a,x)=>a+(x.chapterRepeatShare||0),0)/rows.length).toFixed(2),
     chapterRepeatKinds:rows.reduce((a,x)=>{Object.entries(x.chapterRepeatKinds||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
     chapterRepeatTitles:Object.entries(rows.reduce((a,x)=>{(x.chapterRepeatTitles||[]).forEach(r=>a[r.title]=(a[r.title]||0)+r.count);return a},{})).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,12).map(([title,count])=>({title,count})),
+    avgMeaningfulPersonalChapters:avg('meaningfulPersonalChapters'),
+    avgMeaningfulChapterRepeatShare:+(rows.reduce((a,x)=>a+(x.meaningfulChapterRepeatShare||0),0)/rows.length).toFixed(2),
+    meaningfulChapterRepeatKinds:rows.reduce((a,x)=>{Object.entries(x.meaningfulChapterRepeatKinds||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
+    meaningfulChapterRepeatTitles:Object.entries(rows.reduce((a,x)=>{(x.meaningfulChapterRepeatTitles||[]).forEach(r=>a[r.title]=(a[r.title]||0)+r.count);return a},{})).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,12).map(([title,count])=>({title,count})),
     maxActiveChapterIdleMonths:Math.max(...rows.map(x=>x.maxActiveChapterIdleMonths||0)),
     maxActiveChapterSpanMonths:Math.max(...rows.map(x=>x.maxActiveChapterSpanMonths||0)),
     avgChronicleHighlights:avg('chronicleHighlights'),
@@ -699,7 +714,8 @@ let postCareerRows=[],postCareerProfiles=[];
   if(y40.avgVisitedPlaces<5)throw new Error('V5.0 forty-year journey remains too static: '+y40.avgVisitedPlaces+' places');
   if(y40.avgSaveKB>300||y40.maxSaveKB>325)throw new Error('V5.0 forty-year save growth regression: avg '+y40.avgSaveKB+' KB / max '+y40.maxSaveKB+' KB');
   if(y40.avgPersonalChapters<5)throw new Error('V5.0 forty-year life chapters too dormant: '+y40.avgPersonalChapters);
-  if(y40.avgChapterRepeatShare>.35)throw new Error('V5.0 forty-year personal chapters became too repetitive: '+y40.avgChapterRepeatShare);
+  if(y40.avgChapterRepeatShare>.35)throw new Error('V5.0 forty-year personal chapter archive became too repetitive: '+y40.avgChapterRepeatShare);
+  if(y40.avgMeaningfulChapterRepeatShare>.25)throw new Error('V5.0 forty-year meaningful personal chapters became too repetitive: '+y40.avgMeaningfulChapterRepeatShare);
   if(y40.avgChronicleHighlights<3||y40.avgChronicleHighlights>8)throw new Error('V5.0 forty-year chronicle lost compact highlight density: '+y40.avgChronicleHighlights);
   if(y40.chronicleUnder3Share>.17)throw new Error('V5.0 too many forty-year lives end with thin chronicles: '+y40.chronicleUnder3Share);
   if(y40.avgPersonalChapters>15)throw new Error('V5.0 forty-year life chapters became too frequent: '+y40.avgPersonalChapters);
@@ -1097,7 +1113,8 @@ console.log('V50_MIXED_DYNASTY_AUDIT '+JSON.stringify(metrics.v50MixedDynastyStr
   if((v5.career.minLifeTrajectoryVariety||0)<3)throw new Error('V5.0 similar careers collapsed into too few distinct lives: '+v5.career.minLifeTrajectoryVariety+' minimum biography patterns');
   if((v5.career.avgLifeTrajectoryVariety||0)<5)throw new Error('V5.0 biography diversity regressed across identical career profiles: '+v5.career.avgLifeTrajectoryVariety+' average patterns');
   if(v5.narrative.avgPersonalChapters<2.5)throw new Error('V5.0 personal chapters too dormant: '+v5.narrative.avgPersonalChapters+' per career');
-  if(v5.narrative.avgChapterRepeatShare>.25)throw new Error('V5.0 personal chapters became too repetitive: '+v5.narrative.avgChapterRepeatShare);
+  if(v5.narrative.avgChapterRepeatShare>.25)throw new Error('V5.0 personal chapter archive became too repetitive: '+v5.narrative.avgChapterRepeatShare);
+  if(v5.narrative.avgMeaningfulChapterRepeatShare>.15)throw new Error('V5.0 meaningful personal chapters became too repetitive: '+v5.narrative.avgMeaningfulChapterRepeatShare);
   if(v5.narrative.maxActiveChapterIdleMonths>=30)throw new Error('V5.0 personal chapter stayed idle too long: '+v5.narrative.maxActiveChapterIdleMonths+' months');
   if(v5.narrative.maxActiveChapterSpanMonths>=60)throw new Error('V5.0 personal chapter exceeded its five-year horizon: '+v5.narrative.maxActiveChapterSpanMonths+' months');
   if(v5.narrative.avgChronicleHighlights<3||v5.narrative.avgChronicleHighlights>8)throw new Error('V5.0 life chronicle lost compact 3-8 highlight density: '+v5.narrative.avgChronicleHighlights);
