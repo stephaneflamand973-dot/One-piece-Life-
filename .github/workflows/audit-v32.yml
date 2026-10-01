@@ -1,4 +1,4 @@
-name: V5.0 Long Audit
+name: V5.1 Long Audit
 
 on:
   workflow_dispatch:
@@ -22,7 +22,7 @@ on:
       - '.github/workflows/pages.yml'
 
 concurrency:
-  group: v5-long-audit-${{ github.ref }}
+  group: v51-long-audit-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -38,5 +38,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run V5.0 Grand Journey audit
+      - name: Run V5.1 Narrative Convergence audit
         run: node scripts/audit-v32.mjs
