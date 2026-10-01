@@ -73,12 +73,13 @@ function qaMissionPick(board){
   for(let i=1;i<board.length;i++)if((board[i].chance||0)>(board[best].chance||0))best=i;
   return best;
 }
-function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline'){
+function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',configure=null){
   const g=fresh(seed),p=g.player;
   p.ageMonths=216;p.money=250000;p.reputation=25;p.factionRep[faction]=100;
   qaTuneProfile(p,profile);
   q.join(faction);
   if(spec){p.specialization=spec;const rec=q.careerRecord();if(rec)rec.specialization=spec}
+  if(typeof configure==='function')configure(g,p);
   p.activity='Carrière';
   const start=p.ageMonths,target=start+years*12;
   let clicks=0,lastMissionAge=-999,started=0,routine=0,adaptive=0,worldGenerated=0,signature=0;
@@ -473,6 +474,31 @@ let postCareerRows=[],postCareerProfiles=[];
   if(mc.avgChronicleHighlights<3)throw new Error('V5.0 mixed-choice careers stopped producing a real biography: '+mc.avgChronicleHighlights+' highlights');
 }
 
+
+{
+  const configs=[
+    {key:'Civil / Scientifique prudent',faction:'Civil',spec:'Scientifique',profile:'science',ambition:'Survivre'},
+    {key:'Civil / Navigateur explorateur',faction:'Civil',spec:'Navigateur',profile:'navigation',ambition:'Explorer le monde'},
+    {key:'Pirates / Navigateur explorateur',faction:'Pirates',spec:'Navigateur',profile:'navigation',ambition:'Explorer le monde'},
+    {key:'Gouvernement / Administration stable',faction:'Gouvernement',spec:'Administration',profile:'science',ambition:'Survivre'}
+  ],byProfile={};
+  configs.forEach((cfg,ci)=>{
+    const rows=[];
+    for(let n=0;n<4;n++)rows.push(qaLongCareer(36400+ci*80+n,cfg.faction,cfg.spec,cfg.profile,20,'baseline',(g,p)=>{p.ambition=cfg.ambition}));
+    byProfile[cfg.key]={
+      sample:rows.length,
+      survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
+      avgVisitedPlaces:+(rows.reduce((a,x)=>a+(x.visited||0),0)/rows.length).toFixed(2),
+      avgAcceptedMoves:+(rows.reduce((a,x)=>a+(x.directorJourneys||0),0)/rows.length).toFixed(2),
+      avgJourneyOffers:+(rows.reduce((a,x)=>a+(x.directorJourneyOffers||0),0)/rows.length).toFixed(2),
+      avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+      avgInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.interruptionsPerYear,0)/rows.length).toFixed(2)
+    };
+  });
+  metrics.v50MobilityProfiles={byProfile};
+  console.log('V50_MOBILITY_PROFILES '+JSON.stringify(metrics.v50MobilityProfiles));
+}
+
 {
   const rows=[];for(let s=0;s<24;s++)rows.push(qaLongCareer(34500+s,'Pirates','Duelliste','combat',20));
   const plans=rows.reduce((a,x)=>{Object.entries(x.planCounts||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{});
@@ -727,7 +753,7 @@ console.log('V40_LIVING_WORLD_AUDIT '+JSON.stringify({
 }));
 
 console.log('V40_POST_RELEASE_AUDIT '+JSON.stringify(metrics.v40PostReleaseAudit));
-console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,mixedChoices:metrics.v50MixedChoiceStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress,mixedDynasty:metrics.v50MixedDynastyStress}));
+console.log('V50_GRAND_JOURNEY_AUDIT '+JSON.stringify({lifeDirector:metrics.v40PostReleaseAudit.lifeDirector,career:metrics.v40PostReleaseAudit.career,careerTurnStress:metrics.v50CareerTurnStress,mobilityProfiles:metrics.v50MobilityProfiles,mixedChoices:metrics.v50MixedChoiceStress,personalLife:metrics.v40PostReleaseAudit.personalLife,narrative:metrics.v40PostReleaseAudit.narrative,breadth:metrics.v40PostReleaseAudit.breadth,flow:metrics.v40PostReleaseAudit.flow,fortyYearCareer:metrics.v50FortyYearCareer,dynasty:metrics.v50DynastyStress,mixedDynasty:metrics.v50MixedDynastyStress}));
 console.log('V32_LONG_AUDIT '+JSON.stringify({career:metrics.v32CareerStress,nemesis:metrics.v32NemesisStress,routine:metrics.v32RoutineFallback}));
 `;
 
