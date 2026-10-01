@@ -1430,6 +1430,11 @@ test('V5.0 life chronicle surfaces decisive journeys rivalries and world sagas c
   g.world.worldState.sagaHistory.unshift({id:'noise-saga',title:'Saga de simple présence',type:'rivalry',region:'East Blue',outcome:'stabilisation',playerInvolved:false,playerRole:'present',playerImpact:0,months:12});
   const out=q.lifeChronicle(p);assert(out.summary.includes('Némésis QA'),'major rivalry missing from life chronicle');assert(out.summary.includes('Guerre QA pour le Nouveau Monde'),'decisive world saga missing from life chronicle');assert(out.summary.includes('Wano'),'determining journey destinations are not named');assert(!out.summary.includes('Saga de simple présence'),'passive world presence polluted life chronicle');assert(out.highlights.length>=4&&out.highlights.length<=8,'life chronicle escaped compact 3-8 highlight philosophy');return out.highlights.map(x=>x.kind).join(' / ');
 });
+test('V5.0 life chronicle can preserve a decisive saga still in progress',()=>{
+  const g=fresh(50163),p=g.player;p.ageMonths=500;
+  g.world.worldState.worldSagas.unshift({id:'active-qa-saga',title:'Crise active QA',type:'power',region:p.region,status:'active',playerInvolved:true,playerRole:'responsible',playerImpact:81,months:14});
+  const out=q.lifeChronicle(p);assert(out.summary.includes('Crise active QA'),'decisive active saga disappeared from life chronicle');assert(out.highlights.some(x=>x.kind==='saga'),'active saga did not become a chronicle highlight');return 'active saga preserved';
+});
 test('V5.0 life chronicle ignores routine low-impact organization noise',()=>{
   const g=fresh(50161),p=g.player;p.ageMonths=300;q.join('Civil');p.organization.authority='leader';p.organization.renown=0;p.organization.members=[];const out=q.lifeChronicle(p);assert(out.organization===null,'routine organization polluted compact chronicle');return 'routine organization omitted';
 });
@@ -1504,7 +1509,7 @@ test('V5.0 heir continuation carries only active siblings into the next generati
     {id:'sibling-inactive',name:'Sibling Inactive',ageMonths:240,birthplace:p.island,birthRegion:p.region,race:p.race,status:'inactive',bond:95},
     {id:'sibling-dead',name:'Sibling Dead',ageMonths:230,birthplace:p.island,birthRegion:p.region,race:p.race,status:'dead',bond:95}
   ];
-  q.continueWithHeir('next');const siblings=g.relations.filter(r=>r.role==='frère / sœur').map(r=>r.name);
+  const estate=q.netWorth();q.continueWithHeir('next');const siblings=g.relations.filter(r=>r.role==='frère / sœur').map(r=>r.name);assert(g.player.money===Math.round(estate/2),'inactive children diluted the valid heirs’ estate share');
   assert(siblings.includes('Sibling Live'),'active sibling disappeared from inherited family network');
   assert(!siblings.includes('Sibling Inactive')&&!siblings.includes('Sibling Dead'),'inactive child was resurrected as a sibling relation');
   return siblings.join(' / ');
