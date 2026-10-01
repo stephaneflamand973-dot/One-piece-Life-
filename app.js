@@ -1543,7 +1543,7 @@ function livingCostPerMonth(){
  var p=game.player;if(p.ageMonths<180)return 0;var h=HOUSING[p.life.housingLevel||0]||HOUSING[0],dependentChildren=(p.children||[]).filter(function(c){return c.status==='active'&&(c.ageMonths||0)<216}).length,base=h.monthly+dependentChildren*850;
  if(partnerRelation())base+=350;return Math.round(base)
 }
-function businessIncomePerMonth(){var p=game.player,asset=(p.life.assets||{}).business||0;if(!asset)return 0;var rp=game.world.pressures[p.region]||{},m=game.world.markets&&game.world.markets[p.island],mult=.72+(rp.Prospérité||50)/180;if(m&&m.blockade)mult*=.58;return Math.round(asset*.008*mult)}
+function businessIncomePerMonth(){var p=game.player,asset=(p.life.assets||{}).business||0;if(!asset)return 0;var rp=game.world.pressures[p.region]||{},m=game.world.markets&&game.world.markets[p.island],mult=.72+(rp.Prospérité==null?50:rp.Prospérité)/180;if(m&&m.blockade)mult*=.58;return Math.round(asset*.008*mult)}
 function chargeMoney(amount){var p=game.player,l=p.life;amount=Math.max(0,amount||0);var paid=Math.min(Math.max(0,p.money),amount);p.money-=paid;var missing=amount-paid;if(missing>0){l.debt=Math.max(0,(l.debt||0)+missing);l.debtPeak=Math.max(l.debtPeak||0,l.debt)}return{paid:paid,debt:missing}}
 function serviceDebt(){var p=game.player,l=p.life,debt=Math.max(0,l.debt||0);if(!debt||p.money<=0)return 0;var pay=Math.min(debt,p.money*.22);p.money-=pay;l.debt-=pay;return pay}
 function useSocialAction(){
@@ -1804,14 +1804,14 @@ function issueBounty(amount,reason){
 }
 function registerCrime(name,severity,witnessed){
  var p=game.player,j=migrateJustice(p),sev=cl(severity||1,1,6),rp=game.world.pressures[p.region]||{},territory=game.world.territories[p.island],control=territory?territory.controller:'Civil';
- if(witnessed==null){var watch=(rp.Marine||25)+(control==='Marine'||control==='Gouvernement'?20:0)-(p.skills.Discrétion||0)*.35;witnessed=R('justice')<cl(.28+watch/180,.12,.92)}
+ if(witnessed==null){var watch=(rp.Marine==null?25:rp.Marine)+(control==='Marine'||control==='Gouvernement'?20:0)-(p.skills.Discrétion||0)*.35;witnessed=R('justice')<cl(.28+watch/180,.12,.92)}
  j.crimes.unshift({name:name,severity:sev,region:p.region,place:p.island,year:game.world.year,month:Math.floor(game.world.month),witnessed:!!witnessed});j.crimes=j.crimes.slice(0,30);j.notoriety=cl(j.notoriety+sev*(witnessed?2.4:.6),0,100);
  if(witnessed){j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)+8+sev*8,0,100);var official=p.faction==='Marine'||p.faction==='Gouvernement';if(!official){var base=Math.round((2500*Math.pow(sev,2)+inf().danger*650)*(1+j.notoriety/120));if(p.faction==='Pirates'||p.faction==='Révolutionnaires'||control==='Marine'||control==='Gouvernement')issueBounty(base,name)}}
  tl('Incident judiciaire',name+(witnessed?' est attribué à ton personnage.':' n’est pas clairement relié à toi.'),witnessed?'danger':'');return witnessed
 }
 function justicePressure(){
  var p=game.player,j=migrateJustice(p),rp=game.world.pressures[p.region]||{},t=game.world.territories[p.island],official=t&&(t.controller==='Marine'||t.controller==='Gouvernement'),b=Math.log10(Math.max(1,(p.bounty||0)+1))*8;
- return cl((j.regionalHeat[p.region]||0)*.48+b+(rp.Marine||25)*.16+(official?12:0),0,100)
+ return cl((j.regionalHeat[p.region]||0)*.48+b+(rp.Marine==null?25:rp.Marine)*.16+(official?12:0),0,100)
 }
 function useJusticeAction(){var j=migrateJustice(game.player);if(j.actions<1){toast('Tu as déjà utilisé ton action de discrétion pour cette période.');return false}j.actions--;return true}
 function layLow(){
@@ -2034,7 +2034,7 @@ function recruitAffiliate(id){
  save();render()
 }
 function domainIncome(t,name,m){
- var p=game.player,rp=game.world.pressures[infStatic(name).region]||{},pc=t.playerControl,market=game.world.markets&&game.world.markets[name];if(!pc)return 0;var trade=market?Math.min(1.45,.75+(market.tradeActivity||0)/50000):1,block=market&&market.blockade?.55:1,base=350+t.stability*12+(rp.Prospérité||40)*9+pc.control*8+infStatic(name).danger*4,amount=Math.round(base*trade*block*m);pc.income=(pc.income||0)+amount;return amount
+ var p=game.player,rp=game.world.pressures[infStatic(name).region]||{},pc=t.playerControl,market=game.world.markets&&game.world.markets[name];if(!pc)return 0;var trade=market?Math.min(1.45,.75+(market.tradeActivity||0)/50000):1,block=market&&market.blockade?.55:1,base=350+t.stability*12+(rp.Prospérité==null?40:rp.Prospérité)*9+pc.control*8+infStatic(name).danger*4,amount=Math.round(base*trade*block*m);pc.income=(pc.income||0)+amount;return amount
 }
 function playerDomainDefense(location){
  var p=game.player,t=game.world.territories[location],pc=t&&t.playerControl;if(!pc||pc.ownerKey!==dynastyKey())return 0;var aff=game.world.crews.filter(function(c){return c.status==='active'&&c.affiliation&&c.affiliation.ownerKey===dynastyKey()&&c.region===infStatic(location).region}).reduce(function(a,c){return a+c.power},0),org=p.organization&&p.region===infStatic(location).region?organizationPower():0;return pc.control*.18+aff*.08+org*.1
@@ -2110,9 +2110,9 @@ function marketBlockade(name){
 function regionalBias(region,id){var b=TRADE_BIAS[region]||{},raw=b[id]||1;return cl(1+(raw-1)*.65,.78,1.5)}
 function marketPrice(name,id,buy,stockOverride){
  var g=goodById(id),m=game.world.markets[name],x=m&&m.goods[id];if(!g||!x)return 0;var region=infStatic(name).region,rp=game.world.pressures[region]||{},terr=game.world.territories[name]||{stability:55},bias=regionalBias(region,id),stock=stockOverride==null?x.stock:stockOverride,scarcity=cl(1+(x.demand-stock)/115,.55,2.15),instability=1+cl((50-(terr.stability==null?50:terr.stability))/220,-.12,.32),blocked=marketBlockade(name),war=blocked?1.32:1,pressure=1;m.blockade=blocked;
- if(id==='provisions'||id==='medicine')pressure*=1+cl((rp.Instabilité||20)/380,0,.28);
- if(id==='luxury')pressure*=.83+(rp.Prospérité||50)/290;
- if(g.restricted)pressure*=.92+(rp.Criminalité||20)/220;
+ if(id==='provisions'||id==='medicine')pressure*=1+cl((rp.Instabilité==null?20:rp.Instabilité)/380,0,.28);
+ if(id==='luxury')pressure*=.83+(rp.Prospérité==null?50:rp.Prospérité)/290;
+ if(g.restricted)pressure*=.92+(rp.Criminalité==null?20:rp.Criminalité)/220;
  var price=g.base*bias*scarcity*instability*war*pressure,spread=buy?1.06:.94;return Math.max(50,Math.round(price*spread/10)*10)
 }
 function commodityQuote(name,id,qty,buy){
@@ -2135,7 +2135,7 @@ function blackMarketAccess(){
  var p=game.player,rp=game.world.pressures[p.region]||{};return p.faction==='Pirates'||p.faction==='Révolutionnaires'||(p.skills.Discrétion||0)>=28||(rp.Criminalité||0)>=38
 }
 function blackMarketRisk(){
- var p=game.player,rp=game.world.pressures[p.region]||{},t=game.world.territories[p.island],official=t&&(t.controller==='Marine'||t.controller==='Gouvernement'),heat=currentHeat?currentHeat():0;return cl(.08+(rp.Marine||25)/230+(official?.10:0)+heat/400-(p.skills.Discrétion||0)/300,.04,.58)
+ var p=game.player,rp=game.world.pressures[p.region]||{},t=game.world.territories[p.island],official=t&&(t.controller==='Marine'||t.controller==='Gouvernement'),heat=currentHeat?currentHeat():0;return cl(.08+(rp.Marine==null?25:rp.Marine)/230+(official?.10:0)+heat/400-(p.skills.Discrétion||0)/300,.04,.58)
 }
 function transactBlackMarketRisk(good,qty){
  if(!good.restricted)return;if(R('trade')<blackMarketRisk()){registerCrime('Transaction clandestine : '+good.name,good.id==='seastone'?3:2,true);if(game.player.faction==='Marine'||game.player.faction==='Gouvernement')adjustRep(game.player.faction,-8)}else gain('Discrétion',.12+qty*.03)
@@ -2151,13 +2151,13 @@ function tradeRouteOpportunities(){
  var p=game.player,routes=inf().routes||[],out=[];routes.forEach(function(dest){TRADE_GOODS.filter(function(g){return !g.restricted}).forEach(function(g){var buy=marketPrice(p.island,g.id,true),sell=marketPrice(dest,g.id,false),margin=buy?((sell-buy)/buy)*100:0;if(margin>4)out.push({dest:dest,good:g,margin:margin,buy:buy,sell:sell})})});return out.sort(function(a,b){return b.margin-a.margin}).slice(0,6)
 }
 function inspectSmugglingAtArrival(destination){
- var p=game.player,t=migrateTrade(p),restricted=t.cargo.filter(function(c){var g=goodById(c.good);return g&&g.restricted&&c.qty>0});if(!restricted.length)return;var rp=game.world.pressures[infStatic(destination).region]||{},terr=game.world.territories[destination],official=terr&&(terr.controller==='Marine'||terr.controller==='Gouvernement'),chance=cl(.09+(rp.Marine||25)/210+(official?.13:0)+currentHeat()/450-(p.skills.Discrétion||0)/280,.04,.72);
+ var p=game.player,t=migrateTrade(p),restricted=t.cargo.filter(function(c){var g=goodById(c.good);return g&&g.restricted&&c.qty>0});if(!restricted.length)return;var rp=game.world.pressures[infStatic(destination).region]||{},terr=game.world.territories[destination],official=terr&&(terr.controller==='Marine'||terr.controller==='Gouvernement'),chance=cl(.09+(rp.Marine==null?25:rp.Marine)/210+(official?.13:0)+currentHeat()/450-(p.skills.Discrétion||0)/280,.04,.72);
  if(R('trade')<chance){var seized=0,value=0;restricted.forEach(function(c){var g=goodById(c.good);seized+=c.qty;value+=Math.round(c.qty*c.avgCost);c.qty=0});t.cargo=t.cargo.filter(function(c){return c.qty>0});t.seizures++;var fine=Math.min(Math.max(0,p.money),Math.round(value*.22));p.money-=fine;registerCrime('Contrebande maritime',cl(2+Math.floor(seized/4),2,5),true);tl('Contrôle douanier','Les autorités saisissent '+seized+' unité(s) de cargaison interdite et imposent '+fine.toLocaleString('fr-FR')+' B d’amende.','danger')}
  else{t.smugglingRuns++;gain('Discrétion',.35+restricted.length*.08);tl('Passage discret','Ta cargaison clandestine franchit le contrôle de '+destination+'.','major');checkAchievements()}
 }
 function marketMonthlyTarget(name,id){
  var g=goodById(id),region=infStatic(name).region,rp=game.world.pressures[region]||{},terr=game.world.territories[name]||{stability:50},bias=regionalBias(region,id),target=55/bias;
- if(id==='provisions')target+=((rp.Prospérité||50)-40)*.18;if(id==='medicine')target-=((rp.Instabilité||20))*0.12;if(g.restricted)target+=((rp.Criminalité||20)-25)*.25;if(name==='Skypiea'&&id==='dials')target+=55;if(name==='Wano'&&id==='seastone')target+=50;
+ if(id==='provisions')target+=((rp.Prospérité==null?50:rp.Prospérité)-40)*.18;if(id==='medicine')target-=((rp.Instabilité==null?20:rp.Instabilité))*0.12;if(g.restricted)target+=((rp.Criminalité==null?20:rp.Criminalité)-25)*.25;if(name==='Skypiea'&&id==='dials')target+=55;if(name==='Wano'&&id==='seastone')target+=50;
  if(marketBlockade(name))target*=.58;target*=.7+(terr.stability==null?50:terr.stability)/165;return cl(target,4,125)
 }
 function simulateTradeRoutes(){
@@ -2167,7 +2167,7 @@ function simulateEconomy(){
  var w=game.world,econ=w.economy;econ.month++;econ.monthlyVolume=0;var indices=[],shortages=0;
  Object.keys(w.markets).forEach(function(name){var m=w.markets[name],terr=w.territories[name]||{stability:50},rp=w.pressures[infStatic(name).region]||{};m.blockade=marketBlockade(name);m.tradeActivity*=.82;m.shockState=m.shockState||null;
   if(m.shockState){m.shockState.months--;if(m.shockState.months<=0){var endedShock=m.shockState;if(endedShock.type==='shortage')updateCollectiveGoal(factionWorldGoal('Civil'),.7);m.shockState=null}}
-  TRADE_GOODS.forEach(function(g){var x=m.goods[g.id],target=marketMonthlyTarget(name,g.id),warDemand=m.blockade&&(g.id==='provisions'||g.id==='medicine'||g.id==='materials')?8:0,shock=m.shockState&&m.shockState.good===g.id?m.shockState:null,shockStock=shock?(shock.type==='shortage'?-4:4):0,shockDemand=shock?(shock.type==='shortage'?3:-3):0;x.demand=cl(x.demand+(target-x.demand)*.07+(R('economy')-.5)*2.5+warDemand+shockDemand,8,120);x.stock=cl(x.stock+(target-x.stock)*.08+(rp.Prospérité||40)/90+(R('economy')-.5)*3-(m.blockade?2.5:0)+shockStock,0,150);if((shock&&shock.type==='shortage')||(x.stock<8&&x.demand>50))shortages++});
+  TRADE_GOODS.forEach(function(g){var x=m.goods[g.id],target=marketMonthlyTarget(name,g.id),warDemand=m.blockade&&(g.id==='provisions'||g.id==='medicine'||g.id==='materials')?8:0,shock=m.shockState&&m.shockState.good===g.id?m.shockState:null,shockStock=shock?(shock.type==='shortage'?-4:4):0,shockDemand=shock?(shock.type==='shortage'?3:-3):0;x.demand=cl(x.demand+(target-x.demand)*.07+(R('economy')-.5)*2.5+warDemand+shockDemand,8,120);x.stock=cl(x.stock+(target-x.stock)*.08+(rp.Prospérité==null?40:rp.Prospérité)/90+(R('economy')-.5)*3-(m.blockade?2.5:0)+shockStock,0,150);if((shock&&shock.type==='shortage')||(x.stock<8&&x.demand>50))shortages++});
   if(!m.shockState&&R('economy')<.005){var shockGood=pk(TRADE_GOODS,'economy'),sx=m.goods[shockGood.id],short=R('economy')<.62,duration=4+Math.floor(R('economy')*5);if(short){sx.stock=cl(sx.stock-(18+R('economy')*25),0,150);sx.demand=cl(sx.demand+14+R('economy')*18,0,120)}else{sx.stock=cl(sx.stock+20+R('economy')*32,0,150);updateCollectiveGoal(factionWorldGoal('Civil'),.8)}m.shockState={good:shockGood.id,type:short?'shortage':'surplus',months:duration};econ.shocks.unshift({place:name,good:shockGood.id,type:short?'shortage':'surplus',duration:duration,year:w.year,month:w.month});econ.shocks=econ.shocks.slice(0,24);news(short?'Pénurie locale':'Arrivage commercial',name+' connaît '+(short?'une pénurie durable de ':'un afflux durable de ')+shockGood.name+' ('+duration+' mois estimés).',short?'major':'')};
   indices.push(marketPriceIndex(name))
  });

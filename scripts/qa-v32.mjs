@@ -197,6 +197,13 @@ test('Economy: at least one generated direct-route arbitrage is executable',()=>
   if(!routes.length){q.simulateEconomy();routes=q.tradeRouteOpportunities()}
   assert(routes.length>0,'no profitable direct-route opportunity generated');const r=routes[0];q.buyCommodity(r.good.id,1,false);const item=p.trade.cargo.find(c=>c.good===r.good.id);assert(item,'purchase failed');p.island=r.dest;p.region=q.inf(r.dest).region;const before=p.trade.profit;q.sellCommodity(r.good.id,1,false);assert(p.trade.profit>before,'route did not realize profit at current quoted prices');return r.good.name+' to '+r.dest+' ~'+Math.round(r.margin)+'%'
 });
+test('V5.0 zero regional pressures remain real causal values',()=>{
+  const g=fresh(4498),p=g.player,name=p.island,rp=g.world.pressures[p.region],stock=g.world.markets[name].goods.provisions.stock;
+  rp.Marine=25;const normalRisk=q.blackMarketRisk();rp.Marine=0;const zeroRisk=q.blackMarketRisk();assert(zeroRisk<normalRisk,'zero Marine pressure was replaced by a default: '+zeroRisk+' / '+normalRisk);
+  rp.Prospérité=50;const normalTarget=q.marketMonthlyTarget(name,'provisions');rp.Prospérité=0;const zeroTarget=q.marketMonthlyTarget(name,'provisions');assert(zeroTarget<normalTarget,'zero prosperity was replaced by a default: '+zeroTarget+' / '+normalTarget);
+  rp.Instabilité=20;const normalPrice=q.marketPrice(name,'provisions',true,stock);rp.Instabilité=0;const calmPrice=q.marketPrice(name,'provisions',true,stock);assert(calmPrice<normalPrice,'zero instability was replaced by a default: '+calmPrice+' / '+normalPrice);
+  return 'risk '+zeroRisk.toFixed(3)+' / target '+zeroTarget.toFixed(1)+' / price '+calmPrice;
+});
 test('V5.0 collapsed territorial stability remains causal in local markets',()=>{
   const g=fresh(4499),p=g.player,name=p.island,t=g.world.territories[name];assert(t,'territory fixture missing');const stock=g.world.markets[name].goods.provisions.stock;
   t.stability=50;const neutralPrice=q.marketPrice(name,'provisions',true,stock),neutralTarget=q.marketMonthlyTarget(name,'provisions');
