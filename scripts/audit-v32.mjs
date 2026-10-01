@@ -83,7 +83,7 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
   p.activity='Carrière';
   const start=p.ageMonths,target=start+years*12;
   let clicks=0,lastMissionAge=-999,started=0,routine=0,adaptive=0,worldGenerated=0,signature=0;
-  const titles=[],guidance={},chances=[],heatSamples=[];const planCounts={},interruptions={pending:0,story:0,director:0,byType:{},choices:{}};let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
+  const titles=[],guidance={},chances=[],heatSamples=[],advanceTextChars=[];const planCounts={},interruptions={pending:0,story:0,director:0,byType:{},choices:{}};let arcPeak=0;const arcTransitions0=(g.loop.arcHistory||[]).length;
   while(p.ageMonths<target&&clicks<years*18&&g.alive){
     qaResolveInterruptions(g,interruptions,choicePolicy);
     const missionGap=q.careerRecord&&q.careerRecord().retired?24:10;
@@ -96,7 +96,7 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
       }
     }
     const plan=q.advancePlan(),planKey=plan.label||plan.key;planCounts[planKey]=(planCounts[planKey]||0)+1;heatSamples.push((p.justice&&p.justice.regionalHeat&&p.justice.regionalHeat[p.region])||0);
-    q.advance();clicks++;qaResolveInterruptions(g,interruptions,choicePolicy);
+    q.advance();clicks++;var advanceText=(fakeElement('#advanceReportText').textContent||'');if(advanceText)advanceTextChars.push(advanceText.length);qaResolveInterruptions(g,interruptions,choicePolicy);
     arcPeak=Math.max(arcPeak,(g.loop.arcs||[]).length);
   }
   const counts={};titles.forEach(t=>counts[t]=(counts[t]||0)+1);
@@ -111,6 +111,9 @@ function qaLongCareer(seed,faction,spec,profile,years,choicePolicy='baseline',co
   return {
     faction,spec,profile,choicePolicy,alive:g.alive,age:+(p.ageMonths/12).toFixed(1),years:+((p.ageMonths-start)/12).toFixed(1),
     clicks,clicksPerYear:+(clicks/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
+    avgAdvanceReportChars:advanceTextChars.length?+(advanceTextChars.reduce((a,x)=>a+x,0)/advanceTextChars.length).toFixed(1):0,
+    maxAdvanceReportChars:advanceTextChars.length?Math.max(...advanceTextChars):0,
+    verboseAdvanceShare:advanceTextChars.length?+(advanceTextChars.filter(x=>x>500).length/advanceTextChars.length).toFixed(2):0,
     interruptions:interruptions.pending+interruptions.story,
     interruptionsPerYear:+((interruptions.pending+interruptions.story)/Math.max(.1,(p.ageMonths-start)/12)).toFixed(2),
     directorDecisions:interruptions.director,
@@ -328,6 +331,9 @@ let postCareerRows=[],postCareerProfiles=[];
       },
       flow:{
         avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+        avgAdvanceReportChars:+(rows.reduce((a,x)=>a+(x.avgAdvanceReportChars||0),0)/rows.length).toFixed(1),
+        maxAdvanceReportChars:Math.max(...rows.map(x=>x.maxAdvanceReportChars||0)),
+        avgVerboseAdvanceShare:+(rows.reduce((a,x)=>a+(x.verboseAdvanceShare||0),0)/rows.length).toFixed(2),
         avgMissionsPerYear:+(rows.reduce((a,x)=>a+x.missionPerYear,0)/rows.length).toFixed(2),
         avgInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.interruptionsPerYear,0)/rows.length).toFixed(2),
         avgDirectorDecisionsPerYear:+(rows.reduce((a,x)=>a+x.directorDecisionsPerYear,0)/rows.length).toFixed(2),
@@ -399,6 +405,9 @@ let postCareerRows=[],postCareerProfiles=[];
     sample:rows.length,yearsTarget:20,
     survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
     avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+    avgAdvanceReportChars:+(rows.reduce((a,x)=>a+(x.avgAdvanceReportChars||0),0)/rows.length).toFixed(1),
+    maxAdvanceReportChars:Math.max(...rows.map(x=>x.maxAdvanceReportChars||0)),
+    avgVerboseAdvanceShare:+(rows.reduce((a,x)=>a+(x.verboseAdvanceShare||0),0)/rows.length).toFixed(2),
     avgInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.interruptionsPerYear,0)/rows.length).toFixed(2),
     avgDirectorDecisionsPerYear:+(rows.reduce((a,x)=>a+x.directorDecisionsPerYear,0)/rows.length).toFixed(2),
     avgVisitedPlaces:avg('visited'),
@@ -515,6 +524,9 @@ let postCareerRows=[],postCareerProfiles=[];
     sample:rows.length,yearsTarget:40,
     survival:+(rows.filter(x=>x.alive).length/rows.length).toFixed(2),
     avgClicksPerYear:+(rows.reduce((a,x)=>a+x.clicksPerYear,0)/rows.length).toFixed(2),
+    avgAdvanceReportChars:+(rows.reduce((a,x)=>a+(x.avgAdvanceReportChars||0),0)/rows.length).toFixed(1),
+    maxAdvanceReportChars:Math.max(...rows.map(x=>x.maxAdvanceReportChars||0)),
+    avgVerboseAdvanceShare:+(rows.reduce((a,x)=>a+(x.verboseAdvanceShare||0),0)/rows.length).toFixed(2),
     avgInterruptionsPerYear:+(rows.reduce((a,x)=>a+x.interruptionsPerYear,0)/rows.length).toFixed(2),
     avgDirectorDecisionsPerYear:+(rows.reduce((a,x)=>a+x.directorDecisionsPerYear,0)/rows.length).toFixed(2),
     decisionTypes:rows.reduce((a,x)=>{Object.entries(x.decisionTypes||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v);return a},{}),
