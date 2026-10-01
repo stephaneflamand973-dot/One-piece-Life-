@@ -1423,6 +1423,13 @@ test('V5.0 death succession exposes every active heir instead of forcing the eld
 test('V5.0 life chronicle preserves a meaningful crew or organization',()=>{
   const g=fresh(50160),p=g.player;p.ageMonths=360;p.factionRep.Pirates=100;q.join('Pirates');p.organization.name='Équipage QA';p.organization.authority='leader';p.organization.renown=55;p.organization.members.push({id:'qa-org-extra',name:'Membre QA',status:'active',power:35,loyalty:70,morale:70});const out=q.lifeChronicle(p);assert(out.organization&&out.organization.name==='Équipage QA','meaningful organization missing from chronicle');assert(out.summary.includes('Équipage QA'),'organization absent from chronicle summary');return out.organization.name+' / '+out.organization.members+' membres';
 });
+test('V5.0 life chronicle surfaces decisive journeys rivalries and world sagas compactly',()=>{
+  const g=fresh(50162),p=g.player;p.ageMonths=540;p.visited=['Foosha Village','Loguetown','Sabaody','Wano'];p.careerHistory.push({age:'30 ans',type:'relocation',faction:'Civil',to:'Sabaody',source:'life-director'});
+  const rival=q.createRelation('rival');rival.name='Némésis QA';rival.rivalry=94;rival.nemesisRecognized=true;rival.status='active';
+  g.world.worldState.sagaHistory.unshift({id:'qa-saga',title:'Guerre QA pour le Nouveau Monde',type:'war',region:'New World',outcome:'rupture',playerInvolved:true,playerRole:'decisive',playerImpact:72,months:20});
+  g.world.worldState.sagaHistory.unshift({id:'noise-saga',title:'Saga de simple présence',type:'rivalry',region:'East Blue',outcome:'stabilisation',playerInvolved:false,playerRole:'present',playerImpact:0,months:12});
+  const out=q.lifeChronicle(p);assert(out.summary.includes('Némésis QA'),'major rivalry missing from life chronicle');assert(out.summary.includes('Guerre QA pour le Nouveau Monde'),'decisive world saga missing from life chronicle');assert(out.summary.includes('Wano'),'determining journey destinations are not named');assert(!out.summary.includes('Saga de simple présence'),'passive world presence polluted life chronicle');assert(out.highlights.length>=4&&out.highlights.length<=8,'life chronicle escaped compact 3-8 highlight philosophy');return out.highlights.map(x=>x.kind).join(' / ');
+});
 test('V5.0 life chronicle ignores routine low-impact organization noise',()=>{
   const g=fresh(50161),p=g.player;p.ageMonths=300;q.join('Civil');p.organization.authority='leader';p.organization.renown=0;p.organization.members=[];const out=q.lifeChronicle(p);assert(out.organization===null,'routine organization polluted compact chronicle');return 'routine organization omitted';
 });
@@ -1488,6 +1495,19 @@ test('V5.0 death modal exposes every valid heir beyond five',()=>{
   assert(rendered===7,'death modal hid valid heirs: rendered '+rendered+'/7');
   assert(html.includes('Heir 7'),'youngest valid heir is still hidden from selection');
   return rendered+' heir choices visible';
+});
+
+test('V5.0 heir continuation carries only active siblings into the next generation',()=>{
+  const g=fresh(50145),p=g.player;p.ageMonths=520;p.money=450000;p.children=[
+    {id:'next',name:'Next QA',ageMonths:220,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:82},
+    {id:'sibling-live',name:'Sibling Live',ageMonths:200,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:72},
+    {id:'sibling-inactive',name:'Sibling Inactive',ageMonths:240,birthplace:p.island,birthRegion:p.region,race:p.race,status:'inactive',bond:95},
+    {id:'sibling-dead',name:'Sibling Dead',ageMonths:230,birthplace:p.island,birthRegion:p.region,race:p.race,status:'dead',bond:95}
+  ];
+  q.continueWithHeir('next');const siblings=g.relations.filter(r=>r.role==='frère / sœur').map(r=>r.name);
+  assert(siblings.includes('Sibling Live'),'active sibling disappeared from inherited family network');
+  assert(!siblings.includes('Sibling Inactive')&&!siblings.includes('Sibling Dead'),'inactive child was resurrected as a sibling relation');
+  return siblings.join(' / ');
 });
 
 test('V5.0 late-career crossroads appears only after a substantial career',()=>{
