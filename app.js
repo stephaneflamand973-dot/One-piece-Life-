@@ -1117,7 +1117,7 @@ function directorTravelContext(name){
  else if(p.faction==='Gouvernement'){score+=((t.controller==='Pirates'||t.controller==='Révolutionnaires')?17:t.contested?6:0)+(100-(t.stability||55))*.04;reason=(t.controller==='Pirates'||t.controller==='Révolutionnaires')?'rétablir l’ordre face à '+t.controller:'consolider une zone sensible'}
  else if(p.faction==='Chasseur de primes'){score+=(t.controller==='Pirates'?18:0)+(rp.Criminalité||0)*.06+info.danger*.025;reason=t.controller==='Pirates'?'suivre une forte activité pirate':'chercher des contrats dans une zone criminelle'}
  else{score+=(t.stability||55)*.025+(rp.Prospérité||0)*.035;if(sp==='Navigateur'){reason='ouvrir un itinéraire utile à ton activité'}else if(sp==='Scientifique'){reason='étudier un territoire encore peu connu'}else reason='développer ton activité dans une zone prometteuse'}
- if(fresh&&(sp==='Navigateur'||sp==='Navigation'))score+=8;
+ if(fresh&&(sp==='Navigateur'||sp==='Navigation'))score+=8+(p.faction==='Pirates'?4:0);
  else if(fresh&&(sp==='Traqueur'||sp==='Investigateur'))score+=6;
  else if(fresh&&sp==='Scientifique')score+=2;
  if(p.ambition==='Explorer le monde'&&fresh){score+=10;reason='ouvrir une nouvelle étape de ton voyage'}

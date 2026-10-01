@@ -1393,6 +1393,18 @@ test('V5.0 destination novelty reflects career identity instead of a universal t
 });
 
 
+
+test('V5.0 pirate navigators keep a stronger frontier bias than civilian navigators',()=>{
+  const g=fresh(50124),p=g.player;p.ageMonths=300;p.skills.Navigation=55;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));
+  const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');
+  q.join('Pirates');p.specialization='Navigateur';q.careerRecord().specialization='Navigateur';p.ambition='Explorer le monde';
+  const pirateFresh=q.directorTravelContext(d);p.visited.push(d);const pirateKnown=q.directorTravelContext(d),pirateNovelty=pirateFresh.score-pirateKnown.score;
+  p.visited=p.visited.filter(x=>x!==d);p.faction='Civil';p.career='Civil';p.specialization='Navigateur';p.careerRecords.Civil=p.careerRecords.Civil||{xp:0,months:0,rank:'Apprenti',specialization:'Navigateur',successes:0,failures:0,distinctions:0,recentResults:[]};p.careerRecords.Civil.specialization='Navigateur';p.ambition='Explorer le monde';
+  const civilianFresh=q.directorTravelContext(d);p.visited.push(d);const civilianKnown=q.directorTravelContext(d),civilianNovelty=civilianFresh.score-civilianKnown.score;
+  assert(pirateNovelty>=civilianNovelty+4,'pirate navigator frontier bias collapsed toward civilian navigator: '+pirateNovelty.toFixed(1)+' vs '+civilianNovelty.toFixed(1));
+  return 'pirate navigator +'+pirateNovelty.toFixed(1)+' novelty vs civilian +'+civilianNovelty.toFixed(1);
+});
+
 test('V5.0 bounty-hunting specialties preserve route novelty after profile differentiation',()=>{
   const g=fresh(50125),p=g.player;p.ageMonths=300;p.skills.Navigation=50;Object.keys(p.stats).forEach(k=>p.stats[k]=Math.max(p.stats[k],48));
   const d=(q.constants.PL[p.island][2]||[]).find(x=>q.req(x)[0]);assert(d,'no accessible route');
