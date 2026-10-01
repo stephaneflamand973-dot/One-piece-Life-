@@ -1759,6 +1759,20 @@ test('V5.0 death modal exposes every valid heir beyond five',()=>{
 
 
 
+
+test('V5.0 succession starts a fresh personal story history',()=>{
+  const g=fresh(50151),p=g.player;p.ageMonths=600;
+  g.story.history=[
+    {id:'parent-romance',type:'relationship-opening',title:'Amour du parent',outcome:'relation commencée',result:'Histoire du parent',closure:'resolved',resolvedAge:590,generation:1},
+    {id:'parent-crisis',type:'organization-crisis',title:'Crise du parent',outcome:'stabilisée',result:'Ancienne crise',closure:'resolved',resolvedAge:580,generation:1}
+  ];
+  p.children=[{id:'heir-story-reset',name:'Héritier Histoire QA',ageMonths:216,birthplace:p.island,birthRegion:p.region,race:p.race,status:'active',bond:80}];
+  g.death={cause:'QA story reset'};q.buildHeir(p.children[0]);
+  assert(g.story.history.length===0,'parent story history leaked into descendant personal history');
+  assert(g.dynasty.ancestors[g.dynasty.ancestors.length-1]&&g.dynasty.ancestors[g.dynasty.ancestors.length-1].legacy,'parent legacy was lost while resetting story history');
+  return 'fresh story history / dynasty legacy retained';
+});
+
 test('V5.0 inherited historical relation keeps NPC career state but resets personal counters',()=>{
   const g=fresh(50150),p=g.player;p.ageMonths=600;
   const r=q.createRelation('mentor');r.name='Legacy NPC QA';r.role='mentor';r.type='social';r.trust=88;r.loyalty=82;r.respect=90;r.npcAgeMonths=720;r.npcPower=78;r.npcPotential=91;r.npcSpecialty='Combat';r.npcTrajectory='Stable';r.npcAmbition='Servir sa faction';r.npcWealth=144000;r.careerLevel=5;r.npcWins=19;r.npcLosses=4;r.injuryMonths=3;r.lastIntentOutcome='Mission accomplie';r.mentorSessions=8;r.favorBalance=6;r.rivalWins=2;r.rivalLosses=1;
