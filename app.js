@@ -2106,7 +2106,7 @@ function marketBlockade(name){
 }
 function regionalBias(region,id){var b=TRADE_BIAS[region]||{},raw=b[id]||1;return cl(1+(raw-1)*.65,.78,1.5)}
 function marketPrice(name,id,buy,stockOverride){
- var g=goodById(id),m=game.world.markets[name],x=m&&m.goods[id];if(!g||!x)return 0;var region=infStatic(name).region,rp=game.world.pressures[region]||{},terr=game.world.territories[name]||{stability:55},bias=regionalBias(region,id),stock=stockOverride==null?x.stock:stockOverride,scarcity=cl(1+(x.demand-stock)/115,.55,2.15),instability=1+cl((50-(terr.stability||50))/220,-.12,.32),blocked=marketBlockade(name),war=blocked?1.32:1,pressure=1;m.blockade=blocked;
+ var g=goodById(id),m=game.world.markets[name],x=m&&m.goods[id];if(!g||!x)return 0;var region=infStatic(name).region,rp=game.world.pressures[region]||{},terr=game.world.territories[name]||{stability:55},bias=regionalBias(region,id),stock=stockOverride==null?x.stock:stockOverride,scarcity=cl(1+(x.demand-stock)/115,.55,2.15),instability=1+cl((50-(terr.stability==null?50:terr.stability))/220,-.12,.32),blocked=marketBlockade(name),war=blocked?1.32:1,pressure=1;m.blockade=blocked;
  if(id==='provisions'||id==='medicine')pressure*=1+cl((rp.Instabilité||20)/380,0,.28);
  if(id==='luxury')pressure*=.83+(rp.Prospérité||50)/290;
  if(g.restricted)pressure*=.92+(rp.Criminalité||20)/220;
@@ -2155,7 +2155,7 @@ function inspectSmugglingAtArrival(destination){
 function marketMonthlyTarget(name,id){
  var g=goodById(id),region=infStatic(name).region,rp=game.world.pressures[region]||{},terr=game.world.territories[name]||{stability:50},bias=regionalBias(region,id),target=55/bias;
  if(id==='provisions')target+=((rp.Prospérité||50)-40)*.18;if(id==='medicine')target-=((rp.Instabilité||20))*0.12;if(g.restricted)target+=((rp.Criminalité||20)-25)*.25;if(name==='Skypiea'&&id==='dials')target+=55;if(name==='Wano'&&id==='seastone')target+=50;
- if(marketBlockade(name))target*=.58;target*=.7+(terr.stability||50)/165;return cl(target,4,125)
+ if(marketBlockade(name))target*=.58;target*=.7+(terr.stability==null?50:terr.stability)/165;return cl(target,4,125)
 }
 function simulateTradeRoutes(){
  var w=game.world,seen={};Object.keys(PL).forEach(function(a){(PL[a][2]||[]).forEach(function(b){if(!w.markets[b])return;var key=[a,b].sort().join('|');if(seen[key])return;seen[key]=1;if(marketBlockade(a)||marketBlockade(b))return;var good=pk(TRADE_GOODS.filter(function(g){return !g.restricted}),'economy'),pa=marketPrice(a,good.id,false),pb=marketPrice(b,good.id,false),from=pa<pb?a:b,to=from===a?b:a,mf=w.markets[from].goods[good.id],mt=w.markets[to].goods[good.id],gap=Math.abs(pa-pb)/Math.max(1,Math.min(pa,pb));if(gap>.12&&mf.stock>10){var qty=Math.min(mf.stock-8,1+Math.floor(R('economy')*4));mf.stock-=qty;mt.stock=cl(mt.stock+qty,0,150);w.economy.monthlyVolume+=Math.round(qty*Math.min(pa,pb))}})})

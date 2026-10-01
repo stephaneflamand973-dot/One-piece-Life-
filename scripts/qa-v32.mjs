@@ -67,7 +67,7 @@ window.__qa={
  registerCrime:registerCrime,arrestPlayer:arrestPlayer,prisonTick:prisonTick,attemptEscape:attemptEscape,justiceTick:justiceTick,pirateMissionCrimeSeverity:pirateMissionCrimeSeverity,justiceMissionImpact:justiceMissionImpact,
  influenceMetrics:influenceMetrics,establishDomain:establishDomain,fortifyDomain:fortifyDomain,influenceTick:influenceTick,
  startStrategicWar:startStrategicWar,simulateWars:simulateWars,simulateConflicts:simulateConflicts,resolveConflict:resolveConflict,resolveWar:resolveWar,warBetween:warBetween,
- marketPrice:marketPrice,marketPriceIndex:marketPriceIndex,buyCommodity:buyCommodity,sellCommodity:sellCommodity,tradeRouteOpportunities:tradeRouteOpportunities,
+ marketPrice:marketPrice,marketPriceIndex:marketPriceIndex,marketMonthlyTarget:marketMonthlyTarget,buyCommodity:buyCommodity,sellCommodity:sellCommodity,tradeRouteOpportunities:tradeRouteOpportunities,
  simulateEconomy:simulateEconomy,initWorldEconomy:initWorldEconomy,initialMarket:initialMarket,cargoUsed:cargoUsed,cargoCapacity:cargoCapacity,cargoBookValue:cargoBookValue,blackMarketRisk:blackMarketRisk,inspectSmugglingAtArrival:inspectSmugglingAtArrival,
  releasePlayerFruits:releasePlayerFruits,checkAchievements:checkAchievements,chargeMoney:chargeMoney,serviceDebt:serviceDebt,netWorth:netWorth,
  explorationSite:explorationSite,islandProfile:islandProfile,discoveryPool:discoveryPool,registerDiscovery:registerDiscovery,discoverByKnowledge:discoverByKnowledge,explorationTick:explorationTick,migrateExploration:migrateExploration,currentRumor:currentRumor,learnLocalRumor:learnLocalRumor,routeEstimate:routeEstimate,chooseSeaCondition:chooseSeaCondition,seaJourneyTick:seaJourneyTick,travel:travel,beginJourney:beginJourney,settleCareerNetwork:settleCareerNetwork,setExplorationActivity:setExplorationActivity,renderExploration:renderExploration,renderJourney:renderJourney,renderCodexExploration:renderCodexExploration,
@@ -197,6 +197,15 @@ test('Economy: at least one generated direct-route arbitrage is executable',()=>
   if(!routes.length){q.simulateEconomy();routes=q.tradeRouteOpportunities()}
   assert(routes.length>0,'no profitable direct-route opportunity generated');const r=routes[0];q.buyCommodity(r.good.id,1,false);const item=p.trade.cargo.find(c=>c.good===r.good.id);assert(item,'purchase failed');p.island=r.dest;p.region=q.inf(r.dest).region;const before=p.trade.profit;q.sellCommodity(r.good.id,1,false);assert(p.trade.profit>before,'route did not realize profit at current quoted prices');return r.good.name+' to '+r.dest+' ~'+Math.round(r.margin)+'%'
 });
+test('V5.0 collapsed territorial stability remains causal in local markets',()=>{
+  const g=fresh(4499),p=g.player,name=p.island,t=g.world.territories[name];assert(t,'territory fixture missing');const stock=g.world.markets[name].goods.provisions.stock;
+  t.stability=50;const neutralPrice=q.marketPrice(name,'provisions',true,stock),neutralTarget=q.marketMonthlyTarget(name,'provisions');
+  t.stability=0;const collapsedPrice=q.marketPrice(name,'provisions',true,stock),collapsedTarget=q.marketMonthlyTarget(name,'provisions');
+  assert(collapsedPrice>neutralPrice,'zero stability was normalized away from market pricing: '+collapsedPrice+' / '+neutralPrice);
+  assert(collapsedTarget<neutralTarget,'zero stability was normalized away from market target: '+collapsedTarget+' / '+neutralTarget);
+  return collapsedPrice+' vs '+neutralPrice+' / target '+collapsedTarget.toFixed(1)+' vs '+neutralTarget.toFixed(1);
+});
+
 test('Economy: blockade raises essentials and stops normal trade flow',()=>{
   const g=fresh(4501),p=g.player;p.ageMonths=300;const place=p.island;g.world.conflicts=[];const before=q.marketPrice(place,'provisions',true);g.world.conflicts.push({id:'qa-block',location:place,region:p.region,attacker:'Pirates',defender:'Marine',intensity:80,months:1,status:'active'});const after=q.marketPrice(place,'provisions',true);assert(after>before,'blockade did not increase provisions price');q.simulateEconomy();assert(g.world.markets[place].blockade===true,'blockade state not applied');return before+' -> '+after+' B'
 });
