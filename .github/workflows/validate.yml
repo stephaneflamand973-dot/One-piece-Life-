@@ -1,4 +1,4 @@
-name: Validate V7.1
+name: Validate V7.2
 on:
   push:
     branches: [main]
@@ -17,14 +17,18 @@ on:
       - 'scripts/qa-v69.mjs'
       - 'scripts/qa-v70.mjs'
       - 'scripts/qa-v71.mjs'
+      - 'scripts/qa-v72.mjs'
       - 'QA-V7.1.md'
+      - 'QA-V7.2.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
       - '.github/workflows/audit-v32.yml'
       - '.github/workflows/pages.yml'
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v71-validate-${{ github.ref }}
+  group: v72-validate-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -36,7 +40,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate standalone and modular V7.1
+      - name: Validate standalone and modular V7.2
         run: |
           node <<'NODE'
           const fs=require('fs');
@@ -44,25 +48,33 @@ jobs:
           const m=html.match(/<script>([\s\S]*?)<\/script>/);
           if(!m) throw new Error('inline game script missing');
           new Function(m[1]);
-          if(!html.includes('ONE PIECE LIFE — V7.1')) throw new Error('V7.1 title missing');
-          if(!html.includes('const SAVE_VERSION = 710;')) throw new Error('Save migration 710 missing');
-          if(!html.includes("const GAME_VERSION = '7.1.0';")) throw new Error('Game version 7.1.0 missing');
-          const assets=['src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css'];
+          const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+          const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+          if(!html.includes('ONE PIECE LIFE — V7.2')) throw new Error('V7.2 title missing');
+          if(saveVersion<720) throw new Error('Save migration 720+ missing');
+          if(gameVersion!=='7.2.0') throw new Error('Game version 7.2.0 missing');
+          const assets=[
+            'src/core/module-registry.js',
+            'src/data/arc-definitions-v71.js',
+            'src/v71/arc-director.js',
+            'src/v71/arc-director.css',
+            'src/data/combat-techniques-v72.js',
+            'src/v72/combat-engine-v72.js'
+          ];
           for(const x of assets){
             if(!fs.existsSync(x)) throw new Error('missing modular asset '+x);
             if(!html.includes(x)) throw new Error('index does not load '+x);
           }
-          new Function(fs.readFileSync('src/core/module-registry.js','utf8'));
-          new Function(fs.readFileSync('src/data/arc-definitions-v71.js','utf8'));
-          new Function(fs.readFileSync('src/v71/arc-director.js','utf8'));
-          for(const x of ['function v71Ensure','function v71MaybeStartArc','function v71ResolveArcChoice','function v71FinishArc','function renderV71Arc']) if(!html.includes(x)) throw new Error('missing '+x);
+          for(const x of assets.filter(x=>x.endsWith('.js'))) new Function(fs.readFileSync(x,'utf8'));
+          for(const x of ['function v71Ensure','function v71MaybeStartArc','function v71ResolveArcChoice','function v71FinishArc','function renderV71Arc','function v72CombatModule','function v72RecordCombatUsage','function v72SetDoctrine']) if(!html.includes(x)) throw new Error('missing '+x);
           if(!html.includes('id="v71ArcCard"')) throw new Error('Arc Director UI missing');
+          if(!html.includes('data-v72-doctrine')) throw new Error('Combat doctrine UI missing');
           const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-          if(!String(manifest.description||'').includes('V7.1')) throw new Error('manifest not V7.1');
+          if(!String(manifest.description||'').includes('V7.2')) throw new Error('manifest not V7.2');
           const sw=fs.readFileSync('sw.js','utf8');
-          if(!sw.includes('v7-1-0')) throw new Error('service worker cache not V7.1.0');
+          if(!sw.includes('v7-2-0')) throw new Error('service worker cache not V7.2.0');
           for(const x of assets) if(!sw.includes(x)) throw new Error('service worker missing modular asset '+x);
-          console.log('V7.1 static + modular validation OK');
+          console.log('V7.2 static + modular validation OK');
           NODE
       - name: Validate V6.4 regression behavior
         run: node scripts/qa-v64.mjs
@@ -82,3 +94,5 @@ jobs:
         run: node scripts/qa-v70.mjs
       - name: Validate live V7.1 behavior
         run: node scripts/qa-v71.mjs
+      - name: Validate V7.2 Combat and Powers
+        run: node scripts/qa-v72.mjs
