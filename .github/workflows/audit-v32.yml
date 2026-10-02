@@ -1,4 +1,4 @@
-name: V7.4 Live Audit
+name: V7.5 Live Audit
 on:
   workflow_dispatch:
   push:
@@ -18,6 +18,7 @@ on:
       - 'scripts/qa-v72.mjs'
       - 'scripts/qa-v73.mjs'
       - 'scripts/qa-v74.mjs'
+      - 'scripts/qa-v75.mjs'
       - 'app.js'
       - 'content-v1.js'
       - 'scripts/audit-v32.mjs'
@@ -25,7 +26,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: v74-live-audit-${{ github.ref }}
+  group: v75-live-audit-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   audit:
@@ -60,6 +61,8 @@ jobs:
         run: node scripts/qa-v73.mjs
       - name: Run V7.4 Relations and Persona QA
         run: node scripts/qa-v74.mjs
+      - name: Run V7.5 World and Canon QA
+        run: node scripts/qa-v75.mjs
       - name: Run legacy engine trend audit
         continue-on-error: true
         run: node scripts/audit-v32.mjs
