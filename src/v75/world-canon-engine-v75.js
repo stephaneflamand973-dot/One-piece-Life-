@@ -48,19 +48,21 @@
   }
 
   function hostileTargets(actor={},actors=[]){
-    return actors.filter(x=>
-      x&&x.id!==actor.id&&(x.status==='alive'||x.status==='active')&&
-      (x.currentRegion||x.region)===(actor.currentRegion||actor.region)&&
-      factionRelation(actor.faction,x.faction)<=-25
-    )
+    return actors.filter(x=>{
+      if(!x||x.id===actor.id||!(x.status==='alive'||x.status==='active'))return false;
+      if((x.currentRegion||x.region)!==(actor.currentRegion||actor.region))return false;
+      const rel=factionRelation(actor.faction,x.faction);
+      return rel<=-25||(actor.faction==='Pirates'&&x.faction==='Pirates')
+    })
   }
 
   function cooperativeTargets(actor={},actors=[]){
-    return actors.filter(x=>
-      x&&x.id!==actor.id&&(x.status==='alive'||x.status==='active')&&
-      (x.currentRegion||x.region)===(actor.currentRegion||actor.region)&&
-      factionRelation(actor.faction,x.faction)>=15
-    )
+    return actors.filter(x=>{
+      if(!x||x.id===actor.id||!(x.status==='alive'||x.status==='active'))return false;
+      if((x.currentRegion||x.region)!==(actor.currentRegion||actor.region))return false;
+      const rel=factionRelation(actor.faction,x.faction);
+      return rel>=15||(actor.faction==='Pirates'&&x.faction==='Pirates'&&rel>-20)
+    })
   }
 
   function availableFruits(actor={},fruits=[]){
