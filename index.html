@@ -1304,7 +1304,7 @@ function trainProgress(months){
     const k=pick(choices,'progress'),cur=p.stats[k],diminish=clamp(1-cur/115,.14,1),ageMod=age<12?.75:age<20?1.12:age<35?1:.75;
     let gain=(.45+random('progress')*1.05)*(months/3+.25)*diff.gain*diminish*ageMod*talentForStat(k);
     if(activity==='intense')gain*=1.2;if(game.activeMission)gain*=1.08;
-    gain*=v6SpecMultiplier('stats',k)*v61AnnualMultiplier('training')*v66GrowthMultiplier('stats',k);
+    gain*=v6SpecMultiplier('stats',k)*v61AnnualMultiplier('training')*v66GrowthMultiplier('stats',k)*v67MentorMultiplier('stats',k);
     gain=Math.max(.05,gain);
     const ceiling=Math.min(p.caps[k].soft,v66Cap('stats',k)),next=clamp(cur+gain,0,ceiling);
     p.stats[k]=+next.toFixed(2);
@@ -1313,7 +1313,7 @@ function trainProgress(months){
   for(const k of [...new Set(skillFocus)]){
     const cur=p.skills[k]||0,diminish=clamp(1-cur/120,.18,1)*v63MasteryEfficiency(cur,'skill');
     let gain=(.38+random('skill')*.95)*(months/2+.2)*diff.gain*diminish*skillTalent(k);
-    gain*=v6SpecMultiplier('skills',k)*v61AnnualMultiplier('training');
+    gain*=v6SpecMultiplier('skills',k)*v61AnnualMultiplier('training')*v67MentorMultiplier('skills',k);
     const next=v66ProgressValue('skills',k,cur,gain);
     p.skills[k]=next;
     if(Math.floor(next)>Math.floor(cur))changes.push(k+' '+Math.floor(cur)+' → '+Math.floor(next))
@@ -1322,7 +1322,7 @@ function trainProgress(months){
     for(const key of ['Observation','Armement']){
       const h=p.haki[key];
       if(h.state!=='Dormant'&&h.state!=='Inconnu'){
-        const old=h.mastery,base=(.15+random('hakiProgress')*.52)*months*diff.gain*v61AnnualMultiplier('training')*v62Metric('mastery',1)*v63MasteryEfficiency(old,'power');
+        const old=h.mastery,base=(.15+random('hakiProgress')*.52)*months*diff.gain*v61AnnualMultiplier('training')*v62Metric('mastery',1)*v63MasteryEfficiency(old,'power')*v67MentorMultiplier('haki',key);
         h.mastery=v66ProgressValue('haki',key,old,base);
         if(Math.floor(h.mastery)>Math.floor(old)&&Math.floor(h.mastery)%5===0)changes.push(key+' '+Math.floor(old)+' → '+Math.floor(h.mastery))
       }
@@ -1359,13 +1359,26 @@ function maybeBreakthrough(months){
 function updateCondition(months){const p=game.player;if(p.activityType==='intense'){p.energy=clamp(p.energy-randInt(4,10,'condition')*(months>=1?1:.5),15,100);if(chance(.04*months*currentDifficulty().danger*v62Metric('injury',1)*v63FatigueProfile(p).injury,'condition')){const inj=randInt(4,14,'condition');p.health=clamp(p.health-inj,0,100);p.conditions.push({name:'Blessure d’entraînement',severity:'légère',months:2});addHistory('Blessure à l’entraînement','La charge finit par dépasser ce que ton corps encaissait proprement.','danger',`Santé -${inj}`)}}else if(p.activityType==='rest'){p.energy=clamp(p.energy+randInt(10,20,'condition'),0,100);p.health=clamp(p.health+randInt(2,8,'condition'),0,100)}else{p.energy=clamp(p.energy+randInt(-3,5,'condition'),25,100);if(p.health<100){const recovery=(p.conditions.length?.18:.42)*months*(p.energy>=60?1:p.energy>=40?.75:.45);p.health=clamp(p.health+recovery,0,100)}}for(const c of p.conditions)c.months-=months;const healed=p.conditions.filter(c=>c.months<=0);if(healed.length)addHistory('Récupération',`${healed.map(x=>x.name).join(', ')} ne te handicape plus.`);p.conditions=p.conditions.filter(c=>c.months>0)}
 
 function simulateRelations(months){
-  if(game.ageMonths<48)return;const relMult=v61AnnualMultiplier('relations');
+  if(game.ageMonths<48)return;
+  const relMult=v61AnnualMultiplier('relations');
   if(game.relations.length<12&&chance(clamp((.08+months*.02)*relMult*v62Metric('network',1),0,.58),'relations')){
     const pools=['Mira','Dalen','Rook','Sena','Toma','Neris','Aren','Kiro','Veya','Milo','Iria','Solan','Namiya','Bren'];
     const name=pick(pools.filter(n=>!game.relations.some(r=>r.name===n)),'relations');
-    if(name){const role=pick(game.player.faction==='Marine'?['Camarade','Instructeur','Rival','Médecin de base','Supérieur']:game.player.faction==='Pirates'?['Membre d’équipage','Rival','Navigateur','Marchand','Informateur']:['Ami','Rival local','Mentor potentiel','Marchand itinérant','Collègue'],'relations');const r={id:slug(name),name,role,affection:randInt(18,62,'relations'),respect:randInt(15,65,'relations'),trust:randInt(10,55,'relations'),loyalty:randInt(10,55,'relations'),fear:randInt(0,15,'relations'),rivalry:randInt(0,35,'relations'),familiarity:10,status:'active'};game.relations.push(r);addHistory('Nouvelle relation',`Tu fais réellement connaissance avec ${name}, ${role.toLowerCase()}.`,'normal')}
+    if(name){
+      const role=pick(game.player.faction==='Marine'?['Camarade','Instructeur','Rival','Médecin de base','Supérieur']:game.player.faction==='Pirates'?['Membre d’équipage','Rival','Navigateur','Marchand','Informateur']:['Ami','Rival local','Mentor potentiel','Marchand itinérant','Collègue'],'relations');
+      const r={id:slug(name),name,role,affection:randInt(18,62,'relations'),respect:randInt(15,65,'relations'),trust:randInt(10,55,'relations'),loyalty:randInt(10,55,'relations'),fear:randInt(0,15,'relations'),rivalry:randInt(0,35,'relations'),familiarity:10,status:'active'};
+      v67EnsureRelation(r);game.relations.push(r);addHistory('Nouvelle relation','Tu fais réellement connaissance avec '+name+', '+role.toLowerCase()+'.','normal')
+    }
   }
-  if(game.relations.length){const r=pick(game.relations.filter(x=>x.status==='active'),'relations');if(r){const positive=chance(clamp(.66+Math.max(0,relMult-1)*.08,0,.82),'relations'),d=positive?Math.max(1,Math.round(randInt(1,6,'relations')*relMult)):-randInt(1,4,'relations');r.affection=clamp(r.affection+d,0,100);r.trust=clamp(r.trust+(positive?Math.max(0,Math.round(randInt(0,4,'relations')*relMult)):-randInt(0,3,'relations')),0,100);r.familiarity=clamp(r.familiarity+months*.7*relMult,0,100);if(r.rivalry>55&&chance(.025*months*relMult,'relations'))addHistory('Tension relationnelle',`${r.name} et toi vous heurtez de plus en plus souvent. La rivalité devient difficile à ignorer.`,'major')}}
+  if(game.relations.length){
+    const active=game.relations.filter(x=>x.status==='active'),r=active.length?pick(active,'relations'):null;
+    if(r){
+      const positive=chance(clamp(.66+Math.max(0,relMult-1)*.08,0,.82),'relations'),d=positive?Math.max(1,Math.round(randInt(1,6,'relations')*relMult)):-randInt(1,4,'relations');
+      r.affection=clamp(r.affection+d,0,100);r.trust=clamp(r.trust+(positive?Math.max(0,Math.round(randInt(0,4,'relations')*relMult)):-randInt(0,3,'relations')),0,100);r.familiarity=clamp(r.familiarity+months*.7*relMult,0,100);
+      if(r.rivalry>55&&chance(.025*months*relMult,'relations'))addHistory('Tension relationnelle',r.name+' et toi vous heurtez de plus en plus souvent. La rivalité devient difficile à ignorer.','major')
+    }
+  }
+  v67RelationshipsTick(months);v67CrewTick(months)
 }
 
 function generateEmergentCrew(region=game.player.region){const adjectives=['Rouge','Grimaçant','Brumeux','Féroce','Argenté','Errant','Sombre','Tonnerre'];const nouns=['Requin','Corbeau','Serpent','Marteau','Mistral','Kraken','Loup','Albatros'];const name=`Équipage du ${pick(adjectives,'world')} ${pick(nouns,'world')}`;const crew={id:`${slug(name)}_${game.world.emergentCrews.length}`,name,power:randInt(18,62,'world')+(region==='New World'?22:region==='Grand Line'?10:0),notoriety:randInt(2,32,'world'),region,status:'active',captainPower:randInt(18,64,'world'),age:0};game.world.emergentCrews.push(crew);return crew}
@@ -1584,13 +1597,16 @@ function v65MissionApproach(plan=v62PlanSource()){
   return {id,action:V62_ANNUAL_ACTIONS.mission.options[id]||V62_ANNUAL_ACTIONS.mission.options.standard}
 }
 function v65CrewSupport(m=game?.activeMission){
-  const c=game?.player?.crew;
-  if(!c||!Array.isArray(c.members)||!c.members.length)return 0;
-  const morale=clamp(Number(c.morale)||50,0,100);
-  const roster=Math.min(6,c.members.length*.72);
+  v67Ensure();const c=game?.player?.crew;
+  if(!c||!Array.isArray(c.members)||!c.members.length)return v67MissionRelationSupport();
+  const active=c.members.filter(x=>x.status==='active');if(!active.length)return v67MissionRelationSupport();
+  const metrics=v67CrewMetrics(),morale=clamp(Number(c.morale)||50,0,100);
+  const roster=Math.min(5.5,active.length*.72);
   const ship=['navigation','explore','escort'].includes(m?.type)&&c.ship?clamp((Number(c.ship.condition)||60)-50,0,50)/25:0;
-  const second=c.members.some(x=>/bras droit|second/i.test(String(x.role||'')))?1.2:0;
-  return +clamp(roster+morale/28+ship+second,0,10).toFixed(1)
+  const second=active.some(x=>/bras droit|second/i.test(String(x.role||'')))?1.2:0;
+  const cohesion=(metrics.cohesion-50)/18,tensionPenalty=Math.max(0,(metrics.tension-45)/16);
+  const social=v67MissionRelationSupport();
+  return +clamp(roster+morale/30+ship+second+cohesion+social-tensionPenalty,0,12).toFixed(1)
 }
 function v65MissionCondition(){
   const p=game.player;
@@ -1787,9 +1803,8 @@ function ensureV6(){
   for(const d of Object.keys(V62_DEFAULT_PLAN))if(!V62_ANNUAL_ACTIONS[d]?.options?.[game.agency.annualPlan[d]])game.agency.annualPlan[d]=V62_DEFAULT_PLAN[d];
   if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;
   if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));
-  ensureV59();
-  for(const h of game.world.worldHooks||[])updateHakiStagesV6();
-  v63Ensure();v64Ensure();v66Ensure()
+  ensureV59();for(const h of game.world.worldHooks||[])updateHakiStagesV6();
+  v63Ensure();v64Ensure();v66Ensure();v67Ensure()
 }
 function v6RelationById(id){return game.relations.find(r=>r.id===id||slug(r.name)===id)}
 function v6InteractRelation(id,action){const r=v6RelationById(id);if(!r||!game.alive)return false;if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cette interaction directe.');return false}const p=game.player,year=Math.floor(game.ageMonths/12);game.flags.relationInteractionYear=game.flags.relationInteractionYear||{};if(game.flags.relationInteractionYear[r.id]===year){toast(`Tu as déjà consacré une action directe à ${r.name} cette année.`);return false}if(action==='time'){if(p.energy<4){toast('Énergie insuffisante.');return false}p.energy=clamp(p.energy-4,0,100);r.affection=clamp(r.affection+randInt(3,8,'v6Relation'),0,100);r.trust=clamp(r.trust+randInt(2,6,'v6Relation'),0,100);r.familiarity=clamp(r.familiarity+5,0,100);addHistory('Temps partagé',`Tu consacres du temps à ${r.name}. Votre relation devient plus concrète.`,'normal')}
