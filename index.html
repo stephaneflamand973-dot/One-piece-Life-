@@ -1459,9 +1459,10 @@ function renderV69Endgame(){
 // -----------------------------------------------------------------------------
 function v70Ensure(){
   if(!game?.world)return null;
-  const w=game.world;
-  w.canonV70=w.canonV70&&typeof w.canonV70==='object'?w.canonV70:{version:1,eventEffectsApplied:{},encounters:{},migratedAt:game.clock?.year||0};
+  const w=game.world,fresh=!w.canonV70||typeof w.canonV70!=='object';
+  w.canonV70=fresh?{version:1,eventEffectsApplied:{},encounters:{},migratedAt:game.clock?.year||0}:w.canonV70;
   w.canonV70.version=1;w.canonV70.eventEffectsApplied=w.canonV70.eventEffectsApplied||{};w.canonV70.encounters=w.canonV70.encounters||{};
+  if(fresh)for(const e of w.canon||[])if(['completed','modified'].includes(e.status))w.canonV70.eventEffectsApplied[e.id]=true;
   w.characters=Array.isArray(w.characters)?w.characters:[];
   const byChar=new Map(w.characters.map(x=>[x.id,x]));
   for(const c of CANON_CHARACTERS){
