@@ -2451,10 +2451,23 @@ function worldReactionCandidate(bucket){
 function worldReactionActor(c){if(!c||c.sourceKind!=='actor')return null;return(game.world.actors||[]).find(function(a){return a.name===c.sourceId})||null}
 function worldReactionCrew(c){if(!c||c.sourceKind!=='crew')return null;return(game.world.crews||[]).find(function(x){return x.id===c.sourceId})||null}
 function worldReactionRelation(c,context){var a=worldReactionActor(c);return a?bondCanonicalActor(a,context||('Réaction du monde : '+worldReactionTypeLabel(c.type))):null}
+function worldReactionChapterTitle(c,outcome){
+ var n=c&&c.sourceName||c&&c.sourceFaction||'une puissance',o=String(outcome||'');
+ if(o==='accord négocié')return'Accord négocié avec '+n;
+ if(o==='coopération acceptée')return'Coopération reconnue par '+n;
+ if(o==='négociation refusée')return'Bras de fer diplomatique avec '+n;
+ if(o==='refus')return'Indépendance affirmée face à '+n;
+ if(o==='défi remporté')return'Victoire de prestige contre '+n;
+ if(o==='défi perdu')return'Défi de prestige face à '+n;
+ if(o==='tension désamorcée')return'Tension désamorcée avec '+n;
+ if(o==='désescalade échouée')return'Pression persistante de '+n;
+ if(o==='réaction ignorée')return'Distance imposée à '+n;
+ return worldReactionTypeLabel(c&&c.type)+' — '+n
+}
 function recordWorldReaction(c,outcome,impact){
  var p=game.player,wr=migrateWorldReactions(p),item={id:c.id,age:age(),ageMonths:p.ageMonths,type:c.type,sourceKind:c.sourceKind,sourceId:c.sourceId,sourceName:c.sourceName,sourceFaction:c.sourceFaction,outcome:outcome,impact:impact||0,attention:c.attention||Math.round(destinyWorldAttention())};wr.history.unshift(item);wr.history=wr.history.slice(0,16);wr.lastAge=p.ageMonths;
  rememberCausalMemory('world-reaction',worldReactionTypeLabel(c.type)+' — '+c.sourceName,cl(48+(impact||0)*4,48,88),{kind:'world-reaction',subjectId:c.sourceId||c.sourceFaction,sourceFaction:c.sourceFaction,outcome:outcome,region:p.region},'world-reaction:'+c.id);
- if((impact||0)>=5)signalPersonalChapter('world','Le monde réagit à '+p.name,10+impact,'world-reaction:'+c.id,c.sourceId||c.sourceFaction);return item
+ if((impact||0)>=5)signalPersonalChapter('world',worldReactionChapterTitle(c,outcome),10+impact,'world-reaction:'+c.id,c.sourceId||c.sourceFaction);return item
 }
 function worldReactionPositive(c,mode){
  var p=game.player,wr=migrateWorldReactions(p),r=worldReactionRelation(c,'Une puissance te contacte directement à cause de ta stature.'),org=p.organization,bonus=mode==='negotiate'?2:0;
