@@ -2381,7 +2381,7 @@ function organicLegendEvidence(){
  else if(f==='Gouvernement')gate=ri>=4||p.rank==='CP9'||p.rank==='Candidat CP0'||p.rank==='CP0'||decisive>=1;
  else if(f==='Chasseur de primes')gate=((p.justice&&p.justice.captures)||0)>=8||decisive>=1||(p.rank==='Maître chasseur'&&careerYears>=30&&missionCount>=32&&successRate>=.85&&journeyEvidence>=6);
  else gate=careerExpertise(p.specialization)>=70||netWorth()>=2000000;
- var roundedScore=Math.round(cl(score,0,100)),qualificationThreshold=careerYears<25?62:58;
+ var roundedScore=Math.round(cl(score,0,100)),qualificationThreshold=careerYears<25?65:58;
  return{score:roundedScore,rawScore:Math.round(cl(rawScore,0,100)*10)/10,peakScore:Math.round(cl(director.legendEvidencePeak||0,0,100)*10)/10,qualified:roundedScore>=qualificationThreshold&&gate,qualificationThreshold:qualificationThreshold,gate:gate,distinctions:lifetime.distinctions,legendDistinctions:lifetime.legendDistinctions,strongChapters:strongChapters,founding:founding,highMoments:highMoments,decisiveSagas:decisive,canonImpact:canon,careerYears:careerYears,careerPaths:lifetime.careerPaths,missionCount:missionCount,missionSuccessRate:Math.round(successRate*1000)/1000,journeyEvidence:Math.round(journeyEvidence*10)/10,visitedCount:visitedCount,missionExcellence:Math.round(missionExcellence*10)/10,veteranExcellence:Math.round(veteranExcellence*10)/10}
 }
 function playerWorldRecognition(){
