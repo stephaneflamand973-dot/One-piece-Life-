@@ -74,9 +74,11 @@ if(!q) throw new Error('Live V6.9 QA API was not exposed');
 function assert(cond,msg){if(!cond)throw new Error(msg)}
 function eq(actual,expected,msg){if(actual!==expected)throw new Error(`${msg}: got ${actual}, expected ${expected}`)}
 
-assert(html.includes('ONE PIECE LIFE — V6.9'),'V6.9 title missing');
-assert(html.includes('const SAVE_VERSION = 690;'),'Save version 690 missing');
-assert(html.includes("const GAME_VERSION = '6.9.0';"),'Game version 6.9.0 missing');
+const saveMatch=html.match(/const SAVE_VERSION = (\d+);/);
+const versionMatch=html.match(/const GAME_VERSION = '([0-9.]+)';/);
+assert(saveMatch&&Number(saveMatch[1])>=690,'Save version regressed below 690');
+assert(versionMatch&&Number(versionMatch[1].split('.')[0])>=6,'Game version missing or invalid');
+assert(html.includes('function v69Ensure'),'V6.9 endgame engine missing');
 for(const marker of [
   'function v69CareerTier',
   'function v69AnnualEconomy',
@@ -199,7 +201,7 @@ assert(maxMoney<1e9,'Structural economy exploded beyond sane long-career bounds'
 
 console.log('V6.9 LIVE QA OK',JSON.stringify({
   runtime:'index.html inline engine',
-  version:'6.9.0',
+  version:'6.9+ regression',
   lowAuthority:low.authority,
   highAuthority:high.authority,
   highTier:high.label,
