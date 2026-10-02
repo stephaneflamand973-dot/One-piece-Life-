@@ -1,3 +1,22 @@
+# ONE PIECE LIFE — V6.6 Potential Engine 2.0
+
+La V6.6 transforme le potentiel en système de progression réellement individuel.
+
+## Potential Engine 2.0
+- Chaque attribut et compétence possède désormais son propre **plafond naturel**.
+- Chaque domaine possède son propre **Growth Rate**.
+- Chaque personnage reçoit une courbe de développement **Précoce, Équilibrée, Tardive ou Durable**.
+- Haki, Fruit du Démon et expérience du style de combat possèdent leurs propres potentiels.
+- Les compétences ne montent plus universellement jusqu'à 100.
+- La progression ralentit à l'approche du plafond personnel.
+- Les breakthroughs restent actifs pour dépasser les soft caps jusqu'au plafond naturel.
+- La migration est déterministe et ne réduit jamais une valeur déjà acquise.
+- L'onglet Capacités montre maintenant **valeur / plafond / croissance**.
+- Save version : **660**.
+- Cache PWA : **one-piece-life-v6-6-0**.
+
+---
+
 # ONE PIECE LIFE — V6.5 Combat & Mission 2.0
 
 La V6.5 transforme les missions en situations réellement préparées et les combats en résolutions tactiques légères plutôt qu'en simple jet de victoire.
