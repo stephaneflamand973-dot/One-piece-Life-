@@ -1962,14 +1962,14 @@ function renderCharacter(){
   $('#careerCard').innerHTML='<strong>'+esc(p.career)+'</strong><p>'+esc(p.activity)+' • '+esc(p.situation)+' • expérience carrière '+Math.floor(p.careerXP)+'</p><div class="annual-focus-note">V6.7 : relations, mentorat et équipage influencent désormais réellement progression, soutien de mission et stabilité de ta trajectoire.</div>';
   const inv=p.equipment||[];
   $('#equipmentList').innerHTML=inv.length?inv.map(e=>{const f=game.world.fruits.find(x=>x.name===e&&x.holder==='player_inventory');return f?'<div class="inventory-item"><strong>'+esc(e)+' • '+esc(f.type)+'</strong><div class="inventory-actions"><button class="mini-action primary" data-fruit-eat="'+esc(e)+'">Manger</button><button class="mini-action" data-fruit-sell="'+esc(e)+'">Vendre</button></div></div>':'<span class="chip">'+esc(e)+'</span>'}).join(''):'<span class="chip">Inventaire vide</span>';
-  $('[data-fruit-eat]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitEat,'eat'));$('[data-fruit-sell]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitSell,'sell'));
+  $$('[data-fruit-eat]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitEat,'eat'));$$('[data-fruit-sell]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitSell,'sell'));
   const acts=availableActivities();$('#activityOptions').innerHTML=acts.map(([label,hint,type])=>'<button class="action-card '+(p.activityType===type?'active':'')+'" data-type="'+type+'" data-label="'+esc(label)+'"><strong>'+esc(label)+'</strong><small>'+esc(hint)+'</small></button>').join('');
-  $('#activityOptions .action-card').forEach(b=>b.onclick=()=>setActivity(b.dataset.type,b.dataset.label));
+  $$('#activityOptions .action-card').forEach(b=>b.onclick=()=>setActivity(b.dataset.type,b.dataset.label));
   if(p.crew){
     const metrics=v67CrewMetrics();$('#crewSection').classList.remove('hidden');$('#crewName').textContent=p.crew.name;$('#crewMorale').textContent='Cohésion '+Math.round(metrics.cohesion)+'% • tension '+Math.round(metrics.tension)+'%';
     const members=(p.crew.members||[]).filter(m=>m.status==='active'),cond=Math.round(p.crew.ship?.condition||70);
     $('#crewDetails').innerHTML='<div class="info-grid"><div class="info-cell"><span>Rôle</span><strong>'+esc(p.rank)+'</strong></div><div class="info-cell"><span>Membres actifs</span><strong>'+members.length+'</strong></div><div class="info-cell"><span>Moral</span><strong>'+Math.round(p.crew.morale)+'%</strong></div><div class="info-cell"><span>État navire</span><strong>'+cond+'%</strong></div></div><div class="crew-roster">'+members.map(m=>'<span class="chip">'+esc(m.name)+' • '+esc(m.role)+' • '+esc(m.temperament)+' • '+esc(m.ambition)+' • loyauté '+Math.round(m.loyalty||0)+'</span>').join('')+'</div><div class="crew-actions"><button class="secondary-btn" data-ship-repair="patch">Réparer +25%</button><button class="secondary-btn" data-ship-repair="full">Remise en état</button></div>';
-    $('[data-ship-repair]').forEach(b=>b.onclick=()=>v6RepairShip(b.dataset.shipRepair==='full'))
+    $$('[data-ship-repair]').forEach(b=>b.onclick=()=>v6RepairShip(b.dataset.shipRepair==='full'))
   }else $('#crewSection').classList.add('hidden');
   const storage=$('#storageStatus');if(storage)storage.textContent='Autosave • '+storageLabel();v62RenderDomainInline('careerAnnualActions','career');v62RenderDomainInline('resourcesAnnualActions','resources');v63RenderEconomy();renderCareerProgress();renderAmbition();renderMissions()
 }
