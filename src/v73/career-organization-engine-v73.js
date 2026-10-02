@@ -13,9 +13,9 @@
     const s={
       version:1,
       branch:state.branch||null,
-      standing:clamp(num(state.standing)||30,0,100),
-      trust:clamp(num(state.trust)||50,0,100),
-      discipline:clamp(num(state.discipline)||50,0,100),
+      standing:clamp(Number.isFinite(Number(state.standing))?Number(state.standing):30,0,100),
+      trust:clamp(Number.isFinite(Number(state.trust))?Number(state.trust):50,0,100),
+      discipline:clamp(Number.isFinite(Number(state.discipline))?Number(state.discipline):50,0,100),
       influence:clamp(num(state.influence)||0,0,100),
       responsibility:state.responsibility||'member',
       commendations:Math.max(0,Math.floor(num(state.commendations))),
