@@ -3438,7 +3438,7 @@ test('V5.7 positive reactions persist and affect prestige',()=>{
 test('V5.7 refusals remain meaningful without becoming catastrophic',()=>{
  const g=fresh(57704),p=g.player;p.ageMonths=360;p.factionRep.Civil=70;q.join('Civil');p.specialization='Scientifique';q.careerRecord().specialization='Scientifique';
  const c={id:'qa-v57-refuse',type:'alliance',sourceKind:'faction',sourceId:'Marine',sourceName:'Réseau Marine',sourceFaction:'Marine',sourcePower:45,stage:3,attention:72};
- q.worldReactionRefuse(c);const wr=q.migrateWorldReactions(p);assert(wr.refused===1,'refusal counter missing');assert(wr.history[0].outcome==='refus','refusal history missing');assert(game.alive,'refusal killed player');
+ q.worldReactionRefuse(c);const wr=q.migrateWorldReactions(p);assert(wr.refused===1,'refusal counter missing');assert(wr.history[0].outcome==='refus','refusal history missing');assert(g.alive,'refusal killed player');
  return 'refusal recorded';
 });
 
