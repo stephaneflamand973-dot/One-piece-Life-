@@ -73,6 +73,7 @@ function fixture(seed='670067'){
   return {
     version:'6.7.0',saveVersion:670,ageMonths:300,alive:true,seed,rngCounters:{},dev:{rngLog:[]},
     meta:{difficulty:'Standard'},flags:{},clock:{year:25,month:0,day:1},relations:[],history:[],news:[],pendingDecision:null,
+    pacing:{calmStreak:0,lastDecisionAge:0,lastMajorAge:0},
     agency:{annualPlan:{...plan},annualTurn:null},
     player:{
       name:'QA Social',faction:'Pirates',career:'Pirate',rank:'Capitaine',region:'Grand Line',
