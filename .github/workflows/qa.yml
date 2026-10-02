@@ -1,4 +1,4 @@
-name: V6.6 QA
+name: V6.7 QA
 on:
   push:
     branches: [main]
@@ -9,14 +9,15 @@ on:
       - 'scripts/qa-v64.mjs'
       - 'scripts/qa-v65.mjs'
       - 'scripts/qa-v66.mjs'
-      - 'QA-V6.6.md'
+      - 'scripts/qa-v67.mjs'
+      - 'QA-V6.7.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v66-qa-${{ github.ref }}
+  group: v67-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -32,5 +33,7 @@ jobs:
         run: node scripts/qa-v64.mjs
       - name: Verify V6.5 regression systems
         run: node scripts/qa-v65.mjs
-      - name: Verify live V6.6 Potential Engine
+      - name: Verify V6.6 regression systems
         run: node scripts/qa-v66.mjs
+      - name: Verify live V6.7 relationship and crew systems
+        run: node scripts/qa-v67.mjs
