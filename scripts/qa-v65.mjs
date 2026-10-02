@@ -66,7 +66,7 @@ const basePlan=()=>({career:'steady',training:'steady',relations:'steady',advent
 function fixture(planMission='standard'){
   const plan=basePlan();plan.mission=planMission;
   return {
-    version:'6.5.0',saveVersion:650,ageMonths:240,alive:true,seed:'650065',rngCounters:{},dev:{rngLog:[]},
+    version:'6.5+ regression',saveVersion:650,ageMonths:240,alive:true,seed:'650065',rngCounters:{},dev:{rngLog:[]},
     meta:{difficulty:'Standard'},flags:{},pendingDecision:null,activeMission:null,
     clock:{year:20,month:0,day:1},
     agency:{annualPlan:{...plan},annualTurn:{active:true,plan:{...plan},risk:{budget:90,spent:0,events:0,ambient:0,travel:0,mission:0,hook:0}}},
@@ -86,10 +86,12 @@ function fixture(planMission='standard'){
 }
 const mission={id:'qa_mission',title:'Interception',desc:'QA',type:'combat',danger:'medium',power:52,reward:12000,duration:1};
 
-// Version and public release markers.
-assert(html.includes('ONE PIECE LIFE — V6.5'),'V6.5 title missing');
-assert(html.includes('const SAVE_VERSION = 650;'),'Save version 650 missing');
-assert(html.includes("const GAME_VERSION = '6.5.0';"),'Game version 6.5.0 missing');
+// V6.5 systems must remain present in V6.5 or later releases.
+const saveMatch=html.match(/const SAVE_VERSION = (\d+);/);
+const versionMatch=html.match(/const GAME_VERSION = '([0-9.]+)';/);
+assert(saveMatch&&Number(saveMatch[1])>=650,'Save version regressed below 650');
+assert(versionMatch&&Number(versionMatch[1].split('.')[0])>=6,'Game version missing or invalid');
+assert(html.includes('function v65CombatAssessment'),'V6.5 combat assessment missing');
 
 // Readiness responds to actual preparation layers.
 let g=fixture('standard');q.setGame(g);
