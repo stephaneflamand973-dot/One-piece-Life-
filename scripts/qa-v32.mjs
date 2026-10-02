@@ -57,8 +57,8 @@ window.__qa={
  getGame:function(){return game},setGame:function(v){game=v},save:save,load:load,purgeSaveSlot:purgeSaveSlot,deleteSaveSlot:deleteSaveSlot,slotKey:slotKey,slotMetaKey:slotMetaKey,pendingIsExecutable:pendingIsExecutable,
  make:make,migrate:migrate,world:world,worldMonthStep:worldMonthStep,advance:advance,render:render,renderChar:renderChar,renderWorld:renderWorld,bind:bind,simulateActors:simulateActors,simulateCrews:simulateCrews,makeWorldCrew:makeWorldCrew,normalizeWorldCrew:normalizeWorldCrew,worldCrewLeadership:worldCrewLeadership,promoteWorldCrewLeader:promoteWorldCrewLeader,spawnCrewSplinter:spawnCrewSplinter,worldCrewInternalTick:worldCrewInternalTick,compactWorldCrewMemory:compactWorldCrewMemory,actorIntentPool:actorIntentPool,assignActorIntent:assignActorIntent,resolveActorIntent:resolveActorIntent,resolveCrewIntent:resolveCrewIntent,actorRegionalFootprint:actorRegionalFootprint,worldPulseSince:worldPulseSince,canonDependencyState:canonDependencyState,canonTimelineMode:canonTimelineMode,resolveCanonEvent:resolveCanonEvent,createCanonBranch:createCanonBranch,simulateCanonBranches:simulateCanonBranches,resolveCanonBranch:resolveCanonBranch,markPlayerCanonImpact:markPlayerCanonImpact,playerCanonReactions:playerCanonReactions,actorIntentTick:actorIntentTick,crewIntentPool:crewIntentPool,assignCrewIntent:assignCrewIntent,resolveCrewIntent:resolveCrewIntent,crewIntentTick:crewIntentTick,
  advancePlan:advancePlan,chooseAdvanceDuration:chooseAdvanceDuration,advanceSlice:advanceSlice,event:event,resolveAmbientDanger:resolveAmbientDanger,dangerAlternativeScore:dangerAlternativeScore,eventChance:eventChance,eventNoveltyWeight:eventNoveltyWeight,migrateLifeLoop:migrateLifeLoop,recordSignatureMoment:recordSignatureMoment,scheduleConsequence:scheduleConsequence,resolveConsequence:resolveConsequence,processConsequences:processConsequences,consequenceRelation:consequenceRelation,registerArcSignal:registerArcSignal,signalArcFromConsequence:signalArcFromConsequence,arcPressureFor:arcPressureFor,arcTick:arcTick,closeArc:closeArc,rememberFoundingMoment:rememberFoundingMoment,captureAdvanceState:captureAdvanceState,finalizeAdvanceReport:finalizeAdvanceReport,renderAdvanceLoop:renderAdvanceLoop,durationText:durationText,renderTimeline:renderTimeline,
- power:power,powerRank:powerRank,styleMastery:styleMastery,styleEdge:styleEdge,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,currentFocus:currentFocus,styleFocusKeys:styleFocusKeys,styleTrainingPlan:styleTrainingPlan,gainCombatExperience:gainCombatExperience,combatIdentityTraits:combatIdentityTraits,combatIdentityBonus:combatIdentityBonus,recordCombatIdentity:recordCombatIdentity,signatureTechniqueBonus:signatureTechniqueBonus,maybeDevelopSignatureTechnique:maybeDevelopSignatureTechnique,trainSignatureTechnique:trainSignatureTechnique,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,focusOptions:focusOptions,recommendedFocus:recommendedFocus,normalizeActivityFocus:normalizeActivityFocus,currentFocus:currentFocus,simpleFocusKeys:simpleFocusKeys,styleFocusKeys:styleFocusKeys,careerFocusKeys:careerFocusKeys,hasPowerFocus:hasPowerFocus,
- developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,setSectionState:function(name,value){sectionState[name]=value},getSectionState:function(){return Object.assign({},sectionState)},
+ power:power,powerRaw:powerRaw,powerRank:powerRank,styleMastery:styleMastery,styleEdge:styleEdge,combatProfile:combatProfile,combatPrimarySkill:combatPrimarySkill,currentFocus:currentFocus,styleFocusKeys:styleFocusKeys,styleTrainingPlan:styleTrainingPlan,gainCombatExperience:gainCombatExperience,combatIdentityTraits:combatIdentityTraits,combatIdentityBonus:combatIdentityBonus,recordCombatIdentity:recordCombatIdentity,signatureTechniqueBonus:signatureTechniqueBonus,maybeDevelopSignatureTechnique:maybeDevelopSignatureTechnique,trainSignatureTechnique:trainSignatureTechnique,gain:gain,train:train,trainHaki:trainHaki,trainFruit:trainFruit,fight:fight,activityGrowthKeys:activityGrowthKeys,activityFocusText:activityFocusText,renderActivityOptions:renderActivityOptions,focusOptions:focusOptions,recommendedFocus:recommendedFocus,normalizeActivityFocus:normalizeActivityFocus,currentFocus:currentFocus,simpleFocusKeys:simpleFocusKeys,styleFocusKeys:styleFocusKeys,careerFocusKeys:careerFocusKeys,hasPowerFocus:hasPowerFocus,
+ developmentFactor:developmentFactor,recordProgressSnapshot:recordProgressSnapshot,progressionDelta:progressionDelta,attemptBreakthrough:attemptBreakthrough,attemptApexBreakthrough:attemptApexBreakthrough,apexProgressScore:apexProgressScore,apexProgressLabel:apexProgressLabel,allTechniqueDefs:allTechniqueDefs,techniqueBonus:techniqueBonus,renderAb:renderAb,renderPanel:renderPanel,activateTab:activateTab,setupSectionNavigation:setupSectionNavigation,setSectionState:function(name,value){sectionState[name]=value},getSectionState:function(){return Object.assign({},sectionState)},
  join:join,career:career,careerChangeDecision:careerChangeDecision,resolveDecisionChoice:resolveDecisionChoice,careerTick:careerTick,careerRecord:careerRecord,careerMomentumFactor:careerMomentumFactor,updateCareerMomentum:updateCareerMomentum,recordCareerMissionEvidence:recordCareerMissionEvidence,careerPerformanceReview:careerPerformanceReview,careerSunsetOpportunity:careerSunsetOpportunity,careerSunsetWording:careerSunsetWording,retirementIncomePerMonth:retirementIncomePerMonth,evaluatePromotion:evaluatePromotion,careerExpertise:careerExpertise,careerQualification:careerQualification,careerActivityFit:careerActivityFit,specializationDecision:specializationDecision,ambitionDecision:ambitionDecision,startMission:startMission,resolveMission:resolveMission,board:board,adaptiveMissionOpportunity:adaptiveMissionOpportunity,missionOutcomeFlavor:missionOutcomeFlavor,endgameMilestones:endgameMilestones,endgameStage:endgameStage,advancePlan:advancePlan,migrateWorldFoundations:migrateWorldFoundations,worldStateSummary:worldStateSummary,actorCombatProxy:actorCombatProxy,actorCombatRating:actorCombatRating,recordActorCombatLearning:recordActorCombatLearning,startWorldSaga:startWorldSaga,resolveWorldSaga:resolveWorldSaga,simulateWorldSagas:simulateWorldSagas,crewWorldGoal:crewWorldGoal,factionWorldGoal:factionWorldGoal,updateFactionWorldGoals:updateFactionWorldGoals,recordGeopoliticalShift:recordGeopoliticalShift,playerSagaPresence:playerSagaPresence,sagaFollowupMissionOpportunity:sagaFollowupMissionOpportunity,missionSagaTarget:missionSagaTarget,registerPlayerSagaImpact:registerPlayerSagaImpact,playerWorldImpact:playerWorldImpact,playerWorldRecognition:playerWorldRecognition,careerLifetimeEvidence:careerLifetimeEvidence,organicLegendEvidence:organicLegendEvidence,legendRecognitionTick:legendRecognitionTick,crewWorldGoal:crewWorldGoal,factionWorldGoal:factionWorldGoal,updateFactionWorldGoals:updateFactionWorldGoals,playerWorldRecognition:playerWorldRecognition,playerSagaPresence:playerSagaPresence,resolveActorIntent:resolveActorIntent,missionImportance:missionImportance,missionStakes:missionStakes,missionNoveltyKey:missionNoveltyKey,missionNoveltyScore:missionNoveltyScore,rememberMission:rememberMission,worldMissionOpportunities:worldMissionOpportunities,migrateWorldMissionSource:migrateWorldMissionSource,applyWorldMissionOutcome:applyWorldMissionOutcome,missionProfile:missionProfile,missionScore:missionScore,missionChance:missionChance,missionGuidance:missionGuidance,missionRecommendationScore:missionRecommendationScore,missionResolution:missionResolution,
  createRelation:createRelation,partnerRelation:partnerRelation,pursueRomance:pursueRomance,marryPartner:marryPartner,welcomeChild:welcomeChild,livingCostPerMonth:livingCostPerMonth,familyChildName:familyChildName,normalizeChildProfile:normalizeChildProfile,childDevelopmentTick:childDevelopmentTick,peopleNames:function(){return PEOPLE_NAMES.slice()},buildHeir:buildHeir,heirCandidates:heirCandidates,continueWithHeir:continueWithHeir,generationLegacySnapshot:generationLegacySnapshot,lifeChronicle:lifeChronicle,lifeTick:lifeTick,renderRel:renderRel,renderRelClose:renderRelClose,renderRelNetwork:renderRelNetwork,relationActionDecision:relationActionDecision,defaultLifeDirector:defaultLifeDirector,migrateLifeDirector:migrateLifeDirector,directorMobilityWording:directorMobilityWording,directorTravelContext:directorTravelContext,directorTravelCandidate:directorTravelCandidate,directorMobilityTiming:directorMobilityTiming,directorMobilityPriority:directorMobilityPriority,directorRomanceCandidate:directorRomanceCandidate,directorFamilyOpportunity:directorFamilyOpportunity,directorLegacyOpportunity:directorLegacyOpportunity,careerSpecializationFit:careerSpecializationFit,careerTurnCandidate:careerTurnCandidate,maybeStartCareerTurnStory:maybeStartCareerTurnStory,maybeStartFamilyStory:maybeStartFamilyStory,maybeStartMobilityStory:maybeStartMobilityStory,applyCareerSpecialization:applyCareerSpecialization,recordLifeDirector:recordLifeDirector,rememberCausalMemory:rememberCausalMemory,causalMemoryPressure:causalMemoryPressure,signalPersonalChapter:signalPersonalChapter,closePersonalChapter:closePersonalChapter,personalChapterTick:personalChapterTick,visiblePersonalChapter:visiblePersonalChapter,narrativeFronts:narrativeFronts,narrativeConnections:narrativeConnections,narrativeConvergence:narrativeConvergence,convergenceCandidate:convergenceCandidate,narrativeMissionBoost:narrativeMissionBoost,renderNarrativeDirector:renderNarrativeDirector,
  normalizeRelation:normalizeRelation,normalizeNpcCombatProfile:normalizeNpcCombatProfile,npcCombatPower:npcCombatPower,npcCombatScores:npcCombatScores,npcAdaptationBonus:npcAdaptationBonus,recordNpcCombatLearning:recordNpcCombatLearning,combatPowerTier:combatPowerTier,worldPowerStanding:worldPowerStanding,combatWorldReaction:combatWorldReaction,relationPathShift:relationPathShift,updateRelationshipTrajectory:updateRelationshipTrajectory,npcTick:npcTick,npcIntentPool:npcIntentPool,assignNpcIntent:assignNpcIntent,npcCareerPromotionChance:npcCareerPromotionChance,tryNpcCareerPromotion:tryNpcCareerPromotion,resolveNpcIntent:resolveNpcIntent,npcIntentTick:npcIntentTick,npcSocialTick:npcSocialTick,npcLinkBetween:npcLinkBetween,ensureNpcLink:ensureNpcLink,npcNearby:npcNearby,bondCanonicalActor:bondCanonicalActor,relationForActor:relationForActor,relationPower:relationPower,npcCareerRank:npcCareerRank,trainWithMentor:trainWithMentor,challengeRival:challengeRival,rivalStage:rivalStage,syncRivalryMilestone:syncRivalryMilestone,reconcileRival:reconcileRival,recruitKnownRelation:recruitKnownRelation,askMentorship:askMentorship,declareRivalry:declareRivalry,seekMentor:seekMentor,canonActor:canonActor,helpRelation:helpRelation,askRelationFavor:askRelationFavor,approachCanonicalActor:approachCanonicalActor,favorLabel:favorLabel,realignRelationsAfterFactionChange:realignRelationsAfterFactionChange,
@@ -72,7 +72,7 @@ window.__qa={
  releasePlayerFruits:releasePlayerFruits,checkAchievements:checkAchievements,chargeMoney:chargeMoney,serviceDebt:serviceDebt,netWorth:netWorth,
  explorationSite:explorationSite,islandProfile:islandProfile,discoveryPool:discoveryPool,registerDiscovery:registerDiscovery,discoverByKnowledge:discoverByKnowledge,explorationTick:explorationTick,migrateExploration:migrateExploration,currentRumor:currentRumor,learnLocalRumor:learnLocalRumor,routeEstimate:routeEstimate,chooseSeaCondition:chooseSeaCondition,seaJourneyTick:seaJourneyTick,travel:travel,beginJourney:beginJourney,settleCareerNetwork:settleCareerNetwork,setExplorationActivity:setExplorationActivity,renderExploration:renderExploration,renderJourney:renderJourney,renderCodexExploration:renderCodexExploration,
  defaultStoryEngine:defaultStoryEngine,migrateStoryEngine:migrateStoryEngine,activeStories:activeStories,awaitingStory:awaitingStory,storyNoveltyWeight:storyNoveltyWeight,storyEligibleTypes:storyEligibleTypes,startStory:startStory,maybeStartStory:maybeStartStory,storyPrompt:storyPrompt,storyChoices:storyChoices,storyChoice:storyChoice,storyTick:storyTick,storyResolve:storyResolve,closeStory:closeStory,showStoryDecision:showStoryDecision,renderStories:renderStories,die:die,deathModal:deathModal,
- firstRank:firstRank,rankIndex:rankIndex,nextRank:nextRank,inf:inf,infStatic:infStatic,req:req,
+ firstRank:firstRank,rankIndex:rankIndex,nextRank:nextRank,careerTrack:careerTrack,missionAccessIndex:missionAccessIndex,missionRewardMultiplier:missionRewardMultiplier,pirateBountyTarget:pirateBountyTarget,updatePirateThreatBounty:updatePirateThreatBounty,inf:inf,infStatic:infStatic,req:req,
  constants:{PL:PL,REG:REG,ST:ST,SK:SK,TRADE_GOODS:TRADE_GOODS,SHIP_TIERS:SHIP_TIERS,ACHIEVEMENTS:ACHIEVEMENTS,MISSIONS:MISSIONS,MISSION_TITLE_PROFILES:MISSION_TITLE_PROFILES}
 };
 `;
@@ -3281,6 +3281,78 @@ test('V5.5 crew dynamics remain bounded across long simulation',()=>{
  const d=q.crewDynamicsState(o);assert(d.links.length<=15,'too many crew links');assert(d.history.length<=10,'crew dynamics history unbounded');
  d.links.forEach(x=>{assert(x.affinity>=0&&x.affinity<=100,'affinity out of bounds');assert(x.rivalry>=0&&x.rivalry<=100,'rivalry out of bounds')});
  return d.links.length+' liens • '+d.history.length+' souvenirs';
+});
+
+test('V5.5 Apex keeps power at a true 100 maximum',()=>{
+ const g=fresh(57101),p=g.player;p.ageMonths=360;
+ Object.keys(p.stats).forEach(k=>{p.stats[k]=100;p.caps[k]=100;p.absoluteCaps[k]=100});
+ Object.keys(p.skills).forEach(k=>{p.skills[k]=100;p.caps[k]=100;p.absoluteCaps[k]=100});
+ p.haki.Observation=100;p.haki.Armement=100;p.haki.Conquérant=100;p.fruit='QA Fruit';p.fruitMastery=100;p.fruitAwakened=true;
+ assert(q.power()===100,'displayed power is not capped at 100: '+q.power());
+ assert(q.powerRaw()>=100,'raw elite power unexpectedly below 100');
+ return '100 / raw '+q.powerRaw().toFixed(1);
+});
+
+test('V5.5 elite progression can push an absolute cap to 100',()=>{
+ const g=fresh(57102),p=g.player;p.ageMonths=360;p.faction='Marine';p.career='Marine';p.rank='Capitaine';p.factionRep.Marine=100;
+ Object.keys(p.stats).forEach(k=>{p.stats[k]=92;p.caps[k]=92;p.absoluteCaps[k]=92});
+ Object.keys(p.skills).forEach(k=>{p.skills[k]=92;p.caps[k]=92;p.absoluteCaps[k]=92});
+ p.haki.Observation=90;p.haki.Armement=90;p.haki.Conquérant=85;p.wins=120;p.combatXP=500;
+ const rec=q.careerRecord();rec.months=300;rec.successes=70;rec.failures=5;rec.distinctions=24;rec.legendDistinctions=18;
+ assert(q.apexProgressScore()>=68,'elite profile did not unlock Apex');
+ let attempts=0,successes=0;
+ while(p.absoluteCaps.Combat<100&&attempts<1500){p.ageMonths+=1;if(q.attemptApexBreakthrough('combat',100,['Combat'])){successes++;p.skills.Combat=p.caps.Combat}attempts++}
+ assert(p.absoluteCaps.Combat===100,'absolute Combat cap never reached 100');
+ assert(successes>0,'Apex reached 100 without recorded breakthroughs');
+ return attempts+' attempts • '+successes+' Apex';
+});
+
+test('V5.5 ordinary characters cannot access Apex early',()=>{
+ const g=fresh(57103),p=g.player;p.ageMonths=180;p.skills.Combat=75;p.caps.Combat=75;p.absoluteCaps.Combat=75;
+ for(let i=0;i<180;i++){p.ageMonths+=1;q.attemptApexBreakthrough('training',100,['Combat'])}
+ assert(p.absoluteCaps.Combat===75,'ordinary profile bypassed Apex eligibility');
+ return 'blocked below elite threshold';
+});
+
+test('V5.5 every career has a reachable terminal rank',()=>{
+ const cases=[
+  ['Civil','Scientifique',null,'Maître'],
+  ['Marine','Combat',null,'Vice-amiral'],
+  ['Pirates','Combattant','founded','Capitaine renommé'],
+  ['Chasseur de primes','Traqueur',null,'Maître chasseur'],
+  ['Révolutionnaires','Infiltration',null,'Cadre révolutionnaire'],
+  ['Gouvernement','Administration',null,'Directeur'],
+  ['Gouvernement','Cipher Pol',null,'Candidat CP0']
+ ];
+ const reached=[];
+ cases.forEach((c,ix)=>{
+  const g=fresh(57200+ix),p=g.player;p.ageMonths=480;p.factionRep[c[0]]=100;
+  Object.keys(p.stats).forEach(k=>{p.stats[k]=100;p.caps[k]=100;p.absoluteCaps[k]=100});
+  Object.keys(p.skills).forEach(k=>{p.skills[k]=100;p.caps[k]=100;p.absoluteCaps[k]=100});
+  if(c[0]==='Pirates')q.join('Pirates',null,{pirateMode:c[2]||'founded'});else q.join(c[0]);
+  p.specialization=c[1];const rec=q.careerRecord();rec.specialization=c[1];rec.xp=5000;rec.months=600;rec.successes=70;rec.failures=2;rec.recentResults=[1,1,1,1,1,1,1,1,1,1];rec.distinctions=30;rec.legendDistinctions=30;rec.momentum=12;p.factionRep[c[0]]=100;
+  let guard=0;while(q.nextRank()&&guard++<12)q.evaluatePromotion();
+  assert(p.rank===c[3],c[0]+' / '+c[1]+' stopped at '+p.rank+' instead of '+c[3]);reached.push(p.rank)
+ });
+ return reached.join(' • ');
+});
+
+test('V5.5 founding a pirate crew does not unlock endgame missions instantly',()=>{
+ const g=fresh(57301),p=g.player;p.ageMonths=240;p.factionRep.Pirates=0;
+ q.join('Pirates',null,{pirateMode:'founded'});
+ assert(p.rank==='Capitaine','founder lost captain authority');
+ assert(q.missionAccessIndex()<=1,'founder received endgame mission access at stage '+q.missionAccessIndex());
+ const board=q.board();assert(board.every(m=>(m.tier||0)<=q.missionAccessIndex()+2),'founder board bypasses progression gate');
+ return 'authority Capitaine • operational stage '+q.missionAccessIndex();
+});
+
+test('V5.5 pirate threat creates a meaningful bounty trajectory',()=>{
+ const g=adultPirate(57302),p=g.player;p.bounty=0;p.highestBounty=0;p.factionRep.Pirates=72;p.organization.renown=70;
+ const mission={title:'Affronter une flotte rivale',tier:4,danger:72,signature:true,worldGenerated:true};
+ const target=q.pirateBountyTarget(mission),gain=q.updatePirateThreatBounty(mission);
+ assert(target>=10000000,'elite pirate bounty target too small: '+target);
+ assert(gain>0&&p.bounty>0,'pirate threat did not create bounty');
+ return p.bounty.toLocaleString('fr-FR')+' B vers cible '+target.toLocaleString('fr-FR');
 });
 
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
