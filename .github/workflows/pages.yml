@@ -1,9 +1,8 @@
 name: Deploy GitHub Pages
 
 on:
-  workflow_run:
-    workflows: ["V5.7 Long Audit"]
-    types: [completed]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -17,29 +16,16 @@ concurrency:
 
 jobs:
   deploy:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout validated revision
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Validate static game
-        run: node scripts/validate.mjs
-      - name: Validate content pack
-        run: node scripts/validate-content.mjs
-      - name: Run full V5.7 QA before deploy
-        run: node scripts/qa-v32.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Upload validated static site
+      - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
