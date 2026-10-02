@@ -1,4 +1,4 @@
-name: V7.2 QA
+name: V7.3 QA
 on:
   push:
     branches: [main]
@@ -17,15 +17,17 @@ on:
       - 'scripts/qa-v70.mjs'
       - 'scripts/qa-v71.mjs'
       - 'scripts/qa-v72.mjs'
+      - 'scripts/qa-v73.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
+      - 'QA-V7.3.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v72-qa-${{ github.ref }}
+  group: v73-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -57,3 +59,5 @@ jobs:
         run: node scripts/qa-v71.mjs
       - name: Verify V7.2 Combat and Powers 3.0
         run: node scripts/qa-v72.mjs
+      - name: Verify V7.3 Career and Organization 3.0
+        run: node scripts/qa-v73.mjs

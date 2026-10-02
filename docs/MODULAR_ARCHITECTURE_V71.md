@@ -65,13 +65,20 @@ Combat / Powers 3.0 :
 - résolution pure dans `src/v72/combat-engine-v72.js` ;
 - pont legacy limité à l'orchestration, la sauvegarde et l'UI.
 
-### Étape C
+### Étape C — réalisée en V7.3
+Career / Organization 3.0 :
+- données de branches et responsabilités dans `src/data/career-organizations-v73.js` ;
+- moteur pur de standing, confiance, influence et promotions dans `src/v73/career-organization-engine-v73.js` ;
+- missions reliées au dossier de carrière ;
+- autorité V6.9 enrichie par l’état organisationnel.
+
+### Étape D
 Relations / Persona :
 - personnalités canoniques ;
 - arcs sociaux ;
 - réseau relationnel.
 
-### Étape D
+### Étape E
 World / Canon :
 - personnages ;
 - groupes ;
@@ -79,7 +86,7 @@ World / Canon :
 - lieux ;
 - événements.
 
-### Étape E
+### Étape F
 UI :
 - rendre les panneaux comme composants indépendants.
 
