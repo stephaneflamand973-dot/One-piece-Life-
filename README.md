@@ -1,3 +1,29 @@
+# ONE PIECE LIFE — V5.5 Crew Chemistry & Internal Dynamics
+
+La V5.5 transforme l’équipage en véritable micro-société. Les membres ne sont plus seulement loyaux ou puissants : ils développent des compatibilités, des tensions et des tandems qui influencent réellement la vie du groupe.
+
+## Crew Chemistry & Internal Dynamics
+- Chaque membre possède désormais un **tempérament persistant** : Loyaliste, Protecteur, Méthodique, Téméraire, Ambitieux ou Indépendant.
+- Le moteur construit des **liens internes persistants** entre les membres actifs : affinité, rivalité et ancienneté du lien.
+- La compatibilité dépend des tempéraments. Deux personnalités compatibles peuvent devenir un tandem solide ; des profils opposés peuvent créer une tension durable.
+- Une **chimie d’équipage** est calculée en arrière-plan à partir des liens, du moral et de la cohésion. Elle influence directement le soutien collectif lors des missions.
+- Les réussites communes renforcent légèrement les affinités ; les échecs augmentent la friction.
+- Une rivalité forte peut désormais peser sur le moral et la loyauté des personnes concernées et faciliter à terme un départ si le groupe est déjà fragile.
+- Les tensions sérieuses deviennent visibles dans la fiche de l’organisation. Le joueur peut choisir de **faire une médiation, prendre parti ou ne pas intervenir**.
+- Une médiation réussie dépend notamment du Commandement et de la cohésion actuelle.
+- Prendre parti renforce réellement la relation avec un membre tout en dégradant celle avec l’autre.
+- Les duos très soudés peuvent au contraire améliorer naturellement la cohésion du groupe.
+- Le **Bras droit** n’accorde plus un bonus abstrait fixe : son utilité dépend maintenant de sa loyauté et de la confiance qu’il entretient avec le capitaine.
+- L’action **Vie de groupe** agit aussi sur les tensions internes, sans créer de nouvelle jauge à gérer.
+- L’interface affiche uniquement la dynamique utile : état général, tempérament des membres, duo marquant ou tension notable.
+- La V5.5 corrige également le sélecteur de Bras droit hérité du rendu V5.4.
+- GameState reste en version interne **28**, compatible avec les sauvegardes précédentes.
+
+## Philosophie V5.5
+Un équipage intéressant n’est pas une collection de bonus. C’est un groupe de personnes qui peuvent devenir indispensables les unes aux autres, se heurter, se réconcilier ou finir par partir.
+
+---
+
 # ONE PIECE LIFE — V5.4 Crew Bonds & Command
 
 La V5.4 relie enfin la structure d’équipage de la V5.3 à la vie sociale et à la progression du joueur.
