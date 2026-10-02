@@ -100,14 +100,16 @@ eq(zeroSocial.bond,0,'Explicit zero bond must be preserved');
 eq(zeroSocial.reliability,0,'Explicit zero reliability must be preserved');
 
 // Live integration contract.
-assert(html.includes('ONE PIECE LIFE — V7.4'),'V7.4 title missing');
-assert(/const SAVE_VERSION\s*=\s*740;/.test(html),'Save version 740 missing');
-assert(/const GAME_VERSION\s*=\s*'7\.4\.0';/.test(html),'Game version 7.4.0 missing');
+const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(saveVersion>=740,'V7.4 regression QA requires save version >= 740');
+assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=4,'V7.4 regression QA requires game version >= 7.4');
 for(const asset of ['src/data/relation-personas-v74.js','src/v74/relation-persona-engine-v74.js']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v7-4-0'),'PWA cache not bumped to V7.4');
+assert(/one-piece-life-v7-[4-9]-\d+/.test(sw),'PWA cache must remain at V7.4 or newer');
 for(const fn of ['function v74EnsureRelation','function v74RecordMemory','function v74MaybeQueueArc','function v74ResolveArcDecision','function renderV74Network']){
   assert(html.includes(fn),'Missing live V7.4 bridge '+fn);
 }
@@ -122,7 +124,7 @@ assert(html.includes('v74MaybeQueueArc()'),'Annual social arc trigger missing');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
 
 console.log('V7.4 RELATIONS & PERSONA QA OK',JSON.stringify({
-  version:'7.4.0',
+  version:gameVersion,
   temperaments:Object.keys(data.temperamentValues).length,
   interactions:Object.keys(data.interactionProfiles).length,
   socialArcs:data.socialArcs.length,
