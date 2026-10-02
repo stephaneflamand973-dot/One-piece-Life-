@@ -405,7 +405,14 @@ function v66PotentialHighlights(){
 const V63_PRESTIGE_TITLES=['','Référence','Élite reconnue','Figure majeure','Icône de carrière','Légende professionnelle'];
 function v63MasteryEfficiency(value,kind='skill'){const v=Number(value)||0;if(kind==='power'){if(v<60)return 1;if(v<75)return .78;if(v<90)return .48;if(v<97)return .27;return .12}if(v<60)return 1;if(v<80)return .78;if(v<90)return .52;if(v<97)return .28;return .10}
 function v63FatigueProfile(p=game?.player){const e=Number(p?.energy??100);if(e>=60)return{label:'Frais',career:1,training:1,relations:1,resources:1,mission:1,injury:1,cls:'fresh'};if(e>=40)return{label:'Fatigue légère',career:.95,training:.95,relations:.96,resources:.97,mission:.98,injury:1.10,cls:'tired'};if(e>=20)return{label:'Fatigué',career:.90,training:.85,relations:.90,resources:.93,mission:.92,injury:1.28,cls:'tired'};return{label:'Épuisé',career:.78,training:.68,relations:.80,resources:.84,mission:.82,injury:1.62,cls:'exhausted'}}
-function v63SkillGain(key,amount){const p=game.player,cur=Number(p.skills?.[key])||0,actual=Math.max(.08,Number(amount||0)*v63MasteryEfficiency(cur,'skill'));p.skills[key]=+clamp(cur+actual,0,100).toFixed(2);return +(p.skills[key]-cur).toFixed(2)}
+function v63SkillGain(key,amount){
+  const p=game.player;v66Ensure();
+  const cur=Number(p.skills?.[key])||0;
+  const base=Math.max(0,Number(amount||0)*v63MasteryEfficiency(cur,'skill'));
+  const next=v66ProgressValue('skills',key,cur,base);
+  p.skills[key]=next;
+  return +(next-cur).toFixed(2)
+}
 function v63Ensure(){if(!game?.player)return;const p=game.player;p.careerPrestige=p.careerPrestige&&typeof p.careerPrestige==='object'?p.careerPrestige:{level:0};if(!Number.isFinite(p.careerPrestige.level))p.careerPrestige.level=0;p.economy=p.economy&&typeof p.economy==='object'?p.economy:{};if(!Number.isFinite(p.economy.gearLevel))p.economy.gearLevel=0;if(!Number.isFinite(p.economy.lastActionYear))p.economy.lastActionYear=-99;if(!Number.isFinite(p.economy.intelUntilMonth))p.economy.intelUntilMonth=-99}
 function v63RankThreshold(ranks,index){const n=ranks?.length||4,f=n<=4?1.65:n<=5?1.45:n<=6?1.25:1;return Math.round((index+1)*18*f)}
 function v63PrestigeInfo(p=game.player){v63Ensure();const ranks=CAREER_RANKS[p.faction]||CAREER_RANKS.Civil,i=ranks.indexOf(p.rank),atMax=i===ranks.length-1,level=clamp(Math.floor(p.careerPrestige?.level||0),0,5),threshold=72+level*30,metrics=v6CareerMetrics(p),scoreNeed=Math.min(90,48+level*7);return{atMax,level,title:V63_PRESTIGE_TITLES[level]||`Prestige ${level}`,nextTitle:V63_PRESTIGE_TITLES[Math.min(5,level+1)]||'Prestige supérieur',threshold,scoreNeed,score:metrics.score,max:level>=5}}
@@ -1121,7 +1128,20 @@ function trainProgress(months){
   updateHakiStagesV6();
   maybeBreakthrough(months);
 }
-function maybeBreakthrough(months){const p=game.player;const capped=STAT_KEYS.filter(k=>p.stats[k]>=p.caps[k].soft-.2&&p.caps[k].soft<p.caps[k].natural);if(!capped.length)return;let prob=.008*months*v61AnnualMultiplier('training');if(p.activityType==='intense')prob*=2;if(p.health<45)prob*=1.3;if(chance(prob,'breakthrough')){const k=pick(capped,'breakthrough'),old=p.caps[k].soft;p.caps[k].soft=clamp(old+randInt(3,8,'breakthrough'),old,p.caps[k].natural);addHistory('BREAKTHROUGH',`Tu dépasses un plafond qui semblait jusque-là bloquer ta progression en ${k.toLowerCase()}.`,'major',`Limite ${Math.floor(old)} → ${Math.floor(p.caps[k].soft)}`)}}
+function maybeBreakthrough(months){
+  const p=game.player;v66Ensure();
+  const capped=STAT_KEYS.filter(k=>p.stats[k]>=p.caps[k].soft-.2&&p.caps[k].soft<p.caps[k].natural);
+  if(!capped.length)return;
+  const growth=capped.reduce((a,k)=>a+v66GrowthMultiplier('stats',k),0)/capped.length;
+  let prob=.008*months*v61AnnualMultiplier('training')*growth;
+  if(p.activityType==='intense')prob*=2;
+  if(p.health<45)prob*=1.3;
+  if(chance(prob,'breakthrough')){
+    const k=pick(capped,'breakthrough'),old=p.caps[k].soft;
+    p.caps[k].soft=clamp(old+randInt(3,8,'breakthrough'),old,p.caps[k].natural);
+    addHistory('BREAKTHROUGH','Tu dépasses un plafond qui semblait jusque-là bloquer ta progression en '+k.toLowerCase()+'.','major','Limite '+Math.floor(old)+' → '+Math.floor(p.caps[k].soft))
+  }
+}
 function updateCondition(months){const p=game.player;if(p.activityType==='intense'){p.energy=clamp(p.energy-randInt(4,10,'condition')*(months>=1?1:.5),15,100);if(chance(.04*months*currentDifficulty().danger*v62Metric('injury',1)*v63FatigueProfile(p).injury,'condition')){const inj=randInt(4,14,'condition');p.health=clamp(p.health-inj,0,100);p.conditions.push({name:'Blessure d’entraînement',severity:'légère',months:2});addHistory('Blessure à l’entraînement','La charge finit par dépasser ce que ton corps encaissait proprement.','danger',`Santé -${inj}`)}}else if(p.activityType==='rest'){p.energy=clamp(p.energy+randInt(10,20,'condition'),0,100);p.health=clamp(p.health+randInt(2,8,'condition'),0,100)}else{p.energy=clamp(p.energy+randInt(-3,5,'condition'),25,100);if(p.health<100){const recovery=(p.conditions.length?.18:.42)*months*(p.energy>=60?1:p.energy>=40?.75:.45);p.health=clamp(p.health+recovery,0,100)}}for(const c of p.conditions)c.months-=months;const healed=p.conditions.filter(c=>c.months<=0);if(healed.length)addHistory('Récupération',`${healed.map(x=>x.name).join(', ')} ne te handicape plus.`);p.conditions=p.conditions.filter(c=>c.months>0)}
 
 function simulateRelations(months){
@@ -1262,7 +1282,20 @@ function discoverFruit(){
   game.pendingDecision={id:'fruit_found',title:'Un Fruit du Démon',text:`Tu mets la main sur ${f.name}, un ${f.type}. Cette découverte est réellement rare : rien ne t’oblige à le consommer.`,data:{fruitId:f.id},choices:[{label:'Le manger',hint:'Pouvoir immédiat, incapacité à nager.',action:`fruit:eat:${f.id}`},{label:'Le conserver',hint:'Tu pourras le garder ou le vendre plus tard.',action:`fruit:keep:${f.id}`},{label:'Le vendre',hint:'Gagne des Berry, mais le Fruit quitte ta possession.',action:`fruit:sell:${f.id}`}]};
   addHistory('Découverte exceptionnelle',`Tu découvres ${f.name}. Ce genre de trouvaille ne devrait pas devenir une formalité annuelle.`,'major','Rareté majeure');
 }
-function hakiMoment(){if(game.ageMonths<96)return;const h=game.player.haki;const candidates=['Observation','Armement'].filter(k=>h[k].latent&&h[k].state==='Dormant');if(h.Conquérant.latent&&h.Conquérant.state==='Inconnu'&&chance(.09,'haki'))candidates.push('Conquérant');if(!candidates.length)return;const k=pick(candidates,'haki');h[k].state=k==='Conquérant'?'Éveillé':'Éveil potentiel';h[k].mastery=Math.max(h[k].mastery,1);addHistory('Éveil du Haki',k==='Conquérant'?'Sous une pression extrême, ta volonté se manifeste d’une manière rarissime.':`Tu perçois pour la première fois une forme encore confuse du Haki de l’${k.toLowerCase()}.`,'major',`${k} éveillé`)}
+function hakiMoment(){
+  if(game.ageMonths<96)return;
+  v66Ensure();
+  const h=game.player.haki;
+  const candidates=['Observation','Armement'].filter(k=>h[k].latent&&h[k].state==='Dormant'&&v66Cap('haki',k)>0);
+  const conqCap=v66Cap('haki','Conquérant');
+  const conqChance=clamp(.035+(conqCap/100)*.055*v66GrowthMultiplier('haki','Conquérant'),.025,.12);
+  if(h.Conquérant.latent&&h.Conquérant.state==='Inconnu'&&conqCap>0&&chance(conqChance,'haki'))candidates.push('Conquérant');
+  if(!candidates.length)return;
+  const k=weighted(candidates.map(x=>({v:x,w:Math.max(1,v66Cap('haki',x)*v66GrowthMultiplier('haki',x))})),'haki');
+  h[k].state=k==='Conquérant'?'Éveillé':'Éveil potentiel';
+  h[k].mastery=Math.max(h[k].mastery,1);
+  addHistory('Éveil du Haki',k==='Conquérant'?'Sous une pression extrême, ta volonté se manifeste d’une manière rarissime.':'Tu perçois pour la première fois une forme encore confuse du Haki de l’'+k.toLowerCase()+'.','major',k+' éveillé')
+}
 function eligibleCanonCharacters(){const year=game.clock.year,region=game.player.region;return game.world.characters.filter(c=>c.status==='alive'&&year>=c.from&&year<=c.to&&c.currentRegion===region)}
 function canonEncounter(){const eligible=eligibleCanonCharacters();if(!eligible.length)return;const rep=repValue();const weights=eligible.map(c=>({v:c,w:Math.max(.5,(102-c.importance)*.10+rep*.08+(c.regions.includes(game.player.region)?3:0))}));const c=weighted(weights,'canonEncounter');codexAdd('people',c.name);if(!game.relations.some(r=>r.name===c.name)){game.relations.push({id:`canon_${c.id}`,name:c.name,role:`${c.faction} • personnage canonique`,affection:randInt(5,35,'canonEncounter'),respect:randInt(18,55,'canonEncounter'),trust:randInt(4,25,'canonEncounter'),loyalty:0,fear:Math.max(0,Math.round((c.power-overallPower())*.25)),rivalry:randInt(0,22,'canonEncounter'),familiarity:8,status:'active',canonId:c.id})}const tone=c.power>overallPower()+30?'Sa présence suffit à te rappeler à quel point le monde est vaste.':'La rencontre pourrait avoir des conséquences selon ce que tu deviens ensuite.';addHistory('Rencontre canonique',`Les circonstances te placent sur la route de ${c.name}. ${tone}`,'major')}
 function relationshipEvent(){if(!game.relations.length)return;const r=pick(game.relations.filter(x=>x.status==='active'),'relations');if(!r)return;const positive=chance(.65,'relations');if(positive){r.trust=clamp(r.trust+randInt(4,10,'relations'),0,100);r.affection=clamp(r.affection+randInt(3,8,'relations'),0,100);addHistory('Lien renforcé',`${r.name} et toi traversez une situation qui renforce votre confiance mutuelle.`,'major')}else{r.rivalry=clamp(r.rivalry+randInt(5,12,'relations'),0,100);r.trust=clamp(r.trust-randInt(2,8,'relations'),0,100);addHistory('Conflit relationnel',`Une divergence sérieuse t’oppose à ${r.name}. La relation ne disparaît pas, mais elle change.`,'major')}}
@@ -1525,14 +1558,45 @@ function v62DomainControlHtml(domain){const g=V62_ANNUAL_ACTIONS[domain],plan=ga
 function v62BindPlanControls(root=document){root.querySelectorAll?.('[data-plan-domain]').forEach(b=>b.onclick=()=>v62SetAnnualAction(b.dataset.planDomain,b.dataset.planAction))}
 function v62RenderDomainInline(id,domain){const el=$(`#${id}`);if(!el)return;el.innerHTML=v62DomainControlHtml(domain);v62BindPlanControls(el)}
 function renderAnnualTurnV61(){const box=$('#annualFocusOptions'),status=$('#annualTurnStatus'),intro=$('#annualTurnIntro'),badge=$('#annualTurnBadge');if(!box||!status)return;ensureV6();const turn=game.agency.annualTurn,plan=turn?.active?turn.plan:game.agency.annualPlan,locked=!!turn?.active;const domains=['career','training','relations','adventure','resources'];let html=domains.map(domain=>{const g=V62_ANNUAL_ACTIONS[domain],selected=plan[domain]||V62_DEFAULT_PLAN[domain];return `<div class="annual-domain"><div class="annual-domain-head"><strong>${g.icon} ${esc(g.label)}</strong><span>${esc(g.options[selected].label)}</span></div><div class="annual-domain-options">${Object.entries(g.options).map(([id,o])=>`<button class="annual-plan-option ${selected===id?'selected':''}" data-plan-domain="${domain}" data-plan-action="${id}" ${locked?'disabled':''}><strong>${esc(o.label)}</strong><small>${esc(o.desc)}</small></button>`).join('')}</div></div>`}).join('');if(game.activeMission){const g=V62_ANNUAL_ACTIONS.mission,selected=plan.mission||'standard';html+=`<div class="annual-domain mission-approach-row"><div class="annual-domain-head"><strong>${g.icon} Approche de mission</strong><span>${esc(game.activeMission.title)}</span></div><div class="annual-domain-options">${Object.entries(g.options).map(([id,o])=>`<button class="annual-plan-option ${selected===id?'selected':''}" data-plan-domain="mission" data-plan-action="${id}" ${locked?'disabled':''}><strong>${esc(o.label)}</strong><small>${esc(o.desc)}</small></button>`).join('')}</div></div>`}const load=v62AnnualLoad(plan),loadLabel=load<=2?'Léger':load<=5?'Soutenu':load<=7?'Très chargé':'Surcharge';html+=`<div class="annual-load"><b>Charge annuelle : ${loadLabel} (${load})</b> • Cumuler plusieurs options agressives augmente la fatigue et peut provoquer une surcharge.</div>`;box.innerHTML=html;$$('[data-plan-domain]').forEach(b=>b.onclick=()=>v62SetAnnualAction(b.dataset.planDomain,b.dataset.planAction));if(turn?.active){const pct=clamp((turn.monthsSimulated+(turn.phase>0?.5:0))/12*100,0,100);badge.textContent='ANNÉE EN COURS';intro.textContent='Le plan est verrouillé jusqu’au bilan. Les décisions majeures interrompent toujours le mois exact où elles apparaissent.';status.classList.remove('hidden');status.innerHTML=`<strong>Plan annuel • ${turn.monthsSimulated}/12 mois terminés</strong><span>Charge ${v62AnnualLoad(turn.plan)} • fatigue : ${v63FatigueProfile().label.toLowerCase()} • ${v64RiskSummaryText(turn)} • ${turn.interruptions||0} décision${(turn.interruptions||0)>1?'s':''} majeure${(turn.interruptions||0)>1?'s':''}.</span><div class="annual-turn-meter"><i style="width:${pct}%"></i></div>`}else{badge.textContent='PLAN';intro.textContent='Régle chaque domaine avant de lancer l’année. Les actions ne garantissent rien : elles déplacent réellement tes probabilités, ta progression, ta fatigue et tes opportunités.';status.classList.add('hidden');status.innerHTML=''}}
-function ensureV6(){game.agency=game.agency||{lastAnnualReport:null,lastAgencyYear:-99,totalAnnualAdvances:0,selectedFocus:'balanced',annualTurn:null};if(!Number.isFinite(game.agency.lastAgencyYear))game.agency.lastAgencyYear=-99;if(!game.agency.annualPlan){game.agency.annualPlan={...V62_DEFAULT_PLAN};const old=game.agency.selectedFocus;if(old==='career')game.agency.annualPlan.career='hard';if(old==='training')game.agency.annualPlan.training='hard';if(old==='relations')game.agency.annualPlan.relations='invest';if(old==='adventure')game.agency.annualPlan.adventure='explore';if(old==='resources')game.agency.annualPlan.resources='extra'}for(const d of Object.keys(V62_DEFAULT_PLAN)){if(!V62_ANNUAL_ACTIONS[d]?.options?.[game.agency.annualPlan[d]])game.agency.annualPlan[d]=V62_DEFAULT_PLAN[d]}if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));ensureV59();for(const h of game.world.worldHooks||[])updateHakiStagesV6();v63Ensure();v64Ensure()}
+function ensureV6(){
+  game.agency=game.agency||{lastAnnualReport:null,lastAgencyYear:-99,totalAnnualAdvances:0,selectedFocus:'balanced',annualTurn:null};
+  if(!Number.isFinite(game.agency.lastAgencyYear))game.agency.lastAgencyYear=-99;
+  if(!game.agency.annualPlan){
+    game.agency.annualPlan={...V62_DEFAULT_PLAN};
+    const old=game.agency.selectedFocus;
+    if(old==='career')game.agency.annualPlan.career='hard';
+    if(old==='training')game.agency.annualPlan.training='hard';
+    if(old==='relations')game.agency.annualPlan.relations='invest';
+    if(old==='adventure')game.agency.annualPlan.adventure='explore';
+    if(old==='resources')game.agency.annualPlan.resources='extra'
+  }
+  for(const d of Object.keys(V62_DEFAULT_PLAN))if(!V62_ANNUAL_ACTIONS[d]?.options?.[game.agency.annualPlan[d]])game.agency.annualPlan[d]=V62_DEFAULT_PLAN[d];
+  if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;
+  if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));
+  ensureV59();
+  for(const h of game.world.worldHooks||[])updateHakiStagesV6();
+  v63Ensure();v64Ensure();v66Ensure()
+}
 function v6RelationById(id){return game.relations.find(r=>r.id===id||slug(r.name)===id)}
 function v6InteractRelation(id,action){const r=v6RelationById(id);if(!r||!game.alive)return false;if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cette interaction directe.');return false}const p=game.player,year=Math.floor(game.ageMonths/12);game.flags.relationInteractionYear=game.flags.relationInteractionYear||{};if(game.flags.relationInteractionYear[r.id]===year){toast(`Tu as déjà consacré une action directe à ${r.name} cette année.`);return false}if(action==='time'){if(p.energy<4){toast('Énergie insuffisante.');return false}p.energy=clamp(p.energy-4,0,100);r.affection=clamp(r.affection+randInt(3,8,'v6Relation'),0,100);r.trust=clamp(r.trust+randInt(2,6,'v6Relation'),0,100);r.familiarity=clamp(r.familiarity+5,0,100);addHistory('Temps partagé',`Tu consacres du temps à ${r.name}. Votre relation devient plus concrète.`,'normal')}
   else if(action==='train'){if(p.energy<8){toast('Énergie insuffisante.');return false}p.energy=clamp(p.energy-8,0,100);const key=pick(['Combat','Commandement','Discrétion'],'v6Relation'),gain=v63SkillGain(key,randInt(1,3,'v6Relation'));r.respect=clamp(r.respect+randInt(3,7,'v6Relation'),0,100);addHistory('Entraînement partagé',`${r.name} et toi vous entraînez ensemble.`,'normal',`${key} +${gain.toFixed(1)}`)}
   else if(action==='help'){const cost=1500;if(p.money<cost){toast(`${cost.toLocaleString('fr-FR')} B requis pour apporter une aide concrète.`);return false}p.money-=cost;r.trust=clamp(r.trust+randInt(5,11,'v6Relation'),0,100);r.loyalty=clamp((r.loyalty||0)+randInt(3,8,'v6Relation'),0,100);addHistory('Service rendu',`Tu aides concrètement ${r.name}. La dette relationnelle pourra compter plus tard.`,'normal',`-${cost.toLocaleString('fr-FR')} B`)}
   else return false;game.flags.relationInteractionYear[r.id]=year;saveGame();render();return true}
-function v6UseInventoryFruit(name,action){const f=game.world.fruits.find(x=>x.name===name&&x.holder==='player_inventory');if(!f)return;if(action==='eat'){if(game.player.devilFruit){toast('Tu possèdes déjà un Fruit du Démon.');return}game.player.devilFruit={id:f.id,name:f.name,type:f.type,mastery:1};f.status='consumed';f.holder='player';game.player.equipment=game.player.equipment.filter(x=>x!==name);addHistory('Fruit consommé',`Après l’avoir conservé, tu décides finalement de manger ${name}.`,'major')}
-  if(action==='sell'){const gain=randInt(150000,800000,'fruit');game.player.money+=gain;game.player.equipment=game.player.equipment.filter(x=>x!==name);f.status='world';f.holder=null;f.region=game.player.region;addHistory('Fruit vendu',`${name} quitte ton inventaire et retourne dans les circuits du monde.`,'major',`+${gain.toLocaleString('fr-FR')} B`)}saveGame();render()}
+function v6UseInventoryFruit(name,action){
+  const f=game.world.fruits.find(x=>x.name===name&&x.holder==='player_inventory');if(!f)return;
+  if(action==='eat'){
+    if(game.player.devilFruit){toast('Tu possèdes déjà un Fruit du Démon.');return}
+    v66Ensure();
+    game.player.devilFruit={id:f.id,name:f.name,type:f.type,mastery:Math.min(1,v66Cap('fruit','mastery'))};
+    f.status='consumed';f.holder='player';game.player.equipment=game.player.equipment.filter(x=>x!==name);
+    addHistory('Fruit consommé','Après l’avoir conservé, tu décides finalement de manger '+name+'. Ton affinité personnelle déterminera jusqu’où tu pourras pousser sa maîtrise.','major')
+  }
+  if(action==='sell'){
+    const gain=randInt(150000,800000,'fruit');game.player.money+=gain;game.player.equipment=game.player.equipment.filter(x=>x!==name);f.status='world';f.holder=null;f.region=game.player.region;
+    addHistory('Fruit vendu',name+' quitte ton inventaire et retourne dans les circuits du monde.','major','+'+gain.toLocaleString('fr-FR')+' B')
+  }
+  saveGame();render()
+}
 function v6RepairShip(full=false){const c=game.player.crew;if(!c)return false;const missing=100-c.ship.condition;if(missing<=0){toast('Le navire est déjà en excellent état.');return true}const points=full?missing:Math.min(25,missing),cost=Math.max(500,Math.round(points*180));if(game.player.money<cost){toast(`Réparation : ${cost.toLocaleString('fr-FR')} B requis.`);return false}game.player.money-=cost;c.ship.condition=clamp(c.ship.condition+points,0,100);if(c.ship.condition>=45)c.ship.lowConditionWarned=false;addHistory('Réparation du navire',`${c.ship.name} reçoit ${full?'une remise en état complète':'des réparations prioritaires'}.`,'normal',`-${cost.toLocaleString('fr-FR')} B • état ${Math.round(c.ship.condition)}%`);saveGame();render();return true}
 function v6QueueAgencyDecision(force=false){
   ensureV6();if(game.pendingDecision||!game.alive||game.ageMonths<156)return;const yearsSince=(game.ageMonths-game.pacing.lastDecisionAge)/12;if(yearsSince<1.75&&!force)return;const p=game.player,w=game.world;
