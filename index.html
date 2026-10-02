@@ -381,8 +381,9 @@ function v66Entry(kind,key){
 }
 function v66Cap(kind,key){return Number(v66Entry(kind,key)?.cap)||0}
 function v66GrowthMultiplier(kind,key){
-  const e=v66Entry(kind,key);if(!e)return 1;
-  return +(e.growth*v66AgeGrowthFactor()).toFixed(3)
+  const v=v66Ensure(),e=kind==='fruit'?v?.fruit:kind==='style'?v?.style:v?.[kind]?.[key];
+  if(!e||!v?.overall)return 1;
+  return +clamp(e.growth*v.overall.growthRate*v66AgeGrowthFactor(),.35,1.90).toFixed(3)
 }
 function v66ProgressValue(kind,key,current,amount){
   const cur=Number(current)||0,e=v66Entry(kind,key);if(!e)return cur+Number(amount||0);
