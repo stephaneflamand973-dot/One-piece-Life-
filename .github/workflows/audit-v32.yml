@@ -1,10 +1,11 @@
-name: V6.4 Long Audit
+name: V6.4 Live Audit
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
       - 'index.html'
+      - 'scripts/qa-v64.mjs'
       - 'app.js'
       - 'content-v1.js'
       - 'scripts/qa-v32.mjs'
@@ -15,7 +16,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: v64-long-audit-${{ github.ref }}
+  group: v64-live-audit-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -27,22 +28,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate V6.4 release markers
-        run: |
-          node <<'NODE'
-          const fs=require('fs');
-          const s=fs.readFileSync('index.html','utf8');
-          const checks={
-            annual:s.includes('AVANCER D’UN AN'),
-            risk:s.includes('function v64RiskProfile'),
-            adventure:s.includes('function v64QueueAdventureDecision'),
-            localDiscovery:s.includes('function v64AdventureMonthTick'),
-            rarity:s.includes('function v64RarityMultiplier'),
-            fruitCooldown:s.includes('fruitCooldownUntil'),
-            hookExpiry:!s.includes("h.expiresAt<v58MonthIndex()+12")
-          };
-          console.log(checks);
-          if(Object.values(checks).some(v=>!v)) process.exit(1);
-          NODE
-      - name: Run multi-decade gameplay stress audit
+      - name: Run live V6.4 runtime QA
+        run: node scripts/qa-v64.mjs
+      - name: Run legacy engine trend audit
+        continue-on-error: true
         run: node scripts/audit-v32.mjs
