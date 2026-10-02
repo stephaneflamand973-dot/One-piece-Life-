@@ -1,3 +1,36 @@
+# ONE PIECE LIFE — V6.8 Causal World 2.0
+
+La V6.8 relie enfin les systèmes mondiaux aux systèmes jouables.
+
+## Causal World 2.0
+
+- Les pressions régionales, territoires, projets et équipages locaux génèrent des **missions causales**.
+- Jusqu'à deux missions du tableau peuvent venir directement de la situation mondiale.
+- Chaque mission affiche désormais sa **cause**.
+- Les missions réussies ou ratées modifient à leur tour projets, influence, pressions, équipages et instabilité.
+- Les World Hooks produisent également des conséquences régionales persistantes.
+- Les événements autonomes alimentent un **registre causal**.
+- Le danger régional influence davantage les missions.
+- Les routes maritimes utilisent désormais un **risque causal dynamique**.
+- La durée de traversée réagit au contexte mondial.
+- Les soins, formations, équipements et renseignements utilisent un **indice de prix régional**.
+- L'état d'une région expose crise, opportunité, faction dominante, contestation, projets et équipages actifs.
+- Une région en crise peut produire automatiquement un nouveau World Hook causal.
+- L'écran Monde explique désormais **pourquoi la région est dans cet état**.
+- Save version : **680**.
+- Cache PWA : **one-piece-life-v6-8-0**.
+
+### QA de release
+- chaîne V6.4 → V6.8 : PASS ;
+- causalité joueur ↔ monde : PASS ;
+- économie dynamique : PASS ;
+- routes dynamiques : PASS ;
+- missions causales : PASS ;
+- stress causal 12 ans : PASS ;
+- stress V6.7.1 30 ans : PASS.
+
+---
+
 # ONE PIECE LIFE — V6.7.1 Stabilization & Unification
 
 La V6.7.1 consolide le moteur avant V6.8 Causal World 2.0.
