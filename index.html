@@ -423,6 +423,11 @@ function v67RelationshipsTick(months){
     else if(fit<0&&chance(.06*months,'v67RelationDrift')){r.trust=clamp(r.trust-1,0,100);r.rivalry=clamp(r.rivalry+1,0,100)}
     if(r.rivalry>68&&r.respect>55)r.support=clamp((r.support||0)+months*.18,0,100);
   }
+  const mentor=v67ActiveMentor();
+  if(mentor&&(mentor.trust<25||mentor.status!=='active')){
+    game.player.socialV67.mentorId=null;game.player.mentor=null;
+    addHistory('Fin du mentorat','Le lien avec '+mentor.name+' s’est trop dégradé pour que le mentorat continue.','major')
+  }
 }
 function v67CrewTick(months){
   v67Ensure();const c=game.player.crew;if(!c)return;
@@ -1738,6 +1743,12 @@ function resolveDecision(action){
     if(parts[1]==='relation'){const id=parts.slice(3).join(':'),r=v6RelationById(id);if(r){if(parts[2]==='invest'){r.trust=clamp(r.trust+10,0,100);r.affection=clamp(r.affection+8,0,100);r.familiarity=clamp(r.familiarity+8,0,100);addHistory('Relation approfondie',`Tu choisis d’investir réellement dans ton lien avec ${r.name}.`,'major')}if(parts[2]==='train'){const key=pick(['Combat','Commandement','Discrétion'],'v6Agency'),g=v63SkillGain(key,3);r.respect=clamp(r.respect+8,0,100);addHistory('Progression commune',`${r.name} devient une partie concrète de ta progression.`,'major',`${key} +${g.toFixed(1)}`)}if(parts[2]==='distance'){r.trust=clamp(r.trust-7,0,100);r.affection=clamp(r.affection-5,0,100);r.rivalry=clamp(r.rivalry+4,0,100);addHistory('Distance relationnelle',`Tu prends tes distances avec ${r.name}.`,'normal')}}}
     if(parts[1]==='mission'){if(parts[2]==='accept')startMission(parts.slice(3).join(':'));else addHistory('Mission refusée','Tu choisis de ne pas laisser cette opportunité détourner ton année suivante.','normal')}
   }
+  if(parts[0]==='v67crew'){v67ResolveCrewConflict(parts.slice(2).join(':'),parts[1])}
+  if(parts[0]==='v67mentor'){
+    const id=parts.slice(2).join(':'),r=game.relations.find(x=>x.id===id);
+    if(parts[1]==='accept')v67SetMentor(id);
+    else if(r){game.player.socialV67.mentorRefused[id]=true;addHistory('Mentorat refusé','Tu refuses pour l’instant la proposition de '+r.name+'.','normal')}
+  }
   game.pendingDecision=null;game.pacing.lastDecisionAge=game.ageMonths;$('#decisionModal').classList.add('hidden');saveGame();if(!game.alive){render();showDeath();return}if(game.agency?.annualTurn?.active){v61ResumeAnnualTurn();return}render();
 }
 function showDecision(){const d=game.pendingDecision;if(!d)return;$('#decisionTitle').textContent=d.title;$('#decisionText').textContent=d.text;$('#decisionChoices').innerHTML=d.choices.map(c=>`<button class="choice-btn" data-action="${esc(c.action)}"><strong>${esc(c.label)}</strong>${c.hint?`<small>${esc(c.hint)}</small>`:''}</button>`).join('');$('#decisionModal').classList.remove('hidden');$$('#decisionChoices .choice-btn').forEach(b=>b.onclick=()=>resolveDecision(b.dataset.action))}
@@ -1863,6 +1874,13 @@ function v6QueueAgencyDecision(force=false){
   ensureV6();if(game.pendingDecision||!game.alive||game.ageMonths<156)return;const yearsSince=(game.ageMonths-game.pacing.lastDecisionAge)/12;if(yearsSince<1.75&&!force)return;const p=game.player,w=game.world;
   if(p.crew&&p.crew.ship?.condition<45){const cost=Math.max(1200,Math.round((100-p.crew.ship.condition)*180));game.pendingDecision={id:'v6_ship_crisis',title:'Ton navire ne peut plus être ignoré',text:`${p.crew.ship.name} est à ${Math.round(p.crew.ship.condition)}%. Continuer ainsi augmente le risque de transformer une traversée banale en hommage posthume.`,choices:[{label:'Réparer sérieusement',hint:`Coût indicatif ${cost.toLocaleString('fr-FR')} B.`,action:'v6agency:ship:repair'},{label:'Faire seulement le minimum',hint:'Moins cher, mais le problème reviendra.',action:'v6agency:ship:patch'},{label:'Reporter',hint:'Tu gardes ton argent et le risque.',action:'v6agency:ship:ignore'}]};return}
   const hook=(w.worldHooks||[]).filter(h=>h.status==='open'&&(h.region===p.region||h.urgency>=75)).sort((a,b)=>b.urgency-a.urgency)[0],hookExposure=v64RiskFactor('hook');if(hook&&chance(clamp(.72*v62Metric('hook',1)*hookExposure,.08,.88),'v6Agency')){const cost=Math.max(500,Math.round(hook.reward*.13));game.pendingDecision={id:`v6_hook_${hook.id}`,title:hook.title,text:`${hook.desc} Le monde te met cette situation sous le nez au lieu de l’enterrer dans un onglet. Difficulté ${hook.difficulty}/100.`,choices:[{label:hook.type==='intel'?'Enquêter directement':'Intervenir directement',hint:'Puissance et combat.',action:`hook:direct:${hook.id}`},{label:'Approche discrète',hint:'Discrétion, Observation et mobilité.',action:`hook:discreet:${hook.id}`},{label:'Réseau & ressources',hint:`Coût ${cost.toLocaleString('fr-FR')} B.`,action:`hook:leverage:${hook.id}`},{label:'Laisser passer',hint:'Le monde continuera sans toi.',action:`hook:ignore:${hook.id}`}]};return}
+  const mentorCandidate=!p.socialV67?.mentorId?game.relations.filter(r=>v67MentorCandidate(r)&&!p.socialV67?.mentorRefused?.[r.id]).sort((a,b)=>v67RelationStrength(b)-v67RelationStrength(a))[0]:null;
+  if(mentorCandidate&&chance(.48,'v67MentorOffer')){
+    game.pendingDecision={id:'v67_mentor_offer_'+mentorCandidate.id,title:mentorCandidate.name+' propose de te guider',text:'Votre relation a atteint un niveau où '+mentorCandidate.name+' peut réellement influencer ta progression. Le mentorat reste dépendant de la confiance et du respect.',choices:[
+      {label:'Accepter le mentorat',hint:'Bonus de progression lié à la qualité du lien.',action:'v67mentor:accept:'+mentorCandidate.id},
+      {label:'Refuser pour l’instant',hint:'Aucun bonus, relation inchangée.',action:'v67mentor:decline:'+mentorCandidate.id}
+    ]};return
+  }
   const rels=game.relations.filter(r=>r.status==='active');if(rels.length&&chance(.52,'v6Agency')){const r=pick(rels,'v6Agency');game.pendingDecision={id:`v6_relation_${r.id}`,title:`${r.name} te sollicite`,text:r.rivalry>55?`Votre rivalité devient suffisamment forte pour exiger une réponse.`:`Votre relation a suffisamment évolué pour que ton comportement ait désormais une vraie conséquence.`,choices:[{label:'Investir dans la relation',hint:'Renforce confiance et familiarité.',action:`v6agency:relation:invest:${r.id}`},{label:'Transformer le lien en progression',hint:'Entraînement ou collaboration commune.',action:`v6agency:relation:train:${r.id}`},{label:'Prendre de la distance',hint:'Moins d’obligations, mais le lien se refroidit.',action:`v6agency:relation:distance:${r.id}`}]};return}
   if(p.career!=='Aucune'&&game.missionBoard.length){const m=game.missionBoard.slice().sort((a,b)=>b.reward-a.reward)[0],r=v6MissionReadiness(m);game.pendingDecision={id:`v6_mission_offer_${m.id}`,title:'Une mission pourrait changer ton année',text:`${m.title}. Évaluation : ${r.label.toLowerCase()} (${Math.round(r.score)} contre difficulté ${Math.round(r.target)}).`,choices:[{label:'Accepter cette mission',hint:`${m.reward.toLocaleString('fr-FR')} B • ${m.danger==='high'?'danger élevé':m.danger==='medium'?'danger moyen':'danger faible'}`,action:`v6agency:mission:accept:${m.id}`},{label:'Privilégier ma progression',hint:'Tu refuses pour conserver ton orientation annuelle.',action:'v6agency:mission:decline'}]};return}
 }
