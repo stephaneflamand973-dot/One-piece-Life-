@@ -12,7 +12,8 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="icon" type="image/svg+xml" href="icon.svg" />
-  <title>ONE PIECE LIFE — V7.0</title>
+  <link rel="stylesheet" href="src/v71/arc-director.css" />
+  <title>ONE PIECE LIFE — V7.1</title>
   <style>
 :root{--bg:#f4ecd8;--paper:#fffaf0;--ink:#1d2a2c;--muted:#6f7775;--navy:#173f4e;--sea:#2d7181;--sea2:#78a7a7;--gold:#c5943c;--red:#a34b3d;--green:#4b7660;--line:#dfd3b7;--shadow:0 12px 34px rgba(41,52,49,.09);--radius:22px;--safe:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}html{background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% -5%,rgba(120,167,167,.28),transparent 32%),linear-gradient(180deg,#f8f1df,var(--bg))}.app-shell{max-width:760px;margin:0 auto;min-height:100vh;padding-bottom:calc(90px + var(--safe))}.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px;background:rgba(244,236,216,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(100,90,70,.12)}.brand-wrap{display:flex;align-items:center;gap:10px;min-width:0}.brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:#fff;font-size:20px;box-shadow:0 6px 16px rgba(23,63,78,.2)}h1,h2,h3,p{margin-top:0}.brand-wrap h1{font-size:15px;letter-spacing:.08em;margin:0}.brand-wrap p{font-size:10px;color:var(--muted);margin:2px 0 0}.icon-btn{border:0;background:rgba(255,255,255,.55);width:38px;height:38px;border-radius:12px;font-size:18px;color:var(--ink)}main{padding:14px}.screen{display:none}.screen.active{display:block}.paper-card{background:rgba(255,250,240,.94);border:1px solid rgba(132,111,72,.16);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px}.hero-card{padding:24px;background:linear-gradient(145deg,#fffaf0 0%,#f4ead2 70%,#e6dfc8 100%);position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(45,113,129,.14);border-radius:50%;right:-70px;bottom:-100px;box-shadow:0 0 0 28px rgba(45,113,129,.035),0 0 0 56px rgba(45,113,129,.025)}.hero-card h2{font-family:Georgia,serif;font-size:34px;line-height:1.02;max-width:620px;margin:8px 0 14px}.hero-card p{color:#52605f;line-height:1.55;max-width:620px}.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--sea)}.feature-pills,.chip-list{display:flex;flex-wrap:wrap;gap:8px}.feature-pills span,.chip,.badge{font-size:11px;border-radius:999px;padding:7px 10px;background:#edf3ef;color:#47635d;border:1px solid rgba(75,118,96,.12)}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-heading.compact{margin-bottom:12px}.section-heading h3{margin:3px 0 0;font-size:18px}.save-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.save-slot{min-height:128px;border:1px dashed #c9b893;border-radius:17px;padding:14px;text-align:left;background:#fffbf3;color:var(--ink);display:flex;flex-direction:column;justify-content:space-between}.save-slot strong{font-size:14px}.save-slot small{color:var(--muted);line-height:1.35}.save-slot.empty{align-items:center;justify-content:center;text-align:center;color:var(--sea);font-weight:700}.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.mode-card{border:1px solid var(--line);border-radius:16px;background:#fffaf1;padding:14px;text-align:left;color:var(--ink)}.mode-card strong{display:block;margin-bottom:5px}.mode-card span{font-size:12px;color:var(--muted);line-height:1.35}.mode-card.selected{border-color:var(--sea);box-shadow:inset 0 0 0 1px var(--sea);background:#f1f8f6}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field>span{font-size:11px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:13px;padding:13px;background:#fffdf8;color:var(--ink);font-size:16px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary-btn,.secondary-btn,.choice-btn{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:800;font-size:14px}.primary-btn{background:var(--navy);color:#fff;box-shadow:0 8px 20px rgba(23,63,78,.18)}.primary-btn.small{padding:11px 14px;width:auto}.secondary-btn{background:#ece4d1;color:var(--ink)}.text-btn{border:0;background:transparent;color:var(--sea);font-weight:800;font-size:12px}.status-strip{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:1px;background:#d9ceb4;border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}.status-strip>div{background:#fffaf0;padding:11px 12px;min-width:0}.status-strip strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tiny-label{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}.tab-panel{display:none}.tab-panel.active{display:block}.profile-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#173f4e,#255e69);color:#fff}.avatar-ring{width:54px;height:54px;flex:0 0 54px;border-radius:50%;display:grid;place-items:center;background:#f7edd5;color:var(--navy);font:700 22px Georgia,serif;border:3px solid rgba(255,255,255,.24)}.profile-copy{min-width:0;flex:1}.profile-copy h2{margin:4px 0 3px;font-size:22px}.profile-copy p{margin:0;color:rgba(255,255,255,.72);font-size:12px}.profile-banner .eyebrow{color:#d9c79b}.reputation-pill{font-size:10px;font-weight:800;border-radius:999px;background:rgba(255,255,255,.13);padding:8px 10px;white-space:nowrap}.situation-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.situation-grid>div,.info-cell{padding:12px;border-radius:14px;background:#f4f0e5}.situation-grid span,.info-cell span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.situation-grid strong,.info-cell strong{font-size:13px}.danger-badge{font-size:10px;font-weight:900;border-radius:999px;padding:7px 10px}.danger-badge.low{background:#e4f0e9;color:#3f6a56}.danger-badge.medium{background:#f6ead0;color:#906b23}.danger-badge.high{background:#f4dfda;color:#963e35}.compact-list{margin-top:12px}.attention-card{border-color:#d3b46f;background:linear-gradient(145deg,#fff9e8,#f7eed7)}.attention-card h3{margin:6px 0}.attention-card p{font-size:13px;color:var(--muted);line-height:1.5}.timeline{position:relative;padding-left:18px}.timeline:before{content:"";position:absolute;left:5px;top:5px;bottom:8px;width:1px;background:#d6c9aa}.timeline-item{position:relative;padding:0 0 18px 13px}.timeline-dot{position:absolute;left:-17px;top:5px;width:9px;height:9px;background:#8f9f97;border:2px solid #fffaf0;border-radius:50%;box-shadow:0 0 0 1px #c8b997}.timeline-item.major .timeline-dot{background:var(--gold)}.timeline-item.danger .timeline-dot{background:var(--red)}.timeline-item.canon .timeline-dot{background:var(--sea)}.timeline-age{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.08em}.timeline-title{font-weight:900;margin:3px 0}.timeline-desc{font-size:13px;color:#5f6965;line-height:1.45}.timeline-delta{display:inline-block;margin-top:6px;background:#e8f0ea;color:#42644f;border-radius:9px;padding:4px 7px;font-size:10px;font-weight:800}.advance-dock{position:sticky;bottom:calc(72px + var(--safe));z-index:20;padding-top:2px}.advance-btn{width:100%;border:0;border-radius:18px;background:linear-gradient(135deg,#1d5360,#173f4e);color:#fff;padding:15px 18px;display:flex;gap:12px;align-items:center;text-align:left;box-shadow:0 15px 30px rgba(23,63,78,.24)}.advance-btn:disabled{opacity:.48}.advance-icon{font-size:24px}.advance-btn strong{display:block;letter-spacing:.08em}.advance-btn small{display:block;color:rgba(255,255,255,.65);font-size:10px;margin-top:3px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.career-card{padding:14px;border-radius:14px;background:#f4f0e5}.career-card strong{font-size:16px}.career-card p{font-size:12px;color:var(--muted);margin:5px 0 0;line-height:1.45}.action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.action-card{border:1px solid var(--line);background:#fffdf8;border-radius:14px;padding:12px;text-align:left;color:var(--ink)}.action-card strong{display:block;font-size:13px}.action-card small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}.action-card.active{border-color:var(--sea);background:#eef6f3}.action-card.locked{opacity:.45}.stats-list{display:flex;flex-direction:column;gap:9px}.stat-row{display:grid;grid-template-columns:100px 1fr 35px;align-items:center;gap:9px;font-size:12px}.stat-bar{height:8px;border-radius:999px;background:#e8e1d2;overflow:hidden}.stat-fill{height:100%;background:linear-gradient(90deg,#78a7a7,#2d7181);border-radius:999px}.stat-value{text-align:right;font-weight:900}.split-card{display:grid;grid-template-columns:1fr 1fr;gap:14px}.split-card>div+div{border-left:1px solid var(--line);padding-left:14px}.ability-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:8px 0;border-bottom:1px solid #eee6d6}.ability-row:last-child{border-bottom:0}.ability-row span{color:var(--muted)}.fruit-card{font-size:12px;line-height:1.45;color:#53605d}.relations-list{display:flex;flex-direction:column;gap:9px}.relation-card{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px;padding:10px;border-radius:14px;background:#f4f0e5}.relation-avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#dce9e5;color:var(--navy);font-weight:900}.relation-copy strong,.relation-copy span{display:block}.relation-copy span{font-size:11px;color:var(--muted);margin-top:2px}.relation-score{font-weight:900;color:var(--sea)}.world-hero{background:linear-gradient(145deg,#eaf2ec,#fffaf0)}.world-hero p{font-size:13px;color:var(--muted);line-height:1.5}.news-list,.canon-list{display:flex;flex-direction:column;gap:10px}.news-item,.canon-item{padding:12px;border-radius:14px;background:#f4f0e5}.news-item strong,.news-item span,.canon-item strong,.canon-item span{display:block}.news-item span,.canon-item span{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}.canon-item .status{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--sea);font-weight:900}.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;z-index:40;width:min(760px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,250,240,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(120,100,65,.14);padding:8px 7px calc(8px + var(--safe))}.nav-item{border:0;background:transparent;color:#80847f;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px}.nav-item span{font-size:17px}.nav-item small{font-size:9px}.nav-item.active{color:var(--navy);font-weight:900}.modal-backdrop{position:fixed;inset:0;z-index:80;background:rgba(15,27,28,.58);display:grid;place-items:end center;padding:14px}.modal-card{width:min(620px,100%);background:#fffaf0;border-radius:24px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:88vh;overflow:auto}.modal-card h3,.modal-card h2{margin:6px 0 9px}.modal-card p{color:var(--muted);font-size:13px;line-height:1.5}.decision-choices{display:flex;flex-direction:column;gap:9px;margin-top:18px}.choice-btn{background:#edf3ef;color:var(--ink);text-align:left;border:1px solid #d8e4df}.choice-btn strong,.choice-btn small{display:block}.choice-btn small{font-weight:500;color:var(--muted);margin-top:4px}.death-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}.death-summary>div{background:#f4f0e5;border-radius:13px;padding:11px}.death-summary span{display:block;font-size:9px;color:var(--muted)}.death-summary strong{font-size:13px}.dev-panel{position:fixed;inset:56px 8px 86px;z-index:70;background:#10272d;color:#dbe9e5;border-radius:18px;padding:14px;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.32)}.dev-head{display:flex;justify-content:space-between;align-items:center}.dev-panel pre{white-space:pre-wrap;font-size:10px;line-height:1.45}.toast{position:fixed;z-index:100;left:50%;transform:translateX(-50%);bottom:110px;background:#173f4e;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}.startup-error{margin-top:10px;padding:12px 14px;border-radius:14px;background:#f4dfda;color:#7d3028;border:1px solid rgba(150,62,53,.18);font-size:12px;line-height:1.45}.startup-error strong,.startup-error span{display:block}.startup-error span{margin-top:4px}.startup-ready{color:var(--green)}.startup-warn{color:#8a651f}.hidden{display:none!important}
@@ -72,10 +73,10 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V7.0 • Ultimate Canon Expansion</span>
-        <h2>Le canon devient une matière vivante du monde, pas une liste de célébrités qui passent dire bonjour.</h2>
-        <p>La V7.0 étend personnages, équipages, lieux, Fruits et événements, puis les branche aux relations, aux missions, aux dépendances historiques et à Causal World.</p>
-        <div class="feature-pills"><span>58 personnages canoniques</span><span>12 équipages & groupes</span><span>26 Fruits</span><span>47 lieux</span><span>21 événements</span><span>Personnalités canoniques</span><span>Graphe historique</span></div>
+        <span class="eyebrow">V7.1 • Arc Director & Modular Core</span>
+        <h2>Les grands événements ne passent plus devant toi. Ils peuvent maintenant t’aspirer dedans.</h2>
+        <p>La V7.1 rend les arcs majeurs jouables en plusieurs décisions, avec rôle, exposition, contribution et divergences possibles. Elle inaugure aussi une architecture modulaire progressive dans <code>src/</code>.</p>
+        <div class="feature-pills"><span>Arc Director</span><span>Marineford jouable</span><span>Choix multi-étapes</span><span>Divergences personnelles</span><span>Registre de modules</span><span>Données séparées</span><span>Migration sûre</span></div>
       </section>
 
 
@@ -148,6 +149,14 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
         </section>
 
         <section id="attentionCard" class="paper-card attention-card hidden"><span class="eyebrow">À décider</span><h3 id="attentionTitle"></h3><p id="attentionText"></p><button id="attentionBtn" class="primary-btn small">Voir les choix</button></section>
+
+        <section id="v71ArcCard" class="paper-card arc-card hidden">
+          <div class="section-heading compact"><div><span class="eyebrow">V7.1 • Arc majeur</span><h3 id="v71ArcTitle">Événement historique</h3></div><span id="v71ArcBadge" class="badge"></span></div>
+          <p id="v71ArcText"></p>
+          <div class="arc-progress"><i id="v71ArcProgress" style="width:0%"></i></div>
+          <div id="v71ArcMeta" class="arc-meta"></div>
+          <div id="v71ArcResult" class="arc-result hidden"></div>
+        </section>
 
         <section id="annualTurnCard" class="paper-card annual-turn-card"><div class="section-heading compact"><div><span class="eyebrow">V6.5 • Plan annuel</span><h3>Que vas-tu faire de cette année ?</h3></div><span id="annualTurnBadge" class="badge">PLAN</span></div><p id="annualTurnIntro" class="annual-turn-intro">Chaque domaine possède sa propre attitude annuelle. Tu peux travailler dur, lever le pied, développer ton réseau, explorer davantage ou privilégier tes ressources. Les choix se combinent, mais une année surchargée finit par se payer.</p><div id="annualFocusOptions" class="annual-plan-grid"></div><div id="annualTurnStatus" class="annual-turn-status hidden"></div></section>
 
@@ -226,6 +235,9 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 
 <div id="backupModal" class="modal-backdrop hidden" role="dialog" aria-modal="true"><div class="modal-card"><span class="eyebrow">Sauvegarde portable</span><h3 id="backupTitle">Exporter</h3><p id="backupHelp" class="helper-text"></p><textarea id="backupText" class="backup-text" spellcheck="false"></textarea><div class="modal-actions"><button id="backupPrimaryBtn" class="primary-btn">Copier</button><button id="backupCloseBtn" class="secondary-btn">Fermer</button></div></div></div>
 <div id="toast" class="toast hidden"></div>
+<script src="src/core/module-registry.js"></script>
+<script src="src/data/arc-definitions-v71.js"></script>
+<script src="src/v71/arc-director.js"></script>
 <script>
 (() => {
 'use strict';
@@ -234,8 +246,8 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const DB_NAME = 'one-piece-life';
 const STORE = 'saves';
-const SAVE_VERSION = 700;
-const GAME_VERSION = '7.0.0';
+const SAVE_VERSION = 710;
+const GAME_VERSION = '7.1.0';
 const V61_ANNUAL_FOCUS={
   balanced:{icon:'⚖',label:'Équilibré',desc:'Aucun domaine sacrifié.',training:1,career:1,relations:1,resources:1,adventure:1},
   training:{icon:'🥊',label:'Progression',desc:'+35% progression • carrière -16% • revenus -18%.',training:1.35,career:.84,relations:.86,resources:.82,adventure:.90},
@@ -2104,7 +2116,9 @@ function simulateCanon(){
     if(!state.ready)continue;
     const causal=clamp((e.resistance-game.world.divergence*.55)/100,.07,.98),monthlyChance=clamp((1/(Math.max(1,(e.to-e.from+1)*12)))*4,.02,.24);
     if(chance(monthlyChance*causal,'canon')){
-      e.status=game.world.divergence>24?'modified':'completed';
+      const intendedStatus=game.world.divergence>24?'modified':'completed';
+      if(v71MaybeStartArc(e,intendedStatus))continue;
+      e.status=intendedStatus;
       addNews(e.title,e.status==='modified'?'L’événement survient, mais dans un contexte déjà divergent.':e.desc,'canon');
       addHistory('Événement historique',e.title+'. Ses causes et conséquences sont désormais enregistrées dans le monde.','canon');
       codexAdd('events',e.title);addWorldFact('canon_'+e.id,{status:e.status});v70ApplyCanonEffects(e)
@@ -2467,6 +2481,7 @@ function resolveDecision(action){
   if(parts[0]==='captain'){if(parts[1]==='create'){p.rank='Capitaine';p.crew={name:`Équipage de ${p.name}`,morale:65,members:[generateCrewMember('Navigateur'),generateCrewMember('Combattant')],ship:{name:'Navire capturé',condition:68,tier:1},captain:{name:p.name,power:overallPower()},treasury:Math.max(0,Math.floor(p.money*.25))};p.reputation.pirate+=12;p.bounty+=80000;addHistory('CAPITAINE',`Tu hisses ton propre pavillon. Désormais, les victoires comme les désastres portent ton nom.`,'major')}else addHistory('Loyauté à l’équipage','Tu décides de rester officier et de poursuivre ta route actuelle.')}
   if(parts[0]==='command'){if(parts[1]==='accept'){p.rank='Commandant';p.specialization=p.specialization||'command';p.reputation.marine+=8;addHistory('Commandement',`Tu acceptes de diriger une unité de la Marine.`,'major')}else addHistory('Commandement refusé','Tu préfères ne pas prendre cette responsabilité pour l’instant.')}
   if(parts[0]==='shift'){if(parts[1]==='listen'){p.reputation.government-=2;codexAdd('factions','Révolutionnaires');addHistory('Contact clandestin','Tu ne changes pas de camp, mais tu conserves un lien discret avec un réseau révolutionnaire.','major');game.flags.revolutionContact=true}else addHistory('Proposition refusée','Tu refuses de laisser cette proposition modifier ta trajectoire.')}
+  if(parts[0]==='v71arc'){if(v71ResolveArcChoice(parts)){saveGame();render();showDecision();return}}
   if(parts[0]==='hook'){const hookId=parts.slice(2).join(':');if(parts[1]==='ignore')v59IgnoreHook(hookId);else if(v59ResolveHook(hookId,parts[1])===false){saveGame();render();showDecision();return}}
   if(parts[0]==='v6agency'){
     if(parts[1]==='ship'){if(parts[2]==='repair'&&v6RepairShip(true)===false){saveGame();render();showDecision();return}if(parts[2]==='patch'&&v6RepairShip(false)===false){saveGame();render();showDecision();return}if(parts[2]==='ignore')addHistory('Entretien reporté','Tu choisis de continuer avec un navire dégradé. Le risque reste entier.','danger')}
@@ -2539,6 +2554,138 @@ function v62DomainControlHtml(domain){const g=V62_ANNUAL_ACTIONS[domain],plan=ga
 function v62BindPlanControls(root=document){root.querySelectorAll?.('[data-plan-domain]').forEach(b=>b.onclick=()=>v62SetAnnualAction(b.dataset.planDomain,b.dataset.planAction))}
 function v62RenderDomainInline(id,domain){const el=$(`#${id}`);if(!el)return;el.innerHTML=v62DomainControlHtml(domain);v62BindPlanControls(el)}
 function renderAnnualTurnV61(){const box=$('#annualFocusOptions'),status=$('#annualTurnStatus'),intro=$('#annualTurnIntro'),badge=$('#annualTurnBadge');if(!box||!status)return;ensureV6();const turn=game.agency.annualTurn,plan=turn?.active?turn.plan:game.agency.annualPlan,locked=!!turn?.active;const domains=['career','training','relations','adventure','resources'];let html=domains.map(domain=>{const g=V62_ANNUAL_ACTIONS[domain],selected=plan[domain]||V62_DEFAULT_PLAN[domain];return `<div class="annual-domain"><div class="annual-domain-head"><strong>${g.icon} ${esc(g.label)}</strong><span>${esc(g.options[selected].label)}</span></div><div class="annual-domain-options">${Object.entries(g.options).map(([id,o])=>`<button class="annual-plan-option ${selected===id?'selected':''}" data-plan-domain="${domain}" data-plan-action="${id}" ${locked?'disabled':''}><strong>${esc(o.label)}</strong><small>${esc(o.desc)}</small></button>`).join('')}</div></div>`}).join('');if(game.activeMission){const g=V62_ANNUAL_ACTIONS.mission,selected=plan.mission||'standard';html+=`<div class="annual-domain mission-approach-row"><div class="annual-domain-head"><strong>${g.icon} Approche de mission</strong><span>${esc(game.activeMission.title)}</span></div><div class="annual-domain-options">${Object.entries(g.options).map(([id,o])=>`<button class="annual-plan-option ${selected===id?'selected':''}" data-plan-domain="mission" data-plan-action="${id}" ${locked?'disabled':''}><strong>${esc(o.label)}</strong><small>${esc(o.desc)}</small></button>`).join('')}</div></div>`}const load=v62AnnualLoad(plan),loadLabel=load<=2?'Léger':load<=5?'Soutenu':load<=7?'Très chargé':'Surcharge';html+=`<div class="annual-load"><b>Charge annuelle : ${loadLabel} (${load})</b> • Cumuler plusieurs options agressives augmente la fatigue et peut provoquer une surcharge.</div>`;box.innerHTML=html;$$('[data-plan-domain]').forEach(b=>b.onclick=()=>v62SetAnnualAction(b.dataset.planDomain,b.dataset.planAction));if(turn?.active){const pct=clamp((turn.monthsSimulated+(turn.phase>0?.5:0))/12*100,0,100);badge.textContent='ANNÉE EN COURS';intro.textContent='Le plan est verrouillé jusqu’au bilan. Les décisions majeures interrompent toujours le mois exact où elles apparaissent.';status.classList.remove('hidden');status.innerHTML=`<strong>Plan annuel • ${turn.monthsSimulated}/12 mois terminés</strong><span>Charge ${v62AnnualLoad(turn.plan)} • fatigue : ${v63FatigueProfile().label.toLowerCase()} • ${v64RiskSummaryText(turn)} • ${turn.interruptions||0} décision${(turn.interruptions||0)>1?'s':''} majeure${(turn.interruptions||0)>1?'s':''}.</span><div class="annual-turn-meter"><i style="width:${pct}%"></i></div>`}else{badge.textContent='PLAN';intro.textContent='Régle chaque domaine avant de lancer l’année. Les actions ne garantissent rien : elles déplacent réellement tes probabilités, ta progression, ta fatigue et tes opportunités.';status.classList.add('hidden');status.innerHTML=''}}
+
+function v71Module(){return window.OPL_MODULES?.get('arcDirector')||null}
+function v71Ensure(){
+  if(!game?.world)return null;
+  const w=game.world;
+  w.arcV71=w.arcV71&&typeof w.arcV71==='object'?w.arcV71:{version:1,active:null,history:[],totalArcs:0,totalLegendary:0};
+  w.arcV71.version=1;w.arcV71.history=Array.isArray(w.arcV71.history)?w.arcV71.history:[];
+  if(!Number.isFinite(w.arcV71.totalArcs))w.arcV71.totalArcs=0;
+  if(!Number.isFinite(w.arcV71.totalLegendary))w.arcV71.totalLegendary=0;
+  if(w.arcV71.active&&!game.pendingDecision&&game.alive){
+    const d=v71BuildArcDecision();
+    if(d)game.pendingDecision=d
+  }
+  return w.arcV71
+}
+function v71RelationMap(){
+  const out={};
+  for(const r of game.relations||[])if(r.canonId)out[r.canonId]=v67RelationStrength(r);
+  return out
+}
+function v71Context(e=null){
+  const p=game.player,h=p.haki||{},tier=v69CareerTier(p);
+  return {
+    faction:p.faction,career:p.career,rank:p.rank,region:p.region,worldYear:game.clock?.year||Math.floor(game.ageMonths/12),
+    worldRep:Number(p.reputation?.world)||0,authority:Number(tier.authority)||0,power:overallPower(),
+    eventImportance:Number(e?.importance)||0,relations:v71RelationMap(),skills:p.skills||{},stats:p.stats||{},
+    hakiObservation:Number(h.Observation?.mastery)||0,hakiArmament:Number(h.Armement?.mastery)||0,hakiConqueror:Number(h.Conquérant?.mastery)||0,
+    organization:v69NetworkMissionBonus(),relationSupport:v67MissionRelationshipSupport?.()||0
+  }
+}
+function v71MaybeStartArc(e,intendedStatus='completed'){
+  v71Ensure();const mod=v71Module(),state=game.world.arcV71;
+  if(!mod||!e||state.active||game.pendingDecision)return false;
+  const ctx=v71Context(e),arc=mod.createArc(e.id,ctx,intendedStatus);
+  if(!arc)return false;
+  state.active=arc;state.totalArcs++;e.status='active_arc';
+  game.pendingDecision=v71BuildArcDecision();
+  addHistory('ARC MAJEUR',arc.title+' t’implique directement comme '+arc.role.toLowerCase()+'. L’année est interrompue au moment exact où ton choix devient nécessaire.','canon');
+  return true
+}
+function v71BuildArcDecision(){
+  const state=game.world?.arcV71,arc=state?.active,mod=v71Module();if(!arc||!mod)return null;
+  const d=mod.decision(arc,v71Context(game.world.canon.find(e=>e.id===arc.eventId)));if(!d)return null;
+  return {id:'v71_'+arc.id+'_'+arc.stageIndex,title:d.title,text:d.text,choices:d.choices.map(c=>({label:c.label,hint:c.hint,action:c.action}))}
+}
+function v71CanonRelation(id){
+  const c=game.world.characters.find(x=>x.id===id);if(!c)return null;
+  let r=game.relations.find(x=>x.canonId===id);
+  if(!r){
+    const persona=v70Persona(c),calc=v70PersonaRelation(c);
+    r={id:'canon_'+c.id,name:c.name,role:v70CanonRole(c,persona,calc),affection:calc.affection,respect:calc.respect,trust:calc.trust,loyalty:0,fear:calc.fear,rivalry:calc.rivalry,familiarity:10,status:'active',canonId:c.id,temperament:persona.temperament,ambition:persona.values?.[0]||'Liberté'};
+    game.relations.push(r)
+  }
+  return r
+}
+function v71ApplyRelationDeltas(map){
+  if(!map)return;
+  for(const [id,d] of Object.entries(map)){const r=v71CanonRelation(id);if(!r)continue;for(const k of ['trust','respect','affection','rivalry','loyalty'])if(Number.isFinite(Number(d[k])))r[k]=clamp((Number(r[k])||0)+Number(d[k]),0,100);r.familiarity=clamp((r.familiarity||0)+5,0,100)}
+}
+function v71ApplyStageImpact(arc,result){
+  const p=game.player,choice=result.choice,region=game.world.canon.find(e=>e.id===arc.eventId)?.region||p.region;
+  v71ApplyRelationDeltas(choice.relations);
+  const exposure=Math.max(0,result.risk||0),energy=Math.max(0,Math.round(exposure*(result.success?1.4:2.2)));
+  p.energy=clamp(p.energy-energy,0,100);
+  let injury=0;
+  if(!result.success&&exposure>=2){injury=Math.max(1,Math.round(exposure*randInt(1,3,'v71ArcInjury')));p.health=clamp(p.health-injury,1,100)}
+  if(result.success){
+    p.reputation.world=clamp((p.reputation.world||0)+Math.max(1,Math.round((result.impact||0)*.7)),0,100);
+    if(p.faction!=='Civil'){const key=reputationKey(p.faction);if(key)p.reputation[key]=clamp((p.reputation[key]||0)+1,0,100)}
+  }
+  v68RecordCause({region:region==='Global'?p.region:region,type:'arc_stage',title:arc.title+' • '+choice.label,desc:result.success?'Ton choix produit un effet concret dans l’arc.':'Ton intervention échoue et augmente ton exposition.',sourceId:arc.id+'_'+arc.stageIndex,actor:p.faction,player:true,impact:Math.abs(result.impact||0)});
+  addHistory(result.success?'Intervention réussie':'Intervention compromise',arc.title+' : '+choice.label+'.','major',(result.success?'Succès':'Échec')+' • contribution '+(result.impact>=0?'+':'')+result.impact.toFixed(1)+' • exposition +'+result.risk.toFixed(1)+(injury?' • santé -'+injury:''));
+}
+function v71ApplySpecialOutcome(arc,summary){
+  const w=game.world;
+  if(arc.eventId==='marineford_war'&&arc.critical==='save_ace'&&arc.criticalSuccess&&summary.quality==='legendary'){
+    const ace=w.characters.find(x=>x.id==='ace'),mera=w.fruits.find(x=>x.id==='mera_mera');
+    if(ace)ace.status='alive';if(mera){mera.holder='Ace';mera.status='held'}
+    w.divergence=clamp(w.divergence+16,0,100);
+    addHistory('DIVERGENCE MAJEURE','Ta contribution à Marineford crée une issue que la chronologie normale n’aurait pas produite : Ace survit.','canon');
+    addNews('Marineford diverge','L’issue de la guerre change autour de la survie d’Ace. Le monde devra désormais réagir à cette nouvelle réalité.','canon')
+  }
+  if(arc.eventId==='marineford_war'&&arc.critical==='reduce_slaughter'&&arc.criticalSuccess){
+    const rp=w.regionalPressures?.['Grand Line'];if(rp)rp.Instabilité=clamp((rp.Instabilité||0)-5,0,100);
+    addHistory('Intervention décisive','Ton action limite une partie de l’escalade finale à Marineford.','canon')
+  }
+  if(arc.eventId==='wano_war'&&arc.critical==='save_beasts'&&arc.criticalSuccess&&summary.quality==='legendary'){
+    const crew=w.canonCrews.find(x=>x.id==='beasts');if(crew){crew.status='active';crew.momentum=72}
+    w.divergence=clamp(w.divergence+13,0,100);addHistory('DIVERGENCE MAJEURE','L’Équipage aux Cent Bêtes conserve assez de puissance pour survivre à l’issue de Wano.','canon')
+  }
+}
+function v71FinishArc(arc){
+  const mod=v71Module(),state=game.world.arcV71,e=game.world.canon.find(x=>x.id===arc.eventId);if(!mod||!e)return;
+  const summary=mod.summary(arc),changed=!arc.withdrawn&&(summary.quality==='legendary'||summary.quality==='major'||summary.critical);
+  e.status=changed?'modified':arc.intendedStatus;
+  addNews(e.title,arc.withdrawn?e.desc:'L’événement se résout avec une implication directe de '+game.player.name+'. Contribution '+summary.contribution.toFixed(1)+'.','canon');
+  addHistory('Fin d’arc',e.title+' • '+(arc.withdrawn?'tu restes en marge':summary.quality+' • contribution '+summary.contribution.toFixed(1)),'canon');
+  codexAdd('events',e.title);addWorldFact('canon_'+e.id,{status:e.status,playerArc:summary});
+  v70ApplyCanonEffects(e);
+  v71ApplySpecialOutcome(arc,summary);
+  state.history.unshift({...summary,eventId:arc.eventId,year:game.clock.year,role:arc.role});
+  if(state.history.length>30)state.history.length=30;
+  if(summary.quality==='legendary')state.totalLegendary++;
+  state.active=null
+}
+function v71ResolveArcChoice(parts){
+  v71Ensure();const mod=v71Module(),arc=game.world.arcV71.active;if(!mod||!arc)return false;
+  const arcId=decodeURIComponent(parts[1]||''),stageIndex=Number(parts[2]),choiceId=decodeURIComponent(parts.slice(3).join(':'));
+  if(arc.id!==arcId||arc.stageIndex!==stageIndex)return false;
+  const result=mod.resolveChoice(arc,choiceId,v71Context(game.world.canon.find(e=>e.id===arc.eventId)),random('v71Arc:'+arc.eventId+':'+arc.stageIndex+':'+choiceId));
+  if(result.error)return false;
+  arc.choices.push({stageIndex,choiceId,success:result.success,chance:result.chance,impact:result.impact,risk:result.risk});
+  arc.impact=+(arc.impact+(result.impact||0)).toFixed(2);arc.risk=+(arc.risk+(result.risk||0)).toFixed(2);
+  if(result.success)arc.successes++;else arc.failures++;
+  if(result.choice.alignment)arc.alignment=result.choice.alignment;
+  if(result.choice.critical){arc.critical=result.choice.critical;arc.criticalSuccess=!!result.success}
+  if(result.withdraw){arc.withdrawn=true;v71FinishArc(arc);return false}
+  v71ApplyStageImpact(arc,result);
+  if(result.finished){v71FinishArc(arc);return false}
+  arc.stageIndex=result.nextStage;game.pendingDecision=v71BuildArcDecision();return true
+}
+function renderV71Arc(){
+  const card=$('#v71ArcCard');if(!card)return;v71Ensure();const arc=game.world.arcV71.active,mod=v71Module();
+  if(!arc||!mod){card.classList.add('hidden');return}
+  const def=mod.definition(arc.eventId),stages=def?.stages?.length||1,pct=clamp((arc.stageIndex/stages)*100,0,100);
+  card.classList.remove('hidden');$('#v71ArcTitle').textContent=arc.title;$('#v71ArcBadge').textContent=(arc.stageIndex+1)+'/'+stages;
+  $('#v71ArcText').textContent=def?.subtitle||'Un événement majeur exige ton attention.';
+  $('#v71ArcProgress').style.width=pct+'%';
+  $('#v71ArcMeta').innerHTML='<span>'+esc(arc.role)+'</span><span>Contribution '+arc.impact.toFixed(1)+'</span><span>Exposition '+arc.risk.toFixed(1)+'</span><span>'+arc.successes+' succès / '+arc.failures+' échecs</span>';
+  $('#v71ArcResult').classList.add('hidden')
+}
+
 function ensureV6(){
   game.agency=game.agency||{lastAnnualReport:null,lastAgencyYear:-99,totalAnnualAdvances:0,selectedFocus:'balanced',annualTurn:null};
   if(!Number.isFinite(game.agency.lastAgencyYear))game.agency.lastAgencyYear=-99;
@@ -2555,7 +2702,7 @@ function ensureV6(){
   if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;
   if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));
   ensureV59();for(const h of game.world.worldHooks||[])updateHakiStagesV6();
-  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v68Ensure();v69Ensure();v70Ensure()
+  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v68Ensure();v69Ensure();v70Ensure();v71Ensure()
 }
 function v6RelationById(id){return game.relations.find(r=>r.id===id||slug(r.name)===id)}
 function v6InteractRelation(id,action){
@@ -2704,7 +2851,7 @@ function renderCharacter(){
   const mentor=v67ActiveMentor();
   const rows=[['Nom',p.name],['Race',p.race],['Origine',p.origin],['Lieu',p.island+' • '+p.region],['Faction',p.faction],['Rang',p.rank+(p.careerPrestige?.level?' • '+V63_PRESTIGE_TITLES[p.careerPrestige.level]:'' )],['Spécialité',p.specialization||'Aucune'],['Potentiel',pv.overall.label+' • '+pv.overall.score+'/100'],['Growth','×'+pv.overall.growthRate.toFixed(2)+' • '+V66_CURVE_LABELS[pv.curve]],['Mentor',mentor?mentor.name:'Aucun'],['Prime',Math.floor(p.bounty).toLocaleString('fr-FR')+' B']];
   $('#identityGrid').innerHTML=rows.map(([k,v])=>'<div class="info-cell"><span>'+esc(k)+'</span><strong>'+esc(v)+'</strong></div>').join('');
-  $('#careerCard').innerHTML='<strong>'+esc(p.career)+'</strong><p>'+esc(p.activity)+' • '+esc(p.situation)+' • expérience carrière '+Math.floor(p.careerXP)+'</p><div class="annual-focus-note">V7.0 : le canon possède désormais ses propres personnalités, groupes, dépendances historiques et conséquences dans le monde vivant.</div>';
+  $('#careerCard').innerHTML='<strong>'+esc(p.career)+'</strong><p>'+esc(p.activity)+' • '+esc(p.situation)+' • expérience carrière '+Math.floor(p.careerXP)+'</p><div class="annual-focus-note">V7.1 : les grands événements peuvent interrompre l’année et devenir des arcs jouables ; le moteur commence aussi sa migration vers des modules séparés.</div>';
   const inv=p.equipment||[];
   $('#equipmentList').innerHTML=inv.length?inv.map(e=>{const f=game.world.fruits.find(x=>x.name===e&&x.holder==='player_inventory');return f?'<div class="inventory-item"><strong>'+esc(e)+' • '+esc(f.type)+'</strong><div class="inventory-actions"><button class="mini-action primary" data-fruit-eat="'+esc(e)+'">Manger</button><button class="mini-action" data-fruit-sell="'+esc(e)+'">Vendre</button></div></div>':'<span class="chip">'+esc(e)+'</span>'}).join(''):'<span class="chip">Inventaire vide</span>';
   $$('[data-fruit-eat]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitEat,'eat'));$$('[data-fruit-sell]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitSell,'sell'));
@@ -2783,7 +2930,7 @@ function renderWorld(){
   const chips=[...game.codex.people,...game.codex.places,...game.codex.factions,...game.codex.fruits,...game.codex.events];$('#codexList').innerHTML=chips.slice(-48).map(x=>`<span class="chip">${esc(x)}</span>`).join('');renderWorldDepthV6()
 ;v62RenderDomainInline('adventureAnnualActions','adventure')}
 function renderDev(force=false){if(!game)return;const panel=$('#developerPanel');if(!force&&panel?.classList.contains('hidden'))return;$('#devOutput').textContent=JSON.stringify({version:game.version,seed:game.seed,rngCounters:game.rngCounters,lastRng:game.dev.rngLog.slice(0,16),lastAdvance:game.dev.lastAdvance,pacing:game.pacing,agency:game.agency,mission:game.activeMission,hidden:{potential:game.player.potential,potentialV66:game.player.potentialV66,caps:game.player.caps,hakiLatent:Object.fromEntries(Object.entries(game.player.haki).map(([k,v])=>[k,v.latent]))},world:{divergence:game.world.divergence,canon:game.world.canon,fruits:game.world.fruits,characters:game.world.characters,pressures:game.world.pressures,regionalPressures:game.world.regionalPressures,factions:game.world.factions,worldFacts:game.world.worldFacts,autonomy:game.world.autonomy,projects:game.world.projects,rumors:game.world.rumors,territories:game.world.territoryState,perceptions:game.world.perceptions,npcRelations:game.world.npcRelations,butterflies:game.world.butterflies,hooks:game.world.worldHooks,rivals:game.world.rivals,hookChains:game.world.hookChains,worldPulse:game.world.worldPulse},travel:game.player.travel,playerPower:overallPower()},null,2)}
-function render(){if(!game)return;const p=game.player;showGame();$('#ageLabel').textContent=ageText();$('#locationLabel').textContent=p.travel?`→ ${p.travel.destination}`:p.island;$('#moneyLabel').textContent=`${Math.floor(p.money).toLocaleString('fr-FR')} B`;$('#playerName').textContent=p.name;$('#avatarInitial').textContent=(p.name[0]||'?').toUpperCase();$('#playerSubtitle').textContent=`${p.race} • ${p.region} • ${p.faction}`;$('#lifeStatus').textContent=p.situation;$('#repPill').textContent=repLabel();$('#situationTitle').textContent=p.situation;$('#activityValue').textContent=p.activity;$('#factionValue').textContent=p.faction;$('#healthValue').textContent=`${Math.round(p.health)}%`;$('#energyValue').textContent=`${Math.round(p.energy)}%`;const d=$('#dangerBadge');d.textContent=p.danger;d.className=`danger-badge ${p.danger==='Élevé'?'high':p.danger==='Moyen'?'medium':'low'}`;const fatigue=v63FatigueProfile(p),fatigueChip=fatigue.label==='Frais'?'':`<span class="chip fatigue-chip ${fatigue.cls}">${esc(fatigue.label)} • efficacité ${Math.round(fatigue.training*100)}%</span>`;$('#conditionChips').innerHTML=(p.conditions.length?p.conditions.map(c=>`<span class="chip">${esc(c.name)}</span>`).join(''):`<span class="chip">Aucune blessure</span>`)+fatigueChip;const turn=game.agency?.annualTurn;$('#advanceBtn').disabled=!game.alive||!!game.pendingDecision;$('#advanceLabel').textContent=turn?.active?'REPRENDRE L’ANNÉE':'AVANCER D’UN AN';$('#advanceHint').textContent=game.pendingDecision?'Année en pause : une décision t’attend':turn?.active?`${turn.monthsSimulated}/12 mois terminés • charge ${v62AnnualLoad(turn.plan)}`:game.activeMission?`Mission active • lancer l’année interactive`:game.alive?'Choisir un cap puis simuler jusqu’au prochain choix':'Cette vie est terminée';if(game.pendingDecision){$('#attentionCard').classList.remove('hidden');$('#attentionTitle').textContent=game.pendingDecision.title;$('#attentionText').textContent=game.pendingDecision.text}else $('#attentionCard').classList.add('hidden');ensureV59();const pulse=(game.world.worldPulse||[]).slice(0,3),pc=$('#worldPulseCard');if(pulse.length){pc.classList.remove('hidden');$('#worldPulseBadge').textContent=`${pulse.length} récents`;$('#worldPulse').innerHTML=pulse.map(x=>`<div class="pulse-item"><strong>${esc(x.title)}</strong><span>${esc(x.desc)}</span></div>`).join('')}else pc.classList.add('hidden');renderAnnualTurnV61();renderAnnualReportV6();renderTimeline();renderCharacter();renderAbilities();renderRelations();renderWorld();renderDev()}
+function render(){if(!game)return;const p=game.player;showGame();$('#ageLabel').textContent=ageText();$('#locationLabel').textContent=p.travel?`→ ${p.travel.destination}`:p.island;$('#moneyLabel').textContent=`${Math.floor(p.money).toLocaleString('fr-FR')} B`;$('#playerName').textContent=p.name;$('#avatarInitial').textContent=(p.name[0]||'?').toUpperCase();$('#playerSubtitle').textContent=`${p.race} • ${p.region} • ${p.faction}`;$('#lifeStatus').textContent=p.situation;$('#repPill').textContent=repLabel();$('#situationTitle').textContent=p.situation;$('#activityValue').textContent=p.activity;$('#factionValue').textContent=p.faction;$('#healthValue').textContent=`${Math.round(p.health)}%`;$('#energyValue').textContent=`${Math.round(p.energy)}%`;const d=$('#dangerBadge');d.textContent=p.danger;d.className=`danger-badge ${p.danger==='Élevé'?'high':p.danger==='Moyen'?'medium':'low'}`;const fatigue=v63FatigueProfile(p),fatigueChip=fatigue.label==='Frais'?'':`<span class="chip fatigue-chip ${fatigue.cls}">${esc(fatigue.label)} • efficacité ${Math.round(fatigue.training*100)}%</span>`;$('#conditionChips').innerHTML=(p.conditions.length?p.conditions.map(c=>`<span class="chip">${esc(c.name)}</span>`).join(''):`<span class="chip">Aucune blessure</span>`)+fatigueChip;const turn=game.agency?.annualTurn;$('#advanceBtn').disabled=!game.alive||!!game.pendingDecision;$('#advanceLabel').textContent=turn?.active?'REPRENDRE L’ANNÉE':'AVANCER D’UN AN';$('#advanceHint').textContent=game.pendingDecision?'Année en pause : une décision t’attend':turn?.active?`${turn.monthsSimulated}/12 mois terminés • charge ${v62AnnualLoad(turn.plan)}`:game.activeMission?`Mission active • lancer l’année interactive`:game.alive?'Choisir un cap puis simuler jusqu’au prochain choix':'Cette vie est terminée';if(game.pendingDecision){$('#attentionCard').classList.remove('hidden');$('#attentionTitle').textContent=game.pendingDecision.title;$('#attentionText').textContent=game.pendingDecision.text}else $('#attentionCard').classList.add('hidden');ensureV59();const pulse=(game.world.worldPulse||[]).slice(0,3),pc=$('#worldPulseCard');if(pulse.length){pc.classList.remove('hidden');$('#worldPulseBadge').textContent=`${pulse.length} récents`;$('#worldPulse').innerHTML=pulse.map(x=>`<div class="pulse-item"><strong>${esc(x.title)}</strong><span>${esc(x.desc)}</span></div>`).join('')}else pc.classList.add('hidden');renderV71Arc();renderAnnualTurnV61();renderAnnualReportV6();renderTimeline();renderCharacter();renderAbilities();renderRelations();renderWorld();renderDev()}
 function showDeath(){const p=game.player;$('#deathTitle').textContent=`${p.name}, ${ageText()}`;const data=[['Cause',game.death?.cause||'Inconnue'],['Carrière',p.career],['Rang maximal',p.rank],['Ambition',p.ambition],['Prime max',`${Math.floor(p.highestBounty).toLocaleString('fr-FR')} B`],['Victoires',p.wins],['Défaites',p.losses],['Lieux visités',p.visited.length],['Divergence mondiale',`${Math.round(game.world.divergence)}%`]];$('#deathSummary').innerHTML=data.map(([k,v])=>`<div><span>${esc(k)}</span><strong>${esc(v)}</strong></div>`).join('');$('#deathModal').classList.remove('hidden')}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.add('hidden'),1800)}
 
