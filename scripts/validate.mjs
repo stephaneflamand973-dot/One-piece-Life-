@@ -10,9 +10,9 @@ const css=fs.readFileSync('styles.css','utf8');
 new Function(app);
 new Function(pack);
 const manifestData=JSON.parse(manifest);
-if(!String(manifestData.description||'').includes('V5.4') || !String(manifestData.description||'').includes('Crew Bonds & Command')) throw new Error('manifest.webmanifest does not expose V5.4 Crew Bonds & Command consistently');
+if(!String(manifestData.description||'').includes('V5.5') || !String(manifestData.description||'').includes('Crew Chemistry & Internal Dynamics')) throw new Error('manifest.webmanifest does not expose V5.5 Crew Chemistry & Internal Dynamics consistently');
 
-if(!html.includes('<title>ONE PIECE LIFE — V5.4</title>') || !html.includes('V5.4 • Crew Bonds & Command')) throw new Error('index.html does not expose V5.4 consistently');
+if(!html.includes('<title>ONE PIECE LIFE — V5.5</title>') || !html.includes('V5.5 • Crew Chemistry & Internal Dynamics')) throw new Error('index.html does not expose V5.5 consistently');
 if(!app.includes('version:28') || !app.includes('g.version=28')) throw new Error('compatible GameState 28 migration is missing');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
@@ -20,7 +20,7 @@ if(!sw.includes('content-v1.js')) throw new Error('PWA cache does not include co
 if(!css.includes('calc(14px + var(--safe))') || !css.includes('100dvh - 28px - var(--safe)') || !css.includes('bottom:calc(110px + var(--safe))')) throw new Error('mobile safe-area protection for modal/toast surfaces missing');
 if(!css.includes('@media(max-width:480px){main{padding-left:10px;padding-right:10px}.paper-card{padding:15px}.hero-card h2{font-size:28px}')) throw new Error('small-phone compact layout regression');
 
-const dynamicIds=new Set(['eatHeldFruit','challengeBtn','martialTrainBtn','changeCareerBtn','careerRecordBtn','upgradeHousingBtn','investBusinessBtn','partnerTimeBtn','marryBtn','breakupBtn','welcomeChildBtn','orgBondBtn','orgRecruitBtn','orgTrainBtn','orgFundBtn','orgSupplyBtn','orgRepairBtn','orgUpgradeBtn','layLowBtn','surrenderBtn','escapeBtn','claimDomainBtn','fortifyDomainBtn','affiliateCrewBtn','launchCampaignBtn','seekMentorBtn','exploreIslandBtn','seekRumorBtn','specializationChoiceBtn','ambitionChoiceBtn','timelineMoreBtn','expandRelationsBtn','foundPirateCrewBtn','pirateDutyBtn','pirateCouncilBtn','pirateDirectiveBtn']);
+const dynamicIds=new Set(['eatHeldFruit','challengeBtn','martialTrainBtn','changeCareerBtn','careerRecordBtn','upgradeHousingBtn','investBusinessBtn','partnerTimeBtn','marryBtn','breakupBtn','welcomeChildBtn','orgBondBtn','orgRecruitBtn','orgTrainBtn','orgFundBtn','orgSupplyBtn','orgRepairBtn','orgUpgradeBtn','layLowBtn','surrenderBtn','escapeBtn','claimDomainBtn','fortifyDomainBtn','affiliateCrewBtn','launchCampaignBtn','seekMentorBtn','exploreIslandBtn','seekRumorBtn','specializationChoiceBtn','ambitionChoiceBtn','timelineMoreBtn','expandRelationsBtn','foundPirateCrewBtn','pirateDutyBtn','pirateCouncilBtn','pirateDirectiveBtn','crewDynamicsBtn']);
 const ids=[...app.matchAll(/\$\('#([^']+)'\)/g)].map(m=>m[1]);
 const missing=[...new Set(ids)].filter(id=>!dynamicIds.has(id)&&!html.includes('id="'+id+'"'));
 if(missing.length) throw new Error('Missing HTML ids: '+missing.join(', '));
@@ -74,6 +74,7 @@ if(!app.includes('var ORG_CONFIG=') || !app.includes('var SHIP_TIERS=')) throw n
 if(!app.includes('function organizationTick') || !app.includes('function organizationMissionDanger') || !app.includes('function recruitOrganizationMember')) throw new Error('V1.6 organization engine missing');
 if(!app.includes('function upgradeOrganizationShip') || !app.includes('function syncOrganizationRole')) throw new Error('V1.6 command/ship engine missing');
 if(!app.includes('function joinedCrewStanding') || !app.includes('function syncJoinedCrewRoster') || !app.includes('function appointPirateFirstMate')) throw new Error('V5.4 crew bonds/command engine missing');
+if(!app.includes('function crewDynamicsState') || !app.includes('function crewChemistry') || !app.includes('function crewDynamicsTick') || !app.includes('function resolveCrewFriction')) throw new Error('V5.5 crew chemistry/internal dynamics engine missing');
 if(!html.includes('id="organizationMembers"') || !html.includes('id="organizationResources"') || !html.includes('id="organizationActions"')) throw new Error('V1.6 organization UI missing');
 
 if(!app.includes('function justiceTick') || !app.includes('function pursuitEncounter') || !app.includes('function arrestPlayer')) throw new Error('V1.6 pursuit/justice engine missing');
