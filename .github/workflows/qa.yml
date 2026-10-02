@@ -1,4 +1,4 @@
-name: V7.4 QA
+name: V7.5 QA
 on:
   push:
     branches: [main]
@@ -19,17 +19,19 @@ on:
       - 'scripts/qa-v72.mjs'
       - 'scripts/qa-v73.mjs'
       - 'scripts/qa-v74.mjs'
+      - 'scripts/qa-v75.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
       - 'QA-V7.4.md'
+      - 'QA-V7.5.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v74-qa-${{ github.ref }}
+  group: v75-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -65,3 +67,5 @@ jobs:
         run: node scripts/qa-v73.mjs
       - name: Verify V7.4 Relations and Persona 3.0
         run: node scripts/qa-v74.mjs
+      - name: Verify V7.5 World and Canon 3.0
+        run: node scripts/qa-v75.mjs
