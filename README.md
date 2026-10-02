@@ -1,3 +1,29 @@
+# ONE PIECE LIFE — V7.5 World & Canon 3.0
+
+La V7.5 ajoute un World Director chargé de coordonner les personnages canoniques, équipages, territoires, Fruits du Démon et événements historiques lorsque le joueur n’est pas directement présent.
+
+## World & Canon 3.0
+
+- Les personnages canoniques importants peuvent désormais **agir hors écran** selon leur faction, puissance, importance, santé et région.
+- Actions possibles : déplacement stratégique, affrontement, coopération, pression territoriale, recherche de Fruit et récupération.
+- Les déplacements respectent les **régions canoniquement autorisées** de chaque personnage.
+- Les affrontements hors écran blessent réellement les acteurs et renforcent rivalités, expérience et dynamique d’équipage.
+- Les groupes canoniques suivent leurs leaders et leur puissance se resynchronise progressivement.
+- La mort d’un leader peut fracturer ou dissoudre son organisation selon son importance.
+- Les Fruits du Démon sont désormais synchronisés avec leurs détenteurs : la mort d’un détenteur peut remettre son Fruit en circulation.
+- Les personnages majeurs peuvent tenter de sécuriser un Fruit libre.
+- Un nouvel **indice de chaleur régionale** combine pressions, personnages et équipages présents.
+- Le World Director privilégie naturellement les zones et acteurs capables de produire des conséquences significatives.
+- Les événements historiques possèdent désormais des **ancres d’acteurs** en plus de leurs prérequis événementiels.
+- Un événement canonique ne peut plus se dérouler normalement si ses personnages ou groupes indispensables ont déjà disparu.
+- Les actions du World Director alimentent le système autonome V5.8, les rumeurs, les hooks et Causal World V6.8.
+- L’écran Monde affiche les actions connues, le principal point chaud et les compteurs du World Director.
+- Migration V7.4 → V7.5 automatique.
+- Save version : **750**.
+- Cache PWA : **one-piece-life-v7-5-0**.
+
+---
+
 # ONE PIECE LIFE — V7.4 Relations & Persona 3.0
 
 La V7.4 transforme les relations en liens persistants capables de se souvenir de ce que les personnages ont réellement vécu ensemble.
