@@ -93,14 +93,16 @@ assert(win.phasesWon>=2&&win.outcome==='win','Resolver did not produce a win fro
 assert(loss.phasesWon<2&&loss.outcome==='defeat','Resolver did not produce defeat from fewer than two phases');
 
 // Live integration contract.
-assert(html.includes('ONE PIECE LIFE — V7.2'),'V7.2 title missing');
-assert(/const SAVE_VERSION\s*=\s*720;/.test(html),'Save version 720 missing');
-assert(/const GAME_VERSION\s*=\s*'7\.2\.0';/.test(html),'Game version 7.2.0 missing');
+const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(saveVersion>=720,'V7.2 regression QA requires save version >= 720');
+assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=2,'V7.2 regression QA requires game version >= 7.2');
 for(const asset of ['src/data/combat-techniques-v72.js','src/v72/combat-engine-v72.js']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v7-2-0'),'PWA cache not bumped to V7.2');
+assert(/one-piece-life-v7-[2-9]-\d+/.test(sw),'PWA cache must remain at V7.2 or newer');
 assert(html.includes('function v72CombatModule()'),'Legacy bridge missing combat module lookup');
 assert(html.includes('mod.enhance({opening,pressure,finish}'),'Legacy assessment is not enhanced by V7.2');
 assert(html.includes('v72RecordCombatUsage(a,phaseResults)'),'Combat usage/signature learning not connected');
@@ -110,7 +112,7 @@ assert(html.includes("if(!game.player.combatV72||typeof game.player.combatV72!==
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
 
 console.log('V7.2 COMBAT & POWERS QA OK',JSON.stringify({
-  version:'7.2.0',
+  version:gameVersion,
   techniques:data.techniques.length,
   doctrines:Object.keys(data.doctrines).length,
   armedVsLogia:armed.winEstimate,
