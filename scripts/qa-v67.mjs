@@ -99,7 +99,7 @@ function fixture(seed='670067'){
 const saveMatch=html.match(/const SAVE_VERSION = (\d+);/);
 const versionMatch=html.match(/const GAME_VERSION = '([0-9.]+)';/);
 assert(saveMatch&&Number(saveMatch[1])>=670,'Save version regressed below 670');
-assert(versionMatch&&versionMatch[1].startsWith('6.'),'Game version missing or invalid');
+assert(versionMatch&&Number(versionMatch[1].split('.')[0])>=6,'Game version missing or invalid');
 assert(html.includes('function v67Ensure'),'V6.7 relationship engine missing');
 
 // Crew enrichment is deterministic and creates persistent relations.
