@@ -1,3 +1,31 @@
+# ONE PIECE LIFE — V6.7.1 Stabilization & Unification
+
+La V6.7.1 consolide le moteur avant V6.8 Causal World 2.0.
+
+## Stabilisation
+- Corrections des bindings multi-boutons **Missions** et **Relations**.
+- Nouvelle passerelle de progression `v671Gain()`.
+- Les anciens gains automatiques de stats/compétences passent désormais par le Potential Engine.
+- `v63SkillGain()` est raccordé à la couche unifiée.
+- Les soft caps, plafonds personnels et Growth Rates sont respectés sur les chemins migrés.
+- Crew 2.0 devient l'unique autorité des départs d'équipage.
+- L'ancien `simulateCrew()` ne supprime plus directement de membres.
+- Les nouveaux recrutements sont immédiatement synchronisés avec Relationship & Crew 2.0.
+- Nouvelle QA DOM pour Missions et Relations.
+- Nouveau stress-test du moteur live sur **30 années / 360 mois**.
+- Save version : **671**.
+- Cache PWA : **one-piece-life-v6-7-1**.
+
+### Résultat du stress-test de release
+- 360 mois simulés ;
+- âge final 45 ans ;
+- rang final Maître ;
+- sauvegarde maximale ~152,5 Ko ;
+- historique et actualités bornés ;
+- plafonds de progression respectés.
+
+---
+
 # ONE PIECE LIFE — V6.7 Relationship & Crew 2.0
 
 La V6.7 transforme les relations et l’équipage en acteurs persistants plutôt qu’en simples jauges.
