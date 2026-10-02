@@ -977,8 +977,13 @@ function localPressures(region=game.player.region){return game.world.regionalPre
 // V6.8 — CAUSAL WORLD 2.0
 // -----------------------------------------------------------------------------
 function v68Ensure(){
-  if(!game?.world)return null;
-  const w=game.world;
+  if(!game)return null;
+  const w=game.world=game.world||{};
+  w.pressures=w.pressures||{Piraterie:0,Marine:0,Criminalité:0,Révolution:0,Prospérité:50,Instabilité:0};
+  w.regionalPressures=w.regionalPressures||{};
+  w.projects=Array.isArray(w.projects)?w.projects:[];
+  w.emergentCrews=Array.isArray(w.emergentCrews)?w.emergentCrews:[];
+  w.territoryState=w.territoryState||{};
   w.causalV68=w.causalV68&&typeof w.causalV68==='object'?w.causalV68:{version:1,ledger:[],playerImpact:0,lastMissionRefresh:-999,lastPulse:{}};
   w.causalV68.version=1;w.causalV68.ledger=Array.isArray(w.causalV68.ledger)?w.causalV68.ledger:[];w.causalV68.lastPulse=w.causalV68.lastPulse||{};
   return w.causalV68
