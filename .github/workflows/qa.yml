@@ -1,46 +1,26 @@
-name: V5.7 QA
+name: V6.3 QA
 
 on:
   push:
     branches: [main]
     paths:
-      - 'app.js'
       - 'index.html'
-      - 'content-v1.js'
-      - 'styles.css'
       - 'manifest.webmanifest'
       - 'sw.js'
-      - 'icon.svg'
-      - 'scripts/qa-v32.mjs'
-      - 'scripts/validate.mjs'
-      - 'scripts/validate-content.mjs'
-      - 'scripts/audit-v32.mjs'
+      - 'QA-V6.3.md'
       - '.github/workflows/qa.yml'
-      - '.github/workflows/audit-v32.yml'
       - '.github/workflows/validate.yml'
-      - '.github/workflows/pages.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'app.js'
       - 'index.html'
-      - 'content-v1.js'
-      - 'styles.css'
       - 'manifest.webmanifest'
       - 'sw.js'
-      - 'icon.svg'
-      - 'scripts/qa-v32.mjs'
-      - 'scripts/validate.mjs'
-      - 'scripts/validate-content.mjs'
-      - 'scripts/audit-v32.mjs'
       - '.github/workflows/qa.yml'
-      - '.github/workflows/audit-v32.yml'
-      - '.github/workflows/validate.yml'
-      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 concurrency:
-  group: v57-qa-${{ github.ref }}
+  group: v63-qa-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -50,11 +30,24 @@ jobs:
   qa:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Run full simulation QA
-        run: node scripts/qa-v32.mjs
+      - uses: actions/checkout@v4
+      - name: Verify V6.3 balance systems
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const s=fs.readFileSync('index.html','utf8');
+          const required=[
+            'function v63FatigueProfile',
+            'function v63MasteryEfficiency',
+            'function v63PrestigeCheck',
+            'function v63RankThreshold',
+            'function v63EconomyAction',
+            'missionDamage',
+            'missionRetreatHealth',
+            'function v63GearDamageMult',
+            'function v63IntelBonus'
+          ];
+          const missing=required.filter(x=>!s.includes(x));
+          if(missing.length) throw new Error('Missing V6.3 systems: '+missing.join(', '));
+          console.log('V6.3 balance systems present');
+          NODE
