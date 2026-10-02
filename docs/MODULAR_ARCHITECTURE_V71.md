@@ -79,13 +79,12 @@ Relations / Persona 3.0 :
 - personas canoniques V7.0 reliées aux souvenirs et à la compatibilité ;
 - mentorat et soutien en mission enrichis par le lien réel.
 
-### Étape E
-World / Canon :
-- personnages ;
-- groupes ;
-- Fruits ;
-- lieux ;
-- événements.
+### Étape E — réalisée en V7.5
+World / Canon 3.0 :
+- règles de factions, régions, ancres historiques et circulation des Fruits dans `src/data/world-canon-v75.js` ;
+- planification d’actions, conflits, synchronisation des équipages, cohérence des Fruits et calcul des hotspots dans `src/v75/world-canon-engine-v75.js` ;
+- World Director relié à V5.8 Autonomous World, V6.8 Causal World et V7.0 Canon ;
+- cohérence des événements historiques enrichie par la présence réelle de leurs acteurs.
 
 ### Étape F
 UI :
