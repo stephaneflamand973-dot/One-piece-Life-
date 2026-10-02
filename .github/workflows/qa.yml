@@ -1,4 +1,4 @@
-name: V6.4 QA
+name: V6.5 QA
 on:
   push:
     branches: [main]
@@ -7,14 +7,15 @@ on:
       - 'manifest.webmanifest'
       - 'sw.js'
       - 'scripts/qa-v64.mjs'
-      - 'QA-V6.4.md'
+      - 'scripts/qa-v65.mjs'
+      - 'QA-V6.5.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v64-qa-${{ github.ref }}
+  group: v65-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -26,5 +27,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Verify live V6.4 systems
+      - name: Verify V6.4 regression systems
         run: node scripts/qa-v64.mjs
+      - name: Verify live V6.5 combat and missions
+        run: node scripts/qa-v65.mjs
