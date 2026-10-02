@@ -1208,7 +1208,7 @@ function v69WealthTier(p=game.player){
 function v69LegacyScore(p=game.player){
   v69Ensure();const c=v69CareerTier(p),assets=Object.values(p.economy.assets||{}).reduce((a,b)=>a+b,0),impact=Number(game.world?.causalV68?.playerImpact)||0;
   const wealth=Math.log10(Math.max(0,Number(p.money)||0)+1000);
-  const score=clamp(c.authority*.38+assets*5.2+wealth*4.2+(Number(p.reputation?.world)||0)*.16+Math.min(18,impact*.32)+(Number(p.careerPrestige?.level)||0)*3.2,0,100);
+  const score=clamp(c.authority*.34+assets*5.2+wealth*2.8+(Number(p.reputation?.world)||0)*.12+Math.min(20,impact*.34)+(Number(p.careerPrestige?.level)||0)*2.8,0,100);
   p.endgameV69.legacyPeak=Math.max(p.endgameV69.legacyPeak||0,score);
   return +score.toFixed(1)
 }
