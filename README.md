@@ -19,6 +19,20 @@ La V5.5 transforme l’équipage en véritable micro-société. Les membres ne s
 - La V5.5 corrige également le sélecteur de Bras droit hérité du rendu V5.4.
 - GameState reste en version interne **28**, compatible avec les sauvegardes précédentes.
 
+## Progression globale — audit V5.5
+- La **puissance affichée possède désormais un vrai maximum à 100**. La formule interne peut dépasser ce seuil, mais le niveau du personnage reste borné à 100.
+- Les plafonds naturels ne sont plus des murs définitifs. Un personnage exceptionnel peut entrer dans une progression **Apex** et repousser son plafond absolu, étape par étape, jusqu’à **100**.
+- L’Apex n’est pas automatique : il dépend d’une longue trajectoire faite de puissance, combats, exploits, distinctions de carrière et reconnaissance mondiale.
+- En dessous du niveau d’élite, les tentatives Apex restent bloquées. Un personnage ordinaire ne monte donc pas à 100 simplement en laissant passer le temps.
+- Les entraînements, missions, combats et mentors peuvent tous contribuer aux percées, selon le domaine réellement travaillé.
+- Le système de progression affiche désormais un état **Potentiel ultime** et distingue le rang `Apex` du véritable `Maximum`.
+- Les rangs terminaux ont été vérifiés comme réellement atteignables : **Maître**, **Vice-amiral**, **Capitaine renommé**, **Maître chasseur**, **Cadre révolutionnaire**, **Directeur** et **Candidat CP0**.
+- Les distinctions de carrière peuvent désormais continuer à s’accumuler sur une série de performances exceptionnelles au lieu de s’arrêter artificiellement après les premiers jalons.
+- Le rang de **Capitaine fondateur** reste un rang d’autorité mais n’ouvre plus immédiatement les missions de fin de jeu. L’accès opérationnel dépend maintenant de l’XP, de la réputation et de la qualification réellement acquises.
+- Les carrières sans salaire fixe, notamment **Pirates** et **Chasseur de primes**, bénéficient d’une progression de récompenses plus forte avec le rang et la difficulté.
+- La prime pirate suit désormais une **courbe de menace** liée à la puissance, au rang opérationnel, à la réputation, à la renommée de l’équipage, à l’influence, aux territoires et aux actions majeures. Un pirate expérimenté ne peut plus devenir Bras droit avec une prime durablement nulle.
+- Les autres plafonds existants restent cohérents : Haki, Fruit, techniques, réputation, influence, cohésion et relations peuvent atteindre 100 ; l’argent et le patrimoine restent volontairement non plafonnés.
+
 ## Philosophie V5.5
 Un équipage intéressant n’est pas une collection de bonus. C’est un groupe de personnes qui peuvent devenir indispensables les unes aux autres, se heurter, se réconcilier ou finir par partir.
 
