@@ -1,4 +1,4 @@
-name: Validate V7.0
+name: Validate V7.1
 on:
   push:
     branches: [main]
@@ -7,6 +7,7 @@ on:
       - 'manifest.webmanifest'
       - 'sw.js'
       - 'icon.svg'
+      - 'src/**'
       - 'scripts/qa-v64.mjs'
       - 'scripts/qa-v65.mjs'
       - 'scripts/qa-v66.mjs'
@@ -15,14 +16,15 @@ on:
       - 'scripts/qa-v68.mjs'
       - 'scripts/qa-v69.mjs'
       - 'scripts/qa-v70.mjs'
-      - 'QA-V7.0.md'
+      - 'scripts/qa-v71.mjs'
+      - 'QA-V7.1.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
       - '.github/workflows/audit-v32.yml'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 concurrency:
-  group: v70-validate-${{ github.ref }}
+  group: v71-validate-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -34,7 +36,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate standalone V7.0
+      - name: Validate standalone and modular V7.1
         run: |
           node <<'NODE'
           const fs=require('fs');
@@ -42,16 +44,25 @@ jobs:
           const m=html.match(/<script>([\s\S]*?)<\/script>/);
           if(!m) throw new Error('inline game script missing');
           new Function(m[1]);
-          if(!html.includes('ONE PIECE LIFE — V7.0')) throw new Error('V7.0 title missing');
-          if(!html.includes('const SAVE_VERSION = 700;')) throw new Error('Save migration 700 missing');
-          if(!html.includes("const GAME_VERSION = '7.0.0';")) throw new Error('Game version 7.0.0 missing');
-          for(const x of ['const CANON_CREWS','const V70_PERSONAS','const V70_CANON_REQUIREMENTS','const V70_CANON_EFFECTS','function v70Ensure','function v70PersonaRelation','function v70CanonMissionCandidates','function v70ApplyCanonEffects']) if(!html.includes(x)) throw new Error('missing '+x);
-          for(const x of ['marineford_war','egghead_incident','blackbeard_crew','Gomu Gomu no Mi','Hachinosu','Elbaf']) if(!html.includes(x)) throw new Error('content missing '+x);
+          if(!html.includes('ONE PIECE LIFE — V7.1')) throw new Error('V7.1 title missing');
+          if(!html.includes('const SAVE_VERSION = 710;')) throw new Error('Save migration 710 missing');
+          if(!html.includes("const GAME_VERSION = '7.1.0';")) throw new Error('Game version 7.1.0 missing');
+          const assets=['src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css'];
+          for(const x of assets){
+            if(!fs.existsSync(x)) throw new Error('missing modular asset '+x);
+            if(!html.includes(x)) throw new Error('index does not load '+x);
+          }
+          new Function(fs.readFileSync('src/core/module-registry.js','utf8'));
+          new Function(fs.readFileSync('src/data/arc-definitions-v71.js','utf8'));
+          new Function(fs.readFileSync('src/v71/arc-director.js','utf8'));
+          for(const x of ['function v71Ensure','function v71MaybeStartArc','function v71ResolveArcChoice','function v71FinishArc','function renderV71Arc']) if(!html.includes(x)) throw new Error('missing '+x);
+          if(!html.includes('id="v71ArcCard"')) throw new Error('Arc Director UI missing');
           const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-          if(!String(manifest.description||'').includes('V7.0')) throw new Error('manifest not V7.0');
+          if(!String(manifest.description||'').includes('V7.1')) throw new Error('manifest not V7.1');
           const sw=fs.readFileSync('sw.js','utf8');
-          if(!sw.includes('v7-0-0')) throw new Error('service worker cache not V7.0.0');
-          console.log('V7.0 static validation OK');
+          if(!sw.includes('v7-1-0')) throw new Error('service worker cache not V7.1.0');
+          for(const x of assets) if(!sw.includes(x)) throw new Error('service worker missing modular asset '+x);
+          console.log('V7.1 static + modular validation OK');
           NODE
       - name: Validate V6.4 regression behavior
         run: node scripts/qa-v64.mjs
@@ -67,5 +78,7 @@ jobs:
         run: node scripts/qa-v68.mjs
       - name: Validate V6.9 regression behavior
         run: node scripts/qa-v69.mjs
-      - name: Validate live V7.0 behavior
+      - name: Validate V7.0 regression behavior
         run: node scripts/qa-v70.mjs
+      - name: Validate live V7.1 behavior
+        run: node scripts/qa-v71.mjs
