@@ -71,7 +71,7 @@ const basePlan=()=>({career:'steady',training:'steady',relations:'steady',advent
 function fixture(seed='670067'){
   const plan=basePlan();
   return {
-    version:'6.7.0',saveVersion:670,ageMonths:300,alive:true,seed,rngCounters:{},dev:{rngLog:[]},
+    version:'6.7+ regression',saveVersion:670,ageMonths:300,alive:true,seed,rngCounters:{},dev:{rngLog:[]},
     meta:{difficulty:'Standard'},flags:{},clock:{year:25,month:0,day:1},relations:[],history:[],news:[],pendingDecision:null,
     pacing:{calmStreak:0,lastDecisionAge:0,lastMajorAge:0},
     agency:{annualPlan:{...plan},annualTurn:null},
@@ -95,10 +95,12 @@ function fixture(seed='670067'){
   };
 }
 
-// Release markers.
-assert(html.includes('ONE PIECE LIFE — V6.7'),'V6.7 title missing');
-assert(html.includes('const SAVE_VERSION = 670;'),'Save version 670 missing');
-assert(html.includes("const GAME_VERSION = '6.7.0';"),'Game version 6.7.0 missing');
+// V6.7 systems must remain present in V6.7 or later releases.
+const saveMatch=html.match(/const SAVE_VERSION = (\d+);/);
+const versionMatch=html.match(/const GAME_VERSION = '([0-9.]+)';/);
+assert(saveMatch&&Number(saveMatch[1])>=670,'Save version regressed below 670');
+assert(versionMatch&&versionMatch[1].startsWith('6.'),'Game version missing or invalid');
+assert(html.includes('function v67Ensure'),'V6.7 relationship engine missing');
 
 // Crew enrichment is deterministic and creates persistent relations.
 let g=fixture('same-seed');q.setGame(g);q.ensure();
