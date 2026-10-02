@@ -324,7 +324,7 @@ function v64EnsureRiskTurn(t=game?.agency?.annualTurn){
 function v64RiskFactor(kind='ambient'){
   const r=v64EnsureRiskTurn();if(!r)return 1;
   const ratio=r.spent/Math.max(1,r.budget);
-  let f=ratio<.45?1:ratio<.75?.78:ratio<1?.52:.30;
+  let f=ratio<.45?1:ratio<.75?.78:ratio<1?.52:.20;
   if(kind==='travel')f=Math.max(.52,f);
   if(kind==='hook')f=Math.max(.48,f);
   if(kind==='ambient')f=Math.max(.24,f);
