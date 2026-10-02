@@ -1,3 +1,45 @@
+# ONE PIECE LIFE — V7.1 Arc Director & Modular Core
+
+La V7.1 rend les grands événements réellement jouables et démarre la modularisation progressive du moteur.
+
+## Arc Director
+
+- Les événements majeurs peuvent désormais **interrompre l'année** lorsqu'ils deviennent pertinents pour le joueur.
+- L'implication dépend de la puissance, réputation mondiale, autorité, relations, faction et contexte.
+- Un personnage faible n'est pas artificiellement placé au centre d'une guerre majeure.
+- **7 arcs jouables** : Enies Lobby, Sabaody, Marineford, Dressrosa, Wano, Cross Guild et Egghead.
+- Les arcs possèdent 2 à 3 étapes avec décisions contextuelles.
+- Les choix utilisent compétences, stats, Haki, organisation et relations.
+- Contribution et exposition sont suivies pendant tout l'arc.
+- Les options peuvent varier selon la faction.
+- Le joueur peut refuser certains arcs sans bloquer la chronologie.
+- Une contribution exceptionnelle peut créer une **divergence majeure**.
+- Marineford peut notamment aboutir à une survie d'Ace si le personnage possède réellement le niveau nécessaire.
+- La boucle **1 clic = 1 an** reste intacte : l'année se met en pause puis reprend après l'arc.
+
+## Modular Core
+
+Nouvelle structure :
+
+```
+src/
+  core/module-registry.js
+  data/arc-definitions-v71.js
+  v71/arc-director.js
+  v71/arc-director.css
+```
+
+- Nouveau registre de modules versionnés.
+- Données des arcs sorties du moteur inline.
+- Résolution pure sortie du moteur inline.
+- Styles V7.1 séparés.
+- Service Worker mis à jour pour le fonctionnement PWA.
+- Le moteur legacy ne conserve qu'un pont d'intégration.
+- Save version : **710**.
+- Cache PWA : **one-piece-life-v7-1-0**.
+
+---
+
 # ONE PIECE LIFE — V7.0 Ultimate Canon Expansion
 
 La V7.0 transforme le canon en composante active du monde vivant.
