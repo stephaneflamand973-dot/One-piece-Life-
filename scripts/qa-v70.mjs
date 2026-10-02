@@ -71,9 +71,11 @@ function assert(cond,msg){if(!cond)throw new Error(msg)}
 function eq(actual,expected,msg){if(actual!==expected)throw new Error(`${msg}: got ${actual}, expected ${expected}`)}
 
 // Release and content floor.
-assert(html.includes('ONE PIECE LIFE — V7.0'),'V7.0 title missing');
-assert(html.includes('const SAVE_VERSION = 700;'),'Save version 700 missing');
-assert(html.includes("const GAME_VERSION = '7.0.0';"),'Game version 7.0.0 missing');
+const saveMatch=html.match(/const SAVE_VERSION = (\d+);/);
+const versionMatch=html.match(/const GAME_VERSION = '([0-9.]+)';/);
+assert(saveMatch&&Number(saveMatch[1])>=700,'Save version regressed below 700');
+assert(versionMatch&&Number(versionMatch[1].split('.')[0])>=7,'Game version missing or invalid');
+assert(html.includes('function v70Ensure'),'V7.0 canon engine missing');
 for(const marker of [
   'const CANON_CREWS',
   'const V70_PERSONAS',
@@ -193,7 +195,7 @@ for(const marker of [
 
 console.log('V7.0 LIVE QA OK',JSON.stringify({
   runtime:'index.html inline engine',
-  version:'7.0.0',
+  version:'7.0+ regression',
   content:q.stats(),
   mihawkRespect:mRel.respect,
   sakazukiTrust:sakaRel.trust,
