@@ -95,14 +95,16 @@ eq(zeroState.standing,0,'Explicit zero standing must not be reset');
 eq(zeroState.trust,0,'Explicit zero trust must not be reset');
 
 // Live integration contract.
-assert(html.includes('ONE PIECE LIFE — V7.3'),'V7.3 title missing');
-assert(/const SAVE_VERSION\s*=\s*730;/.test(html),'Save version 730 missing');
-assert(/const GAME_VERSION\s*=\s*'7\.3\.0';/.test(html),'Game version 7.3.0 missing');
+const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(saveVersion>=730,'V7.3 regression QA requires save version >= 730');
+assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=3,'V7.3 regression QA requires game version >= 7.3');
 for(const asset of ['src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v7-3-0'),'PWA cache not bumped to V7.3');
+assert(/one-piece-life-v7-[3-9]-\d+/.test(sw),'PWA cache must remain at V7.3 or newer');
 assert(html.includes('function v73PromotionReview'),'Promotion bridge missing');
 assert(html.includes('v73RecordMissionOutcome'),'Mission-to-career bridge missing');
 assert(html.includes('function renderV73Organization'),'Organization UI bridge missing');
@@ -115,7 +117,7 @@ assert(html.includes("const org=p.careerV73||{}"),'V6.9 authority not connected 
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
 
 console.log('V7.3 CAREER & ORGANIZATION QA OK',JSON.stringify({
-  version:'7.3.0',
+  version:gameVersion,
   organizations:Object.keys(data.organizations).length,
   branches:Object.values(data.organizations).reduce((n,o)=>n+o.branches.length,0),
   responsibilities:data.responsibilities.length,

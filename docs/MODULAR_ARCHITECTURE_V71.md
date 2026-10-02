@@ -72,11 +72,12 @@ Career / Organization 3.0 :
 - missions reliées au dossier de carrière ;
 - autorité V6.9 enrichie par l’état organisationnel.
 
-### Étape D
-Relations / Persona :
-- personnalités canoniques ;
-- arcs sociaux ;
-- réseau relationnel.
+### Étape D — réalisée en V7.4
+Relations / Persona 3.0 :
+- données de valeurs, interactions et arcs dans `src/data/relation-personas-v74.js` ;
+- mémoire relationnelle, compatibilité, classification et résolution d’arcs dans `src/v74/relation-persona-engine-v74.js` ;
+- personas canoniques V7.0 reliées aux souvenirs et à la compatibilité ;
+- mentorat et soutien en mission enrichis par le lien réel.
 
 ### Étape E
 World / Canon :

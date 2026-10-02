@@ -1,3 +1,28 @@
+# ONE PIECE LIFE — V7.4 Relations & Persona 3.0
+
+La V7.4 transforme les relations en liens persistants capables de se souvenir de ce que les personnages ont réellement vécu ensemble.
+
+## Relations & Persona 3.0
+
+- Les relations possèdent désormais des **valeurs** déduites du tempérament, de l’ambition et, pour les personnages canoniques, de leur persona V7.0.
+- Un moteur de **compatibilité** compare les valeurs du personnage et celles de ses relations.
+- Les interactions ne produisent plus exactement le même effet avec tout le monde.
+- Chaque relation conserve jusqu’à **16 souvenirs marquants** avec valence, importance, type et ancienneté.
+- Les souvenirs récents pèsent davantage, sans effacer complètement les anciens.
+- Les souvenirs positifs renforcent le lien et la fiabilité ; les événements graves peuvent créer des tensions non résolues.
+- Les rencontres canoniques, mentorats, conflits et départs d’équipage créent désormais des souvenirs.
+- 6 **arcs relationnels** : épreuve de confiance, rivalité ouverte, déclic de mentorat, choix de loyauté, fracture et réconciliation.
+- Les arcs sociaux peuvent interrompre une année avec un choix persistant.
+- Nouvelles interactions : **Se confier** et **Confronter**.
+- Les alliés réellement fiables apportent davantage de soutien en mission.
+- Le mentorat dépend maintenant aussi du lien, de la compatibilité et de la mémoire commune.
+- L’écran Relations affiche état du lien, compatibilité, stabilité, valeurs et souvenir dominant.
+- Migration V7.3 → V7.4 automatique.
+- Save version : **740**.
+- Cache PWA : **one-piece-life-v7-4-0**.
+
+---
+
 # ONE PIECE LIFE — V7.3 Career & Organization 3.0
 
 La V7.3 transforme la carrière en système d’organisation vivant. L’XP et les compétences restent importantes, mais ne suffisent plus à elles seules pour grimper dans une hiérarchie.
