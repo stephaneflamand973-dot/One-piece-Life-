@@ -159,8 +159,9 @@
   }
 
   function holderMatchesActor(holder,actor={}){
-    const h=String(holder||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-    const names=[actor.id,actor.name].filter(Boolean).map(x=>String(x).toLowerCase().replace(/[^a-z0-9]/g,''));
+    const raw=String(holder||''),h=raw.toLowerCase().replace(/[^a-z0-9]/g,'');
+    const alias=data.holderAliases?.[raw];
+    const names=[actor.id,actor.name,alias].filter(Boolean).map(x=>String(x).toLowerCase().replace(/[^a-z0-9]/g,''));
     return !!h&&names.includes(h)
   }
 
