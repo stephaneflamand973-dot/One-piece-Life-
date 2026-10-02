@@ -1,3 +1,24 @@
+# ONE PIECE LIFE — V5.6 Destinies & Living Endgame
+
+La V5.6 transforme la fin de progression en changement de statut dans le monde. Atteindre un haut niveau ne sert plus seulement à afficher de meilleurs chiffres : la carrière acquiert une destinée propre et le monde commence progressivement à venir vers le joueur.
+
+## Destinies & Living Endgame
+- Chaque vie adulte traverse désormais cinq statuts persistants : **Émergence → Établissement → Élite → Puissance mondiale → Légende vivante**.
+- Le statut dépend d’un mélange de rang de carrière, maîtrise réelle du métier, puissance quand elle est pertinente, ancienneté et influence mondiale.
+- Chaque spécialisation possède une **identité de destinée** propre : médecin, navigateur, scientifique, marchand, combattant, infiltrateur, traqueur, administrateur, Cipher Pol, etc.
+- Chaque destinée comporte **cinq accomplissements majeurs** : maîtrise, expérience de terrain, exploits signatures, sommet hiérarchique et impact sur le monde.
+- Ces accomplissements sont persistants et ne sont pas de simples cases décoratives : ils accordent distinctions, réputation, renommée d’organisation, mémoire causale et moments signatures.
+- Les missions enregistrent désormais des **preuves de carrière** : profil de mission, missions signatures, opérations mondiales, missions décisives et réussites à haut risque.
+- À partir du statut **Élite**, le monde peut générer des missions spéciales directement liées au nom du personnage. Plus sa stature augmente, plus ces appels deviennent probables et importants.
+- Les missions de destinée sont adaptées à la faction : haut commandement Marine, opération décisive pirate, contrat réservé aux meilleurs chasseurs, cellule révolutionnaire étrangère, directive classifiée du Gouvernement ou expertise civile demandée par une puissance.
+- L’endgame combine désormais les objectifs de faction avec la destinée propre à la spécialisation. Deux personnages de même faction peuvent donc avoir des fins de carrière très différentes.
+- Le panneau Carrière affiche la destinée, le statut de vie, le score de stature et l’avancement des cinq accomplissements sans ajouter de nouvel onglet.
+- Le système reste compatible avec les anciennes sauvegardes grâce à une migration paresseuse de l’état de destinée. Le GameState interne reste **28**.
+
+## Philosophie V5.6
+Le niveau maximal n’est plus la fin de la progression. À haut niveau, les chiffres cessent d’être le seul moteur : les opportunités, les responsabilités, les ennemis et les attentes du monde changent d’échelle.
+
+---
 # ONE PIECE LIFE — V5.5 Crew Chemistry & Internal Dynamics
 
 La V5.5 transforme l’équipage en véritable micro-société. Les membres ne sont plus seulement loyaux ou puissants : ils développent des compatibilités, des tensions et des tandems qui influencent réellement la vie du groupe.
