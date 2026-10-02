@@ -32,6 +32,7 @@ La V5.5 transforme l’équipage en véritable micro-société. Les membres ne s
 - Les carrières sans salaire fixe, notamment **Pirates** et **Chasseur de primes**, bénéficient d’une progression de récompenses plus forte avec le rang et la difficulté.
 - La prime pirate suit désormais une **courbe de menace** liée à la puissance, au rang opérationnel, à la réputation, à la renommée de l’équipage, à l’influence, aux territoires et aux actions majeures. Un pirate expérimenté ne peut plus devenir Bras droit avec une prime durablement nulle.
 - Les autres plafonds existants restent cohérents : Haki, Fruit, techniques, réputation, influence, cohésion et relations peuvent atteindre 100 ; l’argent et le patrimoine restent volontairement non plafonnés.
+- La survie à long terme tient désormais compte des compétences de fuite et d’évitement : **Réflexes, Agilité, Discrétion, Navigation, Haki de l’Observation et soutien de l’organisation** peuvent réduire le risque fatal ou permettre d’éviter une poursuite avant le combat.
 
 ## Philosophie V5.5
 Un équipage intéressant n’est pas une collection de bonus. C’est un groupe de personnes qui peuvent devenir indispensables les unes aux autres, se heurter, se réconcilier ou finir par partir.
