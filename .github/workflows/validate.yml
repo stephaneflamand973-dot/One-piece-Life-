@@ -1,4 +1,4 @@
-name: Validate V6.4
+name: Validate V6.5
 on:
   push:
     branches: [main]
@@ -8,14 +8,15 @@ on:
       - 'sw.js'
       - 'icon.svg'
       - 'scripts/qa-v64.mjs'
-      - 'QA-V6.4.md'
+      - 'scripts/qa-v65.mjs'
+      - 'QA-V6.5.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
       - '.github/workflows/audit-v32.yml'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 concurrency:
-  group: v64-validate-${{ github.ref }}
+  group: v65-validate-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -27,7 +28,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate standalone V6.4
+      - name: Validate standalone V6.5
         run: |
           node <<'NODE'
           const fs=require('fs');
@@ -35,17 +36,19 @@ jobs:
           const m=html.match(/<script>([\s\S]*?)<\/script>/);
           if(!m) throw new Error('inline game script missing');
           new Function(m[1]);
-          if(!html.includes('ONE PIECE LIFE — V6.4')) throw new Error('V6.4 title missing');
-          if(!html.includes('const SAVE_VERSION = 640;')) throw new Error('Save migration 640 missing');
-          for(const x of ['function v64RiskProfile','function v64QueueAdventureDecision','function v64RarityMultiplier','function v64OnNewLocation']) if(!html.includes(x)) throw new Error('missing '+x);
-          if(html.includes("h.expiresAt<v58MonthIndex()+12")) throw new Error('hook expiry extension regression');
-          if(!html.includes("v64RecordRisk(hookRisk,'hook')")) throw new Error('hook risk spend missing');
-          if(!html.includes("hookExposure=v64RiskFactor('hook')")) throw new Error('hook exposure gate missing');
+          if(!html.includes('ONE PIECE LIFE — V6.5')) throw new Error('V6.5 title missing');
+          if(!html.includes('const SAVE_VERSION = 650;')) throw new Error('Save migration 650 missing');
+          if(!html.includes("const GAME_VERSION = '6.5.0';")) throw new Error('Game version 6.5.0 missing');
+          for(const x of ['function v65CombatAssessment','function v65CrewSupport','function v65MissionPreview','function v65ResolveSkillMission']) if(!html.includes(x)) throw new Error('missing '+x);
+          for(const x of ["'v65Opening'","'v65Pressure'","'v65Finish'","Mission partiellement réussie","outcome:'retreat'"]) if(!html.includes(x)) throw new Error('missing '+x);
+          if(html.includes("let winProb=clamp(.17+ratio*.43")) throw new Error('legacy one-roll combat regression');
           const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-          if(!String(manifest.description||'').includes('V6.4')) throw new Error('manifest not V6.4');
+          if(!String(manifest.description||'').includes('V6.5')) throw new Error('manifest not V6.5');
           const sw=fs.readFileSync('sw.js','utf8');
-          if(!sw.includes('v6-4-2')) throw new Error('service worker cache not V6.4.2');
-          console.log('V6.4 static validation OK');
+          if(!sw.includes('v6-5-0')) throw new Error('service worker cache not V6.5.0');
+          console.log('V6.5 static validation OK');
           NODE
-      - name: Validate live V6.4 behavior
+      - name: Validate V6.4 regression behavior
         run: node scripts/qa-v64.mjs
+      - name: Validate live V6.5 behavior
+        run: node scripts/qa-v65.mjs
