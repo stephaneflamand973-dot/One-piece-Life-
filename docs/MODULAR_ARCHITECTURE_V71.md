@@ -57,11 +57,13 @@ Le moteur legacy garde uniquement les opérations nécessitant l'état complet d
 ### Étape A
 Arc Director — V7.1.
 
-### Étape B
+### Étape B — réalisée en V7.2
 Combat / Powers 3.0 :
-- données de techniques ;
-- matchups ;
-- résolution de combat.
+- données de techniques dans `src/data/combat-techniques-v72.js` ;
+- matchups de styles ;
+- interactions Haki / Fruits ;
+- résolution pure dans `src/v72/combat-engine-v72.js` ;
+- pont legacy limité à l'orchestration, la sauvegarde et l'UI.
 
 ### Étape C
 Relations / Persona :
