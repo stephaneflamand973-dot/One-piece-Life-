@@ -64,7 +64,7 @@ window.__qa={
  normalizeRelation:normalizeRelation,normalizeNpcCombatProfile:normalizeNpcCombatProfile,npcCombatPower:npcCombatPower,npcCombatScores:npcCombatScores,npcAdaptationBonus:npcAdaptationBonus,recordNpcCombatLearning:recordNpcCombatLearning,combatPowerTier:combatPowerTier,worldPowerStanding:worldPowerStanding,combatWorldReaction:combatWorldReaction,relationPathShift:relationPathShift,updateRelationshipTrajectory:updateRelationshipTrajectory,npcTick:npcTick,npcIntentPool:npcIntentPool,assignNpcIntent:assignNpcIntent,npcCareerPromotionChance:npcCareerPromotionChance,tryNpcCareerPromotion:tryNpcCareerPromotion,resolveNpcIntent:resolveNpcIntent,npcIntentTick:npcIntentTick,npcSocialTick:npcSocialTick,npcLinkBetween:npcLinkBetween,ensureNpcLink:ensureNpcLink,npcNearby:npcNearby,bondCanonicalActor:bondCanonicalActor,relationForActor:relationForActor,relationPower:relationPower,npcCareerRank:npcCareerRank,trainWithMentor:trainWithMentor,challengeRival:challengeRival,rivalStage:rivalStage,syncRivalryMilestone:syncRivalryMilestone,reconcileRival:reconcileRival,recruitKnownRelation:recruitKnownRelation,askMentorship:askMentorship,declareRivalry:declareRivalry,seekMentor:seekMentor,canonActor:canonActor,helpRelation:helpRelation,askRelationFavor:askRelationFavor,approachCanonicalActor:approachCanonicalActor,favorLabel:favorLabel,realignRelationsAfterFactionChange:realignRelationsAfterFactionChange,
  ensureOrganization:ensureOrganization,buildOrganizationState:buildOrganizationState,migrateOrganization:migrateOrganization,syncOrganizationRole:syncOrganizationRole,organizationPower:organizationPower,organizationCapacity:organizationCapacity,organizationTick:organizationTick,pirateCrewCandidates:pirateCrewCandidates,pirateCrewCandidate:pirateCrewCandidate,pirateJoinDecision:pirateJoinDecision,pirateOriginLabel:pirateOriginLabel,syncPlayerPirateCrewWorld:syncPlayerPirateCrewWorld,foundOwnPirateCrew:foundOwnPirateCrew,pirateCrewDuty:pirateCrewDuty,pirateOfficerCouncil:pirateOfficerCouncil,pirateCaptainDirective:pirateCaptainDirective,promoteWorldCrewLeader:promoteWorldCrewLeader,normalizeWorldCrew:normalizeWorldCrew,joinedCrewStanding:joinedCrewStanding,crewStandingRequirement:crewStandingRequirement,crewStandingLabel:crewStandingLabel,syncJoinedCrewRoster:syncJoinedCrewRoster,syncOrganizationMemberRelations:syncOrganizationMemberRelations,appointPirateFirstMate:appointPirateFirstMate,crewMemberTemperament:crewMemberTemperament,crewDynamicsState:crewDynamicsState,crewChemistry:crewChemistry,crewDynamicsLabel:crewDynamicsLabel,crewWorstFriction:crewWorstFriction,crewStrongestBond:crewStrongestBond,crewDynamicsTick:crewDynamicsTick,resolveCrewFriction:resolveCrewFriction,
  upgradeOrganizationShip:upgradeOrganizationShip,generateRecruitCandidate:generateRecruitCandidate,
- registerCrime:registerCrime,arrestPlayer:arrestPlayer,prisonTick:prisonTick,attemptEscape:attemptEscape,justiceTick:justiceTick,pirateMissionCrimeSeverity:pirateMissionCrimeSeverity,justiceMissionImpact:justiceMissionImpact,
+ registerCrime:registerCrime,arrestPlayer:arrestPlayer,prisonTick:prisonTick,attemptEscape:attemptEscape,justiceTick:justiceTick,justiceEvasionFactor:justiceEvasionFactor,pursuitEvasionChance:pursuitEvasionChance,combatFatalityMitigation:combatFatalityMitigation,pirateMissionCrimeSeverity:pirateMissionCrimeSeverity,justiceMissionImpact:justiceMissionImpact,
  influenceMetrics:influenceMetrics,establishDomain:establishDomain,fortifyDomain:fortifyDomain,influenceTick:influenceTick,
  startStrategicWar:startStrategicWar,simulateWars:simulateWars,simulateConflicts:simulateConflicts,resolveConflict:resolveConflict,resolveWar:resolveWar,warBetween:warBetween,
  marketPrice:marketPrice,marketPriceIndex:marketPriceIndex,marketMonthlyTarget:marketMonthlyTarget,buyCommodity:buyCommodity,sellCommodity:sellCommodity,tradeRouteOpportunities:tradeRouteOpportunities,
@@ -3353,6 +3353,18 @@ test('V5.5 pirate threat creates a meaningful bounty trajectory',()=>{
  assert(target>=10000000,'elite pirate bounty target too small: '+target);
  assert(gain>0&&p.bounty>0,'pirate threat did not create bounty');
  return p.bounty.toLocaleString('fr-FR')+' B vers cible '+target.toLocaleString('fr-FR');
+});
+
+test('V5.5 stealth progression reduces pursuit and combat fatality risk',()=>{
+ const g=fresh(57303),p=g.player;p.ageMonths=300;p.specialization='Infiltration';
+ Object.keys(p.stats).forEach(k=>p.stats[k]=30);Object.keys(p.skills).forEach(k=>p.skills[k]=20);
+ const lowJustice=q.justiceEvasionFactor(),lowPursuit=q.pursuitEvasionChance(55),lowFatal=q.combatFatalityMitigation();
+ p.skills.Discrétion=85;p.skills.Navigation=65;p.stats.Agilité=82;p.stats.Réflexes=80;p.haki.Observation=70;
+ const highJustice=q.justiceEvasionFactor(),highPursuit=q.pursuitEvasionChance(55),highFatal=q.combatFatalityMitigation();
+ assert(highJustice<lowJustice,'stealth did not reduce pursuit frequency');
+ assert(highPursuit>lowPursuit,'stealth did not improve pursuit evasion');
+ assert(highFatal<lowFatal,'stealth did not reduce fatality risk');
+ return 'justice '+lowJustice.toFixed(2)+'→'+highJustice.toFixed(2)+' • evade '+lowPursuit.toFixed(2)+'→'+highPursuit.toFixed(2);
 });
 
 console.log('\nQA_METRICS '+JSON.stringify(metrics));
