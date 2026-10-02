@@ -2241,6 +2241,17 @@ function justicePressure(){
  var p=game.player,j=migrateJustice(p),rp=game.world.pressures[p.region]||{},t=game.world.territories[p.island],official=t&&(t.controller==='Marine'||t.controller==='Gouvernement'),b=Math.log10(Math.max(1,(p.bounty||0)+1))*8;
  return cl((j.regionalHeat[p.region]||0)*.48+b+(rp.Marine==null?25:rp.Marine)*.16+(official?12:0),0,100)
 }
+function justiceEvasionFactor(){
+ var p=game.player,stealth=(p.skills.Discrétion||0)+(p.stats.Agilité||0)*.35+(p.haki.Observation||0)*.25,factor=cl(1-stealth/260,.45,1),spec=p.specialization||'';
+ if(['Infiltration','Renseignement','Investigateur','Cipher Pol'].indexOf(spec)>=0)factor*=.78;
+ else if(['Traqueur','Navigation','Navigateur'].indexOf(spec)>=0)factor*=.88;
+ return cl(factor,.35,1)
+}
+function pursuitEvasionChance(pressure){
+ var p=game.player,stealth=(p.skills.Discrétion||0)*.52+(p.stats.Agilité||0)*.22+(p.stats.Réflexes||0)*.14+(p.skills.Navigation||0)*.06+(p.haki.Observation||0)*.16,ch=.08+stealth/145-(pressure||0)/310,spec=p.specialization||'';
+ if(['Infiltration','Renseignement','Investigateur','Cipher Pol'].indexOf(spec)>=0)ch+=.12;else if(['Traqueur','Navigation','Navigateur'].indexOf(spec)>=0)ch+=.06;
+ return cl(ch,.04,.76)
+}
 function useJusticeAction(){var j=migrateJustice(game.player);if(j.actions<1){toast('Tu as déjà utilisé ton action de discrétion pour cette période.');return false}j.actions--;return true}
 function layLow(){
  var p=game.player,j=migrateJustice(p);if(j.detained)return toast('Difficile de se faire oublier depuis une cellule.');if(!useJusticeAction())return;var cost=Math.min(Math.max(0,p.money),1200),drop=9+R('justice')*13+(p.skills.Discrétion||0)*.08;p.money-=cost;j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)-drop,0,100);gain('Discrétion',.45+R('justice')*.5);tl('Profil bas','Tu te fais discret dans '+p.region+'. Chaleur locale -'+Math.round(drop)+'.');save();renderChar()
@@ -2271,13 +2282,13 @@ function attemptEscape(){
 }
 function pursuitEncounter(){
  var p=game.player,j=migrateJustice(p);if(j.detained||!game.alive)return;var pressure=justicePressure(),d=cl(inf().danger*.45+pressure*.55+12,18,94);j.pursuits++;j.lastPursuit={year:game.world.year,month:Math.floor(game.world.month),region:p.region};
- var ok=fight(d,'Poursuite des autorités');if(!game.alive)return;if(ok){j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)+10,0,100);registerCrime('Résistance à l’arrestation',3,true);tl('Cavale','Tu échappes aux forces lancées à tes trousses.','major')}else arrestPlayer('Capture après poursuite')
+ var evade=pursuitEvasionChance(pressure);if(R('justice')<evade){j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)-4,0,100);j.lastPursuit.evaded=true;tl('Filature semée','Tu exploites le terrain et ta discrétion pour éviter l’affrontement avec les autorités.','major');return}var ok=fight(d,'Poursuite des autorités');if(!game.alive)return;if(ok){j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)+10,0,100);registerCrime('Résistance à l’arrestation',3,true);tl('Cavale','Tu échappes aux forces lancées à tes trousses.','major')}else arrestPlayer('Capture après poursuite')
 }
 function justiceTick(m){
  var p=game.player,j=migrateJustice(p);j.actions=1;
  REG.forEach(function(r){var decay=r===p.region?.55:1.15;j.regionalHeat[r]=cl((j.regionalHeat[r]||0)-decay*m,0,100)});
  if(j.detained)return;
- var pressure=justicePressure(),chance=cl((pressure-24)/650,0,.18)*m;if((p.bounty>0||currentHeat()>22)&&R('justice')<chance)pursuitEncounter()
+ var pressure=justicePressure(),chance=cl((pressure-24)/650,0,.18)*m*justiceEvasionFactor();if((p.bounty>0||currentHeat()>22)&&R('justice')<chance)pursuitEncounter()
 }
 function bountyTargets(){
  var p=game.player;return game.world.crews.filter(function(c){return c.status==='active'&&c.faction==='Pirates'&&c.bounty>0&&c.region===p.region}).sort(function(a,b){return b.bounty-a.bounty}).slice(0,5)
