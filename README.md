@@ -1,3 +1,40 @@
+# ONE PIECE LIFE — V6.9 Career, Economy & Endgame 2.0
+
+La V6.9 transforme les hauts rangs en véritable deuxième phase de jeu.
+
+## Career, Economy & Endgame 2.0
+
+- Nouveau score d'**Autorité** dépendant du rang, prestige, compétences et réputation.
+- Quatre phases : Exécutant, Professionnel confirmé, Commandement, Décideur stratégique.
+- Les hauts gradés peuvent **déléguer** des missions faibles ou moyennes.
+- La délégation utilise autorité, Commandement, cohésion et réseau.
+- Les missions déléguées produisent des conséquences V6.8 sans exposer directement la santé du joueur.
+- Nouvelles **directives stratégiques** : stabilisation, influence, mobilisation, prospérité selon la faction.
+- Les directives modifient directement le monde causal.
+- Nouveaux **actifs durables** : Base, Réseau, Structure économique, chacun jusqu'au niveau 3.
+- Les actifs génèrent revenus et charges annuels.
+- Réseau et Base améliorent la préparation des missions.
+- La mobilisation apporte un bonus organisationnel temporaire.
+- Nouveau score d'**Héritage** combinant autorité, actifs, fortune, impact mondial, réputation et prestige.
+- Nouveaux jalons persistants d'endgame.
+- Titres de trajectoire : Haut commandement, Puissance pirate, Réseau révolutionnaire, etc.
+- Correctifs supplémentaires des bindings multi-éléments UI.
+- Save version : **690**.
+- Cache PWA : **one-piece-life-v6-9-0**.
+
+### QA de release
+- V6.4 → V6.9 : PASS ;
+- délégation : PASS ;
+- directives stratégiques : PASS ;
+- économie structurelle : PASS ;
+- actifs durables : PASS ;
+- héritage : PASS ;
+- stress économie endgame 20 ans : PASS ;
+- stress carrière 30 ans : PASS ;
+- stress causal 12 ans : PASS.
+
+---
+
 # ONE PIECE LIFE — V6.8 Causal World 2.0
 
 La V6.8 relie enfin les systèmes mondiaux aux systèmes jouables.
