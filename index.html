@@ -1171,7 +1171,7 @@ function v68RegionState(region=game.player.region){
   const crisis=clamp(piracy*.24+crime*.15+instability*.24+contest*.14+crewPressure*.13+projectPressure*.10-marine*.08,0,100);
   const opportunity=clamp(prosperity*.34+contest*.16+projectPressure*.16+revolution*.08+Math.max(0,60-crisis)*.26,0,100);
   const extraDanger=clamp(crisis*.22+contest*.06+crews.length*1.8+canonCrews.length*2.2,0,30);
-  const routeRisk=clamp(instability*.18+piracy*.14+contest*.08+crews.length*2.2+canonCrews.length*1.4,0,28);
+  const routeRisk=clamp(instability*.18+piracy*.14+contest*.08+crews.length*2.2+canonCrews.length*.6,0,28);
   const priceIndex=+clamp(1+(50-prosperity)/170+crime/420+instability/500-(marine-50)/650,.72,1.48).toFixed(3);
   const rewardIndex=+clamp(.88+crisis/180+contest/420,.88,1.65).toFixed(3);
   return {region,leader:leader[0],leaderInfluence:+Number(leader[1]).toFixed(1),second:second[0],secondInfluence:+Number(second[1]).toFixed(1),gap:+gap.toFixed(1),contested:gap<10,contest:+contest.toFixed(1),projects,crews,canonCrews,crisis:+crisis.toFixed(1),opportunity:+opportunity.toFixed(1),extraDanger:+extraDanger.toFixed(1),routeRisk:+routeRisk.toFixed(1),priceIndex,rewardIndex,pressures:rp}
