@@ -2292,11 +2292,11 @@ function v73PromotionReview(p=game.player){
   const metrics=v6CareerMetrics(p),xpNeed=v63RankThreshold(ranks,index),skillNeed=12+index*5;
   return mod.promotionReview(state,{...v73CareerContext(),rankIndex:index,rankCount:ranks.length,xp:p.careerXP,xpNeed,skillScore:metrics.score,skillNeed})
 }
-function v73RefreshResponsibility(){
+function v73RefreshResponsibility(silent=false){
   const mod=v73Module(),state=v73Ensure();if(!mod||!state||game.player.career==='Aucune')return null;
   const before=state.responsibility,res=mod.responsibilityFor(state,v73CareerContext());
   state.responsibility=res.id;
-  if(before&&before!==res.id)addHistory('Responsabilités accrues','Ton organisation te considère désormais comme '+res.label.toLowerCase()+'.','major');
+  if(!silent&&before&&before!==res.id)addHistory('Responsabilités accrues','Ton organisation te considère désormais comme '+res.label.toLowerCase()+'.','major');
   return res
 }
 function v73MissionBonus(m){
@@ -2345,7 +2345,7 @@ function renderV73Organization(){
   const card=$('#v73OrganizationCard'),branches=$('#v73BranchActions'),acts=$('#v73InternalActions'),badge=$('#v73OrgBadge');if(!card||!branches||!acts||!badge)return;
   const p=game.player,mod=v73Module(),data=v73Data(),state=v73Ensure();
   if(!mod||!data||!state||p.career==='Aucune'){badge.textContent='INACTIF';card.innerHTML='<p>Choisis d’abord une carrière pour rejoindre un réseau professionnel ou une organisation.</p>';branches.innerHTML='';acts.innerHTML='';return}
-  const org=v73Organization(),branch=mod.branchById(p.faction,state.branch)||mod.defaultBranch(p.faction,p),res=v73RefreshResponsibility(),review=v73PromotionReview(p),year=Math.floor(game.ageMonths/12);
+  const org=v73Organization(),branch=mod.branchById(p.faction,state.branch)||mod.defaultBranch(p.faction,p),res=v73RefreshResponsibility(true),review=v73PromotionReview(p),year=Math.floor(game.ageMonths/12);
   badge.textContent=(res?.label||'Membre')+' • '+Math.round(state.standing)+'/100';
   card.innerHTML='<strong>'+esc(org.label)+' • '+esc(branch.label)+'</strong><p>'+esc(branch.desc)+'</p><div class="requirement-list"><div class="requirement-row met"><span>Standing interne</span><strong>'+Math.round(state.standing)+'/100</strong></div><div class="requirement-row '+(state.trust>=45?'met':'blocked')+'"><span>Confiance</span><strong>'+Math.round(state.trust)+'/100</strong></div><div class="requirement-row '+(state.discipline>=45?'met':'blocked')+'"><span>Fiabilité</span><strong>'+Math.round(state.discipline)+'/100</strong></div><div class="requirement-row '+(state.influence>=35?'met':'special')+'"><span>Influence</span><strong>'+Math.round(state.influence)+'/100</strong></div></div><p><b>'+esc(res?.label||'Membre opérationnel')+'</b> • '+state.commendations+' distinction'+(state.commendations>1?'s':'')+' • '+state.sanctions+' sanction'+(state.sanctions>1?'s':'')+'.'+(review?' Dossier promotion : '+Math.round(review.dossier)+'/120, approbation ~'+Math.round(review.approvalChance*100)+'%.':'')+'</p>';
   const last=state.branchHistory?.[0],branchLocked=last?.year===year;
