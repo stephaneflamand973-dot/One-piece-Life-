@@ -2,7 +2,7 @@ name: Deploy GitHub Pages
 
 on:
   workflow_run:
-    workflows: ["V5.5 Long Audit"]
+    workflows: ["V5.6 Long Audit"]
     types: [completed]
   workflow_dispatch:
 
@@ -35,7 +35,7 @@ jobs:
         run: node scripts/validate.mjs
       - name: Validate content pack
         run: node scripts/validate-content.mjs
-      - name: Run full V5.5 QA before deploy
+      - name: Run full V5.6 QA before deploy
         run: node scripts/qa-v32.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
