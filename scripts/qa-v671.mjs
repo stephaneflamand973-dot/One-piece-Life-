@@ -100,8 +100,8 @@ assert(html.includes('function v671Gain'),'Unified progression gateway missing')
 // UI bindings must use querySelectorAll.
 assert(html.includes("$$('[data-mission]').forEach"),'Mission cards still use mono-element selector');
 assert(html.includes("$$('[data-rel-action]').forEach"),'Relation actions still use mono-element selector');
-assert(!html.includes("$('[data-mission]').forEach"),'Legacy mission selector survived');
-assert(!html.includes("$('[data-rel-action]').forEach"),'Legacy relation selector survived');
+assert(!/(?<!\$)\$\('\[data-mission\]'\)\.forEach/.test(html),'Legacy mission selector survived');
+assert(!/(?<!\$)\$\('\[data-rel-action\]'\)\.forEach/.test(html),'Legacy relation selector survived');
 
 // Old progression bypasses must be gone.
 for(const legacy of [
