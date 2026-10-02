@@ -60,7 +60,14 @@
     defaultRegion:'Global'
   };
 
+  const holderAliases={
+    Smoker:'smoker',Ace:'ace',Luffy:'luffy',Blackbeard:'blackbeard',Whitebeard:'whitebeard',
+    Law:'law',Kid:'kid',Robin:'robin',Crocodile:'crocodile',Doflamingo:'doflamingo',
+    Kuma:'kuma',Borsalino:'borsalino',Kuzan:'kuzan',Sakazuki:'sakazuki',Kaido:'kaido',
+    'Big Mom':'bigmom',Sengoku:'sengoku','Boa Hancock':'hancock',Katakuri:'katakuri',Marco:'marco'
+  };
+
   registry.register('worldCanonDataV75',{
-    version:'7.5.0',regions,regionLinks,factionProfiles,factionRelations,actionLabels,eventAnchors,fruitReleaseRules
+    version:'7.5.0',regions,regionLinks,factionProfiles,factionRelations,actionLabels,eventAnchors,fruitReleaseRules,holderAliases
   });
 })(window);
