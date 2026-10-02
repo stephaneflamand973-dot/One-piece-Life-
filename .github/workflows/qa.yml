@@ -1,5 +1,4 @@
-name: V6.3 QA
-
+name: V6.4 QA
 on:
   push:
     branches: [main]
@@ -7,47 +6,33 @@ on:
       - 'index.html'
       - 'manifest.webmanifest'
       - 'sw.js'
-      - 'QA-V6.3.md'
+      - 'QA-V6.4.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
-    paths:
-      - 'index.html'
-      - 'manifest.webmanifest'
-      - 'sw.js'
-      - '.github/workflows/qa.yml'
   workflow_dispatch:
-
 concurrency:
-  group: v63-qa-${{ github.ref }}
+  group: v64-qa-${{ github.ref }}
   cancel-in-progress: true
-
 permissions:
   contents: read
-
 jobs:
   qa:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify V6.3 balance systems
+      - name: Verify V6.4 systems
         run: |
           node <<'NODE'
           const fs=require('fs');
           const s=fs.readFileSync('index.html','utf8');
-          const required=[
-            'function v63FatigueProfile',
-            'function v63MasteryEfficiency',
-            'function v63PrestigeCheck',
-            'function v63RankThreshold',
-            'function v63EconomyAction',
-            'missionDamage',
-            'missionRetreatHealth',
-            'function v63GearDamageMult',
-            'function v63IntelBonus'
-          ];
+          const required=['v64RiskFactor','v64RecordRisk','v64AdventureMonthTick','v64GrantRareLead','v64RareLeadActive','fruitCooldownUntil','riskSpent:'];
           const missing=required.filter(x=>!s.includes(x));
-          if(missing.length) throw new Error('Missing V6.3 systems: '+missing.join(', '));
-          console.log('V6.3 balance systems present');
+          if(missing.length) throw new Error('Missing V6.4 systems: '+missing.join(', '));
+          const risk=[0,30,50,70,90,120].map(spent=>{const ratio=spent/84;return ratio<.45?1:ratio<.75?.78:ratio<1?.52:.30});
+          if(risk[0]!==1||risk.at(-1)!==.30) throw new Error('risk director curve regression');
+          const monthly=.20*(.12/80),life=1-Math.pow(1-monthly,35*12);
+          if(life<.07||life>.20) throw new Error('fruit rarity sanity regression');
+          console.log('V6.4 QA OK', {risk,steadyFruitLifetime:+(life*100).toFixed(1)});
           NODE
