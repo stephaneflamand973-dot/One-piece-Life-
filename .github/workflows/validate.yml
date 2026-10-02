@@ -45,7 +45,7 @@ jobs:
           if(!html.includes('const SAVE_VERSION = 690;')) throw new Error('Save migration 690 missing');
           if(!html.includes("const GAME_VERSION = '6.9.0';")) throw new Error('Game version 6.9.0 missing');
           for(const x of ['function v69Ensure','function v69CareerTier','function v69AnnualEconomy','function v69StrategicAction','function v69DelegateMission','function v69LegacyScore','function renderV69Endgame']) if(!html.includes(x)) throw new Error('missing '+x);
-          for(const x of ["v69AnnualEconomy();v69Milestones()","v69ApplyMissionOutcome","data-v69-delegate","data-v69-directive","data-v69-asset"]) if(!html.includes(x)) throw new Error('missing '+x);
+          for(const x of ["v69AnnualEconomy();v69Milestones()","v68ApplyMissionOutcome","data-v69-delegate","data-v69-directive","data-v69-asset"]) if(!html.includes(x)) throw new Error('missing '+x);
           if(!html.includes('id="v69EndgameCard"')||!html.includes('id="v69AssetsCard"')) throw new Error('V6.9 endgame UI missing');
           if(!html.includes("$$('[data-v63-economy]').forEach")) throw new Error('economy multi-button binding regression');
           const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
