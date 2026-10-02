@@ -1,4 +1,4 @@
-name: V6.8 QA
+name: V6.9 QA
 on:
   push:
     branches: [main]
@@ -12,14 +12,15 @@ on:
       - 'scripts/qa-v67.mjs'
       - 'scripts/qa-v671.mjs'
       - 'scripts/qa-v68.mjs'
-      - 'QA-V6.8.md'
+      - 'scripts/qa-v69.mjs'
+      - 'QA-V6.9.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v68-qa-${{ github.ref }}
+  group: v69-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -41,5 +42,7 @@ jobs:
         run: node scripts/qa-v67.mjs
       - name: Verify V6.7.1 stabilization
         run: node scripts/qa-v671.mjs
-      - name: Verify live V6.8 causal world
+      - name: Verify V6.8 causal world
         run: node scripts/qa-v68.mjs
+      - name: Verify live V6.9 career economy endgame
+        run: node scripts/qa-v69.mjs
