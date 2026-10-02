@@ -6,6 +6,7 @@ on:
       - 'index.html'
       - 'manifest.webmanifest'
       - 'sw.js'
+      - 'scripts/qa-v64.mjs'
       - 'QA-V6.4.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
@@ -22,17 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify V6.4 systems
-        run: |
-          node <<'NODE'
-          const fs=require('fs');
-          const s=fs.readFileSync('index.html','utf8');
-          const required=['v64RiskFactor','v64RecordRisk','v64AdventureMonthTick','v64GrantRareLead','v64RareLeadActive','fruitCooldownUntil','riskSpent:'];
-          const missing=required.filter(x=>!s.includes(x));
-          if(missing.length) throw new Error('Missing V6.4 systems: '+missing.join(', '));
-          const risk=[0,30,50,70,90,120].map(spent=>{const ratio=spent/84;return ratio<.45?1:ratio<.75?.78:ratio<1?.52:.30});
-          if(risk[0]!==1||risk.at(-1)!==.30) throw new Error('risk director curve regression');
-          const monthly=.20*(.12/80),life=1-Math.pow(1-monthly,35*12);
-          if(life<.07||life>.20) throw new Error('fruit rarity sanity regression');
-          console.log('V6.4 QA OK', {risk,steadyFruitLifetime:+(life*100).toFixed(1)});
-          NODE
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify live V6.4 systems
+        run: node scripts/qa-v64.mjs
