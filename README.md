@@ -1,3 +1,25 @@
+# ONE PIECE LIFE — V5.4 Crew Bonds & Command
+
+La V5.4 relie enfin la structure d’équipage de la V5.3 à la vie sociale et à la progression du joueur.
+
+## Crew Bonds & Command
+- Les figures importantes d’un équipage rejoint deviennent de **vraies relations persistantes** : capitaine, bras droit et membres notables ne sont plus seulement des lignes dans une carte d’organisation.
+- Une **succession de capitaine dans le monde vivant** est désormais répercutée automatiquement dans l’équipage du joueur. Le nouveau capitaine apparaît aussi dans le réseau relationnel.
+- La progression vers **Officier puis Bras droit** ne dépend plus seulement de l’XP, de la puissance et de la réputation : le moteur calcule aussi la **place réellement acquise dans l’équipage** à partir de l’ancienneté, des missions, des quarts effectués, de la cohésion, de la renommée et de la relation avec le capitaine.
+- Cette place reste un calcul de fond : elle n’ajoute aucune nouvelle ressource à gérer et n’introduit pas de micro-management.
+- Les conseils d’officiers tiennent maintenant compte du poids réel du joueur dans le pavillon.
+- Les missions réussies renforcent naturellement le respect et la confiance du capitaine envers le joueur.
+- Un capitaine fondateur peut désormais **nommer un véritable Bras droit** parmi ses membres. Cette personne conserve une relation persistante et devient aussi le second officiel de l’équipage dans le monde vivant.
+- Le Bras droit améliore légèrement le soutien collectif en mission. Le remplacer restaure automatiquement l’ancien rôle du précédent second.
+- Les membres actifs d’une organisation sont reliés au système social, ce qui fait converger équipage, relations et carrière sans créer de nouvel onglet.
+- La règle fondamentale reste intacte : **rejoindre un équipage ne peut jamais faire du joueur son capitaine**. Pour commander un pavillon, il faut toujours le fonder.
+- GameState reste en version interne **28** afin de préserver les sauvegardes V5.0 à V5.3.
+
+## Philosophie V5.4
+Un équipage ne doit pas seulement vivre autour du joueur. Il doit aussi produire des liens, une place sociale, une chaîne de commandement et des conséquences qui appartiennent à cette vie précise.
+
+---
+
 # ONE PIECE LIFE — V5.3 Living Crews & Organizations
 
 La V5.3 transforme les équipages et organisations en structures vivantes plutôt qu'en simples bonus de mission.
