@@ -67,9 +67,11 @@ if(!q) throw new Error('Live V6.8 QA API was not exposed');
 function assert(cond,msg){if(!cond)throw new Error(msg)}
 function eq(actual,expected,msg){if(actual!==expected)throw new Error(`${msg}: got ${actual}, expected ${expected}`)}
 
-assert(html.includes('ONE PIECE LIFE — V6.8'),'V6.8 title missing');
-assert(html.includes('const SAVE_VERSION = 680;'),'Save version 680 missing');
-assert(html.includes("const GAME_VERSION = '6.8.0';"),'Game version 6.8.0 missing');
+const saveMatch=html.match(/const SAVE_VERSION = (\d+);/);
+const versionMatch=html.match(/const GAME_VERSION = '([0-9.]+)';/);
+assert(saveMatch&&Number(saveMatch[1])>=680,'Save version regressed below 680');
+assert(versionMatch&&Number(versionMatch[1].split('.')[0])>=6,'Game version missing or invalid');
+assert(html.includes('function v68Ensure'),'V6.8 causal engine missing');
 for(const marker of [
   'function v68RegionState',
   'function v68CausalMissionCandidates',
@@ -177,7 +179,7 @@ assert(g.missionBoard.length===3,'Long causal simulation broke mission-board siz
 
 console.log('V6.8 LIVE QA OK',JSON.stringify({
   runtime:'index.html inline engine',
-  version:'6.8.0',
+  version:'6.8+ regression',
   initialCrisis:hot.crisis,
   initialPriceIndex:hot.priceIndex,
   expensivePrice:expensive,
