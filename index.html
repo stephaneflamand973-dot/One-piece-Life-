@@ -2209,7 +2209,7 @@ function renderMissions(){
   }
   if(!game.missionBoard.length)refreshMissionBoard();
   box.innerHTML=game.missionBoard.map(m=>'<button class="mission-card" data-mission="'+esc(m.id)+'"><span class="mission-danger '+m.danger+'">'+(m.danger==='high'?'Élevé':m.danger==='medium'?'Moyen':'Faible')+'</span><strong>'+esc(m.title)+(m.causal?' • Monde':'')+'</strong><p>'+esc(m.desc)+'</p><small>'+m.reward.toLocaleString('fr-FR')+' B • résolution dans la prochaine année</small>'+details(m)+'</button>').join('');
-  $('[data-mission]').forEach(b=>b.onclick=()=>startMission(b.dataset.mission))
+  $$('[data-mission]').forEach(b=>b.onclick=()=>startMission(b.dataset.mission))
 }
 function renderCharacter(){
   const p=game.player;v66Ensure();v67Ensure();const pv=p.potentialV66;
