@@ -101,6 +101,12 @@ assert(high.cap>low.cap,'Prodigious profile should have higher Combat ceiling');
 assert(high.growth>low.growth,'Prodigious profile should grow faster in Combat');
 assert(high.overall>low.overall,'Prodigious profile should have higher overall potential score');
 
+// Global Growth Rate must be mechanically active, not cosmetic.
+g=fixture('Correct','Correct','global-growth');q.setGame(g);q.ensure();
+g.player.potentialV66.overall.growthRate=.65;const slowGlobal=q.growth('skills','Combat');
+g.player.potentialV66.overall.growthRate=1.35;const fastGlobal=q.growth('skills','Combat');
+assert(fastGlobal>slowGlobal*1.5,'Global Growth Rate is not materially affecting progression');
+
 // Haki latent state matters.
 g=fixture('Remarquable','Remarquable','haki');q.setGame(g);q.ensure();
 assert(q.cap('haki','Observation')>0,'Latent/awakened Observation should have a potential cap');
@@ -155,5 +161,6 @@ console.log('V6.6 LIVE QA OK',JSON.stringify({
   earlyAdult,
   personalCaps:true,
   growthCurves:true,
+  globalGrowthActive:true,
   migrationSafe:true
 }));
