@@ -1,14 +1,15 @@
 {
   "name": "ONE PIECE LIFE",
   "short_name": "OP LIFE",
+  "description": "ONE PIECE LIFE V6.2.1 — life-sim mobile dans un monde pirate autonome.",
   "id": "./",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
   "background_color": "#f4ecd8",
-  "theme_color": "#f4ecd8",
-  "description": "ONE PIECE LIFE V5.7 Reactive World & Prestige — simulation mobile-first de destin, carrière et aventure dans un monde pirate vivant.",
+  "theme_color": "#173f4e",
+  "lang": "fr",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "icon.svg",
