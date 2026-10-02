@@ -1518,7 +1518,7 @@ function v70CanonEncounterText(c,persona,rel){
   return c.name+' te juge selon ses propres valeurs plutôt que comme un figurant interchangeable.'
 }
 function v70CanonCrewActive(c){
-  const y=game.clock.year;
+  const y=Number(game?.clock?.year??Math.floor((game?.ageMonths||0)/12));
   return c&&c.status==='active'&&y>=c.from&&y<=c.to
 }
 function v70LocalCanonCrews(region=game.player.region){
