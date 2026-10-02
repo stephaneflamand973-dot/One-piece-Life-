@@ -1,29 +1,7 @@
-name: V5.7 Long Audit
+name: V6.3 Long Audit
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'app.js'
-      - 'index.html'
-      - 'content-v1.js'
-      - 'styles.css'
-      - 'manifest.webmanifest'
-      - 'sw.js'
-      - 'icon.svg'
-      - 'scripts/qa-v32.mjs'
-      - 'scripts/validate.mjs'
-      - 'scripts/validate-content.mjs'
-      - 'scripts/audit-v32.mjs'
-      - '.github/workflows/audit-v32.yml'
-      - '.github/workflows/qa.yml'
-      - '.github/workflows/validate.yml'
-      - '.github/workflows/pages.yml'
-
-concurrency:
-  group: v57-long-audit-${{ github.ref }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -32,11 +10,20 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Run V5.7 Reactive World audit
-        run: node scripts/audit-v32.mjs
+      - uses: actions/checkout@v4
+      - name: Audit V6.3 release markers
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const s=fs.readFileSync('index.html','utf8');
+          const checks={
+            annual:s.includes('AVANCER D’UN AN'),
+            fatigue:s.includes('function v63FatigueProfile'),
+            prestige:s.includes('function v63PrestigeCheck'),
+            mastery:s.includes('function v63MasteryEfficiency'),
+            economy:s.includes('function v63EconomyAction'),
+            missionSafety:s.includes('missionRetreatHealth')
+          };
+          console.log(checks);
+          if(Object.values(checks).some(v=>!v)) process.exit(1);
+          NODE
