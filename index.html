@@ -1102,31 +1102,54 @@ function updateHakiStagesV6(){
 }
 
 function trainProgress(months){
-  const p=game.player,diff=currentDifficulty(),age=Math.max(1,game.ageMonths/12),activity=p.activityType;
+  const p=game.player;v66Ensure();
+  const diff=currentDifficulty(),age=Math.max(1,game.ageMonths/12),activity=p.activityType;
   const statFocus={physical:['Force','Endurance','Résistance','Vitesse'],combat:['Réflexes','Agilité','Force','Volonté'],marine:['Discipline','Endurance','Réflexes'],patrol:['Réflexes','Volonté','Endurance'],intense:['Force','Vitesse','Agilité','Endurance','Réflexes'],crew:['Volonté','Endurance','Discipline'],explore:['Agilité','Réflexes','Endurance'],crime:['Force','Réflexes','Volonté'],work:['Discipline','Endurance'],study:['Discipline','Volonté'],navigation:['Réflexes','Discipline'],social:['Volonté','Discipline'],covert:['Réflexes','Discipline','Volonté'],government:['Discipline','Réflexes','Endurance'],mission:['Réflexes','Volonté','Endurance'],general:STAT_KEYS}[activity]||STAT_KEYS;
   const primary=p.combatStyle.primary==='Sabreur'?'Sabre':p.combatStyle.primary==='Tireur'?'Tir':'Combat';
   const skillFocus={combat:['Combat'],marine:['Combat','Commandement'],patrol:['Combat','Discrétion'],intense:[primary],crew:['Navigation','Combat','Commandement'],explore:['Navigation','Discrétion'],crime:['Combat','Discrétion'],work:[p.specialization==='medicine'?'Médecine':p.specialization==='science'?'Science':'Navigation'],study:[p.specialization==='medicine'?'Médecine':p.specialization==='science'?'Science':'Navigation'],navigation:['Navigation'],social:['Commandement'],covert:['Discrétion','Commandement'],government:['Discrétion','Combat','Commandement'],mission:(game.activeMission?v6MissionSkillFocus(game.activeMission):[primary,'Commandement']),general:[]}[activity]||[];
   const changes=[];const loops=months>=3?3:months>=1?2:1;
   for(let i=0;i<loops;i++){
-    const choices=statFocus.filter(k=>p.stats[k]<p.caps[k].soft);if(!choices.length)break;
+    const choices=statFocus.filter(k=>p.stats[k]<Math.min(p.caps[k].soft,v66Cap('stats',k))-.01);if(!choices.length)break;
     const k=pick(choices,'progress'),cur=p.stats[k],diminish=clamp(1-cur/115,.14,1),ageMod=age<12?.75:age<20?1.12:age<35?1:.75;
     let gain=(.45+random('progress')*1.05)*(months/3+.25)*diff.gain*diminish*ageMod*talentForStat(k);
-    if(activity==='intense')gain*=1.2;if(game.activeMission)gain*=1.08;gain*=v6SpecMultiplier('stats',k)*v61AnnualMultiplier('training');gain=Math.max(.12,gain);
-    const next=clamp(cur+gain,0,p.caps[k].soft);p.stats[k]=+next.toFixed(2);if(Math.floor(next)>Math.floor(cur))changes.push(`${k} ${Math.floor(cur)} → ${Math.floor(next)}`)
+    if(activity==='intense')gain*=1.2;if(game.activeMission)gain*=1.08;
+    gain*=v6SpecMultiplier('stats',k)*v61AnnualMultiplier('training')*v66GrowthMultiplier('stats',k);
+    gain=Math.max(.05,gain);
+    const ceiling=Math.min(p.caps[k].soft,v66Cap('stats',k)),next=clamp(cur+gain,0,ceiling);
+    p.stats[k]=+next.toFixed(2);
+    if(Math.floor(next)>Math.floor(cur))changes.push(k+' '+Math.floor(cur)+' → '+Math.floor(next))
   }
   for(const k of [...new Set(skillFocus)]){
-    const cur=p.skills[k]||0,diminish=clamp(1-cur/120,.18,1)*v63MasteryEfficiency(cur,'skill');let gain=(.38+random('skill')*.95)*(months/2+.2)*diff.gain*diminish*skillTalent(k);
+    const cur=p.skills[k]||0,diminish=clamp(1-cur/120,.18,1)*v63MasteryEfficiency(cur,'skill');
+    let gain=(.38+random('skill')*.95)*(months/2+.2)*diff.gain*diminish*skillTalent(k);
     gain*=v6SpecMultiplier('skills',k)*v61AnnualMultiplier('training');
-    p.skills[k]=+clamp(cur+gain,0,100).toFixed(2);if(Math.floor(p.skills[k])>Math.floor(cur))changes.push(`${k} ${Math.floor(cur)} → ${Math.floor(p.skills[k])}`)
+    const next=v66ProgressValue('skills',k,cur,gain);
+    p.skills[k]=next;
+    if(Math.floor(next)>Math.floor(cur))changes.push(k+' '+Math.floor(cur)+' → '+Math.floor(next))
   }
   if(['combat','marine','patrol','intense','crime','crew','mission'].includes(activity)){
-    for(const key of ['Observation','Armement']){const h=p.haki[key];if(h.state!=='Dormant'&&h.state!=='Inconnu'){const old=h.mastery;h.mastery=+clamp(h.mastery+(.15+random('hakiProgress')*.52)*months*diff.gain*v61AnnualMultiplier('training')*v62Metric('mastery',1)*v63MasteryEfficiency(old,'power'),0,100).toFixed(2);if(Math.floor(h.mastery)>Math.floor(old)&&Math.floor(h.mastery)%5===0)changes.push(`${key} ${Math.floor(old)} → ${Math.floor(h.mastery)}`)}}
-    const hc=p.haki.Conquérant;if(hc.state==='Éveillé')hc.mastery=+clamp(hc.mastery+(.04+random('hakiProgress')*.16)*months,0,100).toFixed(2);
-    if(p.devilFruit){const old=p.devilFruit.mastery;p.devilFruit.mastery=+clamp(old+(.18+random('fruitProgress')*.62)*months*diff.gain*v61AnnualMultiplier('training')*v62Metric('mastery',1)*v63MasteryEfficiency(old,'power'),0,100).toFixed(2);if(Math.floor(p.devilFruit.mastery)>Math.floor(old)&&Math.floor(p.devilFruit.mastery)%5===0)changes.push(`Fruit ${Math.floor(old)} → ${Math.floor(p.devilFruit.mastery)}`)}
+    for(const key of ['Observation','Armement']){
+      const h=p.haki[key];
+      if(h.state!=='Dormant'&&h.state!=='Inconnu'){
+        const old=h.mastery,base=(.15+random('hakiProgress')*.52)*months*diff.gain*v61AnnualMultiplier('training')*v62Metric('mastery',1)*v63MasteryEfficiency(old,'power');
+        h.mastery=v66ProgressValue('haki',key,old,base);
+        if(Math.floor(h.mastery)>Math.floor(old)&&Math.floor(h.mastery)%5===0)changes.push(key+' '+Math.floor(old)+' → '+Math.floor(h.mastery))
+      }
+    }
+    const hc=p.haki.Conquérant;
+    if(hc&&!['Dormant','Inconnu'].includes(hc.state)){
+      const old=hc.mastery,base=(.04+random('hakiProgress')*.16)*months;
+      hc.mastery=v66ProgressValue('haki','Conquérant',old,base)
+    }
+    if(p.devilFruit){
+      const old=p.devilFruit.mastery,base=(.18+random('fruitProgress')*.62)*months*diff.gain*v61AnnualMultiplier('training')*v62Metric('mastery',1)*v63MasteryEfficiency(old,'power');
+      p.devilFruit.mastery=v66ProgressValue('fruit','mastery',old,base);
+      if(Math.floor(p.devilFruit.mastery)>Math.floor(old)&&Math.floor(p.devilFruit.mastery)%5===0)changes.push('Fruit '+Math.floor(old)+' → '+Math.floor(p.devilFruit.mastery))
+    }
   }
-  if(changes.length)addHistory('Progression',`Ton activité « ${p.activity} » produit des progrès mesurables.`,'normal',changes.join(' • '));
+  if(changes.length)addHistory('Progression','Ton activité « '+p.activity+' » produit des progrès mesurables.','normal',changes.join(' • '));
   updateHakiStagesV6();
-  maybeBreakthrough(months);
+  maybeBreakthrough(months)
 }
 function maybeBreakthrough(months){
   const p=game.player;v66Ensure();
@@ -1242,7 +1265,7 @@ function resolveCombat(enemy,context='Combat',opts={}){
   const phaseText=`ouverture ${opening?'✓':'×'} • échange ${pressure?'✓':'×'} • endurance ${finish?'✓':'×'}`;
   const energyCost=Math.round(randInt(5,11,'combatEnergy')*(a.approach==='bold'?1.18:a.approach==='cautious'?.86:1));p.energy=clamp(p.energy-energyCost,0,100);
   if(phasesWon>=2){
-    p.wins++;p.combatStyle.experience=clamp((p.combatStyle.experience||0)+(phasesWon===3?randInt(2,5,'combat'):randInt(1,4,'combat')),0,100);
+    p.wins++;v66Ensure();{const oldStyle=p.combatStyle.experience||0,styleGain=phasesWon===3?randInt(2,5,'combat'):randInt(1,4,'combat');p.combatStyle.experience=v66ProgressValue('style','experience',oldStyle,styleGain)}
     const injury=Math.max(0,Math.round((phasesWon===3?randInt(0,5,'combat'):randInt(2,12,'combat'))*damageMult));p.health=clamp(p.health-injury,0,100);
     game.flags.v65LastCombat={outcome:phasesWon===3?'decisive':'win',phasesWon,estimate:a.winEstimate,enemy:enemy.name};
     addHistory(context,`Tu prends ${phasesWon}/3 phases contre ${enemy.name.toLowerCase()} (${phaseText}) et remportes l’affrontement${injury?', avec des blessures':''}.`,'major',injury?`Santé -${injury}`:'Victoire maîtrisée');
