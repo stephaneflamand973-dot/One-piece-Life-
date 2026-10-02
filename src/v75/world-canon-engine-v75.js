@@ -41,8 +41,10 @@
   function regionOptions(actor={}){
     const current=actor.currentRegion||actor.region||'Grand Line';
     const linked=data.regionLinks[current]||data.regions.filter(r=>r!==current);
-    const explicit=(actor.regions||[]).filter(r=>r!=='Global');
-    return [...new Set([...linked,...explicit])].filter(r=>r!==current)
+    const regions=actor.regions||[],explicit=regions.filter(r=>r!=='Global');
+    if(regions.includes('Global'))return linked.filter(r=>r!==current);
+    if(explicit.length)return [...new Set(explicit)].filter(r=>r!==current);
+    return linked.filter(r=>r!==current)
   }
 
   function hostileTargets(actor={},actors=[]){
