@@ -1,4 +1,4 @@
-name: V6.9 Live Audit
+name: V7.0 Live Audit
 on:
   workflow_dispatch:
   push:
@@ -12,6 +12,7 @@ on:
       - 'scripts/qa-v671.mjs'
       - 'scripts/qa-v68.mjs'
       - 'scripts/qa-v69.mjs'
+      - 'scripts/qa-v70.mjs'
       - 'app.js'
       - 'content-v1.js'
       - 'scripts/qa-v32.mjs'
@@ -20,7 +21,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: v69-live-audit-${{ github.ref }}
+  group: v70-live-audit-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   audit:
@@ -43,8 +44,10 @@ jobs:
         run: node scripts/qa-v671.mjs
       - name: Run V6.8 regression QA
         run: node scripts/qa-v68.mjs
-      - name: Run live V6.9 runtime QA
+      - name: Run V6.9 regression QA
         run: node scripts/qa-v69.mjs
+      - name: Run live V7.0 runtime QA
+        run: node scripts/qa-v70.mjs
       - name: Run legacy engine trend audit
         continue-on-error: true
         run: node scripts/audit-v32.mjs
