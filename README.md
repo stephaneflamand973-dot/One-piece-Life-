@@ -1,3 +1,26 @@
+# ONE PIECE LIFE — V7.2 Combat & Powers 3.0
+
+La V7.2 transforme le combat en système de techniques et de matchups sans casser la résolution stable héritée de V6.5.
+
+## Combat & Powers 3.0
+
+- **16+ techniques** conditionnées par style, compétences, attributs, Haki et Fruit.
+- Matchups entre Corps-à-corps, Sabreur, Tireur, Mobile / esquive et Équilibré.
+- **Observation** : lecture, contre et précision.
+- **Armement** : réponse concrète à l'intangibilité des Logia.
+- **Conquérant** : pression contextuelle selon la volonté adverse.
+- **Paramecia, Zoan et Logia** possèdent désormais des identités mécaniques différentes.
+- Les techniques de haute maîtrise et l'**éveil** nécessitent de vrais seuils.
+- 5 doctrines : Équilibrée, Agressive, Prudente, Précision et Domination.
+- Le jeu suit l'usage des techniques et peut identifier une **technique signature**.
+- Les combats affichent les techniques employées dans chaque phase.
+- Architecture modulaire : données dans `src/data/combat-techniques-v72.js`, logique pure dans `src/v72/combat-engine-v72.js`.
+- Migration V7.1 → V7.2 automatique.
+- Save version : **720**.
+- Cache PWA : **one-piece-life-v7-2-0**.
+
+---
+
 # ONE PIECE LIFE — V7.1 Arc Director & Modular Core
 
 La V7.1 rend les grands événements réellement jouables et démarre la modularisation progressive du moteur.

@@ -76,9 +76,11 @@ function assert(cond,msg){if(!cond)throw new Error(msg)}
 function eq(actual,expected,msg){if(actual!==expected)throw new Error(`${msg}: got ${actual}, expected ${expected}`)}
 
 // Release identity and modular loading.
-assert(html.includes('ONE PIECE LIFE — V7.1'),'V7.1 title missing');
-assert(html.includes('const SAVE_VERSION = 710;'),'Save version 710 missing');
-assert(html.includes("const GAME_VERSION = '7.1.0';"),'Game version 7.1.0 missing');
+const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(saveVersion>=710,'V7.1 regression QA requires save version >= 710');
+assert(Number(gameVersion.split('.')[0])>=7,'V7.1 regression QA requires game version >= 7.1');
 for(const asset of [
   'src/core/module-registry.js',
   'src/data/arc-definitions-v71.js',
@@ -87,7 +89,7 @@ for(const asset of [
 ]) assert(html.includes(asset),`Index does not load modular asset: ${asset}`);
 assert(registry&&registry.has('arcDefinitionsV71')&&registry.has('arcDirector'),'V7.1 modules were not registered');
 assert(registry.list().length>=2,'Module registry does not expose loaded modules');
-assert(sw.includes('one-piece-life-v7-1-0'),'PWA cache not bumped to V7.1');
+assert(/one-piece-life-v7-[1-9]-\d+/.test(sw),'PWA cache must remain at V7.1 or newer');
 for(const asset of ['src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css'])assert(sw.includes(asset),`PWA does not cache modular asset: ${asset}`);
 
 // Arc content floor.
@@ -184,7 +186,7 @@ assert(html.includes('id="v71ArcCard"'),'Arc progress UI missing');
 
 console.log('V7.1 LIVE QA OK',JSON.stringify({
   runtime:'index.html + modular src assets',
-  version:'7.1.0',
+  version:gameVersion,
   modules:registry.list(),
   arcDefinitions:arcIds.length,
   marinefordStages:defs.arcs.marineford_war.stages.length,
