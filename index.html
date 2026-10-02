@@ -485,16 +485,23 @@ function v67ActiveMentor(){
 }
 function v67MentorMultiplier(kind,key){
   const r=v67ActiveMentor();if(!r)return 1;
-  const strength=v67RelationStrength(r);
+  const base=v67RelationStrength(r),snap=v74RelationSnapshot(r),strength=snap?.state?.strength??base;
   let fit=1;
   const role=String(r.role||'').toLowerCase();
   if(kind==='skills'&&['Combat','Sabre','Tir'].includes(key)&&/instructeur|maître|vétéran/.test(role))fit=1.35;
   if(kind==='skills'&&key==='Commandement'&&/supérieur|mentor/.test(role))fit=1.25;
   if(kind==='haki'&&/instructeur|maître|mentor|vétéran/.test(role))fit=1.18;
-  return +(1+clamp((strength-45)/220,0,.22)*fit).toFixed(3)
+  const bond=snap?clamp((snap.social.bond-50)/260,0,.12):0;
+  const compat=snap?clamp((snap.compat.score-50)/400,0,.08):0;
+  return +(1+clamp((strength-45)/220,0,.22)*fit+bond+compat).toFixed(3)
 }
 function v67MissionRelationSupport(){
-  v67Ensure();
+  v67Ensure();const mod=v74Module();
+  if(mod){
+    const allies=game.relations.filter(r=>r.status==='active'&&!r.crewMemberId);
+    if(!allies.length)return 0;
+    return +clamp(allies.map(r=>mod.supportScore(r,v74EnsureRelation(r),v74Context(r))).sort((a,b)=>b-a).slice(0,2).reduce((a,b)=>a+b,0),0,6).toFixed(1)
+  }
   const allies=game.relations.filter(r=>r.status==='active'&&!r.crewMemberId&&r.trust>=65&&r.respect>=55&&r.rivalry<55);
   if(!allies.length)return 0;
   return +clamp(allies.sort((a,b)=>v67RelationStrength(b)-v67RelationStrength(a)).slice(0,2).reduce((sum,r)=>sum+(v67RelationStrength(r)-50)/22,0),0,4).toFixed(1)
@@ -543,8 +550,10 @@ function v67RelationshipsTick(months){
   const mentor=v67ActiveMentor();
   if(mentor&&(mentor.trust<25||mentor.status!=='active')){
     game.player.socialV67.mentorId=null;game.player.mentor=null;
+    v74RecordMemory(mentor,{id:'mentor_end_'+Math.floor(game.ageMonths/12),type:'mentor',label:'Fin du mentorat',valence:-7,impact:4,tags:['mentor','rupture']});
     addHistory('Fin du mentorat','Le lien avec '+mentor.name+' s’est trop dégradé pour que le mentorat continue.','major')
   }
+  v74MaybeQueueArc()
 }
 function v67CrewTick(months){
   v67Ensure();const c=game.player.crew;if(!c)return;
@@ -2360,12 +2369,26 @@ function canonEncounter(){
   }else{
     r.familiarity=clamp((r.familiarity||0)+6,0,100);r.respect=clamp((r.respect||0)+(calc.respect>=55?4:1),0,100);r.trust=clamp((r.trust||0)+(calc.trust>=40?3:0),0,100);r.rivalry=clamp((r.rivalry||0)+(calc.hostile?3:0),0,100);r.role=v70CanonRole(c,persona,{...calc,respect:r.respect,trust:r.trust})
   }
+  v74RememberCanonEncounter(r,c,persona,calc);
   game.world.canonV70.encounters[c.id]=(game.world.canonV70.encounters[c.id]||0)+1;
   const tone=v70CanonEncounterText(c,persona,{...calc,respect:r.respect,trust:r.trust,rivalry:r.rivalry});
   addHistory('Rencontre canonique',c.name+' • '+persona.temperament+'. '+tone,'major');
   if(calc.hostile&&c.importance>=82&&game.ageMonths>=144&&chance(.22,'v70CanonHook'))v59CreateHook({title:'Tension avec '+c.name,desc:c.name+' et toi vous vous retrouvez sur des trajectoires incompatibles. '+persona.goal+'.',region:game.player.region,type:'threat',urgency:c.importance,difficulty:clamp(Math.round(c.power*.78),35,92),reward:5000+c.importance*260,sourceId:'canon_'+c.id,sourceType:'canon_person',ttl:10})
 }
-function relationshipEvent(){if(!game.relations.length)return;const r=pick(game.relations.filter(x=>x.status==='active'),'relations');if(!r)return;const positive=chance(.65,'relations');if(positive){r.trust=clamp(r.trust+randInt(4,10,'relations'),0,100);r.affection=clamp(r.affection+randInt(3,8,'relations'),0,100);addHistory('Lien renforcé',`${r.name} et toi traversez une situation qui renforce votre confiance mutuelle.`,'major')}else{r.rivalry=clamp(r.rivalry+randInt(5,12,'relations'),0,100);r.trust=clamp(r.trust-randInt(2,8,'relations'),0,100);addHistory('Conflit relationnel',`Une divergence sérieuse t’oppose à ${r.name}. La relation ne disparaît pas, mais elle change.`,'major')}}
+function relationshipEvent(){
+  if(!game.relations.length)return;const r=pick(game.relations.filter(x=>x.status==='active'),'relations');if(!r)return;
+  const snap=v74RelationSnapshot(r),compat=snap?.compat?.score??50,memory=snap?.memory?.score??0;
+  const positive=chance(clamp(.48+(compat-50)/180+memory/520,.22,.82),'relations');
+  if(positive){
+    r.trust=clamp(r.trust+randInt(3,8,'relations'),0,100);r.affection=clamp(r.affection+randInt(2,7,'relations'),0,100);
+    v74RecordMemory(r,{id:'rel_event_pos_'+Math.floor(game.ageMonths/6),type:'event',label:'Moment de confiance partagé',valence:5,impact:2,tags:['bond']});
+    addHistory('Lien renforcé',r.name+' et toi traversez une situation qui renforce votre confiance mutuelle.','major')
+  }else{
+    r.rivalry=clamp(r.rivalry+randInt(4,10,'relations'),0,100);r.trust=clamp(r.trust-randInt(2,7,'relations'),0,100);
+    v74RecordMemory(r,{id:'rel_event_neg_'+Math.floor(game.ageMonths/6),type:'event',label:'Divergence importante',valence:-5,impact:2,tags:['conflict']});
+    addHistory('Conflit relationnel','Une divergence sérieuse t’oppose à '+r.name+'. La relation ne disparaît pas, mais elle s’en souviendra.','major')
+  }
+}
 function careerOpportunity(){const p=game.player;if(p.faction==='Pirates'&&['Officier','Bras droit'].includes(p.rank)&&p.skills.Commandement>35&&p.reputation.pirate>35&&!game.flags.captainChoice){game.flags.captainChoice=true;game.pendingDecision={id:'captain_path',title:'Prendre ton indépendance ?',text:'Ton influence est désormais suffisante pour envisager ton propre pavillon. Rien ne garantit que les autres te suivront.',choices:[{label:'Fonder mon équipage',hint:'Tu deviens capitaine et assumes toutes les conséquences.',action:'captain:create'},{label:'Rester officier',hint:'Tu conserves ta place actuelle.',action:'captain:stay'}]};return}if(p.faction==='Marine'&&p.rank==='Lieutenant'&&p.skills.Commandement>35&&!game.flags.commandChoice){game.flags.commandChoice=true;game.pendingDecision={id:'marine_command',title:'Prendre un commandement local',text:'On te propose la responsabilité d’une petite unité.',choices:[{label:'Accepter',hint:'Plus de responsabilités, plus d’exposition.',action:'command:accept'},{label:'Refuser pour l’instant',hint:'Tu restes sur ta trajectoire actuelle.',action:'command:decline'}]};return}const gain=randInt(2,6,'career');p.careerXP+=gain;addHistory('Expérience professionnelle',`Une occasion inhabituelle accélère légèrement ta progression dans ta carrière.`,'normal',`Expérience +${gain}`)}
 function factionShiftOpportunity(){const p=game.player;if(p.faction==='Marine'&&game.world.pressures.Révolution>28&&p.reputation.marine<75){game.pendingDecision={id:'faction_shift',title:'Un contact révolutionnaire',text:'Une personne liée aux Révolutionnaires te propose discrètement de reconsidérer ton allégeance.',choices:[{label:'Écouter sans m’engager',hint:'Tu obtiens un contact, sans changer de faction.',action:'shift:listen'},{label:'Refuser',hint:'Tu coupes court.',action:'shift:refuse'}]}}else if(p.faction==='Civil'&&p.reputation.local>30){game.pendingDecision={id:'faction_shift',title:'Une proposition inattendue',text:'Un groupe organisé voit en toi quelqu’un d’utile et te propose de travailler davantage avec lui.',choices:[{label:'Rester indépendant',hint:'Aucun changement majeur.',action:'shift:refuse'},{label:'Garder le contact',hint:'Une porte s’ouvre pour plus tard.',action:'shift:listen'}]}}}
 
