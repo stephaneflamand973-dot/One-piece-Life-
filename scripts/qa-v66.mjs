@@ -64,7 +64,7 @@ const stats={Force:30,Vitesse:30,Agilité:30,Endurance:30,Résistance:30,Réflex
 const skills={Combat:30,Sabre:20,Tir:15,Navigation:25,Médecine:10,Commandement:20,Discrétion:18,Science:12};
 function fixture(potential='Correct',talent='Correct',seed='660066'){
   return {
-    version:'6.6.0',saveVersion:660,ageMonths:240,alive:true,seed,rngCounters:{},dev:{rngLog:[]},
+    version:'6.6+ regression',saveVersion:660,ageMonths:240,alive:true,seed,rngCounters:{},dev:{rngLog:[]},
     meta:{difficulty:'Standard'},flags:{},clock:{year:20,month:0,day:1},
     player:{
       name:'QA Potential',potential,
@@ -82,10 +82,12 @@ function fixture(potential='Correct',talent='Correct',seed='660066'){
   };
 }
 
-// Release markers.
-assert(html.includes('ONE PIECE LIFE — V6.6'),'V6.6 title missing');
-assert(html.includes('const SAVE_VERSION = 660;'),'Save version 660 missing');
-assert(html.includes("const GAME_VERSION = '6.6.0';"),'Game version 6.6.0 missing');
+// V6.6 systems must remain present in V6.6 or later releases.
+const saveMatch=html.match(/const SAVE_VERSION = (\d+);/);
+const versionMatch=html.match(/const GAME_VERSION = '([0-9.]+)';/);
+assert(saveMatch&&Number(saveMatch[1])>=660,'Save version regressed below 660');
+assert(versionMatch&&Number(versionMatch[1].split('.')[0])>=6,'Game version missing or invalid');
+assert(html.includes('function v66Ensure'),'V6.6 potential engine missing');
 
 // Deterministic generation: same seed + player = same potential profile.
 let g=fixture('Correct','Correct','same-seed');q.setGame(g);const a=JSON.stringify(q.ensure());
