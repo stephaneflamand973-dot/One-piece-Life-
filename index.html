@@ -989,7 +989,7 @@ const V70_CANON_EFFECTS = {
   enies_lobby_clash:{region:'Grand Line',pressure:{Instabilité:11,Marine:5},influence:{Gouvernement:-4,Pirates:4}},
   ace_capture:{region:'Grand Line',pressure:{Marine:7,Piraterie:7,Instabilité:8},characterRegion:{ace:'Grand Line'}},
   marineford_war:{region:'Grand Line',pressure:{Instabilité:18,Marine:10,Piraterie:12},characterStatus:{ace:'dead',whitebeard:'dead'},crewStatus:{whitebeard_crew:'dissolved'},fruitWorld:['mera_mera'],fruitTransfer:{gura_gura:'Blackbeard'}},
-  postwar_balance:{region:'Global',pressure:{Piraterie:6,Instabilité:7},crewStatus:{blackbeard_crew:'active'}},
+  postwar_balance:{region:'Global',pressure:{Piraterie:6,Instabilité:7},crewStatus:{blackbeard_crew:'active'},crewRegion:{straw_hat:'New World',heart:'New World',kid_crew:'New World',blackbeard_crew:'New World'}},
   sabaody_collision:{region:'Grand Line',pressure:{Marine:6,Piraterie:8,Instabilité:6}},
   dressrosa_upheaval:{region:'New World',pressure:{Instabilité:12,Criminalité:-8},influence:{Pirates:-5},crewStatus:{donquixote_family:'dissolved'}},
   yonko_conflict:{region:'New World',pressure:{Piraterie:12,Instabilité:13}},
@@ -1155,23 +1155,26 @@ function v68IngestAutonomousEvent(e){
   v68RecordCause({id:'cause_'+e.id,region:e.region,type:e.type,title:e.title,desc:e.desc,sourceId:e.id,impact:(Number(e.importance)||40)/25})
 }
 function v68RegionState(region=game.player.region){
-  v68Ensure();const w=game.world,rp=w.regionalPressures?.[region]||w.pressures||{};
+  v68Ensure();v70Ensure();const w=game.world,rp=w.regionalPressures?.[region]||w.pressures||{};
   const influence=w.territoryState?.[region]?.influence||{};
   const sorted=Object.entries(influence).sort((a,b)=>Number(b[1])-Number(a[1]));
   const leader=sorted[0]||['Aucune',0],second=sorted[1]||['Aucune',0],gap=Number(leader[1])-Number(second[1]);
   const projects=(w.projects||[]).filter(p=>p.status==='active'&&p.region===region);
   const crews=(w.emergentCrews||[]).filter(c=>c.status==='active'&&c.region===region);
+  const canonCrews=v70LocalCanonCrews(region);
   const piracy=Number(rp.Piraterie)||0,crime=Number(rp.Criminalité)||0,instability=Number(rp.Instabilité)||0,prosperity=Number(rp.Prospérité)||50,marine=Number(rp.Marine)||0,revolution=Number(rp.Révolution)||0;
   const contest=clamp(100-gap*2,0,100);
   const projectPressure=clamp(projects.reduce((a,p)=>a+(p.target?100*p.progress/p.target:0),0)/Math.max(1,projects.length),0,100);
-  const crewPressure=clamp(crews.reduce((a,c)=>a+(Number(c.notoriety)||20)+(Number(c.power)||20)*.35,0)/Math.max(1,crews.length),0,100);
+  const emergentPressure=crews.length?crews.reduce((a,c)=>a+(Number(c.notoriety)||20)+(Number(c.power)||20)*.35,0)/crews.length:0;
+  const canonPressure=canonCrews.length?canonCrews.reduce((a,c)=>a+c.power*.45+c.importance*.28+(c.momentum||50)*.18,0)/canonCrews.length:0;
+  const crewPressure=clamp(emergentPressure*.55+canonPressure*.45,0,100);
   const crisis=clamp(piracy*.24+crime*.15+instability*.24+contest*.14+crewPressure*.13+projectPressure*.10-marine*.08,0,100);
   const opportunity=clamp(prosperity*.34+contest*.16+projectPressure*.16+revolution*.08+Math.max(0,60-crisis)*.26,0,100);
-  const extraDanger=clamp(crisis*.22+contest*.06+crews.length*1.8,0,30);
-  const routeRisk=clamp(instability*.18+piracy*.14+contest*.08+crews.length*2.2,0,28);
+  const extraDanger=clamp(crisis*.22+contest*.06+crews.length*1.8+canonCrews.length*2.2,0,30);
+  const routeRisk=clamp(instability*.18+piracy*.14+contest*.08+crews.length*2.2+canonCrews.length*1.4,0,28);
   const priceIndex=+clamp(1+(50-prosperity)/170+crime/420+instability/500-(marine-50)/650,.72,1.48).toFixed(3);
   const rewardIndex=+clamp(.88+crisis/180+contest/420,.88,1.65).toFixed(3);
-  return {region,leader:leader[0],leaderInfluence:+Number(leader[1]).toFixed(1),second:second[0],secondInfluence:+Number(second[1]).toFixed(1),gap:+gap.toFixed(1),contested:gap<10,contest:+contest.toFixed(1),projects,crews,crisis:+crisis.toFixed(1),opportunity:+opportunity.toFixed(1),extraDanger:+extraDanger.toFixed(1),routeRisk:+routeRisk.toFixed(1),priceIndex,rewardIndex,pressures:rp}
+  return {region,leader:leader[0],leaderInfluence:+Number(leader[1]).toFixed(1),second:second[0],secondInfluence:+Number(second[1]).toFixed(1),gap:+gap.toFixed(1),contested:gap<10,contest:+contest.toFixed(1),projects,crews,canonCrews,crisis:+crisis.toFixed(1),opportunity:+opportunity.toFixed(1),extraDanger:+extraDanger.toFixed(1),routeRisk:+routeRisk.toFixed(1),priceIndex,rewardIndex,pressures:rp}
 }
 function v68CausalMissionCandidates(){
   v68Ensure();const p=game.player,w=game.world,rs=v68RegionState(p.region),list=[];
@@ -1200,7 +1203,7 @@ function v68CausalMissionCandidates(){
   if(rs.contested&&p.faction!=='Civil'){
     add({title:'Faire pencher l’influence régionale',desc:p.region+' est suffisamment disputée pour qu’une opération réussie modifie réellement l’équilibre local.',danger:rs.crisis>=65?'high':'medium',type:p.faction==='Révolutionnaires'||p.faction==='Gouvernement'?'covert':'combat',sourceType:'territory',sourceId:'territory_'+p.region,targetFaction:rs.leader,causalMode:'influence',cause:rs.leader+' '+Math.round(rs.leaderInfluence)+' contre '+rs.second+' '+Math.round(rs.secondInfluence),importance:Math.round(55+rs.contest*.3)})
   }
-  return list
+  return list.concat(v70CanonMissionCandidates(rs)).sort((a,b)=>(b.importance||0)-(a.importance||0)).slice(0,14)
 }
 function v68MissionFromCause(c,index=0){
   const rs=v68RegionState(game.player.region),base=c.danger==='high'?28000:c.danger==='medium'?12000:5000;
@@ -1217,6 +1220,10 @@ function v68ApplyMissionOutcome(m,outcome){
       const dir=m.causalMode==='assist'?1:-1;
       proj.progress=clamp(proj.progress+dir*delta*(proj.target/16),0,proj.target);
     }
+  }
+  if(m.sourceType==='canon_crew'&&m.targetCanonCrewId){
+    const crew=w.canonCrews?.find(x=>x.id===m.targetCanonCrewId);
+    if(crew){crew.momentum=clamp((crew.momentum||50)-delta*4,0,100);crew.encounters=(crew.encounters||0)+1}
   }
   if(m.sourceType==='crew'&&m.targetCrewId){
     const crew=w.emergentCrews.find(x=>x.id===m.targetCrewId);
@@ -1478,6 +1485,8 @@ function v70Ensure(){
   for(const c of CANON_CREWS)if(!crewIds.has(c.id)){w.canonCrews.push({...c});crewIds.add(c.id)}
   for(const c of w.canonCrews){
     if(c.currentRegion==null)c.currentRegion=c.region;
+    if(!Number.isFinite(c.momentum))c.momentum=50;
+    if(!Number.isFinite(c.encounters))c.encounters=0;
     if(!c.status)c.status='active';
     if(c.status==='future'&&(game.clock?.year||0)>=c.from)c.status='active';
   }
@@ -1546,6 +1555,7 @@ function v70ApplyCanonEffects(e){
   if(fx.characterStatus)for(const [id,status] of Object.entries(fx.characterStatus)){const c=w.characters.find(x=>x.id===id);if(c)c.status=status}
   if(fx.characterRegion)for(const [id,r] of Object.entries(fx.characterRegion)){const c=w.characters.find(x=>x.id===id);if(c)c.currentRegion=r}
   if(fx.crewStatus)for(const [id,status] of Object.entries(fx.crewStatus)){const c=w.canonCrews.find(x=>x.id===id);if(c)c.status=status}
+  if(fx.crewRegion)for(const [id,r] of Object.entries(fx.crewRegion)){const c=w.canonCrews.find(x=>x.id===id);if(c)c.currentRegion=r}
   if(fx.fruitWorld)for(const id of fx.fruitWorld){const fruit=w.fruits.find(x=>x.id===id);if(fruit){fruit.holder=null;fruit.status='world'}}
   if(fx.fruitTransfer)for(const [id,holder] of Object.entries(fx.fruitTransfer)){const fruit=w.fruits.find(x=>x.id===id);if(fruit){fruit.holder=holder;fruit.status='held'}}
   state.eventEffectsApplied[e.id]=true;
@@ -1578,7 +1588,13 @@ function estimateTravel(from,to){
 }
 function characterStartRegion(c){const all=['East Blue','North Blue','West Blue','South Blue','Grand Line','New World'],explicit=(c.regions||[]).filter(r=>r!=='Global');if((c.regions||[]).includes('Global'))return weighted(all.map(r=>({v:r,w:explicit.includes(r)?4:(r==='Grand Line'?2.4:r==='New World'?1.7:1)})),'world');return explicit.length?pick(explicit,'world'):'Grand Line'}
 function worldCharacterCopy(){return CANON_CHARACTERS.map(c=>({...c,regions:[...c.regions],currentRegion:characterStartRegion(c)}))}
-function activeLocalActors(){const region=game.player.region,year=game.clock.year;const canon=game.world.characters.filter(c=>c.status==='alive'&&year>=c.from&&year<=c.to&&c.currentRegion===region).sort((a,b)=>b.importance-a.importance).slice(0,6);const crews=game.world.emergentCrews.filter(c=>c.status==='active'&&c.region===region).slice(0,5);return {canon,crews}}
+function activeLocalActors(){
+  v70Ensure();const region=game.player.region,year=game.clock.year;
+  const canon=game.world.characters.filter(c=>c.status==='alive'&&year>=c.from&&year<=c.to&&c.currentRegion===region).sort((a,b)=>b.importance-a.importance).slice(0,6);
+  const canonCrews=v70LocalCanonCrews(region).slice(0,5);
+  const crews=game.world.emergentCrews.filter(c=>c.status==='active'&&c.region===region).slice(0,5);
+  return {canon,canonCrews,crews}
+}
 
 function hash32(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 function random(stream='core'){
@@ -2687,7 +2703,7 @@ function renderCharacter(){
   const mentor=v67ActiveMentor();
   const rows=[['Nom',p.name],['Race',p.race],['Origine',p.origin],['Lieu',p.island+' • '+p.region],['Faction',p.faction],['Rang',p.rank+(p.careerPrestige?.level?' • '+V63_PRESTIGE_TITLES[p.careerPrestige.level]:'' )],['Spécialité',p.specialization||'Aucune'],['Potentiel',pv.overall.label+' • '+pv.overall.score+'/100'],['Growth','×'+pv.overall.growthRate.toFixed(2)+' • '+V66_CURVE_LABELS[pv.curve]],['Mentor',mentor?mentor.name:'Aucun'],['Prime',Math.floor(p.bounty).toLocaleString('fr-FR')+' B']];
   $('#identityGrid').innerHTML=rows.map(([k,v])=>'<div class="info-cell"><span>'+esc(k)+'</span><strong>'+esc(v)+'</strong></div>').join('');
-  $('#careerCard').innerHTML='<strong>'+esc(p.career)+'</strong><p>'+esc(p.activity)+' • '+esc(p.situation)+' • expérience carrière '+Math.floor(p.careerXP)+'</p><div class="annual-focus-note">V6.9 : les hauts rangs débloquent autorité, délégation, directives stratégiques et actifs durables ; la carrière change désormais réellement de nature.</div>';
+  $('#careerCard').innerHTML='<strong>'+esc(p.career)+'</strong><p>'+esc(p.activity)+' • '+esc(p.situation)+' • expérience carrière '+Math.floor(p.careerXP)+'</p><div class="annual-focus-note">V7.0 : le canon possède désormais ses propres personnalités, groupes, dépendances historiques et conséquences dans le monde vivant.</div>';
   const inv=p.equipment||[];
   $('#equipmentList').innerHTML=inv.length?inv.map(e=>{const f=game.world.fruits.find(x=>x.name===e&&x.holder==='player_inventory');return f?'<div class="inventory-item"><strong>'+esc(e)+' • '+esc(f.type)+'</strong><div class="inventory-actions"><button class="mini-action primary" data-fruit-eat="'+esc(e)+'">Manger</button><button class="mini-action" data-fruit-sell="'+esc(e)+'">Vendre</button></div></div>':'<span class="chip">'+esc(e)+'</span>'}).join(''):'<span class="chip">Inventaire vide</span>';
   $$('[data-fruit-eat]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitEat,'eat'));$$('[data-fruit-sell]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitSell,'sell'));
@@ -2745,18 +2761,18 @@ function renderWorld(){
   $('#causalLedger').innerHTML=ledger.length?ledger.map(x=>'<div class="world-event"><span class="event-meta">'+esc(x.type)+' • '+(x.player?'action du joueur':'monde')+'</span><strong>'+esc(x.title)+'</strong><span>'+esc(x.desc)+'</span></div>').join(''):'<p class="helper-text">Aucune chaîne causale récente visible dans cette région.</p>';
 
   $('#worldHeadline').textContent=w.era;$('#worldSubhead').textContent=`${worldDateText()}. ${REGION_SUMMARY[p.region]||''}`;
-  $('#worldMeta').innerHTML=`<span>Divergence ${Math.round(w.divergence)}%</span><span>${w.emergentCrews.filter(c=>c.status==='active').length} équipages actifs</span><span>${(w.projects||[]).filter(x=>x.status==='active').length} projets de faction</span><span>${(w.worldHooks||[]).filter(x=>x.status==='open').length} hooks actifs</span><span>${p.visited.length} lieux visités</span>`;
+  const canonStats=v70CanonStats();$('#worldMeta').innerHTML=`<span>Divergence ${Math.round(w.divergence)}%</span><span>${w.emergentCrews.filter(c=>c.status==='active').length} équipages procéduraux</span><span>${(w.canonCrews||[]).filter(v70CanonCrewActive).length} groupes canoniques</span><span>${canonStats.characters} personnages canon</span><span>${canonStats.fruits} Fruits</span><span>${p.visited.length}/${canonStats.places} lieux visités</span>`;
   $('#placeName').textContent=p.travel?`En mer → ${p.travel.destination}`:p.island;$('#placeDanger').textContent=`Danger ${Math.round(dangerScore())}`;$('#placeDescription').textContent=p.travel?`Traversée depuis ${p.travel.from}. Temps restant estimé : ${Math.max(0,p.travel.remaining).toFixed(2)} mois.`:info.desc;$('#placeTags').innerHTML=(p.travel?['Voyage maritime',p.region]:info.tags).map(x=>`<span class="chip">${esc(x)}</span>`).join('');
   $('#worldNews').innerHTML=game.news.length?game.news.slice(0,18).map(n=>`<div class="news-item"><strong>${esc(n.title)}</strong><span>${esc(n.desc)}</span></div>`).join(''):'<p>Aucune actualité.</p>';
   $('#regionTitle').textContent=p.region;$('#pressureBars').innerHTML=barRows(lp);$('#divergenceBadge').textContent=`Divergence ${Math.round(w.divergence)}%`;
-  $('#canonList').innerHTML=w.canon.map(e=>`<div class="canon-item"><span class="status">${esc(e.status)}</span><strong>${esc(e.title)}</strong><span>Fenêtre ${e.from}–${e.to} • résistance causale ${e.resistance}</span></div>`).join('');
+  $('#canonList').innerHTML=w.canon.map(e=>{const cs=v70CanonEventState(e),deps=cs.requires.length?(cs.ready?' • causes réunies':' • bloqué par '+cs.blockedBy.map(id=>w.canon.find(x=>x.id===id)?.title||id).join(', ')):'';return `<div class="canon-item"><span class="status">${esc(e.status)}</span><strong>${esc(e.title)}</strong><span>Fenêtre ${e.from}–${e.to} • résistance ${e.resistance}${esc(deps)}</span></div>`}).join('');
   const travel=travelDestinations();$('#travelStatus').textContent=p.travel?`${Math.max(0,p.travel.remaining).toFixed(2)} mois restants`:p.region;
   $('#travelOptions').innerHTML=p.travel?`<div class="career-card"><strong>Traversée vers ${esc(p.travel.destination)}</strong><p>Départ : ${esc(p.travel.from)} • danger de route ${p.travel.danger}/100. La traversée progressera pendant le tour annuel.</p></div>`:travel.length?travel.map(r=>`<button class="action-card ${r.ok?'':'locked'}" data-dest="${esc(r.dest)}"><strong>${esc(r.dest)}</strong><small>${esc(placeInfo(r.dest).region)} • ${r.duration} mois • danger ${r.danger}${r.causalRisk?` • monde +${r.causalRisk}`:''}${r.ok?'':` • requis : ${r.req.label}`}</small></button>`).join(''):`<div class="career-card"><p>Aucune route supplémentaire n’est accessible depuis ce lieu.</p></div>`;
-  $$('[data-dest]').forEach(b=>b.onclick=()=>askTravel(b.dataset.dest));
-  $('#localActors').innerHTML=[...actors.canon.map(c=>`<div class="actor-row"><strong>${esc(c.name)}</strong><span>${esc(c.faction)} • puissance ${Math.round(c.power)} • ${esc(c.goal||'trajectoire autonome')}</span></div>`),...actors.crews.map(c=>`<div class="actor-row"><strong>${esc(c.name)}</strong><span>Équipage procédural • puissance ${Math.round(c.power)}</span></div>`)].join('')||'<p class="helper-text">Aucun acteur majeur identifié dans cette région pour le moment.</p>';
+  $('[data-dest]').forEach(b=>b.onclick=()=>askTravel(b.dataset.dest));
+  $('#localActors').innerHTML=[...actors.canon.map(c=>{const persona=v70Persona(c);return `<div class="actor-row"><strong>${esc(c.name)}</strong><span>${esc(c.faction)} • ${esc(persona.temperament)} • puissance ${Math.round(c.power)} • ${esc(persona.goal)}</span></div>`}),...actors.canonCrews.map(c=>`<div class="actor-row"><strong>${esc(c.name)}</strong><span>Groupe canonique • puissance ${Math.round(c.power)} • dynamique ${Math.round(c.momentum||50)}</span></div>`),...actors.crews.map(c=>`<div class="actor-row"><strong>${esc(c.name)}</strong><span>Équipage procédural • puissance ${Math.round(c.power)}</span></div>`)].join('')||'<p class="helper-text">Aucun acteur majeur identifié dans cette région pour le moment.</p>';
   $('#factionOverview').innerHTML=Object.entries(w.factions).map(([name,f])=>{const ai=w.factionAI?.[name],v=w.perceptions?.[name];return `<div class="faction-card"><strong>${esc(name)}</strong><span>Puissance ${Math.round(f.power)} • activité ${Math.round(f.activity)}</span><small>${ai?esc(ai.objective):(f.territories!=null?`${f.territories} zones d’influence abstraites`:'Influence variable')}</small>${v?`<small class="perception-line">Perception de toi : menace ${Math.round(v.threat)} • respect ${Math.round(v.respect)} • intérêt ${Math.round(v.interest)}</small>`:''}</div>`}).join('');
   ensureV59();
-  const openHooks=(w.worldHooks||[]).filter(x=>x.status==='open').sort((a,b)=>b.urgency-a.urgency||a.expiresAt-b.expiresAt).slice(0,8);$('#hookBadge').textContent=`${openHooks.length} actifs`;$('#worldHooks').innerHTML=openHooks.length?openHooks.map(h=>{const left=Math.max(0,h.expiresAt-v58MonthIndex()),risk=h.difficulty>=68?'high':h.difficulty>=45?'medium':'low';return `<article class="world-hook ${esc(h.type)}"><div class="world-hook-head"><div><span class="hook-meta">${esc(h.region)} • ${h.type==='threat'?'MENACE':h.type==='intel'?'RENSEIGNEMENT':h.type==='faction'?'FACTION':'OPPORTUNITÉ'}</span><strong>${esc(h.title)}</strong></div><span class="hook-badge ${risk}">${h.difficulty}/100</span></div><p>${esc(h.desc)}</p><div class="hook-actions"><button class="hook-action" data-hook="${esc(h.id)}">Examiner</button><span class="hook-expiry">expire dans ${left} mois • gain potentiel ${Math.round(h.reward).toLocaleString('fr-FR')} B</span></div></article>`}).join(''):'<p class="helper-text">Aucune situation ne requiert ton attention immédiate. Ce qui, dans Grand Line, est presque suspect.</p>';$$('[data-hook]').forEach(b=>b.onclick=()=>v59OpenHook(b.dataset.hook));
+  const openHooks=(w.worldHooks||[]).filter(x=>x.status==='open').sort((a,b)=>b.urgency-a.urgency||a.expiresAt-b.expiresAt).slice(0,8);$('#hookBadge').textContent=`${openHooks.length} actifs`;$('#worldHooks').innerHTML=openHooks.length?openHooks.map(h=>{const left=Math.max(0,h.expiresAt-v58MonthIndex()),risk=h.difficulty>=68?'high':h.difficulty>=45?'medium':'low';return `<article class="world-hook ${esc(h.type)}"><div class="world-hook-head"><div><span class="hook-meta">${esc(h.region)} • ${h.type==='threat'?'MENACE':h.type==='intel'?'RENSEIGNEMENT':h.type==='faction'?'FACTION':'OPPORTUNITÉ'}</span><strong>${esc(h.title)}</strong></div><span class="hook-badge ${risk}">${h.difficulty}/100</span></div><p>${esc(h.desc)}</p><div class="hook-actions"><button class="hook-action" data-hook="${esc(h.id)}">Examiner</button><span class="hook-expiry">expire dans ${left} mois • gain potentiel ${Math.round(h.reward).toLocaleString('fr-FR')} B</span></div></article>`}).join(''):'<p class="helper-text">Aucune situation ne requiert ton attention immédiate. Ce qui, dans Grand Line, est presque suspect.</p>';$('[data-hook]').forEach(b=>b.onclick=()=>v59OpenHook(b.dataset.hook));
   const rivals=(w.rivals||[]).filter(r=>r.status==='active').slice(0,6);$('#rivalBadge').textContent=`${rivals.length} actifs`;$('#worldRivals').innerHTML=rivals.length?rivals.map(r=>{const diff=r.power-overallPower(),label=diff>12?'Plus puissant':diff<-12?'Derrière toi':'Niveau proche';return `<div class="rival-card"><div class="rival-avatar">${esc((r.name||'?')[0])}</div><div class="rival-copy"><strong>${esc(r.name)}</strong><span>${esc(r.faction)} • ${esc(r.region)} • rivalité ${Math.round(r.rivalry)} • respect ${Math.round(r.respect)}</span></div><div class="rival-power"><strong>${Math.round(r.power)}</strong><small>${label} • ${r.encounters} rencontre${r.encounters>1?'s':''}</small></div></div>`}).join(''):'<p class="helper-text">Aucun rival personnel durable pour le moment.</p>';
   const knownAuto=(w.autonomousHistory||[]).filter(e=>e.known).slice(0,10);$('#autonomyBadge').textContent=`${w.autonomy?.totalEvents||0} événements simulés`;$('#autonomousChronicle').innerHTML=knownAuto.length?knownAuto.map(e=>`<div class="world-event"><span class="event-meta">${esc(e.region)} • ${esc(e.type)}</span><strong>${esc(e.title)}</strong><span>${esc(e.desc)}</span></div>`).join(''):'<p class="helper-text">Le monde agit déjà en arrière-plan, mais aucune information supplémentaire fiable ne t’est encore parvenue.</p>';
   const projects=(w.projects||[]).filter(x=>x.status==='active').slice(0,10);$('#projectBadge').textContent=`${projects.length} actifs`;$('#worldProjects').innerHTML=projects.length?projects.map(x=>`<div class="project-card"><span class="event-meta">${esc(x.faction)} • ${esc(x.region)}</span><strong>${esc(x.title)}</strong><span>Progression ${Math.round(x.progress)}/${x.target}</span><div class="project-progress"><i style="width:${clamp(x.progress/x.target*100,0,100)}%"></i></div></div>`).join(''):'<p class="helper-text">Aucun projet majeur actuellement détecté.</p>';
