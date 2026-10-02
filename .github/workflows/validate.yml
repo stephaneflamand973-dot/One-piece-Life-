@@ -7,6 +7,7 @@ on:
       - 'manifest.webmanifest'
       - 'sw.js'
       - 'icon.svg'
+      - 'scripts/qa-v64.mjs'
       - 'QA-V6.4.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
@@ -38,9 +39,13 @@ jobs:
           if(!html.includes('const SAVE_VERSION = 640;')) throw new Error('Save migration 640 missing');
           for(const x of ['function v64RiskProfile','function v64QueueAdventureDecision','function v64RarityMultiplier','function v64OnNewLocation']) if(!html.includes(x)) throw new Error('missing '+x);
           if(html.includes("h.expiresAt<v58MonthIndex()+12")) throw new Error('hook expiry extension regression');
+          if(!html.includes("v64RecordRisk(hookRisk,'hook')")) throw new Error('hook risk spend missing');
+          if(!html.includes("hookExposure=v64RiskFactor('hook')")) throw new Error('hook exposure gate missing');
           const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
           if(!String(manifest.description||'').includes('V6.4')) throw new Error('manifest not V6.4');
           const sw=fs.readFileSync('sw.js','utf8');
-          if(!sw.includes('v6-4-0')) throw new Error('service worker cache not V6.4');
+          if(!sw.includes('v6-4-1')) throw new Error('service worker cache not V6.4.1');
           console.log('V6.4 static validation OK');
           NODE
+      - name: Validate live V6.4 behavior
+        run: node scripts/qa-v64.mjs
