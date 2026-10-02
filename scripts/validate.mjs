@@ -10,9 +10,9 @@ const css=fs.readFileSync('styles.css','utf8');
 new Function(app);
 new Function(pack);
 const manifestData=JSON.parse(manifest);
-if(!String(manifestData.description||'').includes('V5.5') || !String(manifestData.description||'').includes('Crew Chemistry & Internal Dynamics')) throw new Error('manifest.webmanifest does not expose V5.5 Crew Chemistry & Internal Dynamics consistently');
+if(!String(manifestData.description||'').includes('V5.6') || !String(manifestData.description||'').includes('Destinies & Living Endgame')) throw new Error('manifest.webmanifest does not expose V5.6 Destinies & Living Endgame consistently');
 
-if(!html.includes('<title>ONE PIECE LIFE — V5.5</title>') || !html.includes('V5.5 • Crew Chemistry & Internal Dynamics')) throw new Error('index.html does not expose V5.5 consistently');
+if(!html.includes('<title>ONE PIECE LIFE — V5.6</title>') || !html.includes('V5.6 • Destinies & Living Endgame')) throw new Error('index.html does not expose V5.6 consistently');
 if(!app.includes('version:28') || !app.includes('g.version=28')) throw new Error('compatible GameState 28 migration is missing');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
@@ -77,6 +77,7 @@ if(!app.includes('function joinedCrewStanding') || !app.includes('function syncJ
 if(!app.includes('function crewDynamicsState') || !app.includes('function crewChemistry') || !app.includes('function crewDynamicsTick') || !app.includes('function resolveCrewFriction')) throw new Error('V5.5 crew chemistry/internal dynamics engine missing');
 if(!app.includes('function apexProgressScore') || !app.includes('function attemptApexBreakthrough') || !app.includes('function missionAccessIndex') || !app.includes('function pirateBountyTarget')) throw new Error('V5.5 global progression/Apex engine missing');
 if(!app.includes('function combatFatalityMitigation') || !app.includes('function justiceEvasionFactor') || !app.includes('function pursuitEvasionChance')) throw new Error('V5.5 skill-sensitive survival engine missing');
+if(!app.includes('function lifeImportanceStage') || !app.includes('function careerDestinyMilestones') || !app.includes('function destinyMissionOpportunity') || !app.includes('function evaluateDestinyProgress')) throw new Error('V5.6 destinies/living endgame engine missing');
 if(!html.includes('id="organizationMembers"') || !html.includes('id="organizationResources"') || !html.includes('id="organizationActions"')) throw new Error('V1.6 organization UI missing');
 
 if(!app.includes('function justiceTick') || !app.includes('function pursuitEncounter') || !app.includes('function arrestPlayer')) throw new Error('V1.6 pursuit/justice engine missing');
