@@ -2421,9 +2421,9 @@ var DESTINY_SPEC={
  'Quartier-maître':{title:'Pilier d’un grand équipage',profile:'command',mastery:'Maîtriser la logistique d’équipage',service:'Faire tenir le groupe dans la durée',signature:'Soutenir des opérations majeures',world:'Devenir indispensable à un pavillon historique'},
  'Cipher Pol':{title:'Agent de l’ombre absolue',profile:'mixed',mastery:'Atteindre le niveau des meilleurs agents',service:'Réussir des opérations classifiées',signature:'Accomplir des missions que le monde ne doit jamais connaître',world:'Devenir une autorité secrète du Gouvernement'}
 };
-function defaultDestiny(){return{phase:0,phasePeak:0,lastPhaseAge:-999,completed:[],history:[],evidence:{profiles:{},missions:0,signatureMissions:0,worldMissions:0,destinyMissions:0,decisiveMissions:0,highRiskSuccesses:0},lastWorldOfferBucket:-1}}
+function defaultDestiny(){return{phase:0,phasePeak:0,lastPhaseAge:-999,completed:[],history:[],evidence:{profiles:{},missions:0,signatureMissions:0,worldMissions:0,destinyMissions:0,decisiveMissions:0,highRiskSuccesses:0},lastWorldOfferBucket:-1,worldReactions:{history:[],lastAge:-999,lastBucket:-1,accepted:0,refused:0,negotiated:0,hostileWins:0,hostileLosses:0}}}
 function migrateDestiny(p){
- p.destiny=p.destiny||defaultDestiny();var d=p.destiny;d.phase=d.phase||0;d.phasePeak=d.phasePeak||d.phase||0;d.lastPhaseAge=d.lastPhaseAge==null?-999:d.lastPhaseAge;d.completed=Array.isArray(d.completed)?d.completed:[];d.history=Array.isArray(d.history)?d.history.slice(-20):[];d.evidence=d.evidence||{};d.evidence.profiles=d.evidence.profiles||{};['missions','signatureMissions','worldMissions','destinyMissions','decisiveMissions','highRiskSuccesses'].forEach(function(k){d.evidence[k]=d.evidence[k]||0});d.lastWorldOfferBucket=d.lastWorldOfferBucket==null?-1:d.lastWorldOfferBucket;return d
+ p.destiny=p.destiny||defaultDestiny();var d=p.destiny;d.phase=d.phase||0;d.phasePeak=d.phasePeak||d.phase||0;d.lastPhaseAge=d.lastPhaseAge==null?-999:d.lastPhaseAge;d.completed=Array.isArray(d.completed)?d.completed:[];d.history=Array.isArray(d.history)?d.history.slice(-20):[];d.evidence=d.evidence||{};d.evidence.profiles=d.evidence.profiles||{};['missions','signatureMissions','worldMissions','destinyMissions','decisiveMissions','highRiskSuccesses'].forEach(function(k){d.evidence[k]=d.evidence[k]||0});d.lastWorldOfferBucket=d.lastWorldOfferBucket==null?-1:d.lastWorldOfferBucket;d.worldReactions=d.worldReactions||{history:[],lastAge:-999,lastBucket:-1,accepted:0,refused:0,negotiated:0,hostileWins:0,hostileLosses:0};var wr=d.worldReactions;wr.history=Array.isArray(wr.history)?wr.history.slice(0,16):[];wr.lastAge=wr.lastAge==null?-999:wr.lastAge;wr.lastBucket=wr.lastBucket==null?-1:wr.lastBucket;wr.accepted=wr.accepted||0;wr.refused=wr.refused||0;wr.negotiated=wr.negotiated||0;wr.hostileWins=wr.hostileWins||0;wr.hostileLosses=wr.hostileLosses||0;return d
 }
 function destinyProfile(){
  var p=game.player,sp=p.specialization||'',base=DESTINY_SPEC[sp];if(base)return base;
@@ -2435,6 +2435,63 @@ function lifeImportanceStage(){
 }
 function destinyWorldAttention(){
  var st=lifeImportanceStage(),r=playerWorldRecognition(),p=game.player,o=p.organization,base=st.index*16+(r.score||0)*.42+(o?o.renown*.12:0);return cl(base,0,100)
+}
+function migrateWorldReactions(p){return migrateDestiny(p||game.player).worldReactions}
+function worldReactionAttentionLabel(v){return v>=82?'Le monde te surveille':v>=65?'Très forte':v>=48?'Importante':v>=30?'Croissante':'Faible'}
+function worldReactionTypeLabel(type){return type==='alliance'?'Alliance proposée':type==='solicitation'?'Sollicitation':type==='challenge'?'Défi direct':type==='surveillance'?'Surveillance':'Proposition'}
+function worldReactionSourceKey(c){return(c.sourceKind||'faction')+':'+String(c.sourceId||c.sourceName||c.sourceFaction||'world')}
+function worldReactionCandidate(bucket){
+ var p=game.player,stage=lifeImportanceStage(),attention=destinyWorldAttention(),actors=(game.world.actors||[]).filter(function(a){return a.status==='active'&&a.region===p.region}),crews=(game.world.crews||[]).filter(function(c){return c.status==='active'&&c.region===p.region&&(!p.organization||c.id!==p.organization.worldCrewId)}),items=[];
+ actors.forEach(function(a){var dip=diplomacy(p.faction,a.faction),pow=actorPower(a),type=dip<=-35?(attention>=62?'challenge':'surveillance'):dip>=25?'alliance':'solicitation',weight=1+Math.min(1.8,pow/70)+(a.faction===p.faction?.8:0)+(type==='challenge'?.45:0);items.push({sourceKind:'actor',sourceId:a.name,sourceName:a.name,sourceFaction:a.faction,sourcePower:pow,type:type,weight:weight})});
+ crews.forEach(function(c){var dip=diplomacy(p.faction,c.faction),type=dip<=-35?(attention>=68?'challenge':'surveillance'):dip>=20?'alliance':'solicitation',weight=.8+Math.min(1.5,(c.power||20)/75)+(c.faction===p.faction?.55:0);items.push({sourceKind:'crew',sourceId:c.id,sourceName:c.name,sourceFaction:c.faction,sourcePower:c.power||25,type:type,weight:weight})});
+ if(!items.length){var factions=FACTION_KEYS.filter(function(f){return f!==p.faction}),f=factions[(H(String(game.seed)+':reaction-faction:'+bucket)%Math.max(1,factions.length))]||'Civil',dip=diplomacy(p.faction,f),type=dip<=-35?'surveillance':dip>=25?'alliance':'solicitation';items.push({sourceKind:'faction',sourceId:f,sourceName:CAREERS[f]?CAREERS[f].label:f,sourceFaction:f,sourcePower:35+stage.index*8,type:type,weight:1})}
+ var total=items.reduce(function(a,x){return a+x.weight},0),r=(H(String(game.seed)+':reaction-pick:'+bucket)%10000)/10000*total,chosen=items[0];for(var i=0;i<items.length;i++){r-=items[i].weight;if(r<=0){chosen=items[i];break}}
+ chosen.region=p.region;chosen.bucket=bucket;chosen.attention=Math.round(attention);chosen.stage=stage.index;chosen.id='reaction-'+bucket+'-'+H(worldReactionSourceKey(chosen)+':'+chosen.type);return chosen
+}
+function worldReactionActor(c){if(!c||c.sourceKind!=='actor')return null;return(game.world.actors||[]).find(function(a){return a.name===c.sourceId})||null}
+function worldReactionCrew(c){if(!c||c.sourceKind!=='crew')return null;return(game.world.crews||[]).find(function(x){return x.id===c.sourceId})||null}
+function worldReactionRelation(c,context){var a=worldReactionActor(c);return a?bondCanonicalActor(a,context||('Réaction du monde : '+worldReactionTypeLabel(c.type))):null}
+function recordWorldReaction(c,outcome,impact){
+ var p=game.player,wr=migrateWorldReactions(p),item={id:c.id,age:age(),ageMonths:p.ageMonths,type:c.type,sourceKind:c.sourceKind,sourceId:c.sourceId,sourceName:c.sourceName,sourceFaction:c.sourceFaction,outcome:outcome,impact:impact||0,attention:c.attention||Math.round(destinyWorldAttention())};wr.history.unshift(item);wr.history=wr.history.slice(0,16);wr.lastAge=p.ageMonths;
+ rememberCausalMemory('world-reaction',worldReactionTypeLabel(c.type)+' — '+c.sourceName,cl(48+(impact||0)*4,48,88),{kind:'world-reaction',subjectId:c.sourceId||c.sourceFaction,sourceFaction:c.sourceFaction,outcome:outcome,region:p.region},'world-reaction:'+c.id);
+ if((impact||0)>=5)signalPersonalChapter('world','Le monde réagit à '+p.name,10+impact,'world-reaction:'+c.id,c.sourceId||c.sourceFaction);return item
+}
+function worldReactionPositive(c,mode){
+ var p=game.player,wr=migrateWorldReactions(p),r=worldReactionRelation(c,'Une puissance te contacte directement à cause de ta stature.'),org=p.organization,bonus=mode==='negotiate'?2:0;
+ p.reputation=cl((p.reputation||0)+2+bonus,0,100);adjustRep(p.faction,1+bonus);if(c.sourceFaction)adjustRep(c.sourceFaction,1+bonus);if(org)org.renown=cl((org.renown||0)+1.5+bonus,0,100);if(r){r.respect=cl(r.respect+4+bonus,0,100);r.trust=cl(r.trust+3+bonus,0,100);addRelationMemory(r,'Tu réponds favorablement à une sollicitation importante.','world-reaction')}
+ var crew=worldReactionCrew(c);if(crew){crew.morale=cl((crew.morale||50)+2+bonus,0,100);crew.playerGrudge=cl((crew.playerGrudge||0)-4,0,100)}
+ wr.accepted++;if(mode==='negotiate')wr.negotiated++;var payment=mode==='negotiate'?Math.round(8000+destinyWorldAttention()*520+c.stage*9000):0;if(payment){p.money+=payment;tl('Accord avantageux',c.sourceName+' accepte tes conditions. +'+payment.toLocaleString('fr-FR')+' B.','major')}else tl('Influence reconnue',c.sourceName+' choisit désormais de composer directement avec toi.','major');
+ recordWorldReaction(c,mode==='negotiate'?'accord négocié':'coopération acceptée',6+bonus);scheduleConsequence('world-reaction',c.sourceName,'Cette coopération peut encore produire des conséquences.',6+R('memory')*8,{success:true,sourceKind:c.sourceKind,sourceId:c.sourceId,sourceFaction:c.sourceFaction},70,'reaction:'+c.id);return true
+}
+function worldReactionNegotiate(c){
+ var p=game.player,command=p.skills.Commandement||0,standing=(p.reputation||0)*.35+command*.45+lifeImportanceStage().index*7,opposition=(c.sourcePower||40)*.55+35,ch=cl(.36+(standing-opposition)/110,.16,.88);
+ if(R('reaction')<ch)return worldReactionPositive(c,'negotiate');var r=worldReactionRelation(c,'Une négociation ambitieuse échoue.');if(r){r.trust=cl(r.trust-3,0,100);r.respect=cl(r.respect+1,0,100)}var crew=worldReactionCrew(c);if(crew)crew.playerGrudge=cl((crew.playerGrudge||0)+3,0,100);migrateWorldReactions(p).negotiated++;recordWorldReaction(c,'négociation refusée',2);tl('Négociation refusée',c.sourceName+' refuse tes conditions, mais la discussion reste ouverte.');return false
+}
+function worldReactionRefuse(c){
+ var p=game.player,wr=migrateWorldReactions(p),r=worldReactionRelation(c,'Tu refuses une sollicitation liée à ta stature.');wr.refused++;if(r){r.trust=cl(r.trust-2,0,100);if(c.type==='alliance')r.respect=cl(r.respect-1,0,100)}var crew=worldReactionCrew(c);if(crew)crew.playerGrudge=cl((crew.playerGrudge||0)+(c.type==='alliance'?2:1),0,100);recordWorldReaction(c,'refus',1);tl('Proposition refusée','Tu déclines la proposition de '+c.sourceName+'.');return true
+}
+function worldReactionConfront(c){
+ var p=game.player,wr=migrateWorldReactions(p),r=worldReactionRelation(c,'Tu acceptes un affrontement provoqué par ta nouvelle stature.'),crew=worldReactionCrew(c),difficulty=cl((c.sourcePower||45)+(crew?Math.min(12,(crew.members||0)*.25):0),30,96),ok=fight(difficulty,'Défi de '+c.sourceName,r);
+ if(!game.alive)return false;if(ok){wr.hostileWins++;p.reputation=cl((p.reputation||0)+4,0,100);if(p.organization)p.organization.renown=cl((p.organization.renown||0)+3,0,100);if(r){r.rivalry=cl(r.rivalry+8,0,100);r.respect=cl(r.respect+5,0,100);r.fear=cl(r.fear+5,0,100)}if(crew){crew.defeats=(crew.defeats||0)+1;crew.playerGrudge=cl((crew.playerGrudge||0)+8,0,100);crew.morale=cl((crew.morale||50)-4,0,100)}recordWorldReaction(c,'défi remporté',8);news('Une puissance répond à un défi',p.name+' repousse '+c.sourceName+' dans '+p.region+'.','major')}
+ else{wr.hostileLosses++;if(r){r.rivalry=cl(r.rivalry+5,0,100);r.respect=cl(r.respect+1,0,100)}if(crew){crew.victories=(crew.victories||0)+1;crew.playerGrudge=cl((crew.playerGrudge||0)+5,0,100)}recordWorldReaction(c,'défi perdu',5)}
+ return ok
+}
+function worldReactionDefuse(c){
+ var p=game.player,skill=(p.skills.Commandement||0)*.28+(p.skills.Discrétion||0)*.24+(p.haki.Observation||0)*.14+(p.reputation||0)*.22+power()*.12,pressure=(c.sourcePower||45)*.64+22,ch=cl(.34+(skill-pressure)/105,.12,.86),r=worldReactionRelation(c,'Tu cherches à désamorcer une réaction hostile.'),crew=worldReactionCrew(c);
+ if(R('reaction')<ch){if(r){r.rivalry=cl(r.rivalry-5,0,100);r.respect=cl(r.respect+3,0,100)}if(crew)crew.playerGrudge=cl((crew.playerGrudge||0)-4,0,100);var j=migrateJustice(p);j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)-4,0,100);recordWorldReaction(c,'tension désamorcée',6);tl('Rapport de force évité','Tu désamorces la pression de '+c.sourceName+' sans affrontement.','major');return true}
+ if(r)r.rivalry=cl(r.rivalry+4,0,100);if(crew)crew.playerGrudge=cl((crew.playerGrudge||0)+4,0,100);recordWorldReaction(c,'désescalade échouée',3);tl('Tension persistante',c.sourceName+' ne se laisse pas impressionner.','danger');return false
+}
+function worldReactionAvoid(c){
+ var p=game.player,wr=migrateWorldReactions(p),r=worldReactionRelation(c,'Tu refuses de répondre à une provocation liée à ta stature.');wr.refused++;if(r){r.rivalry=cl(r.rivalry+2,0,100);r.fear=cl(r.fear-1,0,100)}var crew=worldReactionCrew(c);if(crew)crew.playerGrudge=cl((crew.playerGrudge||0)+2,0,100);if(c.type==='surveillance'){var j=migrateJustice(p),evade=cl(((p.skills.Discrétion||0)+(p.stats.Agilité||0)+(p.haki.Observation||0))/300,0,.7);j.regionalHeat[p.region]=cl((j.regionalHeat[p.region]||0)-(2+evade*5),0,100)}recordWorldReaction(c,'réaction ignorée',1);tl('Tu gardes tes distances','Tu refuses de laisser '+c.sourceName+' dicter ton agenda.');return true
+}
+function triggerWorldReaction(c){
+ var p=game.player,wr=migrateWorldReactions(p);wr.lastAge=p.ageMonths;var label=worldReactionTypeLabel(c.type),txt=c.type==='challenge'?c.sourceName+' te provoque directement. À ton niveau, refuser ou répondre devient aussi un message envoyé au reste du monde.':c.type==='surveillance'?c.sourceName+' commence à suivre tes mouvements de près. Ta réputation attire maintenant des contre-mesures.':c.sourceName+' cherche directement ton soutien. Ce genre de proposition n’aurait jamais existé au début de ta carrière.';
+ if(c.type==='challenge'||c.type==='surveillance')decision(label,txt,[['Répondre au défi','Accepter le rapport de force et assumer les conséquences.',function(){worldReactionConfront(c)}],['Désamorcer','Utiliser ton expérience, ta réputation et tes compétences pour éviter l’affrontement.',function(){worldReactionDefuse(c)}],['Ignorer','Refuser de leur laisser contrôler ton agenda.',function(){worldReactionAvoid(c)}]]);
+ else decision(label,txt,[['Accepter','Coopérer et renforcer ta place dans les réseaux du monde.',function(){worldReactionPositive(c,'accept')}],['Négocier','Tenter d’obtenir davantage grâce à ton Commandement et ta stature.',function(){worldReactionNegotiate(c)}],['Refuser','Préserver ton indépendance.',function(){worldReactionRefuse(c)}]]);
+ return c
+}
+function worldReactionTick(m){
+ var p=game.player;if(!game.alive||p.ageMonths<240||p.career==='Aucune'||game.pending||awaitingStory()||game.mission||p.travel||(p.justice&&p.justice.detained))return false;var stage=lifeImportanceStage();if(stage.index<2)return false;var wr=migrateWorldReactions(p),bucket=Math.floor(p.ageMonths/6);if(bucket===wr.lastBucket)return false;wr.lastBucket=bucket;var attention=destinyWorldAttention(),cooldown=cl(18-stage.index*2-attention/22,7,15);if(p.ageMonths-(wr.lastAge||-999)<cooldown)return false;var chance=cl(8+stage.index*5+attention*.10,12,34),roll=H(String(game.seed)+':world-reaction-roll:'+bucket+':'+p.faction)%100;if(roll>=chance)return false;return!!triggerWorldReaction(worldReactionCandidate(bucket))
 }
 function destinyTerminalRankReached(){
  var p=game.player;if(p.career==='Aucune')return false;if(p.faction==='Pirates'&&p.organization&&p.organization.pirateOrigin==='joined')return p.rank==='Bras droit';return !nextRank()
