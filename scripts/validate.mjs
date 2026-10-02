@@ -10,9 +10,9 @@ const css=fs.readFileSync('styles.css','utf8');
 new Function(app);
 new Function(pack);
 const manifestData=JSON.parse(manifest);
-if(!String(manifestData.description||'').includes('V5.3') || !String(manifestData.description||'').includes('Living Crews & Organizations')) throw new Error('manifest.webmanifest does not expose V5.3 Living Crews & Organizations consistently');
+if(!String(manifestData.description||'').includes('V5.4') || !String(manifestData.description||'').includes('Crew Bonds & Command')) throw new Error('manifest.webmanifest does not expose V5.4 Crew Bonds & Command consistently');
 
-if(!html.includes('<title>ONE PIECE LIFE — V5.3</title>') || !html.includes('V5.3 • Living Crews & Organizations')) throw new Error('index.html does not expose V5.3 consistently');
+if(!html.includes('<title>ONE PIECE LIFE — V5.4</title>') || !html.includes('V5.4 • Crew Bonds & Command')) throw new Error('index.html does not expose V5.4 consistently');
 if(!app.includes('version:28') || !app.includes('g.version=28')) throw new Error('compatible GameState 28 migration is missing');
 if(!html.includes('<script src="content-v1.js"></script>')) throw new Error('content pack is not loaded');
 if(html.indexOf('content-v1.js')>html.indexOf('app.js')) throw new Error('content pack must load before app.js');
@@ -73,6 +73,7 @@ if(!app.includes('canonForecast') || !app.includes('contentStats')) throw new Er
 if(!app.includes('var ORG_CONFIG=') || !app.includes('var SHIP_TIERS=')) throw new Error('V1.6 organization configuration missing');
 if(!app.includes('function organizationTick') || !app.includes('function organizationMissionDanger') || !app.includes('function recruitOrganizationMember')) throw new Error('V1.6 organization engine missing');
 if(!app.includes('function upgradeOrganizationShip') || !app.includes('function syncOrganizationRole')) throw new Error('V1.6 command/ship engine missing');
+if(!app.includes('function joinedCrewStanding') || !app.includes('function syncJoinedCrewRoster') || !app.includes('function appointPirateFirstMate')) throw new Error('V5.4 crew bonds/command engine missing');
 if(!html.includes('id="organizationMembers"') || !html.includes('id="organizationResources"') || !html.includes('id="organizationActions"')) throw new Error('V1.6 organization UI missing');
 
 if(!app.includes('function justiceTick') || !app.includes('function pursuitEncounter') || !app.includes('function arrestPlayer')) throw new Error('V1.6 pursuit/justice engine missing');
