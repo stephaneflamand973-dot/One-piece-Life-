@@ -1,22 +1,14 @@
-name: Validate game
+name: Validate V6.3
 
 on:
   push:
-    branches:
-      - main
-      - 'v*'
+    branches: [main]
     paths:
-      - 'app.js'
       - 'index.html'
-      - 'content-v1.js'
-      - 'styles.css'
-      - 'icon.svg'
       - 'manifest.webmanifest'
       - 'sw.js'
-      - 'scripts/validate.mjs'
-      - 'scripts/validate-content.mjs'
-      - 'scripts/qa-v32.mjs'
-      - 'scripts/audit-v32.mjs'
+      - 'icon.svg'
+      - 'QA-V6.3.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
       - '.github/workflows/audit-v32.yml'
@@ -24,7 +16,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: v5-validate-${{ github.ref }}
+  group: v63-validate-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -33,10 +25,24 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Validate static game
-        run: node scripts/validate.mjs
-      - name: Validate V1 content pack
-        run: node scripts/validate-content.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate standalone V6.3
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const html=fs.readFileSync('index.html','utf8');
+          const m=html.match(/<script>([\s\S]*?)<\/script>/);
+          if(!m) throw new Error('inline game script missing');
+          new Function(m[1]);
+          if(!html.includes('ONE PIECE LIFE — V6.3')) throw new Error('V6.3 title missing');
+          if(!html.includes('const SAVE_VERSION = 630;')) throw new Error('Save migration 630 missing');
+          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
+          if(!String(manifest.description||'').includes('V6.3')) throw new Error('manifest not V6.3');
+          const sw=fs.readFileSync('sw.js','utf8');
+          if(!sw.includes('v6-3-0')) throw new Error('service worker cache not V6.3');
+          console.log('V6.3 static validation OK');
+          NODE
