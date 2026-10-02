@@ -178,6 +178,9 @@ const missions=q.canonMissions(crowded);
 assert(missions.some(m=>m.sourceType==='canon_crew'&&m.targetCanonCrewId),'Canonical crew did not produce mission');
 assert(missions.some(m=>String(m.enemyName||'').includes('Équipage')),'Canonical mission lost named target');
 
+// Global UI regression guard: no querySelector result may be treated as a list.
+assert(!/(?<!\$)\$\([^\n]*?\)\.forEach/g.test(html),'A mono-element $() selector is still followed by forEach somewhere in the live UI');
+
 // Ensure old systems remain visible in V7.0.
 for(const marker of [
   'function v69CareerTier',
