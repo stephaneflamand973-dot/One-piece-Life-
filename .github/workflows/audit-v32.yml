@@ -1,4 +1,4 @@
-name: V5.3 Long Audit
+name: V5.4 Long Audit
 
 on:
   workflow_dispatch:
@@ -22,7 +22,7 @@ on:
       - '.github/workflows/pages.yml'
 
 concurrency:
-  group: v53-long-audit-${{ github.ref }}
+  group: v54-long-audit-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -38,5 +38,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run V5.3 Living Crews audit
+      - name: Run V5.4 Crew Bonds audit
         run: node scripts/audit-v32.mjs
