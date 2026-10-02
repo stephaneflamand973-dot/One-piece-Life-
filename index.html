@@ -2933,7 +2933,7 @@ function renderAbilities(){
   const signature72=cv72?.signature?' • Signature : '+esc(cv72.signature.name)+' ('+cv72.signature.uses+' usages)':'';
   const doctrineButtons72=cd72?Object.entries(cd72.doctrines).map(([id,d])=>'<button class="mini-action '+(cv72.doctrine===id?'primary':'')+'" data-v72-doctrine="'+id+'">'+esc(d.label)+'</button>').join(''):'';
   $('#combatStyleCard').innerHTML='<strong>'+esc(p.combatStyle.primary)+'</strong><p>Tendance : '+esc(p.combatStyle.tendency)+' • Expérience '+Math.floor(p.combatStyle.experience)+' / '+styleCap+' • ×'+styleGrowth.toFixed(2)+' • '+p.wins+' V / '+p.losses+' D</p><p><b>V7.2 • Doctrine '+esc(doctrine72)+'</b>'+signature72+'</p><div class="relation-actions">'+doctrineButtons72+'</div><div class="chip-list" style="margin-top:8px">'+tech72.map(t=>'<span class="chip">'+esc(t.name)+'</span>').join('')+'</div>';
-  $('[data-v72-doctrine]').forEach(b=>b.onclick=()=>v72SetDoctrine(b.dataset.v72Doctrine));
+  document.querySelectorAll('[data-v72-doctrine]').forEach(b=>b.onclick=()=>v72SetDoctrine(b.dataset.v72Doctrine));
   v62RenderDomainInline('trainingAnnualActions','training')
 }
 function renderRelations(){
