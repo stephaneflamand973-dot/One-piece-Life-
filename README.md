@@ -1,3 +1,26 @@
+# ONE PIECE LIFE — V7.3 Career & Organization 3.0
+
+La V7.3 transforme la carrière en système d’organisation vivant. L’XP et les compétences restent importantes, mais ne suffisent plus à elles seules pour grimper dans une hiérarchie.
+
+## Career & Organization 3.0
+
+- **18 branches professionnelles** réparties entre Marine, Pirates, Chasseurs de primes, Révolutionnaires, Gouvernement et civils.
+- Chaque branche privilégie ses propres compétences, attributs et types de missions.
+- Les missions alimentent désormais un **dossier interne** : standing, confiance, fiabilité, influence, distinctions et sanctions.
+- Les promotions combinent XP, compétences, standing, confiance et, aux hauts rangs, influence interne.
+- Même un dossier éligible possède une **probabilité dynamique d’approbation** : une promotion importante peut être différée.
+- 5 niveaux de responsabilité : membre opérationnel, spécialiste, chef d’équipe, responsable d’unité et cadre stratégique.
+- Les responsabilités donnent de vrais bonus organisationnels en mission.
+- 4 actions internes annuelles permettent de privilégier terrain, réseau, fiabilité ou ambition.
+- Changer de branche coûte du standing et de la confiance et est limité à une fois par an.
+- Des événements de **politique interne** peuvent produire soutien, rivalité, contrôle ou opportunité.
+- L’autorité V6.9 utilise désormais aussi standing, confiance et influence V7.3.
+- Migration V7.2 → V7.3 automatique.
+- Save version : **730**.
+- Cache PWA : **one-piece-life-v7-3-0**.
+
+---
+
 # ONE PIECE LIFE — V7.2 Combat & Powers 3.0
 
 La V7.2 transforme le combat en système de techniques et de matchups sans casser la résolution stable héritée de V6.5.
