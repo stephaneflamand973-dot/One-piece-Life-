@@ -1,28 +1,26 @@
-name: V6.3 Long Audit
-
+name: V6.4 Long Audit
 on:
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Audit V6.3 release markers
+      - name: Audit V6.4 release markers
         run: |
           node <<'NODE'
           const fs=require('fs');
           const s=fs.readFileSync('index.html','utf8');
           const checks={
             annual:s.includes('AVANCER D’UN AN'),
-            fatigue:s.includes('function v63FatigueProfile'),
-            prestige:s.includes('function v63PrestigeCheck'),
-            mastery:s.includes('function v63MasteryEfficiency'),
-            economy:s.includes('function v63EconomyAction'),
-            missionSafety:s.includes('missionRetreatHealth')
+            risk:s.includes('function v64RiskProfile'),
+            adventure:s.includes('function v64QueueAdventureDecision'),
+            localDiscovery:s.includes('function v64AdventureMonthTick'),
+            rarity:s.includes('function v64RarityMultiplier'),
+            fruitCooldown:s.includes('fruitCooldownUntil'),
+            hookExpiry:!s.includes("h.expiresAt<v58MonthIndex()+12")
           };
           console.log(checks);
           if(Object.values(checks).some(v=>!v)) process.exit(1);
