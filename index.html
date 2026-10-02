@@ -382,6 +382,16 @@ function v67MissionRelationSupport(){
   if(!allies.length)return 0;
   return +clamp(allies.sort((a,b)=>v67RelationStrength(b)-v67RelationStrength(a)).slice(0,2).reduce((sum,r)=>sum+(v67RelationStrength(r)-50)/22,0),0,4).toFixed(1)
 }
+function v67RivalMultiplier(kind,key){
+  v67Ensure();
+  const martial=kind==='skills'&&['Combat','Sabre','Tir'].includes(key);
+  const reactive=kind==='stats'&&['Réflexes','Agilité','Volonté'].includes(key);
+  if(!martial&&!reactive)return 1;
+  const rivals=game.relations.filter(r=>r.status==='active'&&r.rivalry>=60&&r.respect>=50);
+  if(!rivals.length)return 1;
+  const best=Math.max(...rivals.map(r=>Math.min(r.rivalry,r.respect)));
+  return +(1+clamp((best-50)/320,0,.12)).toFixed(3)
+}
 function v67CrewMetrics(){
   v67Ensure();
   const c=game.player.crew;if(!c)return {cohesion:0,tension:0,active:0,avgLoyalty:0};
@@ -1304,7 +1314,7 @@ function trainProgress(months){
     const k=pick(choices,'progress'),cur=p.stats[k],diminish=clamp(1-cur/115,.14,1),ageMod=age<12?.75:age<20?1.12:age<35?1:.75;
     let gain=(.45+random('progress')*1.05)*(months/3+.25)*diff.gain*diminish*ageMod*talentForStat(k);
     if(activity==='intense')gain*=1.2;if(game.activeMission)gain*=1.08;
-    gain*=v6SpecMultiplier('stats',k)*v61AnnualMultiplier('training')*v66GrowthMultiplier('stats',k)*v67MentorMultiplier('stats',k);
+    gain*=v6SpecMultiplier('stats',k)*v61AnnualMultiplier('training')*v66GrowthMultiplier('stats',k)*v67MentorMultiplier('stats',k)*v67RivalMultiplier('stats',k);
     gain=Math.max(.05,gain);
     const ceiling=Math.min(p.caps[k].soft,v66Cap('stats',k)),next=clamp(cur+gain,0,ceiling);
     p.stats[k]=+next.toFixed(2);
@@ -1313,7 +1323,7 @@ function trainProgress(months){
   for(const k of [...new Set(skillFocus)]){
     const cur=p.skills[k]||0,diminish=clamp(1-cur/120,.18,1)*v63MasteryEfficiency(cur,'skill');
     let gain=(.38+random('skill')*.95)*(months/2+.2)*diff.gain*diminish*skillTalent(k);
-    gain*=v6SpecMultiplier('skills',k)*v61AnnualMultiplier('training')*v67MentorMultiplier('skills',k);
+    gain*=v6SpecMultiplier('skills',k)*v61AnnualMultiplier('training')*v67MentorMultiplier('skills',k)*v67RivalMultiplier('skills',k);
     const next=v66ProgressValue('skills',k,cur,gain);
     p.skills[k]=next;
     if(Math.floor(next)>Math.floor(cur))changes.push(k+' '+Math.floor(cur)+' → '+Math.floor(next))
