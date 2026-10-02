@@ -226,8 +226,8 @@ function initLivingWorld(g,w){
 function migrateWorldFoundations(g,w){
  w.worldState=w.worldState||{version:1,seq:0,actorHistory:[],territoryHistory:[],monthlyChanges:[],actorGoals:{}};
  var ws=w.worldState;ws.version=1;ws.seq=ws.seq||0;ws.actorHistory=Array.isArray(ws.actorHistory)?ws.actorHistory.slice(0,60):[];ws.territoryHistory=Array.isArray(ws.territoryHistory)?ws.territoryHistory.slice(0,55):[];ws.monthlyChanges=Array.isArray(ws.monthlyChanges)?ws.monthlyChanges.slice(0,24):[];ws.actorGoals=ws.actorGoals||{};ws.goalHistory=Array.isArray(ws.goalHistory)?ws.goalHistory.slice(0,40):[];ws.canonCausality=Array.isArray(ws.canonCausality)?ws.canonCausality.slice(0,80):[];ws.canonBranches=Array.isArray(ws.canonBranches)?ws.canonBranches.filter(function(x){return x&&x.status==='active'}).slice(0,50):[];ws.canonBranchHistory=Array.isArray(ws.canonBranchHistory)?ws.canonBranchHistory.slice(0,60):[];ws.playerCanonImpact=Array.isArray(ws.playerCanonImpact)?ws.playerCanonImpact.slice(0,60):[];ws.worldSagas=Array.isArray(ws.worldSagas)?ws.worldSagas.filter(function(x){return x&&x.status==='active'}).slice(0,32):[];ws.sagaCooldowns=ws.sagaCooldowns||{};ws.sagaHistory=Array.isArray(ws.sagaHistory)?ws.sagaHistory.slice(0,45):[];ws.crewGoals=ws.crewGoals||{};var liveCrewGoals={};(w.crews||[]).forEach(function(c){if(ws.crewGoals[c.id])liveCrewGoals[c.id]=ws.crewGoals[c.id]});ws.crewGoals=liveCrewGoals;ws.factionGoals=ws.factionGoals||{};ws.geopoliticalHistory=Array.isArray(ws.geopoliticalHistory)?ws.geopoliticalHistory.slice(0,60):[];ws.crewHistory=Array.isArray(ws.crewHistory)?ws.crewHistory.slice(0,40):[];ws.crewArchive=Array.isArray(ws.crewArchive)?ws.crewArchive.slice(0,6):[];(w.crews||[]).forEach(function(c){normalizeWorldCrew(c,g)});
- (w.actors||[]).forEach(function(a){var goal=ws.actorGoals[a.name]||{};goal.primary=goal.primary||a.goal||'Tracer sa route';goal.progress=cl(goal.progress||0,0,100);goal.stage=goal.stage||'pursuing';goal.lastAction=goal.lastAction||'';goal.lastOutcome=goal.lastOutcome||'';goal.updatedAt=goal.updatedAt||0;ws.actorGoals[a.name]=goal;try{delete a.worldGoal;Object.defineProperty(a,'worldGoal',{value:goal,writable:true,configurable:true,enumerable:false})}catch(x){a.worldGoal=goal}});
- return w
+ (w.actors||[]).forEach(function(a){var goal=ws.actorGoals[a.name]||{};goal.primary=goal.primary||a.goal||'Tracer sa route';goal.progress=cl(goal.progress||0,0,100);goal.stage=goal.stage||'pursuing';delete goal.lastAction;delete goal.lastOutcome;goal.updatedAt=goal.updatedAt||0;ws.actorGoals[a.name]=goal;try{delete a.worldGoal;Object.defineProperty(a,'worldGoal',{value:goal,writable:true,configurable:true,enumerable:false})}catch(x){a.worldGoal=goal}});
+ Object.keys(w.territories||{}).forEach(function(n){var t=w.territories[n],key='territory:'+n,snap={controller:t.controller,contested:!!t.contested,stability:Math.round(t.stability||0),influence:Math.round(t.influence||0)};try{delete ws[key];Object.defineProperty(ws,key,{value:snap,writable:true,configurable:true,enumerable:false})}catch(x){ws[key]=snap}});installWorldSerializer(w);return w
 }
 function nextActorWorldGoal(a,goal){
  var fp=actorRegionalFootprint(a),power=actorPower(a),pool=[];
@@ -245,7 +245,7 @@ function completeActorWorldGoal(a,goal){
 }
 function recordWorldActorAction(a,intent,outcome,impact){
  var ws=game.world.worldState;if(!ws)return;var goal=ws.actorGoals[a.name]||(ws.actorGoals[a.name]={primary:a.goal||'Tracer sa route',progress:0,stage:'pursuing'}),gain=Math.max(0,impact==null?2:impact);
- goal.progress=cl((goal.progress||0)+gain,0,100);goal.stage=goal.progress>=100?'established':goal.progress>=65?'advancing':'pursuing';if(goal.progress>=100)completeActorWorldGoal(a,goal);goal.lastAction=intent||'';goal.lastOutcome=outcome||'';goal.updatedAt=game.world.year*12+game.world.month;a.worldGoal=goal;
+ goal.progress=cl((goal.progress||0)+gain,0,100);goal.stage=goal.progress>=100?'established':goal.progress>=65?'advancing':'pursuing';if(goal.progress>=100)completeActorWorldGoal(a,goal);goal.updatedAt=game.world.year*12+game.world.month;a.worldGoal=goal;
  if(a.faction&&a.faction!=='Indépendant')updateCollectiveGoal(factionWorldGoal(a.faction),gain*.05);
  ws.actorHistory.unshift({seq:++ws.seq,year:game.world.year,month:game.world.month,actor:a.name,faction:a.faction,region:a.region,intent:intent||'',outcome:outcome||'',impact:gain,goalProgress:Math.round(goal.progress)});ws.actorHistory=ws.actorHistory.slice(0,60)
 }
@@ -1751,7 +1751,7 @@ function migrate(g){
  if(p.faction==='Pirates'&&p.organization&&p.organization.pirateOrigin==='joined'&&['Capitaine','Capitaine renommé'].indexOf(p.rank)>=0){p.rank='Bras droit';if(p.careerRecords.Pirates)p.careerRecords.Pirates.rank='Bras droit';p.organization.authority='officer';p.organization.playerRole='Bras droit'}
  w.fruits=w.fruits||['Mera Mera no Mi','Ope Ope no Mi','Hie Hie no Mi','Moku Moku no Mi'];w.fruitRegistry=w.fruitRegistry||{};
  w.fruits.forEach(function(n){if(!w.fruitRegistry[n])w.fruitRegistry[n]={status:p.fruit===n?'consumed':'available',holder:p.fruit===n?p.name:null}});
- w=initWorldEconomy(g,initGrandStrategy(initLivingWorld(g,w)));migrateWorldMissionSource(g,w);if(g.mission){g.mission.importance=missionImportance(g.mission,w);g.mission.stakes=missionStakes(g.mission,w);g.mission.signature=g.mission.importance>=58}var dk=String(g.seed),ix=migrateInfluence(p);ix.domains=Object.keys(w.territories).filter(function(n){var pc=w.territories[n].playerControl;return pc&&pc.ownerKey===dk});ix.affiliates=w.crews.filter(function(c){return c.affiliation&&c.affiliation.ownerKey===dk&&c.status==='active'}).map(function(c){return c.id});g.player=p;g.world=w;return g
+ w=initWorldEconomy(g,initGrandStrategy(initLivingWorld(g,w)));migrateWorldMissionSource(g,w);if(g.mission){g.mission.importance=missionImportance(g.mission,w);g.mission.stakes=missionStakes(g.mission,w);g.mission.signature=g.mission.importance>=58}var dk=String(g.seed),ix=migrateInfluence(p);ix.domains=Object.keys(w.territories).filter(function(n){var pc=w.territories[n].playerControl;return pc&&pc.ownerKey===dk});ix.affiliates=w.crews.filter(function(c){return c.affiliation&&c.affiliation.ownerKey===dk&&c.status==='active'}).map(function(c){return c.id});g.player=p;g.world=installWorldSerializer(w);return g
 }
 function load(i){try{return migrate(JSON.parse(localStorage.getItem(slotKey(i))||'null'))}catch(x){return null}}
 function purgeSaveSlot(i){var existed=!!localStorage.getItem(slotKey(i))||!!localStorage.getItem(slotMetaKey(i));localStorage.removeItem(slotKey(i));localStorage.removeItem(slotMetaKey(i));return existed}
@@ -2662,13 +2662,71 @@ var TRADE_BIAS={
 function goodById(id){return TRADE_GOODS.find(function(g){return g.id===id})||null}
 function defaultTrade(){return{cargo:[],profit:0,volume:0,trades:0,smugglingRuns:0,seizures:0,marketActions:0,bestProfit:0,lastPort:null}}
 function migrateTrade(p){p.trade=p.trade||defaultTrade();var t=p.trade;t.cargo=t.cargo||[];t.cargo=t.cargo.filter(function(c){return goodById(c.good)&&c.qty>0}).map(function(c){c.qty=Math.max(0,c.qty||0);c.avgCost=Math.max(0,c.avgCost||0);return c});t.profit=t.profit||0;t.volume=t.volume||0;t.trades=t.trades||0;t.smugglingRuns=t.smugglingRuns||0;t.seizures=t.seizures||0;t.marketActions=t.marketActions||0;t.bestProfit=t.bestProfit||0;t.lastPort=t.lastPort||null;return t}
+function compactSaveNumber(v){v=Number(v)||0;return Math.round(v*10)/10}
+function encodeMarketData(w){
+ var names=Object.keys(PL),goods=TRADE_GOODS;
+ return names.map(function(name){
+  var m=w.markets&&w.markets[name];if(!m)return null;var row=[];
+  goods.forEach(function(g){var x=m.goods&&m.goods[g.id]||{};row.push(compactSaveNumber(x.stock),compactSaveNumber(x.demand))});
+  row.push(compactSaveNumber(m.tradeActivity||0));
+  if(m.shockState)row.push(m.shockState.good||'',m.shockState.type||'',Math.max(0,Math.round(m.shockState.months||0)));
+  return row
+ })
+}
+function decodeMarketData(g,w){
+ if(w.markets||!Array.isArray(w.marketData))return w;
+ var names=Object.keys(PL),goods=TRADE_GOODS;w.markets={};
+ names.forEach(function(name,i){
+  var row=w.marketData[i];if(!Array.isArray(row))return;var base=initialMarket(g,name),m={goods:{},tradeActivity:Number(row[goods.length*2])||0,blockade:false,shockState:null};
+  goods.forEach(function(good,j){var fallback=base.goods[good.id],stock=row[j*2],demand=row[j*2+1];m.goods[good.id]={stock:stock==null?fallback.stock:Number(stock),demand:demand==null?fallback.demand:Number(demand)}});
+  if(row.length>goods.length*2+1&&row[goods.length*2+1])m.shockState={good:row[goods.length*2+1],type:row[goods.length*2+2]||'shortage',months:Math.max(0,Number(row[goods.length*2+3])||0)};
+  w.markets[name]=m
+ });
+ delete w.marketData;return w
+}
+function compactGoalForStorage(g){
+ if(!g)return g;var out={primary:g.primary||'',progress:compactSaveNumber(g.progress||0),stage:g.stage||'pursuing',completed:g.completed||0};
+ if(g.lastCompleted)out.lastCompleted=g.lastCompleted;if(g.updatedAt)out.updatedAt=g.updatedAt;return out
+}
+function compactWorldStateForStorage(ws){
+ if(!ws)return ws;var out={};
+ Object.keys(ws).forEach(function(k){if(k.indexOf('territory:')===0||k==='toJSON')return;out[k]=ws[k]});
+ out.actorHistory=(ws.actorHistory||[]).slice(0,30).map(function(x,i){return i<12?x:{seq:x.seq,actor:x.actor,outcome:x.outcome||'',impact:x.impact||0}});
+ out.territoryHistory=(ws.territoryHistory||[]).slice(0,30).map(function(x,i){return i<12?x:{seq:x.seq,name:x.name,from:x.from,to:x.to,contested:!!x.contested,stability:x.stability}});
+ out.crewHistory=(ws.crewHistory||[]).slice(0,24).map(function(x,i){return i<10?x:{seq:x.seq,name:x.name,outcome:x.outcome||'',impact:x.impact||0}});
+ out.monthlyChanges=(ws.monthlyChanges||[]).slice(0,12);
+ out.goalHistory=(ws.goalHistory||[]).slice(0,24);
+ out.geopoliticalHistory=(ws.geopoliticalHistory||[]).slice(0,30);
+ out.actorGoals={};Object.keys(ws.actorGoals||{}).forEach(function(k){out.actorGoals[k]=compactGoalForStorage(ws.actorGoals[k])});
+ out.crewGoals={};Object.keys(ws.crewGoals||{}).forEach(function(k){out.crewGoals[k]=compactGoalForStorage(ws.crewGoals[k])});
+ out.factionGoals={};Object.keys(ws.factionGoals||{}).forEach(function(k){out.factionGoals[k]=compactGoalForStorage(ws.factionGoals[k])});
+ return out
+}
+function compactActorForStorage(a){
+ var out=Object.assign({},a);['faction','startRegion','base','peak','growth','importance','goal','birthYear','activeFrom','worldGoal'].forEach(function(k){delete out[k]});return out
+}
+function compactWorldForStorage(w){
+ var out={};Object.keys(w||{}).forEach(function(k){
+  if(k==='toJSON'||k==='marketData')return;
+  if(k==='markets'){out.marketData=encodeMarketData(w);return}
+  if(k==='worldState'){out.worldState=compactWorldStateForStorage(w.worldState);return}
+  if(k==='actors'){out.actors=(w.actors||[]).map(compactActorForStorage);return}
+  out[k]=w[k]
+ });
+ if(!out.marketData&&w&&w.markets)out.marketData=encodeMarketData(w);return out
+}
+function installWorldSerializer(w){
+ if(!w)return w;try{Object.defineProperty(w,'toJSON',{value:function(){return compactWorldForStorage(this)},writable:true,configurable:true,enumerable:false})}catch(x){}
+ if(w.worldState)try{Object.defineProperty(w.worldState,'toJSON',{value:function(){return compactWorldStateForStorage(this)},writable:true,configurable:true,enumerable:false})}catch(x){}
+ return w
+}
 function initialMarket(g,name){
  var region=infStatic(name).region,bias=TRADE_BIAS[region]||{},goods={};
  TRADE_GOODS.forEach(function(x,i){var b=bias[x.id]||1,rare=x.id==='seastone'||x.id==='dials',stock=(rare?9:34)+(1/b)*22+det(g,'market:stock:'+name+':'+x.id)*32,demand=32+b*18+det(g,'market:demand:'+name+':'+x.id)*28;if(name==='Skypiea'&&x.id==='dials')stock+=55;if(name==='Wano'&&x.id==='seastone')stock+=50;goods[x.id]={stock:Math.round(cl(stock,2,120)),demand:Math.round(cl(demand,12,100))}});
  return{goods:goods,tradeActivity:0,blockade:false,shockState:null}
 }
 function initWorldEconomy(g,w){
- w.markets=w.markets||{};Object.keys(PL).forEach(function(n){if(!w.markets[n])w.markets[n]=initialMarket(g,n);else{var m=w.markets[n];m.goods=m.goods||{};TRADE_GOODS.forEach(function(x){if(!m.goods[x.id])m.goods[x.id]=initialMarket(g,n).goods[x.id];else{delete m.goods[x.id].activity;delete m.goods[x.id].lastPrice}});delete m.shock;delete m.lastShockMonth;if(m.tradeActivity==null)m.tradeActivity=0;if(m.blockade==null)m.blockade=false;if(m.shockState===undefined)m.shockState=null}});
+ decodeMarketData(g,w);w.markets=w.markets||{};Object.keys(PL).forEach(function(n){if(!w.markets[n])w.markets[n]=initialMarket(g,n);else{var m=w.markets[n];m.goods=m.goods||{};TRADE_GOODS.forEach(function(x){if(!m.goods[x.id])m.goods[x.id]=initialMarket(g,n).goods[x.id];else{delete m.goods[x.id].activity;delete m.goods[x.id].lastPrice}});delete m.shock;delete m.lastShockMonth;if(m.tradeActivity==null)m.tradeActivity=0;if(m.blockade==null)m.blockade=false;if(m.shockState===undefined)m.shockState=null}});
  w.economy=w.economy||{priceIndex:100,tradeVolume:0,monthlyVolume:0,shortages:0,shocks:[],month:0};w.economy.shocks=Array.isArray(w.economy.shocks)?w.economy.shocks.slice(0,24):[];return w
 }
 function marketBlockade(name){
