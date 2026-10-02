@@ -1,4 +1,4 @@
-name: Validate V6.7
+name: Validate V6.7.1
 on:
   push:
     branches: [main]
@@ -11,14 +11,15 @@ on:
       - 'scripts/qa-v65.mjs'
       - 'scripts/qa-v66.mjs'
       - 'scripts/qa-v67.mjs'
-      - 'QA-V6.7.md'
+      - 'scripts/qa-v671.mjs'
+      - 'QA-V6.7.1.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
       - '.github/workflows/audit-v32.yml'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 concurrency:
-  group: v67-validate-${{ github.ref }}
+  group: v671-validate-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -30,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate standalone V6.7
+      - name: Validate standalone V6.7.1
         run: |
           node <<'NODE'
           const fs=require('fs');
@@ -38,17 +39,25 @@ jobs:
           const m=html.match(/<script>([\s\S]*?)<\/script>/);
           if(!m) throw new Error('inline game script missing');
           new Function(m[1]);
-          if(!html.includes('ONE PIECE LIFE — V6.7')) throw new Error('V6.7 title missing');
-          if(!html.includes('const SAVE_VERSION = 670;')) throw new Error('Save migration 670 missing');
-          if(!html.includes("const GAME_VERSION = '6.7.0';")) throw new Error('Game version 6.7.0 missing');
-          for(const x of ['function v67Ensure','function v67CrewTick','function v67CrewMetrics','function v67SetMentor','function v67ResolveCrewConflict']) if(!html.includes(x)) throw new Error('missing '+x);
-          for(const x of ["v67MentorMultiplier('skills',k)","v67RivalMultiplier('skills',k)","v67CrewTick(months)","m.status='left'","id:'v67_mentor_offer_'"]) if(!html.includes(x)) throw new Error('missing '+x);
-          if(!html.includes('Cohésion ')) throw new Error('crew cohesion UI missing');
+          if(!html.includes('ONE PIECE LIFE — V6.7.1')) throw new Error('V6.7.1 title missing');
+          if(!html.includes('const SAVE_VERSION = 671;')) throw new Error('Save migration 671 missing');
+          if(!html.includes("const GAME_VERSION = '6.7.1';")) throw new Error('Game version 6.7.1 missing');
+          if(!html.includes('function v671Gain')) throw new Error('unified progression gateway missing');
+          if(!html.includes("$$('[data-mission]').forEach")) throw new Error('mission selector regression');
+          if(!html.includes("$$('[data-rel-action]').forEach")) throw new Error('relation selector regression');
+          if(html.includes("c.members=c.members.filter(x=>x!==m)")) throw new Error('legacy crew departure authority survived');
+          for(const x of [
+            "p.stats.Discipline=clamp(p.stats.Discipline+.35",
+            "p.skills.Discrétion=clamp((p.skills.Discrétion||0)+randInt(1,3,'v59HookResolve')",
+            "p.skills.Discrétion=clamp(p.skills.Discrétion+months*.08*careerMult",
+            "p.stats.Discipline=clamp(p.stats.Discipline+months*.05*careerMult",
+            "p.stats[key]=clamp(old+randInt(1,4,'life')"
+          ]) if(html.includes(x)) throw new Error('progression bypass survived: '+x);
           const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-          if(!String(manifest.description||'').includes('V6.7')) throw new Error('manifest not V6.7');
+          if(!String(manifest.description||'').includes('V6.7.1')) throw new Error('manifest not V6.7.1');
           const sw=fs.readFileSync('sw.js','utf8');
-          if(!sw.includes('v6-7-0')) throw new Error('service worker cache not V6.7.0');
-          console.log('V6.7 static validation OK');
+          if(!sw.includes('v6-7-1')) throw new Error('service worker cache not V6.7.1');
+          console.log('V6.7.1 static validation OK');
           NODE
       - name: Validate V6.4 regression behavior
         run: node scripts/qa-v64.mjs
@@ -56,5 +65,7 @@ jobs:
         run: node scripts/qa-v65.mjs
       - name: Validate V6.6 regression behavior
         run: node scripts/qa-v66.mjs
-      - name: Validate live V6.7 behavior
+      - name: Validate V6.7 regression behavior
         run: node scripts/qa-v67.mjs
+      - name: Validate live V6.7.1 behavior
+        run: node scripts/qa-v671.mjs
