@@ -76,6 +76,7 @@ if(!app.includes('function upgradeOrganizationShip') || !app.includes('function 
 if(!app.includes('function joinedCrewStanding') || !app.includes('function syncJoinedCrewRoster') || !app.includes('function appointPirateFirstMate')) throw new Error('V5.4 crew bonds/command engine missing');
 if(!app.includes('function crewDynamicsState') || !app.includes('function crewChemistry') || !app.includes('function crewDynamicsTick') || !app.includes('function resolveCrewFriction')) throw new Error('V5.5 crew chemistry/internal dynamics engine missing');
 if(!app.includes('function apexProgressScore') || !app.includes('function attemptApexBreakthrough') || !app.includes('function missionAccessIndex') || !app.includes('function pirateBountyTarget')) throw new Error('V5.5 global progression/Apex engine missing');
+if(!app.includes('function combatFatalityMitigation') || !app.includes('function justiceEvasionFactor') || !app.includes('function pursuitEvasionChance')) throw new Error('V5.5 skill-sensitive survival engine missing');
 if(!html.includes('id="organizationMembers"') || !html.includes('id="organizationResources"') || !html.includes('id="organizationActions"')) throw new Error('V1.6 organization UI missing');
 
 if(!app.includes('function justiceTick') || !app.includes('function pursuitEncounter') || !app.includes('function arrestPlayer')) throw new Error('V1.6 pursuit/justice engine missing');
