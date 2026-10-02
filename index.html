@@ -576,6 +576,7 @@ function v67CrewTick(months){
   if(leaving.length&&chance(clamp(.012*months*(1+metrics.tension/70),.005,.10),'v67Departure')){
     const m=pick(leaving,'v67Departure');m.status='left';c.departures++;game.player.socialV67.totalDepartures++;
     const r=v67CrewRelation(m);r.status='distant';r.role='Ancien équipier • '+m.role;
+    v74RecordMemory(r,{id:'crew_departure_'+year,type:'crew',label:'Départ de l’équipage',valence:-8,impact:5,tags:['rupture','crew']});
     addHistory('Départ de l’équipage',m.name+' quitte '+c.name+'. Son ambition « '+m.ambition.toLowerCase()+' » et une loyauté trop faible ont fini par peser plus lourd que le pavillon.','major')
   }
   if(metrics.tension>=62&&game.player.socialV67.lastCrewDecisionYear!==year&&!game.pendingDecision&&chance(.045*months,'v67CrewConflict')){
@@ -595,13 +596,14 @@ function v67SetMentor(id){
   v67Ensure();const r=game.relations.find(x=>x.id===id);if(!v67MentorCandidate(r))return false;
   game.player.socialV67.mentorId=r.id;game.player.mentor={id:r.id,name:r.name};
   r.role=String(r.role).includes('Mentor')?r.role:'Mentor • '+r.role;
+  v74RecordMemory(r,{id:'mentor_start_'+Math.floor(game.ageMonths/12),type:'mentor',label:'Début du mentorat',valence:7,impact:4,tags:['mentor','growth']});
   r.trust=clamp(r.trust+5,0,100);r.respect=clamp(r.respect+4,0,100);
   addHistory('Mentorat',r.name+' accepte de devenir ton mentor. Sa valeur dépendra désormais de la qualité réelle de votre relation.','major');
   return true
 }
 function v67ResolveCrewConflict(memberId,choice){
   v67Ensure();const c=game.player.crew,m=c?.members.find(x=>x.id===memberId&&x.status==='active');if(!m)return false;
-  const command=Number(game.player.skills?.Commandement)||0,rel=v67CrewRelation(m),strength=v67RelationStrength(rel);
+  const command=Number(game.player.skills?.Commandement)||0,rel=v67CrewRelation(m),strength=v67RelationStrength(rel),beforeTrust=Number(rel.trust)||0,beforeRivalry=Number(rel.rivalry)||0;
   if(choice==='mediate'){
     const ok=chance(clamp(.38+command/180+strength/260,.35,.88),'v67CrewDecision');
     if(ok){m.loyalty=clamp(m.loyalty+12,0,100);m.rivalry=clamp(m.rivalry-16,0,100);c.morale=clamp(c.morale+6,0,100);rel.trust=clamp(rel.trust+8,0,100);addHistory('Médiation réussie','Tu désamorces le conflit avec '+m.name+' sans écraser le problème.','major')}
@@ -614,6 +616,7 @@ function v67ResolveCrewConflict(memberId,choice){
     if(ok){m.rivalry=clamp(m.rivalry-7,0,100);c.morale=clamp(c.morale+2,0,100);addHistory('Discipline imposée','Tu reprends le contrôle de la situation avec '+m.name+'.','normal')}
     else{m.loyalty=clamp(m.loyalty-16,0,100);m.rivalry=clamp(m.rivalry+14,0,100);c.morale=clamp(c.morale-8,0,100);addHistory('Rupture interne','La tentative de discipline contre '+m.name+' aggrave fortement la fracture.','danger')}
   }
+  const relationalDelta=(Number(rel.trust)||0)-beforeTrust-((Number(rel.rivalry)||0)-beforeRivalry);v74RecordMemory(rel,{id:'crew_conflict_'+Math.floor(game.ageMonths/12),type:'crew',label:'Conflit d’équipage : '+choice,valence:clamp(relationalDelta,-8,8),impact:4,tags:['crew','conflict']});
   v67CrewMetrics();return true
 }
 
@@ -2779,8 +2782,9 @@ function resolveDecision(action){
   if(parts[0]==='v67mentor'){
     const id=parts.slice(2).join(':'),r=game.relations.find(x=>x.id===id);
     if(parts[1]==='accept')v67SetMentor(id);
-    else if(r){game.player.socialV67.mentorRefused[id]=true;addHistory('Mentorat refusé','Tu refuses pour l’instant la proposition de '+r.name+'.','normal')}
+    else if(r){game.player.socialV67.mentorRefused[id]=true;v74RecordMemory(r,{id:'mentor_decline_'+Math.floor(game.ageMonths/12),type:'mentor',label:'Mentorat refusé',valence:-1,impact:2,tags:['mentor']});addHistory('Mentorat refusé','Tu refuses pour l’instant la proposition de '+r.name+'.','normal')}
   }
+  if(parts[0]==='v74arc')v74ResolveArcDecision(parts);
   game.pendingDecision=null;game.pacing.lastDecisionAge=game.ageMonths;$('#decisionModal').classList.add('hidden');saveGame();if(!game.alive){render();showDeath();return}if(game.agency?.annualTurn?.active){v61ResumeAnnualTurn();return}render();
 }
 function showDecision(){const d=game.pendingDecision;if(!d)return;$('#decisionTitle').textContent=d.title;$('#decisionText').textContent=d.text;$('#decisionChoices').innerHTML=d.choices.map(c=>`<button class="choice-btn" data-action="${esc(c.action)}"><strong>${esc(c.label)}</strong>${c.hint?`<small>${esc(c.hint)}</small>`:''}</button>`).join('');$('#decisionModal').classList.remove('hidden');$$('#decisionChoices .choice-btn').forEach(b=>b.onclick=()=>resolveDecision(b.dataset.action))}
@@ -3005,17 +3009,33 @@ function v6InteractRelation(id,action){
   }
   if(action==='time'){
     if(p.energy<4){toast('Énergie insuffisante.');return false}
-    p.energy=clamp(p.energy-4,0,100);r.affection=clamp(r.affection+randInt(3,8,'v6Relation'),0,100);r.trust=clamp(r.trust+randInt(2,6,'v6Relation'),0,100);r.familiarity=clamp(r.familiarity+5,0,100);
-    addHistory('Temps partagé','Tu consacres du temps à '+r.name+'. Votre relation devient plus concrète.','normal')
+    p.energy=clamp(p.energy-4,0,100)
   }else if(action==='train'){
     if(p.energy<8){toast('Énergie insuffisante.');return false}
-    p.energy=clamp(p.energy-8,0,100);const key=pick(['Combat','Commandement','Discrétion'],'v6Relation'),gain=v63SkillGain(key,randInt(1,3,'v6Relation'));r.respect=clamp(r.respect+randInt(3,7,'v6Relation'),0,100);r.sharedExperience=clamp((r.sharedExperience||0)+6,0,100);
+    p.energy=clamp(p.energy-8,0,100);const key=pick(['Combat','Commandement','Discrétion'],'v6Relation'),gain=v63SkillGain(key,randInt(1,3,'v6Relation'));
     addHistory('Entraînement partagé',r.name+' et toi vous entraînez ensemble.','normal',key+' +'+gain.toFixed(1))
   }else if(action==='help'){
     const cost=1500;if(p.money<cost){toast(cost.toLocaleString('fr-FR')+' B requis pour apporter une aide concrète.');return false}
-    p.money-=cost;r.trust=clamp(r.trust+randInt(5,11,'v6Relation'),0,100);r.loyalty=clamp((r.loyalty||0)+randInt(3,8,'v6Relation'),0,100);r.favors=clamp((r.favors||0)+1,0,9);
-    addHistory('Service rendu','Tu aides concrètement '+r.name+'. La dette relationnelle pourra compter plus tard.','normal','-'+cost.toLocaleString('fr-FR')+' B')
+    p.money-=cost;r.favors=clamp((r.favors||0)+1,0,9)
+  }else if(action==='confide'){
+    if(r.trust<30||r.familiarity<20){toast('Le lien n’est pas encore assez solide pour cette confidence.');return false}
+    if(p.energy<3){toast('Énergie insuffisante.');return false}
+    p.energy=clamp(p.energy-3,0,100)
+  }else if(action==='challenge'){
+    if(r.familiarity<20){toast('Vous ne vous connaissez pas encore assez pour une confrontation utile.');return false}
+    if(p.energy<4){toast('Énergie insuffisante.');return false}
+    p.energy=clamp(p.energy-4,0,100)
   }else return false;
+  const result=v74ApplyInteraction(r,action);
+  if(!result){
+    if(action==='time'){r.affection=clamp(r.affection+5,0,100);r.trust=clamp(r.trust+4,0,100);r.familiarity=clamp(r.familiarity+5,0,100)}
+    if(action==='help'){r.trust=clamp(r.trust+7,0,100);r.loyalty=clamp((r.loyalty||0)+5,0,100)}
+  }
+  if(action==='time')addHistory('Temps partagé','Tu consacres du temps à '+r.name+'. Votre compatibilité et vos souvenirs influencent désormais ce que ce moment produit.','normal');
+  if(action==='help')addHistory('Service rendu','Tu aides concrètement '+r.name+'. Ce geste devient un souvenir durable de votre relation.','normal','-1 500 B');
+  if(action==='confide')addHistory('Confidence','Tu confies quelque chose d’important à '+r.name+'. La confiance réelle détermine la façon dont ce moment vous rapproche.','major');
+  if(action==='challenge')addHistory('Confrontation franche','Tu confrontes '+r.name+' sans contourner votre désaccord. Cela peut nourrir le respect ou la tension selon votre compatibilité.','major');
+  const social=v74EnsureRelation(r);if(social)social.lastInteractionYear=year;
   game.flags.relationInteractionYear[r.id]=year;saveGame();render();return true
 }
 function v6UseInventoryFruit(name,action){
@@ -3183,17 +3203,20 @@ function renderAbilities(){
   v62RenderDomainInline('trainingAnnualActions','training')
 }
 function renderRelations(){
-  v67Ensure();const list=game.relations.filter(r=>r.status!=='left');
+  v67Ensure();v74EnsureGlobal();renderV74Network();const list=game.relations.filter(r=>r.status!=='left'),mod=v74Module();
   $('#relationsList').innerHTML=list.length?list.map(r=>{
-    const score=Math.round(v67RelationStrength(r)),mentor=game.player.socialV67?.mentorId===r.id;
-    const state=r.rivalry>70?'Rivalité majeure':mentor?'Mentor actif':r.trust>75?'Très proche':r.trust>50?'Fiable':'Relation fragile';
+    const mentor=game.player.socialV67?.mentorId===r.id,snap=v74RelationSnapshot(r),state=snap?.state||{label:'Relation',strength:v67RelationStrength(r)},social=snap?.social||{},compat=snap?.compat||{score:50,matches:[],conflicts:[]};
     const mentorBtn=!mentor&&v67MentorCandidate(r)?'<button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="mentor">Demander mentorat</button>':'';
-    const crew=r.crewMemberId?' • équipage':'';
-    return '<div class="relation-card v6"><div class="relation-avatar">'+esc((r.name||'?')[0])+'</div><div class="relation-copy"><strong>'+esc(r.name)+(mentor?' • Mentor':'')+'</strong><span>'+esc(r.role)+' • '+esc(state)+crew+'</span><span>'+esc(r.temperament)+' • ambition '+esc(String(r.ambition).toLowerCase())+' • confiance '+Math.round(r.trust)+' • rivalité '+Math.round(r.rivalry)+'</span></div><div class="relation-actions"><button class="mini-action primary" data-rel="'+esc(r.id)+'" data-rel-action="time">Passer du temps</button><button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="train">S’entraîner</button><button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="help">Aider</button>'+mentorBtn+'<span class="relation-score">'+score+'</span></div></div>'
+    const confideBtn=r.trust>=30&&r.familiarity>=20?'<button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="confide">Se confier</button>':'';
+    const challengeBtn=r.familiarity>=20?'<button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="challenge">Confronter</button>':'';
+    const crew=r.crewMemberId?' • équipage':'',memory=snap?.memory?.major;
+    const values=(social.values||[]).slice(0,4).map(v=>'<span class="chip">'+esc(v)+'</span>').join('');
+    const riskLabel=(snap?.risk||0)>=58?'fracture élevée':(snap?.risk||0)>=34?'tension réelle':'stable';
+    const persona=v74CanonPersona(r);
+    return '<div class="relation-card v6"><div class="relation-avatar">'+esc((r.name||'?')[0])+'</div><div class="relation-copy"><strong>'+esc(r.name)+(mentor?' • Mentor':'')+'</strong><span>'+esc(r.role)+' • '+esc(state.label)+crew+'</span><span>'+esc(r.temperament)+' • ambition '+esc(String(r.ambition).toLowerCase())+' • lien '+Math.round(state.strength)+'/100 • compatibilité '+Math.round(compat.score)+'/100 • '+riskLabel+'</span>'+(persona?.goal?'<small>But : '+esc(persona.goal)+'</small>':'')+(memory?'<small>Souvenir dominant : '+esc(memory.label)+'</small>':'')+(values?'<div class="chip-list compact-list">'+values+'</div>':'')+'</div><div class="relation-actions"><button class="mini-action primary" data-rel="'+esc(r.id)+'" data-rel-action="time">Passer du temps</button><button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="train">S’entraîner</button><button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="help">Aider</button>'+confideBtn+challengeBtn+mentorBtn+'<span class="relation-score">'+Math.round(state.strength)+'</span></div></div>'
   }).join(''):'<p style="color:var(--muted);font-size:13px">Aucune relation importante n’a encore émergé.</p>';
   $$('[data-rel-action]').forEach(b=>b.onclick=()=>v6InteractRelation(b.dataset.rel,b.dataset.relAction));v62RenderDomainInline('relationsAnnualActions','relations')
 }
-
 function renderWorldDepthV6(){const btn=$('#worldDepthToggle');$$('.world-deep').forEach(x=>x.classList.toggle('open',worldDepthOpen));if(btn)btn.textContent=worldDepthOpen?'Masquer les détails du monde':'Afficher les détails du monde'}
 function renderWorld(){
   const w=game.world,p=game.player,info=placeInfo(p.island),lp=localPressures(),actors=activeLocalActors();
