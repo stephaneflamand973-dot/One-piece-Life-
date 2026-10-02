@@ -83,18 +83,18 @@
     return +clamp(base,0,100).toFixed(1)
   }
 
-  function memoryWeight(memory={}){
-    const age=Math.max(0,num(memory.ageMonthsAgo));
+  function memoryWeight(memory={},currentMonth=0){
+    const explicit=Number(memory.ageMonthsAgo),age=Math.max(0,Number.isFinite(explicit)?explicit:(currentMonth?currentMonth-num(memory.month):0));
     const recency=Math.max(.35,1-age/180);
     return (num(memory.impact)||1)*recency;
   }
 
-  function memoryTone(social={}){
+  function memoryTone(social={},currentMonth=0){
     const memories=arr(social.memories);
     if(!memories.length)return {score:0,positive:0,negative:0,major:null};
     let positive=0,negative=0,major=null,best=-1;
     for(const m of memories){
-      const w=memoryWeight(m);
+      const w=memoryWeight(m,currentMonth);
       if(num(m.valence)>=0)positive+=Math.abs(num(m.valence))*w;
       else negative+=Math.abs(num(m.valence))*w;
       const importance=Math.abs(num(m.valence))*w;
@@ -105,7 +105,7 @@
 
   function compatibility(relation={},social={},ctx={}){
     const values=valueCompatibility(relation,social,ctx);
-    const memories=memoryTone(social);
+    const memories=memoryTone(social,num(ctx.month));
     let score=50+values.score+memories.score*.12;
     const ambition=String(relation.ambition||'');
     if(ambition==='Loyauté'&&ctx.relationsPlan==='invest')score+=8;
