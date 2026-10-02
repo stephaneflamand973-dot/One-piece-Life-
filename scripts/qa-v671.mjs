@@ -91,10 +91,11 @@ if(!q) throw new Error('Live V6.7.1 QA API was not exposed');
 function assert(cond,msg){if(!cond)throw new Error(msg)}
 function eq(actual,expected,msg){if(actual!==expected)throw new Error(`${msg}: got ${actual}, expected ${expected}`)}
 
-// Release identity.
-assert(html.includes('ONE PIECE LIFE — V6.7.1'),'V6.7.1 title missing');
-assert(html.includes('const SAVE_VERSION = 671;'),'Save version 671 missing');
-assert(html.includes("const GAME_VERSION = '6.7.1';"),'Game version 6.7.1 missing');
+// V6.7.1 systems must remain present in V6.7.1 or later releases.
+const saveMatch=html.match(/const SAVE_VERSION = (\d+);/);
+const versionMatch=html.match(/const GAME_VERSION = '([0-9.]+)';/);
+assert(saveMatch&&Number(saveMatch[1])>=671,'Save version regressed below 671');
+assert(versionMatch&&Number(versionMatch[1].split('.')[0])>=6,'Game version missing or invalid');
 assert(html.includes('function v671Gain'),'Unified progression gateway missing');
 
 // UI bindings must use querySelectorAll.
@@ -207,7 +208,7 @@ assert(maxBytes<600*1024,'Long-career save exceeded 600 KB');
 
 console.log('V6.7.1 LIVE QA OK',JSON.stringify({
   runtime:'index.html inline engine',
-  version:'6.7.1',
+  version:'6.7.1+ regression',
   selectors:{missions:qsaCalls.get('[data-mission]')||0,relations:qsaCalls.get('[data-rel-action]')||0},
   unifiedProgression:true,
   singleCrewDepartureAuthority:true,
