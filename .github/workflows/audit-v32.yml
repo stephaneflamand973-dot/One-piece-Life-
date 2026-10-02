@@ -1,14 +1,33 @@
 name: V6.4 Long Audit
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'app.js'
+      - 'content-v1.js'
+      - 'scripts/qa-v32.mjs'
+      - 'scripts/audit-v32.mjs'
+      - '.github/workflows/audit-v32.yml'
+
 permissions:
   contents: read
+
+concurrency:
+  group: v64-long-audit-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - name: Audit V6.4 release markers
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate V6.4 release markers
         run: |
           node <<'NODE'
           const fs=require('fs');
@@ -25,3 +44,5 @@ jobs:
           console.log(checks);
           if(Object.values(checks).some(v=>!v)) process.exit(1);
           NODE
+      - name: Run multi-decade gameplay stress audit
+        run: node scripts/audit-v32.mjs
