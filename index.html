@@ -654,7 +654,16 @@ function v63PrestigeInfo(p=game.player){v63Ensure();const ranks=CAREER_RANKS[p.f
 function v63PrestigeCheck(p=game.player){const x=v63PrestigeInfo(p);if(!x.atMax||x.max)return false;if((p.careerXP||0)>=x.threshold&&x.score>=x.scoreNeed){p.careerXP=Math.max(0,p.careerXP-x.threshold);p.careerPrestige.level=x.level+1;const title=V63_PRESTIGE_TITLES[p.careerPrestige.level];p.reputation[reputationKey(p.faction)]=clamp((p.reputation[reputationKey(p.faction)]||0)+6,0,100);p.reputation.world=clamp((p.reputation.world||0)+2,0,100);addHistory('Prestige de carrière',`Même sans nouveau grade, ton parcours franchit un palier : ${title}.`,'major',`Prestige ${x.level} → ${x.level+1}`);return true}return false}
 function v63GearDamageMult(){v63Ensure();return [1,.94,.88,.82][clamp(Math.floor(game.player.economy.gearLevel||0),0,3)]||.82}
 function v63IntelBonus(){v63Ensure();return game.ageMonths<=Number(game.player.economy.intelUntilMonth||-99)? .05:0}
-function v63EconomyCost(type){v63Ensure();const p=game.player,age=Math.floor(game.ageMonths/12),g=p.economy.gearLevel||0;if(type==='care')return 9000+age*180;if(type==='training')return 16000+age*260;if(type==='gear')return [24000,52000,105000,999999999][g]||999999999;if(type==='intel')return 14000+age*180;return 0}
+function v63EconomyCost(type){
+  v63Ensure();const p=game.player,age=Math.floor(game.ageMonths/12),g=p.economy.gearLevel||0,idx=v68LocalEconomyIndex();
+  let base=0;
+  if(type==='care')base=9000+age*180;
+  else if(type==='training')base=16000+age*260;
+  else if(type==='gear')base=[24000,52000,105000,999999999][g]||999999999;
+  else if(type==='intel')base=14000+age*180;
+  if(base>=999999999)return base;
+  return Math.max(500,Math.round(base*idx))
+}
 function v63TrainingTarget(){const p=game.player;if(p.specialization==='medicine')return'Médecine';if(p.specialization==='science')return'Science';if(p.specialization==='navigation'||p.specialization==='navigator')return'Navigation';if(['officer','network'].includes(p.specialization))return'Commandement';if(['operations','cipher','tracker'].includes(p.specialization))return'Discrétion';return p.combatStyle.primary==='Sabreur'?'Sabre':p.combatStyle.primary==='Tireur'?'Tir':'Combat'}
 function v63EconomyAction(type){v63Ensure();if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cet investissement.');return false}const p=game.player,year=Math.floor(game.ageMonths/12);if(year<12){toast('Ces investissements deviennent disponibles à partir de 12 ans.');return false}if(p.economy.lastActionYear===year){toast('Tu as déjà choisi ton investissement de l’année.');return false}const cost=v63EconomyCost(type);if(p.money<cost){toast(`${cost.toLocaleString('fr-FR')} B requis.`);return false}if(type==='gear'&&(p.economy.gearLevel||0)>=3){toast('Ton équipement est déjà au niveau maximal actuel.');return false}p.money-=cost;if(type==='care'){p.health=clamp(p.health+24,0,100);p.energy=clamp(p.energy+30,0,100);if(p.conditions?.length)p.conditions.splice(0,1);addHistory('Soins complets','Tu dépenses une partie de tes ressources pour réellement récupérer au lieu de traiter ton corps comme une ressource infinie.','normal',`-${cost.toLocaleString('fr-FR')} B • santé/énergie restaurées`)}if(type==='training'){const key=v63TrainingTarget(),g=v63SkillGain(key,4.5);addHistory('Formation spécialisée',`Tu finances une formation ciblée en ${key.toLowerCase()}. Plus ton niveau est élevé, plus chaque progrès coûte cher.`,'major',`-${cost.toLocaleString('fr-FR')} B • ${key} +${g.toFixed(1)}`)}if(type==='gear'){p.economy.gearLevel++;addHistory('Équipement renforcé',`Tu investis dans un équipement de niveau ${p.economy.gearLevel}. Il réduit désormais une partie des blessures de combat.`,'major',`-${cost.toLocaleString('fr-FR')} B • protection niveau ${p.economy.gearLevel}`)}if(type==='intel'){p.economy.intelUntilMonth=game.ageMonths+12;addHistory('Renseignements achetés','Tu finances des informations, cartes et contacts fiables pour les douze prochains mois.','normal',`-${cost.toLocaleString('fr-FR')} B • missions +5%`)}p.economy.lastActionYear=year;saveGame();render();return true}
 function v63RenderEconomy(){const box=$('#economyActions');if(!box)return;v63Ensure();const p=game.player,year=Math.floor(game.ageMonths/12),used=p.economy.lastActionYear===year,g=p.economy.gearLevel||0,items=[['care','Soins complets','Récupère santé/énergie et traite une blessure.'],['training','Formation spécialisée',`Progression ciblée : ${v63TrainingTarget()}.`],['gear',g>=3?'Équipement maximal':`Renforcer l’équipement • niveau ${g+1}`,'Réduit les dégâts subis en combat.'],['intel','Acheter des renseignements','+5% de réussite mission pendant 12 mois.']];box.innerHTML=`<div class="annual-focus-note">Berry disponibles : ${Math.floor(p.money).toLocaleString('fr-FR')} B • Protection ${g}/3 • ${used?'investissement annuel déjà utilisé':'1 investissement direct disponible cette année'}</div>`+items.map(([id,label,desc])=>{const cost=v63EconomyCost(id),blocked=used||(id==='gear'&&g>=3)||p.money<cost||year<12;return `<button class="action-card" data-v63-economy="${id}" ${blocked?'disabled':''}><strong>${esc(label)}</strong><small>${esc(desc)} • ${cost>=999999999?'MAX':cost.toLocaleString('fr-FR')+' B'}</small></button>`}).join('');$$('[data-v63-economy]').forEach(b=>b.onclick=()=>v63EconomyAction(b.dataset.v63Economy))}
@@ -1105,7 +1114,12 @@ function v68WorldTick(months){
 function reputationKey(faction){if(faction==='Marine')return'marine';if(faction==='Pirates')return'pirate';if(faction==='Gouvernement')return'government';if(faction==='Révolutionnaires')return'revolution';return'local'}
 function routeRequirement(from,to){if(to==='Reverse Mountain')return {navigation:18,power:0,minAge:15,label:'15 ans • Navigation 18'};if(from==='Reverse Mountain'&&to==='Twin Cape')return {navigation:20,power:0,minAge:15,label:'15 ans • Navigation 20'};if(to==='Fish-Man Island')return {navigation:38,power:28,minAge:16,label:'16 ans • Navigation 38 • Puissance 28'};if(to==='Punk Hazard'&&from==='Fish-Man Island')return {navigation:45,power:45,minAge:16,label:'16 ans • Navigation 45 • Puissance 45'};if(to==='Skypiea')return {navigation:30,power:22,label:'Navigation 30'};if(to==='Zou')return {navigation:50,power:50,label:'Navigation 50 • informations fiables'};return {navigation:0,power:0,minAge:12,label:'12 ans'}}
 function canUseRoute(from,to){const req=routeRequirement(from,to),p=game.player;if(game.ageMonths/12<(req.minAge||0)||p.skills.Navigation<req.navigation||overallPower()<req.power)return false;if(to==='Zou'&&!game.flags.zouLead&&p.skills.Navigation<65)return false;return true}
-function estimateTravel(from,to){const a=placeInfo(from),b=placeInfo(to),nav=game.player.skills.Navigation||0;const regionJump=a.region!==b.region?1.7:1;const danger=((a.danger+b.danger)/2)/40;const months=clamp((.45+danger*.65)*regionJump*(1-Math.min(.42,nav/220)),.18,2.4);return +months.toFixed(2)}
+function estimateTravel(from,to){
+  const a=placeInfo(from),b=placeInfo(to),nav=game.player.skills.Navigation||0,causalRisk=v68TravelRisk(from,to);
+  const regionJump=a.region!==b.region?1.7:1,danger=((a.danger+b.danger)/2+causalRisk)/40;
+  const months=clamp((.45+danger*.65)*regionJump*(1-Math.min(.42,nav/220)),.18,2.8);
+  return +months.toFixed(2)
+}
 function characterStartRegion(c){const all=['East Blue','North Blue','West Blue','South Blue','Grand Line','New World'],explicit=(c.regions||[]).filter(r=>r!=='Global');if((c.regions||[]).includes('Global'))return weighted(all.map(r=>({v:r,w:explicit.includes(r)?4:(r==='Grand Line'?2.4:r==='New World'?1.7:1)})),'world');return explicit.length?pick(explicit,'world'):'Grand Line'}
 function worldCharacterCopy(){return CANON_CHARACTERS.map(c=>({...c,regions:[...c.regions],currentRegion:characterStartRegion(c)}))}
 function activeLocalActors(){const region=game.player.region,year=game.clock.year;const canon=game.world.characters.filter(c=>c.status==='alive'&&year>=c.from&&year<=c.to&&c.currentRegion===region).sort((a,b)=>b.importance-a.importance).slice(0,6);const crews=game.world.emergentCrews.filter(c=>c.status==='active'&&c.region===region).slice(0,5);return {canon,crews}}
@@ -1417,7 +1431,14 @@ function repValue(){const r=game.player.reputation;return Math.max(r.local||0,r.
 function repLabel(){const r=repValue();return r<10?'Inconnu':r<30?'Connu localement':r<60?'Remarqué':r<100?'Célèbre':'Figure mondiale'}
 function currentDifficulty(){return DIFF[game.meta.difficulty]||DIFF.Standard}
 function overallPower(p=game.player){const s=p.stats,k=p.skills,h=p.haki;const physical=(s.Force+s.Vitesse+s.Agilité+s.Endurance+s.Résistance+s.Réflexes)/6;const technique=Math.max(k.Combat,k.Sabre,k.Tir)*.72+(p.combatStyle.experience||0)*.13;const haki=((h.Observation?.mastery||0)+(h.Armement?.mastery||0)+(h.Conquérant?.mastery||0))*.30;const fruit=p.devilFruit?Math.min(30,p.devilFruit.mastery*.34+7):0;return Math.round(physical*.55+technique*.35+haki+fruit)}
-function dangerScore(){const p=game.player,lp=localPressures();let d=p.travel?Math.max(placeInfo(p.travel.from).danger,placeInfo(p.travel.destination).danger):placeInfo(p.island).danger||REGION_DANGER[p.region]||12;d+=lp.Piraterie*.20+lp.Instabilité*.15+lp.Criminalité*.08;if(p.travel)d+=8;if(['crime','patrol','mission','covert'].includes(p.activityType))d+=12;if(game.activeMission)d+=game.activeMission.danger==='high'?22:game.activeMission.danger==='medium'?10:2;return d*currentDifficulty().danger}
+function dangerScore(){
+  const p=game.player,lp=localPressures(),rs=v68RegionState();let d=p.travel?Math.max(placeInfo(p.travel.from).danger,placeInfo(p.travel.destination).danger):placeInfo(p.island).danger||REGION_DANGER[p.region]||12;
+  d+=lp.Piraterie*.20+lp.Instabilité*.15+lp.Criminalité*.08+rs.extraDanger;
+  if(p.travel)d+=8+v68TravelRisk(p.travel.from,p.travel.destination);
+  if(['crime','patrol','mission','covert'].includes(p.activityType))d+=12;
+  if(game.activeMission)d+=game.activeMission.danger==='high'?22:game.activeMission.danger==='medium'?10:2;
+  return d*currentDifficulty().danger
+}
 function dangerLevel(){const d=dangerScore();return d<38?'Faible':d<66?'Moyen':'Élevé'}
 
 function chooseDuration(){
@@ -1578,6 +1599,7 @@ function simulateWorld(months){
   simulateEmergentCrews(months);
   simulateAutonomousWorldV58(months);
   simulateWorldHooksV59(months);
+  v68WorldTick(months);
   if(chance(.10+months*.018,'world')){
     const type=weighted([{v:'marine',w:22},{v:'trade',w:18},{v:'revolution',w:12},{v:'storm',w:15},{v:'battle',w:9},{v:'territory',w:7}],'world');
     if(type==='marine'){const rr=pick(Object.keys(w.regionalPressures),'world');w.pressures.Marine=clamp(w.pressures.Marine+2,0,100);w.regionalPressures[rr].Marine=clamp(w.regionalPressures[rr].Marine+6,0,100);addNews('La Marine renforce ses patrouilles',`Plusieurs détachements sont redéployés vers ${rr}.`)}
@@ -1871,14 +1893,32 @@ function v65MissionSetback(m,damageMult=1){
   return {energy,health}
 }
 
-function missionDifficultyPower(m){const base=m.danger==='high'?32:m.danger==='medium'?19:10;return base+(REGION_DANGER[game.player.region]||10)*.5+randInt(0,15,'mission')}
-function refreshMissionBoard(){if(game.player.career==='Aucune'){game.missionBoard=[];return}const templates=MISSION_TEMPLATES[game.player.faction]||MISSION_TEMPLATES.Civil;const pool=[...templates];game.missionBoard=[];for(let i=0;i<Math.min(3,pool.length);i++){const t=pool.splice(Math.floor(random('missionBoard')*pool.length),1)[0];const rewardBase=t[2]==='high'?28000:t[2]==='medium'?12000:5000;game.missionBoard.push({id:`m_${game.clock.year}_${game.clock.month}_${i}_${hash32(t[0])}`,title:t[0],desc:t[1],danger:t[2],type:t[3],reward:rewardBase+randInt(0,rewardBase,'missionBoard'),duration:t[2]==='high'?randInt(2,5,'missionBoard'):randInt(1,3,'missionBoard'),power:missionDifficultyPower({danger:t[2]})})}}
+function missionDifficultyPower(m){
+  const base=m.danger==='high'?32:m.danger==='medium'?19:10,rs=v68RegionState();
+  return base+(REGION_DANGER[game.player.region]||10)*.5+rs.extraDanger*.35+randInt(0,15,'mission')
+}
+function refreshMissionBoard(){
+  if(game.player.career==='Aucune'){game.missionBoard=[];return}
+  v68Ensure();
+  const templates=MISSION_TEMPLATES[game.player.faction]||MISSION_TEMPLATES.Civil;
+  const causal=v68CausalMissionCandidates().sort((a,b)=>(b.importance||0)-(a.importance||0));
+  const board=[];
+  for(let i=0;i<Math.min(2,causal.length);i++)board.push(v68MissionFromCause(causal[i],i));
+  const pool=[...templates],need=3-board.length;
+  for(let i=0;i<need&&pool.length;i++){
+    const t=pool.splice(Math.floor(random('missionBoard')*pool.length),1)[0],rewardBase=t[2]==='high'?28000:t[2]==='medium'?12000:5000,rs=v68RegionState();
+    board.push({id:'m_'+game.clock.year+'_'+game.clock.month+'_'+i+'_'+hash32(t[0]),title:t[0],desc:t[1],danger:t[2],type:t[3],reward:Math.round((rewardBase+randInt(0,rewardBase,'missionBoard'))*rs.rewardIndex),duration:t[2]==='high'?randInt(2,5,'missionBoard'):randInt(1,3,'missionBoard'),power:missionDifficultyPower({danger:t[2]}),causal:false,region:game.player.region,cause:'Mission de carrière • contexte régional '+Math.round(rs.crisis)+'/100'}
+    )
+  }
+  game.missionBoard=board;
+  game.world.causalV68.lastMissionRefresh=v58MonthIndex()
+}
 function startMission(id){if(game.activeMission)return;const m=game.missionBoard.find(x=>x.id===id);if(!m)return;game.activeMission={...m,remaining:m.duration,previousActivity:game.player.activity,previousType:game.player.activityType};game.player.activity=`Mission : ${m.title}`;game.player.activityType='mission';game.player.situation='Mission en cours';addHistory('Mission acceptée',`${m.title} : ${m.desc}`,'major');saveGame();render()}
 function tickMission(months){
   const m=game.activeMission;if(!m)return;m.remaining-=months;if(m.remaining>0)return;
   const approach=v65MissionApproach(),strat=approach.action,mm=strat?.mods||{},lethalMult=mm.missionLethal||1,rewardMult=mm.missionReward||1,damageMult=mm.missionDamage||1;
   const baseRisk=m.danger==='high'?34:m.danger==='medium'?20:10,riskMult=approach.id==='cautious'?.78:approach.id==='bold'?1.18:1;v64RecordRisk(Math.round(baseRisk*riskMult),'mission');
-  const enemy={name:m.type==='combat'?'adversaire de mission':m.type==='crime'?'garde armé':'danger rencontré',power:Math.max(1,Math.round(m.power)),lethal:(m.danger==='high'?.14:m.danger==='medium'?.07:.025)*lethalMult};
+  const enemy={name:m.enemyName||(m.type==='combat'?'adversaire de mission':m.type==='crime'?'garde armé':'danger rencontré'),power:Math.max(1,Math.round(m.power)),lethal:(m.danger==='high'?.14:m.danger==='medium'?.07:.025)*lethalMult};
   let success=true,partial=false,retreated=false;
   if(['combat','crime','patrol'].includes(m.type)){
     success=resolveCombat(enemy,'Mission',{damageMult,mission:true,missionData:m});
@@ -1891,14 +1931,14 @@ function tickMission(months){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult)),reward=Math.round(m.reward*rewardMult);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=2;
     if(game.player.faction==='Marine')game.player.reputation.marine+=3;if(game.player.faction==='Révolutionnaires')game.player.reputation.revolution+=3;if(game.player.faction==='Gouvernement')game.player.reputation.government+=3;if(game.player.faction==='Pirates'){game.player.reputation.pirate+=3;game.player.bounty+=Math.round(reward*.45);game.player.highestBounty=Math.max(game.player.highestBounty,game.player.bounty)}
     addHistory('Mission accomplie',`${m.title} se termine en ta faveur avec une approche « ${strat.label.toLowerCase()} ».`,'major',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
-    game.flags.v65LastMission={id:m.id,outcome:'success',approach:approach.id}
+    game.flags.v65LastMission={id:m.id,outcome:'success',approach:approach.id};v68ApplyMissionOutcome(m,'success')
   }else if(partial&&game.alive){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult*.60)),reward=Math.round(m.reward*rewardMult*.45);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=1;
     addHistory('Mission partiellement réussie',`${m.title} n’atteint pas tous ses objectifs, mais tu sauves une partie du résultat au lieu de repartir avec absolument rien.`,'normal',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
-    game.flags.v65LastMission={id:m.id,outcome:'partial',approach:approach.id}
+    game.flags.v65LastMission={id:m.id,outcome:'partial',approach:approach.id};v68ApplyMissionOutcome(m,'partial')
   }else if(game.alive){
     addHistory(retreated?'Mission abandonnée':'Mission échouée',retreated?`${m.title} est interrompue après un repli tactique. La récompense est perdue, pas nécessairement ta vie.`:`${m.title} tourne mal malgré ton approche « ${strat.label.toLowerCase()} ». Tu n’obtiens pas la récompense prévue.`,'danger');
-    game.flags.v65LastMission={id:m.id,outcome:retreated?'retreat':'failure',approach:approach.id}
+    game.flags.v65LastMission={id:m.id,outcome:retreated?'retreat':'failure',approach:approach.id};v68ApplyMissionOutcome(m,retreated?'retreat':'failure')
   }
   game.player.activity=m.previousActivity;game.player.activityType=m.previousType;game.player.situation=game.player.faction==='Pirates'?'Vie en équipage':game.player.faction==='Marine'?'Service actif':game.player.faction==='Révolutionnaires'?'Réseau clandestin':game.player.faction==='Gouvernement'?'Affectation gouvernementale':'Indépendant';game.activeMission=null;refreshMissionBoard()
 }
@@ -2078,7 +2118,11 @@ function availableActivities(){const age=game.ageMonths/12,p=game.player;if(p.tr
 function setActivity(type,label){if(game.activeMission){toast('Une mission est déjà en cours.');return}if(game.player.travel){toast('Tu es déjà en pleine traversée.');return}game.player.activityType=type;game.player.activity=label;if(type==='rest')game.player.situation='Récupération';else if(game.player.faction==='Marine')game.player.situation='Service actif';else if(game.player.faction==='Pirates')game.player.situation='Vie en équipage';else if(game.player.faction==='Révolutionnaires')game.player.situation='Réseau clandestin';else if(game.player.faction==='Gouvernement')game.player.situation='Affectation gouvernementale';else game.player.situation='Activité courante';saveGame();render();toast(`Activité : ${label}`)}
 function travelDestinations(){
   const p=game.player;if(game.activeMission||p.travel||game.ageMonths/12<12)return[];
-  const info=placeInfo(p.island);return (info.routes||[]).map(dest=>{const req=routeRequirement(p.island,dest),ok=canUseRoute(p.island,dest),target=placeInfo(dest);return {dest,ok,req,duration:estimateTravel(p.island,dest),danger:Math.round((info.danger+target.danger)/2)}})
+  const info=placeInfo(p.island);
+  return (info.routes||[]).map(dest=>{
+    const req=routeRequirement(p.island,dest),ok=canUseRoute(p.island,dest),target=placeInfo(dest),causal=v68TravelRisk(p.island,dest);
+    return {dest,ok,req,duration:estimateTravel(p.island,dest),danger:Math.round((info.danger+target.danger)/2+causal),causalRisk:causal}
+  })
 }
 function askTravel(dest){
   const route=travelDestinations().find(x=>x.dest===dest);if(!route)return;
