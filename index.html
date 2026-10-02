@@ -2581,7 +2581,7 @@ function v71Context(e=null){
     worldRep:Number(p.reputation?.world)||0,authority:Number(tier.authority)||0,power:overallPower(),
     eventImportance:Number(e?.importance)||0,relations:v71RelationMap(),skills:p.skills||{},stats:p.stats||{},
     hakiObservation:Number(h.Observation?.mastery)||0,hakiArmament:Number(h.Armement?.mastery)||0,hakiConqueror:Number(h.Conquérant?.mastery)||0,
-    organization:v69NetworkMissionBonus(),relationSupport:v67MissionRelationshipSupport?.()||0
+    organization:v69NetworkMissionBonus(),relationSupport:v67MissionRelationSupport()||0
   }
 }
 function v71MaybeStartArc(e,intendedStatus='completed'){
