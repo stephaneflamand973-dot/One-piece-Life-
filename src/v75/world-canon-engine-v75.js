@@ -163,7 +163,8 @@
   function holderMatchesActor(holder,actor={}){
     const raw=String(holder||''),h=raw.toLowerCase().replace(/[^a-z0-9]/g,'');
     const alias=data.holderAliases?.[raw];
-    const names=[actor.id,actor.name,alias].filter(Boolean).map(x=>String(x).toLowerCase().replace(/[^a-z0-9]/g,''));
+    if(alias&&String(actor.id||'')===String(alias))return true;
+    const names=[actor.id,actor.name].filter(Boolean).map(x=>String(x).toLowerCase().replace(/[^a-z0-9]/g,''));
     return !!h&&names.includes(h)
   }
 
