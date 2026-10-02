@@ -1,3 +1,26 @@
+# ONE PIECE LIFE — V6.7 Relationship & Crew 2.0
+
+La V6.7 transforme les relations et l’équipage en acteurs persistants plutôt qu’en simples jauges.
+
+## Relationship & Crew 2.0
+- Chaque relation possède maintenant un **tempérament** et une **ambition personnelle**.
+- Les relations réagissent au plan annuel.
+- Les alliés solides peuvent soutenir les missions.
+- Les rivalités respectueuses peuvent accélérer légèrement la progression martiale.
+- Certaines relations peuvent devenir de vrais **mentors** et influencer progression et Haki.
+- Chaque équipier possède tempérament, ambition, confiance, rivalité, Growth Rate et potentiel de puissance.
+- Les équipiers progressent de façon autonome.
+- Les équipiers sont synchronisés avec le système de relations.
+- L’équipage possède une **cohésion** et une **tension** mécaniques.
+- Cohésion et tension influencent directement les missions.
+- Une tension élevée peut créer un conflit interne avec choix de médiation, compromis ou discipline.
+- Une loyauté très faible peut provoquer un **départ réel**.
+- La V6.7 corrige également plusieurs bindings UI multi-boutons sur Fruits, activités et réparations.
+- Save version : **670**.
+- Cache PWA : **one-piece-life-v6-7-0**.
+
+---
+
 # ONE PIECE LIFE — V6.6 Potential Engine 2.0
 
 La V6.6 transforme le potentiel en système de progression réellement individuel.
