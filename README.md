@@ -1,3 +1,41 @@
+# ONE PIECE LIFE — V7.0 Ultimate Canon Expansion
+
+La V7.0 transforme le canon en composante active du monde vivant.
+
+## Ultimate Canon Expansion
+
+- **58 personnages canoniques**.
+- **12 équipages et groupes canoniques**.
+- **26 Fruits du Démon**.
+- **47 lieux accessibles**.
+- **21 événements canoniques**.
+- Nouveau système de **personnalités canoniques** : valeurs, tempérament, objectifs, compétences respectées, hostilités et mentorat.
+- Les rencontres avec Mihawk, Sakazuki, Shanks, Dragon, Robin, Law, Kid, etc. ne suivent plus une relation générique identique.
+- Nouveau **graphe historique** avec prérequis entre événements.
+- Un événement peut être empêché parce que ses causes ont disparu dans une chronologie divergente.
+- Les événements canoniques modifient pressions, territoires, personnages, équipages et Fruits.
+- Marineford possède désormais une vraie chaîne d'effets dans les parties où cet événement survient.
+- Les groupes canoniques influencent Causal World et peuvent générer des missions.
+- L'écran Monde affiche les groupes présents, les personnalités, les dépendances historiques et les causes manquantes.
+- Migration V6.9 → V7.0 sans réexécution rétroactive des anciens événements.
+- Garde-fou global contre les bindings UI `$().forEach()`.
+- Save version : **700**.
+- Cache PWA : **one-piece-life-v7-0-0**.
+
+### QA de release
+- V6.4 → V7.0 : PASS ;
+- migration pré-V7 : PASS ;
+- personnalités canoniques : PASS ;
+- graphe historique : PASS ;
+- effets Marineford : PASS ;
+- groupes canoniques → danger : PASS ;
+- groupes canoniques → missions : PASS ;
+- stress carrière 30 ans : PASS ;
+- stress causal 12 ans : PASS ;
+- stress économie endgame 20 ans : PASS.
+
+---
+
 # ONE PIECE LIFE — V6.9 Career, Economy & Endgame 2.0
 
 La V6.9 transforme les hauts rangs en véritable deuxième phase de jeu.
