@@ -1,0 +1,8 @@
+/* V7.1 — Arc Director */
+.arc-card{border-color:rgba(197,148,60,.28);background:linear-gradient(145deg,#fff8e8,#f0eee0)}
+.arc-card .arc-progress{height:8px;border-radius:999px;background:#e7ddc4;overflow:hidden;margin:10px 0}
+.arc-card .arc-progress>i{display:block;height:100%;background:linear-gradient(90deg,#c5943c,#2d7181);border-radius:999px}
+.arc-card .arc-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.arc-card .arc-meta span{font-size:10px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.62);border:1px solid rgba(132,111,72,.14)}
+.arc-card p{font-size:12px;color:var(--muted);line-height:1.45;margin:7px 0 0}
+.arc-result{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.55);font-size:11px;line-height:1.4;margin-top:9px}
