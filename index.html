@@ -1443,9 +1443,128 @@ function renderV69Endgame(){
   assets.innerHTML='<strong>Structure économique</strong><p>'+esc(labels.base)+' '+a.base+'/3 • '+esc(labels.network)+' '+a.network+'/3 • '+esc(labels.enterprise)+' '+a.enterprise+'/3</p><small>Revenus structurels cumulés '+Math.round(p.endgameV69.totalStructuralIncome).toLocaleString('fr-FR')+' B • charges '+Math.round(p.endgameV69.totalUpkeep).toLocaleString('fr-FR')+' B.</small>';
   const assetUsed=p.endgameV69.lastAssetYear===year;
   assetActs.innerHTML=['base','network','enterprise'].map(type=>{const level=a[type],cost=v69AssetCost(type);return '<button class="action-card" data-v69-asset="'+type+'" '+(assetUsed||level>=3||p.money<cost?'disabled':'')+'><strong>'+esc(labels[type])+' • '+level+'/3</strong><small>'+(level>=3?'Niveau maximal':cost.toLocaleString('fr-FR')+' B')+'</small></button>'}).join('');
-  $$('[data-v69-directive]').forEach(b=>b.onclick=()=>v69StrategicAction(b.dataset.v69Directive));
-  $$('[data-v69-asset]').forEach(b=>b.onclick=()=>v69BuyAsset(b.dataset.v69Asset))
+  $('[data-v69-directive]').forEach(b=>b.onclick=()=>v69StrategicAction(b.dataset.v69Directive));
+  $('[data-v69-asset]').forEach(b=>b.onclick=()=>v69BuyAsset(b.dataset.v69Asset))
 }
+
+// -----------------------------------------------------------------------------
+// V7.0 — ULTIMATE CANON EXPANSION
+// -----------------------------------------------------------------------------
+function v70Ensure(){
+  if(!game?.world)return null;
+  const w=game.world;
+  w.canonV70=w.canonV70&&typeof w.canonV70==='object'?w.canonV70:{version:1,eventEffectsApplied:{},encounters:{},migratedAt:game.clock?.year||0};
+  w.canonV70.version=1;w.canonV70.eventEffectsApplied=w.canonV70.eventEffectsApplied||{};w.canonV70.encounters=w.canonV70.encounters||{};
+  w.characters=Array.isArray(w.characters)?w.characters:[];
+  const byChar=new Map(w.characters.map(x=>[x.id,x]));
+  for(const c of CANON_CHARACTERS){
+    if(!byChar.has(c.id)){
+      const copy={...c,regions:[...c.regions],currentRegion:characterStartRegion(c)};
+      copy.health=100;copy.experience=0;copy.growthRate=+(0.45+v58HashFloat(c.id+'growth')*.95).toFixed(2);copy.potentialPower=clamp(Math.round(Math.max(c.power,c.power+4+v58HashFloat(c.id+'potential')*14)),c.power,100);copy.goal=v58NpcGoal(copy);copy.injuryMonths=0;copy.lastAction='Poursuit sa trajectoire';
+      w.characters.push(copy);byChar.set(c.id,copy)
+    }
+  }
+  w.fruits=Array.isArray(w.fruits)?w.fruits:[];
+  const fruitIds=new Set(w.fruits.map(x=>x.id));
+  for(const fruit of DEVIL_FRUITS)if(!fruitIds.has(fruit.id)){w.fruits.push({...fruit});fruitIds.add(fruit.id)}
+  w.canon=Array.isArray(w.canon)?w.canon:[];
+  const eventIds=new Set(w.canon.map(x=>x.id));
+  for(const e of CANON_EVENTS)if(!eventIds.has(e.id)){
+    const migrated=(game.clock?.year||0)>e.to;
+    w.canon.push({...e,status:migrated?'archived':e.status});eventIds.add(e.id)
+  }
+  w.canonCrews=Array.isArray(w.canonCrews)?w.canonCrews:[];
+  const crewIds=new Set(w.canonCrews.map(x=>x.id));
+  for(const c of CANON_CREWS)if(!crewIds.has(c.id)){w.canonCrews.push({...c});crewIds.add(c.id)}
+  for(const c of w.canonCrews){
+    if(c.currentRegion==null)c.currentRegion=c.region;
+    if(!c.status)c.status='active';
+    if(c.status==='future'&&(game.clock?.year||0)>=c.from)c.status='active';
+  }
+  return w.canonV70
+}
+function v70Persona(c){return V70_PERSONAS[c?.id]||{temperament:'Variable',goal:c?.goal||'Poursuivre sa trajectoire',values:[],respectSkills:[],respectAmbitions:[],hostileFactions:[],trust:0,rivalry:0}}
+function v70PersonaRelation(c){
+  const p=game.player,persona=v70Persona(c),rep=repValue(),power=overallPower(),hostile=persona.hostileFactions.includes(p.faction);
+  const skillPeak=Math.max(...(persona.respectSkills||[]).map(k=>Number(p.skills?.[k])||0),0);
+  const ambitionFit=(persona.respectAmbitions||[]).includes(p.ambitionType)?1:0;
+  const powerRespect=clamp((power-(c.power-35))/3,0,18),skillRespect=clamp(skillPeak/5,0,18),repRespect=clamp(Math.max(0,rep)/8,0,12);
+  const respect=clamp(22+powerRespect+skillRespect+repRespect+ambitionFit*8+(hostile?4:0),0,100);
+  const trust=clamp(18+(persona.trust||0)+ambitionFit*8+(p.faction===c.faction?12:0)-(hostile?26:0),0,100);
+  const rivalry=clamp(8+(persona.rivalry||0)+(hostile?24:0)+(power>c.power-18?8:0),0,100);
+  const affection=clamp(14+(persona.trust||0)+ambitionFit*7-(hostile?12:0),0,100);
+  const fear=Math.max(0,Math.round((c.power-power)*.25));
+  return {respect,trust,rivalry,affection,fear,hostile,skillPeak,ambitionFit}
+}
+function v70CanonRole(c,persona,rel){
+  const mentor=persona.mentorSkill&&rel.respect>=58&&rel.trust>=35;
+  return (mentor?'Mentor potentiel • ':'')+c.faction+' • personnage canonique'
+}
+function v70CanonEncounterText(c,persona,rel){
+  if(rel.hostile&&rel.rivalry>=45)return c.name+' te considère d’abord comme une menace ou un obstacle. Son objectif actuel : '+persona.goal+'.';
+  if(rel.respect>=65&&persona.mentorSkill)return c.name+' remarque suffisamment ton niveau pour que la relation puisse dépasser une simple rencontre. Domaine naturel : '+persona.mentorSkill.toLowerCase()+'.';
+  if(rel.respect>=55)return c.name+' ne t’accorde pas sa confiance, mais reconnaît clairement quelque chose dans ton parcours.';
+  if(c.power>overallPower()+30)return 'Sa présence suffit à te rappeler à quel point le monde est vaste.';
+  return c.name+' te juge selon ses propres valeurs plutôt que comme un figurant interchangeable.'
+}
+function v70CanonCrewActive(c){
+  const y=game.clock.year;
+  return c&&c.status==='active'&&y>=c.from&&y<=c.to
+}
+function v70LocalCanonCrews(region=game.player.region){
+  v70Ensure();return (game.world.canonCrews||[]).filter(c=>v70CanonCrewActive(c)&&(c.currentRegion===region||c.region==='Global')).sort((a,b)=>b.importance-a.importance)
+}
+function v70CanonMissionCandidates(rs=v68RegionState()){
+  v70Ensure();const p=game.player,list=[];
+  for(const crew of v70LocalCanonCrews(p.region).slice(0,4)){
+    const relation=v68FactionRelation(p.faction,crew.faction);
+    if(p.faction==='Marine'||p.faction==='Chasseurs de primes'||p.faction==='Gouvernement'){
+      if(crew.faction!=='Pirates')continue;
+      list.push({title:'Opération contre '+crew.name,desc:'La présence de '+crew.name+' dans '+p.region+' est suffisamment importante pour générer une opération dédiée.',danger:crew.power>=90?'high':crew.power>=75?'medium':'low',type:'combat',sourceType:'canon_crew',sourceId:crew.id,targetCanonCrewId:crew.id,targetFaction:crew.faction,causalMode:'oppose',cause:'Équipage canonique • puissance '+crew.power+' • importance '+crew.importance,enemyName:crew.name,importance:crew.importance})
+    }else if(p.faction==='Pirates'&&crew.faction==='Pirates'&&crew.leader!==p.name&&relation<=0){
+      list.push({title:'Croiser la route de '+crew.name,desc:'Deux ambitions pirates importantes convergent dans la même région. Le résultat peut devenir coopération, rivalité ou affrontement.',danger:crew.power>=90?'high':'medium',type:'combat',sourceType:'canon_crew',sourceId:crew.id,targetCanonCrewId:crew.id,targetFaction:'Pirates',causalMode:'oppose',cause:'Présence canonique dans '+p.region,enemyName:crew.name,importance:crew.importance})
+    }
+  }
+  return list
+}
+function v70CanonRequirementMet(e){
+  const req=V70_CANON_REQUIREMENTS[e.id]||[];if(!req.length)return true;
+  return req.every(id=>{const x=game.world.canon.find(v=>v.id===id);return x&&['completed','modified','archived'].includes(x.status)})
+}
+function v70ApplyCanonEffects(e){
+  v70Ensure();const state=game.world.canonV70;if(state.eventEffectsApplied[e.id])return;
+  const fx=V70_CANON_EFFECTS[e.id];if(!fx){state.eventEffectsApplied[e.id]=true;return}
+  const w=game.world,region=fx.region==='Global'?game.player.region:fx.region;
+  if(fx.pressure){
+    const rp=w.regionalPressures?.[region]||w.pressures;
+    for(const [k,d] of Object.entries(fx.pressure))rp[k]=clamp((Number(rp[k])||0)+d,0,100)
+  }
+  if(fx.influence){
+    const inf=w.territoryState?.[region]?.influence;
+    if(inf)for(const [k,d] of Object.entries(fx.influence))if(inf[k]!=null)inf[k]=clamp(inf[k]+d,0,100)
+  }
+  if(fx.characterStatus)for(const [id,status] of Object.entries(fx.characterStatus)){const c=w.characters.find(x=>x.id===id);if(c)c.status=status}
+  if(fx.characterRegion)for(const [id,r] of Object.entries(fx.characterRegion)){const c=w.characters.find(x=>x.id===id);if(c)c.currentRegion=r}
+  if(fx.crewStatus)for(const [id,status] of Object.entries(fx.crewStatus)){const c=w.canonCrews.find(x=>x.id===id);if(c)c.status=status}
+  if(fx.fruitWorld)for(const id of fx.fruitWorld){const fruit=w.fruits.find(x=>x.id===id);if(fruit){fruit.holder=null;fruit.status='world'}}
+  if(fx.fruitTransfer)for(const [id,holder] of Object.entries(fx.fruitTransfer)){const fruit=w.fruits.find(x=>x.id===id);if(fruit){fruit.holder=holder;fruit.status='held'}}
+  state.eventEffectsApplied[e.id]=true;
+  v68RecordCause({region,type:'canon_event',title:e.title,desc:e.desc,sourceId:e.id,actor:'Canon',player:false,impact:(e.importance||50)/18})
+}
+function v70CanonEventState(e){
+  const ready=v70CanonRequirementMet(e),req=V70_CANON_REQUIREMENTS[e.id]||[];
+  return {ready,requires:req,blockedBy:req.filter(id=>{const x=game.world.canon.find(v=>v.id===id);return !x||!['completed','modified','archived'].includes(x.status)})}
+}
+function v70CanonStats(){
+  v70Ensure();return {
+    characters:game.world.characters.length,
+    crews:game.world.canonCrews.length,
+    fruits:game.world.fruits.length,
+    events:game.world.canon.length,
+    places:Object.keys(PLACE_DATA).length
+  }
+}
+
 
 
 function reputationKey(faction){if(faction==='Marine')return'marine';if(faction==='Pirates')return'pirate';if(faction==='Gouvernement')return'government';if(faction==='Révolutionnaires')return'revolution';return'local'}
@@ -1949,12 +2068,30 @@ function simulateWorld(months){
   simulateCanon();
 }
 function simulateCanon(){
+  v70Ensure();
   for(const e of game.world.canon){
-    if(e.status!=='future')continue;if(game.clock.year<e.from)continue;
-    if(game.clock.year>e.to){e.status='prevented';game.world.divergence=clamp(game.world.divergence+Math.round(e.importance*.12),0,100);addHistory('DIVERGENCE HISTORIQUE',`${e.title} n’a pas eu lieu dans sa fenêtre normale. Le futur cesse de pouvoir suivre exactement la chronologie de référence.`,'canon');addNews(`Divergence : ${e.title}`,'Les conditions historiques ne se sont pas réunies à temps.','canon');continue}
-    const causal=clamp((e.resistance-game.world.divergence*.55)/100,.07,.98);
-    const monthlyChance=clamp((1/(Math.max(1,(e.to-e.from+1)*12)))*4,.02,.24);
-    if(chance(monthlyChance*causal,'canon')){e.status=game.world.divergence>24?'modified':'completed';addNews(e.title,e.status==='modified'?'L’événement survient, mais dans un contexte déjà divergent.':e.desc,'canon');addHistory('Événement historique',`${e.title}. Le monde continue de se transformer, que tu sois impliqué ou non.`,'canon');codexAdd('events',e.title);addWorldFact(`canon_${e.id}`,{status:e.status})}
+    if(['completed','modified','prevented','archived'].includes(e.status)){if(['completed','modified'].includes(e.status))v70ApplyCanonEffects(e);continue}
+    if(e.status!=='future')continue;
+    if(game.clock.year<e.from)continue;
+    const state=v70CanonEventState(e);
+    if(game.clock.year>e.to){
+      if(!state.ready){
+        e.status='prevented';game.world.divergence=clamp(game.world.divergence+Math.round(e.importance*.09),0,100);
+        addHistory('DIVERGENCE HISTORIQUE',e.title+' ne peut plus survenir normalement : '+state.blockedBy.map(id=>game.world.canon.find(x=>x.id===id)?.title||id).join(', ')+' n’a pas fourni les causes nécessaires.','canon');
+        addNews('Divergence : '+e.title,'La chaîne causale historique s’est rompue avant cet événement.','canon')
+      }else{
+        e.status='prevented';game.world.divergence=clamp(game.world.divergence+Math.round(e.importance*.12),0,100);addHistory('DIVERGENCE HISTORIQUE',e.title+' n’a pas eu lieu dans sa fenêtre normale.','canon');addNews('Divergence : '+e.title,'Les conditions historiques ne se sont pas réunies à temps.','canon')
+      }
+      continue
+    }
+    if(!state.ready)continue;
+    const causal=clamp((e.resistance-game.world.divergence*.55)/100,.07,.98),monthlyChance=clamp((1/(Math.max(1,(e.to-e.from+1)*12)))*4,.02,.24);
+    if(chance(monthlyChance*causal,'canon')){
+      e.status=game.world.divergence>24?'modified':'completed';
+      addNews(e.title,e.status==='modified'?'L’événement survient, mais dans un contexte déjà divergent.':e.desc,'canon');
+      addHistory('Événement historique',e.title+'. Ses causes et conséquences sont désormais enregistrées dans le monde.','canon');
+      codexAdd('events',e.title);addWorldFact('canon_'+e.id,{status:e.status});v70ApplyCanonEffects(e)
+    }
   }
 }
 
@@ -2069,7 +2206,22 @@ function hakiMoment(){
   addHistory('Éveil du Haki',k==='Conquérant'?'Sous une pression extrême, ta volonté se manifeste d’une manière rarissime.':'Tu perçois pour la première fois une forme encore confuse du Haki de l’'+k.toLowerCase()+'.','major',k+' éveillé')
 }
 function eligibleCanonCharacters(){const year=game.clock.year,region=game.player.region;return game.world.characters.filter(c=>c.status==='alive'&&year>=c.from&&year<=c.to&&c.currentRegion===region)}
-function canonEncounter(){const eligible=eligibleCanonCharacters();if(!eligible.length)return;const rep=repValue();const weights=eligible.map(c=>({v:c,w:Math.max(.5,(102-c.importance)*.10+rep*.08+(c.regions.includes(game.player.region)?3:0))}));const c=weighted(weights,'canonEncounter');codexAdd('people',c.name);if(!game.relations.some(r=>r.name===c.name)){game.relations.push({id:`canon_${c.id}`,name:c.name,role:`${c.faction} • personnage canonique`,affection:randInt(5,35,'canonEncounter'),respect:randInt(18,55,'canonEncounter'),trust:randInt(4,25,'canonEncounter'),loyalty:0,fear:Math.max(0,Math.round((c.power-overallPower())*.25)),rivalry:randInt(0,22,'canonEncounter'),familiarity:8,status:'active',canonId:c.id})}const tone=c.power>overallPower()+30?'Sa présence suffit à te rappeler à quel point le monde est vaste.':'La rencontre pourrait avoir des conséquences selon ce que tu deviens ensuite.';addHistory('Rencontre canonique',`Les circonstances te placent sur la route de ${c.name}. ${tone}`,'major')}
+function canonEncounter(){
+  v70Ensure();const eligible=eligibleCanonCharacters();if(!eligible.length)return;
+  const rep=repValue(),weights=eligible.map(c=>({v:c,w:Math.max(.5,(102-c.importance)*.10+rep*.08+(c.regions.includes(game.player.region)?3:0)+(V70_PERSONAS[c.id]?2:0))}));
+  const c=weighted(weights,'canonEncounter'),persona=v70Persona(c),calc=v70PersonaRelation(c);codexAdd('people',c.name);
+  let r=game.relations.find(x=>x.canonId===c.id||x.name===c.name);
+  if(!r){
+    r={id:'canon_'+c.id,name:c.name,role:v70CanonRole(c,persona,calc),affection:calc.affection,respect:calc.respect,trust:calc.trust,loyalty:0,fear:calc.fear,rivalry:calc.rivalry,familiarity:8,status:'active',canonId:c.id,temperament:persona.temperament,ambition:persona.values?.[0]||'Liberté'};
+    game.relations.push(r)
+  }else{
+    r.familiarity=clamp((r.familiarity||0)+6,0,100);r.respect=clamp((r.respect||0)+(calc.respect>=55?4:1),0,100);r.trust=clamp((r.trust||0)+(calc.trust>=40?3:0),0,100);r.rivalry=clamp((r.rivalry||0)+(calc.hostile?3:0),0,100);r.role=v70CanonRole(c,persona,{...calc,respect:r.respect,trust:r.trust})
+  }
+  game.world.canonV70.encounters[c.id]=(game.world.canonV70.encounters[c.id]||0)+1;
+  const tone=v70CanonEncounterText(c,persona,{...calc,respect:r.respect,trust:r.trust,rivalry:r.rivalry});
+  addHistory('Rencontre canonique',c.name+' • '+persona.temperament+'. '+tone,'major');
+  if(calc.hostile&&c.importance>=82&&game.ageMonths>=144&&chance(.22,'v70CanonHook'))v59CreateHook({title:'Tension avec '+c.name,desc:c.name+' et toi vous vous retrouvez sur des trajectoires incompatibles. '+persona.goal+'.',region:game.player.region,type:'threat',urgency:c.importance,difficulty:clamp(Math.round(c.power*.78),35,92),reward:5000+c.importance*260,sourceId:'canon_'+c.id,sourceType:'canon_person',ttl:10})
+}
 function relationshipEvent(){if(!game.relations.length)return;const r=pick(game.relations.filter(x=>x.status==='active'),'relations');if(!r)return;const positive=chance(.65,'relations');if(positive){r.trust=clamp(r.trust+randInt(4,10,'relations'),0,100);r.affection=clamp(r.affection+randInt(3,8,'relations'),0,100);addHistory('Lien renforcé',`${r.name} et toi traversez une situation qui renforce votre confiance mutuelle.`,'major')}else{r.rivalry=clamp(r.rivalry+randInt(5,12,'relations'),0,100);r.trust=clamp(r.trust-randInt(2,8,'relations'),0,100);addHistory('Conflit relationnel',`Une divergence sérieuse t’oppose à ${r.name}. La relation ne disparaît pas, mais elle change.`,'major')}}
 function careerOpportunity(){const p=game.player;if(p.faction==='Pirates'&&['Officier','Bras droit'].includes(p.rank)&&p.skills.Commandement>35&&p.reputation.pirate>35&&!game.flags.captainChoice){game.flags.captainChoice=true;game.pendingDecision={id:'captain_path',title:'Prendre ton indépendance ?',text:'Ton influence est désormais suffisante pour envisager ton propre pavillon. Rien ne garantit que les autres te suivront.',choices:[{label:'Fonder mon équipage',hint:'Tu deviens capitaine et assumes toutes les conséquences.',action:'captain:create'},{label:'Rester officier',hint:'Tu conserves ta place actuelle.',action:'captain:stay'}]};return}if(p.faction==='Marine'&&p.rank==='Lieutenant'&&p.skills.Commandement>35&&!game.flags.commandChoice){game.flags.commandChoice=true;game.pendingDecision={id:'marine_command',title:'Prendre un commandement local',text:'On te propose la responsabilité d’une petite unité.',choices:[{label:'Accepter',hint:'Plus de responsabilités, plus d’exposition.',action:'command:accept'},{label:'Refuser pour l’instant',hint:'Tu restes sur ta trajectoire actuelle.',action:'command:decline'}]};return}const gain=randInt(2,6,'career');p.careerXP+=gain;addHistory('Expérience professionnelle',`Une occasion inhabituelle accélère légèrement ta progression dans ta carrière.`,'normal',`Expérience +${gain}`)}
 function factionShiftOpportunity(){const p=game.player;if(p.faction==='Marine'&&game.world.pressures.Révolution>28&&p.reputation.marine<75){game.pendingDecision={id:'faction_shift',title:'Un contact révolutionnaire',text:'Une personne liée aux Révolutionnaires te propose discrètement de reconsidérer ton allégeance.',choices:[{label:'Écouter sans m’engager',hint:'Tu obtiens un contact, sans changer de faction.',action:'shift:listen'},{label:'Refuser',hint:'Tu coupes court.',action:'shift:refuse'}]}}else if(p.faction==='Civil'&&p.reputation.local>30){game.pendingDecision={id:'faction_shift',title:'Une proposition inattendue',text:'Un groupe organisé voit en toi quelqu’un d’utile et te propose de travailler davantage avec lui.',choices:[{label:'Rester indépendant',hint:'Aucun changement majeur.',action:'shift:refuse'},{label:'Garder le contact',hint:'Une porte s’ouvre pour plus tard.',action:'shift:listen'}]}}}
@@ -2386,7 +2538,7 @@ function ensureV6(){
   if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;
   if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));
   ensureV59();for(const h of game.world.worldHooks||[])updateHakiStagesV6();
-  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v68Ensure();v69Ensure()
+  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v68Ensure();v69Ensure();v70Ensure()
 }
 function v6RelationById(id){return game.relations.find(r=>r.id===id||slug(r.name)===id)}
 function v6InteractRelation(id,action){
