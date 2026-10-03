@@ -3627,7 +3627,7 @@ function trainProgress(months){
     const k=pick(choices,'progress'),cur=p.stats[k],diminish=clamp(1-cur/115,.14,1),ageMod=age<12?.75:age<20?1.12:age<35?1:.75;
     let gain=(.45+random('progress')*1.05)*(months/3+.25)*diff.gain*diminish*ageMod*talentForStat(k);
     if(activity==='intense')gain*=1.2;if(game.activeMission)gain*=1.08;
-    gain*=v6SpecMultiplier('stats',k)*v61AnnualMultiplier('training')*v66GrowthMultiplier('stats',k)*v67MentorMultiplier('stats',k)*v67RivalMultiplier('stats',k);
+    gain*=v6SpecMultiplier('stats',k)*v61AnnualMultiplier('training')*v66GrowthMultiplier('stats',k)*v67MentorMultiplier('stats',k)*v67RivalMultiplier('stats',k)*v86ProgressMultiplier(activity);
     gain=Math.max(.05,gain);
     const ceiling=Math.min(p.caps[k].soft,v66Cap('stats',k)),next=clamp(cur+gain,0,ceiling);
     p.stats[k]=+next.toFixed(2);
@@ -3636,7 +3636,7 @@ function trainProgress(months){
   for(const k of [...new Set(skillFocus)]){
     const cur=p.skills[k]||0,diminish=clamp(1-cur/120,.18,1)*v63MasteryEfficiency(cur,'skill');
     let gain=(.38+random('skill')*.95)*(months/2+.2)*diff.gain*diminish*skillTalent(k);
-    gain*=v6SpecMultiplier('skills',k)*v61AnnualMultiplier('training')*v67MentorMultiplier('skills',k)*v67RivalMultiplier('skills',k);
+    gain*=v6SpecMultiplier('skills',k)*v61AnnualMultiplier('training')*v67MentorMultiplier('skills',k)*v67RivalMultiplier('skills',k)*v86ProgressMultiplier(activity);
     const next=v66ProgressValue('skills',k,cur,gain);
     p.skills[k]=next;
     if(Math.floor(next)>Math.floor(cur))changes.push(k+' '+Math.floor(cur)+' → '+Math.floor(next))
@@ -3645,7 +3645,7 @@ function trainProgress(months){
     for(const key of ['Observation','Armement']){
       const h=p.haki[key];
       if(h.state!=='Dormant'&&h.state!=='Inconnu'){
-        const old=h.mastery,base=(.15+random('hakiProgress')*.52)*months*diff.gain*v61AnnualMultiplier('training')*v62Metric('mastery',1)*v63MasteryEfficiency(old,'power')*v67MentorMultiplier('haki',key);
+        const old=h.mastery,base=(.15+random('hakiProgress')*.52)*months*diff.gain*v61AnnualMultiplier('training')*v62Metric('mastery',1)*v63MasteryEfficiency(old,'power')*v67MentorMultiplier('haki',key)*v86ProgressMultiplier(activity);
         h.mastery=v66ProgressValue('haki',key,old,base);
         if(Math.floor(h.mastery)>Math.floor(old)&&Math.floor(h.mastery)%5===0)changes.push(key+' '+Math.floor(old)+' → '+Math.floor(h.mastery))
       }
@@ -3656,7 +3656,7 @@ function trainProgress(months){
       hc.mastery=v66ProgressValue('haki','Conquérant',old,base)
     }
     if(p.devilFruit){
-      const old=p.devilFruit.mastery,base=(.18+random('fruitProgress')*.62)*months*diff.gain*v61AnnualMultiplier('training')*v62Metric('mastery',1)*v63MasteryEfficiency(old,'power');
+      const old=p.devilFruit.mastery,base=(.18+random('fruitProgress')*.62)*months*diff.gain*v61AnnualMultiplier('training')*v62Metric('mastery',1)*v63MasteryEfficiency(old,'power')*v86ProgressMultiplier(activity);
       p.devilFruit.mastery=v66ProgressValue('fruit','mastery',old,base);
       if(Math.floor(p.devilFruit.mastery)>Math.floor(old)&&Math.floor(p.devilFruit.mastery)%5===0)changes.push('Fruit '+Math.floor(old)+' → '+Math.floor(p.devilFruit.mastery))
     }
@@ -4065,7 +4065,7 @@ function rankUpCheck(){
   }
 }
 function careerTick(months){
-  const p=game.player;if(p.career==='Aucune')return;v69Ensure();const careerMult=v61AnnualMultiplier('career'),resourceMult=v61AnnualMultiplier('resources'),authorityMult=1+v69CareerTier(p).tier*.04;
+  const p=game.player;if(p.career==='Aucune')return;v69Ensure();const careerMult=v61AnnualMultiplier('career')*v86CareerMultiplier(p.activityType),resourceMult=v61AnnualMultiplier('resources'),authorityMult=1+v69CareerTier(p).tier*.04;
   p.careerXP+=months*(.7+random('career')*.7)*careerMult;
   if(p.faction==='Marine'){p.money+=Math.round(months*(850+Math.max(0,CAREER_RANKS.Marine.indexOf(p.rank))*180)*resourceMult*authorityMult);p.reputation.marine+=months*.25*careerMult}
   else if(p.faction==='Pirates'){if(p.crew){p.crew.morale=clamp(p.crew.morale+randInt(-3,4,'career'),0,100);p.money+=Math.round(months*randInt(350,1500,'career')*resourceMult*authorityMult);simulateCrew(months)}p.reputation.pirate+=months*.18*careerMult}
@@ -4351,7 +4351,7 @@ function v61ResumeAnnualTurn(){
   ensureV6();const t=game.agency.annualTurn;if(!t?.active||!game.alive||game.pendingDecision)return;v64EnsureRiskTurn(t);let safety=0;
   while(t.active&&game.alive&&!game.pendingDecision&&t.monthsSimulated<12&&safety++<120){
     if(t.phase===0){advanceClock(1);lifecycleTransitions();t.phase=1;if(game.pendingDecision){v61PauseForDecision();return}}
-    if(t.phase===1){trainProgress(1);v79EducationMonth(1);updateCondition(1);v62MonthlyPlanEffects();simulateRelations(1);careerTick(1);t.phase=2;if(game.pendingDecision){v61PauseForDecision();return}}
+    if(t.phase===1){trainProgress(1);v79EducationMonth(1);updateCondition(1);v62MonthlyPlanEffects();simulateRelations(1);careerTick(1);v86MonthlyTick();t.phase=2;if(game.pendingDecision){v61PauseForDecision();return}}
     if(t.phase===2){simulateWorld(1);tickMission(1);tickTravel(1);t.phase=3;if(!game.alive)break;if(game.pendingDecision){v61PauseForDecision();return}}
     if(t.phase===3){v64AdventureMonthTick();if(!game.pendingDecision&&!game.activeMission&&!game.player.travel)simulateEvent(1);t.phase=4;if(game.pendingDecision){v61PauseForDecision();return}}
     if(t.phase===4){if(!game.pendingDecision)v80PriorityInterrupt();t.phase=5;if(game.pendingDecision){v61PauseForDecision();return}}
@@ -4692,7 +4692,7 @@ function renderCharacter(){
   const inv=p.equipment||[];
   $('#equipmentList').innerHTML=inv.length?inv.map(e=>{const f=game.world.fruits.find(x=>x.name===e&&x.holder==='player_inventory');return f?'<div class="inventory-item"><strong>'+esc(e)+' • '+esc(f.type)+'</strong><div class="inventory-actions"><button class="mini-action primary" data-fruit-eat="'+esc(e)+'">Manger</button><button class="mini-action" data-fruit-sell="'+esc(e)+'">Vendre</button></div></div>':'<span class="chip">'+esc(e)+'</span>'}).join(''):'<span class="chip">Inventaire vide</span>';
   $$('[data-fruit-eat]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitEat,'eat'));$$('[data-fruit-sell]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitSell,'sell'));
-  const acts=availableActivities();$('#activityOptions').innerHTML=acts.map(([label,hint,type])=>'<button class="action-card '+(p.activityType===type?'active':'')+'" data-type="'+type+'" data-label="'+esc(label)+'"><strong>'+esc(label)+'</strong><small>'+esc(hint)+'</small></button>').join('');
+  const acts=availableActivities();renderV86Daily();$('#activityOptions').innerHTML=acts.map(([label,hint,type])=>'<button class="action-card '+(p.activityType===type?'active':'')+'" data-type="'+type+'" data-label="'+esc(label)+'"><strong>'+esc(label)+'</strong><small>'+esc(hint)+'</small>'+v86ActivityMetaHtml(type)+'</button>').join('');
   $$('#activityOptions .action-card').forEach(b=>b.onclick=()=>setActivity(b.dataset.type,b.dataset.label));
   if(p.crew)v84RenderCrew();else $('#crewSection').classList.add('hidden');
   const storage=$('#storageStatus');if(storage)storage.textContent='Autosave • '+storageLabel();v62RenderDomainInline('careerAnnualActions','career');v62RenderDomainInline('resourcesAnnualActions','resources');v63RenderEconomy();renderCareerProgress();renderV73Organization();renderV81FactionIdentity();renderV69Endgame();renderAmbition();renderMissions()
