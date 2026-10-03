@@ -1,3 +1,29 @@
+# ONE PIECE LIFE — V8.2 Regional Sagas & Campaigns 4.0
+
+La V8.2 transforme les tensions du monde en **campagnes régionales persistantes**. Une région peut désormais traverser une saga de plusieurs années avec un camp dominant, un challenger, un rapport de force, une figure locale, un boss et une issue qui change réellement le contrôle territorial.
+
+## Regional Sagas & Campaigns 4.0
+
+- Campagnes actives dans les **6 grandes régions** du jeu.
+- Déclenchement lié à la crise, la contestation territoriale, les projets et les forces réellement présentes.
+- Durée cible de **2 à 5 ans**.
+- **4 phases** : Tensions, Escalade, Point de rupture et Dénouement.
+- Rapport de force persistant entre camp dominant et challenger.
+- Figures locales et antagonistes procéduraux, remplacés par de vrais personnages/groupes du monde lorsqu’ils sont présents.
+- Les décisions critiques passent par le **Priority Director V8.0** au lieu d’interrompre mécaniquement chaque année.
+- Le joueur peut soutenir le pouvoir en place, le challenger ou rester indépendant.
+- Les tactiques reposent sur Combat, Commandement, Discrétion ou protection des populations.
+- Les campagnes injectent de vraies **missions causales** dans le tableau de missions.
+- La puissance du boss, la menace et la phase influencent la difficulté.
+- Les résultats de mission déplacent le rapport de force de la saga.
+- Une résolution modifie durablement **l’influence territoriale et les pressions régionales**.
+- L’onglet Monde affiche la campagne locale, son boss, sa figure locale et l’état des six régions.
+- Migration V8.1 → V8.2 automatique.
+- Save version : **820**.
+- Cache PWA : **one-piece-life-v8-2-0**.
+
+---
+
 # ONE PIECE LIFE — V8.1 Faction Identity 4.0
 
 La V8.1 transforme les factions en expériences de vie distinctes. Les métriques V7.3 de carrière sont désormais reliées à une identité persistante : loyauté, autonomie, pression, friction, devoirs remplis ou ignorés et opportunités saisies.
