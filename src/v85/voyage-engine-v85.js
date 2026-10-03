@@ -88,10 +88,10 @@
       if(id==='seaKing'){event.powerBonus=Math.round(10+sev*.24)}
       if(id==='marine'){event.powerBonus=Math.round(2+sev*.12)}
       if(id==='merchant')event.moneyDelta=Math.round(500+sev*85);
-      event.shipWear=+(event.shipWear*mode.wear).toFixed(1);v.remaining+=event.delay;v.incidents=(v.incidents||0)+1;v.lastEvent=id
+      event.shipWear=+(event.shipWear*clamp(num(v.wear)||1,.35,3.2)).toFixed(1);v.remaining+=event.delay;v.incidents=(v.incidents||0)+1;v.lastEvent=id
     }
     let discovery=null;
-    const discoveryChance=clamp(num(v.discoveryChance)*mode.discovery*(weather.id==='calm'||weather.id==='fair'?1.18:.92),.01,.55);
+    const discoveryChance=clamp(num(v.discoveryChance)*(weather.id==='calm'||weather.id==='fair'?1.18:.92),.01,.55);
     if(Number(rolls.discovery??1)<discoveryChance){
       const ids=Object.keys(data.discoveries),id=ids[Math.floor(clamp(Number(rolls.discoveryType??.5),0,.999999)*ids.length)]||'chart';
       discovery={id,...data.discoveries[id]};v.discoveries=(v.discoveries||0)+1;s.totalDiscoveries++
