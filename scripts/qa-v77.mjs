@@ -104,7 +104,8 @@ const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
 assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
 assert(saveVersion>=770,'V7.7 regression QA requires save version >= 770');
-const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);\nassert(gameMajor>7||(gameMajor===7&&gameMinor>=7),'V7.7 regression QA requires game version >= 7.7');
+const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
+assert(gameMajor>7||(gameMajor===7&&gameMinor>=7),'V7.7 regression QA requires game version >= 7.7');
 for(const asset of ['src/data/consequences-v77.js','src/v77/consequence-engine-v77.js','src/v77/consequences-v77.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
