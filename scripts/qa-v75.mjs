@@ -101,7 +101,8 @@ const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
 assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
 assert(saveVersion>=750,'V7.5 regression QA requires save version >= 750');
-const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);\nassert(gameMajor>7||(gameMajor===7&&gameMinor>=5),'V7.5 regression QA requires game version >= 7.5');
+const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
+assert(gameMajor>7||(gameMajor===7&&gameMinor>=5),'V7.5 regression QA requires game version >= 7.5');
 for(const asset of ['src/data/world-canon-v75.js','src/v75/world-canon-engine-v75.js']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
