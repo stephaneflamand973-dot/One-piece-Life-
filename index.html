@@ -2161,13 +2161,13 @@ function v79SetTrack(id,fromDecision=false){
   if(!fromDecision){saveGame();render()}return true
 }
 function v79SetFocus(id){
-  const mod=v79Module(),state=v79Ensure(),ctx=v79Context();if(!mod||!state)return false;
+  const mod=v79Module(),state=v79Ensure(),ctx=v79Context(),focus=v79Data()?.focuses?.[id];if(!mod||!state||!focus)return false;
   if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cette décision.');return false}
   if(ctx.age<5||ctx.age>=16)return false;
   if(state.lastActionYear===ctx.year){toast('Tu as déjà pris une grande décision de formation cette année.');return false}
+  const cost=Math.max(0,Number(focus.energy)||0);if(game.player.energy<cost){toast('Énergie insuffisante.');return false}
   const result=mod.focusAction(state,id,ctx);if(result.error)return false;
   game.player.educationV79=result.state;
-  const cost=Math.max(0,Number(result.focus.energy)||0);if(game.player.energy<cost){toast('Énergie insuffisante.');return false}
   game.player.energy=clamp(game.player.energy-Number(result.focus.energy||0),0,100);
   addHistory('Rythme de formation',result.focus.label+' devient ta priorité d’apprentissage cette année.','normal');saveGame();render();return true
 }
@@ -2187,6 +2187,11 @@ function v79ResolveEvent(parts){
   if(e.stress&&game.player.personalV78)game.player.personalV78.stress=clamp((game.player.personalV78.stress||0)+Number(e.stress),0,100);
   addHistory(result.event.label,result.choice.label+'. Cette expérience devient une partie de ta formation.','major');
   return true
+}
+function v79CareerHint(careerId,base){
+  const mod=v79Module(),state=v79Ensure();if(!mod||!state)return base;
+  const r=mod.careerReadiness(state,careerId,v79Context());
+  return base+' • Préparation '+Math.round(r.score)+'/100 ('+r.label.toLowerCase()+').'
 }
 function v79ApplyCareerPreparation(careerId){
   const mod=v79Module(),state=v79Ensure();if(!mod||!state||state.careerPreparationApplied)return null;
@@ -2726,7 +2731,7 @@ function lifecycleTransitions(){
   if(age>=18&&p.career!=='Aucune'&&!p.specialization&&!game.flags.specializationOffered&&p.careerXP>16&&!game.pendingDecision){game.flags.specializationOffered=true;game.pendingDecision=specializationDecision()}
 }
 function ambitionDecision(){return {id:'ambition',title:'Une ambition prend forme',text:'Tu commences à avoir une idée plus claire de ce que tu veux faire de ta vie. Ce n’est pas une prophétie, seulement une direction.',choices:AMBITIONS.map(([label,hint,type])=>({label,hint,action:`ambition:${type}`}))}}
-function careerDecision(){return {id:'career_start',title:'Choisir une première voie',text:'Tu es désormais assez âgé pour quitter l’enfance. Aucune voie ne garantit la gloire, et certaines raccourcissent franchement l’espérance de vie.',choices:[{label:'Tenter d’intégrer la Marine',hint:'Structure, salaire, missions et hiérarchie.',action:'career:marine'},{label:'Prendre la mer avec des pirates locaux',hint:'Liberté, équipage, prime et danger.',action:'career:pirate'},{label:'Apprendre un métier civil',hint:'Carrière plus stable, mais le monde peut te rattraper.',action:'career:civil'},{label:'Devenir chasseur de primes',hint:'Indépendance, revenus irréguliers et combats.',action:'career:hunter'},{label:'Rejoindre les Révolutionnaires',hint:'Clandestinité, réseau et opposition au Gouvernement.',action:'career:revolution'},{label:'Servir le Gouvernement',hint:'Discipline, renseignements et accès possible au Cipher Pol.',action:'career:government'}]}}
+function careerDecision(){return {id:'career_start',title:'Choisir une première voie',text:'Tu es désormais assez âgé pour quitter l’enfance. Aucune voie ne garantit la gloire, et certaines raccourcissent franchement l’espérance de vie.',choices:[{label:'Tenter d’intégrer la Marine',hint:v79CareerHint('marine','Structure, salaire, missions et hiérarchie.'),action:'career:marine'},{label:'Prendre la mer avec des pirates locaux',hint:v79CareerHint('pirate','Liberté, équipage, prime et danger.'),action:'career:pirate'},{label:'Apprendre un métier civil',hint:v79CareerHint('civil','Carrière plus stable, mais le monde peut te rattraper.'),action:'career:civil'},{label:'Devenir chasseur de primes',hint:v79CareerHint('hunter','Indépendance, revenus irréguliers et combats.'),action:'career:hunter'},{label:'Rejoindre les Révolutionnaires',hint:v79CareerHint('revolution','Clandestinité, réseau et opposition au Gouvernement.'),action:'career:revolution'},{label:'Servir le Gouvernement',hint:v79CareerHint('government','Discipline, renseignements et accès possible au Cipher Pol.'),action:'career:government'}]}}
 function specializationDecision(){const p=game.player;let choices=[];if(p.faction==='Marine')choices=[['Combat','Unité de combat et opérations dangereuses.','combat'],['Commandement','Organisation, équipe et progression hiérarchique.','command'],['Renseignement','Enquête, discrétion et collecte d’informations.','intel']];else if(p.faction==='Pirates')choices=[['Combattant','Devenir une force majeure de l’équipage.','fighter'],['Navigateur','Maîtriser les routes et voyages difficiles.','navigator'],['Officier','Développer autorité, recrutement et commandement.','officer']];else if(p.faction==='Chasseurs de primes')choices=[['Pisteur','Repérage et discrétion.','tracker'],['Duelliste','Affrontement direct.','duelist'],['Capture','Contrôle et chasse de cibles dangereuses.','capture']];else if(p.faction==='Révolutionnaires')choices=[['Opérations','Action clandestine et sabotage.','operations'],['Réseau','Relations, recrutement et influence locale.','network'],['Combat','Protection des cellules et affrontements.','fighter']];else if(p.faction==='Gouvernement')choices=[['Renseignement','Surveillance et infiltration.','intel'],['Combat','Interventions directes et arrestations.','combat'],['Cipher Pol','Voie d’agent spécial à long terme.','cipher']];else choices=[['Médecine','Se spécialiser dans les soins.','medicine'],['Navigation','Faire de la mer ton métier.','navigation'],['Science','Étudier et expérimenter.','science'],['Commerce','Développer richesse et réseau.','trade']];return {id:'specialization',title:'Choisir une spécialisation',text:'Ton expérience commence à te permettre de te distinguer dans un domaine précis.',choices:choices.map(([label,hint,type])=>({label,hint,action:`specialize:${type}:${label}`}))}}
 
 function talentForStat(k){return ['Force','Vitesse','Agilité','Endurance','Résistance','Réflexes'].includes(k)?TALENT_MOD[game.player.talents.Physique]||1:TALENT_MOD[game.player.talents.Apprentissage]||1}
