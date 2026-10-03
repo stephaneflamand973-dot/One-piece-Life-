@@ -2605,6 +2605,98 @@ function renderV82Campaigns(){
 }
 
 
+function v86Module(){return window.OPL_MODULES?.get('dailyLifeEngineV86')||null}
+function v86Data(){return window.OPL_MODULES?.get('dailyLifeDataV86')||null}
+function v86Ensure(){
+  if(!game?.player)return null;const mod=v86Module(),p=game.player;if(!mod)return p.dailyV86||null;
+  p.dailyV86=mod.normalizeState(p.dailyV86||{});
+  return p.dailyV86
+}
+function v86ActivitySnapshot(type=game.player.activityType){
+  const mod=v86Module(),state=v86Ensure();if(!mod||!state)return {efficiency:1,mastery:0,streak:0,label:String(type||'Activité')};
+  return mod.activitySnapshot(state,type||'general')
+}
+function v86ProgressMultiplier(type=game.player.activityType){
+  const s=v86ActivitySnapshot(type);return clamp(1+(Number(s.efficiency||1)-1)*.35,.87,1.14)
+}
+function v86CareerMultiplier(type=game.player.activityType){
+  const mod=v86Module(),data=v86Data(),snap=v86ActivitySnapshot(type);if(!mod||!data)return 1;
+  const family=data.profiles?.[type]?.family||'balanced',eff=Number(snap.efficiency)||1;
+  if(family==='duty'||family==='work')return clamp(1+(eff-1)*.32,.90,1.13);
+  if(family==='risk')return clamp(1+(eff-1)*.20,.94,1.08);
+  if(family==='recovery')return .90;
+  if(family==='training')return .95;
+  return clamp(1+(eff-1)*.10,.96,1.04)
+}
+function v86ApplyMicro(event){
+  if(!event)return;const p=game.player;
+  if(event.kind==='skill'&&event.skill){const g=v63SkillGain(event.skill,.28*(event.scale||1));addHistory(event.label,'Ta routine produit un petit déclic concret.','normal',event.skill+' +'+g.toFixed(1));return}
+  if(event.kind==='money'){p.money+=Math.max(0,event.money||0);addHistory(event.label,'Un détail du quotidien tourne à ton avantage.','normal','+'+Math.max(0,event.money||0).toLocaleString('fr-FR')+' B');return}
+  if(event.kind==='reputation'){p.reputation.local=clamp((p.reputation.local||0)+(event.rep||1),0,100);addHistory(event.label,'Ce que tu fais au quotidien commence à être remarqué.','normal','Réputation locale +'+(event.rep||1));return}
+  if(event.kind==='energy'){p.energy=clamp(p.energy+(event.energy||0),0,100);addHistory(event.label,'La répétition finit par peser sur ton rythme.','normal','Énergie '+(event.energy||0));return}
+  if(event.kind==='relation'){
+    const rel=(game.relations||[]).filter(x=>x.status==='active');const r=rel.length?pick(rel,'v86MicroRelation'):null;
+    if(r){r.affection=clamp((r.affection||0)+(event.relation||1),0,100);r.trust=clamp((r.trust||0)+Math.max(1,Math.round((event.relation||1)*.5)),0,100);addHistory(event.label,'Un moment ordinaire avec '+r.name+' renforce légèrement votre lien.','normal')}
+  }
+}
+function v86MonthlyTick(){
+  const mod=v86Module(),state=v86Ensure(),p=game.player;if(!mod||!state)return null;
+  const region=v68RegionState(p.region),month=game.ageMonths,type=p.activityType||'general';
+  const result=mod.tickMonth(state,{activityType:type,month,year:game.clock.year,regionDanger:REGION_DANGER[p.region]||10,localOpportunity:Number(region?.opportunity)||0,worldRep:Number(p.reputation?.world)||0,localRep:Number(p.reputation?.local)||0,energy:p.energy,health:p.health,faction:p.faction},{
+    micro:random('v86Micro'),microType:random('v86MicroType'),microScale:random('v86MicroScale'),skill:random('v86MicroSkill'),
+    offer:game.ageMonths<144?1:random('v86Offer'),type:random('v86OfferType'),difficulty:random('v86OfferDifficulty'),id:random('v86OfferId')
+  });
+  p.dailyV86=result.state;
+  p.energy=clamp(p.energy+(result.effects.energy||0),0,100);p.health=clamp(p.health+(result.effects.health||0),1,100);
+  if(result.micro)v86ApplyMicro(result.micro);
+  if(result.opportunity)addHistory('Nouvelle opportunité locale',result.opportunity.label+' est disponible à '+p.island+'. Elle restera facultative et n’interrompt pas l’année.','normal','Expire dans 18 mois');
+  return result
+}
+function v86OpportunityPreview(op){
+  const mod=v86Module(),state=v86Ensure(),p=game.player;if(!mod||!state||!op)return {chance:0};
+  const track=state.tracks?.[op.activityType]||{},skill=Number(p.skills?.[op.skill])||Number(p.skills?.Commandement)||0;
+  return {chance:mod.opportunityChance(op,{skill,power:overallPower(),mastery:Number(track.mastery)||0,energy:p.energy,worldRep:Number(p.reputation?.world)||0})}
+}
+function v86ResolveOpportunity(id){
+  if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant de saisir une opportunité facultative.');return false}
+  const mod=v86Module(),state=v86Ensure(),p=game.player;if(!mod||!state)return false;
+  const op=state.opportunities.find(x=>x.id===id);if(!op)return false;
+  const preview=v86OpportunityPreview(op),result=mod.resolveOpportunity(state,id,{month:game.ageMonths,skill:Number(p.skills?.[op.skill])||0,power:overallPower(),energy:p.energy,worldRep:Number(p.reputation?.world)||0},random('v86OpportunityResolve'));
+  if(result.error)return false;p.dailyV86=result.state;
+  const e=result.effects;p.money=Math.max(0,p.money+(e.money||0));p.energy=clamp(p.energy+(e.energy||0),0,100);p.health=clamp(p.health+(e.health||0),1,100);p.reputation.local=clamp((p.reputation.local||0)+(e.rep||0),0,100);
+  if(op.skill&&e.skillGain>0)v63SkillGain(op.skill,e.skillGain);
+  if(e.lead)v64GrantRareLead('opportunité locale');
+  if(e.relation>0){
+    const rel=(game.relations||[]).filter(x=>x.status==='active'),r=rel.length?pick(rel,'v86OpportunityRelation'):null;
+    if(r){r.affection=clamp((r.affection||0)+e.relation,0,100);r.trust=clamp((r.trust||0)+Math.max(1,Math.round(e.relation*.6)),0,100)}
+  }
+  if(e.discovery){
+    const v85=v85Ensure(),island=v85?.islands?.[p.island];if(island)island.exploration=clamp((Number(island.exploration)||0)+5,0,100)
+  }
+  const label=result.outcome==='success'?'Opportunité réussie':result.outcome==='partial'?'Résultat mitigé':'Opportunité manquée';
+  const delta=[e.money?((e.money>0?'+':'')+e.money.toLocaleString('fr-FR')+' B'):'',e.rep?('réputation '+(e.rep>0?'+':'')+e.rep):'',op.skill&&e.skillGain?op.skill+' +'+e.skillGain.toFixed(1):''].filter(Boolean).join(' • ');
+  addHistory(label,op.label+' : '+(result.outcome==='success'?'tu exploites pleinement l’occasion.':result.outcome==='partial'?'tu en tires quelque chose, sans tout réussir.':'la fenêtre se referme sans le résultat espéré.'),result.outcome==='failure'?'danger':'major',delta||('Chance '+Math.round(preview.chance*100)+'%'));
+  saveGame();render();return true
+}
+function v86DismissOpportunity(id){
+  if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant de gérer les opportunités.');return false}
+  const mod=v86Module(),state=v86Ensure();if(!mod||!state)return false;const r=mod.dismissOpportunity(state,id,game.ageMonths);if(r.error)return false;
+  game.player.dailyV86=r.state;addHistory('Opportunité ignorée',r.opportunity.label+' est laissée de côté.','normal');saveGame();render();return true
+}
+function v86ActivityMetaHtml(type){
+  const s=v86ActivitySnapshot(type);return '<div class="v86-activity-meta"><span>maîtrise '+Math.round(s.mastery)+'/100</span>'+(s.streak?'<span>série '+s.streak+' mois</span>':'')+'<span>efficacité ×'+Number(s.efficiency||1).toFixed(2)+'</span></div>'
+}
+function renderV86Daily(){
+  const box=$('#v86DailyCard'),mod=v86Module(),data=v86Data(),state=v86Ensure();if(!box||!mod||!data||!state)return;
+  const s=mod.summary(state,game.player.activityType||'general'),current=s.current,opps=s.opportunities||[],top=s.tracks.slice(0,4);
+  const fatigue=s.routineFatigue<25?'Faible':s.routineFatigue<50?'Modérée':s.routineFatigue<75?'Élevée':'Très élevée';
+  const opportunities=opps.length?'<div class="v86-opportunities">'+opps.map(op=>{const p=v86OpportunityPreview(op);return '<div class="v86-opportunity"><strong>'+esc(op.label)+'</strong><p>'+esc(op.desc)+'</p><small>'+esc(op.skill)+' • difficulté '+Math.round(op.difficulty)+' • risque '+Math.round(op.risk)+' • réussite ~'+Math.round(p.chance*100)+'% • expire dans '+Math.max(0,Math.ceil((op.expiresMonth-game.ageMonths)/12*10)/10)+' an(s)</small><div class="inventory-actions"><button class="mini-action primary" data-v86-op="'+esc(op.id)+'">Saisir</button><button class="mini-action" data-v86-dismiss="'+esc(op.id)+'">Ignorer</button></div></div>'}).join('')+'</div>':'<p class="helper-text">Aucune occasion locale particulière en attente. Le quotidien travaille quand même en arrière-plan, ce qui est déjà plus crédible que de trouver un trésor tous les mardi.</p>';
+  box.innerHTML='<div class="v86-daily-summary"><div><span>Activité</span><strong>'+esc(current.label)+'</strong></div><div><span>Maîtrise</span><strong>'+Math.round(current.mastery)+'/100</strong></div><div><span>Série actuelle</span><strong>'+s.streak+' mois</strong></div><div><span>Fatigue de routine</span><strong>'+fatigue+'</strong></div><div><span>Opportunités vues</span><strong>'+s.totalOpportunities+'</strong></div><div><span>Saisies</span><strong>'+s.accepted+'</strong></div><div><span>Réussies</span><strong>'+s.succeeded+'</strong></div><div><span>Micro-événements</span><strong>'+s.microEvents+'</strong></div></div>'+
+    (top.length?'<div>'+top.map(t=>'<div class="v86-track-row"><span>'+esc(t.label)+' • '+Math.round(t.months)+' mois</span><strong>'+Math.round(t.mastery)+'/100</strong></div>').join('')+'</div>':'')+
+    '<div><span class="eyebrow">Occasions facultatives</span>'+opportunities+'</div>';
+  $('[data-v86-op]').forEach(b=>b.onclick=()=>v86ResolveOpportunity(b.dataset.v86Op));$('[data-v86-dismiss]').forEach(b=>b.onclick=()=>v86DismissOpportunity(b.dataset.v86Dismiss))
+}
+
 function v85Module(){return window.OPL_MODULES?.get('voyageEngineV85')||null}
 function v85Data(){return window.OPL_MODULES?.get('voyageDataV85')||null}
 function v85Ensure(){
