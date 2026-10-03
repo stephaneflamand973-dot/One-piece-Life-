@@ -37,6 +37,7 @@
       growthClosed:!!state.growthClosed,
       lastActionYear:Number.isFinite(Number(state.lastActionYear))?Number(state.lastActionYear):-99,
       lastEventYear:Number.isFinite(Number(state.lastEventYear))?Number(state.lastEventYear):-99,
+      lastEventCheckYear:Number.isFinite(Number(state.lastEventCheckYear))?Number(state.lastEventCheckYear):-99,
       lastAnnualYear:Number.isFinite(Number(state.lastAnnualYear))?Number(state.lastAnnualYear):-99,
       lifetimeCosts:Math.max(0,Math.floor(num(state.lifetimeCosts))),
       lifetimeSupport:Math.max(0,Math.floor(num(state.lifetimeSupport))),
