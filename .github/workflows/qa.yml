@@ -1,4 +1,4 @@
-name: V8.6 QA
+name: V8.7 QA
 on:
   push:
     branches: [main]
@@ -31,6 +31,7 @@ on:
       - 'scripts/qa-v84.mjs'
       - 'scripts/qa-v85.mjs'
       - 'scripts/qa-v86.mjs'
+      - 'scripts/qa-v87.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -47,13 +48,14 @@ on:
       - 'QA-V8.4.md'
       - 'QA-V8.5.md'
       - 'QA-V8.6.md'
+      - 'QA-V8.7.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v86-qa-${{ github.ref }}
+  group: v87-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -113,3 +115,5 @@ jobs:
         run: node scripts/qa-v85.mjs
       - name: Verify V8.6 Daily Life & Opportunities 4.0
         run: node scripts/qa-v86.mjs
+      - name: Verify V8.7 Islands & Settlements 4.0
+        run: node scripts/qa-v87.mjs
