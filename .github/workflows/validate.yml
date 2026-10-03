@@ -1,4 +1,4 @@
-name: Validate V8.3
+name: Validate V8.4
 on:
   push:
     branches: [main]
@@ -29,6 +29,7 @@ on:
       - 'scripts/qa-v81.mjs'
       - 'scripts/qa-v82.mjs'
       - 'scripts/qa-v83.mjs'
+      - 'scripts/qa-v84.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -42,6 +43,7 @@ on:
       - 'QA-V8.1.md'
       - 'QA-V8.2.md'
       - 'QA-V8.3.md'
+      - 'QA-V8.4.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
       - '.github/workflows/audit-v32.yml'
@@ -50,7 +52,7 @@ on:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v83-validate-${{ github.ref }}
+  group: v84-validate-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -62,7 +64,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate standalone and modular V8.3
+      - name: Validate standalone and modular V8.4
         run: |
           node <<'NODE'
           const fs=require('fs');
@@ -72,9 +74,9 @@ jobs:
           new Function(m[1]);
           const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
           const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-          if(!html.includes('ONE PIECE LIFE — V8.3'))throw new Error('V8.3 title missing');
-          if(saveVersion<830)throw new Error('Save migration 830+ missing');
-          if(gameVersion!=='8.3.0')throw new Error('Game version 8.3.0 missing');
+          if(!html.includes('ONE PIECE LIFE — V8.4'))throw new Error('V8.4 title missing');
+          if(saveVersion<840)throw new Error('Save migration 840+ missing');
+          if(gameVersion!=='8.4.0')throw new Error('Game version 8.4.0 missing');
           const assets=[
             'src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css',
             'src/data/combat-techniques-v72.js','src/v72/combat-engine-v72.js','src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js',
@@ -86,17 +88,18 @@ jobs:
             'src/data/simulation-core-v80.js','src/v80/simulation-core-v80.js','src/v80/simulation-core-v80.css',
             'src/data/faction-identity-v81.js','src/v81/faction-identity-engine-v81.js','src/v81/faction-identity-v81.css',
             'src/data/campaigns-v82.js','src/v82/campaign-engine-v82.js','src/v82/campaigns-v82.css',
-            'src/data/antagonists-v83.js','src/v83/antagonist-engine-v83.js','src/v83/antagonists-v83.css'
+            'src/data/antagonists-v83.js','src/v83/antagonist-engine-v83.js','src/v83/antagonists-v83.css',
+            'src/data/crew-v84.js','src/v84/crew-engine-v84.js','src/v84/crew-v84.css'
           ];
           for(const x of assets){if(!fs.existsSync(x))throw new Error('missing modular asset '+x);if(!html.includes(x))throw new Error('index does not load '+x)}
           for(const x of assets.filter(x=>x.endsWith('.js')))new Function(fs.readFileSync(x,'utf8'));
-          for(const x of ['function v71Ensure','function v72CombatModule','function v73Module','function v74Module','function v75Module','function v76Module','function v77Module','function v78Module','function v79Module','function v80Module','function v80PriorityInterrupt','function v80RenderActiveTab','function v81Module','function v81Ensure','function v81QueueFaction','function renderV81FactionIdentity','function v82Module','function v82Ensure','function v82AnnualWorldTick','function v82QueueCampaign','function renderV82Campaigns','function v83Module','function v83Ensure','function v83BindCampaign','function v83Candidate','function v83QueueNemesis','function renderV83Nemeses'])if(!html.includes(x))throw new Error('missing '+x);
+          for(const x of ['function v71Ensure','function v72CombatModule','function v73Module','function v74Module','function v75Module','function v76Module','function v77Module','function v78Module','function v79Module','function v80Module','function v80PriorityInterrupt','function v80RenderActiveTab','function v81Module','function v81Ensure','function v81QueueFaction','function renderV81FactionIdentity','function v82Module','function v82Ensure','function v82AnnualWorldTick','function v82QueueCampaign','function renderV82Campaigns','function v83Module','function v83Ensure','function v83BindCampaign','function v83Candidate','function v83QueueNemesis','function renderV83Nemeses','function v84Module','function v84Ensure','function v84MissionSupport','function v84Candidate','function v84QueueCrew','function v84RenderCrew'])if(!html.includes(x))throw new Error('missing '+x);
           if(!html.includes('id="v80DirectorCard"'))throw new Error('V8.0 Life Director UI missing');
           if(html.includes('renderTimeline();renderCharacter();renderAbilities();renderRelations();renderWorld();renderDev();v76AfterRender()'))throw new Error('eager heavy-panel render regression');
-          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V8.3'))throw new Error('manifest not V8.3');
-          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v8-3-0'))throw new Error('service worker cache not V8.3.0');
+          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V8.4'))throw new Error('manifest not V8.4');
+          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v8-4-0'))throw new Error('service worker cache not V8.4.0');
           for(const x of assets)if(!sw.includes(x))throw new Error('service worker missing modular asset '+x);
-          console.log('V8.3 static + modular validation OK');
+          console.log('V8.4 static + modular validation OK');
           NODE
       - name: Validate V6.4 regression behavior
         run: node scripts/qa-v64.mjs
@@ -140,3 +143,5 @@ jobs:
         run: node scripts/qa-v82.mjs
       - name: Validate V8.3 Nemesis & Rivalry
         run: node scripts/qa-v83.mjs
+      - name: Validate V8.4 Crew & Organization
+        run: node scripts/qa-v84.mjs
