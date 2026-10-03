@@ -88,7 +88,7 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
         <span class="eyebrow">V8.4 • Crew & Organization 4.0</span>
         <h2>Ton équipage devient enfin une vraie force vivante, pas une poignée de noms sous une jauge de moral.</h2>
         <p>La V8.4 développe le cœur de l’aventure : rôles complémentaires, doctrine collective, second officiel, maîtrise de poste, blessures, recrutement ciblé, équipes de mission, logistique et influence réelle de l’équipage sur les missions et les grandes sagas.</p>
-        <div class="feature-pills"><span>10 rôles</span><span>6 doctrines</span><span>Second officiel</span><span>Recrutement ciblé</span><span>Blessures d’équipage</span><span>Équipes de mission</span><span>Impact sur les sagas</span></div>
+        <div class="feature-pills"><span>11 rôles</span><span>6 doctrines</span><span>Second officiel</span><span>Recrutement ciblé</span><span>Blessures d’équipage</span><span>Équipes de mission</span><span>Impact sur les sagas</span></div>
       </section>
 
 
@@ -1593,8 +1593,8 @@ function v69CanDelegate(m){
 }
 function v69DelegateMission(id){
   v69Ensure();const p=game.player,e=p.endgameV69,m=game.missionBoard.find(x=>x.id===id);if(!v69CanDelegate(m))return false;
-  const c=v69CareerTier(),crew=p.crew?v67CrewMetrics():{cohesion:50},network=v69NetworkMissionBonus(),authority=c.authority;
-  const score=authority*.58+(p.skills?.Commandement||0)*.24+crew.cohesion*.12+network*1.4,target=Number(m.power)||20;
+  const c=v69CareerTier(),crew=p.crew?v67CrewMetrics():{cohesion:50},network=v69NetworkMissionBonus(),authority=c.authority,crewSupport=p.crew?v84MissionSupport(m).bonus:0;
+  const score=authority*.58+(p.skills?.Commandement||0)*.24+crew.cohesion*.12+network*1.4+crewSupport*1.15,target=Number(m.power)||20;
   const prob=clamp(.48+(score-target)/115,.18,.93),success=chance(prob,'v69Delegate');
   e.lastDelegationYear=Math.floor(game.ageMonths/12);e.totalDelegations++;
   if(success){
@@ -2603,7 +2603,7 @@ function v84Data(){return window.OPL_MODULES?.get('crewDataV84')||null}
 function v84StableRoll(key){return v58HashFloat('v84:'+String(key))}
 function v84Ensure(){
   if(!game?.player)return null;const mod=v84Module(),p=game.player;if(!mod)return p.crewV84||null;
-  p.crewV84=mod.normalizeState(p.crewV84||{});
+  p.crewV84=mod.normalizeState(p.crewV84||{});if(p.crewV84.pendingEvent&&Number(p.crewV84.pendingEvent.year)<Number(game.clock?.year||0))p.crewV84.pendingEvent=null;
   if(p.crew){
     p.crew.members=Array.isArray(p.crew.members)?p.crew.members:[];
     p.crew.members=p.crew.members.map((m,i)=>{
