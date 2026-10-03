@@ -94,6 +94,8 @@
 
   const v80=registry.get('simulationCoreDataV80');
   if(v80&&!v80.interruptionKinds.campaign)v80.interruptionKinds.campaign={label:'Saga régionale',base:60,novelty:10};
+  if(v80?.narrativeDomains?.world?.patterns&&!v80.narrativeDomains.world.patterns.includes('campagne'))v80.narrativeDomains.world.patterns.push('campagne');
+  if(v80?.legacyCategories?.world?.patterns&&!v80.legacyCategories.world.patterns.includes('campagne'))v80.legacyCategories.world.patterns.push('campagne');
 
   registry.register('campaignDataV82',{version:'8.2.0',phases,archetypes,regionFlavor,tactics});
 })(window);
