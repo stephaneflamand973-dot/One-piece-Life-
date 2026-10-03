@@ -1,3 +1,27 @@
+# ONE PIECE LIFE — V7.9 Education & Youth 3.0
+
+La V7.9 transforme enfin l’enfance et l’adolescence en véritable gameplay. La formation n’est pas une école universelle copiée sur notre monde : elle dépend d’un parcours local cohérent avec l’univers de One Piece.
+
+## Education & Youth 3.0
+
+- 8 parcours : formation générale, dojo, navigation, médecine, science, artisanat-commerce, survie-exploration et préparation au service.
+- 5 rythmes annuels : équilibré, théorie, pratique, apprentissage social ou récupération.
+- Progression mensuelle en connaissances, pratique, discipline et assurance.
+- Les parcours font aussi progresser de vraies compétences et statistiques.
+- L’environnement familial V7.8, le stress, l’énergie et le talent d’apprentissage modifient la vitesse de progression.
+- 4 évaluations dynamiques à 8, 10, 13 et 15 ans.
+- Les chances d’examen dépendent du dossier réel, du mentorat, de la stabilité familiale et du talent.
+- 6 familles d’événements de jeunesse : mentor, rivalité, terrain, difficulté, soutien et déclic.
+- Orientation de parcours à partir de 10 ans, avec changement possible sans verrouillage définitif.
+- Les six choix de carrière affichent désormais un score de préparation.
+- Le parcours de jeunesse apporte un bonus de départ mesuré en XP, réputation, standing et compétences pertinentes.
+- Les anciennes sauvegardes adultes reçoivent un dossier de formation synthétique sans bonus rétroactif.
+- Migration V7.8 → V7.9 automatique.
+- Save version : **790**.
+- Cache PWA : **one-piece-life-v7-9-0**.
+
+---
+
 # ONE PIECE LIFE — V7.8 Personal Life & Household 3.0
 
 La V7.8 développe enfin ce qui se passe entre deux grandes aventures : où ton personnage vit, ce que son foyer lui coûte, ce qu’il doit à sa famille et comment sa vie personnelle évolue avec l’âge.
