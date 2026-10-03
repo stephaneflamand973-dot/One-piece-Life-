@@ -20,7 +20,8 @@
   <link rel="stylesheet" href="src/v80/simulation-core-v80.css" />
   <link rel="stylesheet" href="src/v81/faction-identity-v81.css" />
   <link rel="stylesheet" href="src/v82/campaigns-v82.css" />
-  <title>ONE PIECE LIFE — V8.2</title>
+  <link rel="stylesheet" href="src/v83/antagonists-v83.css" />
+  <title>ONE PIECE LIFE — V8.3</title>
   <style>
 :root{--bg:#f4ecd8;--paper:#fffaf0;--ink:#1d2a2c;--muted:#6f7775;--navy:#173f4e;--sea:#2d7181;--sea2:#78a7a7;--gold:#c5943c;--red:#a34b3d;--green:#4b7660;--line:#dfd3b7;--shadow:0 12px 34px rgba(41,52,49,.09);--radius:22px;--safe:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}html{background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% -5%,rgba(120,167,167,.28),transparent 32%),linear-gradient(180deg,#f8f1df,var(--bg))}.app-shell{max-width:760px;margin:0 auto;min-height:100vh;padding-bottom:calc(90px + var(--safe))}.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px;background:rgba(244,236,216,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(100,90,70,.12)}.brand-wrap{display:flex;align-items:center;gap:10px;min-width:0}.brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:#fff;font-size:20px;box-shadow:0 6px 16px rgba(23,63,78,.2)}h1,h2,h3,p{margin-top:0}.brand-wrap h1{font-size:15px;letter-spacing:.08em;margin:0}.brand-wrap p{font-size:10px;color:var(--muted);margin:2px 0 0}.icon-btn{border:0;background:rgba(255,255,255,.55);width:38px;height:38px;border-radius:12px;font-size:18px;color:var(--ink)}main{padding:14px}.screen{display:none}.screen.active{display:block}.paper-card{background:rgba(255,250,240,.94);border:1px solid rgba(132,111,72,.16);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px}.hero-card{padding:24px;background:linear-gradient(145deg,#fffaf0 0%,#f4ead2 70%,#e6dfc8 100%);position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(45,113,129,.14);border-radius:50%;right:-70px;bottom:-100px;box-shadow:0 0 0 28px rgba(45,113,129,.035),0 0 0 56px rgba(45,113,129,.025)}.hero-card h2{font-family:Georgia,serif;font-size:34px;line-height:1.02;max-width:620px;margin:8px 0 14px}.hero-card p{color:#52605f;line-height:1.55;max-width:620px}.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--sea)}.feature-pills,.chip-list{display:flex;flex-wrap:wrap;gap:8px}.feature-pills span,.chip,.badge{font-size:11px;border-radius:999px;padding:7px 10px;background:#edf3ef;color:#47635d;border:1px solid rgba(75,118,96,.12)}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-heading.compact{margin-bottom:12px}.section-heading h3{margin:3px 0 0;font-size:18px}.save-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.save-slot{min-height:128px;border:1px dashed #c9b893;border-radius:17px;padding:14px;text-align:left;background:#fffbf3;color:var(--ink);display:flex;flex-direction:column;justify-content:space-between}.save-slot strong{font-size:14px}.save-slot small{color:var(--muted);line-height:1.35}.save-slot.empty{align-items:center;justify-content:center;text-align:center;color:var(--sea);font-weight:700}.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.mode-card{border:1px solid var(--line);border-radius:16px;background:#fffaf1;padding:14px;text-align:left;color:var(--ink)}.mode-card strong{display:block;margin-bottom:5px}.mode-card span{font-size:12px;color:var(--muted);line-height:1.35}.mode-card.selected{border-color:var(--sea);box-shadow:inset 0 0 0 1px var(--sea);background:#f1f8f6}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field>span{font-size:11px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:13px;padding:13px;background:#fffdf8;color:var(--ink);font-size:16px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary-btn,.secondary-btn,.choice-btn{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:800;font-size:14px}.primary-btn{background:var(--navy);color:#fff;box-shadow:0 8px 20px rgba(23,63,78,.18)}.primary-btn.small{padding:11px 14px;width:auto}.secondary-btn{background:#ece4d1;color:var(--ink)}.text-btn{border:0;background:transparent;color:var(--sea);font-weight:800;font-size:12px}.status-strip{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:1px;background:#d9ceb4;border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}.status-strip>div{background:#fffaf0;padding:11px 12px;min-width:0}.status-strip strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tiny-label{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}.tab-panel{display:none}.tab-panel.active{display:block}.profile-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#173f4e,#255e69);color:#fff}.avatar-ring{width:54px;height:54px;flex:0 0 54px;border-radius:50%;display:grid;place-items:center;background:#f7edd5;color:var(--navy);font:700 22px Georgia,serif;border:3px solid rgba(255,255,255,.24)}.profile-copy{min-width:0;flex:1}.profile-copy h2{margin:4px 0 3px;font-size:22px}.profile-copy p{margin:0;color:rgba(255,255,255,.72);font-size:12px}.profile-banner .eyebrow{color:#d9c79b}.reputation-pill{font-size:10px;font-weight:800;border-radius:999px;background:rgba(255,255,255,.13);padding:8px 10px;white-space:nowrap}.situation-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.situation-grid>div,.info-cell{padding:12px;border-radius:14px;background:#f4f0e5}.situation-grid span,.info-cell span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.situation-grid strong,.info-cell strong{font-size:13px}.danger-badge{font-size:10px;font-weight:900;border-radius:999px;padding:7px 10px}.danger-badge.low{background:#e4f0e9;color:#3f6a56}.danger-badge.medium{background:#f6ead0;color:#906b23}.danger-badge.high{background:#f4dfda;color:#963e35}.compact-list{margin-top:12px}.attention-card{border-color:#d3b46f;background:linear-gradient(145deg,#fff9e8,#f7eed7)}.attention-card h3{margin:6px 0}.attention-card p{font-size:13px;color:var(--muted);line-height:1.5}.timeline{position:relative;padding-left:18px}.timeline:before{content:"";position:absolute;left:5px;top:5px;bottom:8px;width:1px;background:#d6c9aa}.timeline-item{position:relative;padding:0 0 18px 13px}.timeline-dot{position:absolute;left:-17px;top:5px;width:9px;height:9px;background:#8f9f97;border:2px solid #fffaf0;border-radius:50%;box-shadow:0 0 0 1px #c8b997}.timeline-item.major .timeline-dot{background:var(--gold)}.timeline-item.danger .timeline-dot{background:var(--red)}.timeline-item.canon .timeline-dot{background:var(--sea)}.timeline-age{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.08em}.timeline-title{font-weight:900;margin:3px 0}.timeline-desc{font-size:13px;color:#5f6965;line-height:1.45}.timeline-delta{display:inline-block;margin-top:6px;background:#e8f0ea;color:#42644f;border-radius:9px;padding:4px 7px;font-size:10px;font-weight:800}.advance-dock{position:sticky;bottom:calc(72px + var(--safe));z-index:20;padding-top:2px}.advance-btn{width:100%;border:0;border-radius:18px;background:linear-gradient(135deg,#1d5360,#173f4e);color:#fff;padding:15px 18px;display:flex;gap:12px;align-items:center;text-align:left;box-shadow:0 15px 30px rgba(23,63,78,.24)}.advance-btn:disabled{opacity:.48}.advance-icon{font-size:24px}.advance-btn strong{display:block;letter-spacing:.08em}.advance-btn small{display:block;color:rgba(255,255,255,.65);font-size:10px;margin-top:3px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.career-card{padding:14px;border-radius:14px;background:#f4f0e5}.career-card strong{font-size:16px}.career-card p{font-size:12px;color:var(--muted);margin:5px 0 0;line-height:1.45}.action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.action-card{border:1px solid var(--line);background:#fffdf8;border-radius:14px;padding:12px;text-align:left;color:var(--ink)}.action-card strong{display:block;font-size:13px}.action-card small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}.action-card.active{border-color:var(--sea);background:#eef6f3}.action-card.locked{opacity:.45}.stats-list{display:flex;flex-direction:column;gap:9px}.stat-row{display:grid;grid-template-columns:100px 1fr 35px;align-items:center;gap:9px;font-size:12px}.stat-bar{height:8px;border-radius:999px;background:#e8e1d2;overflow:hidden}.stat-fill{height:100%;background:linear-gradient(90deg,#78a7a7,#2d7181);border-radius:999px}.stat-value{text-align:right;font-weight:900}.split-card{display:grid;grid-template-columns:1fr 1fr;gap:14px}.split-card>div+div{border-left:1px solid var(--line);padding-left:14px}.ability-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:8px 0;border-bottom:1px solid #eee6d6}.ability-row:last-child{border-bottom:0}.ability-row span{color:var(--muted)}.fruit-card{font-size:12px;line-height:1.45;color:#53605d}.relations-list{display:flex;flex-direction:column;gap:9px}.relation-card{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px;padding:10px;border-radius:14px;background:#f4f0e5}.relation-avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#dce9e5;color:var(--navy);font-weight:900}.relation-copy strong,.relation-copy span{display:block}.relation-copy span{font-size:11px;color:var(--muted);margin-top:2px}.relation-score{font-weight:900;color:var(--sea)}.world-hero{background:linear-gradient(145deg,#eaf2ec,#fffaf0)}.world-hero p{font-size:13px;color:var(--muted);line-height:1.5}.news-list,.canon-list{display:flex;flex-direction:column;gap:10px}.news-item,.canon-item{padding:12px;border-radius:14px;background:#f4f0e5}.news-item strong,.news-item span,.canon-item strong,.canon-item span{display:block}.news-item span,.canon-item span{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}.canon-item .status{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--sea);font-weight:900}.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;z-index:40;width:min(760px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,250,240,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(120,100,65,.14);padding:8px 7px calc(8px + var(--safe))}.nav-item{border:0;background:transparent;color:#80847f;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px}.nav-item span{font-size:17px}.nav-item small{font-size:9px}.nav-item.active{color:var(--navy);font-weight:900}.modal-backdrop{position:fixed;inset:0;z-index:80;background:rgba(15,27,28,.58);display:grid;place-items:end center;padding:14px}.modal-card{width:min(620px,100%);background:#fffaf0;border-radius:24px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:88vh;overflow:auto}.modal-card h3,.modal-card h2{margin:6px 0 9px}.modal-card p{color:var(--muted);font-size:13px;line-height:1.5}.decision-choices{display:flex;flex-direction:column;gap:9px;margin-top:18px}.choice-btn{background:#edf3ef;color:var(--ink);text-align:left;border:1px solid #d8e4df}.choice-btn strong,.choice-btn small{display:block}.choice-btn small{font-weight:500;color:var(--muted);margin-top:4px}.death-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}.death-summary>div{background:#f4f0e5;border-radius:13px;padding:11px}.death-summary span{display:block;font-size:9px;color:var(--muted)}.death-summary strong{font-size:13px}.dev-panel{position:fixed;inset:56px 8px 86px;z-index:70;background:#10272d;color:#dbe9e5;border-radius:18px;padding:14px;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.32)}.dev-head{display:flex;justify-content:space-between;align-items:center}.dev-panel pre{white-space:pre-wrap;font-size:10px;line-height:1.45}.toast{position:fixed;z-index:100;left:50%;transform:translateX(-50%);bottom:110px;background:#173f4e;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}.startup-error{margin-top:10px;padding:12px 14px;border-radius:14px;background:#f4dfda;color:#7d3028;border:1px solid rgba(150,62,53,.18);font-size:12px;line-height:1.45}.startup-error strong,.startup-error span{display:block}.startup-error span{margin-top:4px}.startup-ready{color:var(--green)}.startup-warn{color:#8a651f}.hidden{display:none!important}
@@ -83,10 +84,10 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V8.2 • Regional Sagas & Campaigns 4.0</span>
-        <h2>Les régions ont désormais une histoire qui ne disparaît pas à la fin de l’année.</h2>
-        <p>La V8.2 fait naître des campagnes régionales sur plusieurs années : deux camps se disputent le territoire, des figures locales et des antagonistes émergent, les missions déplacent réellement le rapport de force et un point de rupture peut changer durablement la carte du monde.</p>
-        <div class="feature-pills"><span>Sagas 2–5 ans</span><span>Boss régionaux</span><span>Figures locales</span><span>Territoires persistants</span><span>Missions de campagne</span><span>4 phases</span><span>Priority Director</span></div>
+        <span class="eyebrow">V8.3 • Nemesis & Rivalry 4.0</span>
+        <h2>Les adversaires importants peuvent désormais survivre à l’histoire que tu leur fais subir.</h2>
+        <p>La V8.3 transforme les boss et rivaux en personnages persistants : personnalité, ambition, lieutenants, mémoire des affrontements, progression autonome, cicatrices, fuite après une défaite et retour possible dans une future saga.</p>
+        <div class="feature-pills"><span>Némésis persistantes</span><span>7 archétypes</span><span>Lieutenants</span><span>Mémoire des duels</span><span>Retours de saga</span><span>Progression autonome</span><span>Priority Director</span></div>
       </section>
 
 
@@ -235,6 +236,7 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
         <section class="paper-card location-card"><div class="section-heading compact"><div><span class="eyebrow">Zone actuelle</span><h3 id="placeName">Lieu</h3></div><span id="placeDanger" class="badge"></span></div><p id="placeDescription" class="helper-text"></p><div id="placeTags" class="chip-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V6.8 • Causal World</span><h3>Pourquoi cette région est comme ça</h3></div><span id="causalRegionBadge" class="badge"></span></div><div id="causalRegionState" class="career-card"></div><div id="causalLedger" class="world-chronicle" style="margin-top:10px"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V8.2 • Saga régionale</span><h3>Campagnes & contrôle territorial</h3></div><span id="v82CampaignBadge" class="badge"></span></div><div id="v82CampaignCard" class="v82-campaign-shell"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V8.3 • Némésis</span><h3>Antagonistes & rivalités persistantes</h3></div><span id="v83NemesisBadge" class="badge"></span></div><div id="v83NemesisCard" class="v83-nemesis-shell"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V7.5 • World Director</span><h3>Monde canonique autonome</h3></div><span id="v75WorldBadge" class="badge"></span></div><div id="v75WorldDirectorCard" class="career-card"></div><div id="v75WorldLedger" class="world-chronicle" style="margin-top:10px"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Exploration</span><h3>Routes maritimes</h3></div><span id="travelStatus" class="badge"></span></div><div id="adventureAnnualActions" style="margin-bottom:10px"></div><div id="travelOptions" class="action-grid"></div></section>
         <section class="paper-card world-deep"><div class="section-heading compact"><div><span class="eyebrow">Carte du monde</span><h3>Régions connues</h3></div><span class="badge">Progression géographique</span></div><div id="regionMap" class="region-grid"></div></section>
@@ -295,6 +297,8 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 <script src="src/v81/faction-identity-engine-v81.js"></script>
 <script src="src/data/campaigns-v82.js"></script>
 <script src="src/v82/campaign-engine-v82.js"></script>
+<script src="src/data/antagonists-v83.js"></script>
+<script src="src/v83/antagonist-engine-v83.js"></script>
 <script>
 (() => {
 'use strict';
@@ -303,8 +307,8 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const DB_NAME = 'one-piece-life';
 const STORE = 'saves';
-const SAVE_VERSION = 820;
-const GAME_VERSION = '8.2.0';
+const SAVE_VERSION = 830;
+const GAME_VERSION = '8.3.0';
 const V61_ANNUAL_FOCUS={
   balanced:{icon:'⚖',label:'Équilibré',desc:'Aucun domaine sacrifié.',training:1,career:1,relations:1,resources:1,adventure:1},
   training:{icon:'🥊',label:'Progression',desc:'+35% progression • carrière -16% • revenus -18%.',training:1.35,career:.84,relations:.86,resources:.82,adventure:.90},
@@ -2309,6 +2313,8 @@ function v80CollectInterruptionCandidates(){
   if(factionCandidate)candidates.push({kind:'faction',id:factionCandidate.id,payload:factionCandidate,importance:factionCandidate.importance,severity:factionCandidate.severity,mandatory:!!factionCandidate.mandatory,personal:true,causal:true});
   const campaignCandidate=v82Candidate();
   if(campaignCandidate)candidates.push({kind:'campaign',id:campaignCandidate.id,payload:campaignCandidate,importance:campaignCandidate.importance,severity:campaignCandidate.severity,mandatory:!!campaignCandidate.mandatory,personal:true,causal:true});
+  const nemesisCandidate=v83Candidate();
+  if(nemesisCandidate)candidates.push({kind:'nemesis',id:nemesisCandidate.id,payload:nemesisCandidate,importance:nemesisCandidate.importance,severity:nemesisCandidate.severity,mandatory:!!nemesisCandidate.mandatory,personal:true,causal:true});
   return mod.rankInterruptions(candidates,{nowMonth:game.ageMonths,year},state)
 }
 function v80QueueEducation(candidate){
@@ -2333,6 +2339,7 @@ function v80PriorityInterrupt(){
     else if(c.kind==='consequence')queued=v77Queue(c.payload);
     else if(c.kind==='faction')queued=v81QueueFaction(c.payload);
     else if(c.kind==='campaign')queued=v82QueueCampaign(c.payload);
+    else if(c.kind==='nemesis')queued=v83QueueNemesis(c.payload);
     else if(c.kind==='agency'){v6QueueAgencyDecision(true);queued=!!game.pendingDecision;if(queued&&t){t.agencyPrompts=(t.agencyPrompts||0)+1;t.lastAgencyMonth=t.monthsSimulated+(t.phase>0?1:0)}}
     if(queued){v80RecordInterruption(c.kind,c.score);return true}
   }
@@ -2469,7 +2476,7 @@ function v82HydrateFigures(campaign){
   const boss=best(campaign.challenger),ally=best(campaign.incumbent);
   if(boss)campaign.boss={id:boss.id,name:boss.name,faction:boss.faction,role:boss.role,power:clamp(Math.round(boss.power),12,100)};
   if(ally)campaign.localFigure={id:ally.id,name:ally.name,faction:ally.faction,role:ally.role,power:clamp(Math.round(ally.power),12,100)};
-  return campaign
+  return v83BindCampaign(campaign)
 }
 function v82LocalCampaign(){
   const state=v82Ensure();return state?.regions?.[game.player.region]?.active||null
@@ -2491,6 +2498,7 @@ function v82ApplySwingToTerritory(campaign,side,amount){
 }
 function v82ArchiveResolved(region,campaign){
   const state=game.world?.campaignV82,slot=state?.regions?.[region];if(!slot||!campaign)return;
+  v83CampaignResolved(campaign);
   const mod=v82Module(),summary=mod.summary(campaign),inf=game.world?.territoryState?.[region]?.influence||{};
   const bonus=clamp(7+(campaign.resolution?.margin||0)*.12,7,13);
   if(inf[campaign.winner]!=null)inf[campaign.winner]=clamp(Number(inf[campaign.winner])+bonus,0,100);
@@ -2520,6 +2528,7 @@ function v82AnnualWorldTick(){
       }
       continue
     }
+    v83CampaignTick(slot.active,year);
     const result=mod.annualTick(slot.active,v82RegionContext(region,slot.active),year,random('v82Tick:'+region+':'+year));slot.active=result.campaign;
     if(result.phaseChanged&&slot.active.status==='active'){
       const phase=mod.phase(slot.active);
@@ -2546,7 +2555,7 @@ function v82ResolveDecision(parts){
   const id=decodeURIComponent(parts[1]||''),choiceId=parts[2];if(id!==campaign.id)return false;
   const result=mod.resolveDecision(campaign,choiceId,v82PlayerContext(campaign),random('v82Decision:'+campaign.id+':'+campaign.phaseIndex+':'+choiceId));if(result.error)return false;
   state.regions[campaign.region].active=result.campaign;state.totalPlayerDecisions++;
-  v82ApplySwingToTerritory(result.campaign,result.side,result.impact);
+  v82ApplySwingToTerritory(result.campaign,result.side,result.impact);v83RecordCampaignDecision(result.campaign,result,choiceId);
   const tactic=result.tactic,risk=Math.max(0,Number(tactic.risk)||0),energy=Math.round(risk*(result.success?1.5:2.2));game.player.energy=clamp(game.player.energy-energy,0,100);
   let health=0;if(!result.success&&risk>=3){health=Math.max(1,Math.round(risk*1.6));game.player.health=clamp(game.player.health-health,1,100)}
   if(result.success){game.player.reputation.local=clamp((game.player.reputation.local||0)+2,0,100);if(result.campaign.phaseIndex>=2)game.player.reputation.world=clamp((game.player.reputation.world||0)+1,0,100)}
@@ -2567,6 +2576,7 @@ function v82CampaignMissionCandidate(){
 function v82RecordMissionOutcome(m,outcome){
   if(!m?.campaignId)return null;const mod=v82Module(),state=v82Ensure();if(!mod||!state)return null;
   const slot=Object.values(state.regions).find(s=>s.active?.id===m.campaignId);if(!slot?.active)return null;
+  v83RecordCampaignMission(slot.active,m,outcome);
   const result=mod.missionImpact(slot.active,{side:m.campaignSide,outcome,danger:m.danger,year:game.clock.year});slot.active=result.campaign;
   v82ApplySwingToTerritory(slot.active,result.side,result.swing);
   if(slot.active.balance<=16){slot.active=mod.resolveCampaign(slot.active,slot.active.incumbent,game.clock.year,'mission_swing');v82ArchiveResolved(slot.active.region,slot.active)}
@@ -2582,6 +2592,181 @@ function renderV82Campaigns(){
   card.innerHTML='<div class="v82-campaign-hero"><div class="v82-campaign-top"><div><span class="eyebrow">'+esc(a.label)+'</span><h4>'+esc(campaign.title)+'</h4><p>'+esc(a.desc)+'</p></div><span class="v82-phase">'+esc(s.phase)+'</span></div><div class="v82-balance"><div class="v82-balance-labels"><span>'+esc(campaign.incumbent)+' '+Math.round(100-s.balance)+'</span><span>'+esc(campaign.challenger)+' '+Math.round(s.balance)+'</span></div><div class="v82-balance-track"><span style="width:'+clamp(s.balance,0,100)+'%"></span></div></div></div>'+
     '<div class="v82-campaign-meta"><div class="v82-meta"><span>Enjeux</span><strong>'+Math.round(s.stakes)+'/100</strong></div><div class="v82-meta"><span>Menace</span><strong>'+Math.round(s.threat)+'/100</strong></div><div class="v82-meta"><span>Durée</span><strong>An '+elapsed+' / ~'+campaign.targetYears+'</strong></div><div class="v82-meta"><span>Ton camp</span><strong>'+esc(campaign.playerSide||'Non choisi')+'</strong></div><div class="v82-meta"><span>Contribution</span><strong>'+s.playerContribution.toFixed(1)+'</strong></div><div class="v82-meta"><span>Dernier mouvement</span><strong>'+(campaign.lastSwing>=0?'+':'')+campaign.lastSwing.toFixed(1)+'</strong></div></div>'+
     '<div class="v82-figures"><div class="v82-figure"><span>Figure locale</span><strong>'+esc(campaign.localFigure?.name||campaign.incumbent)+'</strong><small>'+esc(campaign.localFigure?.faction||campaign.incumbent)+' • puissance '+Math.round(campaign.localFigure?.power||0)+'</small></div><div class="v82-figure"><span>Antagoniste / boss</span><strong>'+esc(campaign.boss?.name||campaign.challenger)+'</strong><small>'+esc(campaign.boss?.faction||campaign.challenger)+' • puissance '+Math.round(campaign.boss?.power||0)+'</small></div></div>'+strip
+}
+
+
+function v83Module(){return window.OPL_MODULES?.get('antagonistEngineV83')||null}
+function v83Data(){return window.OPL_MODULES?.get('antagonistDataV83')||null}
+function v83StableRoll(key){return v58HashFloat('v83:'+String(key))}
+function v83Ensure(){
+  if(!game?.world)return null;const mod=v83Module();if(!mod)return game.world.antagonistV83||null;
+  const cur=game.world.antagonistV83,ready=cur?.version===1&&Array.isArray(cur.antagonists)&&Array.isArray(cur.archives);
+  if(!ready)game.world.antagonistV83=mod.normalizeState(cur||{});
+  if(!game.world.v83LegacyMigrated){
+    game.world.v83LegacyMigrated=true;ensureV59();
+    for(const r of game.world.rivals||[])v83PromoteRival(r)
+  }
+  return game.world.antagonistV83
+}
+function v83Find(id){const state=v83Ensure();return state?.antagonists?.find(x=>x.id===id)||null}
+function v83Store(a){
+  const state=v83Ensure(),mod=v83Module();if(!state||!mod||!a)return null;const n=mod.normalizeAntagonist(a),i=state.antagonists.findIndex(x=>x.id===n.id);
+  if(i>=0)state.antagonists[i]=n;else{state.antagonists.unshift(n);state.totalCreated++;if(state.antagonists.length>20)state.antagonists.length=20}
+  return n
+}
+function v83Rolls(prefix){
+  return {id:v83StableRoll(prefix+':id'),archetype:v83StableRoll(prefix+':arch'),motivation:v83StableRoll(prefix+':mot'),temperament:v83StableRoll(prefix+':temp'),potential:v83StableRoll(prefix+':pot'),growth:v83StableRoll(prefix+':growth'),cunning:v83StableRoll(prefix+':cunning'),resolve:v83StableRoll(prefix+':resolve'),charisma:v83StableRoll(prefix+':charisma'),lieutenants:Array.from({length:9},(_,i)=>v83StableRoll(prefix+':lt:'+i))}
+}
+function v83PromoteRival(r){
+  if(!r)return null;const state=v83Ensure(),mod=v83Module();if(!state||!mod)return null;
+  let a=r.v83Id?state.antagonists.find(x=>x.id===r.v83Id):null;
+  if(!a&&r.canonId)a=state.antagonists.find(x=>x.canonId===r.canonId);
+  if(!a)a=state.antagonists.find(x=>x.name===r.name&&x.status!=='retired');
+  if(!a){
+    a=mod.createAntagonist({id:r.id,name:r.name,faction:r.faction,region:r.region,power:r.power,potentialPower:r.potentialPower,growthRate:r.growthRate,canonId:r.canonId||null,rivalry:r.rivalry,respect:r.respect,sourceType:'rival'}, {region:r.region,threat:clamp((Number(r.rivalry)||35)+(Number(r.power)||40)*.35,25,90),campaignId:null},v83Rolls('rival:'+r.id));
+    a.campaigns=0;a.encounters=Number(r.encounters)||0;a.wins=Number(r.wins)||0;a.losses=Number(r.losses)||0;a.rivalry=Number(r.rivalry)||a.rivalry;a.respect=Number(r.respect)||a.respect;a.lastSeenYear=game.clock?.year||0;
+    a=v83Store(a)
+  }
+  r.v83Id=a.id;v83SyncLegacyRival(a,true);return a
+}
+function v83SyncLegacyRival(a,force=false){
+  if(!a||!game?.world)return null;ensureV59();const mod=v83Module(),w=game.world,n=mod.normalizeAntagonist(a);
+  let r=(w.rivals||[]).find(x=>x.v83Id===n.id)||(n.canonId?(w.rivals||[]).find(x=>x.canonId===n.canonId):null)||(w.rivals||[]).find(x=>x.name===n.name);
+  if(!r&&!force&&n.encounters<1&&n.status!=='escaped')return null;
+  if(!r){r={id:'rival_v83_'+hash32(n.id),name:n.name,faction:n.faction,region:n.region,power:n.power,potentialPower:n.potentialPower,growthRate:n.growthRate,rivalry:n.rivalry,respect:n.respect,encounters:n.encounters,wins:n.wins,losses:n.losses,status:'active',lastSeen:v58MonthIndex(),canonId:n.canonId||null,source:'v83'};w.rivals.unshift(r);if(w.rivals.length>12)w.rivals.length=12}
+  r.v83Id=n.id;r.name=n.name;r.faction=n.faction;r.region=n.region;r.power=n.power;r.potentialPower=n.potentialPower;r.growthRate=n.growthRate;r.rivalry=n.rivalry;r.respect=n.respect;r.encounters=n.encounters;r.wins=n.wins;r.losses=n.losses;r.status=n.status==='retired'?'retired':'active';r.lastSeen=v58MonthIndex();if(n.canonId)r.canonId=n.canonId;codexAdd('people',n.name);return r
+}
+function v83BindCampaign(campaign){
+  if(!campaign?.boss)return campaign;const state=v83Ensure(),mod=v83Module();if(!state||!mod)return campaign;
+  let a=campaign.boss.v83Id?state.antagonists.find(x=>x.id===campaign.boss.v83Id):null;
+  const canonActor=(game.world.characters||[]).find(x=>x.id===campaign.boss.id),canonId=canonActor?.id||null;
+  if(!a&&canonId)a=state.antagonists.find(x=>x.canonId===canonId&&x.status!=='retired');
+  if(!a)a=state.antagonists.find(x=>x.sourceId===campaign.boss.id&&x.status!=='retired');
+  let returned=false;
+  const lockedCanon=/canonique/i.test(String(campaign.boss.role||''))||!!canonId;
+  if(!a&&!lockedCanon){
+    const pickReturn=mod.bestReturn(state.antagonists,{region:campaign.region,faction:campaign.challenger,year:game.clock.year},random('v83Return:'+campaign.id));
+    if(pickReturn){a=pickReturn.a;returned=true}
+  }
+  if(!a){
+    const subject={...campaign.boss,canonId,sourceType:canonId?'canon':'campaign'};
+    a=mod.createAntagonist(subject,{region:campaign.region,faction:campaign.challenger,threat:campaign.threat,campaignId:campaign.id},{
+      id:random('v83Create:id:'+campaign.id),archetype:random('v83Create:arch:'+campaign.id),motivation:random('v83Create:mot:'+campaign.id),temperament:random('v83Create:temp:'+campaign.id),potential:random('v83Create:pot:'+campaign.id),growth:random('v83Create:growth:'+campaign.id),cunning:random('v83Create:cunning:'+campaign.id),resolve:random('v83Create:resolve:'+campaign.id),charisma:random('v83Create:charisma:'+campaign.id),lieutenants:Array.from({length:9},(_,i)=>random('v83Create:lt:'+campaign.id+':'+i))
+    });a=v83Store(a)
+  }else{
+    a=mod.normalizeAntagonist(a);const newCampaign=a.currentCampaignId!==campaign.id&&a.lastCampaignId!==campaign.id;a.status='active';a.region=campaign.region;a.currentCampaignId=campaign.id;a.lastCampaignId=campaign.id;a.campaigns=Math.max(1,a.campaigns+(newCampaign?1:0));a.lastSeenYear=game.clock.year;a=v83Store(a);
+    if(returned){state.totalReturns++;if(campaign.region===game.player.region)addHistory('Un ancien adversaire revient',a.name+' réapparaît au cœur de '+campaign.title+'. Cette fois, il arrive avec la mémoire de vos précédents affrontements.','danger')}
+  }
+  const s=mod.summary(a);campaign.boss={...campaign.boss,id:a.sourceId||campaign.boss.id,name:a.name,faction:a.faction,power:Math.round(s.effectivePower),v83Id:a.id,archetype:a.archetype,goal:a.goal,role:returned?'Némésis de retour':campaign.boss.role};
+  return campaign
+}
+function v83CampaignBoss(campaign){return campaign?.boss?.v83Id?v83Find(campaign.boss.v83Id):null}
+function v83CampaignTick(campaign,year){
+  const mod=v83Module(),a=v83CampaignBoss(campaign);if(!mod||!a||a.status==='retired')return null;
+  const result=mod.annualTick(a,{year},{
+    growth:random('v83Boss:growth:'+a.id+':'+year),action:random('v83Boss:action:'+a.id+':'+year),effect:random('v83Boss:effect:'+a.id+':'+year),nameA:random('v83Boss:nameA:'+a.id+':'+year),nameB:random('v83Boss:nameB:'+a.id+':'+year)
+  });
+  let n=result.antagonist;n.currentCampaignId=campaign.id;n.region=campaign.region;n.lastSeenYear=year;
+  if(result.actionDef){n.memories.unshift({year,type:'strategy',label:result.actionDef.label,outcome:'world',opposed:false,impact:result.campaignSwing});n.memories=n.memories.slice(0,18)}
+  n=v83Store(n);campaign.balance=clamp(Number(campaign.balance)+Number(result.campaignSwing||0),0,100);campaign.stakes=clamp(Number(campaign.stakes)+Number(result.stakesDelta||0),0,100);campaign.boss.power=Math.round(mod.effectivePower(n));
+  if(result.action==='hunt'&&n.rivalry>=44&&campaign.region===game.player.region)v68RecordCause({region:campaign.region,type:'nemesis_pressure',title:n.name+' resserre la traque',desc:n.name+' adapte sa stratégie à ta présence et augmente la pression de la campagne.',sourceId:n.id+'_'+year,actor:n.faction,target:game.player.faction,impact:result.campaignSwing});
+  return result
+}
+function v83RecordCampaignDecision(campaign,result,choiceId){
+  const mod=v83Module(),a=v83CampaignBoss(campaign);if(!mod||!a||choiceId==='withdraw')return null;let n=mod.normalizeAntagonist(a),opposed=result.side!=='challenger';
+  if(opposed)n=mod.recordEncounter(n,{outcome:result.success?'success':'failure',opposed:true,year:game.clock.year,region:campaign.region,direct:choiceId==='direct',danger:campaign.phaseIndex>=2?3:2,importance:campaign.phaseIndex>=2?'major':'normal',label:result.tactic?.label||'Intervention de campagne',type:'campaign',impact:Math.abs(result.impact||0)});
+  else{n.respect=clamp(n.respect+(result.success?4:2),0,100);n.rivalry=clamp(n.rivalry-2,0,100);n.memories.unshift({year:game.clock.year,type:'campaign_support',label:result.tactic?.label||'Soutien de campagne',outcome:result.success?'success':'failure',opposed:false,impact:Math.abs(result.impact||0)});n.memories=n.memories.slice(0,18)}
+  n=v83Store(n);if(opposed)v83SyncLegacyRival(n,true);campaign.boss.power=Math.round(mod.effectivePower(n));return n
+}
+function v83RecordCampaignMission(campaign,m,outcome){
+  const mod=v83Module(),a=v83CampaignBoss(campaign);if(!mod||!a)return null;let n=mod.normalizeAntagonist(a),opposed=m.campaignSide!=='challenger';
+  if(opposed)n=mod.recordEncounter(n,{outcome,opposed:true,year:game.clock.year,region:campaign.region,direct:m.danger==='high',danger:m.danger==='high'?3:m.danger==='medium'?2:1,importance:m.danger==='high'?'major':'normal',label:m.title||'Mission de campagne',type:'campaign_mission',impact:m.danger==='high'?8:m.danger==='medium'?5:3});
+  else{n.respect=clamp(n.respect+(['success','partial'].includes(outcome)?2:0),0,100);n.memories.unshift({year:game.clock.year,type:'campaign_support',label:m.title||'Mission alliée',outcome,opposed:false,impact:3});n.memories=n.memories.slice(0,18)}
+  n=v83Store(n);if(opposed)v83SyncLegacyRival(n,true);return n
+}
+function v83CampaignResolved(campaign){
+  const state=v83Ensure(),mod=v83Module(),a=v83CampaignBoss(campaign);if(!state||!mod||!a)return null;let n=mod.normalizeAntagonist(a);n.currentCampaignId=null;n.lastCampaignId=campaign.id;n.region=campaign.region;
+  if(campaign.winner===campaign.challenger){
+    n.status='active';n.returnCooldownUntil=game.clock.year+1;n.heat=clamp(n.heat+4,0,100);n.memories.unshift({year:game.clock.year,type:'campaign_end',label:'Victoire de campagne',outcome:'victory',opposed:false,impact:campaign.resolution?.margin||0});n.memories=n.memories.slice(0,18);n=v83Store(n);if(n.encounters||mod.nemesisScore(n)>=44)v83SyncLegacyRival(n,true);return {survives:true,antagonist:n,reason:'victory'}
+  }
+  const opposed=campaign.playerSide!=='challenger',survival=mod.survivalOutcome(n,{year:game.clock.year,margin:campaign.resolution?.margin||0,playerContribution:opposed?campaign.playerContribution:0,campaignId:campaign.id},random('v83Survival:'+campaign.id));
+  n=v83Store(survival.antagonist);
+  if(survival.survives){
+    v83SyncLegacyRival(n,true);
+    if(campaign.region===game.player.region||campaign.playerContribution>0)addHistory(n.name+' échappe à la chute',campaign.title+' est terminée, mais '+n.name+' survit. La rivalité peut désormais dépasser cette saga.','danger','Retour possible après '+Math.max(1,n.returnCooldownUntil-game.clock.year)+' an')
+  }else{
+    state.totalFinalDefeats++;state.archives.unshift(mod.summary(n));state.archives=state.archives.slice(0,30);v83SyncLegacyRival(n,true);
+    if(campaign.playerContribution>0)addHistory('Antagoniste définitivement écarté',n.name+' ne parvient pas à survivre à la chute de '+campaign.title+'. Cette rivalité est close.','major')
+  }
+  return survival
+}
+function v83AnnualWorldTick(){
+  const state=v83Ensure(),mod=v83Module();if(!state||!mod)return null;const year=game.clock.year;if(state.lastAnnualYear===year)return state;
+  for(let i=0;i<state.antagonists.length;i++){
+    let a=state.antagonists[i];if(a.currentCampaignId||a.status==='retired')continue;
+    const result=mod.annualTick(a,{year},{growth:random('v83Annual:growth:'+a.id+':'+year),action:random('v83Annual:action:'+a.id+':'+year),effect:random('v83Annual:effect:'+a.id+':'+year),nameA:random('v83Annual:nameA:'+a.id+':'+year),nameB:random('v83Annual:nameB:'+a.id+':'+year)});
+    a=result.antagonist;
+    if(result.action==='hunt'&&a.obsession>=35&&random('v83Annual:move:'+a.id+':'+year)<.46)a.region=game.player.region;
+    else if(a.archetype==='opportunist'&&random('v83Annual:roam:'+a.id+':'+year)<.16)a.region=V82_REGIONS[Math.floor(random('v83Annual:region:'+a.id+':'+year)*V82_REGIONS.length)]||a.region;
+    state.antagonists[i]=a;if(a.encounters||mod.nemesisScore(a)>=44)v83SyncLegacyRival(a,true)
+  }
+  state.lastAnnualYear=year;return state
+}
+function v83PlayerContext(){
+  const p=game.player,tier=v69CareerTier(p);return {year:game.clock.year,region:p.region,skills:p.skills||{},stats:p.stats||{},power:overallPower(),authority:Number(tier?.authority)||0,organization:v69NetworkMissionBonus(),worldRep:Number(p.reputation?.world)||0}
+}
+function v83Candidate(){
+  const state=v83Ensure(),mod=v83Module();if(!state||!mod||game.ageMonths/12<15)return null;
+  const ctx=v83PlayerContext(),candidate=mod.reappearanceCandidate(state.antagonists,ctx,random('v83Candidate:'+ctx.year));if(!candidate)return null;
+  const a=v83Find(candidate.antagonistId),legacy=(game.world.rivals||[]).find(r=>r.v83Id===a?.id);
+  if(legacy&&(game.world.worldHooks||[]).some(h=>h.status==='open'&&h.rivalId===legacy.id))return null;
+  return candidate
+}
+function v83QueueNemesis(candidate){
+  const mod=v83Module(),a=v83Find(candidate?.antagonistId);if(!mod||!a)return false;const d=mod.encounterDecision(a);
+  game.pendingDecision={id:'v83_'+a.id+'_'+game.clock.year,title:d.title,text:d.text,choices:d.choices.map(x=>({label:x.label,hint:x.hint,action:'v83nemesis:'+encodeURIComponent(a.id)+':'+x.id}))};return true
+}
+function v83ResolveDecision(parts){
+  const state=v83Ensure(),mod=v83Module(),id=decodeURIComponent(parts[1]||''),choiceId=parts[2],a=v83Find(id);if(!state||!mod||!a)return false;
+  const result=mod.resolveEncounterChoice(a,choiceId,v83PlayerContext(),random('v83Resolve:'+id+':'+game.clock.year+':'+choiceId));if(result.error)return false;let n=result.antagonist;
+  const energy=Math.round((result.risk||0)*(result.success?1.6:2.2));game.player.energy=clamp(game.player.energy-energy,0,100);let injury=0;
+  if(!result.success&&(result.risk||0)>=2){injury=Math.max(1,Math.round((result.risk||0)*1.7));game.player.health=clamp(game.player.health-injury,1,100)}
+  if(result.success&&!result.avoided){game.player.reputation.local=clamp((game.player.reputation.local||0)+2,0,100);if(mod.nemesisScore(n)>=82)game.player.reputation.world=clamp((game.player.reputation.world||0)+1,0,100)}
+  const finalWindow=result.success&&!result.avoided&&choiceId==='direct'&&n.losses>=2&&mod.nemesisScore(n)>=70;
+  if(finalWindow){
+    const margin=clamp((Number(result.ability)||0)-(Number(result.difficulty)||0)+14,4,36),survival=mod.survivalOutcome(n,{year:game.clock.year,margin,playerContribution:12,campaignId:null},random('v83Final:'+id+':'+game.clock.year));
+    n=survival.antagonist;if(!survival.survives){state.totalFinalDefeats++;state.archives.unshift(mod.summary(n));state.archives=state.archives.slice(0,30)}
+  }else if(!result.avoided)n.returnCooldownUntil=game.clock.year+1;
+  n=v83Store(n);v83SyncLegacyRival(n,true);
+  addHistory(result.avoided?'Némésis évitée':result.success?'Némésis repoussée':'Némésis victorieuse',n.name+' • '+result.choice.label+'. '+(result.avoided?'Tu refuses cette confrontation, mais le conflit reste ouvert.':result.success?'Tu prends l’avantage dans ce nouvel épisode de votre rivalité.':'Il prend l’avantage et ajoute une nouvelle défaite à votre histoire.'),result.success?'major':'danger',(result.chance<1?'Chance '+Math.round(result.chance*100)+'% • ':'')+(injury?'Santé -'+injury:'Rivalité '+Math.round(n.rivalry)+'/100'));
+  return true
+}
+function v83FromLegacyRivalHook(r,success,approach){
+  const mod=v83Module();let a=v83PromoteRival(r);if(!mod||!a)return null;
+  a=mod.recordEncounter(a,{outcome:success?'success':'failure',opposed:true,year:game.clock.year,region:r.region,direct:approach==='direct',danger:approach==='direct'?3:2,importance:'major',label:'Rencontre mondiale • '+r.name,type:'world_hook',impact:6});
+  a=v83Store(a);v83SyncLegacyRival(a,true);return a
+}
+function v83LocalThreat(){
+  const state=v83Ensure(),mod=v83Module();if(!state||!mod)return null;
+  const list=state.antagonists.filter(a=>a.region===game.player.region&&a.status!=='retired').map(a=>mod.summary(a)).sort((a,b)=>b.score-a.score);return list[0]||null
+}
+function v83NemesisCount(){
+  const state=v83Ensure(),mod=v83Module();if(!state||!mod)return 0;return state.antagonists.filter(a=>a.status!=='retired'&&mod.nemesisScore(a)>=44).length
+}
+function renderV83Nemeses(){
+  const card=$('#v83NemesisCard'),badge=$('#v83NemesisBadge'),state=v83Ensure(),mod=v83Module();if(!card||!badge||!state||!mod)return;
+  const active=state.antagonists.filter(a=>a.status!=='retired').map(a=>mod.summary(a)).sort((a,b)=>b.score-a.score).slice(0,3);
+  badge.textContent=active.length?(active[0].tier.toUpperCase()+' • '+active.length):'AUCUN';
+  if(!active.length){card.innerHTML='<div class="career-hint">Aucun antagoniste n’a encore accumulé assez d’histoire avec toi pour devenir une rivalité persistante.</div>';return}
+  card.innerHTML=active.map(s=>{
+    const mem=s.memories?.[0],status=s.status==='escaped'?'En fuite':s.status==='active'?'Actif':'En retrait';
+    const bars=[['Rivalité',s.rivalry],['Respect',s.respect],['Obsession',s.obsession],['Pression',s.heat]];
+    return '<div class="v83-nemesis-card"><div class="v83-nemesis-head"><div><span class="eyebrow">'+esc(s.archetypeLabel)+' • '+esc(s.faction)+'</span><h4>'+esc(s.name)+'</h4><p>'+esc(s.temperament)+' • objectif : '+esc(s.goal)+'</p></div><span class="v83-tier">'+esc(s.tier)+'</span></div>'+
+      '<div class="v83-bars">'+bars.map(x=>'<div class="v83-bar"><span>'+esc(x[0])+'</span><div class="v83-bar-track"><i style="width:'+clamp(x[1],0,100)+'%"></i></div><strong>'+Math.round(x[1])+'</strong></div>').join('')+'</div>'+
+      '<div class="v83-meta"><span>'+status+'</span><span>Puissance '+Math.round(s.power)+' / '+Math.round(s.potentialPower)+'</span><span>Effective '+Math.round(s.effectivePower)+'</span><span>'+s.encounters+' rencontre'+(s.encounters>1?'s':'')+'</span><span>'+s.wins+'V / '+s.losses+'D</span><span>'+s.escapes+' fuite'+(s.escapes>1?'s':'')+'</span></div>'+
+      (s.lieutenants.length?'<div class="v83-lieutenants">'+s.lieutenants.map(l=>'<span>'+esc(l.role)+' • '+esc(l.name)+' • '+Math.round(l.power)+'</span>').join('')+'</div>':'')+
+      (mem?'<div class="v83-memory">Dernier souvenir : '+esc(mem.label)+' • '+esc(mem.outcome)+'</div>':'')+'</div>'
+  }).join('')
 }
 
 // -----------------------------------------------------------------------------
@@ -2877,7 +3062,7 @@ function initialGame(){
     pressures:{Piraterie:randInt(38,58,'world'),Marine:randInt(38,58,'world'),Criminalité:randInt(22,42,'world'),Révolution:randInt(5,18,'world'),Prospérité:randInt(40,62,'world'),Instabilité:randInt(15,34,'world')},regionalPressures:makeRegionalPressures(),
     canon:CANON_EVENTS.map(x=>({...x})),characters:worldCharacterCopy(),fruits:worldFruitCopy(),
     factions:{Marine:{power:75,activity:64,territories:9},Pirates:{power:72,activity:74,territories:11},Révolutionnaires:{power:38,activity:30,territories:3},Gouvernement:{power:89,activity:58,territories:15},'Chasseurs de primes':{power:41,activity:46,territories:0}},
-    emergentCrews:[],worldFacts:[],worldV75:{version:1,lastDirectorMonth:-99,totalActions:0,totalClashes:0,totalMoves:0,totalFruitTransfers:0,totalCrewShifts:0,ledger:[],fruitHistory:[],crewHistory:[],actorHistory:[]},campaignV82:{version:1,regions:{},totalStarted:0,totalResolved:0,totalPlayerDecisions:0,lastAnnualYear:-99}
+    emergentCrews:[],worldFacts:[],worldV75:{version:1,lastDirectorMonth:-99,totalActions:0,totalClashes:0,totalMoves:0,totalFruitTransfers:0,totalCrewShifts:0,ledger:[],fruitHistory:[],crewHistory:[],actorHistory:[]},campaignV82:{version:1,regions:{},totalStarted:0,totalResolved:0,totalPlayerDecisions:0,lastAnnualYear:-99},antagonistV83:{version:1,antagonists:[],archives:[],totalCreated:0,totalReturns:0,totalFinalDefeats:0,lastAnnualYear:-99}
   };
   addHistory('Naissance',`${name} naît à ${island}, dans ${origin}, au début d’une époque que personne ne sait encore mesurer.`,'major');
   addHistory('Famille',`Ton foyer est ${game.player.family.status.toLowerCase()}. Tu grandis avec ${game.player.family.siblings} frère${game.player.family.siblings>1?'s':''} ou sœur${game.player.family.siblings>1?'s':''}.`);
@@ -2934,7 +3119,7 @@ function ensureV5(){
   if(!game.consequencesV77||typeof game.consequencesV77!=='object')game.consequencesV77={version:1,active:[],history:[],totalCreated:0,totalResolved:0,totalEscalated:0,lastTickMonth:-99};
   if(!game.player.personalV78||typeof game.player.personalV78!=='object')game.player.personalV78={version:1,home:{id:game.ageMonths>=216?'rented_room':'family_home',condition:76,owned:false,region:game.player.region,sinceYear:Math.floor(game.ageMonths/12)},independent:game.ageMonths>=216,familyBond:Number(game.player.family?.bond)||55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}};
   if(!game.player.educationV79||typeof game.player.educationV79!=='object')game.player.educationV79=v79LegacyEducationState();
-  v80Ensure();v81Ensure();v82Ensure();
+  v80Ensure();v81Ensure();v82Ensure();v83Ensure();
   game.player.combatV72.usage=game.player.combatV72.usage&&typeof game.player.combatV72.usage==='object'?game.player.combatV72.usage:{};
   if(!['balanced','aggressive','defensive','precision','overwhelm'].includes(game.player.combatV72.doctrine))game.player.combatV72.doctrine='balanced';
   if(!game.player.haki)game.player.haki={Observation:{state:'Dormant',mastery:0,latent:true},Armement:{state:'Dormant',mastery:0,latent:true},Conquérant:{state:'Inconnu',mastery:0,latent:false}};
@@ -3029,17 +3214,31 @@ function v59RivalFaction(){const p=game.player;if(p.faction==='Marine')return 'P
 function v59CreateRival(sourceHook=null){
   ensureV59();const w=game.world,power=overallPower(),local=(w.characters||[]).filter(c=>c.status==='alive'&&c.currentRegion===game.player.region&&c.power>=Math.max(12,power-28)&&c.power<=power+32);
   let name,faction,rPower,potential,growth,canonId=null;if(local.length&&chance(.55,'v59Rival')){const c=pick(local,'v59Rival');name=c.name;faction=c.faction;rPower=Math.round(c.power);potential=Math.round(c.potentialPower||Math.max(c.power+8,80));growth=c.growthRate||1;canonId=c.id}else{name=pick(V59_RIVAL_NAMES.filter(n=>!w.rivals.some(r=>r.name===n)),'v59Rival')||`Rival ${w.rivals.length+1}`;faction=v59RivalFaction();rPower=clamp(Math.round(power+randInt(-12,14,'v59Rival')),12,95);potential=clamp(rPower+randInt(8,28,'v59Rival'),rPower,100);growth=.7+random('v59Rival')*.9}
-  const existing=w.rivals.find(r=>r.name===name);if(existing){existing.rivalry=clamp(existing.rivalry+8,0,100);return existing}
-  const r={id:`rival_${w.rivals.length}_${hash32(name)}`,name,faction,region:game.player.region,power:rPower,potentialPower:potential,growthRate:growth,rivalry:randInt(32,58,'v59Rival'),respect:randInt(12,45,'v59Rival'),encounters:0,wins:0,losses:0,status:'active',lastSeen:v58MonthIndex(),canonId,source:sourceHook?.id||null};w.rivals.unshift(r);if(w.rivals.length>8)w.rivals.length=8;codexAdd('people',name);v59Pulse('Nouvelle rivalité',`${name} commence à compter réellement dans ta trajectoire.`, 'rival');return r
+  const existing=w.rivals.find(r=>r.name===name);if(existing){existing.rivalry=clamp(existing.rivalry+8,0,100);v83PromoteRival(existing);return existing}
+  const r={id:`rival_${w.rivals.length}_${hash32(name)}`,name,faction,region:game.player.region,power:rPower,potentialPower:potential,growthRate:growth,rivalry:randInt(32,58,'v59Rival'),respect:randInt(12,45,'v59Rival'),encounters:0,wins:0,losses:0,status:'active',lastSeen:v58MonthIndex(),canonId,source:sourceHook?.id||null};w.rivals.unshift(r);if(w.rivals.length>8)w.rivals.length=8;v83PromoteRival(r);codexAdd('people',name);v59Pulse('Nouvelle rivalité',`${name} commence à compter réellement dans ta trajectoire.`, 'rival');return r
 }
 function v59SimulateRivals(months){
-  ensureV59();const w=game.world,power=overallPower();for(const r of w.rivals.filter(x=>x.status==='active')){const gap=Math.max(0,r.potentialPower-r.power);r.power=clamp(r.power+(months/12)*r.growthRate*(.3+gap/30)*(0.82+random('v59RivalGrowth')*.36),0,r.potentialPower);r.rivalry=clamp(r.rivalry+randInt(-2,3,'v59Rival'),0,100);if(chance(.014*months,'v59RivalMove'))r.region=chance(.4,'v59RivalMove')?game.player.region:pick(V58_REGIONS,'v59RivalMove');if(r.region===game.player.region&&r.rivalry>45&&!w.worldHooks.some(h=>h.status==='open'&&h.rivalId===r.id)&&chance(clamp(.015*months*(.7+r.rivalry/100)*v62Metric('hook',1),.006,.18),'v59RivalEncounter')){v59CreateHook({title:`${r.name} refait surface`,desc:`Ton rival se trouve dans la même région. Sa puissance est estimée à ${Math.round(r.power)} et votre histoire commune n’est pas réglée.`,region:r.region,type:'threat',urgency:clamp(Math.round(45+r.rivalry*.45),45,90),difficulty:clamp(Math.round((r.power+power)/2),25,92),reward:4500+Math.round(r.power*180),sourceId:`rivalhook_${r.id}_${v58MonthIndex()}`,sourceType:'rival',rivalId:r.id,ttl:7})}}
+  ensureV59();const w=game.world,power=overallPower();
+  for(const r of w.rivals.filter(x=>x.status==='active')){
+    const managed=r.v83Id?v83Find(r.v83Id):null;
+    if(managed){
+      r.power=managed.power;r.potentialPower=managed.potentialPower;r.growthRate=managed.growthRate;r.rivalry=managed.rivalry;r.respect=managed.respect;r.region=managed.region;
+    }else{
+      const gap=Math.max(0,r.potentialPower-r.power);r.power=clamp(r.power+(months/12)*r.growthRate*(.3+gap/30)*(0.82+random('v59RivalGrowth')*.36),0,r.potentialPower);
+      r.rivalry=clamp(r.rivalry+randInt(-2,3,'v59Rival'),0,100);
+      if(chance(.014*months,'v59RivalMove'))r.region=chance(.4,'v59RivalMove')?game.player.region:pick(V58_REGIONS,'v59RivalMove')
+    }
+    const handledThisYear=managed&&Number(managed.lastDecisionYear)===Number(game.clock.year);
+    if(!handledThisYear&&r.region===game.player.region&&r.rivalry>45&&!w.worldHooks.some(h=>h.status==='open'&&h.rivalId===r.id)&&chance(clamp(.015*months*(.7+r.rivalry/100)*v62Metric('hook',1),.006,.18),'v59RivalEncounter')){
+      v59CreateHook({title:r.name+' refait surface',desc:'Ton rival se trouve dans la même région. Sa puissance est estimée à '+Math.round(r.power)+' et votre histoire commune n’est pas réglée.',region:r.region,type:'threat',urgency:clamp(Math.round(45+r.rivalry*.45),45,90),difficulty:clamp(Math.round((r.power+power)/2),25,92),reward:4500+Math.round(r.power*180),sourceId:'rivalhook_'+r.id+'_'+v58MonthIndex(),sourceType:'rival',rivalId:r.id,ttl:7})
+    }
+  }
 }
 function v59ApproachScore(approach,h){const p=game.player,obs=p.haki?.Observation?.mastery||0;if(approach==='direct')return overallPower()*.66+(p.skills.Combat||0)*.22+(p.stats.Volonté||0)*.12;if(approach==='discreet')return (p.skills.Discrétion||0)*.52+obs*.22+(p.stats.Réflexes||0)*.14+(p.skills.Navigation||0)*.12;const wealth=clamp(Math.log10(Math.max(10,p.money+10))*18,0,90);return (p.skills.Commandement||0)*.48+repValue()*.24+wealth*.20+(p.stats.Discipline||0)*.08}
 function v59ResolveHook(id,approach){
   ensureV59();const w=game.world,h=w.worldHooks.find(x=>x.id===id&&x.status==='open');if(!h)return;const p=game.player,score=v59ApproachScore(approach,h),cost=approach==='leverage'?Math.max(500,Math.round(h.reward*.13)):0,hadFunds=p.money>=cost;if(approach==='leverage'&&!hadFunds){toast(`Ressources insuffisantes : ${cost.toLocaleString('fr-FR')} B requis.`);return false}if(cost)p.money-=cost;const hookRisk=Math.max(3,Math.round((Number(h.difficulty)||45)*(approach==='direct'?.30:approach==='discreet'?.20:.12)+(h.type==='threat'?5:0)));v64RecordRisk(hookRisk,'hook');p.energy=clamp(p.energy-(approach==='direct'?12:approach==='discreet'?8:5),0,100);const moneyPenalty=0,prob=clamp(.50+(score-h.difficulty)/115-moneyPenalty+(h.type==='intel'&&approach==='discreet'?.08:0),.08,.94),success=chance(prob,'v59HookResolve');h.status=success?'resolved':'failed';h.resolvedAt=v58MonthIndex();h.approach=approach;h.successChance=prob;h.score=score;w.v59.resolvedHooks++;let delta='';
   if(success){const repGain=Math.max(1,Math.round(h.urgency/24));p.careerXP+=Math.max(1,Math.round(h.difficulty/18));p.reputation.local+=repGain;p.reputation.world+=h.urgency>=70?2:0;if(h.type==='opportunity'||h.type==='faction'){p.money+=h.reward;delta=`+${h.reward.toLocaleString('fr-FR')} B`}if(h.type==='threat'){const rp=w.regionalPressures[h.region]||w.pressures;rp.Instabilité=clamp((rp.Instabilité||0)-randInt(2,6,'v59HookResolve'),0,100)}if(h.type==='intel'){const rumor=(w.rumors||[]).find(r=>`rumorhook_${r.id}`===h.sourceId);if(rumor){rumor.status=rumor.truth?'confirmed':'false';rumor.confidence=rumor.truth?100:0}v671Gain('skills','Discrétion',randInt(1,3,'v59HookResolve'))}const proj=(w.projects||[]).find(x=>`projecthook_${x.id}`===h.sourceId);if(proj){const hostile=h.type==='threat';proj.progress=clamp(proj.progress+(hostile?-randInt(5,12,'v59HookResolve'):randInt(3,9,'v59HookResolve')),0,proj.target)}addHistory('Intervention réussie',`${h.title} : ton approche ${approach==='direct'?'frontale':approach==='discreet'?'discrète':'relationnelle'} fonctionne.`,'major',delta);v59Pulse(h.title,'Ton intervention a réellement modifié la situation.','success')}else{const injury=approach==='direct'?randInt(3,13,'v59HookResolve'):randInt(0,6,'v59HookResolve');p.health=clamp(p.health-injury,0,100);p.reputation.local=clamp(p.reputation.local-randInt(0,3,'v59HookResolve'),-100,200);const rp=w.regionalPressures[h.region]||w.pressures;rp.Instabilité=clamp((rp.Instabilité||0)+randInt(1,4,'v59HookResolve'),0,100);addHistory('Intervention ratée',`${h.title} te résiste. La situation continue sans attendre que tu sois prêt.`,'danger',injury?`Santé -${injury}`:'');v59Pulse(h.title,'L’intervention échoue et laisse des conséquences.','failure')}
-  if(h.rivalId){const r=w.rivals.find(x=>x.id===h.rivalId);if(r){r.encounters++;r.lastSeen=v58MonthIndex();r.rivalry=clamp(r.rivalry+(success?4:7),0,100);r.respect=clamp(r.respect+(success?6:2),0,100);if(success)r.losses++;else r.wins++}}else if(h.type==='threat'&&approach==='direct'&&chance(.32,'v59RivalFromHook')){const r=v59CreateRival(h);h.rivalId=r?.id||null}
+  if(h.rivalId){const r=w.rivals.find(x=>x.id===h.rivalId);if(r){if(r.v83Id)v83FromLegacyRivalHook(r,success,approach);else{r.encounters++;r.lastSeen=v58MonthIndex();r.rivalry=clamp(r.rivalry+(success?4:7),0,100);r.respect=clamp(r.respect+(success?6:2),0,100);if(success)r.losses++;else r.wins++}}}else if(h.type==='threat'&&approach==='direct'&&chance(.32,'v59RivalFromHook')){const r=v59CreateRival(h);h.rivalId=r?.id||null}
   w.hookHistory.unshift({...h,outcome:success?'success':'failure'});if(w.hookHistory.length>60)w.hookHistory.length=60;v59ScheduleFollowup(h,success?'success':'failure');v68ApplyHookOutcome(h,success);v77FromWorldHook(h,success?'success':'failure',approach);if(p.health<=0)killPlayer('vaincu lors d’une intervention mondiale');return true
 }
 function v59IgnoreHook(id){ensureV59();const h=game.world.worldHooks.find(x=>x.id===id&&x.status==='open');if(!h)return;h.status='ignored';h.resolvedAt=v58MonthIndex();game.world.hookHistory.unshift({...h,outcome:'ignored'});if(h.type==='threat'){const rp=game.world.regionalPressures[h.region]||game.world.pressures;rp.Instabilité=clamp((rp.Instabilité||0)+1,0,100)}v59Pulse(h.title,'Tu laisses cette situation suivre son cours sans intervenir.','ignored')}
@@ -3060,7 +3259,7 @@ function dangerScore(){
   const p=game.player,lp=localPressures(),rs=v68RegionState();let d=p.travel?Math.max(placeInfo(p.travel.from).danger,placeInfo(p.travel.destination).danger):placeInfo(p.island).danger||REGION_DANGER[p.region]||12;
   d+=lp.Piraterie*.20+lp.Instabilité*.15+lp.Criminalité*.08+rs.extraDanger;
   if(p.travel)d+=8+v68TravelRisk(p.travel.from,p.travel.destination);
-  if(['crime','patrol','mission','covert'].includes(p.activityType))d+=12;const campaign=v82LocalCampaign();if(campaign)d+=campaign.threat*.08+campaign.stakes*.05;
+  if(['crime','patrol','mission','covert'].includes(p.activityType))d+=12;const campaign=v82LocalCampaign();if(campaign)d+=campaign.threat*.08+campaign.stakes*.05;const nemesis=v83LocalThreat();if(nemesis)d+=nemesis.heat*.035+Math.max(0,nemesis.effectivePower-overallPower())*.08;
   if(game.activeMission)d+=game.activeMission.danger==='high'?22:game.activeMission.danger==='medium'?10:2;
   return d*currentDifficulty().danger
 }
@@ -3811,6 +4010,7 @@ function resolveDecision(action){
   if(parts[0]==='v78personal')v78ResolvePersonalDecision(parts);
   if(parts[0]==='v81faction')v81ResolveDecision(parts);
   if(parts[0]==='v82campaign')v82ResolveDecision(parts);
+  if(parts[0]==='v83nemesis')v83ResolveDecision(parts);
   if(parts[0]==='v77consequence')v77ResolveConsequence(parts);
   else v77DecisionEcho(action,decisionEcho);
   game.pendingDecision=null;game.pacing.lastDecisionAge=game.ageMonths;$('#decisionModal').classList.add('hidden');saveGame();if(!game.alive){render();showDeath();return}if(game.agency?.annualTurn?.active){v61ResumeAnnualTurn();return}render();
@@ -3851,7 +4051,7 @@ function v61StartAnnualTurn(){
 function v61PauseForDecision(){const t=game.agency?.annualTurn;if(!t?.active||!game.pendingDecision)return;t.interruptions=(t.interruptions||0)+1;t.pausedDecisionId=game.pendingDecision.id||'decision';saveGame();render();showDecision()}
 function v61MaybeAgencyInterrupt(){const t=game.agency?.annualTurn;if(!t?.active||game.pendingDecision||game.ageMonths<156)return false;if((t.agencyPrompts||0)>=2)return false;const progressed=t.monthsSimulated+(t.phase>0?1:0);if(progressed<3||progressed-(t.lastAgencyMonth??-99)<3)return false;let p=(.10+Math.min(.10,game.pacing.calmStreak*.012))*v62Metric('agency',1);if(!chance(clamp(p,.05,.36),'v61Agency'))return false;v6QueueAgencyDecision(true);if(game.pendingDecision){t.agencyPrompts=(t.agencyPrompts||0)+1;t.lastAgencyMonth=progressed;return true}return false}
 function v61CompleteAnnualTurn(){
-  const t=game.agency?.annualTurn;if(!t?.active)return;const before=t.before||v61SerializableSnapshot(),p=game.player;v69AnnualEconomy();v78AnnualHousehold();v69Milestones();v82AnnualWorldTick();const newEvents=v61EventsSince(before),highlights=newEvents.filter(h=>['major','danger','canon'].includes(h.type)).slice(0,7),risk=v64EnsureRiskTurn(t)||{spent:0,budget:0};
+  const t=game.agency?.annualTurn;if(!t?.active)return;const before=t.before||v61SerializableSnapshot(),p=game.player;v69AnnualEconomy();v78AnnualHousehold();v69Milestones();v83AnnualWorldTick();v82AnnualWorldTick();const newEvents=v61EventsSince(before),highlights=newEvents.filter(h=>['major','danger','canon'].includes(h.type)).slice(0,7),risk=v64EnsureRiskTurn(t)||{spent:0,budget:0};
   const report={year:game.clock.year,age:game.ageMonths,months:t.monthsSimulated,moneyDelta:Math.round(p.money-before.money),powerDelta:Math.round((overallPower()-before.power)*10)/10,rankBefore:before.rank,rankAfter:p.rank,xpDelta:Math.round((p.careerXP-before.careerXP)*10)/10,healthDelta:Math.round(p.health-before.health),relationsDelta:game.relations.length-before.relations,visitedDelta:p.visited.length-before.visited,bountyDelta:Math.round(p.bounty-before.bounty),focus:'custom',plan:t.plan,load:v62AnnualLoad(t.plan),interruptions:t.interruptions||0,riskSpent:Math.round(risk.spent||0),riskBudget:Math.round(risk.budget||0),riskLabel:v64RiskLabel(t),adventureDiscoveries:t.adventureDiscoveries||0,highlights:highlights.map(h=>({title:h.title,desc:h.desc,type:h.type}))};
   report.classification=v61ClassifyYear(report);v80CompleteYear(newEvents,report);game.agency.lastAnnualReport=report;game.agency.totalAnnualAdvances=(game.agency.totalAnnualAdvances||0)+1;
   game.dev.lastAdvance={months:t.monthsSimulated,annual:true,interactive:true,plan:t.plan,before:{age:t.startAge,worldYear:before.worldYear,power:before.power},after:{age:game.ageMonths,worldYear:game.clock.year,power:overallPower()},interruptions:t.interruptions||0,riskSpent:report.riskSpent};
@@ -4021,7 +4221,7 @@ function ensureV6(){
   if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;
   if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));
   ensureV59();for(const h of game.world.worldHooks||[])updateHakiStagesV6();
-  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure()
+  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure();v83Ensure()
 }
 function v6RelationById(id){return game.relations.find(r=>r.id===id||slug(r.name)===id)}
 function v6InteractRelation(id,action){
@@ -4254,8 +4454,8 @@ function renderWorld(){
   $('#causalLedger').innerHTML=ledger.length?ledger.map(x=>'<div class="world-event"><span class="event-meta">'+esc(x.type)+' • '+(x.player?'action du joueur':'monde')+'</span><strong>'+esc(x.title)+'</strong><span>'+esc(x.desc)+'</span></div>').join(''):'<p class="helper-text">Aucune chaîne causale récente visible dans cette région.</p>';
 
   $('#worldHeadline').textContent=w.era;$('#worldSubhead').textContent=`${worldDateText()}. ${REGION_SUMMARY[p.region]||''}`;
-  renderV75WorldDirector();renderV82Campaigns();
-  const canonStats=v70CanonStats(),campaigns=v82ActiveCount();$('#worldMeta').innerHTML=`<span>Divergence ${Math.round(w.divergence)}%</span><span>${campaigns} saga${campaigns>1?'s':''} active${campaigns>1?'s':''}</span><span>${w.emergentCrews.filter(c=>c.status==='active').length} équipages procéduraux</span><span>${(w.canonCrews||[]).filter(v70CanonCrewActive).length} groupes canoniques</span><span>${canonStats.characters} personnages canon</span><span>${canonStats.fruits} Fruits</span><span>${p.visited.length}/${canonStats.places} lieux visités</span>`;
+  renderV75WorldDirector();renderV82Campaigns();renderV83Nemeses();
+  const canonStats=v70CanonStats(),campaigns=v82ActiveCount(),nemeses=v83NemesisCount();$('#worldMeta').innerHTML=`<span>Divergence ${Math.round(w.divergence)}%</span><span>${campaigns} saga${campaigns>1?'s':''} active${campaigns>1?'s':''}</span><span>${nemeses} rival${nemeses>1?'aux':''} majeur${nemeses>1?'s':''}</span><span>${w.emergentCrews.filter(c=>c.status==='active').length} équipages procéduraux</span><span>${(w.canonCrews||[]).filter(v70CanonCrewActive).length} groupes canoniques</span><span>${canonStats.characters} personnages canon</span><span>${canonStats.fruits} Fruits</span><span>${p.visited.length}/${canonStats.places} lieux visités</span>`;
   $('#placeName').textContent=p.travel?`En mer → ${p.travel.destination}`:p.island;$('#placeDanger').textContent=`Danger ${Math.round(dangerScore())}`;$('#placeDescription').textContent=p.travel?`Traversée depuis ${p.travel.from}. Temps restant estimé : ${Math.max(0,p.travel.remaining).toFixed(2)} mois.`:info.desc;$('#placeTags').innerHTML=(p.travel?['Voyage maritime',p.region]:info.tags).map(x=>`<span class="chip">${esc(x)}</span>`).join('');
   $('#worldNews').innerHTML=game.news.length?game.news.slice(0,18).map(n=>`<div class="news-item"><strong>${esc(n.title)}</strong><span>${esc(n.desc)}</span></div>`).join(''):'<p>Aucune actualité.</p>';
   $('#regionTitle').textContent=p.region;$('#pressureBars').innerHTML=barRows(lp);$('#divergenceBadge').textContent=`Divergence ${Math.round(w.divergence)}%`;

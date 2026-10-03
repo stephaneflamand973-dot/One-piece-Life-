@@ -1,0 +1,8 @@
+.v83-nemesis-shell{display:grid;gap:10px}
+.v83-nemesis-card{border:1px solid var(--line);border-radius:18px;padding:13px;background:linear-gradient(140deg,rgba(163,75,61,.07),rgba(23,63,78,.05));display:grid;gap:10px}
+.v83-nemesis-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.v83-nemesis-head h4{margin:3px 0 4px;font-size:1rem}.v83-nemesis-head p{margin:0;color:var(--muted);font-size:.8rem;line-height:1.4}
+.v83-tier{padding:6px 9px;border-radius:999px;background:rgba(163,75,61,.12);color:var(--red);font-size:.7rem;font-weight:900;white-space:nowrap}
+.v83-bars{display:grid;gap:6px}.v83-bar{display:grid;grid-template-columns:74px 1fr 38px;align-items:center;gap:8px;font-size:.72rem}.v83-bar-track{height:7px;border-radius:99px;background:rgba(23,63,78,.10);overflow:hidden}.v83-bar-track i{display:block;height:100%;background:linear-gradient(90deg,var(--sea),var(--gold))}
+.v83-meta,.v83-lieutenants{display:flex;flex-wrap:wrap;gap:6px}.v83-meta span,.v83-lieutenants span{padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.48);border:1px solid rgba(132,111,72,.12);font-size:.7rem}
+.v83-memory{font-size:.73rem;color:var(--muted);border-top:1px solid rgba(132,111,72,.14);padding-top:8px}
+@media(max-width:620px){.v83-nemesis-head{display:grid}.v83-bar{grid-template-columns:65px 1fr 34px}}

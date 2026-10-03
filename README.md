@@ -1,3 +1,29 @@
+# ONE PIECE LIFE — V8.3 Nemesis & Rivalry 4.0
+
+La V8.3 donne enfin une continuité réelle aux grands adversaires. Un boss de saga peut devenir une **némésis persistante**, apprendre de ses défaites, développer son organisation, survivre à la chute d'une campagne et revenir plusieurs années plus tard avec la mémoire de votre histoire commune.
+
+## Nemesis & Rivalry 4.0
+
+- **7 archétypes d'antagonistes** : Stratège, Force implacable, Chasseur, Fanatique, Opportuniste, Commandant et Survivant.
+- Personnalité persistante : tempérament, motivation, objectif, ruse, résolution et charisme.
+- Puissance actuelle, potentiel et croissance autonome.
+- Jusqu'à **4 lieutenants** qui renforcent la puissance effective du boss.
+- Actions autonomes annuelles : manœuvre, recrutement, entraînement ou traque.
+- Les actions d'un boss actif déplacent directement le rapport de force d'une campagne V8.2.
+- Chaque confrontation conserve une mémoire : résultat, contexte, impact, rivalité, respect et obsession.
+- Les anciens rivaux **V5.9 sont migrés** vers le nouveau moteur au lieu d'être remplacés.
+- Un boss vaincu peut être définitivement écarté ou **s'échapper** selon sa personnalité, la marge de défaite et l'implication du joueur.
+- Les personnages canoniques ne sont jamais supprimés procéduralement.
+- Une ancienne némésis peut devenir le boss d'une **future saga régionale**.
+- Les retours personnels importants passent par le **Priority Director V8.0**.
+- Quatre réactions lors d'un retour : affronter, déjouer, mobiliser le réseau ou éviter.
+- Nouveau panneau **Antagonistes & rivalités persistantes** dans l'onglet Monde.
+- Migration V8.2 → V8.3 automatique.
+- Save version : **830**.
+- Cache PWA : **one-piece-life-v8-3-0**.
+
+---
+
 # ONE PIECE LIFE — V8.2 Regional Sagas & Campaigns 4.0
 
 La V8.2 transforme les tensions du monde en **campagnes régionales persistantes**. Une région peut désormais traverser une saga de plusieurs années avec un camp dominant, un challenger, un rapport de force, une figure locale, un boss et une issue qui change réellement le contrôle territorial.
