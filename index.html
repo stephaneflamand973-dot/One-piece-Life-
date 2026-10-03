@@ -3383,7 +3383,7 @@ async function openSlot(slot,g){
   if(g){try{game=migrate(g);if(!game?.player||!game?.world)throw new Error('save');game.meta.slot=slot;if(!game.missionBoard.length&&game.player.career!=='Aucune')refreshMissionBoard();await saveGame();showGame();render();if(game.pendingDecision)showDecision();if(!game.alive)showDeath()}catch(e){game=null;startupMessage(`La sauvegarde ${slot} est illisible. Les autres emplacements restent accessibles.`,'warn');toast('Sauvegarde incompatible ou corrompue.')}}
   else{$('#creationCard').classList.remove('hidden');$('#saveSlots').closest('.paper-card')?.scrollIntoView({behavior:'smooth',block:'start'})}
 }
-function showStart(){game=null;$('#gameScreen').classList.remove('active');$('#startScreen').classList.add('active');$('#bottomNav').classList.add('hidden');$('#homeBtn').classList.add('hidden');$('#deathModal').classList.add('hidden');$('#decisionModal').classList.add('hidden');$('#creationCard').classList.add('hidden');renderSlots()}
+function showStart(){game=null;v76LastSnapshot=null;$('#gameScreen').classList.remove('active');$('#startScreen').classList.add('active');$('#bottomNav').classList.add('hidden');$('#homeBtn').classList.add('hidden');$('#uiDensityToggle')?.classList.add('hidden');$('#deathModal').classList.add('hidden');$('#decisionModal').classList.add('hidden');$('#creationCard').classList.add('hidden');renderSlots()}
 function showGame(){$('#startScreen').classList.remove('active');$('#gameScreen').classList.add('active');$('#bottomNav').classList.remove('hidden');$('#homeBtn').classList.remove('hidden');$('#uiDensityToggle')?.classList.remove('hidden')}
 
 function renderAnnualReportV6(){
@@ -3523,7 +3523,7 @@ function bindUi(){
   $('#advanceBtn').onclick=advance;$('#attentionBtn').onclick=showDecision;$('#homeBtn').onclick=showStart;const wdt=$('#worldDepthToggle');if(wdt)wdt.onclick=()=>{worldDepthOpen=!worldDepthOpen;renderWorldDepthV6()};
   $('#deathHomeBtn').onclick=showStart;$('#deathNewBtn').onclick=async()=>{await deleteSlot(activeSlot);$('#deathModal').classList.add('hidden');showStart();setTimeout(()=>{$('#creationCard').classList.remove('hidden')},0)};
   $('#timelineFilter').onclick=()=>{timelineMajorOnly=!timelineMajorOnly;$('#timelineFilter').textContent=timelineMajorOnly?'Tout afficher':'Événements majeurs';renderTimeline()};
-  $('.nav-item').forEach(b=>b.onclick=()=>v76OpenTab(b.dataset.tab,true));
+  document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>v76OpenTab(b.dataset.tab,true));
   $('#uiDensityToggle').onclick=v76ToggleDensity;
   $('#devToggle').onclick=()=>{if(game){$('#developerPanel').classList.remove('hidden');renderDev(true)}else toast('Commence une vie pour inspecter le moteur.')};
   $('#closeDev').onclick=()=>$('#developerPanel').classList.add('hidden');
