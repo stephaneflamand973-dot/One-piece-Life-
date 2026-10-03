@@ -93,6 +93,13 @@ UI / Game Feel 3.0 :
 - styles mobiles, feedbacks et composants visuels dans `src/v76/ui-v76.css` ;
 - le moteur legacy reste fournisseur de contenu, tandis que la couche V7.6 orchestre présentation, densité et navigation.
 
+### Cycle 2 — V7.7
+Consequences / Life Events 3.0 :
+- catalogue des conséquences dans `src/data/consequences-v77.js` ;
+- création, échéances, probabilités dynamiques, résolution et chaînes dans `src/v77/consequence-engine-v77.js` ;
+- intégration aux missions, combats, relations, choix et événements mondiaux ;
+- présentation compacte dans l’écran Vie et le dashboard Focus.
+
 Le but n'est pas de supprimer immédiatement le moteur legacy, mais de réduire progressivement son rôle jusqu'à ce qu'il devienne essentiellement un orchestrateur.
 
 ## Interdictions
