@@ -19,7 +19,8 @@
   <link rel="stylesheet" href="src/v79/education-v79.css" />
   <link rel="stylesheet" href="src/v80/simulation-core-v80.css" />
   <link rel="stylesheet" href="src/v81/faction-identity-v81.css" />
-  <title>ONE PIECE LIFE — V8.1</title>
+  <link rel="stylesheet" href="src/v82/campaigns-v82.css" />
+  <title>ONE PIECE LIFE — V8.2</title>
   <style>
 :root{--bg:#f4ecd8;--paper:#fffaf0;--ink:#1d2a2c;--muted:#6f7775;--navy:#173f4e;--sea:#2d7181;--sea2:#78a7a7;--gold:#c5943c;--red:#a34b3d;--green:#4b7660;--line:#dfd3b7;--shadow:0 12px 34px rgba(41,52,49,.09);--radius:22px;--safe:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}html{background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% -5%,rgba(120,167,167,.28),transparent 32%),linear-gradient(180deg,#f8f1df,var(--bg))}.app-shell{max-width:760px;margin:0 auto;min-height:100vh;padding-bottom:calc(90px + var(--safe))}.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px;background:rgba(244,236,216,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(100,90,70,.12)}.brand-wrap{display:flex;align-items:center;gap:10px;min-width:0}.brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:#fff;font-size:20px;box-shadow:0 6px 16px rgba(23,63,78,.2)}h1,h2,h3,p{margin-top:0}.brand-wrap h1{font-size:15px;letter-spacing:.08em;margin:0}.brand-wrap p{font-size:10px;color:var(--muted);margin:2px 0 0}.icon-btn{border:0;background:rgba(255,255,255,.55);width:38px;height:38px;border-radius:12px;font-size:18px;color:var(--ink)}main{padding:14px}.screen{display:none}.screen.active{display:block}.paper-card{background:rgba(255,250,240,.94);border:1px solid rgba(132,111,72,.16);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px}.hero-card{padding:24px;background:linear-gradient(145deg,#fffaf0 0%,#f4ead2 70%,#e6dfc8 100%);position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(45,113,129,.14);border-radius:50%;right:-70px;bottom:-100px;box-shadow:0 0 0 28px rgba(45,113,129,.035),0 0 0 56px rgba(45,113,129,.025)}.hero-card h2{font-family:Georgia,serif;font-size:34px;line-height:1.02;max-width:620px;margin:8px 0 14px}.hero-card p{color:#52605f;line-height:1.55;max-width:620px}.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--sea)}.feature-pills,.chip-list{display:flex;flex-wrap:wrap;gap:8px}.feature-pills span,.chip,.badge{font-size:11px;border-radius:999px;padding:7px 10px;background:#edf3ef;color:#47635d;border:1px solid rgba(75,118,96,.12)}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-heading.compact{margin-bottom:12px}.section-heading h3{margin:3px 0 0;font-size:18px}.save-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.save-slot{min-height:128px;border:1px dashed #c9b893;border-radius:17px;padding:14px;text-align:left;background:#fffbf3;color:var(--ink);display:flex;flex-direction:column;justify-content:space-between}.save-slot strong{font-size:14px}.save-slot small{color:var(--muted);line-height:1.35}.save-slot.empty{align-items:center;justify-content:center;text-align:center;color:var(--sea);font-weight:700}.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.mode-card{border:1px solid var(--line);border-radius:16px;background:#fffaf1;padding:14px;text-align:left;color:var(--ink)}.mode-card strong{display:block;margin-bottom:5px}.mode-card span{font-size:12px;color:var(--muted);line-height:1.35}.mode-card.selected{border-color:var(--sea);box-shadow:inset 0 0 0 1px var(--sea);background:#f1f8f6}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field>span{font-size:11px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:13px;padding:13px;background:#fffdf8;color:var(--ink);font-size:16px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary-btn,.secondary-btn,.choice-btn{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:800;font-size:14px}.primary-btn{background:var(--navy);color:#fff;box-shadow:0 8px 20px rgba(23,63,78,.18)}.primary-btn.small{padding:11px 14px;width:auto}.secondary-btn{background:#ece4d1;color:var(--ink)}.text-btn{border:0;background:transparent;color:var(--sea);font-weight:800;font-size:12px}.status-strip{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:1px;background:#d9ceb4;border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}.status-strip>div{background:#fffaf0;padding:11px 12px;min-width:0}.status-strip strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tiny-label{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}.tab-panel{display:none}.tab-panel.active{display:block}.profile-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#173f4e,#255e69);color:#fff}.avatar-ring{width:54px;height:54px;flex:0 0 54px;border-radius:50%;display:grid;place-items:center;background:#f7edd5;color:var(--navy);font:700 22px Georgia,serif;border:3px solid rgba(255,255,255,.24)}.profile-copy{min-width:0;flex:1}.profile-copy h2{margin:4px 0 3px;font-size:22px}.profile-copy p{margin:0;color:rgba(255,255,255,.72);font-size:12px}.profile-banner .eyebrow{color:#d9c79b}.reputation-pill{font-size:10px;font-weight:800;border-radius:999px;background:rgba(255,255,255,.13);padding:8px 10px;white-space:nowrap}.situation-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.situation-grid>div,.info-cell{padding:12px;border-radius:14px;background:#f4f0e5}.situation-grid span,.info-cell span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.situation-grid strong,.info-cell strong{font-size:13px}.danger-badge{font-size:10px;font-weight:900;border-radius:999px;padding:7px 10px}.danger-badge.low{background:#e4f0e9;color:#3f6a56}.danger-badge.medium{background:#f6ead0;color:#906b23}.danger-badge.high{background:#f4dfda;color:#963e35}.compact-list{margin-top:12px}.attention-card{border-color:#d3b46f;background:linear-gradient(145deg,#fff9e8,#f7eed7)}.attention-card h3{margin:6px 0}.attention-card p{font-size:13px;color:var(--muted);line-height:1.5}.timeline{position:relative;padding-left:18px}.timeline:before{content:"";position:absolute;left:5px;top:5px;bottom:8px;width:1px;background:#d6c9aa}.timeline-item{position:relative;padding:0 0 18px 13px}.timeline-dot{position:absolute;left:-17px;top:5px;width:9px;height:9px;background:#8f9f97;border:2px solid #fffaf0;border-radius:50%;box-shadow:0 0 0 1px #c8b997}.timeline-item.major .timeline-dot{background:var(--gold)}.timeline-item.danger .timeline-dot{background:var(--red)}.timeline-item.canon .timeline-dot{background:var(--sea)}.timeline-age{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.08em}.timeline-title{font-weight:900;margin:3px 0}.timeline-desc{font-size:13px;color:#5f6965;line-height:1.45}.timeline-delta{display:inline-block;margin-top:6px;background:#e8f0ea;color:#42644f;border-radius:9px;padding:4px 7px;font-size:10px;font-weight:800}.advance-dock{position:sticky;bottom:calc(72px + var(--safe));z-index:20;padding-top:2px}.advance-btn{width:100%;border:0;border-radius:18px;background:linear-gradient(135deg,#1d5360,#173f4e);color:#fff;padding:15px 18px;display:flex;gap:12px;align-items:center;text-align:left;box-shadow:0 15px 30px rgba(23,63,78,.24)}.advance-btn:disabled{opacity:.48}.advance-icon{font-size:24px}.advance-btn strong{display:block;letter-spacing:.08em}.advance-btn small{display:block;color:rgba(255,255,255,.65);font-size:10px;margin-top:3px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.career-card{padding:14px;border-radius:14px;background:#f4f0e5}.career-card strong{font-size:16px}.career-card p{font-size:12px;color:var(--muted);margin:5px 0 0;line-height:1.45}.action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.action-card{border:1px solid var(--line);background:#fffdf8;border-radius:14px;padding:12px;text-align:left;color:var(--ink)}.action-card strong{display:block;font-size:13px}.action-card small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}.action-card.active{border-color:var(--sea);background:#eef6f3}.action-card.locked{opacity:.45}.stats-list{display:flex;flex-direction:column;gap:9px}.stat-row{display:grid;grid-template-columns:100px 1fr 35px;align-items:center;gap:9px;font-size:12px}.stat-bar{height:8px;border-radius:999px;background:#e8e1d2;overflow:hidden}.stat-fill{height:100%;background:linear-gradient(90deg,#78a7a7,#2d7181);border-radius:999px}.stat-value{text-align:right;font-weight:900}.split-card{display:grid;grid-template-columns:1fr 1fr;gap:14px}.split-card>div+div{border-left:1px solid var(--line);padding-left:14px}.ability-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:8px 0;border-bottom:1px solid #eee6d6}.ability-row:last-child{border-bottom:0}.ability-row span{color:var(--muted)}.fruit-card{font-size:12px;line-height:1.45;color:#53605d}.relations-list{display:flex;flex-direction:column;gap:9px}.relation-card{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px;padding:10px;border-radius:14px;background:#f4f0e5}.relation-avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#dce9e5;color:var(--navy);font-weight:900}.relation-copy strong,.relation-copy span{display:block}.relation-copy span{font-size:11px;color:var(--muted);margin-top:2px}.relation-score{font-weight:900;color:var(--sea)}.world-hero{background:linear-gradient(145deg,#eaf2ec,#fffaf0)}.world-hero p{font-size:13px;color:var(--muted);line-height:1.5}.news-list,.canon-list{display:flex;flex-direction:column;gap:10px}.news-item,.canon-item{padding:12px;border-radius:14px;background:#f4f0e5}.news-item strong,.news-item span,.canon-item strong,.canon-item span{display:block}.news-item span,.canon-item span{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}.canon-item .status{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--sea);font-weight:900}.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;z-index:40;width:min(760px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,250,240,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(120,100,65,.14);padding:8px 7px calc(8px + var(--safe))}.nav-item{border:0;background:transparent;color:#80847f;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px}.nav-item span{font-size:17px}.nav-item small{font-size:9px}.nav-item.active{color:var(--navy);font-weight:900}.modal-backdrop{position:fixed;inset:0;z-index:80;background:rgba(15,27,28,.58);display:grid;place-items:end center;padding:14px}.modal-card{width:min(620px,100%);background:#fffaf0;border-radius:24px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:88vh;overflow:auto}.modal-card h3,.modal-card h2{margin:6px 0 9px}.modal-card p{color:var(--muted);font-size:13px;line-height:1.5}.decision-choices{display:flex;flex-direction:column;gap:9px;margin-top:18px}.choice-btn{background:#edf3ef;color:var(--ink);text-align:left;border:1px solid #d8e4df}.choice-btn strong,.choice-btn small{display:block}.choice-btn small{font-weight:500;color:var(--muted);margin-top:4px}.death-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}.death-summary>div{background:#f4f0e5;border-radius:13px;padding:11px}.death-summary span{display:block;font-size:9px;color:var(--muted)}.death-summary strong{font-size:13px}.dev-panel{position:fixed;inset:56px 8px 86px;z-index:70;background:#10272d;color:#dbe9e5;border-radius:18px;padding:14px;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.32)}.dev-head{display:flex;justify-content:space-between;align-items:center}.dev-panel pre{white-space:pre-wrap;font-size:10px;line-height:1.45}.toast{position:fixed;z-index:100;left:50%;transform:translateX(-50%);bottom:110px;background:#173f4e;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}.startup-error{margin-top:10px;padding:12px 14px;border-radius:14px;background:#f4dfda;color:#7d3028;border:1px solid rgba(150,62,53,.18);font-size:12px;line-height:1.45}.startup-error strong,.startup-error span{display:block}.startup-error span{margin-top:4px}.startup-ready{color:var(--green)}.startup-warn{color:#8a651f}.hidden{display:none!important}
@@ -82,10 +83,10 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V8.1 • Faction Identity 4.0</span>
-        <h2>Une faction doit changer ta vie, pas seulement la couleur de ton badge.</h2>
-        <p>La V8.1 donne une identité propre aux six voies : valeurs, loyauté, autonomie, pression, devoirs, opportunités et conflits internes. Le Priority Director V8.0 décide quand ces tensions méritent réellement de t’interrompre.</p>
-        <div class="feature-pills"><span>6 identités de faction</span><span>Devoirs propres</span><span>Pression interne</span><span>Loyauté & autonomie</span><span>Choix persistants</span><span>Missions connectées</span><span>Priority Director</span></div>
+        <span class="eyebrow">V8.2 • Regional Sagas & Campaigns 4.0</span>
+        <h2>Les régions ont désormais une histoire qui ne disparaît pas à la fin de l’année.</h2>
+        <p>La V8.2 fait naître des campagnes régionales sur plusieurs années : deux camps se disputent le territoire, des figures locales et des antagonistes émergent, les missions déplacent réellement le rapport de force et un point de rupture peut changer durablement la carte du monde.</p>
+        <div class="feature-pills"><span>Sagas 2–5 ans</span><span>Boss régionaux</span><span>Figures locales</span><span>Territoires persistants</span><span>Missions de campagne</span><span>4 phases</span><span>Priority Director</span></div>
       </section>
 
 
@@ -233,6 +234,7 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
         <section class="paper-card world-hero"><span class="eyebrow">Monde vivant</span><h2 id="worldHeadline">Grande Ère de la Piraterie</h2><p id="worldSubhead"></p><div id="worldMeta" class="feature-pills"></div><div class="world-depth-control"><button id="worldDepthToggle" class="secondary-btn">Afficher les détails du monde</button></div></section>
         <section class="paper-card location-card"><div class="section-heading compact"><div><span class="eyebrow">Zone actuelle</span><h3 id="placeName">Lieu</h3></div><span id="placeDanger" class="badge"></span></div><p id="placeDescription" class="helper-text"></p><div id="placeTags" class="chip-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V6.8 • Causal World</span><h3>Pourquoi cette région est comme ça</h3></div><span id="causalRegionBadge" class="badge"></span></div><div id="causalRegionState" class="career-card"></div><div id="causalLedger" class="world-chronicle" style="margin-top:10px"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V8.2 • Saga régionale</span><h3>Campagnes & contrôle territorial</h3></div><span id="v82CampaignBadge" class="badge"></span></div><div id="v82CampaignCard" class="v82-campaign-shell"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V7.5 • World Director</span><h3>Monde canonique autonome</h3></div><span id="v75WorldBadge" class="badge"></span></div><div id="v75WorldDirectorCard" class="career-card"></div><div id="v75WorldLedger" class="world-chronicle" style="margin-top:10px"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Exploration</span><h3>Routes maritimes</h3></div><span id="travelStatus" class="badge"></span></div><div id="adventureAnnualActions" style="margin-bottom:10px"></div><div id="travelOptions" class="action-grid"></div></section>
         <section class="paper-card world-deep"><div class="section-heading compact"><div><span class="eyebrow">Carte du monde</span><h3>Régions connues</h3></div><span class="badge">Progression géographique</span></div><div id="regionMap" class="region-grid"></div></section>
@@ -291,6 +293,8 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 <script src="src/v80/simulation-core-v80.js"></script>
 <script src="src/data/faction-identity-v81.js"></script>
 <script src="src/v81/faction-identity-engine-v81.js"></script>
+<script src="src/data/campaigns-v82.js"></script>
+<script src="src/v82/campaign-engine-v82.js"></script>
 <script>
 (() => {
 'use strict';
@@ -299,8 +303,8 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const DB_NAME = 'one-piece-life';
 const STORE = 'saves';
-const SAVE_VERSION = 810;
-const GAME_VERSION = '8.1.0';
+const SAVE_VERSION = 820;
+const GAME_VERSION = '8.2.0';
 const V61_ANNUAL_FOCUS={
   balanced:{icon:'⚖',label:'Équilibré',desc:'Aucun domaine sacrifié.',training:1,career:1,relations:1,resources:1,adventure:1},
   training:{icon:'🥊',label:'Progression',desc:'+35% progression • carrière -16% • revenus -18%.',training:1.35,career:.84,relations:.86,resources:.82,adventure:.90},
@@ -1372,11 +1376,12 @@ function v68CausalMissionCandidates(){
   if(rs.contested&&p.faction!=='Civil'){
     add({title:'Faire pencher l’influence régionale',desc:p.region+' est suffisamment disputée pour qu’une opération réussie modifie réellement l’équilibre local.',danger:rs.crisis>=65?'high':'medium',type:p.faction==='Révolutionnaires'||p.faction==='Gouvernement'?'covert':'combat',sourceType:'territory',sourceId:'territory_'+p.region,targetFaction:rs.leader,causalMode:'influence',cause:rs.leader+' '+Math.round(rs.leaderInfluence)+' contre '+rs.second+' '+Math.round(rs.secondInfluence),importance:Math.round(55+rs.contest*.3)})
   }
+  const campaign=v82CampaignMissionCandidate();if(campaign)add(campaign);
   return list.concat(v70CanonMissionCandidates(rs)).sort((a,b)=>(b.importance||0)-(a.importance||0)).slice(0,14)
 }
 function v68MissionFromCause(c,index=0){
   const rs=v68RegionState(game.player.region),base=c.danger==='high'?28000:c.danger==='medium'?12000:5000;
-  return {...c,id:'cm_'+game.clock.year+'_'+game.clock.month+'_'+index+'_'+hash32(c.sourceType+':'+c.sourceId+':'+c.title),reward:Math.round((base+randInt(0,base,'v68Mission'))*rs.rewardIndex),duration:c.danger==='high'?randInt(2,5,'v68Mission'):randInt(1,3,'v68Mission'),power:missionDifficultyPower({danger:c.danger})+Math.round((c.importance||40)/15),causal:true,region:game.player.region}
+  return {...c,id:'cm_'+game.clock.year+'_'+game.clock.month+'_'+index+'_'+hash32(c.sourceType+':'+c.sourceId+':'+c.title),reward:Math.round((base+randInt(0,base,'v68Mission'))*rs.rewardIndex),duration:c.danger==='high'?randInt(2,5,'v68Mission'):randInt(1,3,'v68Mission'),power:Math.max(Number(c.power)||0,missionDifficultyPower({danger:c.danger})+Math.round((c.importance||40)/15)),causal:true,region:game.player.region}
 }
 function v68ApplyMissionOutcome(m,outcome){
   if(!m?.causal)return null;v68Ensure();
@@ -2302,6 +2307,8 @@ function v80CollectInterruptionCandidates(){
   }
   const factionCandidate=v81Candidate();
   if(factionCandidate)candidates.push({kind:'faction',id:factionCandidate.id,payload:factionCandidate,importance:factionCandidate.importance,severity:factionCandidate.severity,mandatory:!!factionCandidate.mandatory,personal:true,causal:true});
+  const campaignCandidate=v82Candidate();
+  if(campaignCandidate)candidates.push({kind:'campaign',id:campaignCandidate.id,payload:campaignCandidate,importance:campaignCandidate.importance,severity:campaignCandidate.severity,mandatory:!!campaignCandidate.mandatory,personal:true,causal:true});
   return mod.rankInterruptions(candidates,{nowMonth:game.ageMonths,year},state)
 }
 function v80QueueEducation(candidate){
@@ -2325,6 +2332,7 @@ function v80PriorityInterrupt(){
     else if(c.kind==='personal')queued=v80QueuePersonal(c);
     else if(c.kind==='consequence')queued=v77Queue(c.payload);
     else if(c.kind==='faction')queued=v81QueueFaction(c.payload);
+    else if(c.kind==='campaign')queued=v82QueueCampaign(c.payload);
     else if(c.kind==='agency'){v6QueueAgencyDecision(true);queued=!!game.pendingDecision;if(queued&&t){t.agencyPrompts=(t.agencyPrompts||0)+1;t.lastAgencyMonth=t.monthsSimulated+(t.phase>0?1:0)}}
     if(queued){v80RecordInterruption(c.kind,c.score);return true}
   }
@@ -2431,6 +2439,147 @@ function renderV81FactionIdentity(){
     '<div class="v81-values">'+p.values.map(function(v){return'<span>'+esc(v)+'</span>'}).join('')+'</div>'+
     '<div class="v81-meters">'+meters.map(function(x){return'<div class="v81-meter"><div class="v81-meter-head"><span>'+esc(x[0])+'</span><strong>'+Math.round(x[1])+'/100</strong></div><div class="v81-meter-track"><span style="width:'+clamp(x[1],0,100)+'%"></span></div></div>'}).join('')+'</div>'+
     '<div class="v81-faction-foot"><span>Devoirs tenus '+state.dutiesCompleted+'</span><span>Devoirs ignorés '+state.dutiesIgnored+'</span><span>Occasions saisies '+state.opportunitiesTaken+'</span><span>Friction '+Math.round(state.friction)+'/100</span></div>'
+}
+
+
+const V82_REGIONS=['East Blue','North Blue','West Blue','South Blue','Grand Line','New World'];
+function v82Module(){return window.OPL_MODULES?.get('campaignEngineV82')||null}
+function v82Data(){return window.OPL_MODULES?.get('campaignDataV82')||null}
+function v82Ensure(){
+  if(!game?.world)return null;const mod=v82Module();if(!mod)return game.world.campaignV82||null;
+  game.world.campaignV82=mod.normalizeState(game.world.campaignV82||{},V82_REGIONS);return game.world.campaignV82
+}
+function v82RegionContext(region,campaign=null){
+  const rs=v68RegionState(region),inf=game.world?.territoryState?.[region]?.influence||{};
+  return {region,leader:rs.leader,second:rs.second,leaderInfluence:rs.leaderInfluence,secondInfluence:rs.secondInfluence,
+    incumbentInfluence:campaign?Number(inf[campaign.incumbent]||0):rs.leaderInfluence,
+    challengerInfluence:campaign?Number(inf[campaign.challenger]||0):rs.secondInfluence,
+    crisis:rs.crisis,contest:rs.contest,projects:rs.projects.length,crews:rs.crews.length+rs.canonCrews.length}
+}
+function v82HydrateFigures(campaign){
+  if(!campaign)return campaign;const w=game.world,region=campaign.region;
+  const actors=[
+    ...(w.characters||[]).filter(x=>x.status==='alive'&&x.currentRegion===region).map(x=>({id:x.id,name:x.name,faction:x.faction,power:Number(x.power)||0,importance:Number(x.importance)||50,role:'Figure canonique'})),
+    ...(w.canonCrews||[]).filter(x=>x.status==='active'&&x.currentRegion===region).map(x=>({id:x.id,name:x.name,faction:x.faction||'Pirates',power:Number(x.power)||0,importance:Number(x.importance)||55,role:'Groupe canonique'})),
+    ...(w.emergentCrews||[]).filter(x=>x.status==='active'&&x.region===region).map(x=>({id:x.id,name:x.name,faction:'Pirates',power:Number(x.power)||0,importance:Number(x.notoriety)||35,role:'Équipage local'}))
+  ];
+  const best=f=>actors.filter(x=>x.faction===f).sort((a,b)=>(b.importance+b.power*.45)-(a.importance+a.power*.45))[0];
+  const boss=best(campaign.challenger),ally=best(campaign.incumbent);
+  if(boss)campaign.boss={id:boss.id,name:boss.name,faction:boss.faction,role:boss.role,power:clamp(Math.round(boss.power),12,100)};
+  if(ally)campaign.localFigure={id:ally.id,name:ally.name,faction:ally.faction,role:ally.role,power:clamp(Math.round(ally.power),12,100)};
+  return campaign
+}
+function v82LocalCampaign(){
+  const state=v82Ensure();return state?.regions?.[game.player.region]?.active||null
+}
+function v82ActiveCount(){
+  const state=v82Ensure();return state?V82_REGIONS.filter(r=>state.regions[r]?.active).length:0
+}
+function v82PlayerContext(campaign=null){
+  const p=game.player,tier=v69CareerTier(p);
+  return {region:p.region,age:game.ageMonths/12,year:game.clock.year,playerFaction:p.faction,skills:p.skills||{},stats:p.stats||{},
+    power:overallPower(),authority:Number(tier?.authority)||0,organization:v69NetworkMissionBonus(),worldRep:Number(p.reputation?.world)||0,campaign}
+}
+function v82ApplySwingToTerritory(campaign,side,amount){
+  if(!campaign||!Number.isFinite(Number(amount))||side==='independent')return;
+  const inf=game.world?.territoryState?.[campaign.region]?.influence;if(!inf)return;
+  const own=side==='challenger'?campaign.challenger:campaign.incumbent,other=side==='challenger'?campaign.incumbent:campaign.challenger,delta=Number(amount)||0;
+  if(inf[own]!=null)inf[own]=clamp(Number(inf[own])+delta*.45,0,100);
+  if(inf[other]!=null)inf[other]=clamp(Number(inf[other])-delta*.28,0,100)
+}
+function v82ArchiveResolved(region,campaign){
+  const state=v82Ensure(),slot=state?.regions?.[region];if(!slot||!campaign)return;
+  const mod=v82Module(),summary=mod.summary(campaign),inf=game.world?.territoryState?.[region]?.influence||{};
+  const bonus=clamp(7+(campaign.resolution?.margin||0)*.12,7,13);
+  if(inf[campaign.winner]!=null)inf[campaign.winner]=clamp(Number(inf[campaign.winner])+bonus,0,100);
+  if(inf[campaign.loser]!=null)inf[campaign.loser]=clamp(Number(inf[campaign.loser])-bonus*.72,0,100);
+  const rp=game.world.regionalPressures?.[region]||game.world.pressures;
+  if(rp){rp.Instabilité=clamp((Number(rp.Instabilité)||0)-5,0,100);if(campaign.winner==='Pirates')rp.Piraterie=clamp((Number(rp.Piraterie)||0)+4,0,100);if(campaign.winner==='Marine')rp.Marine=clamp((Number(rp.Marine)||0)+4,0,100);if(campaign.winner==='Révolutionnaires')rp.Révolution=clamp((Number(rp.Révolution)||0)+4,0,100)}
+  slot.history.unshift({...summary,resolvedYear:game.clock.year});slot.history=slot.history.slice(0,12);slot.totalResolved++;slot.cooldownUntil=game.clock.year+2;slot.active=null;state.totalResolved++;
+  v68RecordCause({region,type:'campaign_resolution',title:'Fin de campagne : '+campaign.title,desc:campaign.winner+' impose l’issue régionale face à '+campaign.loser+'.',sourceId:campaign.id,actor:campaign.winner,target:campaign.loser,impact:bonus});
+  addWorldFact('v82_'+campaign.id,{type:'regional_campaign',region,winner:campaign.winner,loser:campaign.loser,resolution:campaign.resolution});
+  const sideWon=(campaign.playerSide==='incumbent'&&campaign.winner===campaign.incumbent)||(campaign.playerSide==='challenger'&&campaign.winner===campaign.challenger);
+  if(region===game.player.region||campaign.playerContribution>0){
+    if(campaign.playerContribution>=8){game.player.reputation.world=clamp((game.player.reputation.world||0)+(sideWon?3:1),0,100)}
+    addHistory(sideWon?'Campagne régionale remportée':'Fin de campagne régionale',campaign.title+' se termine : '+campaign.winner+' prend l’avantage durable sur '+campaign.loser+'. Ta contribution atteint '+campaign.playerContribution.toFixed(1)+'.',sideWon&&campaign.playerContribution>=12?'canon':'major')
+  }else if(v58PlayerKnows(region,72))addNews('Fin de campagne • '+region,campaign.winner+' sort vainqueur de « '+campaign.title+' ».','world')
+}
+function v82AnnualWorldTick(){
+  const mod=v82Module(),state=v82Ensure();if(!mod||!state)return null;const year=game.clock.year;if(state.lastAnnualYear===year)return state;
+  for(const region of V82_REGIONS){
+    const slot=state.regions[region],ctx=v82RegionContext(region,slot.active);
+    if(!slot.active){
+      if(mod.shouldStart(slot,ctx,year,random('v82Start:'+region))){
+        let campaign=mod.startCampaign(ctx,year,{balance:random('v82Balance:'+region),duration:random('v82Duration:'+region),boss:random('v82Boss:'+region),figure:random('v82Figure:'+region)});
+        campaign=v82HydrateFigures(campaign);slot.active=campaign;slot.totalStarted++;state.totalStarted++;
+        v68RecordCause({region,type:'campaign_start',title:'Nouvelle campagne : '+campaign.title,desc:campaign.incumbent+' et '+campaign.challenger+' entrent dans une lutte durable.',sourceId:campaign.id,actor:campaign.incumbent,target:campaign.challenger,impact:campaign.threat/18});
+        if(region===game.player.region)addHistory('Nouvelle saga régionale',campaign.title+' commence autour de toi. '+campaign.incumbent+' défend sa position face à '+campaign.challenger+'.','major');
+        else if(v58PlayerKnows(region,Math.round(campaign.threat)))addNews('Nouvelle campagne • '+region,campaign.title+' oppose '+campaign.incumbent+' à '+campaign.challenger+'.','world')
+      }
+      continue
+    }
+    const result=mod.annualTick(slot.active,v82RegionContext(region,slot.active),year,random('v82Tick:'+region+':'+year));slot.active=result.campaign;
+    if(result.phaseChanged&&slot.active.status==='active'){
+      const phase=mod.phase(slot.active);
+      if(region===game.player.region)addHistory('Saga régionale : '+phase.label,slot.active.title+' franchit un nouveau seuil. Le rapport de force est désormais '+slot.active.incumbent+' '+Math.round(100-slot.active.balance)+' / '+slot.active.challenger+' '+Math.round(slot.active.balance)+'.',slot.active.phaseIndex>=2?'danger':'major');
+      else if(v58PlayerKnows(region,phase.importance))addNews(slot.active.title+' • '+phase.label,'La campagne régionale entre dans une nouvelle phase.','world')
+    }
+    if(result.resolved)v82ArchiveResolved(region,slot.active)
+  }
+  state.lastAnnualYear=year;
+  if(game.player.career!=='Aucune'&&!game.activeMission)refreshMissionBoard();
+  return state
+}
+function v82Candidate(){
+  const mod=v82Module(),campaign=v82LocalCampaign();if(!mod||!campaign)return null;
+  return mod.decisionCandidate(campaign,v82PlayerContext(campaign))
+}
+function v82QueueCampaign(candidate){
+  const mod=v82Module(),campaign=v82LocalCampaign();if(!mod||!campaign||campaign.id!==candidate?.campaignId)return false;
+  const d=mod.decision(campaign,v82PlayerContext(campaign));if(!d?.choices?.length)return false;
+  game.pendingDecision={id:'v82_'+campaign.id+'_'+campaign.phaseIndex,title:d.title,text:d.text,choices:d.choices.map(x=>({label:x.label,hint:x.hint,action:'v82campaign:'+encodeURIComponent(campaign.id)+':'+x.id}))};return true
+}
+function v82ResolveDecision(parts){
+  const mod=v82Module(),state=v82Ensure(),campaign=v82LocalCampaign();if(!mod||!state||!campaign)return false;
+  const id=decodeURIComponent(parts[1]||''),choiceId=parts[2];if(id!==campaign.id)return false;
+  const result=mod.resolveDecision(campaign,choiceId,v82PlayerContext(campaign),random('v82Decision:'+campaign.id+':'+campaign.phaseIndex+':'+choiceId));if(result.error)return false;
+  state.regions[campaign.region].active=result.campaign;state.totalPlayerDecisions++;
+  v82ApplySwingToTerritory(result.campaign,result.side,result.impact);
+  const tactic=result.tactic,risk=Math.max(0,Number(tactic.risk)||0),energy=Math.round(risk*(result.success?1.5:2.2));game.player.energy=clamp(game.player.energy-energy,0,100);
+  let health=0;if(!result.success&&risk>=3){health=Math.max(1,Math.round(risk*1.6));game.player.health=clamp(game.player.health-health,1,100)}
+  if(result.success){game.player.reputation.local=clamp((game.player.reputation.local||0)+2,0,100);if(result.campaign.phaseIndex>=2)game.player.reputation.world=clamp((game.player.reputation.world||0)+1,0,100)}
+  const ownSide=game.player.faction===result.campaign.incumbent?'incumbent':game.player.faction===result.campaign.challenger?'challenger':null,fi=v81Ensure();
+  if(fi&&ownSide){if(result.side===ownSide){fi.loyalty=clamp(fi.loyalty+2,0,100);fi.friction=clamp(fi.friction-1,0,100)}else if(result.side!=='independent'){fi.loyalty=clamp(fi.loyalty-4,0,100);fi.friction=clamp(fi.friction+6,0,100);fi.pressure=clamp(fi.pressure+3,0,100)}}
+  const type=result.success?'major':'danger';
+  addHistory(result.success?'Campagne : intervention réussie':'Campagne : revers',result.campaign.title+' • '+tactic.label+'. '+(result.success?'Ton intervention déplace le rapport de force.':'Ton intervention échoue et profite indirectement au camp adverse.'),type,'Chance '+Math.round(result.chance*100)+'% • impact '+result.impact.toFixed(1)+(health?' • santé -'+health:''));
+  v68RecordCause({region:result.campaign.region,type:'campaign_player',title:result.campaign.title+' • '+tactic.label,desc:result.success?'Intervention réussie du joueur.':'Intervention compromise.',sourceId:result.campaign.id+'_p'+result.campaign.phaseIndex,actor:game.player.faction,player:true,impact:Math.abs(result.impact)});
+  const active=state.regions[result.campaign.region].active;
+  if(active.balance<=16){state.regions[active.region].active=mod.resolveCampaign(active,active.incumbent,game.clock.year,'player_swing');v82ArchiveResolved(active.region,state.regions[active.region].active)}
+  else if(active.balance>=84){state.regions[active.region].active=mod.resolveCampaign(active,active.challenger,game.clock.year,'player_swing');v82ArchiveResolved(active.region,state.regions[active.region].active)}
+  refreshMissionBoard();return true
+}
+function v82CampaignMissionCandidate(){
+  const mod=v82Module(),campaign=v82LocalCampaign();if(!mod||!campaign||game.player.career==='Aucune')return null;
+  return mod.missionCandidate(campaign,v82PlayerContext(campaign))
+}
+function v82RecordMissionOutcome(m,outcome){
+  if(!m?.campaignId)return null;const mod=v82Module(),state=v82Ensure();if(!mod||!state)return null;
+  const slot=Object.values(state.regions).find(s=>s.active?.id===m.campaignId);if(!slot?.active)return null;
+  const result=mod.missionImpact(slot.active,{side:m.campaignSide,outcome,danger:m.danger,year:game.clock.year});slot.active=result.campaign;
+  v82ApplySwingToTerritory(slot.active,result.side,result.swing);
+  if(slot.active.balance<=16){slot.active=mod.resolveCampaign(slot.active,slot.active.incumbent,game.clock.year,'mission_swing');v82ArchiveResolved(slot.active.region,slot.active)}
+  else if(slot.active.balance>=84){slot.active=mod.resolveCampaign(slot.active,slot.active.challenger,game.clock.year,'mission_swing');v82ArchiveResolved(slot.active.region,slot.active)}
+  return result
+}
+function renderV82Campaigns(){
+  const card=$('#v82CampaignCard'),badge=$('#v82CampaignBadge'),mod=v82Module(),data=v82Data(),state=v82Ensure();if(!card||!badge||!mod||!data||!state)return;
+  const campaign=state.regions[game.player.region]?.active,activeCount=v82ActiveCount();badge.textContent=campaign?mod.phase(campaign).label.toUpperCase():activeCount+' ACTIVE'+(activeCount>1?'S':'');
+  const strip='<div class="v82-region-strip">'+V82_REGIONS.map(r=>{const a=state.regions[r]?.active,h=state.regions[r]?.history?.[0];return'<div class="v82-region-chip"><strong>'+esc(r)+'</strong><span>'+(a?esc(mod.phase(a).label)+' • '+Math.round(a.balance)+'/100':h?'Dernier vainqueur : '+esc(h.winner||'inconnu'):'Aucune saga active')+'</span></div>'}).join('')+'</div>';
+  if(!campaign){card.innerHTML='<div class="v82-campaign-hero"><div class="v82-campaign-top"><div><span class="eyebrow">Région stable pour le moment</span><h4>'+esc(game.player.region)+'</h4><p>Aucune campagne structurée n’est active ici. Les tensions du Causal World peuvent encore en faire naître une lors d’un prochain cycle annuel.</p></div><span class="v82-phase">MONDE '+activeCount+'</span></div></div>'+strip;return}
+  const s=mod.summary(campaign),a=data.archetypes[campaign.archetype]||data.archetypes.territory,elapsed=Math.max(1,game.clock.year-campaign.startedYear+1);
+  card.innerHTML='<div class="v82-campaign-hero"><div class="v82-campaign-top"><div><span class="eyebrow">'+esc(a.label)+'</span><h4>'+esc(campaign.title)+'</h4><p>'+esc(a.desc)+'</p></div><span class="v82-phase">'+esc(s.phase)+'</span></div><div class="v82-balance"><div class="v82-balance-labels"><span>'+esc(campaign.incumbent)+' '+Math.round(100-s.balance)+'</span><span>'+esc(campaign.challenger)+' '+Math.round(s.balance)+'</span></div><div class="v82-balance-track"><span style="width:'+clamp(s.balance,0,100)+'%"></span></div></div></div>'+
+    '<div class="v82-campaign-meta"><div class="v82-meta"><span>Enjeux</span><strong>'+Math.round(s.stakes)+'/100</strong></div><div class="v82-meta"><span>Menace</span><strong>'+Math.round(s.threat)+'/100</strong></div><div class="v82-meta"><span>Durée</span><strong>An '+elapsed+' / ~'+campaign.targetYears+'</strong></div><div class="v82-meta"><span>Ton camp</span><strong>'+esc(campaign.playerSide||'Non choisi')+'</strong></div><div class="v82-meta"><span>Contribution</span><strong>'+s.playerContribution.toFixed(1)+'</strong></div><div class="v82-meta"><span>Dernier mouvement</span><strong>'+(campaign.lastSwing>=0?'+':'')+campaign.lastSwing.toFixed(1)+'</strong></div></div>'+
+    '<div class="v82-figures"><div class="v82-figure"><span>Figure locale</span><strong>'+esc(campaign.localFigure?.name||campaign.incumbent)+'</strong><small>'+esc(campaign.localFigure?.faction||campaign.incumbent)+' • puissance '+Math.round(campaign.localFigure?.power||0)+'</small></div><div class="v82-figure"><span>Antagoniste / boss</span><strong>'+esc(campaign.boss?.name||campaign.challenger)+'</strong><small>'+esc(campaign.boss?.faction||campaign.challenger)+' • puissance '+Math.round(campaign.boss?.power||0)+'</small></div></div>'+strip
 }
 
 // -----------------------------------------------------------------------------
@@ -2726,7 +2875,7 @@ function initialGame(){
     pressures:{Piraterie:randInt(38,58,'world'),Marine:randInt(38,58,'world'),Criminalité:randInt(22,42,'world'),Révolution:randInt(5,18,'world'),Prospérité:randInt(40,62,'world'),Instabilité:randInt(15,34,'world')},regionalPressures:makeRegionalPressures(),
     canon:CANON_EVENTS.map(x=>({...x})),characters:worldCharacterCopy(),fruits:worldFruitCopy(),
     factions:{Marine:{power:75,activity:64,territories:9},Pirates:{power:72,activity:74,territories:11},Révolutionnaires:{power:38,activity:30,territories:3},Gouvernement:{power:89,activity:58,territories:15},'Chasseurs de primes':{power:41,activity:46,territories:0}},
-    emergentCrews:[],worldFacts:[],worldV75:{version:1,lastDirectorMonth:-99,totalActions:0,totalClashes:0,totalMoves:0,totalFruitTransfers:0,totalCrewShifts:0,ledger:[],fruitHistory:[],crewHistory:[],actorHistory:[]}
+    emergentCrews:[],worldFacts:[],worldV75:{version:1,lastDirectorMonth:-99,totalActions:0,totalClashes:0,totalMoves:0,totalFruitTransfers:0,totalCrewShifts:0,ledger:[],fruitHistory:[],crewHistory:[],actorHistory:[]},campaignV82:{version:1,regions:{},totalStarted:0,totalResolved:0,totalPlayerDecisions:0,lastAnnualYear:-99}
   };
   addHistory('Naissance',`${name} naît à ${island}, dans ${origin}, au début d’une époque que personne ne sait encore mesurer.`,'major');
   addHistory('Famille',`Ton foyer est ${game.player.family.status.toLowerCase()}. Tu grandis avec ${game.player.family.siblings} frère${game.player.family.siblings>1?'s':''} ou sœur${game.player.family.siblings>1?'s':''}.`);
@@ -2783,7 +2932,7 @@ function ensureV5(){
   if(!game.consequencesV77||typeof game.consequencesV77!=='object')game.consequencesV77={version:1,active:[],history:[],totalCreated:0,totalResolved:0,totalEscalated:0,lastTickMonth:-99};
   if(!game.player.personalV78||typeof game.player.personalV78!=='object')game.player.personalV78={version:1,home:{id:game.ageMonths>=216?'rented_room':'family_home',condition:76,owned:false,region:game.player.region,sinceYear:Math.floor(game.ageMonths/12)},independent:game.ageMonths>=216,familyBond:Number(game.player.family?.bond)||55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}};
   if(!game.player.educationV79||typeof game.player.educationV79!=='object')game.player.educationV79=v79LegacyEducationState();
-  v80Ensure();v81Ensure();
+  v80Ensure();v81Ensure();v82Ensure();
   game.player.combatV72.usage=game.player.combatV72.usage&&typeof game.player.combatV72.usage==='object'?game.player.combatV72.usage:{};
   if(!['balanced','aggressive','defensive','precision','overwhelm'].includes(game.player.combatV72.doctrine))game.player.combatV72.doctrine='balanced';
   if(!game.player.haki)game.player.haki={Observation:{state:'Dormant',mastery:0,latent:true},Armement:{state:'Dormant',mastery:0,latent:true},Conquérant:{state:'Inconnu',mastery:0,latent:false}};
@@ -2909,7 +3058,7 @@ function dangerScore(){
   const p=game.player,lp=localPressures(),rs=v68RegionState();let d=p.travel?Math.max(placeInfo(p.travel.from).danger,placeInfo(p.travel.destination).danger):placeInfo(p.island).danger||REGION_DANGER[p.region]||12;
   d+=lp.Piraterie*.20+lp.Instabilité*.15+lp.Criminalité*.08+rs.extraDanger;
   if(p.travel)d+=8+v68TravelRisk(p.travel.from,p.travel.destination);
-  if(['crime','patrol','mission','covert'].includes(p.activityType))d+=12;
+  if(['crime','patrol','mission','covert'].includes(p.activityType))d+=12;const campaign=v82LocalCampaign();if(campaign)d+=campaign.threat*.08+campaign.stakes*.05;
   if(game.activeMission)d+=game.activeMission.danger==='high'?22:game.activeMission.danger==='medium'?10:2;
   return d*currentDifficulty().danger
 }
@@ -3612,14 +3761,14 @@ function tickMission(months){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult)),reward=Math.round(m.reward*rewardMult);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=2;
     if(game.player.faction==='Marine')game.player.reputation.marine+=3;if(game.player.faction==='Révolutionnaires')game.player.reputation.revolution+=3;if(game.player.faction==='Gouvernement')game.player.reputation.government+=3;if(game.player.faction==='Pirates'){game.player.reputation.pirate+=3;game.player.bounty+=Math.round(reward*.45);game.player.highestBounty=Math.max(game.player.highestBounty,game.player.bounty)}
     addHistory('Mission accomplie',`${m.title} se termine en ta faveur avec une approche « ${strat.label.toLowerCase()} ».`,'major',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
-    game.flags.v65LastMission={id:m.id,outcome:'success',approach:approach.id};v68ApplyMissionOutcome(m,'success');v73RecordMissionOutcome(m,'success',approach.id);v81RecordMissionOutcome(m,'success');v77FromMission(m,'success',approach.id)
+    game.flags.v65LastMission={id:m.id,outcome:'success',approach:approach.id};v68ApplyMissionOutcome(m,'success');v73RecordMissionOutcome(m,'success',approach.id);v81RecordMissionOutcome(m,'success');v82RecordMissionOutcome(m,'success');v77FromMission(m,'success',approach.id)
   }else if(partial&&game.alive){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult*.60)),reward=Math.round(m.reward*rewardMult*.45);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=1;
     addHistory('Mission partiellement réussie',`${m.title} n’atteint pas tous ses objectifs, mais tu sauves une partie du résultat au lieu de repartir avec absolument rien.`,'normal',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
-    game.flags.v65LastMission={id:m.id,outcome:'partial',approach:approach.id};v68ApplyMissionOutcome(m,'partial');v73RecordMissionOutcome(m,'partial',approach.id);v81RecordMissionOutcome(m,'partial');v77FromMission(m,'partial',approach.id)
+    game.flags.v65LastMission={id:m.id,outcome:'partial',approach:approach.id};v68ApplyMissionOutcome(m,'partial');v73RecordMissionOutcome(m,'partial',approach.id);v81RecordMissionOutcome(m,'partial');v82RecordMissionOutcome(m,'partial');v77FromMission(m,'partial',approach.id)
   }else if(game.alive){
     addHistory(retreated?'Mission abandonnée':'Mission échouée',retreated?`${m.title} est interrompue après un repli tactique. La récompense est perdue, pas nécessairement ta vie.`:`${m.title} tourne mal malgré ton approche « ${strat.label.toLowerCase()} ». Tu n’obtiens pas la récompense prévue.`,'danger');
-    game.flags.v65LastMission={id:m.id,outcome:retreated?'retreat':'failure',approach:approach.id};v68ApplyMissionOutcome(m,retreated?'retreat':'failure');v73RecordMissionOutcome(m,retreated?'retreat':'failure',approach.id);v81RecordMissionOutcome(m,retreated?'retreat':'failure');v77FromMission(m,retreated?'retreat':'failure',approach.id)
+    game.flags.v65LastMission={id:m.id,outcome:retreated?'retreat':'failure',approach:approach.id};v68ApplyMissionOutcome(m,retreated?'retreat':'failure');v73RecordMissionOutcome(m,retreated?'retreat':'failure',approach.id);v81RecordMissionOutcome(m,retreated?'retreat':'failure');v82RecordMissionOutcome(m,retreated?'retreat':'failure');v77FromMission(m,retreated?'retreat':'failure',approach.id)
   }
   game.player.activity=m.previousActivity;game.player.activityType=m.previousType;game.player.situation=game.player.faction==='Pirates'?'Vie en équipage':game.player.faction==='Marine'?'Service actif':game.player.faction==='Révolutionnaires'?'Réseau clandestin':game.player.faction==='Gouvernement'?'Affectation gouvernementale':'Indépendant';game.activeMission=null;refreshMissionBoard()
 }
@@ -3659,6 +3808,7 @@ function resolveDecision(action){
   if(parts[0]==='v79track'||parts[0]==='v79event')v79ResolveDecision(parts);
   if(parts[0]==='v78personal')v78ResolvePersonalDecision(parts);
   if(parts[0]==='v81faction')v81ResolveDecision(parts);
+  if(parts[0]==='v82campaign')v82ResolveDecision(parts);
   if(parts[0]==='v77consequence')v77ResolveConsequence(parts);
   else v77DecisionEcho(action,decisionEcho);
   game.pendingDecision=null;game.pacing.lastDecisionAge=game.ageMonths;$('#decisionModal').classList.add('hidden');saveGame();if(!game.alive){render();showDeath();return}if(game.agency?.annualTurn?.active){v61ResumeAnnualTurn();return}render();
@@ -3699,7 +3849,7 @@ function v61StartAnnualTurn(){
 function v61PauseForDecision(){const t=game.agency?.annualTurn;if(!t?.active||!game.pendingDecision)return;t.interruptions=(t.interruptions||0)+1;t.pausedDecisionId=game.pendingDecision.id||'decision';saveGame();render();showDecision()}
 function v61MaybeAgencyInterrupt(){const t=game.agency?.annualTurn;if(!t?.active||game.pendingDecision||game.ageMonths<156)return false;if((t.agencyPrompts||0)>=2)return false;const progressed=t.monthsSimulated+(t.phase>0?1:0);if(progressed<3||progressed-(t.lastAgencyMonth??-99)<3)return false;let p=(.10+Math.min(.10,game.pacing.calmStreak*.012))*v62Metric('agency',1);if(!chance(clamp(p,.05,.36),'v61Agency'))return false;v6QueueAgencyDecision(true);if(game.pendingDecision){t.agencyPrompts=(t.agencyPrompts||0)+1;t.lastAgencyMonth=progressed;return true}return false}
 function v61CompleteAnnualTurn(){
-  const t=game.agency?.annualTurn;if(!t?.active)return;const before=t.before||v61SerializableSnapshot(),p=game.player;v69AnnualEconomy();v78AnnualHousehold();v69Milestones();const newEvents=v61EventsSince(before),highlights=newEvents.filter(h=>['major','danger','canon'].includes(h.type)).slice(0,7),risk=v64EnsureRiskTurn(t)||{spent:0,budget:0};
+  const t=game.agency?.annualTurn;if(!t?.active)return;const before=t.before||v61SerializableSnapshot(),p=game.player;v69AnnualEconomy();v78AnnualHousehold();v69Milestones();v82AnnualWorldTick();const newEvents=v61EventsSince(before),highlights=newEvents.filter(h=>['major','danger','canon'].includes(h.type)).slice(0,7),risk=v64EnsureRiskTurn(t)||{spent:0,budget:0};
   const report={year:game.clock.year,age:game.ageMonths,months:t.monthsSimulated,moneyDelta:Math.round(p.money-before.money),powerDelta:Math.round((overallPower()-before.power)*10)/10,rankBefore:before.rank,rankAfter:p.rank,xpDelta:Math.round((p.careerXP-before.careerXP)*10)/10,healthDelta:Math.round(p.health-before.health),relationsDelta:game.relations.length-before.relations,visitedDelta:p.visited.length-before.visited,bountyDelta:Math.round(p.bounty-before.bounty),focus:'custom',plan:t.plan,load:v62AnnualLoad(t.plan),interruptions:t.interruptions||0,riskSpent:Math.round(risk.spent||0),riskBudget:Math.round(risk.budget||0),riskLabel:v64RiskLabel(t),adventureDiscoveries:t.adventureDiscoveries||0,highlights:highlights.map(h=>({title:h.title,desc:h.desc,type:h.type}))};
   report.classification=v61ClassifyYear(report);v80CompleteYear(newEvents,report);game.agency.lastAnnualReport=report;game.agency.totalAnnualAdvances=(game.agency.totalAnnualAdvances||0)+1;
   game.dev.lastAdvance={months:t.monthsSimulated,annual:true,interactive:true,plan:t.plan,before:{age:t.startAge,worldYear:before.worldYear,power:before.power},after:{age:game.ageMonths,worldYear:game.clock.year,power:overallPower()},interruptions:t.interruptions||0,riskSpent:report.riskSpent};
@@ -3869,7 +4019,7 @@ function ensureV6(){
   if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;
   if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));
   ensureV59();for(const h of game.world.worldHooks||[])updateHakiStagesV6();
-  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure()
+  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure()
 }
 function v6RelationById(id){return game.relations.find(r=>r.id===id||slug(r.name)===id)}
 function v6InteractRelation(id,action){
@@ -4102,8 +4252,8 @@ function renderWorld(){
   $('#causalLedger').innerHTML=ledger.length?ledger.map(x=>'<div class="world-event"><span class="event-meta">'+esc(x.type)+' • '+(x.player?'action du joueur':'monde')+'</span><strong>'+esc(x.title)+'</strong><span>'+esc(x.desc)+'</span></div>').join(''):'<p class="helper-text">Aucune chaîne causale récente visible dans cette région.</p>';
 
   $('#worldHeadline').textContent=w.era;$('#worldSubhead').textContent=`${worldDateText()}. ${REGION_SUMMARY[p.region]||''}`;
-  renderV75WorldDirector();
-  const canonStats=v70CanonStats();$('#worldMeta').innerHTML=`<span>Divergence ${Math.round(w.divergence)}%</span><span>${w.emergentCrews.filter(c=>c.status==='active').length} équipages procéduraux</span><span>${(w.canonCrews||[]).filter(v70CanonCrewActive).length} groupes canoniques</span><span>${canonStats.characters} personnages canon</span><span>${canonStats.fruits} Fruits</span><span>${p.visited.length}/${canonStats.places} lieux visités</span>`;
+  renderV75WorldDirector();renderV82Campaigns();
+  const canonStats=v70CanonStats(),campaigns=v82ActiveCount();$('#worldMeta').innerHTML=`<span>Divergence ${Math.round(w.divergence)}%</span><span>${campaigns} saga${campaigns>1?'s':''} active${campaigns>1?'s':''}</span><span>${w.emergentCrews.filter(c=>c.status==='active').length} équipages procéduraux</span><span>${(w.canonCrews||[]).filter(v70CanonCrewActive).length} groupes canoniques</span><span>${canonStats.characters} personnages canon</span><span>${canonStats.fruits} Fruits</span><span>${p.visited.length}/${canonStats.places} lieux visités</span>`;
   $('#placeName').textContent=p.travel?`En mer → ${p.travel.destination}`:p.island;$('#placeDanger').textContent=`Danger ${Math.round(dangerScore())}`;$('#placeDescription').textContent=p.travel?`Traversée depuis ${p.travel.from}. Temps restant estimé : ${Math.max(0,p.travel.remaining).toFixed(2)} mois.`:info.desc;$('#placeTags').innerHTML=(p.travel?['Voyage maritime',p.region]:info.tags).map(x=>`<span class="chip">${esc(x)}</span>`).join('');
   $('#worldNews').innerHTML=game.news.length?game.news.slice(0,18).map(n=>`<div class="news-item"><strong>${esc(n.title)}</strong><span>${esc(n.desc)}</span></div>`).join(''):'<p>Aucune actualité.</p>';
   $('#regionTitle').textContent=p.region;$('#pressureBars').innerHTML=barRows(lp);$('#divergenceBadge').textContent=`Divergence ${Math.round(w.divergence)}%`;
