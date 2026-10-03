@@ -125,3 +125,5 @@ jobs:
         run: node scripts/qa-v79.mjs
       - name: Validate V8.0 Simulation Core and Life Director
         run: node scripts/qa-v80.mjs
+      - name: Validate V8.1 Faction Identity
+        run: node scripts/qa-v81.mjs
