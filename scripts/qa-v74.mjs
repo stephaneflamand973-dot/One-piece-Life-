@@ -110,7 +110,7 @@ for(const asset of ['src/data/relation-personas-v74.js','src/v74/relation-person
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v7-[4-9]-\d+/.test(sw),'PWA cache must remain at V7.4 or newer');
+assert(/one-piece-life-v(?:7-[4-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.4 or newer');
 for(const fn of ['function v74EnsureRelation','function v74RecordMemory','function v74MaybeQueueArc','function v74ResolveArcDecision','function renderV74Network']){
   assert(html.includes(fn),'Missing live V7.4 bridge '+fn);
 }
