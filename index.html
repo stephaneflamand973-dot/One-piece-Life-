@@ -2031,7 +2031,8 @@ function v78ResolvePersonalDecision(parts){
 }
 function v78MaybeEvent(){
   const mod=v78Module(),state=v78Ensure();if(!mod||!state||game.pendingDecision||!game.alive)return false;
-  const ctx=v78Context(),year=ctx.year;if(state.lastEventYear===year)return false;
+  const ctx=v78Context(),year=ctx.year;if(state.lastEventYear===year||state.lastEventCheckYear===year)return false;
+  state.lastEventCheckYear=year;
   const candidates=mod.eventCandidates(state,ctx);if(!candidates.length)return false;
   const independence=candidates.find(x=>x.id==='independence');
   const chanceEvent=independence?.weight>=9?.72:clamp(.13+state.stress/500+(ctx.relationsPlan==='invest'?.05:0),.10,.34);
@@ -2374,9 +2375,10 @@ function initialGame(){
     combatV72:{doctrine:'balanced',usage:{},signature:null,lastTechnique:null},
     careerV73:{version:1,branch:null,standing:30,trust:50,discipline:50,influence:0,responsibility:'member',commendations:0,sanctions:0,missionRecord:{success:0,partial:0,failure:0,retreat:0},lastReviewYear:-99,lastReview:null,lastActionYear:-99,lastPoliticsYear:-99,branchHistory:[]},
     socialV74:{version:1,lastArcYear:-99,lastArcCheckYear:-99,totalArcs:0,totalMemories:0},
-    personalV78:{version:1,home:{id:'family_home',condition:78,owned:false,region:origin,sinceYear:0},independent:false,familyBond:55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}},
+    personalV78:{version:1,home:{id:'family_home',condition:78,owned:false,region:origin,sinceYear:0},independent:false,familyBond:55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}},
     danger:'Faible',crew:null,mentor:null,travel:null,kills:0,wins:0,losses:0,highestBounty:0,visited:[island]
   };
+  game.player.personalV78.familyBond=game.player.family.bond;
   game.world={
     era:'Grande Ère de la Piraterie',divergence:0,
     pressures:{Piraterie:randInt(38,58,'world'),Marine:randInt(38,58,'world'),Criminalité:randInt(22,42,'world'),Révolution:randInt(5,18,'world'),Prospérité:randInt(40,62,'world'),Instabilité:randInt(15,34,'world')},regionalPressures:makeRegionalPressures(),
@@ -2437,7 +2439,7 @@ function ensureV5(){
   if(!game.player.socialV74||typeof game.player.socialV74!=='object')game.player.socialV74={version:1,lastArcYear:-99,lastArcCheckYear:-99,totalArcs:0,totalMemories:0};
   if(!game.meta.uiV76||typeof game.meta.uiV76!=='object')game.meta.uiV76={version:1,density:'focus',activeTab:'life',collapsed:{},scroll:{},reducedMotion:false,lastViewedYear:-99};
   if(!game.consequencesV77||typeof game.consequencesV77!=='object')game.consequencesV77={version:1,active:[],history:[],totalCreated:0,totalResolved:0,totalEscalated:0,lastTickMonth:-99};
-  if(!game.player.personalV78||typeof game.player.personalV78!=='object')game.player.personalV78={version:1,home:{id:game.ageMonths>=216?'rented_room':'family_home',condition:76,owned:false,region:game.player.region,sinceYear:Math.floor(game.ageMonths/12)},independent:game.ageMonths>=216,familyBond:Number(game.player.family?.bond)||55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}};
+  if(!game.player.personalV78||typeof game.player.personalV78!=='object')game.player.personalV78={version:1,home:{id:game.ageMonths>=216?'rented_room':'family_home',condition:76,owned:false,region:game.player.region,sinceYear:Math.floor(game.ageMonths/12)},independent:game.ageMonths>=216,familyBond:Number(game.player.family?.bond)||55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}};
   game.player.combatV72.usage=game.player.combatV72.usage&&typeof game.player.combatV72.usage==='object'?game.player.combatV72.usage:{};
   if(!['balanced','aggressive','defensive','precision','overwhelm'].includes(game.player.combatV72.doctrine))game.player.combatV72.doctrine='balanced';
   if(!game.player.haki)game.player.haki={Observation:{state:'Dormant',mastery:0,latent:true},Armement:{state:'Dormant',mastery:0,latent:true},Conquérant:{state:'Inconnu',mastery:0,latent:false}};
