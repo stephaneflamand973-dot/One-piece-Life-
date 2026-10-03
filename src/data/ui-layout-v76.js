@@ -11,6 +11,7 @@
   ];
 
   const sections=[
+    {key:'education',anchor:'v79EducationCard',label:'Éducation & jeunesse',defaultCollapsed:false},
     {key:'household',anchor:'v78HouseholdCard',label:'Foyer & famille',defaultCollapsed:false},
     {key:'consequences',anchor:'v77ConsequencesList',label:'Conséquences actives',defaultCollapsed:false},
     {key:'career_progress',anchor:'careerProgressCard',label:'Progression de carrière',defaultCollapsed:false},
