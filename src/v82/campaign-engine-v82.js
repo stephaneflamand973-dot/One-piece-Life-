@@ -190,7 +190,8 @@
     const title=(c.phaseIndex>=2?'Opération décisive : ':'Campagne : ')+verb;
     const desc='La saga « '+c.title+' » entre dans sa phase '+p.label.toLowerCase()+'. Cette mission peut modifier durablement son rapport de force.';
     const enemyName=side==='incumbent'?(c.boss?.name||c.challenger):side==='challenger'?(c.localFigure?.name||c.incumbent):(c.boss?.name||'forces en présence');
-    return {title,desc,danger,type,sourceType:'campaign',sourceId:c.id,campaignId:c.id,campaignSide:side,targetFaction:side==='incumbent'?c.challenger:side==='challenger'?c.incumbent:null,causalMode:'campaign',cause:c.title+' • '+p.label+' • équilibre '+Math.round(c.balance)+'/100',enemyName,importance:Math.round(clamp(p.importance+c.threat*.18,45,96))}
+    const power=Math.round(clamp((c.phaseIndex>=2?num(c.boss?.power):c.threat*.72)+p.baseDifficulty*.22,18,100));
+    return {title,desc,danger,type,sourceType:'campaign',sourceId:c.id,campaignId:c.id,campaignSide:side,targetFaction:side==='incumbent'?c.challenger:side==='challenger'?c.incumbent:null,causalMode:'campaign',cause:c.title+' • '+p.label+' • équilibre '+Math.round(c.balance)+'/100',enemyName,power,importance:Math.round(clamp(p.importance+c.threat*.18,45,96))}
   }
 
   function missionImpact(campaign={},ctx={}){
