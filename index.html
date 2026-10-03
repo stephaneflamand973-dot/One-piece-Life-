@@ -4430,31 +4430,41 @@ function travelDestinations(){
   const p=game.player;if(game.activeMission||p.travel||game.ageMonths/12<12)return[];
   const info=placeInfo(p.island);
   return (info.routes||[]).map(dest=>{
-    const req=routeRequirement(p.island,dest),ok=canUseRoute(p.island,dest),target=placeInfo(dest),causal=v68TravelRisk(p.island,dest);
-    return {dest,ok,req,duration:estimateTravel(p.island,dest),danger:Math.round((info.danger+target.danger)/2+causal),causalRisk:causal}
+    const req=routeRequirement(p.island,dest),ok=canUseRoute(p.island,dest),target=placeInfo(dest),causal=v68TravelRisk(p.island,dest),profile=v85RoutePreview(p.island,dest,'standard');
+    return {dest,ok,req,duration:profile.duration,danger:Math.round(profile.danger),causalRisk:causal,riskPct:profile.riskPct,familiarity:profile.familiarity,preparedness:profile.preparedness}
   })
 }
 function askTravel(dest){
   const route=travelDestinations().find(x=>x.dest===dest);if(!route)return;
-  if(!route.ok){toast(`Route verrouillée : ${route.req.label}`);return}
-  const risky=route.danger>=38||placeInfo(dest).region!==game.player.region;
-  if(risky){game.pendingDecision={id:'travel',title:`Mettre le cap sur ${dest}`,text:`Traversée estimée : ${route.duration} mois. Danger de route : ${route.danger}/100. Le voyage sera simulé et pourra être interrompu par des rencontres.`,choices:[{label:'Prendre la mer',hint:'Le temps passera réellement pendant la traversée.',action:`travel:${encodeURIComponent(dest)}`},{label:'Rester ici',hint:'Aucune conséquence.',action:'travel:cancel'}]};showDecision()}else beginTravel(dest)
+  if(!route.ok){toast('Route verrouillée : '+route.req.label);return}
+  const modes=v85Data()?.modes||{standard:{label:'Route normale',desc:'Traversée standard.'}};
+  game.pendingDecision={id:'v85_travel_mode',title:'Mettre le cap sur '+dest,text:'Route estimée '+route.duration+' mois • risque '+route.riskPct+'% • maîtrise '+Math.round(route.familiarity)+'/100. Choisis comment mener la traversée.',choices:Object.entries(modes).map(([id,m])=>{const profile=v85RoutePreview(game.player.island,dest,id);return {label:m.label,hint:profile.duration+' mois • risque '+profile.riskPct+'% • '+m.desc,action:'v85travel:'+id+':'+encodeURIComponent(dest)}}).concat([{label:'Rester ici',hint:'Aucune conséquence.',action:'travel:cancel'}])};
+  showDecision()
 }
-function beginTravel(dest){
-  if(dest==='cancel')return;const p=game.player,from=p.island,target=placeInfo(dest),duration=estimateTravel(from,dest);
-  p.travel={from,destination:dest,targetRegion:target.region,total:duration,remaining:duration,danger:Math.round((placeInfo(from).danger+target.danger)/2)};
-  p.situation='Voyage maritime';p.activity=`Navigation vers ${dest}`;p.activityType='travel';p.danger=dangerLevel();
-  addHistory('Départ en mer',`Tu quittes ${from} en direction de ${dest}. La traversée devrait prendre environ ${duration} mois.`,'major');saveGame();render()
+function beginTravel(dest,mode='standard'){
+  if(dest==='cancel')return;const p=game.player,from=p.island,target=placeInfo(dest),profile=v85RoutePreview(from,dest,mode),started=v85StartVoyage(profile);
+  if(started)p.travel=started;else p.travel={from,destination:dest,targetRegion:target.region,total:profile.duration,remaining:profile.duration,danger:Math.round(profile.danger),mode};
+  p.situation='Voyage maritime';p.activity='Navigation vers '+dest;p.activityType='travel';p.danger=dangerLevel();
+  addHistory('Départ en mer','Tu quittes '+from+' en direction de '+dest+' par une '+String(profile.modeLabel||'route normale').toLowerCase()+'. Traversée estimée : '+profile.duration+' mois, risque '+profile.riskPct+'%.','major');saveGame();render()
 }
 function tickTravel(months){
   const p=game.player,t=p.travel;if(!t)return;
-  t.remaining-=months;
-  const lp=localPressures();const risk=clamp((t.danger+lp.Piraterie*.18+lp.Instabilité*.15)/520*months*v62Metric('danger',1)*v64RiskFactor('travel'),0,.30);
-  if(chance(risk,'travel')){const encounter=weighted([{v:'storm',w:32},{v:'pirates',w:30},{v:'marine',w:18},{v:'merchant',w:20}],'travel');v64RecordRisk(encounter==='pirates'?18:encounter==='storm'?9:encounter==='marine'?6:3,'travel');if(encounter==='storm'){const hit=randInt(2,10,'travel');p.energy=clamp(p.energy-hit,0,100);addHistory('Mer difficile',`Une perturbation ralentit la traversée vers ${t.destination}.`,'danger',`Énergie -${hit}`)}if(encounter==='pirates')resolveCombat(enemyForDanger(4),'Rencontre en mer');if(encounter==='marine')addHistory('Contrôle maritime',`Une patrouille de la Marine interrompt brièvement ta route vers ${t.destination}.`);if(encounter==='merchant'){p.money+=randInt(300,1800,'travel');addHistory('Rencontre commerciale','Un échange opportuniste pendant la traversée améliore légèrement tes finances.','normal')}}
+  const result=v85TickVoyage(months);
+  if(!result){
+    t.remaining-=months;
+    const lp=localPressures(),risk=clamp((t.danger+lp.Piraterie*.18+lp.Instabilité*.15)/520*months*v62Metric('danger',1)*v64RiskFactor('travel'),0,.30);
+    if(chance(risk,'travel')){const encounter=weighted([{v:'storm',w:32},{v:'pirates',w:30},{v:'marine',w:18},{v:'merchant',w:20}],'travel');v64RecordRisk(encounter==='pirates'?18:encounter==='storm'?9:encounter==='marine'?6:3,'travel');if(encounter==='storm'){const hit=randInt(2,10,'travel');p.energy=clamp(p.energy-hit,0,100);addHistory('Mer difficile','Une perturbation ralentit la traversée vers '+t.destination+'.','danger','Énergie -'+hit)}if(encounter==='pirates')resolveCombat(enemyForDanger(4),'Rencontre en mer');if(encounter==='marine')addHistory('Contrôle maritime','Une patrouille de la Marine interrompt brièvement ta route vers '+t.destination+'.');if(encounter==='merchant'){p.money+=randInt(300,1800,'travel');addHistory('Rencontre commerciale','Un échange opportuniste pendant la traversée améliore légèrement tes finances.','normal')}}
+  }
   if(!game.alive)return;
-  if(t.remaining<=0){const dest=t.destination,target=placeInfo(dest);p.island=dest;p.region=target.region;p.travel=null;p.situation=p.faction==='Marine'?'Service actif':p.faction==='Pirates'?'Vie en équipage':p.faction==='Révolutionnaires'?'Réseau clandestin':p.faction==='Gouvernement'?'Mission / affectation':'Activité courante';p.activity=p.career==='Aucune'?'Explorer':'Explorer la zone';p.activityType='explore';codexAdd('places',dest);const firstVisit=!p.visited.includes(dest);if(firstVisit){p.visited.push(dest);v64OnNewLocation(dest,target)};if(dest==='Zou')game.flags.zouLead=true;addHistory('Arrivée',`Tu atteins ${dest}, dans ${target.region}. ${target.desc}`,'major');addNews(`Mouvement maritime : ${p.name}`,`Un voyageur ou groupe lié à ${p.faction} arrive à ${dest}.`);refreshMissionBoard();p.danger=dangerLevel()}
+  const live=p.travel;if(live&&live.remaining<=0){
+    const dest=live.destination,target=placeInfo(dest),arrival=v85Arrive(dest,live);
+    p.island=dest;p.region=target.region;p.travel=null;p.situation=p.faction==='Marine'?'Service actif':p.faction==='Pirates'?'Vie en équipage':p.faction==='Révolutionnaires'?'Réseau clandestin':p.faction==='Gouvernement'?'Mission / affectation':'Activité courante';p.activity=p.career==='Aucune'?'Explorer':'Explorer la zone';p.activityType='explore';codexAdd('places',dest);
+    const firstVisit=!p.visited.includes(dest);if(firstVisit){p.visited.push(dest);v64OnNewLocation(dest,target)}
+    if(dest==='Zou')game.flags.zouLead=true;
+    addHistory('Arrivée','Tu atteins '+dest+', dans '+target.region+'. '+target.desc,'major',arrival?'Route '+Math.round(arrival.route.mastery)+'/100 • exploration +'+arrival.explorationGain.toFixed(1):'');
+    addNews('Mouvement maritime : '+p.name,'Un voyageur ou groupe lié à '+p.faction+' arrive à '+dest+'.');refreshMissionBoard();p.danger=dangerLevel()
+  }
 }
-
 
 function startupMessage(text,kind='ready'){const el=$('#startupStatus');if(!el)return;el.textContent=text;el.className=`helper-text ${kind==='warn'?'startup-warn':'startup-ready'}`}
 function slotHtml(g,n){if(!g)return `<button class="save-slot empty" data-slot="${n}">＋ Nouvelle vie<br><small>Emplacement ${n}</small></button>`;return `<button class="save-slot" data-slot="${n}"><span><strong>${esc(g.player?.name||'Sans nom')}</strong><small>${esc(ageTextFor(g.ageMonths||0))} • ${esc(g.player?.faction||'Civil')}<br>${esc(g.player?.island||'Inconnu')}</small></span><small>V${esc(g.version||'?')} • Seed ${esc(String(g.seed||'—'))}</small></button>`}
