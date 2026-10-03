@@ -1,4 +1,4 @@
-name: V8.0 QA
+name: V8.1 QA
 on:
   push:
     branches: [main]
@@ -24,7 +24,7 @@ on:
       - 'scripts/qa-v77.mjs'
       - 'scripts/qa-v78.mjs'
       - 'scripts/qa-v79.mjs'
-      - 'scripts/qa-v80.mjs'
+      - 'scripts/qa-v80.mjs'\n      - 'scripts/qa-v81.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -34,14 +34,14 @@ on:
       - 'QA-V7.7.md'
       - 'QA-V7.8.md'
       - 'QA-V7.9.md'
-      - 'QA-V8.0.md'
+      - 'QA-V8.0.md'\n      - 'QA-V8.1.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v80-qa-${{ github.ref }}
+  group: v81-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
