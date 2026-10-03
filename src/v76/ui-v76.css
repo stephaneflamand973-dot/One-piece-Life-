@@ -1,0 +1,96 @@
+/* ONE PIECE LIFE V7.6 — UI & Game Feel 3.0 */
+
+.topbar-actions{display:flex;align-items:center;gap:7px}
+#uiDensityToggle{position:relative;font-size:16px}
+#uiDensityToggle[data-mode="focus"]{background:rgba(45,113,129,.12);color:var(--navy)}
+
+.v76-focus-card{
+  position:relative;
+  overflow:hidden;
+  border-color:rgba(45,113,129,.2);
+  background:linear-gradient(145deg,rgba(241,248,246,.98),rgba(255,250,240,.98));
+}
+.v76-focus-card:after{
+  content:"";position:absolute;right:-54px;top:-58px;width:140px;height:140px;border-radius:50%;
+  border:1px solid rgba(45,113,129,.11);box-shadow:0 0 0 24px rgba(45,113,129,.025);
+  pointer-events:none
+}
+.v76-focus-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:relative;z-index:1}
+.v76-focus-head h3{margin:3px 0 0;font-size:19px;line-height:1.18}
+.v76-priority-badge{font-size:9px;font-weight:900;letter-spacing:.08em;border-radius:999px;padding:6px 8px;white-space:nowrap}
+.v76-priority-badge.critical{background:#f3ddd8;color:#8f372f}
+.v76-priority-badge.high{background:#f5e7ca;color:#80601d}
+.v76-priority-badge.medium{background:#e6eef0;color:#315e6b}
+.v76-priority-badge.low,.v76-priority-badge.calm{background:#e4eee8;color:#426653}
+.v76-priority-copy{font-size:12px;line-height:1.5;color:var(--muted);margin:8px 0 12px;position:relative;z-index:1}
+.v76-priority-action{border:0;background:transparent;padding:0;color:var(--sea);font-weight:900;font-size:11px;text-decoration:underline;text-underline-offset:3px}
+
+.v76-vitals{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;position:relative;z-index:1}
+.v76-vital{min-width:0;padding:9px 8px;border-radius:12px;background:rgba(255,255,255,.58);border:1px solid rgba(120,100,65,.10)}
+.v76-vital span,.v76-vital strong{display:block}
+.v76-vital span{font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.v76-vital strong{font-size:13px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v76-vital.good strong{color:var(--green)}.v76-vital.warn strong{color:#8a651f}.v76-vital.danger strong{color:var(--red)}.v76-vital.strong strong{color:var(--sea)}
+
+.v76-delta-row{display:flex;gap:6px;overflow:auto;padding-top:10px;margin-top:2px;scrollbar-width:none;position:relative;z-index:1}
+.v76-delta-row::-webkit-scrollbar{display:none}
+.v76-delta{flex:0 0 auto;border-radius:999px;padding:6px 8px;font-size:9px;font-weight:900;border:1px solid transparent}
+.v76-delta.up{background:#e5efe8;color:#416650;border-color:#d2e4d8}
+.v76-delta.down{background:#f4e2de;color:#8d4238;border-color:#ead0ca}
+.v76-delta.neutral{background:#e8eef0;color:#49656c;border-color:#d4e0e3}
+
+.nav-item{position:relative;min-height:46px;transition:transform .16s ease,color .16s ease}
+.nav-item:active{transform:scale(.94)}
+.nav-item.active:after{content:"";position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:19px;height:3px;border-radius:999px;background:var(--sea)}
+.nav-badge{position:absolute;top:2px;left:calc(50% + 7px);min-width:16px;height:16px;padding:0 4px;border-radius:999px;display:grid;place-items:center;background:var(--red);color:#fff;font-size:8px;font-weight:900;box-shadow:0 2px 7px rgba(110,40,32,.22)}
+.nav-badge.hidden{display:none!important}
+
+.v76-section{transition:box-shadow .18s ease,border-color .18s ease}
+.v76-section.v76-collapsed{box-shadow:0 5px 18px rgba(41,52,49,.055);border-color:rgba(132,111,72,.11)}
+.v76-section.v76-collapsed>:not(.section-heading){display:none!important}
+.v76-collapse-btn{
+  flex:0 0 auto;border:1px solid rgba(45,113,129,.14);background:#eef4f1;color:var(--sea);
+  border-radius:10px;min-width:32px;height:32px;padding:0 9px;font-size:10px;font-weight:900;cursor:pointer
+}
+.v76-collapse-btn:after{content:"Réduire"}
+.v76-section.v76-collapsed .v76-collapse-btn:after{content:"Ouvrir"}
+.v76-section .section-heading{align-items:flex-start}
+.v76-section .section-heading>.badge+.v76-collapse-btn{margin-left:-4px}
+
+.v76-panel-tools{display:flex;align-items:center;gap:7px;margin:-2px 0 10px}
+.v76-density-note{font-size:10px;color:var(--muted);flex:1}
+.v76-panel-tools button{width:auto;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:#fffaf1;color:var(--sea);font-size:10px;font-weight:900}
+
+.v76-flash-up{animation:v76Up .7s ease}
+.v76-flash-down{animation:v76Down .7s ease}
+.v76-flash-neutral{animation:v76Neutral .7s ease}
+@keyframes v76Up{0%{background:rgba(75,118,96,.22);transform:scale(1.035)}100%{background:transparent;transform:scale(1)}}
+@keyframes v76Down{0%{background:rgba(163,75,61,.20);transform:scale(1.035)}100%{background:transparent;transform:scale(1)}}
+@keyframes v76Neutral{0%{background:rgba(45,113,129,.18)}100%{background:transparent}}
+
+.paper-card,.action-card,.mission-card,.relation-card,.world-hook{transition:transform .14s ease,box-shadow .18s ease,border-color .18s ease}
+button.action-card:active,button.mission-card:active,.mini-action:active,.hook-action:active,.primary-btn:active,.secondary-btn:active{transform:scale(.985)}
+button,.nav-item,.action-card,.mission-card,.mini-action,.hook-action{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+
+@media(hover:hover){
+  button.action-card:hover,button.mission-card:hover,.world-hook:hover{border-color:rgba(45,113,129,.34);box-shadow:0 8px 22px rgba(41,52,49,.08)}
+  .nav-item:hover{color:var(--sea)}
+}
+
+@media(max-width:520px){
+  .v76-vitals{grid-template-columns:repeat(2,1fr)}
+  .v76-focus-head h3{font-size:17px}
+  .v76-focus-card{padding:14px}
+  .bottom-nav{padding-top:5px}
+  .nav-item{padding:4px 2px;min-height:50px}
+  .nav-item span{font-size:18px}.nav-item small{font-size:8px}
+  .topbar-actions{gap:4px}
+  #uiDensityToggle,.topbar-actions .icon-btn{width:36px;height:36px}
+  .v76-collapse-btn{height:30px;min-width:30px;padding:0 7px}
+  .v76-collapse-btn:after{content:"−"}
+  .v76-section.v76-collapsed .v76-collapse-btn:after{content:"+"}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}

@@ -86,9 +86,12 @@ World / Canon 3.0 :
 - World Director relié à V5.8 Autonomous World, V6.8 Causal World et V7.0 Canon ;
 - cohérence des événements historiques enrichie par la présence réelle de leurs acteurs.
 
-### Étape F
-UI :
-- rendre les panneaux comme composants indépendants.
+### Étape F — réalisée en V7.6
+UI / Game Feel 3.0 :
+- configuration de navigation et de sections dans `src/data/ui-layout-v76.js` ;
+- état Focus, priorités, badges, deltas et snapshots dans `src/v76/ui-components-v76.js` ;
+- styles mobiles, feedbacks et composants visuels dans `src/v76/ui-v76.css` ;
+- le moteur legacy reste fournisseur de contenu, tandis que la couche V7.6 orchestre présentation, densité et navigation.
 
 Le but n'est pas de supprimer immédiatement le moteur legacy, mais de réduire progressivement son rôle jusqu'à ce qu'il devienne essentiellement un orchestrateur.
 

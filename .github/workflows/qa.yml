@@ -1,4 +1,4 @@
-name: V7.5 QA
+name: V7.6 QA
 on:
   push:
     branches: [main]
@@ -20,18 +20,20 @@ on:
       - 'scripts/qa-v73.mjs'
       - 'scripts/qa-v74.mjs'
       - 'scripts/qa-v75.mjs'
+      - 'scripts/qa-v76.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
       - 'QA-V7.4.md'
       - 'QA-V7.5.md'
+      - 'QA-V7.6.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v75-qa-${{ github.ref }}
+  group: v76-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -69,3 +71,5 @@ jobs:
         run: node scripts/qa-v74.mjs
       - name: Verify V7.5 World and Canon 3.0
         run: node scripts/qa-v75.mjs
+      - name: Verify V7.6 UI and Game Feel 3.0
+        run: node scripts/qa-v76.mjs

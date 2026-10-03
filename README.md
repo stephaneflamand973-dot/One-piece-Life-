@@ -1,3 +1,28 @@
+# ONE PIECE LIFE — V7.6 UI & Game Feel 3.0
+
+La V7.6 termine le premier grand cycle de modularisation en s’attaquant directement à l’expérience mobile : moins de densité inutile, davantage de priorités visibles et une navigation qui conserve le contexte du joueur.
+
+## UI & Game Feel 3.0
+
+- Nouveau **dashboard Focus** sur l’écran Vie avec priorité actuelle, puissance, santé, énergie et réputation.
+- Le dashboard identifie automatiquement les urgences : décision en attente, arc majeur, année interrompue, santé critique, fatigue, mission active, promotion, relation fragile, menace mondiale ou voyage.
+- Les variations du dernier bilan annuel apparaissent sous forme de chips compactes.
+- Les changements de Berry, santé, énergie, puissance, réputation, rang et localisation reçoivent un **feedback visuel immédiat**.
+- Nouveau mode **Vue Focus** : les sections secondaires sont repliées par défaut.
+- Un bouton dans la barre supérieure permet de basculer instantanément vers **Tout afficher**.
+- Les sections peuvent être ouvertes ou réduites individuellement et l’état est sauvegardé.
+- L’onglet actif est conservé dans la sauvegarde.
+- Chaque onglet mémorise sa position de défilement lorsque le joueur navigue ailleurs.
+- La barre de navigation affiche des badges uniquement lorsqu’une information mérite réellement l’attention.
+- Les interactions tactiles reçoivent de meilleurs feedbacks et des cibles plus confortables.
+- Respect automatique de `prefers-reduced-motion`.
+- L’écran de démarrage, resté honteusement bloqué sur le texte V7.1, affiche enfin la version actuelle.
+- Migration V7.5 → V7.6 automatique.
+- Save version : **760**.
+- Cache PWA : **one-piece-life-v7-6-0**.
+
+---
+
 # ONE PIECE LIFE — V7.5 World & Canon 3.0
 
 La V7.5 ajoute un World Director chargé de coordonner les personnages canoniques, équipages, territoires, Fruits du Démon et événements historiques lorsque le joueur n’est pas directement présent.
