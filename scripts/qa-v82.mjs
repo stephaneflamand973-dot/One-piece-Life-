@@ -66,7 +66,7 @@ eq(joined.campaign.playerSide,'challenger','Opening campaign side not stored');
 gt(joined.campaign.balance,campaign.balance,'Successful challenger support should move balance toward challenger');
 eq(joined.campaign.lastDecisionPhase,0,'Opening campaign phase must be marked handled');
 
-let escalated={...joined.campaign,stakes:72,phaseIndex:1,pendingDecisionPhase:2,lastDecisionPhase:1,boss:{...joined.campaign.boss,power:76}};
+let escalated={...joined.campaign,stakes:72,phaseIndex:2,pendingDecisionPhase:2,lastDecisionPhase:1,boss:{...joined.campaign.boss,power:76}};
 const climaxCandidate=engine.decisionCandidate(escalated,{region:'Grand Line',age:22});
 assert(climaxCandidate&&climaxCandidate.bossPhase,'Climax decision should expose boss phase');
 const direct=engine.resolveDecision(escalated,'direct',playerCtx,0);
