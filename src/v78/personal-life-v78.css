@@ -1,0 +1,20 @@
+/* ONE PIECE LIFE V7.8 — Personal Life & Household 3.0 */
+
+.v78-household-card{background:linear-gradient(145deg,#fffaf0,#f3eee2)}
+.v78-household-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.v78-household-stat{padding:10px;border-radius:13px;background:rgba(255,255,255,.62);border:1px solid rgba(132,111,72,.12)}
+.v78-household-stat span,.v78-household-stat strong{display:block}
+.v78-household-stat span{font-size:8px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:800}
+.v78-household-stat strong{font-size:13px;margin-top:3px}
+.v78-household-meta{font-size:11px;color:var(--muted);line-height:1.45;margin:10px 0}
+.v78-home-actions,.v78-household-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.v78-home-actions button,.v78-household-actions button{min-width:0}
+.v78-family-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.v78-family-chip{border-radius:999px;padding:6px 8px;font-size:9px;font-weight:800;background:#edf3ef;color:#47635d;border:1px solid rgba(75,118,96,.12)}
+.v78-partner{background:#f7f0e6;border-color:#ddcfae}
+.v78-stress-high strong{color:var(--red)}
+.v78-stability-good strong{color:var(--green)}
+@media(max-width:520px){
+  .v78-household-grid{grid-template-columns:1fr 1fr}
+  .v78-home-actions,.v78-household-actions{grid-template-columns:1fr}
+}
