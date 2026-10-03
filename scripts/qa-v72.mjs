@@ -103,7 +103,7 @@ for(const asset of ['src/data/combat-techniques-v72.js','src/v72/combat-engine-v
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v7-[2-9]-\d+/.test(sw),'PWA cache must remain at V7.2 or newer');
+assert(/one-piece-life-v(?:7-[2-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.2 or newer');
 assert(html.includes('function v72CombatModule()'),'Legacy bridge missing combat module lookup');
 assert(html.includes('mod.enhance({opening,pressure,finish}'),'Legacy assessment is not enhanced by V7.2');
 assert(html.includes('v72RecordCombatUsage(a,phaseResults)'),'Combat usage/signature learning not connected');
