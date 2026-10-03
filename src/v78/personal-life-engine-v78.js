@@ -23,8 +23,8 @@
       familyBond:clamp(Number.isFinite(Number(state.familyBond))?Number(state.familyBond):num(family.bond)||55,0,100),
       partnership:['single','dating','committed'].includes(state.partnership)?state.partnership:'single',
       partnerId:state.partnerId||null,
-      children:Array.isArray(state.children)?state.children.slice(0,6).map(c=>({
-        id:c.id||'child_'+Math.random().toString(36).slice(2,8),
+      children:Array.isArray(state.children)?state.children.slice(0,6).map((c,i)=>({
+        id:c.id||('child_'+i+'_'+String(c.name||'foyer').toLowerCase().replace(/[^a-z0-9]/g,'')),
         name:c.name||'Enfant du foyer',
         ageMonths:Math.max(0,Math.floor(num(c.ageMonths))),
         bond:clamp(Number.isFinite(Number(c.bond))?Number(c.bond):60,0,100),
