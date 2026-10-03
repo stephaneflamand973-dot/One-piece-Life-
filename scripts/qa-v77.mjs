@@ -121,7 +121,7 @@ assert(html.includes("v77FromMission(m,'success',approach.id)"),'Mission success
 assert(html.includes("if(!opts.mission)v77FromCombat"),'Combat consequences are not connected');
 assert(html.includes("v77FromWorldHook(h,success?'success':'failure',approach)"),'World hooks are not connected');
 assert(html.includes('v77FromSocialArc(r,result,choiceId)'), 'Social arcs are not connected');
-assert(html.includes('if(!game.pendingDecision)v77Tick()'),'Annual consequence tick missing');
+assert(html.includes('if(!game.pendingDecision)v77Tick()')||(html.includes('function v80PriorityInterrupt')&&html.includes("c.kind==='consequence'")),'Annual consequence arbitration missing');
 assert(html.includes("if(parts[0]==='v77consequence')v77ResolveConsequence(parts)"),'Consequence decisions are not connected');
 assert(html.includes('renderV77Consequences();renderTimeline()'),'Consequence render hook missing');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
