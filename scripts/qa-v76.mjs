@@ -96,9 +96,9 @@ assert(css.includes('@media(prefers-reduced-motion:reduce)'),'Reduced-motion acc
 // Live integration contract.
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
 assert(saveVersion>=760,'V7.6 regression QA requires save version >= 760');
-assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=6,'V7.6 regression QA requires game version >= 7.6');
+const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);\nassert(gameMajor>7||(gameMajor===7&&gameMinor>=6),'V7.6 regression QA requires game version >= 7.6');
 for(const asset of ['src/data/ui-layout-v76.js','src/v76/ui-components-v76.js','src/v76/ui-v76.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
