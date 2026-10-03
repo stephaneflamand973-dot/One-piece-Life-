@@ -11,6 +11,7 @@
   ];
 
   const sections=[
+    {key:'life_director',anchor:'v80DirectorBody',label:'Life Director',defaultCollapsed:false},
     {key:'education',anchor:'v79EducationCard',label:'Éducation & jeunesse',defaultCollapsed:false},
     {key:'household',anchor:'v78HouseholdCard',label:'Foyer & famille',defaultCollapsed:false},
     {key:'consequences',anchor:'v77ConsequencesList',label:'Conséquences actives',defaultCollapsed:false},
