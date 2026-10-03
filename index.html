@@ -2654,7 +2654,7 @@ function v83BindCampaign(campaign){
       id:random('v83Create:id:'+campaign.id),archetype:random('v83Create:arch:'+campaign.id),motivation:random('v83Create:mot:'+campaign.id),temperament:random('v83Create:temp:'+campaign.id),potential:random('v83Create:pot:'+campaign.id),growth:random('v83Create:growth:'+campaign.id),cunning:random('v83Create:cunning:'+campaign.id),resolve:random('v83Create:resolve:'+campaign.id),charisma:random('v83Create:charisma:'+campaign.id),lieutenants:Array.from({length:9},(_,i)=>random('v83Create:lt:'+campaign.id+':'+i))
     });a=v83Store(a)
   }else{
-    a=mod.normalizeAntagonist(a);a.status='active';a.region=campaign.region;a.currentCampaignId=campaign.id;a.lastCampaignId=campaign.id;a.campaigns=Math.max(1,a.campaigns+(returned?1:0));a.lastSeenYear=game.clock.year;a=v83Store(a);
+    a=mod.normalizeAntagonist(a);const newCampaign=a.currentCampaignId!==campaign.id&&a.lastCampaignId!==campaign.id;a.status='active';a.region=campaign.region;a.currentCampaignId=campaign.id;a.lastCampaignId=campaign.id;a.campaigns=Math.max(1,a.campaigns+(newCampaign?1:0));a.lastSeenYear=game.clock.year;a=v83Store(a);
     if(returned){state.totalReturns++;if(campaign.region===game.player.region)addHistory('Un ancien adversaire revient',a.name+' réapparaît au cœur de '+campaign.title+'. Cette fois, il arrive avec la mémoire de vos précédents affrontements.','danger')}
   }
   const s=mod.summary(a);campaign.boss={...campaign.boss,id:a.sourceId||campaign.boss.id,name:a.name,faction:a.faction,power:Math.round(s.effectivePower),v83Id:a.id,archetype:a.archetype,goal:a.goal,role:returned?'Némésis de retour':campaign.boss.role};
