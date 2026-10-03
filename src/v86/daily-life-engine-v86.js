@@ -66,7 +66,7 @@
     let micro=null,opportunity=null;
     const microChance=clamp(.08+novelty*.12+snap.masteryBonus*.2-s.routineFatigue/800,.035,.18);
     if(month-s.lastMicroMonth>=2&&Number(rolls.micro??1)<microChance){micro=microEvent(s,p,{...ctx,activityType:type},rolls);if(micro){s.microEvents++;s.lastMicroMonth=month;t.events++;s.history.unshift({month,type:'micro',event:micro.id,activityType:type})}}
-    const offerChance=clamp(.075+((p.family==='adventure'||p.family==='risk')?.035:0)+num(ctx.localOpportunity)/700+num(ctx.worldRep)/1400-s.opportunities.length*.035,.03,.20);
+    const offerChance=clamp(.075+((p.family==='adventure'||p.family==='risk') ? .035 : 0)+num(ctx.localOpportunity)/700+num(ctx.worldRep)/1400-s.opportunities.length*.035,.03,.20);
     if(s.opportunities.length<3&&month-s.lastOfferMonth>=3&&Number(rolls.offer??1)<offerChance){
       opportunity=createOpportunity(s,p,{...ctx,activityType:type},rolls);if(opportunity){s.opportunities.push(opportunity);s.totalOpportunities++;s.lastOfferMonth=month}
     }
