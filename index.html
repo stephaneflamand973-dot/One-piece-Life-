@@ -936,6 +936,7 @@ function v64AdventureMonthTick(){
   if((t.adventureDiscoveries||0)>=2)return;
   const base=mode==='hunt'?.14:.11;if(!chance(base,'v64Adventure'))return;
   t.adventureDiscoveries=(t.adventureDiscoveries||0)+1;const p=game.player;
+  if(v85Module()){v85ExploreCurrent(mode);return}
   const type=weighted(mode==='hunt'?[{v:'lead',w:38},{v:'treasure',w:27},{v:'skill',w:23},{v:'renown',w:12}]:[{v:'skill',w:34},{v:'treasure',w:30},{v:'lead',w:22},{v:'renown',w:14}],'v64Adventure');
   if(type==='skill'){const key=chance(.68,'v64Adventure')?'Navigation':'Discrétion',g=v63SkillGain(key,1.4+random('v64Adventure')*2.2);addHistory('Découverte de terrain',`L’exploration de ${p.island} t’apprend quelque chose qu’aucune routine ne t’aurait donné.`,'major',`${key} +${g.toFixed(1)}`)}
   if(type==='treasure'){const danger=REGION_DANGER[p.region]||10,gain=Math.round(randInt(2200,9500,'v64Adventure')*(1+danger/90));p.money+=gain;addHistory('Trouvaille d’exploration',`Une piste secondaire finit par rapporter quelque chose de concret.`,'major',`+${gain.toLocaleString('fr-FR')} B`)}
@@ -2601,6 +2602,78 @@ function renderV82Campaigns(){
 }
 
 
+function v85Module(){return window.OPL_MODULES?.get('voyageEngineV85')||null}
+function v85Data(){return window.OPL_MODULES?.get('voyageDataV85')||null}
+function v85Ensure(){
+  if(!game?.player)return null;const mod=v85Module(),p=game.player;if(!mod)return p.voyageV85||null;
+  p.voyageV85=mod.normalizeState(p.voyageV85||{});
+  p.voyageV85.poseLevel=mod.poseLevelFor(p.region,Number(p.skills?.Navigation)||0,p.voyageV85.poseLevel);
+  for(const island of p.visited||[]){if(!p.voyageV85.islands[island])p.voyageV85.islands[island]={visits:1,exploration:island===p.island?15:10,discoveries:[],lastYear:game.clock?.year||0}}
+  return p.voyageV85
+}
+function v85CrewSeaMetrics(){
+  const crew=game.player.crew,mod=v84Module(),state=v84Ensure();if(!crew||!mod||!state)return {travel:0,support:0};
+  const old=v67CrewMetrics(),m=mod.metrics(state,crew,{...v84Context(),cohesion:old.cohesion,tension:old.tension});return {travel:m.travel,support:m.support}
+}
+function v85LegacyTravelBase(from,to){
+  const a=placeInfo(from),b=placeInfo(to),nav=game.player.skills.Navigation||0,causalRisk=v68TravelRisk(from,to),regionJump=a.region!==b.region?1.7:1,danger=((a.danger+b.danger)/2+causalRisk)/40;
+  return +clamp((.45+danger*.65)*regionJump*(1-Math.min(.42,nav/220)),.18,2.8).toFixed(2)
+}
+function v85RoutePreview(from,to,mode='standard'){
+  const mod=v85Module(),state=v85Ensure(),a=placeInfo(from),b=placeInfo(to);if(!mod||!state)return {duration:v85LegacyTravelBase(from,to),danger:(a.danger+b.danger)/2,riskPct:20,familiarity:0,preparedness:0,mode,modeLabel:'Route normale'};
+  const sea=v85CrewSeaMetrics(),ship=game.player.crew?.ship?.condition??75;
+  return mod.routeProfile(state,{from,to,fromRegion:a.region,toRegion:b.region,fromDanger:a.danger,toDanger:b.danger,baseDuration:v85LegacyTravelBase(from,to),causalRisk:v68TravelRisk(from,to),navigation:game.player.skills?.Navigation,crewTravel:sea.travel,shipCondition:ship,mode})
+}
+function v85StartVoyage(profile){
+  const mod=v85Module(),state=v85Ensure();if(!mod||!state)return null;const r=mod.startVoyage(state,profile,{year:game.clock.year});game.player.voyageV85=r.state;return r.voyage
+}
+function v85ResolveTravelDecision(parts){
+  const mode=parts[1]||'standard',dest=decodeURIComponent(parts.slice(2).join(':'));beginTravel(dest,mode)
+}
+function v85ApplyDiscovery(d,source='exploration'){
+  if(!d)return;const p=game.player,id=d.id,label=d.label||id;
+  if(id==='chart'){const g=v63SkillGain('Navigation',1.2+random('v85Discovery')*2);addHistory('Découverte maritime',label+' améliore ta lecture du monde.','major','Navigation +'+g.toFixed(1));return}
+  if(id==='treasure'||id==='resource'){const danger=REGION_DANGER[p.region]||10,gain=Math.round((id==='treasure'?3500:1800)+random('v85Discovery')*(id==='treasure'?12000:6500)*(1+danger/120));p.money+=gain;addHistory(label,'Une découverte pendant '+source+' rapporte quelque chose de concret.','major','+'+gain.toLocaleString('fr-FR')+' B');return}
+  if(id==='ruin'){codexAdd('places',p.island+' • vestiges');p.reputation.local=clamp((p.reputation.local||0)+2,0,100);addHistory('Vestige découvert','Tu mets au jour une trace oubliée à '+p.island+'.','major','Codex enrichi');return}
+  if(id==='contact'){p.reputation.local=clamp((p.reputation.local||0)+3,0,100);addHistory('Contact d’exploration','Une rencontre utile née de '+source+' renforce ton ancrage local.','normal','Réputation locale +3');return}
+  if(id==='lead'){v64GrantRareLead(source);return}
+  const key=random('v85Discovery')<.6?'Navigation':'Discrétion',g=v63SkillGain(key,1.3+random('v85Discovery')*2.1);addHistory('Savoir pratique',label+' te fait progresser sur le terrain.','major',key+' +'+g.toFixed(1))
+}
+function v85TickVoyage(months){
+  const mod=v85Module(),state=v85Ensure(),p=game.player,t=p.travel;if(!mod||!state||!t)return null;
+  const sea=v85CrewSeaMetrics(),ship=p.crew?.ship?.condition??75,result=mod.tickVoyage(state,t,{year:game.clock.year,region:p.region,navigation:p.skills?.Navigation,crewTravel:sea.travel,shipCondition:ship},months,{
+    weather:random('v85Weather'),event:random('v85Event'),hazard:random('v85Hazard'),discovery:random('v85SeaDiscovery'),discoveryType:random('v85SeaDiscoveryType')
+  });
+  p.voyageV85=result.state;p.travel=result.voyage;
+  if(result.event){
+    const e=result.event;v64RecordRisk(Math.max(2,e.severity/5),'travel');p.energy=clamp(p.energy-e.energyLoss,0,100);
+    if(p.crew?.ship&&e.shipWear>0)p.crew.ship.condition=clamp((Number(p.crew.ship.condition)||70)-e.shipWear,5,100);
+    if(e.moneyDelta){p.money+=e.moneyDelta;addHistory('Rencontre commerciale','Un navire marchand croise ta route.','normal','+'+e.moneyDelta.toLocaleString('fr-FR')+' B')}
+    else if(e.id==='pirates'||e.id==='seaKing')resolveCombat(enemyForDanger(e.id==='seaKing'?8:5),e.label);
+    else if(e.id==='marine'&&p.faction==='Pirates')resolveCombat(enemyForDanger(4),'Patrouille maritime');
+    else addHistory(e.label,'La traversée vers '+t.destination+' est perturbée. '+(e.delay?'Retard estimé '+e.delay.toFixed(2)+' mois.':''),'danger',(e.energyLoss?'Énergie -'+e.energyLoss:'')+(e.shipWear?' • navire -'+e.shipWear.toFixed(1)+'%':''))
+  }
+  if(result.discovery)v85ApplyDiscovery(result.discovery,'la traversée');
+  return result
+}
+function v85Arrive(dest,voyage){
+  const mod=v85Module(),state=v85Ensure();if(!mod||!state)return null;const target=placeInfo(dest),r=mod.arrive(state,voyage,dest,{year:game.clock.year,region:target.region,navigation:game.player.skills?.Navigation},{mastery:random('v85RouteMastery'),exploration:random('v85ArrivalExplore')});
+  game.player.voyageV85=r.state;if(r.poseUpgrade)addHistory('Navigation améliorée',(v85Data()?.poseTiers?.[r.poseUpgrade.to]?.label||'Instrument de navigation')+' devient ton nouveau standard pour les routes à venir.','major');
+  return r
+}
+function v85ExploreCurrent(mode='explore'){
+  const mod=v85Module(),state=v85Ensure(),p=game.player;if(!mod||!state)return null;const sea=v85CrewSeaMetrics(),scholar=(p.skills?.Science||0)+(p.skills?.Médecine||0)*.25;
+  const r=mod.exploreIsland(state,p.island,{mode,year:game.clock.year,navigation:p.skills?.Navigation,stealth:p.skills?.Discrétion,knowledge:scholar,crewSupport:(sea.support+sea.travel)/2},{progress:random('v85ExploreProgress'),discovery:random('v85ExploreDiscovery'),type:random('v85ExploreType')});
+  p.voyageV85=r.state;addHistory('Exploration de '+p.island,'Tu approfondis ta connaissance de l’île : '+Math.round(r.island.exploration)+'/100.','normal','Exploration +'+r.gain.toFixed(1));if(r.discovery)v85ApplyDiscovery(r.discovery,'l’exploration de '+p.island);return r
+}
+function renderV85Exploration(){
+  const box=$('#v85ExplorationCard'),mod=v85Module(),data=v85Data(),state=v85Ensure();if(!box||!mod||!data||!state)return;
+  const p=game.player,s=mod.summary(state,p.island),route=p.travel?mod.routeRecord(state,p.travel.from,p.travel.destination):null,island=s.currentIsland;
+  const routeLine=route?'<div class="v85-voyage-card"><strong>Route '+esc(p.travel.from)+' → '+esc(p.travel.destination)+'</strong><p>Maîtrise '+Math.round(route.mastery)+'/100 • '+route.trips+' traversée(s) • '+esc(data.modes[p.travel.mode]?.label||'Route normale')+'</p><div class="v85-progress"><i style="width:'+clamp(route.mastery,0,100)+'%"></i></div></div>':'';
+  box.innerHTML='<div class="v85-summary"><div><span>Navigation</span><strong>'+esc(s.poseLabel)+'</strong></div><div><span>Expérience en mer</span><strong>'+Math.round(s.seaExperience)+'/100</strong></div><div><span>Routes connues</span><strong>'+s.knownRoutes+' • '+s.masteredRoutes+' maîtrisée(s)</strong></div><div><span>Mois en mer</span><strong>'+s.monthsAtSea.toFixed(1)+'</strong></div><div><span>Exploration locale</span><strong>'+Math.round(island.exploration)+'/100</strong></div><div><span>Découvertes</span><strong>'+s.totalDiscoveries+'</strong></div><div><span>Trésors</span><strong>'+s.treasures+'</strong></div><div><span>Tempêtes traversées</span><strong>'+s.stormsSurvived+'</strong></div></div>'+
+    '<div><div class="section-heading compact"><div><span class="eyebrow">Île actuelle</span><strong>'+esc(p.island)+'</strong></div><span class="badge">'+Math.round(island.exploration)+'%</span></div><div class="v85-progress"><i style="width:'+clamp(island.exploration,0,100)+'%"></i></div><div class="v85-route-meta"><span>'+island.visits+' visite(s)</span><span>'+island.discoveries.length+' découverte(s) locale(s)</span><span>'+esc(data.poseTiers[s.poseLevel]?.desc||'')+'</span></div></div>'+routeLine
+}
+
 function v84Module(){return window.OPL_MODULES?.get('crewEngineV84')||null}
 function v84Data(){return window.OPL_MODULES?.get('crewDataV84')||null}
 function v84StableRoll(key){return v58HashFloat('v84:'+String(key))}
@@ -4109,7 +4182,7 @@ function resolveDecision(action){
   }
   if(parts[0]==='specialize'){p.specialization=parts[1];addHistory('Spécialisation',`Tu orientes désormais ta carrière vers : ${parts.slice(2).join(':')}.`,'major')}
   if(parts[0]==='fruit'){const id=parts[2],f=game.world.fruits.find(x=>x.id===id);if(f){if(parts[1]==='eat'){p.devilFruit={id:f.id,name:f.name,type:f.type,mastery:1};f.status='consumed';f.holder='player';p.equipment=p.equipment.filter(x=>x!==f.name);addHistory('Fruit consommé',`Tu manges ${f.name}. La mer devient désormais ton ennemie permanente.`,'major')}if(parts[1]==='keep'){if(!p.equipment.includes(f.name))p.equipment.push(f.name);f.status='held';f.holder='player_inventory';addHistory('Fruit conservé',`Tu gardes ${f.name} sans le consommer.`)}if(parts[1]==='sell'){const gain=randInt(150000,800000,'fruit');p.money+=gain;f.status='world';f.holder=null;f.region=p.region;addHistory('Vente exceptionnelle',`Tu vends ${f.name}. Quelqu’un d’autre l’a désormais dans ce monde.`,'major',`+${gain.toLocaleString('fr-FR')} B`)}}}
-  if(parts[0]==='travel'&&parts[1]!=='cancel')beginTravel(decodeURIComponent(parts.slice(1).join(':')));if(parts[0]==='v64adv')v64ResolveAdventureChoice(parts);
+  if(parts[0]==='travel'&&parts[1]!=='cancel')beginTravel(decodeURIComponent(parts.slice(1).join(':')));if(parts[0]==='v85travel')v85ResolveTravelDecision(parts);if(parts[0]==='v64adv')v64ResolveAdventureChoice(parts);
   if(parts[0]==='captain'){if(parts[1]==='create'){p.rank='Capitaine';p.crew={name:`Équipage de ${p.name}`,morale:65,members:[generateCrewMember('Navigateur'),generateCrewMember('Combattant')],ship:{name:'Navire capturé',condition:68,tier:1},captain:{name:p.name,power:overallPower()},treasury:Math.max(0,Math.floor(p.money*.25))};v84Ensure();p.reputation.pirate+=12;p.bounty+=80000;addHistory('CAPITAINE',`Tu hisses ton propre pavillon. Désormais, les victoires comme les désastres portent ton nom.`,'major')}else addHistory('Loyauté à l’équipage','Tu décides de rester officier et de poursuivre ta route actuelle.')}
   if(parts[0]==='command'){if(parts[1]==='accept'){p.rank='Commandant';p.specialization=p.specialization||'command';p.reputation.marine+=8;addHistory('Commandement',`Tu acceptes de diriger une unité de la Marine.`,'major')}else addHistory('Commandement refusé','Tu préfères ne pas prendre cette responsabilité pour l’instant.')}
   if(parts[0]==='shift'){if(parts[1]==='listen'){p.reputation.government-=2;codexAdd('factions','Révolutionnaires');addHistory('Contact clandestin','Tu ne changes pas de camp, mais tu conserves un lien discret avec un réseau révolutionnaire.','major');game.flags.revolutionContact=true}else addHistory('Proposition refusée','Tu refuses de laisser cette proposition modifier ta trajectoire.')}
@@ -4581,14 +4654,14 @@ function renderWorld(){
   $('#causalLedger').innerHTML=ledger.length?ledger.map(x=>'<div class="world-event"><span class="event-meta">'+esc(x.type)+' • '+(x.player?'action du joueur':'monde')+'</span><strong>'+esc(x.title)+'</strong><span>'+esc(x.desc)+'</span></div>').join(''):'<p class="helper-text">Aucune chaîne causale récente visible dans cette région.</p>';
 
   $('#worldHeadline').textContent=w.era;$('#worldSubhead').textContent=`${worldDateText()}. ${REGION_SUMMARY[p.region]||''}`;
-  renderV75WorldDirector();renderV82Campaigns();renderV83Nemeses();
+  renderV75WorldDirector();renderV82Campaigns();renderV83Nemeses();renderV85Exploration();
   const canonStats=v70CanonStats(),campaigns=v82ActiveCount(),nemeses=v83NemesisCount();$('#worldMeta').innerHTML=`<span>Divergence ${Math.round(w.divergence)}%</span><span>${campaigns} saga${campaigns>1?'s':''} active${campaigns>1?'s':''}</span><span>${nemeses} rival${nemeses>1?'aux':''} majeur${nemeses>1?'s':''}</span><span>${w.emergentCrews.filter(c=>c.status==='active').length} équipages procéduraux</span><span>${(w.canonCrews||[]).filter(v70CanonCrewActive).length} groupes canoniques</span><span>${canonStats.characters} personnages canon</span><span>${canonStats.fruits} Fruits</span><span>${p.visited.length}/${canonStats.places} lieux visités</span>`;
   $('#placeName').textContent=p.travel?`En mer → ${p.travel.destination}`:p.island;$('#placeDanger').textContent=`Danger ${Math.round(dangerScore())}`;$('#placeDescription').textContent=p.travel?`Traversée depuis ${p.travel.from}. Temps restant estimé : ${Math.max(0,p.travel.remaining).toFixed(2)} mois.`:info.desc;$('#placeTags').innerHTML=(p.travel?['Voyage maritime',p.region]:info.tags).map(x=>`<span class="chip">${esc(x)}</span>`).join('');
   $('#worldNews').innerHTML=game.news.length?game.news.slice(0,18).map(n=>`<div class="news-item"><strong>${esc(n.title)}</strong><span>${esc(n.desc)}</span></div>`).join(''):'<p>Aucune actualité.</p>';
   $('#regionTitle').textContent=p.region;$('#pressureBars').innerHTML=barRows(lp);$('#divergenceBadge').textContent=`Divergence ${Math.round(w.divergence)}%`;
   $('#canonList').innerHTML=w.canon.map(e=>{const cs=v70CanonEventState(e),deps=cs.requires.length?(cs.ready?' • causes réunies':' • bloqué par '+cs.blockedBy.map(id=>w.canon.find(x=>x.id===id)?.title||id).join(', ')):'';return `<div class="canon-item"><span class="status">${esc(e.status)}</span><strong>${esc(e.title)}</strong><span>Fenêtre ${e.from}–${e.to} • résistance ${e.resistance}${esc(deps)}</span></div>`}).join('');
-  const travel=travelDestinations();$('#travelStatus').textContent=p.travel?`${Math.max(0,p.travel.remaining).toFixed(2)} mois restants`:p.region;
-  $('#travelOptions').innerHTML=p.travel?`<div class="career-card"><strong>Traversée vers ${esc(p.travel.destination)}</strong><p>Départ : ${esc(p.travel.from)} • danger de route ${p.travel.danger}/100. La traversée progressera pendant le tour annuel.</p></div>`:travel.length?travel.map(r=>`<button class="action-card ${r.ok?'':'locked'}" data-dest="${esc(r.dest)}"><strong>${esc(r.dest)}</strong><small>${esc(placeInfo(r.dest).region)} • ${r.duration} mois • danger ${r.danger}${r.causalRisk?` • monde +${r.causalRisk}`:''}${r.ok?'':` • requis : ${r.req.label}`}</small></button>`).join(''):`<div class="career-card"><p>Aucune route supplémentaire n’est accessible depuis ce lieu.</p></div>`;
+  const travel=travelDestinations();$('#travelStatus').textContent=p.travel?(Math.max(0,p.travel.remaining).toFixed(2)+' mois • '+(v85Data()?.weather?.[p.travel.weather]?.label||'en mer')):p.region;
+  $('#travelOptions').innerHTML=p.travel?'<div class="v85-voyage-card"><strong>Traversée vers '+esc(p.travel.destination)+'</strong><p>Départ : '+esc(p.travel.from)+' • '+esc(p.travel.modeLabel||v85Data()?.modes?.[p.travel.mode]?.label||'route normale')+' • danger '+p.travel.danger+'/100.</p><div class="v85-route-meta"><span>Météo '+esc(v85Data()?.weather?.[p.travel.weather]?.label||'variable')+'</span><span>'+Math.max(0,p.travel.remaining).toFixed(2)+' mois restants</span><span>'+Math.round(p.travel.incidents||0)+' incident(s)</span><span>'+Math.round(p.travel.discoveries||0)+' découverte(s)</span></div></div>':travel.length?travel.map(r=>'<button class="action-card '+(r.ok?'':'locked')+'" data-dest="'+esc(r.dest)+'"><strong>'+esc(r.dest)+'</strong><small>'+esc(placeInfo(r.dest).region)+' • '+r.duration+' mois • risque '+r.riskPct+'% • maîtrise '+Math.round(r.familiarity)+'/100'+(r.causalRisk?' • monde +'+r.causalRisk:'')+(r.ok?'':' • requis : '+r.req.label)+'</small></button>').join(''):'<div class="career-card"><p>Aucune route supplémentaire n’est accessible depuis ce lieu.</p></div>';
   $$('[data-dest]').forEach(b=>b.onclick=()=>askTravel(b.dataset.dest));
   $('#localActors').innerHTML=[...actors.canon.map(c=>{const persona=v70Persona(c);return `<div class="actor-row"><strong>${esc(c.name)}</strong><span>${esc(c.faction)} • ${esc(persona.temperament)} • puissance ${Math.round(c.power)} • ${esc(persona.goal)}</span></div>`}),...actors.canonCrews.map(c=>`<div class="actor-row"><strong>${esc(c.name)}</strong><span>Groupe canonique • puissance ${Math.round(c.power)} • dynamique ${Math.round(c.momentum||50)}</span></div>`),...actors.crews.map(c=>`<div class="actor-row"><strong>${esc(c.name)}</strong><span>Équipage procédural • puissance ${Math.round(c.power)}</span></div>`)].join('')||'<p class="helper-text">Aucun acteur majeur identifié dans cette région pour le moment.</p>';
   $('#factionOverview').innerHTML=Object.entries(w.factions).map(([name,f])=>{const ai=w.factionAI?.[name],v=w.perceptions?.[name];return `<div class="faction-card"><strong>${esc(name)}</strong><span>Puissance ${Math.round(f.power)} • activité ${Math.round(f.activity)}</span><small>${ai?esc(ai.objective):(f.territories!=null?`${f.territories} zones d’influence abstraites`:'Influence variable')}</small>${v?`<small class="perception-line">Perception de toi : menace ${Math.round(v.threat)} • respect ${Math.round(v.respect)} • intérêt ${Math.round(v.interest)}</small>`:''}</div>`}).join('');
