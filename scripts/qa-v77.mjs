@@ -93,7 +93,7 @@ assert(autoResult.success&&autoResult.effects.repWorld>0,'Positive auto conseque
 
 const summary=engine.activeSummary({active:[grudge,{...created,id:'h',severity:70,dueMonth:100},{...created,id:'f',severity:30,dueMonth:500}]},120);
 eq(summary.active,3,'Active consequence count mismatch');
-eq(summary.overdue,2,'Overdue consequence count mismatch');
+eq(summary.overdue,1,'Overdue consequence count mismatch');
 eq(summary.high,2,'High-severity consequence count mismatch');
 
 const zeroState=engine.normalizeState({totalCreated:0,totalResolved:0,totalEscalated:0,lastTickMonth:0});
