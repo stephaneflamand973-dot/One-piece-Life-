@@ -139,7 +139,7 @@
 
   function survivalOutcome(a={},ctx={},roll=.5){
     const n=normalizeAntagonist(a),profile=data.archetypes[n.archetype]||data.archetypes.survivor;
-    if(n.canonId)return {survives:true,status:'active',chance:1,reason:'canon',antagonist:n};
+    if(n.canonId){n.status='active';n.currentCampaignId=null;n.lastCampaignId=ctx.campaignId||n.lastCampaignId;n.returnCooldownUntil=num(ctx.year)+1;n.memories.unshift({year:num(ctx.year),type:'campaign_end',label:'Survit à la campagne',outcome:'canon_survival',opposed:true,impact:num(ctx.margin)});n.memories=n.memories.slice(0,18);return {survives:true,status:'active',chance:1,reason:'canon',antagonist:n}};
     const margin=clamp(num(ctx.margin),0,50),contribution=clamp(num(ctx.playerContribution),0,40);
     const chance=clamp(.28+profile.survival+n.resolve/420+n.cunning/520+n.rivalry/650+n.obsession/700-margin/170-contribution/300,.12,.92);
     const survives=Number(roll)<chance;
