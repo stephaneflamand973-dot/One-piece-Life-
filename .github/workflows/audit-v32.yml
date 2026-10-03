@@ -1,4 +1,4 @@
-name: V8.3 Live Audit
+name: V8.4 Live Audit
 on:
   workflow_dispatch:
   push:
@@ -27,6 +27,7 @@ on:
       - 'scripts/qa-v81.mjs'
       - 'scripts/qa-v82.mjs'
       - 'scripts/qa-v83.mjs'
+      - 'scripts/qa-v84.mjs'
       - 'app.js'
       - 'content-v1.js'
       - 'scripts/audit-v32.mjs'
@@ -34,7 +35,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: v83-live-audit-${{ github.ref }}
+  group: v84-live-audit-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   audit:
@@ -87,6 +88,8 @@ jobs:
         run: node scripts/qa-v82.mjs
       - name: Run V8.3 Nemesis & Rivalry QA
         run: node scripts/qa-v83.mjs
+      - name: Run V8.4 Crew & Organization QA
+        run: node scripts/qa-v84.mjs
       - name: Run legacy engine trend audit
         continue-on-error: true
         run: node scripts/audit-v32.mjs

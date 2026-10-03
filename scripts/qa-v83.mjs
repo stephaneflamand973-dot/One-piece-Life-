@@ -102,14 +102,17 @@ const avoided=engine.resolveEncounterChoice(strong,'avoid',playerCtx,.5);
 assert(avoided.avoided,'Avoid option should not force combat');
 gt(avoided.antagonist.obsession,strong.obsession,'Avoiding nemesis should increase obsession');
 
-assert(html.includes('ONE PIECE LIFE — V8.3'),'V8.3 title missing');
-assert(/const SAVE_VERSION\s*=\s*830;/.test(html),'Save version 830 missing');
-assert(/const GAME_VERSION\s*=\s*'8\.3\.0';/.test(html),'Game version 8.3.0 missing');
+assert(/ONE PIECE LIFE — V8\.\d+/.test(html),'V8.3+ title missing');
+const liveSave=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+assert(liveSave>=830,'Save version 830+ missing');
+const liveVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+const [liveMajor,liveMinor]=liveVersion.split('.').map(Number);
+assert(liveMajor>8||(liveMajor===8&&liveMinor>=3),'Game version 8.3+ missing');
 for(const asset of ['src/data/antagonists-v83.js','src/v83/antagonist-engine-v83.js','src/v83/antagonists-v83.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v8-3-0'),'PWA cache not bumped to V8.3');
+assert(/one-piece-life-v8-[3-9]-\d+/.test(sw),'PWA cache must remain at V8.3 or newer');
 assert(html.includes('antagonistV83:{version:1'),'Fresh antagonist state missing');
 assert(html.includes('v80Ensure();v81Ensure();v82Ensure();v83Ensure();'),'Old-save V8.3 migration hook missing');
 assert(html.includes('id="v83NemesisCard"'),'Nemesis UI card missing');

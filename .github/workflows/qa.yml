@@ -1,4 +1,4 @@
-name: V8.3 QA
+name: V8.4 QA
 on:
   push:
     branches: [main]
@@ -28,6 +28,7 @@ on:
       - 'scripts/qa-v81.mjs'
       - 'scripts/qa-v82.mjs'
       - 'scripts/qa-v83.mjs'
+      - 'scripts/qa-v84.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -41,13 +42,14 @@ on:
       - 'QA-V8.1.md'
       - 'QA-V8.2.md'
       - 'QA-V8.3.md'
+      - 'QA-V8.4.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v83-qa-${{ github.ref }}
+  group: v84-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -101,3 +103,5 @@ jobs:
         run: node scripts/qa-v82.mjs
       - name: Verify V8.3 Nemesis & Rivalry 4.0
         run: node scripts/qa-v83.mjs
+      - name: Verify V8.4 Crew & Organization 4.0
+        run: node scripts/qa-v84.mjs

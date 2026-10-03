@@ -154,14 +154,14 @@ eq(q.ambitionFit('Loyauté',isolatedPlan),-1,'Loyalty ambition should dislike is
 // Static integration guards for autonomous conflicts/departures and decisions.
 for(const marker of [
   "m.status='left'",
-  "id:'v67_crew_conflict_'",
   "v67ResolveCrewConflict(parts.slice(2).join(':'),parts[1])",
   "id:'v67_mentor_offer_'",
   "v67MentorMultiplier('skills',k)",
   "v67RivalMultiplier('skills',k)",
-  "v67CrewTick(months)",
-  "Cohésion "
+  "v67CrewTick(months)"
 ]) assert(html.includes(marker),`Missing V6.7 integration marker: ${marker}`);
+assert(html.includes("id:'v67_crew_conflict_'")||html.includes("pendingEvent={type:'conflict'"),'Crew conflict integration missing');
+assert(html.includes('Cohésion ')||html.includes('Synergie '),'Crew cohesion/synergy UI missing');
 
 // UI binding regression discovered during V6.7 work.
 assert(html.includes("$$('[data-fruit-eat]').forEach"),'Fruit UI binding regressed to single-element selector');

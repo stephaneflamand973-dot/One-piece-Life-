@@ -21,7 +21,8 @@
   <link rel="stylesheet" href="src/v81/faction-identity-v81.css" />
   <link rel="stylesheet" href="src/v82/campaigns-v82.css" />
   <link rel="stylesheet" href="src/v83/antagonists-v83.css" />
-  <title>ONE PIECE LIFE — V8.3</title>
+  <link rel="stylesheet" href="src/v84/crew-v84.css" />
+  <title>ONE PIECE LIFE — V8.4</title>
   <style>
 :root{--bg:#f4ecd8;--paper:#fffaf0;--ink:#1d2a2c;--muted:#6f7775;--navy:#173f4e;--sea:#2d7181;--sea2:#78a7a7;--gold:#c5943c;--red:#a34b3d;--green:#4b7660;--line:#dfd3b7;--shadow:0 12px 34px rgba(41,52,49,.09);--radius:22px;--safe:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}html{background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% -5%,rgba(120,167,167,.28),transparent 32%),linear-gradient(180deg,#f8f1df,var(--bg))}.app-shell{max-width:760px;margin:0 auto;min-height:100vh;padding-bottom:calc(90px + var(--safe))}.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px;background:rgba(244,236,216,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(100,90,70,.12)}.brand-wrap{display:flex;align-items:center;gap:10px;min-width:0}.brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:#fff;font-size:20px;box-shadow:0 6px 16px rgba(23,63,78,.2)}h1,h2,h3,p{margin-top:0}.brand-wrap h1{font-size:15px;letter-spacing:.08em;margin:0}.brand-wrap p{font-size:10px;color:var(--muted);margin:2px 0 0}.icon-btn{border:0;background:rgba(255,255,255,.55);width:38px;height:38px;border-radius:12px;font-size:18px;color:var(--ink)}main{padding:14px}.screen{display:none}.screen.active{display:block}.paper-card{background:rgba(255,250,240,.94);border:1px solid rgba(132,111,72,.16);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px}.hero-card{padding:24px;background:linear-gradient(145deg,#fffaf0 0%,#f4ead2 70%,#e6dfc8 100%);position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(45,113,129,.14);border-radius:50%;right:-70px;bottom:-100px;box-shadow:0 0 0 28px rgba(45,113,129,.035),0 0 0 56px rgba(45,113,129,.025)}.hero-card h2{font-family:Georgia,serif;font-size:34px;line-height:1.02;max-width:620px;margin:8px 0 14px}.hero-card p{color:#52605f;line-height:1.55;max-width:620px}.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--sea)}.feature-pills,.chip-list{display:flex;flex-wrap:wrap;gap:8px}.feature-pills span,.chip,.badge{font-size:11px;border-radius:999px;padding:7px 10px;background:#edf3ef;color:#47635d;border:1px solid rgba(75,118,96,.12)}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-heading.compact{margin-bottom:12px}.section-heading h3{margin:3px 0 0;font-size:18px}.save-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.save-slot{min-height:128px;border:1px dashed #c9b893;border-radius:17px;padding:14px;text-align:left;background:#fffbf3;color:var(--ink);display:flex;flex-direction:column;justify-content:space-between}.save-slot strong{font-size:14px}.save-slot small{color:var(--muted);line-height:1.35}.save-slot.empty{align-items:center;justify-content:center;text-align:center;color:var(--sea);font-weight:700}.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.mode-card{border:1px solid var(--line);border-radius:16px;background:#fffaf1;padding:14px;text-align:left;color:var(--ink)}.mode-card strong{display:block;margin-bottom:5px}.mode-card span{font-size:12px;color:var(--muted);line-height:1.35}.mode-card.selected{border-color:var(--sea);box-shadow:inset 0 0 0 1px var(--sea);background:#f1f8f6}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field>span{font-size:11px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:13px;padding:13px;background:#fffdf8;color:var(--ink);font-size:16px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary-btn,.secondary-btn,.choice-btn{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:800;font-size:14px}.primary-btn{background:var(--navy);color:#fff;box-shadow:0 8px 20px rgba(23,63,78,.18)}.primary-btn.small{padding:11px 14px;width:auto}.secondary-btn{background:#ece4d1;color:var(--ink)}.text-btn{border:0;background:transparent;color:var(--sea);font-weight:800;font-size:12px}.status-strip{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:1px;background:#d9ceb4;border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}.status-strip>div{background:#fffaf0;padding:11px 12px;min-width:0}.status-strip strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tiny-label{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}.tab-panel{display:none}.tab-panel.active{display:block}.profile-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#173f4e,#255e69);color:#fff}.avatar-ring{width:54px;height:54px;flex:0 0 54px;border-radius:50%;display:grid;place-items:center;background:#f7edd5;color:var(--navy);font:700 22px Georgia,serif;border:3px solid rgba(255,255,255,.24)}.profile-copy{min-width:0;flex:1}.profile-copy h2{margin:4px 0 3px;font-size:22px}.profile-copy p{margin:0;color:rgba(255,255,255,.72);font-size:12px}.profile-banner .eyebrow{color:#d9c79b}.reputation-pill{font-size:10px;font-weight:800;border-radius:999px;background:rgba(255,255,255,.13);padding:8px 10px;white-space:nowrap}.situation-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.situation-grid>div,.info-cell{padding:12px;border-radius:14px;background:#f4f0e5}.situation-grid span,.info-cell span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.situation-grid strong,.info-cell strong{font-size:13px}.danger-badge{font-size:10px;font-weight:900;border-radius:999px;padding:7px 10px}.danger-badge.low{background:#e4f0e9;color:#3f6a56}.danger-badge.medium{background:#f6ead0;color:#906b23}.danger-badge.high{background:#f4dfda;color:#963e35}.compact-list{margin-top:12px}.attention-card{border-color:#d3b46f;background:linear-gradient(145deg,#fff9e8,#f7eed7)}.attention-card h3{margin:6px 0}.attention-card p{font-size:13px;color:var(--muted);line-height:1.5}.timeline{position:relative;padding-left:18px}.timeline:before{content:"";position:absolute;left:5px;top:5px;bottom:8px;width:1px;background:#d6c9aa}.timeline-item{position:relative;padding:0 0 18px 13px}.timeline-dot{position:absolute;left:-17px;top:5px;width:9px;height:9px;background:#8f9f97;border:2px solid #fffaf0;border-radius:50%;box-shadow:0 0 0 1px #c8b997}.timeline-item.major .timeline-dot{background:var(--gold)}.timeline-item.danger .timeline-dot{background:var(--red)}.timeline-item.canon .timeline-dot{background:var(--sea)}.timeline-age{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.08em}.timeline-title{font-weight:900;margin:3px 0}.timeline-desc{font-size:13px;color:#5f6965;line-height:1.45}.timeline-delta{display:inline-block;margin-top:6px;background:#e8f0ea;color:#42644f;border-radius:9px;padding:4px 7px;font-size:10px;font-weight:800}.advance-dock{position:sticky;bottom:calc(72px + var(--safe));z-index:20;padding-top:2px}.advance-btn{width:100%;border:0;border-radius:18px;background:linear-gradient(135deg,#1d5360,#173f4e);color:#fff;padding:15px 18px;display:flex;gap:12px;align-items:center;text-align:left;box-shadow:0 15px 30px rgba(23,63,78,.24)}.advance-btn:disabled{opacity:.48}.advance-icon{font-size:24px}.advance-btn strong{display:block;letter-spacing:.08em}.advance-btn small{display:block;color:rgba(255,255,255,.65);font-size:10px;margin-top:3px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.career-card{padding:14px;border-radius:14px;background:#f4f0e5}.career-card strong{font-size:16px}.career-card p{font-size:12px;color:var(--muted);margin:5px 0 0;line-height:1.45}.action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.action-card{border:1px solid var(--line);background:#fffdf8;border-radius:14px;padding:12px;text-align:left;color:var(--ink)}.action-card strong{display:block;font-size:13px}.action-card small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}.action-card.active{border-color:var(--sea);background:#eef6f3}.action-card.locked{opacity:.45}.stats-list{display:flex;flex-direction:column;gap:9px}.stat-row{display:grid;grid-template-columns:100px 1fr 35px;align-items:center;gap:9px;font-size:12px}.stat-bar{height:8px;border-radius:999px;background:#e8e1d2;overflow:hidden}.stat-fill{height:100%;background:linear-gradient(90deg,#78a7a7,#2d7181);border-radius:999px}.stat-value{text-align:right;font-weight:900}.split-card{display:grid;grid-template-columns:1fr 1fr;gap:14px}.split-card>div+div{border-left:1px solid var(--line);padding-left:14px}.ability-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:8px 0;border-bottom:1px solid #eee6d6}.ability-row:last-child{border-bottom:0}.ability-row span{color:var(--muted)}.fruit-card{font-size:12px;line-height:1.45;color:#53605d}.relations-list{display:flex;flex-direction:column;gap:9px}.relation-card{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px;padding:10px;border-radius:14px;background:#f4f0e5}.relation-avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#dce9e5;color:var(--navy);font-weight:900}.relation-copy strong,.relation-copy span{display:block}.relation-copy span{font-size:11px;color:var(--muted);margin-top:2px}.relation-score{font-weight:900;color:var(--sea)}.world-hero{background:linear-gradient(145deg,#eaf2ec,#fffaf0)}.world-hero p{font-size:13px;color:var(--muted);line-height:1.5}.news-list,.canon-list{display:flex;flex-direction:column;gap:10px}.news-item,.canon-item{padding:12px;border-radius:14px;background:#f4f0e5}.news-item strong,.news-item span,.canon-item strong,.canon-item span{display:block}.news-item span,.canon-item span{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}.canon-item .status{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--sea);font-weight:900}.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;z-index:40;width:min(760px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,250,240,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(120,100,65,.14);padding:8px 7px calc(8px + var(--safe))}.nav-item{border:0;background:transparent;color:#80847f;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px}.nav-item span{font-size:17px}.nav-item small{font-size:9px}.nav-item.active{color:var(--navy);font-weight:900}.modal-backdrop{position:fixed;inset:0;z-index:80;background:rgba(15,27,28,.58);display:grid;place-items:end center;padding:14px}.modal-card{width:min(620px,100%);background:#fffaf0;border-radius:24px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:88vh;overflow:auto}.modal-card h3,.modal-card h2{margin:6px 0 9px}.modal-card p{color:var(--muted);font-size:13px;line-height:1.5}.decision-choices{display:flex;flex-direction:column;gap:9px;margin-top:18px}.choice-btn{background:#edf3ef;color:var(--ink);text-align:left;border:1px solid #d8e4df}.choice-btn strong,.choice-btn small{display:block}.choice-btn small{font-weight:500;color:var(--muted);margin-top:4px}.death-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}.death-summary>div{background:#f4f0e5;border-radius:13px;padding:11px}.death-summary span{display:block;font-size:9px;color:var(--muted)}.death-summary strong{font-size:13px}.dev-panel{position:fixed;inset:56px 8px 86px;z-index:70;background:#10272d;color:#dbe9e5;border-radius:18px;padding:14px;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.32)}.dev-head{display:flex;justify-content:space-between;align-items:center}.dev-panel pre{white-space:pre-wrap;font-size:10px;line-height:1.45}.toast{position:fixed;z-index:100;left:50%;transform:translateX(-50%);bottom:110px;background:#173f4e;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}.startup-error{margin-top:10px;padding:12px 14px;border-radius:14px;background:#f4dfda;color:#7d3028;border:1px solid rgba(150,62,53,.18);font-size:12px;line-height:1.45}.startup-error strong,.startup-error span{display:block}.startup-error span{margin-top:4px}.startup-ready{color:var(--green)}.startup-warn{color:#8a651f}.hidden{display:none!important}
@@ -84,10 +85,10 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V8.3 • Nemesis & Rivalry 4.0</span>
-        <h2>Les adversaires importants peuvent désormais survivre à l’histoire que tu leur fais subir.</h2>
-        <p>La V8.3 transforme les boss et rivaux en personnages persistants : personnalité, ambition, lieutenants, mémoire des affrontements, progression autonome, cicatrices, fuite après une défaite et retour possible dans une future saga.</p>
-        <div class="feature-pills"><span>Némésis persistantes</span><span>7 archétypes</span><span>Lieutenants</span><span>Mémoire des duels</span><span>Retours de saga</span><span>Progression autonome</span><span>Priority Director</span></div>
+        <span class="eyebrow">V8.4 • Crew & Organization 4.0</span>
+        <h2>Ton équipage devient enfin une vraie force vivante, pas une poignée de noms sous une jauge de moral.</h2>
+        <p>La V8.4 développe le cœur de l’aventure : rôles complémentaires, doctrine collective, second officiel, maîtrise de poste, blessures, recrutement ciblé, équipes de mission, logistique et influence réelle de l’équipage sur les missions et les grandes sagas.</p>
+        <div class="feature-pills"><span>11 rôles</span><span>6 doctrines</span><span>Second officiel</span><span>Recrutement ciblé</span><span>Blessures d’équipage</span><span>Équipes de mission</span><span>Impact sur les sagas</span></div>
       </section>
 
 
@@ -299,6 +300,8 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 <script src="src/v82/campaign-engine-v82.js"></script>
 <script src="src/data/antagonists-v83.js"></script>
 <script src="src/v83/antagonist-engine-v83.js"></script>
+<script src="src/data/crew-v84.js"></script>
+<script src="src/v84/crew-engine-v84.js"></script>
 <script>
 (() => {
 'use strict';
@@ -307,8 +310,8 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const DB_NAME = 'one-piece-life';
 const STORE = 'saves';
-const SAVE_VERSION = 830;
-const GAME_VERSION = '8.3.0';
+const SAVE_VERSION = 840;
+const GAME_VERSION = '8.4.0';
 const V61_ANNUAL_FOCUS={
   balanced:{icon:'⚖',label:'Équilibré',desc:'Aucun domaine sacrifié.',training:1,career:1,relations:1,resources:1,adventure:1},
   training:{icon:'🥊',label:'Progression',desc:'+35% progression • carrière -16% • revenus -18%.',training:1.35,career:.84,relations:.86,resources:.82,adventure:.90},
@@ -630,18 +633,15 @@ function v67CrewTick(months){
     v74RecordMemory(r,{id:'crew_departure_'+year,type:'crew',label:'Départ de l’équipage',valence:-8,impact:5,tags:['rupture','crew']});
     addHistory('Départ de l’équipage',m.name+' quitte '+c.name+'. Son ambition « '+m.ambition.toLowerCase()+' » et une loyauté trop faible ont fini par peser plus lourd que le pavillon.','major')
   }
-  if(metrics.tension>=62&&game.player.socialV67.lastCrewDecisionYear!==year&&!game.pendingDecision&&chance(.045*months,'v67CrewConflict')){
+  if(metrics.tension>=62&&game.player.socialV67.lastCrewDecisionYear!==year&&!v84Ensure()?.pendingEvent&&chance(.045*months,'v67CrewConflict')){
     const candidates=active.slice().sort((a,b)=>(b.rivalry+(100-b.loyalty))-(a.rivalry+(100-a.loyalty)));
     const m=candidates[0];
     if(m){
       game.player.socialV67.lastCrewDecisionYear=year;game.player.socialV67.totalConflicts++;
-      game.pendingDecision={id:'v67_crew_conflict_'+m.id,title:'Une tension éclate dans l’équipage',text:m.name+' supporte de moins en moins la direction actuelle. Tempérament '+m.temperament.toLowerCase()+', ambition « '+m.ambition.toLowerCase()+' », loyauté '+Math.round(m.loyalty)+'/100.',choices:[
-        {label:'Médiation',hint:'Commandement et relation pour rétablir la cohésion.',action:'v67crew:mediate:'+m.id},
-        {label:'Soutenir sa demande',hint:'Renforce ce membre mais peut coûter du moral collectif.',action:'v67crew:support:'+m.id},
-        {label:'Imposer la discipline',hint:'Peut restaurer l’ordre ou aggraver la rupture.',action:'v67crew:discipline:'+m.id}
-      ]}
+      const s=v84Ensure();if(s)s.pendingEvent={type:'conflict',memberId:m.id,year,importance:68,severity:clamp(48+metrics.tension*.42+(100-m.loyalty)*.18,48,92)}
     }
   }
+  v84TickCrew(months)
 }
 function v67SetMentor(id){
   v67Ensure();const r=game.relations.find(x=>x.id===id);if(!v67MentorCandidate(r))return false;
@@ -1593,17 +1593,17 @@ function v69CanDelegate(m){
 }
 function v69DelegateMission(id){
   v69Ensure();const p=game.player,e=p.endgameV69,m=game.missionBoard.find(x=>x.id===id);if(!v69CanDelegate(m))return false;
-  const c=v69CareerTier(),crew=p.crew?v67CrewMetrics():{cohesion:50},network=v69NetworkMissionBonus(),authority=c.authority;
-  const score=authority*.58+(p.skills?.Commandement||0)*.24+crew.cohesion*.12+network*1.4,target=Number(m.power)||20;
+  const c=v69CareerTier(),crew=p.crew?v67CrewMetrics():{cohesion:50},network=v69NetworkMissionBonus(),authority=c.authority,crewSupport=p.crew?v84MissionSupport(m).bonus:0;
+  const score=authority*.58+(p.skills?.Commandement||0)*.24+crew.cohesion*.12+network*1.4+crewSupport*1.15,target=Number(m.power)||20;
   const prob=clamp(.48+(score-target)/115,.18,.93),success=chance(prob,'v69Delegate');
   e.lastDelegationYear=Math.floor(game.ageMonths/12);e.totalDelegations++;
   if(success){
     const reward=Math.round(m.reward*.42),xp=Math.max(1,Math.round((m.danger==='medium'?7:4)*.55));p.money+=reward;p.careerXP+=xp;p.reputation.local+=1;
     if(p.faction!=='Civil')p.reputation[reputationKey(p.faction)]=clamp((p.reputation[reputationKey(p.faction)]||0)+1,0,100);
-    v68ApplyMissionOutcome(m,'partial');
+    v68ApplyMissionOutcome(m,'partial');v84RecordMissionOutcome(m,'partial');
     addHistory('Mission déléguée',m.title+' est menée par ton organisation pendant que tu conserves ton temps pour les décisions de niveau supérieur.','major','+'+reward.toLocaleString('fr-FR')+' B • XP +'+xp)
   }else{
-    v68ApplyMissionOutcome(m,'failure');addHistory('Délégation ratée',m.title+' échoue sans t’exposer directement, mais ta réputation et la situation locale en subissent les conséquences.','danger')
+    v68ApplyMissionOutcome(m,'failure');v84RecordMissionOutcome(m,'failure');addHistory('Délégation ratée',m.title+' échoue sans t’exposer directement, mais ta réputation et la situation locale en subissent les conséquences.','danger')
   }
   game.missionBoard=game.missionBoard.filter(x=>x.id!==id);refreshMissionBoard();v69Milestones();saveGame();render();return true
 }
@@ -2315,6 +2315,8 @@ function v80CollectInterruptionCandidates(){
   if(campaignCandidate)candidates.push({kind:'campaign',id:campaignCandidate.id,payload:campaignCandidate,importance:campaignCandidate.importance,severity:campaignCandidate.severity,mandatory:!!campaignCandidate.mandatory,personal:true,causal:true});
   const nemesisCandidate=v83Candidate();
   if(nemesisCandidate)candidates.push({kind:'nemesis',id:nemesisCandidate.id,payload:nemesisCandidate,importance:nemesisCandidate.importance,severity:nemesisCandidate.severity,mandatory:!!nemesisCandidate.mandatory,personal:true,causal:true});
+  const crewCandidate=v84Candidate();
+  if(crewCandidate)candidates.push({kind:'crew',id:crewCandidate.id,payload:crewCandidate,importance:crewCandidate.importance,severity:crewCandidate.severity,mandatory:!!crewCandidate.mandatory,personal:true,causal:true});
   return mod.rankInterruptions(candidates,{nowMonth:game.ageMonths,year},state)
 }
 function v80QueueEducation(candidate){
@@ -2340,6 +2342,7 @@ function v80PriorityInterrupt(){
     else if(c.kind==='faction')queued=v81QueueFaction(c.payload);
     else if(c.kind==='campaign')queued=v82QueueCampaign(c.payload);
     else if(c.kind==='nemesis')queued=v83QueueNemesis(c.payload);
+    else if(c.kind==='crew')queued=v84QueueCrew(c.payload);
     else if(c.kind==='agency'){v6QueueAgencyDecision(true);queued=!!game.pendingDecision;if(queued&&t){t.agencyPrompts=(t.agencyPrompts||0)+1;t.lastAgencyMonth=t.monthsSimulated+(t.phase>0?1:0)}}
     if(queued){v80RecordInterruption(c.kind,c.score);return true}
   }
@@ -2487,7 +2490,7 @@ function v82ActiveCount(){
 function v82PlayerContext(campaign=null){
   const p=game.player,tier=v69CareerTier(p);
   return {region:p.region,age:game.ageMonths/12,year:game.clock.year,playerFaction:p.faction,skills:p.skills||{},stats:p.stats||{},
-    power:overallPower(),authority:Number(tier?.authority)||0,organization:v69NetworkMissionBonus(),worldRep:Number(p.reputation?.world)||0,campaign}
+    power:overallPower(),authority:Number(tier?.authority)||0,organization:v69NetworkMissionBonus()+v84CampaignSupport(campaign),worldRep:Number(p.reputation?.world)||0,campaign}
 }
 function v82ApplySwingToTerritory(campaign,side,amount){
   if(!campaign||!Number.isFinite(Number(amount))||side==='independent')return;
@@ -2594,6 +2597,123 @@ function renderV82Campaigns(){
     '<div class="v82-figures"><div class="v82-figure"><span>Figure locale</span><strong>'+esc(campaign.localFigure?.name||campaign.incumbent)+'</strong><small>'+esc(campaign.localFigure?.faction||campaign.incumbent)+' • puissance '+Math.round(campaign.localFigure?.power||0)+'</small></div><div class="v82-figure"><span>Antagoniste / boss</span><strong>'+esc(campaign.boss?.name||campaign.challenger)+'</strong><small>'+esc(campaign.boss?.faction||campaign.challenger)+' • puissance '+Math.round(campaign.boss?.power||0)+'</small></div></div>'+strip
 }
 
+
+function v84Module(){return window.OPL_MODULES?.get('crewEngineV84')||null}
+function v84Data(){return window.OPL_MODULES?.get('crewDataV84')||null}
+function v84StableRoll(key){return v58HashFloat('v84:'+String(key))}
+function v84Ensure(){
+  if(!game?.player)return null;const mod=v84Module(),p=game.player;if(!mod)return p.crewV84||null;
+  p.crewV84=mod.normalizeState(p.crewV84||{});if(p.crewV84.pendingEvent&&Number(p.crewV84.pendingEvent.year)<Number(game.clock?.year||0))p.crewV84.pendingEvent=null;
+  if(p.crew){
+    p.crew.members=Array.isArray(p.crew.members)?p.crew.members:[];
+    p.crew.members=p.crew.members.map((m,i)=>{
+      if(!m.trait){const ids=Object.keys(v84Data()?.traits||{loyal:{}});m.trait=ids[Math.floor(v84StableRoll((m.id||m.name||i)+':trait')*ids.length)%ids.length]||'loyal'}
+      const n=mod.normalizeMember(m,i);if(!n.joinedYear)n.joinedYear=Math.max(0,game.clock.year-Math.floor((n.experience||0)/8));return n
+    });
+    if(!p.crewV84.firstMateId){const first=p.crew.members.find(m=>/second|bras droit/i.test(String(m.role||''))||m.position==='first_mate');if(first){first.position='first_mate';p.crewV84.firstMateId=first.id}}
+  }
+  return p.crewV84
+}
+function v84Context(){
+  const metrics=game.player.crew?v67CrewMetrics():{cohesion:0,tension:0},plan=v62PlanSource();
+  return {year:game.clock.year,cohesion:metrics.cohesion,tension:metrics.tension,training:plan.training,danger:game.player.danger==='Élevé'?1.5:game.player.danger==='Moyen'?1.15:.85,worldRep:Number(game.player.reputation?.world)||0,command:Number(game.player.skills?.Commandement)||0}
+}
+function v84SyncRelations(){
+  if(!game.player.crew)return;for(const m of game.player.crew.members||[]){const r=v67CrewRelation(m);r.loyalty=m.loyalty;r.trust=clamp((Number(r.trust)||0)*.72+m.trust*.28,0,100);r.rivalry=clamp((Number(r.rivalry)||0)*.72+m.rivalry*.28,0,100);if(m.status!=='active')r.status=m.status==='left'?'distant':r.status}
+}
+function v84TickCrew(months){
+  const state=v84Ensure(),mod=v84Module(),crew=game.player.crew;if(!state||!mod||!crew)return null;
+  const rolls={};for(let i=0;i<(crew.members||[]).length;i++){rolls['injury'+i]=random('v84Injury:'+i+':'+game.ageMonths);rolls['duration'+i]=random('v84InjuryDuration:'+i+':'+game.ageMonths)}
+  const before=new Map((crew.members||[]).map(m=>[m.id,Number(m.injuryMonths)||0])),result=mod.monthlyTick(state,crew,v84Context(),months,rolls);
+  game.player.crewV84=result.state;game.player.crew=result.crew;v84SyncRelations();
+  for(const m of game.player.crew.members||[])if((Number(m.injuryMonths)||0)>0&&(before.get(m.id)||0)<=0)addHistory('Équipier blessé',m.name+' doit récupérer environ '+Math.ceil(m.injuryMonths)+' mois. Son rôle '+m.role.toLowerCase()+' pèsera moins dans les missions pendant ce temps.','danger');
+  return result
+}
+function v84MissionSupport(m=game.activeMission){
+  const state=v84Ensure(),mod=v84Module(),crew=game.player.crew;if(!state||!mod||!crew)return {bonus:0,team:[],teamNames:[]};
+  return mod.missionSupport(state,crew,m||{type:'combat'},v84Context())
+}
+function v84CampaignSupport(campaign){
+  const state=v84Ensure(),mod=v84Module(),crew=game.player.crew;if(!state||!mod||!crew||!campaign)return 0;
+  return mod.campaignSupport(state,crew,campaign,v84Context())
+}
+function v84RecordMissionOutcome(m,outcome){
+  const state=v84Ensure(),mod=v84Module(),crew=game.player.crew;if(!state||!mod||!crew||!m)return null;
+  const before=new Map((crew.members||[]).map(x=>[x.id,Number(x.injuryMonths)||0])),rolls={};for(let i=0;i<(crew.members||[]).length;i++){rolls['injury'+i]=random('v84MissionInjury:'+m.id+':'+i);rolls['duration'+i]=random('v84MissionDuration:'+m.id+':'+i)}
+  const result=mod.recordMission(state,crew,m,outcome,v84Context(),rolls);game.player.crewV84=result.state;game.player.crew=result.crew;v84SyncRelations();
+  const joined=(result.support.teamNames||[]).join(', ');if(joined)addHistory('Équipe engagée',joined+' participe à « '+m.title+' ». Les rôles et la cohésion de l’équipage ont apporté un soutien de '+result.support.bonus.toFixed(1)+'.','normal');
+  for(const x of game.player.crew.members||[])if((Number(x.injuryMonths)||0)>0&&(before.get(x.id)||0)<=0)addHistory('Blessure dans l’équipage',x.name+' revient de mission blessé.','danger',Math.ceil(x.injuryMonths)+' mois de récupération');
+  return result
+}
+function v84PayCost(cost){
+  const c=game.player.crew,p=game.player,need=Math.max(0,Math.round(cost||0));if((Number(c?.treasury)||0)+(Number(p.money)||0)<need)return false;
+  const fromCrew=Math.min(Number(c.treasury)||0,need);if(c)c.treasury=Math.max(0,(Number(c.treasury)||0)-fromCrew);p.money=Math.max(0,(Number(p.money)||0)-(need-fromCrew));return true
+}
+function v84ManagementAction(id){
+  const state=v84Ensure(),mod=v84Module(),data=v84Data(),crew=game.player.crew;if(!state||!mod||!data||!crew)return false;
+  if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant de réorganiser l’équipage.');return false}
+  const year=game.clock.year,a=data.managementActions[id];if(!a)return false;if(state.lastActionYear===year){toast('Une action majeure d’équipage a déjà été menée cette année.');return false}
+  if(!v84PayCost(a.cost)){toast(a.cost.toLocaleString('fr-FR')+' B requis entre caisse de bord et fonds personnels.');return false}
+  state.lastActionYear=year;
+  if(id==='scout'){
+    const rolls={id:random('v84Recruit:id'),role:random('v84Recruit:role'),trait:random('v84Recruit:trait'),first:random('v84Recruit:first'),last:random('v84Recruit:last'),quality:random('v84Recruit:quality'),power:random('v84Recruit:power'),potential:random('v84Recruit:potential'),growth:random('v84Recruit:growth'),loyalty:random('v84Recruit:loyalty'),trust:random('v84Recruit:trust'),mastery:random('v84Recruit:mastery')};
+    state.candidate=mod.recruitCandidate({members:crew.members,renown:state.renown,worldRep:game.player.reputation?.world,year},rolls);state.lastRecruitYear=year;
+    addHistory('Recherche de recrue','Ton équipage ouvre une vraie campagne de recrutement pour combler ses besoins.','normal','-'+a.cost.toLocaleString('fr-FR')+' B')
+  }else{
+    const r=mod.applyManagement(state,crew,id,v84Context(),random('v84Manage:'+id+':'+year));game.player.crewV84=r.state;game.player.crew=r.crew;v84SyncRelations();
+    addHistory('Gestion d’équipage',a.label+' : '+r.notes.join(', ')+'.','major','-'+a.cost.toLocaleString('fr-FR')+' B')
+  }
+  saveGame();render();return true
+}
+function v84RecruitDecision(accept){
+  const state=v84Ensure(),mod=v84Module(),crew=game.player.crew,candidate=state?.candidate;if(!state||!mod||!crew||!candidate)return false;
+  if(!accept){addHistory('Recrue refusée',candidate.name+' ne rejoint pas '+crew.name+'.','normal');state.candidate=null;saveGame();render();return true}
+  if((crew.members||[]).filter(x=>x.status==='active').length>=10){toast('L’équipage actif est déjà au maximum de 10 membres.');return false}
+  const prob=mod.recruitChance(candidate,{members:crew.members,worldRep:game.player.reputation?.world,renown:state.renown,command:game.player.skills?.Commandement}),ok=chance(prob,'v84RecruitAccept');
+  if(ok){crew.members.push(candidate);state.totalRecruits++;state.renown=clamp(state.renown+2,0,100);v67CrewRelation(candidate);addHistory('Nouvelle recrue',candidate.name+' rejoint '+crew.name+' comme '+candidate.role.toLowerCase()+'. Trait : '+(v84Data().traits[candidate.trait]?.label||candidate.trait)+'.','major','Recrutement '+Math.round(prob*100)+'%')}
+  else addHistory('Recrutement manqué',candidate.name+' refuse finalement de rejoindre l’équipage.','normal','Chance '+Math.round(prob*100)+'%');
+  state.candidate=null;saveGame();render();return true
+}
+function v84SetDoctrine(id){
+  const state=v84Ensure(),data=v84Data();if(!state||!data?.doctrines?.[id])return false;if(game.agency?.annualTurn?.active){toast('La doctrine est verrouillée pendant l’année en cours.');return false}
+  const year=game.clock.year;if(state.lastDoctrineYear===year&&state.doctrine!==id){toast('La doctrine d’équipage a déjà été redéfinie cette année.');return false}
+  state.doctrine=id;state.lastDoctrineYear=year;addHistory('Doctrine d’équipage','Le fonctionnement collectif passe à « '+data.doctrines[id].label+' ».','normal');saveGame();render();return true
+}
+function v84AppointFirstMate(id){
+  const state=v84Ensure(),mod=v84Module(),crew=game.player.crew;if(!state||!mod||!crew)return false;if(game.player.rank!=='Capitaine'){toast('Seul le capitaine peut nommer officiellement son second.');return false}
+  const year=game.clock.year;if(game.flags.v84FirstMateYear===year){toast('La hiérarchie a déjà été modifiée cette année.');return false}
+  const r=mod.appointFirstMate(state,crew,id);if(r.error)return false;game.player.crewV84=r.state;game.player.crew=r.crew;game.flags.v84FirstMateYear=year;v84SyncRelations();
+  addHistory('Nouveau second',r.member.name+' devient officiellement le second de '+crew.name+'.','major');saveGame();render();return true
+}
+function v84Candidate(){
+  const state=v84Ensure(),crew=game.player.crew;if(!state||!crew||!state.pendingEvent)return null;const e=state.pendingEvent;if(e.year!==game.clock.year)return null;
+  return {id:'crew_'+e.type+'_'+e.memberId+'_'+e.year,event:e,importance:e.importance||62,severity:e.severity||58,mandatory:(e.severity||0)>=84}
+}
+function v84QueueCrew(candidate){
+  const e=candidate?.event,state=v84Ensure(),crew=game.player.crew;if(!e||!state||!crew)return false;const m=crew.members.find(x=>x.id===e.memberId&&x.status==='active');if(!m){state.pendingEvent=null;return false}
+  game.pendingDecision={id:'v84_crew_'+e.type+'_'+m.id,title:'Crise interne • '+m.name,text:m.name+' conteste la direction actuelle. '+(m.temperament||'Tempérament variable')+', ambition « '+String(m.ambition||'personnelle').toLowerCase()+' », loyauté '+Math.round(m.loyalty)+'/100. Cette fois, le Priority Director traite le conflit comme un vrai événement de vie.',choices:[
+    {label:'Médiation',hint:'Commandement et relation pour restaurer la cohésion.',action:'v84crew:mediate:'+m.id},
+    {label:'Soutenir sa demande',hint:'Renforce ce membre, mais crée un précédent interne.',action:'v84crew:support:'+m.id},
+    {label:'Imposer la discipline',hint:'Peut restaurer l’ordre ou provoquer une rupture.',action:'v84crew:discipline:'+m.id}
+  ]};return true
+}
+function v84ResolveDecision(parts){
+  const state=v84Ensure(),memberId=parts.slice(2).join(':'),choice=parts[1];if(!state)return false;const ok=v67ResolveCrewConflict(memberId,choice);if(ok){state.pendingEvent=null;state.history.unshift({year:game.clock.year,type:'conflict',memberId,choice});state.history=state.history.slice(0,30)}return ok
+}
+function v84RenderCrew(){
+  const state=v84Ensure(),mod=v84Module(),data=v84Data(),p=game.player,crew=p.crew;if(!state||!mod||!data||!crew)return;
+  const old=v67CrewMetrics(),s=mod.summary(state,crew,{...v84Context(),cohesion:old.cohesion,tension:old.tension}),cond=Math.round(crew.ship?.condition||70),year=game.clock.year,actionUsed=state.lastActionYear===year;
+  $('#crewSection').classList.remove('hidden');$('#crewName').textContent=crew.name;$('#crewMorale').textContent='Synergie '+Math.round(s.metrics.synergy)+'% • tension '+Math.round(old.tension)+'%';
+  const bars=[['Combat',s.metrics.combat],['Navigation',s.metrics.travel],['Soutien',s.metrics.support],['Commandement',s.metrics.command]];
+  const recruit=state.candidate?'<div class="v84-recruit"><strong>Candidat • '+esc(state.candidate.name)+' — '+esc(state.candidate.role)+'</strong><p>'+(data.traits[state.candidate.trait]?.label||esc(state.candidate.trait))+' • puissance '+Math.round(state.candidate.power)+' / potentiel '+Math.round(state.candidate.potentialPower)+' • maîtrise '+Math.round(state.candidate.roleMastery)+'</p><div class="inventory-actions"><button class="mini-action primary" data-v84-recruit="yes">Proposer de rejoindre</button><button class="mini-action" data-v84-recruit="no">Refuser</button></div></div>':'';
+  $('#crewDetails').innerHTML='<div class="v84-crew-dashboard"><div class="v84-summary"><div><span>Membres</span><strong>'+s.members.length+'/10</strong></div><div><span>Couverture</span><strong>'+s.coverage.coreCovered+'/'+s.coverage.coreTotal+' rôles clés</strong></div><div><span>Préparation</span><strong>'+Math.round(s.readiness)+'/100</strong></div><div><span>Réserves</span><strong>'+Math.round(s.supplies)+'/100</strong></div><div><span>Renommée</span><strong>'+Math.round(s.renown)+'/100</strong></div><div><span>Navire</span><strong>'+cond+'%</strong></div><div><span>Missions</span><strong>'+s.missionWins+'/'+s.missions+'</strong></div><div><span>Puissance collective</span><strong>'+Math.round(s.metrics.power)+'</strong></div></div>'+
+    '<div class="v84-bars">'+bars.map(x=>'<div class="v84-bar"><span>'+esc(x[0])+'</span><div class="v84-bar-track"><i style="width:'+clamp(x[1],0,100)+'%"></i></div><strong>'+Math.round(x[1])+'</strong></div>').join('')+'</div>'+
+    '<div><span class="eyebrow">Doctrine</span><div class="v84-doctrines">'+Object.entries(data.doctrines).map(([id,d])=>'<button class="v84-action '+(state.doctrine===id?'selected':'')+'" data-v84-doctrine="'+id+'" '+(game.agency?.annualTurn?.active?'disabled':'')+'><strong>'+esc(d.label)+'</strong><small>'+esc(d.desc)+'</small></button>').join('')+'</div></div>'+
+    '<div><span class="eyebrow">Équipiers</span><div class="v84-roster">'+s.members.map(m=>'<div class="v84-member"><div><strong>'+esc(m.name)+(m.position==='first_mate'?' • Second':'')+'</strong><span>'+esc(m.role)+' • '+esc(data.traits[m.trait]?.label||m.trait)+' • puissance '+Math.round(m.power)+' / '+Math.round(m.potentialPower)+'</span><small>Maîtrise '+Math.round(m.roleMastery)+' • loyauté '+Math.round(m.loyalty)+' • confiance '+Math.round(m.trust)+(m.injuryMonths>0?' • blessé '+Math.ceil(m.injuryMonths)+' mois':'')+'</small></div><div class="v84-member-actions">'+(p.rank==='Capitaine'&&m.position!=='first_mate'?'<button class="mini-action" data-v84-firstmate="'+esc(m.id)+'">Nommer second</button>':'')+'</div></div>').join('')+'</div></div>'+
+    '<div><span class="eyebrow">Gestion annuelle</span><div class="v84-actions">'+Object.entries(data.managementActions).map(([id,a])=>'<button class="v84-action" data-v84-manage="'+id+'" '+(actionUsed||game.agency?.annualTurn?.active?'disabled':'')+'><strong>'+esc(a.label)+'</strong><small>'+esc(a.desc)+' • '+a.cost.toLocaleString('fr-FR')+' B</small></button>').join('')+'</div></div>'+recruit+
+    '<div class="crew-actions"><button class="secondary-btn" data-ship-repair="patch">Réparer +25%</button><button class="secondary-btn" data-ship-repair="full">Remise en état</button></div></div>';
+  $$('[data-v84-doctrine]').forEach(b=>b.onclick=()=>v84SetDoctrine(b.dataset.v84Doctrine));$$('[data-v84-manage]').forEach(b=>b.onclick=()=>v84ManagementAction(b.dataset.v84Manage));$$('[data-v84-firstmate]').forEach(b=>b.onclick=()=>v84AppointFirstMate(b.dataset.v84Firstmate));$$('[data-v84-recruit]').forEach(b=>b.onclick=()=>v84RecruitDecision(b.dataset.v84Recruit==='yes'));$$('[data-ship-repair]').forEach(b=>b.onclick=()=>v6RepairShip(b.dataset.shipRepair==='full'))
+}
 
 function v83Module(){return window.OPL_MODULES?.get('antagonistEngineV83')||null}
 function v83Data(){return window.OPL_MODULES?.get('antagonistDataV83')||null}
@@ -3119,7 +3239,7 @@ function ensureV5(){
   if(!game.consequencesV77||typeof game.consequencesV77!=='object')game.consequencesV77={version:1,active:[],history:[],totalCreated:0,totalResolved:0,totalEscalated:0,lastTickMonth:-99};
   if(!game.player.personalV78||typeof game.player.personalV78!=='object')game.player.personalV78={version:1,home:{id:game.ageMonths>=216?'rented_room':'family_home',condition:76,owned:false,region:game.player.region,sinceYear:Math.floor(game.ageMonths/12)},independent:game.ageMonths>=216,familyBond:Number(game.player.family?.bond)||55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}};
   if(!game.player.educationV79||typeof game.player.educationV79!=='object')game.player.educationV79=v79LegacyEducationState();
-  v80Ensure();v81Ensure();v82Ensure();v83Ensure();
+  v80Ensure();v81Ensure();v82Ensure();v83Ensure();v84Ensure();
   game.player.combatV72.usage=game.player.combatV72.usage&&typeof game.player.combatV72.usage==='object'?game.player.combatV72.usage:{};
   if(!['balanced','aggressive','defensive','precision','overwhelm'].includes(game.player.combatV72.doctrine))game.player.combatV72.doctrine='balanced';
   if(!game.player.haki)game.player.haki={Observation:{state:'Dormant',mastery:0,latent:true},Armement:{state:'Dormant',mastery:0,latent:true},Conquérant:{state:'Inconnu',mastery:0,latent:false}};
@@ -3786,14 +3906,14 @@ function careerTick(months){
 }
 function createCrewName(){return pick(['Équipage du Goéland Noir','Équipage des Crocs d’Écume','Équipage du Vent Cassé','Équipage de l’Aube Salée','Équipage du Requin Blanc'],'career')}
 function generateCrewMember(role){const names=['Mira','Dalen','Rook','Sena','Toma','Neris','Aren','Kiro','Veya','Milo','Iria','Bren'];return {name:pick(names,'crew'),role,power:randInt(10,32,'crew'),loyalty:randInt(35,78,'crew'),status:'active'}}
-function createPirateCrewIfNeeded(){const p=game.player;if(p.faction!=='Pirates'||p.crew)return;p.crew={name:createCrewName(),morale:randInt(55,82,'career'),members:[generateCrewMember('Combattant'),generateCrewMember('Navigateur'),generateCrewMember('Cuisinier')],ship:{name:'Sloop sans nom',condition:72,tier:1},captain:{name:'Capitaine procédural',power:randInt(25,48,'career')},treasury:randInt(2000,12000,'career')};addHistory('Premier équipage',`Tu embarques avec ${p.crew.name}. Tu n’en es pas le héros, juste un nouveau membre parmi d’autres.`,'major')}
+function createPirateCrewIfNeeded(){const p=game.player;if(p.faction!=='Pirates'||p.crew)return;p.crew={name:createCrewName(),morale:randInt(55,82,'career'),members:[generateCrewMember('Combattant'),generateCrewMember('Navigateur'),generateCrewMember('Cuisinier')],ship:{name:'Sloop sans nom',condition:72,tier:1},captain:{name:'Capitaine procédural',power:randInt(25,48,'career')},treasury:randInt(2000,12000,'career')};v84Ensure();addHistory('Premier équipage',`Tu embarques avec ${p.crew.name}. Tu n’en es pas le héros, juste un nouveau membre parmi d’autres.`,'major')}
 function simulateCrew(months){
   v67Ensure();const c=game.player.crew;if(!c)return;
   c.ship.condition=clamp(c.ship.condition-randInt(0,2,'crew')*months,10,100);
   const active=c.members.filter(m=>m.status==='active');
   if(chance(.025*months,'crew')&&active.length<8){
     const m=generateCrewMember(pick(['Tireur','Médecin','Charpentier','Combattant','Musicien'],'crew'));
-    v67EnsureCrewMember(m,c.members.length);c.members.push(m);v67CrewRelation(m);
+    v67EnsureCrewMember(m,c.members.length);c.members.push(m);v67CrewRelation(m);v84Ensure();
     addHistory('Recrutement',m.name+' rejoint '+c.name+' comme '+m.role.toLowerCase()+'.','major')
   }
   if(c.ship.condition<30&&!c.ship.lowConditionWarned){
@@ -3813,15 +3933,13 @@ function v65MissionApproach(plan=v62PlanSource()){
   return {id,action:V62_ANNUAL_ACTIONS.mission.options[id]||V62_ANNUAL_ACTIONS.mission.options.standard}
 }
 function v65CrewSupport(m=game?.activeMission){
-  v67Ensure();const c=game?.player?.crew;
-  if(!c||!Array.isArray(c.members)||!c.members.length)return v67MissionRelationSupport();
-  const active=c.members.filter(x=>x.status==='active');if(!active.length)return v67MissionRelationSupport();
-  const metrics=v67CrewMetrics(),morale=clamp(Number(c.morale)||50,0,100);
-  const roster=Math.min(5.5,active.length*.72);
+  v67Ensure();const c=game?.player?.crew;if(!c)return v67MissionRelationSupport();
+  const social=v67MissionRelationSupport(),mod=v84Module();
+  if(mod){const v84=v84MissionSupport(m);return +clamp((v84?.bonus||0)+social*.55,0,18).toFixed(1)}
+  const active=(c.members||[]).filter(x=>x.status!=='left');if(!active.length)return social;
+  const metrics=v67CrewMetrics(),morale=clamp(Number(c.morale)||50,0,100),roster=Math.min(5.5,active.length*.72);
   const ship=['navigation','explore','escort'].includes(m?.type)&&c.ship?clamp((Number(c.ship.condition)||60)-50,0,50)/25:0;
-  const second=active.some(x=>/bras droit|second/i.test(String(x.role||'')))?1.2:0;
-  const cohesion=(metrics.cohesion-50)/18,tensionPenalty=Math.max(0,(metrics.tension-45)/16);
-  const social=v67MissionRelationSupport();
+  const second=active.some(x=>/bras droit|second/i.test(String(x.role||'')))?1.2:0,cohesion=(metrics.cohesion-50)/18,tensionPenalty=Math.max(0,(metrics.tension-45)/16);
   return +clamp(roster+morale/30+ship+second+cohesion+social-tensionPenalty,0,12).toFixed(1)
 }
 function v65MissionCondition(){
@@ -3962,14 +4080,14 @@ function tickMission(months){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult)),reward=Math.round(m.reward*rewardMult);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=2;
     if(game.player.faction==='Marine')game.player.reputation.marine+=3;if(game.player.faction==='Révolutionnaires')game.player.reputation.revolution+=3;if(game.player.faction==='Gouvernement')game.player.reputation.government+=3;if(game.player.faction==='Pirates'){game.player.reputation.pirate+=3;game.player.bounty+=Math.round(reward*.45);game.player.highestBounty=Math.max(game.player.highestBounty,game.player.bounty)}
     addHistory('Mission accomplie',`${m.title} se termine en ta faveur avec une approche « ${strat.label.toLowerCase()} ».`,'major',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
-    game.flags.v65LastMission={id:m.id,outcome:'success',approach:approach.id};v68ApplyMissionOutcome(m,'success');v73RecordMissionOutcome(m,'success',approach.id);v81RecordMissionOutcome(m,'success');v82RecordMissionOutcome(m,'success');v77FromMission(m,'success',approach.id)
+    game.flags.v65LastMission={id:m.id,outcome:'success',approach:approach.id};v68ApplyMissionOutcome(m,'success');v73RecordMissionOutcome(m,'success',approach.id);v81RecordMissionOutcome(m,'success');v82RecordMissionOutcome(m,'success');v84RecordMissionOutcome(m,'success');v77FromMission(m,'success',approach.id)
   }else if(partial&&game.alive){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult*.60)),reward=Math.round(m.reward*rewardMult*.45);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=1;
     addHistory('Mission partiellement réussie',`${m.title} n’atteint pas tous ses objectifs, mais tu sauves une partie du résultat au lieu de repartir avec absolument rien.`,'normal',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
-    game.flags.v65LastMission={id:m.id,outcome:'partial',approach:approach.id};v68ApplyMissionOutcome(m,'partial');v73RecordMissionOutcome(m,'partial',approach.id);v81RecordMissionOutcome(m,'partial');v82RecordMissionOutcome(m,'partial');v77FromMission(m,'partial',approach.id)
+    game.flags.v65LastMission={id:m.id,outcome:'partial',approach:approach.id};v68ApplyMissionOutcome(m,'partial');v73RecordMissionOutcome(m,'partial',approach.id);v81RecordMissionOutcome(m,'partial');v82RecordMissionOutcome(m,'partial');v84RecordMissionOutcome(m,'partial');v77FromMission(m,'partial',approach.id)
   }else if(game.alive){
     addHistory(retreated?'Mission abandonnée':'Mission échouée',retreated?`${m.title} est interrompue après un repli tactique. La récompense est perdue, pas nécessairement ta vie.`:`${m.title} tourne mal malgré ton approche « ${strat.label.toLowerCase()} ». Tu n’obtiens pas la récompense prévue.`,'danger');
-    game.flags.v65LastMission={id:m.id,outcome:retreated?'retreat':'failure',approach:approach.id};v68ApplyMissionOutcome(m,retreated?'retreat':'failure');v73RecordMissionOutcome(m,retreated?'retreat':'failure',approach.id);v81RecordMissionOutcome(m,retreated?'retreat':'failure');v82RecordMissionOutcome(m,retreated?'retreat':'failure');v77FromMission(m,retreated?'retreat':'failure',approach.id)
+    game.flags.v65LastMission={id:m.id,outcome:retreated?'retreat':'failure',approach:approach.id};v68ApplyMissionOutcome(m,retreated?'retreat':'failure');v73RecordMissionOutcome(m,retreated?'retreat':'failure',approach.id);v81RecordMissionOutcome(m,retreated?'retreat':'failure');v82RecordMissionOutcome(m,retreated?'retreat':'failure');v84RecordMissionOutcome(m,retreated?'retreat':'failure');v77FromMission(m,retreated?'retreat':'failure',approach.id)
   }
   game.player.activity=m.previousActivity;game.player.activityType=m.previousType;game.player.situation=game.player.faction==='Pirates'?'Vie en équipage':game.player.faction==='Marine'?'Service actif':game.player.faction==='Révolutionnaires'?'Réseau clandestin':game.player.faction==='Gouvernement'?'Affectation gouvernementale':'Indépendant';game.activeMission=null;refreshMissionBoard()
 }
@@ -3989,7 +4107,7 @@ function resolveDecision(action){
   if(parts[0]==='specialize'){p.specialization=parts[1];addHistory('Spécialisation',`Tu orientes désormais ta carrière vers : ${parts.slice(2).join(':')}.`,'major')}
   if(parts[0]==='fruit'){const id=parts[2],f=game.world.fruits.find(x=>x.id===id);if(f){if(parts[1]==='eat'){p.devilFruit={id:f.id,name:f.name,type:f.type,mastery:1};f.status='consumed';f.holder='player';p.equipment=p.equipment.filter(x=>x!==f.name);addHistory('Fruit consommé',`Tu manges ${f.name}. La mer devient désormais ton ennemie permanente.`,'major')}if(parts[1]==='keep'){if(!p.equipment.includes(f.name))p.equipment.push(f.name);f.status='held';f.holder='player_inventory';addHistory('Fruit conservé',`Tu gardes ${f.name} sans le consommer.`)}if(parts[1]==='sell'){const gain=randInt(150000,800000,'fruit');p.money+=gain;f.status='world';f.holder=null;f.region=p.region;addHistory('Vente exceptionnelle',`Tu vends ${f.name}. Quelqu’un d’autre l’a désormais dans ce monde.`,'major',`+${gain.toLocaleString('fr-FR')} B`)}}}
   if(parts[0]==='travel'&&parts[1]!=='cancel')beginTravel(decodeURIComponent(parts.slice(1).join(':')));if(parts[0]==='v64adv')v64ResolveAdventureChoice(parts);
-  if(parts[0]==='captain'){if(parts[1]==='create'){p.rank='Capitaine';p.crew={name:`Équipage de ${p.name}`,morale:65,members:[generateCrewMember('Navigateur'),generateCrewMember('Combattant')],ship:{name:'Navire capturé',condition:68,tier:1},captain:{name:p.name,power:overallPower()},treasury:Math.max(0,Math.floor(p.money*.25))};p.reputation.pirate+=12;p.bounty+=80000;addHistory('CAPITAINE',`Tu hisses ton propre pavillon. Désormais, les victoires comme les désastres portent ton nom.`,'major')}else addHistory('Loyauté à l’équipage','Tu décides de rester officier et de poursuivre ta route actuelle.')}
+  if(parts[0]==='captain'){if(parts[1]==='create'){p.rank='Capitaine';p.crew={name:`Équipage de ${p.name}`,morale:65,members:[generateCrewMember('Navigateur'),generateCrewMember('Combattant')],ship:{name:'Navire capturé',condition:68,tier:1},captain:{name:p.name,power:overallPower()},treasury:Math.max(0,Math.floor(p.money*.25))};v84Ensure();p.reputation.pirate+=12;p.bounty+=80000;addHistory('CAPITAINE',`Tu hisses ton propre pavillon. Désormais, les victoires comme les désastres portent ton nom.`,'major')}else addHistory('Loyauté à l’équipage','Tu décides de rester officier et de poursuivre ta route actuelle.')}
   if(parts[0]==='command'){if(parts[1]==='accept'){p.rank='Commandant';p.specialization=p.specialization||'command';p.reputation.marine+=8;addHistory('Commandement',`Tu acceptes de diriger une unité de la Marine.`,'major')}else addHistory('Commandement refusé','Tu préfères ne pas prendre cette responsabilité pour l’instant.')}
   if(parts[0]==='shift'){if(parts[1]==='listen'){p.reputation.government-=2;codexAdd('factions','Révolutionnaires');addHistory('Contact clandestin','Tu ne changes pas de camp, mais tu conserves un lien discret avec un réseau révolutionnaire.','major');game.flags.revolutionContact=true}else addHistory('Proposition refusée','Tu refuses de laisser cette proposition modifier ta trajectoire.')}
   if(parts[0]==='v71arc'){if(v71ResolveArcChoice(parts)){saveGame();render();showDecision();return}}
@@ -4011,6 +4129,7 @@ function resolveDecision(action){
   if(parts[0]==='v81faction')v81ResolveDecision(parts);
   if(parts[0]==='v82campaign')v82ResolveDecision(parts);
   if(parts[0]==='v83nemesis')v83ResolveDecision(parts);
+  if(parts[0]==='v84crew')v84ResolveDecision(parts);
   if(parts[0]==='v77consequence')v77ResolveConsequence(parts);
   else v77DecisionEcho(action,decisionEcho);
   game.pendingDecision=null;game.pacing.lastDecisionAge=game.ageMonths;$('#decisionModal').classList.add('hidden');saveGame();if(!game.alive){render();showDeath();return}if(game.agency?.annualTurn?.active){v61ResumeAnnualTurn();return}render();
@@ -4221,7 +4340,7 @@ function ensureV6(){
   if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;
   if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));
   ensureV59();for(const h of game.world.worldHooks||[])updateHakiStagesV6();
-  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure();v83Ensure()
+  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure();v83Ensure();v84Ensure()
 }
 function v6RelationById(id){return game.relations.find(r=>r.id===id||slug(r.name)===id)}
 function v6InteractRelation(id,action){
@@ -4394,12 +4513,7 @@ function renderCharacter(){
   $$('[data-fruit-eat]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitEat,'eat'));$$('[data-fruit-sell]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitSell,'sell'));
   const acts=availableActivities();$('#activityOptions').innerHTML=acts.map(([label,hint,type])=>'<button class="action-card '+(p.activityType===type?'active':'')+'" data-type="'+type+'" data-label="'+esc(label)+'"><strong>'+esc(label)+'</strong><small>'+esc(hint)+'</small></button>').join('');
   $$('#activityOptions .action-card').forEach(b=>b.onclick=()=>setActivity(b.dataset.type,b.dataset.label));
-  if(p.crew){
-    const metrics=v67CrewMetrics();$('#crewSection').classList.remove('hidden');$('#crewName').textContent=p.crew.name;$('#crewMorale').textContent='Cohésion '+Math.round(metrics.cohesion)+'% • tension '+Math.round(metrics.tension)+'%';
-    const members=(p.crew.members||[]).filter(m=>m.status==='active'),cond=Math.round(p.crew.ship?.condition||70);
-    $('#crewDetails').innerHTML='<div class="info-grid"><div class="info-cell"><span>Rôle</span><strong>'+esc(p.rank)+'</strong></div><div class="info-cell"><span>Membres actifs</span><strong>'+members.length+'</strong></div><div class="info-cell"><span>Moral</span><strong>'+Math.round(p.crew.morale)+'%</strong></div><div class="info-cell"><span>État navire</span><strong>'+cond+'%</strong></div></div><div class="crew-roster">'+members.map(m=>'<span class="chip">'+esc(m.name)+' • '+esc(m.role)+' • '+esc(m.temperament)+' • '+esc(m.ambition)+' • loyauté '+Math.round(m.loyalty||0)+'</span>').join('')+'</div><div class="crew-actions"><button class="secondary-btn" data-ship-repair="patch">Réparer +25%</button><button class="secondary-btn" data-ship-repair="full">Remise en état</button></div>';
-    $$('[data-ship-repair]').forEach(b=>b.onclick=()=>v6RepairShip(b.dataset.shipRepair==='full'))
-  }else $('#crewSection').classList.add('hidden');
+  if(p.crew)v84RenderCrew();else $('#crewSection').classList.add('hidden');
   const storage=$('#storageStatus');if(storage)storage.textContent='Autosave • '+storageLabel();v62RenderDomainInline('careerAnnualActions','career');v62RenderDomainInline('resourcesAnnualActions','resources');v63RenderEconomy();renderCareerProgress();renderV73Organization();renderV81FactionIdentity();renderV69Endgame();renderAmbition();renderMissions()
 }
 

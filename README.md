@@ -1,3 +1,32 @@
+# ONE PIECE LIFE — V8.4 Crew & Organization 4.0
+
+La V8.4 transforme l’équipage du joueur en **organisation vivante et stratégique**. Les membres ne sont plus de simples lignes de roster : leurs rôles, leur maîtrise, leur loyauté, leurs blessures, leurs ambitions et leur complémentarité déterminent réellement les capacités du groupe.
+
+## Crew & Organization 4.0
+
+- **11 rôles spécialisés** : Combattant, Sabreur, Tireur, Navigateur, Médecin, Charpentier, Cuisinier, Éclaireur, Musicien, Savant et Officier.
+- **6 doctrines d’équipage** : Équilibré, Offensive, Exploration, Survie, Discipline et Liberté.
+- Maîtrise de rôle individuelle, puissance, potentiel, croissance, expérience, loyauté et confiance.
+- Système de **synergie collective** basé sur moral, cohésion, tension, préparation, réserves et couverture des rôles.
+- Quatre fonctions clés à couvrir : combat, navigation, soins et entretien du navire.
+- Sélection automatique d’une **équipe de mission** adaptée au type d’objectif.
+- Le soutien d’équipage influence désormais directement les chances de mission.
+- Les équipiers réellement engagés gagnent expérience et souvenirs de mission.
+- Les missions risquées peuvent produire des **blessures persistantes** et réduire temporairement l’efficacité d’un membre.
+- Recrutement ciblé selon les rôles manquants, la renommée du groupe, la réputation du joueur et son commandement.
+- Un capitaine peut nommer officiellement son **second**.
+- Une action majeure de gestion par an : entraînement, cohésion, logistique ou recrutement.
+- Les dépenses utilisent d’abord la caisse de bord puis les fonds personnels.
+- Les missions déléguées V6.9 utilisent désormais aussi la qualité réelle de l’équipage.
+- Les crises internes V6.7 passent par le **Priority Director V8.0**.
+- L’équipage contribue au score d’organisation dans les campagnes V8.2.
+- Interface Équipage entièrement enrichie : domaines, roster, second, blessures, doctrine, préparation, réserves, renommée, missions et puissance collective.
+- Migration V8.3 → V8.4 automatique.
+- Save version : **840**.
+- Cache PWA : **one-piece-life-v8-4-0**.
+
+---
+
 # ONE PIECE LIFE — V8.3 Nemesis & Rivalry 4.0
 
 La V8.3 donne enfin une continuité réelle aux grands adversaires. Un boss de saga peut devenir une **némésis persistante**, apprendre de ses défaites, développer son organisation, survivre à la chute d'une campagne et revenir plusieurs années plus tard avec la mémoire de votre histoire commune.
