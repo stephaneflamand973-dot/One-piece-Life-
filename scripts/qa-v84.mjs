@@ -108,14 +108,14 @@ const summary=engine.summary(state,crew,ctx);
 eq(summary.members.length,4,'Crew summary roster mismatch');
 eq(summary.coverage.coreCovered,4,'Crew summary coverage mismatch');
 
-assert(html.includes('ONE PIECE LIFE — V8.4'),'V8.4 title missing');
-assert(/const SAVE_VERSION\s*=\s*840;/.test(html),'Save version 840 missing');
-assert(/const GAME_VERSION\s*=\s*'8\.4\.0';/.test(html),'Game version 8.4.0 missing');
+assert(/ONE PIECE LIFE — V8\.\d+/.test(html),'V8.4+ title missing');
+assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=840,'Save version 840+ missing');
+{const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0',p=v.split('.').map(Number);assert(p[0]>8||(p[0]===8&&p[1]>=4),'Game version 8.4+ missing')}
 for(const asset of ['src/data/crew-v84.js','src/v84/crew-engine-v84.js','src/v84/crew-v84.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v8-4-0'),'PWA cache not bumped to V8.4');
+assert(/one-piece-life-v8-[4-9]-\d+/.test(sw),'PWA cache must remain at V8.4 or newer');
 assert(html.includes('v80Ensure();v81Ensure();v82Ensure();v83Ensure();v84Ensure();'),'Old-save V8.4 migration hook missing');
 for(const fn of ['function v84Module','function v84Ensure','function v84TickCrew','function v84MissionSupport','function v84CampaignSupport','function v84RecordMissionOutcome','function v84ManagementAction','function v84RecruitDecision','function v84SetDoctrine','function v84AppointFirstMate','function v84Candidate','function v84QueueCrew','function v84ResolveDecision','function v84RenderCrew']){
   assert(html.includes(fn),'Missing live V8.4 bridge '+fn);

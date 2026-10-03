@@ -1,3 +1,32 @@
+# ONE PIECE LIFE — V8.5 Voyage & Exploration 4.0
+
+La V8.5 transforme les déplacements en **véritable gameplay maritime**. Une route n'est plus seulement une destination et une durée : elle possède un risque, une maîtrise, une météo, des incidents, une usure du navire et des opportunités de découverte.
+
+## Voyage & Exploration 4.0
+
+- **4 styles de traversée** : Route normale, Navigation prudente, Forcer l'allure et Route d'exploration.
+- Chaque style modifie réellement durée, risque, usure et probabilité de découverte.
+- **Météo dynamique par région** : mer calme, vent favorable, brouillard, courants, tempête, cyclone, froid ou chaleur.
+- Grand Line et le Nouveau Monde ont des distributions météo nettement plus instables.
+- **Log Pose progressif** : navigation classique, Log Pose puis Log Pose avancé.
+- Les besoins de navigation changent entre les Blues, Grand Line et le Nouveau Monde.
+- Chaque paire d'îles possède une **maîtrise de route persistante**.
+- Refaire une route augmente la familiarité et réduit progressivement sa difficulté.
+- Le navigateur V8.4, la qualité collective en navigation et l'état du navire influencent maintenant les traversées.
+- Les incidents possibles incluent tempêtes, récifs, courants, pirates, Marine, Rois des Mers et rencontres marchandes.
+- Les incidents peuvent provoquer fatigue, retard, usure du navire, combat ou gain économique.
+- L'expérience en mer progresse indépendamment de la compétence Navigation.
+- Chaque île possède une **exploration persistante de 0 à 100**.
+- Les visites, expéditions et arrivées augmentent la connaissance locale.
+- Les seuils 25 / 50 / 75 / 100 favorisent de nouvelles découvertes.
+- Découvertes possibles : cartes, trésors, vestiges, ressources, contacts, pistes rares et savoirs pratiques.
+- L'interface Monde affiche Log Pose, expérience en mer, routes connues, routes maîtrisées, exploration locale, découvertes, trésors et tempêtes traversées.
+- Migration V8.4 → V8.5 automatique.
+- Save version : **850**.
+- Cache PWA : **one-piece-life-v8-5-0**.
+
+---
+
 # ONE PIECE LIFE — V8.4 Crew & Organization 4.0
 
 La V8.4 transforme l’équipage du joueur en **organisation vivante et stratégique**. Les membres ne sont plus de simples lignes de roster : leurs rôles, leur maîtrise, leur loyauté, leurs blessures, leurs ambitions et leur complémentarité déterminent réellement les capacités du groupe.
