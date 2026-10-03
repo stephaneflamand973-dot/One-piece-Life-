@@ -100,14 +100,16 @@ const zeroState=engine.normalizeState({totalCreated:0,totalResolved:0,totalEscal
 eq(zeroState.lastTickMonth,0,'Explicit zero tick month must be preserved');
 
 // Live integration contract.
-assert(html.includes('ONE PIECE LIFE — V7.7'),'V7.7 title missing');
-assert(/const SAVE_VERSION\s*=\s*770;/.test(html),'Save version 770 missing');
-assert(/const GAME_VERSION\s*=\s*'7\.7\.0';/.test(html),'Game version 7.7.0 missing');
+const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(saveVersion>=770,'V7.7 regression QA requires save version >= 770');
+assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=7,'V7.7 regression QA requires game version >= 7.7');
 for(const asset of ['src/data/consequences-v77.js','src/v77/consequence-engine-v77.js','src/v77/consequences-v77.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v7-7-0'),'PWA cache not bumped to V7.7');
+assert(/one-piece-life-v7-[7-9]-\d+/.test(sw),'PWA cache must remain at V7.7 or newer');
 assert(html.includes("consequencesV77:{version:1,active:[]"),'Fresh-save consequence state missing');
 assert(html.includes("if(!game.consequencesV77||typeof game.consequencesV77!=='object')"),'Old-save V7.7 migration guard missing');
 assert(html.includes('id="v77ConsequencesCard"'),'Consequence UI card missing');
@@ -124,7 +126,7 @@ assert(html.includes('renderV77Consequences();renderTimeline()'),'Consequence re
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
 
 console.log('V7.7 CONSEQUENCES & LIFE EVENTS QA OK',JSON.stringify({
-  version:'7.7.0',
+  version:gameVersion,
   types:Object.keys(data.consequenceTypes).length,
   triggers:Object.keys(data.triggerMap).length,
   triggerScore:engine.triggerScore(missionTrigger,ctx),
