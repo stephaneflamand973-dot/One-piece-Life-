@@ -13,7 +13,8 @@
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="icon" type="image/svg+xml" href="icon.svg" />
   <link rel="stylesheet" href="src/v71/arc-director.css" />
-  <title>ONE PIECE LIFE — V7.5</title>
+  <link rel="stylesheet" href="src/v76/ui-v76.css" />
+  <title>ONE PIECE LIFE — V7.6</title>
   <style>
 :root{--bg:#f4ecd8;--paper:#fffaf0;--ink:#1d2a2c;--muted:#6f7775;--navy:#173f4e;--sea:#2d7181;--sea2:#78a7a7;--gold:#c5943c;--red:#a34b3d;--green:#4b7660;--line:#dfd3b7;--shadow:0 12px 34px rgba(41,52,49,.09);--radius:22px;--safe:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}html{background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% -5%,rgba(120,167,167,.28),transparent 32%),linear-gradient(180deg,#f8f1df,var(--bg))}.app-shell{max-width:760px;margin:0 auto;min-height:100vh;padding-bottom:calc(90px + var(--safe))}.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px;background:rgba(244,236,216,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(100,90,70,.12)}.brand-wrap{display:flex;align-items:center;gap:10px;min-width:0}.brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:#fff;font-size:20px;box-shadow:0 6px 16px rgba(23,63,78,.2)}h1,h2,h3,p{margin-top:0}.brand-wrap h1{font-size:15px;letter-spacing:.08em;margin:0}.brand-wrap p{font-size:10px;color:var(--muted);margin:2px 0 0}.icon-btn{border:0;background:rgba(255,255,255,.55);width:38px;height:38px;border-radius:12px;font-size:18px;color:var(--ink)}main{padding:14px}.screen{display:none}.screen.active{display:block}.paper-card{background:rgba(255,250,240,.94);border:1px solid rgba(132,111,72,.16);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px}.hero-card{padding:24px;background:linear-gradient(145deg,#fffaf0 0%,#f4ead2 70%,#e6dfc8 100%);position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(45,113,129,.14);border-radius:50%;right:-70px;bottom:-100px;box-shadow:0 0 0 28px rgba(45,113,129,.035),0 0 0 56px rgba(45,113,129,.025)}.hero-card h2{font-family:Georgia,serif;font-size:34px;line-height:1.02;max-width:620px;margin:8px 0 14px}.hero-card p{color:#52605f;line-height:1.55;max-width:620px}.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--sea)}.feature-pills,.chip-list{display:flex;flex-wrap:wrap;gap:8px}.feature-pills span,.chip,.badge{font-size:11px;border-radius:999px;padding:7px 10px;background:#edf3ef;color:#47635d;border:1px solid rgba(75,118,96,.12)}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-heading.compact{margin-bottom:12px}.section-heading h3{margin:3px 0 0;font-size:18px}.save-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.save-slot{min-height:128px;border:1px dashed #c9b893;border-radius:17px;padding:14px;text-align:left;background:#fffbf3;color:var(--ink);display:flex;flex-direction:column;justify-content:space-between}.save-slot strong{font-size:14px}.save-slot small{color:var(--muted);line-height:1.35}.save-slot.empty{align-items:center;justify-content:center;text-align:center;color:var(--sea);font-weight:700}.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.mode-card{border:1px solid var(--line);border-radius:16px;background:#fffaf1;padding:14px;text-align:left;color:var(--ink)}.mode-card strong{display:block;margin-bottom:5px}.mode-card span{font-size:12px;color:var(--muted);line-height:1.35}.mode-card.selected{border-color:var(--sea);box-shadow:inset 0 0 0 1px var(--sea);background:#f1f8f6}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field>span{font-size:11px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:13px;padding:13px;background:#fffdf8;color:var(--ink);font-size:16px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary-btn,.secondary-btn,.choice-btn{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:800;font-size:14px}.primary-btn{background:var(--navy);color:#fff;box-shadow:0 8px 20px rgba(23,63,78,.18)}.primary-btn.small{padding:11px 14px;width:auto}.secondary-btn{background:#ece4d1;color:var(--ink)}.text-btn{border:0;background:transparent;color:var(--sea);font-weight:800;font-size:12px}.status-strip{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:1px;background:#d9ceb4;border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}.status-strip>div{background:#fffaf0;padding:11px 12px;min-width:0}.status-strip strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tiny-label{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}.tab-panel{display:none}.tab-panel.active{display:block}.profile-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#173f4e,#255e69);color:#fff}.avatar-ring{width:54px;height:54px;flex:0 0 54px;border-radius:50%;display:grid;place-items:center;background:#f7edd5;color:var(--navy);font:700 22px Georgia,serif;border:3px solid rgba(255,255,255,.24)}.profile-copy{min-width:0;flex:1}.profile-copy h2{margin:4px 0 3px;font-size:22px}.profile-copy p{margin:0;color:rgba(255,255,255,.72);font-size:12px}.profile-banner .eyebrow{color:#d9c79b}.reputation-pill{font-size:10px;font-weight:800;border-radius:999px;background:rgba(255,255,255,.13);padding:8px 10px;white-space:nowrap}.situation-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.situation-grid>div,.info-cell{padding:12px;border-radius:14px;background:#f4f0e5}.situation-grid span,.info-cell span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.situation-grid strong,.info-cell strong{font-size:13px}.danger-badge{font-size:10px;font-weight:900;border-radius:999px;padding:7px 10px}.danger-badge.low{background:#e4f0e9;color:#3f6a56}.danger-badge.medium{background:#f6ead0;color:#906b23}.danger-badge.high{background:#f4dfda;color:#963e35}.compact-list{margin-top:12px}.attention-card{border-color:#d3b46f;background:linear-gradient(145deg,#fff9e8,#f7eed7)}.attention-card h3{margin:6px 0}.attention-card p{font-size:13px;color:var(--muted);line-height:1.5}.timeline{position:relative;padding-left:18px}.timeline:before{content:"";position:absolute;left:5px;top:5px;bottom:8px;width:1px;background:#d6c9aa}.timeline-item{position:relative;padding:0 0 18px 13px}.timeline-dot{position:absolute;left:-17px;top:5px;width:9px;height:9px;background:#8f9f97;border:2px solid #fffaf0;border-radius:50%;box-shadow:0 0 0 1px #c8b997}.timeline-item.major .timeline-dot{background:var(--gold)}.timeline-item.danger .timeline-dot{background:var(--red)}.timeline-item.canon .timeline-dot{background:var(--sea)}.timeline-age{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.08em}.timeline-title{font-weight:900;margin:3px 0}.timeline-desc{font-size:13px;color:#5f6965;line-height:1.45}.timeline-delta{display:inline-block;margin-top:6px;background:#e8f0ea;color:#42644f;border-radius:9px;padding:4px 7px;font-size:10px;font-weight:800}.advance-dock{position:sticky;bottom:calc(72px + var(--safe));z-index:20;padding-top:2px}.advance-btn{width:100%;border:0;border-radius:18px;background:linear-gradient(135deg,#1d5360,#173f4e);color:#fff;padding:15px 18px;display:flex;gap:12px;align-items:center;text-align:left;box-shadow:0 15px 30px rgba(23,63,78,.24)}.advance-btn:disabled{opacity:.48}.advance-icon{font-size:24px}.advance-btn strong{display:block;letter-spacing:.08em}.advance-btn small{display:block;color:rgba(255,255,255,.65);font-size:10px;margin-top:3px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.career-card{padding:14px;border-radius:14px;background:#f4f0e5}.career-card strong{font-size:16px}.career-card p{font-size:12px;color:var(--muted);margin:5px 0 0;line-height:1.45}.action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.action-card{border:1px solid var(--line);background:#fffdf8;border-radius:14px;padding:12px;text-align:left;color:var(--ink)}.action-card strong{display:block;font-size:13px}.action-card small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}.action-card.active{border-color:var(--sea);background:#eef6f3}.action-card.locked{opacity:.45}.stats-list{display:flex;flex-direction:column;gap:9px}.stat-row{display:grid;grid-template-columns:100px 1fr 35px;align-items:center;gap:9px;font-size:12px}.stat-bar{height:8px;border-radius:999px;background:#e8e1d2;overflow:hidden}.stat-fill{height:100%;background:linear-gradient(90deg,#78a7a7,#2d7181);border-radius:999px}.stat-value{text-align:right;font-weight:900}.split-card{display:grid;grid-template-columns:1fr 1fr;gap:14px}.split-card>div+div{border-left:1px solid var(--line);padding-left:14px}.ability-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:8px 0;border-bottom:1px solid #eee6d6}.ability-row:last-child{border-bottom:0}.ability-row span{color:var(--muted)}.fruit-card{font-size:12px;line-height:1.45;color:#53605d}.relations-list{display:flex;flex-direction:column;gap:9px}.relation-card{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px;padding:10px;border-radius:14px;background:#f4f0e5}.relation-avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#dce9e5;color:var(--navy);font-weight:900}.relation-copy strong,.relation-copy span{display:block}.relation-copy span{font-size:11px;color:var(--muted);margin-top:2px}.relation-score{font-weight:900;color:var(--sea)}.world-hero{background:linear-gradient(145deg,#eaf2ec,#fffaf0)}.world-hero p{font-size:13px;color:var(--muted);line-height:1.5}.news-list,.canon-list{display:flex;flex-direction:column;gap:10px}.news-item,.canon-item{padding:12px;border-radius:14px;background:#f4f0e5}.news-item strong,.news-item span,.canon-item strong,.canon-item span{display:block}.news-item span,.canon-item span{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}.canon-item .status{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--sea);font-weight:900}.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;z-index:40;width:min(760px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,250,240,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(120,100,65,.14);padding:8px 7px calc(8px + var(--safe))}.nav-item{border:0;background:transparent;color:#80847f;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px}.nav-item span{font-size:17px}.nav-item small{font-size:9px}.nav-item.active{color:var(--navy);font-weight:900}.modal-backdrop{position:fixed;inset:0;z-index:80;background:rgba(15,27,28,.58);display:grid;place-items:end center;padding:14px}.modal-card{width:min(620px,100%);background:#fffaf0;border-radius:24px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:88vh;overflow:auto}.modal-card h3,.modal-card h2{margin:6px 0 9px}.modal-card p{color:var(--muted);font-size:13px;line-height:1.5}.decision-choices{display:flex;flex-direction:column;gap:9px;margin-top:18px}.choice-btn{background:#edf3ef;color:var(--ink);text-align:left;border:1px solid #d8e4df}.choice-btn strong,.choice-btn small{display:block}.choice-btn small{font-weight:500;color:var(--muted);margin-top:4px}.death-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}.death-summary>div{background:#f4f0e5;border-radius:13px;padding:11px}.death-summary span{display:block;font-size:9px;color:var(--muted)}.death-summary strong{font-size:13px}.dev-panel{position:fixed;inset:56px 8px 86px;z-index:70;background:#10272d;color:#dbe9e5;border-radius:18px;padding:14px;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.32)}.dev-head{display:flex;justify-content:space-between;align-items:center}.dev-panel pre{white-space:pre-wrap;font-size:10px;line-height:1.45}.toast{position:fixed;z-index:100;left:50%;transform:translateX(-50%);bottom:110px;background:#173f4e;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}.startup-error{margin-top:10px;padding:12px 14px;border-radius:14px;background:#f4dfda;color:#7d3028;border:1px solid rgba(150,62,53,.18);font-size:12px;line-height:1.45}.startup-error strong,.startup-error span{display:block}.startup-error span{margin-top:4px}.startup-ready{color:var(--green)}.startup-warn{color:#8a651f}.hidden{display:none!important}
@@ -67,16 +68,19 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
       <div class="brand-mark">☠</div>
       <div><h1>ONE PIECE LIFE</h1><p>Destin • Carrière • Monde vivant</p></div>
     </div>
-    <button id="devToggle" class="icon-btn" aria-label="Mode développeur">⚙</button>
+    <div class="topbar-actions">
+      <button id="uiDensityToggle" class="icon-btn hidden" aria-label="Changer la densité de l’interface" title="Vue Focus">▤</button>
+      <button id="devToggle" class="icon-btn" aria-label="Mode développeur">⚙</button>
+    </div>
   </header>
 
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V7.1 • Arc Director & Modular Core</span>
-        <h2>Les grands événements ne passent plus devant toi. Ils peuvent maintenant t’aspirer dedans.</h2>
-        <p>La V7.1 rend les arcs majeurs jouables en plusieurs décisions, avec rôle, exposition, contribution et divergences possibles. Elle inaugure aussi une architecture modulaire progressive dans <code>src/</code>.</p>
-        <div class="feature-pills"><span>Arc Director</span><span>Marineford jouable</span><span>Choix multi-étapes</span><span>Divergences personnelles</span><span>Registre de modules</span><span>Données séparées</span><span>Migration sûre</span></div>
+        <span class="eyebrow">V7.6 • UI & Game Feel 3.0</span>
+        <h2>Plus d’informations utiles. Moins de fouille archéologique dans les menus.</h2>
+        <p>La V7.6 recentre l’expérience mobile sur les priorités du moment : dashboard vivant, navigation persistante, alertes discrètes, sections repliables et feedback immédiat quand ta vie change.</p>
+        <div class="feature-pills"><span>Vue Focus</span><span>Dashboard dynamique</span><span>Navigation persistante</span><span>Sections repliables</span><span>Alertes utiles</span><span>Feedback instantané</span><span>Mobile-first</span></div>
       </section>
 
 
@@ -137,6 +141,10 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
           <div class="avatar-ring"><span id="avatarInitial">K</span></div>
           <div class="profile-copy"><span id="lifeStatus" class="eyebrow">Naissance</span><h2 id="playerName">Kael Maren</h2><p id="playerSubtitle">Humain • East Blue • Civil</p></div>
           <div id="repPill" class="reputation-pill">Inconnu</div>
+        </section>
+
+        <section id="v76FocusCard" class="paper-card v76-focus-card">
+          <div id="v76FocusBody"></div>
         </section>
 
         <section class="paper-card current-situation">
@@ -252,6 +260,8 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 <script src="src/v74/relation-persona-engine-v74.js"></script>
 <script src="src/data/world-canon-v75.js"></script>
 <script src="src/v75/world-canon-engine-v75.js"></script>
+<script src="src/data/ui-layout-v76.js"></script>
+<script src="src/v76/ui-components-v76.js"></script>
 <script>
 (() => {
 'use strict';
@@ -260,8 +270,8 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const DB_NAME = 'one-piece-life';
 const STORE = 'saves';
-const SAVE_VERSION = 750;
-const GAME_VERSION = '7.5.0';
+const SAVE_VERSION = 760;
+const GAME_VERSION = '7.6.0';
 const V61_ANNUAL_FOCUS={
   balanced:{icon:'⚖',label:'Équilibré',desc:'Aucun domaine sacrifié.',training:1,career:1,relations:1,resources:1,adventure:1},
   training:{icon:'🥊',label:'Progression',desc:'+35% progression • carrière -16% • revenus -18%.',training:1.35,career:.84,relations:.86,resources:.82,adventure:.90},
@@ -1718,6 +1728,118 @@ function renderV75WorldDirector(){
   ledger.innerHTML=known.length?known.map(x=>'<div class="world-event"><span class="event-meta">'+esc(x.region)+' • '+esc(x.type)+'</span><strong>'+esc(x.title)+'</strong><span>'+esc(x.desc)+'</span></div>').join(''):'<p class="helper-text">Le World Director agit, mais aucune action canonique supplémentaire n’est encore connue de ton personnage.</p>'
 }
 
+let v76LastSnapshot=null;
+function v76Module(){return window.OPL_MODULES?.get('uiComponentsV76')||null}
+function v76Data(){return window.OPL_MODULES?.get('uiLayoutDataV76')||null}
+function v76Ensure(){
+  if(!game?.meta)return null;const mod=v76Module();
+  game.meta.uiV76=mod?mod.normalizeState(game.meta.uiV76||{}):(game.meta.uiV76||{version:1,density:'focus',activeTab:'life',collapsed:{},scroll:{},reducedMotion:false,lastViewedYear:-99});
+  return game.meta.uiV76
+}
+function v76Context(){
+  const p=game.player,mod=v74Module(),review=p.career!=='Aucune'?v73PromotionReview(p):null;
+  let highRelationRisk=0;
+  if(mod)for(const r of game.relations||[]){if(r.status==='left')continue;const snap=v74RelationSnapshot(r);if((snap?.risk||0)>=58)highRelationRisk++}
+  const worldThreats=(game.world?.worldHooks||[]).filter(h=>h.status==='open'&&((h.urgency||0)>=65||(h.difficulty||0)>=72)).length;
+  const arc=game.world?.arcV71?.active;
+  return {
+    pendingDecision:!!game.pendingDecision,pendingDecisionTitle:game.pendingDecision?.title||'',
+    activeArc:!!arc,activeArcTitle:arc?.title||'',
+    annualTurnActive:!!game.agency?.annualTurn?.active,annualProgress:game.agency?.annualTurn?.monthsSimulated||0,
+    health:p.health,energy:p.energy,activeMission:!!game.activeMission,activeMissionTitle:game.activeMission?.title||'',
+    promotionEligible:!!review?.eligible,promotionMissing:review?.missing||[],
+    highRelationRisk,worldThreats,travel:p.travel?.destination||null,lastAnnualReport:game.agency?.lastAnnualReport||null,
+    power:overallPower(p),reputation:repValue(),reputationLabel:repLabel()
+  }
+}
+function v76Snapshot(){
+  const mod=v76Module(),p=game.player;if(!mod)return null;
+  return mod.snapshot({age:game.ageMonths,money:p.money,health:p.health,energy:p.energy,power:overallPower(p),rank:p.rank,location:p.travel?('→ '+p.travel.destination):p.island,reputation:repValue()})
+}
+function v76OpenTab(tab,remember=true){
+  const state=v76Ensure();if(!state)return;
+  const valid=v76Data()?.tabs?.some(t=>t.id===tab);if(!valid)return;
+  const previous=state.activeTab||'life';
+  if(remember&&previous!==tab)state.scroll[previous]=Math.max(0,Math.round(window.scrollY||0));
+  state.activeTab=tab;
+  $$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
+  $$('.tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===tab));
+  if(remember&&previous!==tab){
+    const y=Math.max(0,Number(state.scroll[tab])||0);
+    requestAnimationFrame(()=>window.scrollTo({top:y,behavior:'auto'}));
+    saveGame()
+  }
+}
+function v76RestoreTab(){
+  const state=v76Ensure();if(!state)return;
+  const tab=v76Data()?.tabs?.some(t=>t.id===state.activeTab)?state.activeTab:'life';
+  $$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
+  $$('.tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===tab))
+}
+function v76RenderFocus(){
+  const box=$('#v76FocusBody'),mod=v76Module();if(!box||!mod)return;
+  const ctx=v76Context(),model=mod.focusModel(ctx),p=model.priority;
+  box.innerHTML='<div class="v76-focus-head"><div><span class="eyebrow">V7.6 • Priorité actuelle</span><h3>'+esc(p.title)+'</h3></div><span class="v76-priority-badge '+esc(p.severity)+'">'+esc(v76Data()?.severity?.[p.severity]?.label||p.severity)+'</span></div><p class="v76-priority-copy">'+esc(p.desc)+'</p><button id="v76PriorityAction" class="v76-priority-action">Ouvrir '+esc(v76Data()?.tabs?.find(t=>t.id===p.tab)?.label||'la section')+'</button><div class="v76-vitals">'+model.vitals.map(v=>'<div class="v76-vital '+esc(v.tone)+'"><span>'+esc(v.label)+'</span><strong id="v76'+v.id[0].toUpperCase()+v.id.slice(1)+'Value">'+esc(v.value)+'</strong></div>').join('')+'</div>'+(model.annual.length?'<div class="v76-delta-row">'+model.annual.map(d=>'<span class="v76-delta '+d.tone+'">'+esc(d.label)+' '+esc(d.text)+'</span>').join('')+'</div>':'');
+  const action=$('#v76PriorityAction');if(action)action.onclick=()=>{
+    if(p.action==='decision'){showDecision();return}
+    if(p.action==='advance'){advance();return}
+    v76OpenTab(p.tab,true)
+  }
+}
+function v76RenderNavBadges(){
+  const mod=v76Module();if(!mod)return;
+  const badges=mod.navBadges(v76Context());
+  $$('.nav-item').forEach(b=>{
+    let badge=b.querySelector('.nav-badge');if(!badge){badge=document.createElement('i');badge.className='nav-badge hidden';b.appendChild(badge)}
+    const n=Number(badges[b.dataset.tab])||0;badge.textContent=n>9?'9+':String(n);badge.classList.toggle('hidden',n<=0)
+  })
+}
+function v76ToggleSection(key){
+  const mod=v76Module(),state=v76Ensure();if(!mod||!state)return;
+  game.meta.uiV76=mod.toggleSection(state,key);v76EnhanceSections();saveGame()
+}
+function v76EnhanceSections(){
+  const mod=v76Module(),data=v76Data(),state=v76Ensure();if(!mod||!data||!state)return;
+  for(const section of data.sections){
+    const anchor=document.getElementById(section.anchor);if(!anchor)continue;
+    const card=anchor.closest('.paper-card');if(!card)continue;
+    card.classList.add('v76-section');card.dataset.v76Section=section.key;
+    let heading=card.querySelector(':scope > .section-heading');
+    if(!heading)continue;
+    let btn=heading.querySelector('.v76-collapse-btn');
+    if(!btn){
+      btn=document.createElement('button');btn.type='button';btn.className='v76-collapse-btn';btn.dataset.v76Collapse=section.key;btn.setAttribute('aria-label','Réduire ou ouvrir '+section.label);
+      btn.onclick=()=>v76ToggleSection(section.key);heading.appendChild(btn)
+    }
+    const collapsed=mod.sectionCollapsed(state,section);
+    card.classList.toggle('v76-collapsed',collapsed);btn.setAttribute('aria-expanded',collapsed?'false':'true')
+  }
+  const density=$('#uiDensityToggle');if(density){
+    density.dataset.mode=state.density;density.title=mod.densityLabel(state);
+    density.setAttribute('aria-label',state.density==='focus'?'Afficher toutes les sections':'Revenir à la vue Focus')
+  }
+}
+function v76ToggleDensity(){
+  const mod=v76Module(),state=v76Ensure();if(!mod||!state)return;
+  game.meta.uiV76=mod.toggleDensity(state);render();saveGame();
+  toast(game.meta.uiV76.density==='focus'?'Vue Focus activée.':'Toutes les sections sont ouvertes.')
+}
+function v76ApplyFeedback(){
+  const mod=v76Module(),state=v76Ensure(),current=v76Snapshot();if(!mod||!state||!current)return;
+  if(!v76LastSnapshot){v76LastSnapshot=current;return}
+  const diffs=mod.diffSnapshots(v76LastSnapshot,current),targets={money:'#moneyLabel',health:'#healthValue',energy:'#energyValue',power:'#v76PowerValue',reputation:'#repPill',rank:'#playerSubtitle',location:'#locationLabel'};
+  if(!state.reducedMotion)for(const d of diffs){
+    const el=$(targets[d.key]);if(!el)continue;
+    const cls=d.tone==='up'?'v76-flash-up':d.tone==='down'?'v76-flash-down':'v76-flash-neutral';
+    el.classList.remove('v76-flash-up','v76-flash-down','v76-flash-neutral');void el.offsetWidth;el.classList.add(cls);
+    setTimeout(()=>el.classList.remove(cls),760)
+  }
+  v76LastSnapshot=current
+}
+function v76AfterRender(){
+  if(!game)return;v76Ensure();v76RestoreTab();v76RenderFocus();v76RenderNavBadges();v76EnhanceSections();v76ApplyFeedback()
+}
+
 // -----------------------------------------------------------------------------
 // V7.0 — ULTIMATE CANON EXPANSION
 // -----------------------------------------------------------------------------
@@ -1971,7 +2093,7 @@ function initialGame(){
   const difficulty=$('#difficultyInput').value;
   game={
     version:GAME_VERSION,saveVersion:SAVE_VERSION,seed,rngCounters:{},
-    meta:{slot:activeSlot,createdAt:Date.now(),updatedAt:Date.now(),mode:creationMode,difficulty},
+    meta:{slot:activeSlot,createdAt:Date.now(),updatedAt:Date.now(),mode:creationMode,difficulty,uiV76:{version:1,density:'focus',activeTab:'life',collapsed:{},scroll:{},reducedMotion:false,lastViewedYear:-99}},
     clock:{year:0,month:0,day:1},ageMonths:0,alive:true,death:null,
     player:{},world:{},relations:[],history:[],news:[],
     codex:{people:[],places:[],factions:['Civil'],fruits:[],events:['Exécution de Gol D. Roger']},
@@ -2058,6 +2180,7 @@ function ensureV5(){
   if(!game.player.combatV72||typeof game.player.combatV72!=='object')game.player.combatV72={doctrine:'balanced',usage:{},signature:null,lastTechnique:null};
   if(!game.player.careerV73||typeof game.player.careerV73!=='object')game.player.careerV73={version:1,branch:null,standing:30,trust:50,discipline:50,influence:0,responsibility:'member',commendations:0,sanctions:0,missionRecord:{success:0,partial:0,failure:0,retreat:0},lastReviewYear:-99,lastReview:null,lastActionYear:-99,lastPoliticsYear:-99,branchHistory:[]};
   if(!game.player.socialV74||typeof game.player.socialV74!=='object')game.player.socialV74={version:1,lastArcYear:-99,lastArcCheckYear:-99,totalArcs:0,totalMemories:0};
+  if(!game.meta.uiV76||typeof game.meta.uiV76!=='object')game.meta.uiV76={version:1,density:'focus',activeTab:'life',collapsed:{},scroll:{},reducedMotion:false,lastViewedYear:-99};
   game.player.combatV72.usage=game.player.combatV72.usage&&typeof game.player.combatV72.usage==='object'?game.player.combatV72.usage:{};
   if(!['balanced','aggressive','defensive','precision','overwhelm'].includes(game.player.combatV72.doctrine))game.player.combatV72.doctrine='balanced';
   if(!game.player.haki)game.player.haki={Observation:{state:'Dormant',mastery:0,latent:true},Armement:{state:'Dormant',mastery:0,latent:true},Conquérant:{state:'Inconnu',mastery:0,latent:false}};
@@ -3261,7 +3384,7 @@ async function openSlot(slot,g){
   else{$('#creationCard').classList.remove('hidden');$('#saveSlots').closest('.paper-card')?.scrollIntoView({behavior:'smooth',block:'start'})}
 }
 function showStart(){game=null;$('#gameScreen').classList.remove('active');$('#startScreen').classList.add('active');$('#bottomNav').classList.add('hidden');$('#homeBtn').classList.add('hidden');$('#deathModal').classList.add('hidden');$('#decisionModal').classList.add('hidden');$('#creationCard').classList.add('hidden');renderSlots()}
-function showGame(){$('#startScreen').classList.remove('active');$('#gameScreen').classList.add('active');$('#bottomNav').classList.remove('hidden');$('#homeBtn').classList.remove('hidden')}
+function showGame(){$('#startScreen').classList.remove('active');$('#gameScreen').classList.add('active');$('#bottomNav').classList.remove('hidden');$('#homeBtn').classList.remove('hidden');$('#uiDensityToggle')?.classList.remove('hidden')}
 
 function renderAnnualReportV6(){
   const card=$('#annualReportCard'),body=$('#annualReportBody');if(!card||!body)return;const r=game.agency?.lastAnnualReport;if(!r){card.classList.add('hidden');return}
@@ -3389,7 +3512,7 @@ function renderWorld(){
   const chips=[...game.codex.people,...game.codex.places,...game.codex.factions,...game.codex.fruits,...game.codex.events];$('#codexList').innerHTML=chips.slice(-48).map(x=>`<span class="chip">${esc(x)}</span>`).join('');renderWorldDepthV6()
 ;v62RenderDomainInline('adventureAnnualActions','adventure')}
 function renderDev(force=false){if(!game)return;const panel=$('#developerPanel');if(!force&&panel?.classList.contains('hidden'))return;$('#devOutput').textContent=JSON.stringify({version:game.version,seed:game.seed,rngCounters:game.rngCounters,lastRng:game.dev.rngLog.slice(0,16),lastAdvance:game.dev.lastAdvance,pacing:game.pacing,agency:game.agency,mission:game.activeMission,hidden:{potential:game.player.potential,potentialV66:game.player.potentialV66,caps:game.player.caps,hakiLatent:Object.fromEntries(Object.entries(game.player.haki).map(([k,v])=>[k,v.latent]))},world:{divergence:game.world.divergence,canon:game.world.canon,fruits:game.world.fruits,characters:game.world.characters,pressures:game.world.pressures,regionalPressures:game.world.regionalPressures,factions:game.world.factions,worldFacts:game.world.worldFacts,autonomy:game.world.autonomy,projects:game.world.projects,rumors:game.world.rumors,territories:game.world.territoryState,perceptions:game.world.perceptions,npcRelations:game.world.npcRelations,butterflies:game.world.butterflies,hooks:game.world.worldHooks,rivals:game.world.rivals,hookChains:game.world.hookChains,worldPulse:game.world.worldPulse},travel:game.player.travel,playerPower:overallPower()},null,2)}
-function render(){if(!game)return;const p=game.player;showGame();$('#ageLabel').textContent=ageText();$('#locationLabel').textContent=p.travel?`→ ${p.travel.destination}`:p.island;$('#moneyLabel').textContent=`${Math.floor(p.money).toLocaleString('fr-FR')} B`;$('#playerName').textContent=p.name;$('#avatarInitial').textContent=(p.name[0]||'?').toUpperCase();$('#playerSubtitle').textContent=`${p.race} • ${p.region} • ${p.faction}`;$('#lifeStatus').textContent=p.situation;$('#repPill').textContent=repLabel();$('#situationTitle').textContent=p.situation;$('#activityValue').textContent=p.activity;$('#factionValue').textContent=p.faction;$('#healthValue').textContent=`${Math.round(p.health)}%`;$('#energyValue').textContent=`${Math.round(p.energy)}%`;const d=$('#dangerBadge');d.textContent=p.danger;d.className=`danger-badge ${p.danger==='Élevé'?'high':p.danger==='Moyen'?'medium':'low'}`;const fatigue=v63FatigueProfile(p),fatigueChip=fatigue.label==='Frais'?'':`<span class="chip fatigue-chip ${fatigue.cls}">${esc(fatigue.label)} • efficacité ${Math.round(fatigue.training*100)}%</span>`;$('#conditionChips').innerHTML=(p.conditions.length?p.conditions.map(c=>`<span class="chip">${esc(c.name)}</span>`).join(''):`<span class="chip">Aucune blessure</span>`)+fatigueChip;const turn=game.agency?.annualTurn;$('#advanceBtn').disabled=!game.alive||!!game.pendingDecision;$('#advanceLabel').textContent=turn?.active?'REPRENDRE L’ANNÉE':'AVANCER D’UN AN';$('#advanceHint').textContent=game.pendingDecision?'Année en pause : une décision t’attend':turn?.active?`${turn.monthsSimulated}/12 mois terminés • charge ${v62AnnualLoad(turn.plan)}`:game.activeMission?`Mission active • lancer l’année interactive`:game.alive?'Choisir un cap puis simuler jusqu’au prochain choix':'Cette vie est terminée';if(game.pendingDecision){$('#attentionCard').classList.remove('hidden');$('#attentionTitle').textContent=game.pendingDecision.title;$('#attentionText').textContent=game.pendingDecision.text}else $('#attentionCard').classList.add('hidden');ensureV59();const pulse=(game.world.worldPulse||[]).slice(0,3),pc=$('#worldPulseCard');if(pulse.length){pc.classList.remove('hidden');$('#worldPulseBadge').textContent=`${pulse.length} récents`;$('#worldPulse').innerHTML=pulse.map(x=>`<div class="pulse-item"><strong>${esc(x.title)}</strong><span>${esc(x.desc)}</span></div>`).join('')}else pc.classList.add('hidden');renderV71Arc();renderAnnualTurnV61();renderAnnualReportV6();renderTimeline();renderCharacter();renderAbilities();renderRelations();renderWorld();renderDev()}
+function render(){if(!game)return;const p=game.player;showGame();$('#ageLabel').textContent=ageText();$('#locationLabel').textContent=p.travel?`→ ${p.travel.destination}`:p.island;$('#moneyLabel').textContent=`${Math.floor(p.money).toLocaleString('fr-FR')} B`;$('#playerName').textContent=p.name;$('#avatarInitial').textContent=(p.name[0]||'?').toUpperCase();$('#playerSubtitle').textContent=`${p.race} • ${p.region} • ${p.faction}`;$('#lifeStatus').textContent=p.situation;$('#repPill').textContent=repLabel();$('#situationTitle').textContent=p.situation;$('#activityValue').textContent=p.activity;$('#factionValue').textContent=p.faction;$('#healthValue').textContent=`${Math.round(p.health)}%`;$('#energyValue').textContent=`${Math.round(p.energy)}%`;const d=$('#dangerBadge');d.textContent=p.danger;d.className=`danger-badge ${p.danger==='Élevé'?'high':p.danger==='Moyen'?'medium':'low'}`;const fatigue=v63FatigueProfile(p),fatigueChip=fatigue.label==='Frais'?'':`<span class="chip fatigue-chip ${fatigue.cls}">${esc(fatigue.label)} • efficacité ${Math.round(fatigue.training*100)}%</span>`;$('#conditionChips').innerHTML=(p.conditions.length?p.conditions.map(c=>`<span class="chip">${esc(c.name)}</span>`).join(''):`<span class="chip">Aucune blessure</span>`)+fatigueChip;const turn=game.agency?.annualTurn;$('#advanceBtn').disabled=!game.alive||!!game.pendingDecision;$('#advanceLabel').textContent=turn?.active?'REPRENDRE L’ANNÉE':'AVANCER D’UN AN';$('#advanceHint').textContent=game.pendingDecision?'Année en pause : une décision t’attend':turn?.active?`${turn.monthsSimulated}/12 mois terminés • charge ${v62AnnualLoad(turn.plan)}`:game.activeMission?`Mission active • lancer l’année interactive`:game.alive?'Choisir un cap puis simuler jusqu’au prochain choix':'Cette vie est terminée';if(game.pendingDecision){$('#attentionCard').classList.remove('hidden');$('#attentionTitle').textContent=game.pendingDecision.title;$('#attentionText').textContent=game.pendingDecision.text}else $('#attentionCard').classList.add('hidden');ensureV59();const pulse=(game.world.worldPulse||[]).slice(0,3),pc=$('#worldPulseCard');if(pulse.length){pc.classList.remove('hidden');$('#worldPulseBadge').textContent=`${pulse.length} récents`;$('#worldPulse').innerHTML=pulse.map(x=>`<div class="pulse-item"><strong>${esc(x.title)}</strong><span>${esc(x.desc)}</span></div>`).join('')}else pc.classList.add('hidden');renderV71Arc();renderAnnualTurnV61();renderAnnualReportV6();renderTimeline();renderCharacter();renderAbilities();renderRelations();renderWorld();renderDev();v76AfterRender()}
 function showDeath(){const p=game.player;$('#deathTitle').textContent=`${p.name}, ${ageText()}`;const data=[['Cause',game.death?.cause||'Inconnue'],['Carrière',p.career],['Rang maximal',p.rank],['Ambition',p.ambition],['Prime max',`${Math.floor(p.highestBounty).toLocaleString('fr-FR')} B`],['Victoires',p.wins],['Défaites',p.losses],['Lieux visités',p.visited.length],['Divergence mondiale',`${Math.round(game.world.divergence)}%`]];$('#deathSummary').innerHTML=data.map(([k,v])=>`<div><span>${esc(k)}</span><strong>${esc(v)}</strong></div>`).join('');$('#deathModal').classList.remove('hidden')}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.add('hidden'),1800)}
 
@@ -3400,7 +3523,8 @@ function bindUi(){
   $('#advanceBtn').onclick=advance;$('#attentionBtn').onclick=showDecision;$('#homeBtn').onclick=showStart;const wdt=$('#worldDepthToggle');if(wdt)wdt.onclick=()=>{worldDepthOpen=!worldDepthOpen;renderWorldDepthV6()};
   $('#deathHomeBtn').onclick=showStart;$('#deathNewBtn').onclick=async()=>{await deleteSlot(activeSlot);$('#deathModal').classList.add('hidden');showStart();setTimeout(()=>{$('#creationCard').classList.remove('hidden')},0)};
   $('#timelineFilter').onclick=()=>{timelineMajorOnly=!timelineMajorOnly;$('#timelineFilter').textContent=timelineMajorOnly?'Tout afficher':'Événements majeurs';renderTimeline()};
-  $$('.nav-item').forEach(b=>b.onclick=()=>{$$('.nav-item').forEach(x=>x.classList.toggle('active',x===b));$$('.tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===b.dataset.tab));window.scrollTo({top:0,behavior:'smooth'})});
+  $('.nav-item').forEach(b=>b.onclick=()=>v76OpenTab(b.dataset.tab,true));
+  $('#uiDensityToggle').onclick=v76ToggleDensity;
   $('#devToggle').onclick=()=>{if(game){$('#developerPanel').classList.remove('hidden');renderDev(true)}else toast('Commence une vie pour inspecter le moteur.')};
   $('#closeDev').onclick=()=>$('#developerPanel').classList.add('hidden');
   $('#exportSaveBtn').onclick=()=>openBackup('export');
