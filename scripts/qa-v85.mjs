@@ -83,14 +83,14 @@ const summary=engine.summary(local.state,'Water 7');
 gt(summary.totalDiscoveries,0,'Discovery count missing');
 gt(summary.knownRoutes,0,'Known routes summary missing');
 
-assert(html.includes('ONE PIECE LIFE — V8.5'),'V8.5 title missing');
-assert(/const SAVE_VERSION\s*=\s*850;/.test(html),'Save version 850 missing');
-assert(/const GAME_VERSION\s*=\s*'8\.5\.0';/.test(html),'Game version 8.5.0 missing');
+assert(/ONE PIECE LIFE — V8\.\d+/.test(html),'V8.5+ title missing');
+assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=850,'Save version 850+ missing');
+{const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0',p=v.split('.').map(Number);assert(p[0]>8||(p[0]===8&&p[1]>=5),'Game version 8.5+ missing')}
 for(const asset of ['src/data/voyage-v85.js','src/v85/voyage-engine-v85.js','src/v85/voyage-v85.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v8-5-0'),'PWA cache not bumped to V8.5');
+assert(/one-piece-life-v8-[5-9]-\d+/.test(sw),'PWA cache must remain at V8.5 or newer');
 assert(html.includes('v84Ensure();v85Ensure()'),'Old-save V8.5 migration hook missing');
 for(const fn of ['function v85Module','function v85Ensure','function v85RoutePreview','function v85StartVoyage','function v85ResolveTravelDecision','function v85TickVoyage','function v85Arrive','function v85ExploreCurrent','function renderV85Exploration']){
   assert(html.includes(fn),'Missing live V8.5 bridge '+fn);
