@@ -53,6 +53,8 @@
     if(ctx.promotionEligible)add('medium','Promotion possible','Ton dossier remplit les critères. Une commission peut désormais se prononcer.','character');
     else if(ctx.promotionMissing?.length)add('low','Prochaine promotion','À améliorer : '+ctx.promotionMissing.slice(0,3).join(', ')+'.','character');
     if(ctx.highRelationRisk>0)add('medium','Lien sous tension',ctx.highRelationRisk+' relation'+(ctx.highRelationRisk>1?'s':'')+' présente'+(ctx.highRelationRisk>1?'nt':'')+' un risque élevé de fracture.','relations');
+    if(ctx.overdueConsequences>0)add('high','Le passé revient',ctx.overdueConsequences+' conséquence'+(ctx.overdueConsequences>1?'s':'')+' arrive'+(ctx.overdueConsequences>1?'nt':'')+' à échéance.','life');
+    else if(ctx.highConsequences>0)add('medium','Conséquences en suspens',ctx.highConsequences+' conséquence'+(ctx.highConsequences>1?'s':'')+' importante'+(ctx.highConsequences>1?'s':'')+' peu'+(ctx.highConsequences>1?'vent':'t')+' revenir plus tard.','life');
     if(ctx.worldThreats>0)add('medium','Menaces dans le monde',ctx.worldThreats+' situation'+(ctx.worldThreats>1?'s':'')+' urgente'+(ctx.worldThreats>1?'s':'')+' détectée'+(ctx.worldThreats>1?'s':'')+'.','world');
     if(ctx.travel)add('medium','Voyage en cours','Destination : '+ctx.travel+'.','world');
     if(!list.length)add('calm','Trajectoire stable','Aucune urgence immédiate. Tu peux choisir librement ce que tu veux développer cette année.','life');

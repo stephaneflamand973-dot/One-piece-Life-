@@ -1,0 +1,17 @@
+/* ONE PIECE LIFE V7.7 — Consequences & Life Events 3.0 */
+
+.v77-consequence-card{border-color:rgba(197,148,60,.24);background:linear-gradient(145deg,#fffaf0,#f7f1df)}
+.v77-consequence-card.hidden{display:none!important}
+.v77-consequence-list{display:flex;flex-direction:column;gap:8px}
+.v77-consequence-item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 11px;border-radius:13px;background:rgba(255,255,255,.58);border:1px solid rgba(132,111,72,.12)}
+.v77-consequence-item strong,.v77-consequence-item span,.v77-consequence-item small{display:block}
+.v77-consequence-item strong{font-size:12px}
+.v77-consequence-item span{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.4}
+.v77-consequence-item small{font-size:9px;color:var(--sea);font-weight:800;text-align:right;white-space:nowrap}
+.v77-consequence-item.high{border-color:rgba(163,75,61,.24);background:#fff7f4}
+.v77-consequence-item.positive{border-color:rgba(75,118,96,.22);background:#f7fbf8}
+.v77-consequence-summary{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.v77-consequence-summary span{font-size:9px;border-radius:999px;padding:5px 7px;background:#eee7d8;color:#645a46;font-weight:800}
+.v77-consequence-summary span.alert{background:#f4dfda;color:#8f4137}
+.v77-choice-chance{display:inline-block;margin-top:5px;font-size:9px;color:var(--sea);font-weight:800}
+@media(max-width:520px){.v77-consequence-item{grid-template-columns:1fr}.v77-consequence-item small{text-align:left}}

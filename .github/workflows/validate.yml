@@ -1,4 +1,4 @@
-name: Validate V7.6
+name: Validate V7.7
 on:
   push:
     branches: [main]
@@ -22,12 +22,14 @@ on:
       - 'scripts/qa-v74.mjs'
       - 'scripts/qa-v75.mjs'
       - 'scripts/qa-v76.mjs'
+      - 'scripts/qa-v77.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
       - 'QA-V7.4.md'
       - 'QA-V7.5.md'
       - 'QA-V7.6.md'
+      - 'QA-V7.7.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
       - '.github/workflows/audit-v32.yml'
@@ -36,7 +38,7 @@ on:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v76-validate-${{ github.ref }}
+  group: v77-validate-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -48,7 +50,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate standalone and modular V7.6
+      - name: Validate standalone and modular V7.7
         run: |
           node <<'NODE'
           const fs=require('fs');
@@ -58,40 +60,24 @@ jobs:
           new Function(m[1]);
           const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
           const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-          if(!html.includes('ONE PIECE LIFE — V7.6')) throw new Error('V7.6 title missing');
-          if(saveVersion<760) throw new Error('Save migration 760+ missing');
-          if(gameVersion!=='7.6.0') throw new Error('Game version 7.6.0 missing');
+          if(!html.includes('ONE PIECE LIFE — V7.7')) throw new Error('V7.7 title missing');
+          if(saveVersion<770) throw new Error('Save migration 770+ missing');
+          if(gameVersion!=='7.7.0') throw new Error('Game version 7.7.0 missing');
           const assets=[
-            'src/core/module-registry.js',
-            'src/data/arc-definitions-v71.js',
-            'src/v71/arc-director.js',
-            'src/v71/arc-director.css',
-            'src/data/combat-techniques-v72.js',
-            'src/v72/combat-engine-v72.js',
-            'src/data/career-organizations-v73.js',
-            'src/v73/career-organization-engine-v73.js',
-            'src/data/relation-personas-v74.js',
-            'src/v74/relation-persona-engine-v74.js',
-            'src/data/world-canon-v75.js',
-            'src/v75/world-canon-engine-v75.js',
-            'src/data/ui-layout-v76.js',
-            'src/v76/ui-components-v76.js',
-            'src/v76/ui-v76.css'
+            'src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css',
+            'src/data/combat-techniques-v72.js','src/v72/combat-engine-v72.js','src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js',
+            'src/data/relation-personas-v74.js','src/v74/relation-persona-engine-v74.js','src/data/world-canon-v75.js','src/v75/world-canon-engine-v75.js',
+            'src/data/ui-layout-v76.js','src/v76/ui-components-v76.js','src/v76/ui-v76.css',
+            'src/data/consequences-v77.js','src/v77/consequence-engine-v77.js','src/v77/consequences-v77.css'
           ];
-          for(const x of assets){
-            if(!fs.existsSync(x)) throw new Error('missing modular asset '+x);
-            if(!html.includes(x)) throw new Error('index does not load '+x);
-          }
-          for(const x of assets.filter(x=>x.endsWith('.js'))) new Function(fs.readFileSync(x,'utf8'));
-          for(const x of ['function v71Ensure','function v72CombatModule','function v73Module','function v74Module','function v75Module','function v76Module','function v76OpenTab','function v76EnhanceSections','function v76AfterRender']) if(!html.includes(x)) throw new Error('missing '+x);
-          if(!html.includes('id="v76FocusCard"')) throw new Error('V7.6 Focus dashboard missing');
-          if(!html.includes('id="uiDensityToggle"')) throw new Error('V7.6 density control missing');
-          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-          if(!String(manifest.description||'').includes('V7.6')) throw new Error('manifest not V7.6');
-          const sw=fs.readFileSync('sw.js','utf8');
-          if(!sw.includes('v7-6-0')) throw new Error('service worker cache not V7.6.0');
-          for(const x of assets) if(!sw.includes(x)) throw new Error('service worker missing modular asset '+x);
-          console.log('V7.6 static + modular validation OK');
+          for(const x of assets){if(!fs.existsSync(x))throw new Error('missing modular asset '+x);if(!html.includes(x))throw new Error('index does not load '+x)}
+          for(const x of assets.filter(x=>x.endsWith('.js')))new Function(fs.readFileSync(x,'utf8'));
+          for(const x of ['function v71Ensure','function v72CombatModule','function v73Module','function v74Module','function v75Module','function v76Module','function v77Module','function v77Tick','function v77ResolveConsequence'])if(!html.includes(x))throw new Error('missing '+x);
+          if(!html.includes('id="v77ConsequencesCard"'))throw new Error('V7.7 consequences UI missing');
+          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V7.7'))throw new Error('manifest not V7.7');
+          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v7-7-0'))throw new Error('service worker cache not V7.7.0');
+          for(const x of assets)if(!sw.includes(x))throw new Error('service worker missing modular asset '+x);
+          console.log('V7.7 static + modular validation OK');
           NODE
       - name: Validate V6.4 regression behavior
         run: node scripts/qa-v64.mjs
@@ -121,3 +107,5 @@ jobs:
         run: node scripts/qa-v75.mjs
       - name: Validate V7.6 UI and Game Feel
         run: node scripts/qa-v76.mjs
+      - name: Validate V7.7 Consequences and Life Events
+        run: node scripts/qa-v77.mjs

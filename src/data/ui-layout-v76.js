@@ -11,6 +11,7 @@
   ];
 
   const sections=[
+    {key:'consequences',anchor:'v77ConsequencesList',label:'Conséquences actives',defaultCollapsed:false},
     {key:'career_progress',anchor:'careerProgressCard',label:'Progression de carrière',defaultCollapsed:false},
     {key:'organization',anchor:'v73OrganizationCard',label:'Organisation',defaultCollapsed:false},
     {key:'endgame',anchor:'v69EndgameCard',label:'Autorité & héritage',defaultCollapsed:true},

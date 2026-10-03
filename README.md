@@ -1,3 +1,25 @@
+# ONE PIECE LIFE — V7.7 Consequences & Life Events 3.0
+
+La V7.7 ajoute une mémoire causale à long terme. Une décision importante peut désormais créer une conséquence invisible au moment du choix, puis revenir des mois ou des années plus tard.
+
+## Consequences & Life Events 3.0
+
+- 10 familles de conséquences : faveur, rancune, pression institutionnelle, dette, opportunité, séquelle, rival, appel à la loyauté, attention liée au Fruit et écho de réputation.
+- Les conséquences sont créées à partir des missions, combats hors mission, interventions mondiales, arcs relationnels et décisions majeures.
+- Chaque conséquence possède une gravité, une date d’échéance, une source, une région, une faction et éventuellement une relation liée.
+- Les choix utilisent des **probabilités dynamiques** basées sur les compétences, stats, puissance, réputation, autorité, argent, Haki et relation concernée.
+- Une mauvaise résolution peut créer une **nouvelle conséquence**.
+- Les chaînes sont plafonnées à trois niveaux pour éviter les boucles absurdes.
+- Les conséquences automatiques alimentent la timeline sans interrompre inutilement l’année.
+- Les conséquences importantes peuvent interrompre une année au moment de leur échéance.
+- L’écran Vie montre les conséquences actives, leur gravité et une estimation du délai avant leur retour.
+- Le dashboard Focus V7.6 tient désormais compte des conséquences en suspens.
+- Migration V7.6 → V7.7 automatique.
+- Save version : **770**.
+- Cache PWA : **one-piece-life-v7-7-0**.
+
+---
+
 # ONE PIECE LIFE — V7.6 UI & Game Feel 3.0
 
 La V7.6 termine le premier grand cycle de modularisation en s’attaquant directement à l’expérience mobile : moins de densité inutile, davantage de priorités visibles et une navigation qui conserve le contexte du joueur.

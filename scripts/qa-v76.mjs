@@ -94,14 +94,16 @@ assert(css.includes('@media(max-width:520px)'),'Mobile breakpoint missing');
 assert(css.includes('@media(prefers-reduced-motion:reduce)'),'Reduced-motion accessibility rule missing');
 
 // Live integration contract.
-assert(html.includes('ONE PIECE LIFE — V7.6'),'V7.6 title missing');
-assert(/const SAVE_VERSION\s*=\s*760;/.test(html),'Save version 760 missing');
-assert(/const GAME_VERSION\s*=\s*'7\.6\.0';/.test(html),'Game version 7.6.0 missing');
+const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(saveVersion>=760,'V7.6 regression QA requires save version >= 760');
+assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=6,'V7.6 regression QA requires game version >= 7.6');
 for(const asset of ['src/data/ui-layout-v76.js','src/v76/ui-components-v76.js','src/v76/ui-v76.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v7-6-0'),'PWA cache not bumped to V7.6');
+assert(/one-piece-life-v7-[6-9]-\d+/.test(sw),'PWA cache must remain at V7.6 or newer');
 assert(html.includes('id="v76FocusCard"'),'Focus dashboard missing');
 assert(html.includes('id="uiDensityToggle"'),'Density control missing');
 assert(html.includes("uiV76:{version:1,density:'focus'"),'Fresh-save UI state missing');
@@ -111,11 +113,11 @@ for(const fn of ['function v76Ensure','function v76OpenTab','function v76Enhance
 }
 assert(html.includes("document.querySelectorAll('.nav-item').forEach"),'Safe navigation binding missing');
 assert(html.includes('renderDev();v76AfterRender()'),'V7.6 after-render orchestration missing');
-assert(html.includes('V7.6 • UI & Game Feel 3.0'),'Start screen release copy not refreshed');
+assert(/V7\.[6-9] • /.test(html),'Start screen release copy is stale');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
 
 console.log('V7.6 UI & GAME FEEL QA OK',JSON.stringify({
-  version:'7.6.0',
+  version:gameVersion,
   tabs:data.tabs.length,
   sections:data.sections.length,
   focusDefaults:data.sections.filter(x=>x.defaultCollapsed).length,
