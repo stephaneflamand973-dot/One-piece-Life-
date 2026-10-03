@@ -89,3 +89,5 @@ jobs:
         run: node scripts/qa-v79.mjs
       - name: Verify V8.0 Simulation Core and Life Director 4.0
         run: node scripts/qa-v80.mjs
+      - name: Verify V8.1 Faction Identity 4.0
+        run: node scripts/qa-v81.mjs
