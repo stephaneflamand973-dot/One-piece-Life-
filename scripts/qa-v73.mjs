@@ -97,14 +97,15 @@ eq(zeroState.trust,0,'Explicit zero trust must not be reset');
 // Live integration contract.
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
 assert(saveVersion>=730,'V7.3 regression QA requires save version >= 730');
-assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=3,'V7.3 regression QA requires game version >= 7.3');
+const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
+assert(gameMajor>7||(gameMajor===7&&gameMinor>=3),'V7.3 regression QA requires game version >= 7.3');
 for(const asset of ['src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v7-[3-9]-\d+/.test(sw),'PWA cache must remain at V7.3 or newer');
+assert(/one-piece-life-v(?:7-[3-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.3 or newer');
 assert(html.includes('function v73PromotionReview'),'Promotion bridge missing');
 assert(html.includes('v73RecordMissionOutcome'),'Mission-to-career bridge missing');
 assert(html.includes('function renderV73Organization'),'Organization UI bridge missing');

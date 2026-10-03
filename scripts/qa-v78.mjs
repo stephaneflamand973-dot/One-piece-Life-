@@ -112,14 +112,15 @@ assert(summary.stability>=60,'Stable household summary unexpectedly weak');
 // Live integration contract.
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
 assert(saveVersion>=780,'V7.8 regression QA requires save version >= 780');
-assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=8,'V7.8 regression QA requires game version >= 7.8');
+const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
+assert(gameMajor>7||(gameMajor===7&&gameMinor>=8),'V7.8 regression QA requires game version >= 7.8');
 for(const asset of ['src/data/personal-life-v78.js','src/v78/personal-life-engine-v78.js','src/v78/personal-life-v78.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v7-[8-9]-\d+/.test(sw),'PWA cache must remain at V7.8 or newer');
+assert(/one-piece-life-v(?:7-[8-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.8 or newer');
 assert(html.includes("personalV78:{version:1"),'Fresh-save personal-life state missing');
 assert(html.includes("if(!game.player.personalV78||typeof game.player.personalV78!=='object')"),'Old-save V7.8 migration guard missing');
 assert(html.includes('game.player.personalV78.familyBond=game.player.family.bond'),'Birth family bond synchronization missing');
@@ -128,7 +129,7 @@ for(const fn of ['function v78Ensure','function v78MaybeEvent','function v78Annu
   assert(html.includes(fn),'Missing live V7.8 bridge '+fn);
 }
 assert(html.includes('v69AnnualEconomy();v78AnnualHousehold();v69Milestones()'),'Annual household economy not connected');
-assert(html.includes('if(!game.pendingDecision)v78MaybeEvent()'),'Personal-life event tick missing');
+assert(html.includes('if(!game.pendingDecision)v78MaybeEvent()')||(html.includes('function v80CollectInterruptionCandidates')&&html.includes("kind:'personal'")),'Personal-life event arbitration missing');
 assert(html.includes("if(parts[0]==='v78personal')v78ResolvePersonalDecision(parts)"),'Personal-life decisions not connected');
 assert(html.includes('renderV74Network();renderV78PersonalLife();'),'Relations panel does not render household');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');

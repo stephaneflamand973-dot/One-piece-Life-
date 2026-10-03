@@ -1,3 +1,28 @@
+# ONE PIECE LIFE — V8.0 Simulation Core & Life Director 4.0
+
+La V8.0 est une mise à jour de consolidation. Elle n’ajoute pas un nouveau domaine de vie : elle fait mieux travailler ensemble ceux qui existent déjà.
+
+## Simulation Core & Life Director 4.0
+
+- Nouveau **Priority Director** : jeunesse, vie personnelle, conséquences et décisions générales ne s’interrompent plus mécaniquement dans un ordre fixe.
+- Chaque interruption reçoit un score selon importance, gravité, urgence, causalité, âge critique et répétition récente.
+- Les catégories déjà vues récemment sont pénalisées afin de limiter la sensation de répétition.
+- Le **Life Director 4.0** réduit chaque année à un événement principal, jusqu’à deux événements secondaires et un compteur de changements compressés.
+- Seules les années suffisamment importantes ouvrent un chapitre personnel.
+- Les années du même thème renforcent le même chapitre au lieu d’en créer artificiellement un nouveau.
+- Un chapitre faible remplacé est oublié plutôt qu’archivé comme s’il avait été mémorable.
+- Nouveau **Legacy Ledger** permanent : les exploits significatifs sont classés en exploit, impact mondial, maîtrise, leadership, héritage, relations historiques et exploration.
+- Le Ledger conserve les totaux acquis même lorsque ses entrées détaillées sont compactées.
+- Le score d’héritage V6.9 ne peut plus régresser sous une preuve durable déjà acquise.
+- Nouveau **rendu lazy par onglet** : un `render()` actualise l’interface globale et le seul gros panneau actuellement visible.
+- Ouvrir un onglet déclenche alors son rendu frais à la demande.
+- Les compteurs internes mesurent les rendus évités pour faciliter les futurs audits de performance.
+- Migration V7.9 → V8.0 automatique.
+- Save version : **800**.
+- Cache PWA : **one-piece-life-v8-0-0**.
+
+---
+
 # ONE PIECE LIFE — V7.9 Education & Youth 3.0
 
 La V7.9 transforme enfin l’enfance et l’adolescence en véritable gameplay. La formation n’est pas une école universelle copiée sur notre monde : elle dépend d’un parcours local cohérent avec l’univers de One Piece.

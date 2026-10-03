@@ -102,14 +102,15 @@ eq(zeroState.lastTickMonth,0,'Explicit zero tick month must be preserved');
 // Live integration contract.
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
 assert(saveVersion>=770,'V7.7 regression QA requires save version >= 770');
-assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=7,'V7.7 regression QA requires game version >= 7.7');
+const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
+assert(gameMajor>7||(gameMajor===7&&gameMinor>=7),'V7.7 regression QA requires game version >= 7.7');
 for(const asset of ['src/data/consequences-v77.js','src/v77/consequence-engine-v77.js','src/v77/consequences-v77.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v7-[7-9]-\d+/.test(sw),'PWA cache must remain at V7.7 or newer');
+assert(/one-piece-life-v(?:7-[7-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.7 or newer');
 assert(html.includes("consequencesV77:{version:1,active:[]"),'Fresh-save consequence state missing');
 assert(html.includes("if(!game.consequencesV77||typeof game.consequencesV77!=='object')"),'Old-save V7.7 migration guard missing');
 assert(html.includes('id="v77ConsequencesCard"'),'Consequence UI card missing');
@@ -120,7 +121,7 @@ assert(html.includes("v77FromMission(m,'success',approach.id)"),'Mission success
 assert(html.includes("if(!opts.mission)v77FromCombat"),'Combat consequences are not connected');
 assert(html.includes("v77FromWorldHook(h,success?'success':'failure',approach)"),'World hooks are not connected');
 assert(html.includes('v77FromSocialArc(r,result,choiceId)'), 'Social arcs are not connected');
-assert(html.includes('if(!game.pendingDecision)v77Tick()'),'Annual consequence tick missing');
+assert(html.includes('if(!game.pendingDecision)v77Tick()')||(html.includes('function v80PriorityInterrupt')&&html.includes("c.kind==='consequence'")),'Annual consequence arbitration missing');
 assert(html.includes("if(parts[0]==='v77consequence')v77ResolveConsequence(parts)"),'Consequence decisions are not connected');
 assert(html.includes('renderV77Consequences();renderTimeline()'),'Consequence render hook missing');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');

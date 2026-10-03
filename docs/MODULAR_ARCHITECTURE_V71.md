@@ -114,6 +114,14 @@ Education / Youth 3.0 :
 - intégration aux étapes de vie, activités, foyer V7.8 et choix de carrière ;
 - migration synthétique des anciennes vies adultes sans bonus rétroactif.
 
+### Cycle 3 — V8.0
+Simulation Core / Life Director 4.0 :
+- règles de priorité, domaines narratifs, catégories d’héritage et routage du rendu dans `src/data/simulation-core-v80.js` ;
+- arbitrage des interruptions, compression annuelle, chapitres significatifs, Legacy Ledger et plan de rendu dans `src/v80/simulation-core-v80.js` ;
+- le moteur live ne rend plus systématiquement les cinq panneaux lourds ;
+- les preuves d’héritage significatives survivent aux rotations d’historique détaillé ;
+- V8.0 marque le début du Cycle 3 : moins de nouveaux systèmes isolés, davantage d’orchestration transversale.
+
 Le but n'est pas de supprimer immédiatement le moteur legacy, mais de réduire progressivement son rôle jusqu'à ce qu'il devienne essentiellement un orchestrateur.
 
 ## Interdictions
