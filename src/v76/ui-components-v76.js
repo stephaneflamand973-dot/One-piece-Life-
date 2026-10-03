@@ -37,6 +37,7 @@
   function toggleDensity(state={}){
     const next=normalizeState(state);
     next.density=next.density==='focus'?'expanded':'focus';
+    next.collapsed={};
     return next
   }
 
