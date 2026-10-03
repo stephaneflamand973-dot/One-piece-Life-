@@ -116,14 +116,17 @@ eq(summary.exams,1,'Education summary exam count mismatch');
 assert(summary.career.length===6,'Career-readiness summary incomplete');
 
 // Live integration contract.
-assert(html.includes('ONE PIECE LIFE — V7.9'),'V7.9 title missing');
-assert(/const SAVE_VERSION\s*=\s*790;/.test(html),'Save version 790 missing');
-assert(/const GAME_VERSION\s*=\s*'7\.9\.0';/.test(html),'Game version 7.9.0 missing');
+const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
+assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7.9+ title missing');
+assert(saveVersion>=790,'V7.9 regression QA requires save version >= 790');
+assert(gameMajor>7||(gameMajor===7&&gameMinor>=9),'V7.9 regression QA requires game version >= 7.9');
 for(const asset of ['src/data/education-v79.js','src/v79/education-engine-v79.js','src/v79/education-v79.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v7-9-0'),'PWA cache not bumped to V7.9');
+assert(/one-piece-life-v(?:7-9|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.9 or newer');
 assert(html.includes("educationV79:{version:1"),'Fresh-save education state missing');
 assert(html.includes("if(!game.player.educationV79||typeof game.player.educationV79!=='object')"),'Old-save education migration guard missing');
 assert(html.includes('id="v79EducationCard"'),'Education UI missing');
@@ -139,7 +142,7 @@ assert(html.includes("v79CareerHint('marine'"),'Career decision readiness hints 
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
 
 console.log('V7.9 EDUCATION & YOUTH QA OK',JSON.stringify({
-  version:'7.9.0',
+  version:gameVersion,
   tracks:Object.keys(data.tracks).length,
   focuses:Object.keys(data.focuses).length,
   milestones:Object.keys(data.milestones).length,
