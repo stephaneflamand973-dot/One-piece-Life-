@@ -18,7 +18,8 @@
   <link rel="stylesheet" href="src/v78/personal-life-v78.css" />
   <link rel="stylesheet" href="src/v79/education-v79.css" />
   <link rel="stylesheet" href="src/v80/simulation-core-v80.css" />
-  <title>ONE PIECE LIFE — V8.0</title>
+  <link rel="stylesheet" href="src/v81/faction-identity-v81.css" />
+  <title>ONE PIECE LIFE — V8.1</title>
   <style>
 :root{--bg:#f4ecd8;--paper:#fffaf0;--ink:#1d2a2c;--muted:#6f7775;--navy:#173f4e;--sea:#2d7181;--sea2:#78a7a7;--gold:#c5943c;--red:#a34b3d;--green:#4b7660;--line:#dfd3b7;--shadow:0 12px 34px rgba(41,52,49,.09);--radius:22px;--safe:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}html{background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% -5%,rgba(120,167,167,.28),transparent 32%),linear-gradient(180deg,#f8f1df,var(--bg))}.app-shell{max-width:760px;margin:0 auto;min-height:100vh;padding-bottom:calc(90px + var(--safe))}.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px;background:rgba(244,236,216,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(100,90,70,.12)}.brand-wrap{display:flex;align-items:center;gap:10px;min-width:0}.brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:#fff;font-size:20px;box-shadow:0 6px 16px rgba(23,63,78,.2)}h1,h2,h3,p{margin-top:0}.brand-wrap h1{font-size:15px;letter-spacing:.08em;margin:0}.brand-wrap p{font-size:10px;color:var(--muted);margin:2px 0 0}.icon-btn{border:0;background:rgba(255,255,255,.55);width:38px;height:38px;border-radius:12px;font-size:18px;color:var(--ink)}main{padding:14px}.screen{display:none}.screen.active{display:block}.paper-card{background:rgba(255,250,240,.94);border:1px solid rgba(132,111,72,.16);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px}.hero-card{padding:24px;background:linear-gradient(145deg,#fffaf0 0%,#f4ead2 70%,#e6dfc8 100%);position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(45,113,129,.14);border-radius:50%;right:-70px;bottom:-100px;box-shadow:0 0 0 28px rgba(45,113,129,.035),0 0 0 56px rgba(45,113,129,.025)}.hero-card h2{font-family:Georgia,serif;font-size:34px;line-height:1.02;max-width:620px;margin:8px 0 14px}.hero-card p{color:#52605f;line-height:1.55;max-width:620px}.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--sea)}.feature-pills,.chip-list{display:flex;flex-wrap:wrap;gap:8px}.feature-pills span,.chip,.badge{font-size:11px;border-radius:999px;padding:7px 10px;background:#edf3ef;color:#47635d;border:1px solid rgba(75,118,96,.12)}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-heading.compact{margin-bottom:12px}.section-heading h3{margin:3px 0 0;font-size:18px}.save-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.save-slot{min-height:128px;border:1px dashed #c9b893;border-radius:17px;padding:14px;text-align:left;background:#fffbf3;color:var(--ink);display:flex;flex-direction:column;justify-content:space-between}.save-slot strong{font-size:14px}.save-slot small{color:var(--muted);line-height:1.35}.save-slot.empty{align-items:center;justify-content:center;text-align:center;color:var(--sea);font-weight:700}.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.mode-card{border:1px solid var(--line);border-radius:16px;background:#fffaf1;padding:14px;text-align:left;color:var(--ink)}.mode-card strong{display:block;margin-bottom:5px}.mode-card span{font-size:12px;color:var(--muted);line-height:1.35}.mode-card.selected{border-color:var(--sea);box-shadow:inset 0 0 0 1px var(--sea);background:#f1f8f6}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field>span{font-size:11px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:13px;padding:13px;background:#fffdf8;color:var(--ink);font-size:16px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary-btn,.secondary-btn,.choice-btn{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:800;font-size:14px}.primary-btn{background:var(--navy);color:#fff;box-shadow:0 8px 20px rgba(23,63,78,.18)}.primary-btn.small{padding:11px 14px;width:auto}.secondary-btn{background:#ece4d1;color:var(--ink)}.text-btn{border:0;background:transparent;color:var(--sea);font-weight:800;font-size:12px}.status-strip{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:1px;background:#d9ceb4;border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}.status-strip>div{background:#fffaf0;padding:11px 12px;min-width:0}.status-strip strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tiny-label{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}.tab-panel{display:none}.tab-panel.active{display:block}.profile-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#173f4e,#255e69);color:#fff}.avatar-ring{width:54px;height:54px;flex:0 0 54px;border-radius:50%;display:grid;place-items:center;background:#f7edd5;color:var(--navy);font:700 22px Georgia,serif;border:3px solid rgba(255,255,255,.24)}.profile-copy{min-width:0;flex:1}.profile-copy h2{margin:4px 0 3px;font-size:22px}.profile-copy p{margin:0;color:rgba(255,255,255,.72);font-size:12px}.profile-banner .eyebrow{color:#d9c79b}.reputation-pill{font-size:10px;font-weight:800;border-radius:999px;background:rgba(255,255,255,.13);padding:8px 10px;white-space:nowrap}.situation-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.situation-grid>div,.info-cell{padding:12px;border-radius:14px;background:#f4f0e5}.situation-grid span,.info-cell span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.situation-grid strong,.info-cell strong{font-size:13px}.danger-badge{font-size:10px;font-weight:900;border-radius:999px;padding:7px 10px}.danger-badge.low{background:#e4f0e9;color:#3f6a56}.danger-badge.medium{background:#f6ead0;color:#906b23}.danger-badge.high{background:#f4dfda;color:#963e35}.compact-list{margin-top:12px}.attention-card{border-color:#d3b46f;background:linear-gradient(145deg,#fff9e8,#f7eed7)}.attention-card h3{margin:6px 0}.attention-card p{font-size:13px;color:var(--muted);line-height:1.5}.timeline{position:relative;padding-left:18px}.timeline:before{content:"";position:absolute;left:5px;top:5px;bottom:8px;width:1px;background:#d6c9aa}.timeline-item{position:relative;padding:0 0 18px 13px}.timeline-dot{position:absolute;left:-17px;top:5px;width:9px;height:9px;background:#8f9f97;border:2px solid #fffaf0;border-radius:50%;box-shadow:0 0 0 1px #c8b997}.timeline-item.major .timeline-dot{background:var(--gold)}.timeline-item.danger .timeline-dot{background:var(--red)}.timeline-item.canon .timeline-dot{background:var(--sea)}.timeline-age{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.08em}.timeline-title{font-weight:900;margin:3px 0}.timeline-desc{font-size:13px;color:#5f6965;line-height:1.45}.timeline-delta{display:inline-block;margin-top:6px;background:#e8f0ea;color:#42644f;border-radius:9px;padding:4px 7px;font-size:10px;font-weight:800}.advance-dock{position:sticky;bottom:calc(72px + var(--safe));z-index:20;padding-top:2px}.advance-btn{width:100%;border:0;border-radius:18px;background:linear-gradient(135deg,#1d5360,#173f4e);color:#fff;padding:15px 18px;display:flex;gap:12px;align-items:center;text-align:left;box-shadow:0 15px 30px rgba(23,63,78,.24)}.advance-btn:disabled{opacity:.48}.advance-icon{font-size:24px}.advance-btn strong{display:block;letter-spacing:.08em}.advance-btn small{display:block;color:rgba(255,255,255,.65);font-size:10px;margin-top:3px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.career-card{padding:14px;border-radius:14px;background:#f4f0e5}.career-card strong{font-size:16px}.career-card p{font-size:12px;color:var(--muted);margin:5px 0 0;line-height:1.45}.action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.action-card{border:1px solid var(--line);background:#fffdf8;border-radius:14px;padding:12px;text-align:left;color:var(--ink)}.action-card strong{display:block;font-size:13px}.action-card small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}.action-card.active{border-color:var(--sea);background:#eef6f3}.action-card.locked{opacity:.45}.stats-list{display:flex;flex-direction:column;gap:9px}.stat-row{display:grid;grid-template-columns:100px 1fr 35px;align-items:center;gap:9px;font-size:12px}.stat-bar{height:8px;border-radius:999px;background:#e8e1d2;overflow:hidden}.stat-fill{height:100%;background:linear-gradient(90deg,#78a7a7,#2d7181);border-radius:999px}.stat-value{text-align:right;font-weight:900}.split-card{display:grid;grid-template-columns:1fr 1fr;gap:14px}.split-card>div+div{border-left:1px solid var(--line);padding-left:14px}.ability-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:8px 0;border-bottom:1px solid #eee6d6}.ability-row:last-child{border-bottom:0}.ability-row span{color:var(--muted)}.fruit-card{font-size:12px;line-height:1.45;color:#53605d}.relations-list{display:flex;flex-direction:column;gap:9px}.relation-card{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px;padding:10px;border-radius:14px;background:#f4f0e5}.relation-avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#dce9e5;color:var(--navy);font-weight:900}.relation-copy strong,.relation-copy span{display:block}.relation-copy span{font-size:11px;color:var(--muted);margin-top:2px}.relation-score{font-weight:900;color:var(--sea)}.world-hero{background:linear-gradient(145deg,#eaf2ec,#fffaf0)}.world-hero p{font-size:13px;color:var(--muted);line-height:1.5}.news-list,.canon-list{display:flex;flex-direction:column;gap:10px}.news-item,.canon-item{padding:12px;border-radius:14px;background:#f4f0e5}.news-item strong,.news-item span,.canon-item strong,.canon-item span{display:block}.news-item span,.canon-item span{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}.canon-item .status{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--sea);font-weight:900}.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;z-index:40;width:min(760px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,250,240,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(120,100,65,.14);padding:8px 7px calc(8px + var(--safe))}.nav-item{border:0;background:transparent;color:#80847f;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px}.nav-item span{font-size:17px}.nav-item small{font-size:9px}.nav-item.active{color:var(--navy);font-weight:900}.modal-backdrop{position:fixed;inset:0;z-index:80;background:rgba(15,27,28,.58);display:grid;place-items:end center;padding:14px}.modal-card{width:min(620px,100%);background:#fffaf0;border-radius:24px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:88vh;overflow:auto}.modal-card h3,.modal-card h2{margin:6px 0 9px}.modal-card p{color:var(--muted);font-size:13px;line-height:1.5}.decision-choices{display:flex;flex-direction:column;gap:9px;margin-top:18px}.choice-btn{background:#edf3ef;color:var(--ink);text-align:left;border:1px solid #d8e4df}.choice-btn strong,.choice-btn small{display:block}.choice-btn small{font-weight:500;color:var(--muted);margin-top:4px}.death-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}.death-summary>div{background:#f4f0e5;border-radius:13px;padding:11px}.death-summary span{display:block;font-size:9px;color:var(--muted)}.death-summary strong{font-size:13px}.dev-panel{position:fixed;inset:56px 8px 86px;z-index:70;background:#10272d;color:#dbe9e5;border-radius:18px;padding:14px;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.32)}.dev-head{display:flex;justify-content:space-between;align-items:center}.dev-panel pre{white-space:pre-wrap;font-size:10px;line-height:1.45}.toast{position:fixed;z-index:100;left:50%;transform:translateX(-50%);bottom:110px;background:#173f4e;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}.startup-error{margin-top:10px;padding:12px 14px;border-radius:14px;background:#f4dfda;color:#7d3028;border:1px solid rgba(150,62,53,.18);font-size:12px;line-height:1.45}.startup-error strong,.startup-error span{display:block}.startup-error span{margin-top:4px}.startup-ready{color:var(--green)}.startup-warn{color:#8a651f}.hidden{display:none!important}
@@ -81,10 +82,10 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
   <main>
     <section id="startScreen" class="screen active">
       <section class="hero-card paper-card">
-        <span class="eyebrow">V8.0 • Simulation Core & Life Director 4.0</span>
-        <h2>Moins de bruit. Plus de conséquences qui comptent vraiment.</h2>
-        <p>La V8.0 consolide le moteur : priorité unique des interruptions, récit annuel compressé, chapitres significatifs, héritage permanent et rendu lazy par onglet pour préserver la fluidité mobile.</p>
-        <div class="feature-pills"><span>Priority Director</span><span>Life Director 4.0</span><span>Legacy Ledger</span><span>Rendu lazy</span><span>Chapitres significatifs</span><span>Moins d’interruptions répétées</span><span>Core V8</span></div>
+        <span class="eyebrow">V8.1 • Faction Identity 4.0</span>
+        <h2>Une faction doit changer ta vie, pas seulement la couleur de ton badge.</h2>
+        <p>La V8.1 donne une identité propre aux six voies : valeurs, loyauté, autonomie, pression, devoirs, opportunités et conflits internes. Le Priority Director V8.0 décide quand ces tensions méritent réellement de t’interrompre.</p>
+        <div class="feature-pills"><span>6 identités de faction</span><span>Devoirs propres</span><span>Pression interne</span><span>Loyauté & autonomie</span><span>Choix persistants</span><span>Missions connectées</span><span>Priority Director</span></div>
       </section>
 
 
@@ -201,6 +202,7 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Carrière</span><h3>Situation professionnelle</h3></div><span class="badge">Action annuelle</span></div><div id="careerCard" class="career-card"></div><div id="careerAnnualActions" class="mission-approach-row"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Progression</span><h3>Vers le rang supérieur</h3></div><span class="badge">V7.3</span></div><div id="careerProgressCard" class="career-progress-shell"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V7.3 • Organisation</span><h3>Branche & réputation interne</h3></div><span id="v73OrgBadge" class="badge"></span></div><div id="v73OrganizationCard" class="career-card"></div><div id="v73BranchActions" class="action-grid" style="margin-top:10px"></div><div id="v73InternalActions" class="action-grid" style="margin-top:10px"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V8.1 • Faction</span><h3>Identité & pression</h3></div><span id="v81FactionBadge" class="badge"></span></div><div id="v81FactionCard" class="v81-faction-card"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V6.9 • Haut niveau</span><h3>Autorité & héritage</h3></div><span id="v69AuthorityBadge" class="badge"></span></div><div id="v69EndgameCard" class="career-card"></div><div id="v69StrategicActions" class="action-grid" style="margin-top:10px"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V6.9 • Patrimoine</span><h3>Actifs durables</h3></div><span id="v69WealthBadge" class="badge"></span></div><div id="v69AssetsCard" class="career-card"></div><div id="v69AssetActions" class="action-grid" style="margin-top:10px"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Ambition</span><h3>Direction personnelle</h3></div><span class="badge">Dynamique</span></div><div id="ambitionCard" class="career-card"></div><div id="ambitionOptions" class="action-grid ambition-grid"></div></section>
@@ -287,6 +289,8 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 <script src="src/v79/education-engine-v79.js"></script>
 <script src="src/data/simulation-core-v80.js"></script>
 <script src="src/v80/simulation-core-v80.js"></script>
+<script src="src/data/faction-identity-v81.js"></script>
+<script src="src/v81/faction-identity-engine-v81.js"></script>
 <script>
 (() => {
 'use strict';
@@ -295,8 +299,8 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const DB_NAME = 'one-piece-life';
 const STORE = 'saves';
-const SAVE_VERSION = 800;
-const GAME_VERSION = '8.0.0';
+const SAVE_VERSION = 810;
+const GAME_VERSION = '8.1.0';
 const V61_ANNUAL_FOCUS={
   balanced:{icon:'⚖',label:'Équilibré',desc:'Aucun domaine sacrifié.',training:1,career:1,relations:1,resources:1,adventure:1},
   training:{icon:'🥊',label:'Progression',desc:'+35% progression • carrière -16% • revenus -18%.',training:1.35,career:.84,relations:.86,resources:.82,adventure:.90},
@@ -2296,6 +2300,8 @@ function v80CollectInterruptionCandidates(){
     const gate=clamp((.10+Math.min(.10,game.pacing.calmStreak*.012))*v62Metric('agency',1),.05,.36);
     if(chance(gate,'v80AgencyGate'))candidates.push({kind:'agency',id:'agency_'+game.ageMonths,importance:48+game.pacing.calmStreak*1.4,severity:game.player.danger==='Élevé'?62:game.player.danger==='Moyen'?48:32,personal:true})
   }
+  const factionCandidate=v81Candidate();
+  if(factionCandidate)candidates.push({kind:'faction',id:factionCandidate.id,payload:factionCandidate,importance:factionCandidate.importance,severity:factionCandidate.severity,mandatory:!!factionCandidate.mandatory,personal:true,causal:true});
   return mod.rankInterruptions(candidates,{nowMonth:game.ageMonths,year},state)
 }
 function v80QueueEducation(candidate){
@@ -2318,12 +2324,14 @@ function v80PriorityInterrupt(){
     if(c.kind==='education')queued=v80QueueEducation(c);
     else if(c.kind==='personal')queued=v80QueuePersonal(c);
     else if(c.kind==='consequence')queued=v77Queue(c.payload);
+    else if(c.kind==='faction')queued=v81QueueFaction(c.payload);
     else if(c.kind==='agency'){v6QueueAgencyDecision(true);queued=!!game.pendingDecision;if(queued&&t){t.agencyPrompts=(t.agencyPrompts||0)+1;t.lastAgencyMonth=t.monthsSimulated+(t.phase>0?1:0)}}
     if(queued){v80RecordInterruption(c.kind,c.score);return true}
   }
   return false
 }
 function v80CompleteYear(events,report){
+  v81AnnualTick();
   const mod=v80Module(),state=v80Ensure();if(!mod||!state)return null;
   const narrative=mod.annualNarrative(events,{year:game.clock.year,nowMonth:game.ageMonths,worldDivergence:game.world?.divergence||0});
   game.coreV80=mod.advanceDirector(state,narrative,{year:game.clock.year,nowMonth:game.ageMonths});
@@ -2355,6 +2363,74 @@ function renderV80Director(){
   const primary=n.primary,secondary=n.secondary||[],chapter=state.director.currentChapter,legacy=mod.permanentEvidenceScore(state);
   const ledger=Object.entries(state.legacy.totals||{}).filter(([,v])=>Number(v.score)>0).sort((a,b)=>b[1].score-a[1].score).slice(0,5);
   body.innerHTML='<div class="v80-director-main"><div><span class="eyebrow">'+esc(n.label)+'</span><h4>'+esc(primary?.title||'Année calme')+'</h4><p>'+esc(primary?.desc||'Les changements secondaires ont été simulés sans imposer une nouvelle interruption.')+'</p></div><div class="v80-significance">Importance<strong>'+Math.round(n.significance)+'</strong></div></div>'+(secondary.length?'<div class="v80-secondary">'+secondary.map(x=>'<div class="v80-secondary-item"><strong>'+esc(x.title)+'</strong> • '+esc(x.desc)+'</div>').join('')+'</div>':'')+'<div class="v80-director-meta"><span>'+n.compressed+' changement'+(n.compressed>1?'s':'')+' compressé'+(n.compressed>1?'s':'')+'</span><span>'+state.director.chapterHistory.length+' chapitre'+(state.director.chapterHistory.length>1?'s':'')+' archivé'+(state.director.chapterHistory.length>1?'s':'')+'</span><span>Héritage '+Math.round(legacy)+'/100</span></div>'+(chapter?'<div class="v80-chapter"><strong>'+esc(chapter.label)+'</strong><span>'+chapter.beats+' temps fort'+(chapter.beats>1?'s':'')+' • pic '+Math.round(chapter.score)+'/100</span></div>':'')+(ledger.length?'<div class="v80-ledger-row">'+ledger.map(([id,v])=>'<span class="v80-ledger-chip">'+esc(data.legacyCategories[id]?.label||id)+' '+Math.round(v.score)+'</span>').join('')+'</div>':'')
+}
+
+
+function v81Module(){return window.OPL_MODULES?.get('factionIdentityEngineV81')||null}
+function v81Data(){return window.OPL_MODULES?.get('factionIdentityDataV81')||null}
+function v81Context(){
+  const p=game.player,s73=v73Ensure(),ranks=CAREER_RANKS[p.faction]||CAREER_RANKS.Civil||[],idx=Math.max(0,ranks.indexOf(p.rank));
+  return {faction:p.faction,careerActive:p.career!=='Aucune',age:p.ageMonths/12,year:Math.floor(p.ageMonths/12),month:p.ageMonths,
+    standing:Number(s73?.standing)||0,trust:Number(s73?.trust)||50,discipline:Number(s73?.discipline)||50,
+    influence:Number(s73?.influence)||0,sanctions:Number(s73?.sanctions)||0,
+    rankRatio:ranks.length>1?clamp(idx/(ranks.length-1),0,1):0};
+}
+function v81Ensure(){
+  if(!game?.player)return null;const mod=v81Module();if(!mod)return game.player.factionV81||null;
+  game.player.factionV81=mod.normalizeState(game.player.factionV81||{},v81Context());return game.player.factionV81
+}
+function v81Candidate(){
+  const mod=v81Module(),state=v81Ensure();if(!mod||!state)return null;
+  const ctx=v81Context(),year=ctx.year;if(state.lastEventCheckYear===year)return null;
+  state.lastEventCheckYear=year;game.player.factionV81=state;
+  return mod.eventCandidate(state,ctx,random('v81FactionGate'),random('v81FactionPick'))
+}
+function v81QueueFaction(candidate){
+  const mod=v81Module(),state=v81Ensure();if(!mod||!state||!candidate?.event)return false;
+  const choices=mod.choices(candidate),entries=Object.entries(choices);if(!entries.length)return false;
+  game.pendingDecision={id:'v81_'+candidate.id+'_'+Math.floor(game.ageMonths/12),title:candidate.event.label,text:candidate.event.text,
+    choices:entries.map(function(pair){var id=pair[0],choice=pair[1];return{label:choice.label,hint:choice.hint,action:'v81faction:'+candidate.id+':'+id}})};
+  return true
+}
+function v81ResolveDecision(parts){
+  const mod=v81Module(),state=v81Ensure();if(!mod||!state||parts[0]!=='v81faction')return false;
+  const eventId=parts[1],choiceId=parts[2],prof=mod.profile(game.player.faction),event=(prof.events||[]).find(function(e){return e.id===eventId});
+  if(!event)return false;
+  const ctx=v81Context(),result=mod.resolve(state,{id:eventId,event:event},choiceId,ctx);if(result.error)return false;
+  game.player.factionV81=result.state;
+  const org=v73Module(),s73=v73Ensure();if(org&&s73)game.player.careerV73=org.applyDelta(s73,result.factionDelta||{},game.player.faction);
+  if(result.xp)game.player.careerXP=(Number(game.player.careerXP)||0)+result.xp;
+  v73RefreshResponsibility();
+  const severe=Number(result.factionDelta?.sanctions)>0||result.state.friction>=78;
+  addHistory(result.event.label,result.choice.label+'. '+(result.choice.hint||'Ta position dans la faction évolue.'),severe?'danger':'major',
+    'Identité '+Math.round(result.status.identity)+'/100 • pression '+Math.round(result.status.pressure)+'/100');
+  return true
+}
+function v81AnnualTick(){
+  const mod=v81Module(),state=v81Ensure();if(!mod||!state)return null;
+  const result=mod.annualTick(state,v81Context());game.player.factionV81=result.state;return result
+}
+function v81RecordMissionOutcome(m,outcome){
+  const mod=v81Module(),state=v81Ensure();if(!mod||!state||!m)return null;
+  const s73=v73Ensure(),org=v73Module(),alignment=org&&s73?org.missionAlignment(game.player.faction,s73.branch,m):{aligned:false};
+  const ctx=Object.assign({},v81Context(),{outcome:outcome,danger:m.danger||'medium',aligned:!!alignment.aligned});
+  const result=mod.missionImpact(state,ctx);game.player.factionV81=result.state;return result
+}
+function v81OnFactionChange(from,to){
+  const mod=v81Module();if(!mod||!game?.player||from===to)return;
+  game.player.factionV81=mod.factionChange(game.player.factionV81||{},from,to,v81Context());
+  addHistory('Nouvelle identité de faction','Ton passage de '+from+' à '+to+' modifie immédiatement loyauté, autonomie et pression interne.','major')
+}
+function renderV81FactionIdentity(){
+  const card=$('#v81FactionCard'),badge=$('#v81FactionBadge'),mod=v81Module(),state=v81Ensure();if(!card||!badge||!mod||!state)return;
+  const ctx=v81Context(),st=mod.status(state,ctx),p=st.profile;
+  if(!ctx.careerActive){badge.textContent='EN FORMATION';card.innerHTML='<div class="career-hint">Ton identité de faction deviendra active avec ta première vraie carrière.</div>';return}
+  badge.textContent=st.label.toUpperCase();
+  const meters=[['Identité',st.identity],['Loyauté',state.loyalty],['Autonomie',state.autonomy],['Pression',st.pressure]];
+  card.innerHTML='<div class="v81-faction-hero"><div><span class="eyebrow">'+esc(p.identity)+'</span><h4>'+esc(p.label)+'</h4><p>'+esc(p.desc)+'</p></div><div class="v81-faction-mark">'+esc(p.icon)+'</div></div>'+
+    '<div class="v81-values">'+p.values.map(function(v){return'<span>'+esc(v)+'</span>'}).join('')+'</div>'+
+    '<div class="v81-meters">'+meters.map(function(x){return'<div class="v81-meter"><div class="v81-meter-head"><span>'+esc(x[0])+'</span><strong>'+Math.round(x[1])+'/100</strong></div><div class="v81-meter-track"><span style="width:'+clamp(x[1],0,100)+'%"></span></div></div>'}).join('')+'</div>'+
+    '<div class="v81-faction-foot"><span>Devoirs tenus '+state.dutiesCompleted+'</span><span>Devoirs ignorés '+state.dutiesIgnored+'</span><span>Occasions saisies '+state.opportunitiesTaken+'</span><span>Friction '+Math.round(state.friction)+'/100</span></div>'
 }
 
 // -----------------------------------------------------------------------------
@@ -2638,6 +2714,7 @@ function initialGame(){
     combatStyle:{primary:style,tendency:pick(['Prudent','Adaptatif','Agressif','Patient'],'birth'),experience:0},
     combatV72:{doctrine:'balanced',usage:{},signature:null,lastTechnique:null},
     careerV73:{version:1,branch:null,standing:30,trust:50,discipline:50,influence:0,responsibility:'member',commendations:0,sanctions:0,missionRecord:{success:0,partial:0,failure:0,retreat:0},lastReviewYear:-99,lastReview:null,lastActionYear:-99,lastPoliticsYear:-99,branchHistory:[]},
+    factionV81:{version:1,currentFaction:'Civil',identity:42,loyalty:50,autonomy:64,pressure:16,friction:12,standingPeak:0,dutiesCompleted:0,dutiesIgnored:0,opportunitiesTaken:0,defections:0,lastAnnualYear:-99,lastDecisionYear:-99,lastEventCheckYear:-99,lastFactionChangeMonth:-99,lastMissionMonth:-99,history:[]},
     socialV74:{version:1,lastArcYear:-99,lastArcCheckYear:-99,totalArcs:0,totalMemories:0},
     educationV79:{version:1,track:'general',focus:'balanced',knowledge:0,practical:0,discipline:35,confidence:35,network:5,mentor:false,sponsor:false,stage:'early',exams:[],credentials:[],trackHistory:[],monthsTrained:0,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,careerPreparationApplied:false},
     personalV78:{version:1,home:{id:'family_home',condition:78,owned:false,region:origin,sinceYear:0},independent:false,familyBond:55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}},
@@ -2706,7 +2783,7 @@ function ensureV5(){
   if(!game.consequencesV77||typeof game.consequencesV77!=='object')game.consequencesV77={version:1,active:[],history:[],totalCreated:0,totalResolved:0,totalEscalated:0,lastTickMonth:-99};
   if(!game.player.personalV78||typeof game.player.personalV78!=='object')game.player.personalV78={version:1,home:{id:game.ageMonths>=216?'rented_room':'family_home',condition:76,owned:false,region:game.player.region,sinceYear:Math.floor(game.ageMonths/12)},independent:game.ageMonths>=216,familyBond:Number(game.player.family?.bond)||55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}};
   if(!game.player.educationV79||typeof game.player.educationV79!=='object')game.player.educationV79=v79LegacyEducationState();
-  v80Ensure();
+  v80Ensure();v81Ensure();
   game.player.combatV72.usage=game.player.combatV72.usage&&typeof game.player.combatV72.usage==='object'?game.player.combatV72.usage:{};
   if(!['balanced','aggressive','defensive','precision','overwhelm'].includes(game.player.combatV72.doctrine))game.player.combatV72.doctrine='balanced';
   if(!game.player.haki)game.player.haki={Observation:{state:'Dormant',mastery:0,latent:true},Armement:{state:'Dormant',mastery:0,latent:true},Conquérant:{state:'Inconnu',mastery:0,latent:false}};
@@ -3535,20 +3612,20 @@ function tickMission(months){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult)),reward=Math.round(m.reward*rewardMult);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=2;
     if(game.player.faction==='Marine')game.player.reputation.marine+=3;if(game.player.faction==='Révolutionnaires')game.player.reputation.revolution+=3;if(game.player.faction==='Gouvernement')game.player.reputation.government+=3;if(game.player.faction==='Pirates'){game.player.reputation.pirate+=3;game.player.bounty+=Math.round(reward*.45);game.player.highestBounty=Math.max(game.player.highestBounty,game.player.bounty)}
     addHistory('Mission accomplie',`${m.title} se termine en ta faveur avec une approche « ${strat.label.toLowerCase()} ».`,'major',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
-    game.flags.v65LastMission={id:m.id,outcome:'success',approach:approach.id};v68ApplyMissionOutcome(m,'success');v73RecordMissionOutcome(m,'success',approach.id);v77FromMission(m,'success',approach.id)
+    game.flags.v65LastMission={id:m.id,outcome:'success',approach:approach.id};v68ApplyMissionOutcome(m,'success');v73RecordMissionOutcome(m,'success',approach.id);v81RecordMissionOutcome(m,'success');v77FromMission(m,'success',approach.id)
   }else if(partial&&game.alive){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult*.60)),reward=Math.round(m.reward*rewardMult*.45);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=1;
     addHistory('Mission partiellement réussie',`${m.title} n’atteint pas tous ses objectifs, mais tu sauves une partie du résultat au lieu de repartir avec absolument rien.`,'normal',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
-    game.flags.v65LastMission={id:m.id,outcome:'partial',approach:approach.id};v68ApplyMissionOutcome(m,'partial');v73RecordMissionOutcome(m,'partial',approach.id);v77FromMission(m,'partial',approach.id)
+    game.flags.v65LastMission={id:m.id,outcome:'partial',approach:approach.id};v68ApplyMissionOutcome(m,'partial');v73RecordMissionOutcome(m,'partial',approach.id);v81RecordMissionOutcome(m,'partial');v77FromMission(m,'partial',approach.id)
   }else if(game.alive){
     addHistory(retreated?'Mission abandonnée':'Mission échouée',retreated?`${m.title} est interrompue après un repli tactique. La récompense est perdue, pas nécessairement ta vie.`:`${m.title} tourne mal malgré ton approche « ${strat.label.toLowerCase()} ». Tu n’obtiens pas la récompense prévue.`,'danger');
-    game.flags.v65LastMission={id:m.id,outcome:retreated?'retreat':'failure',approach:approach.id};v68ApplyMissionOutcome(m,retreated?'retreat':'failure');v73RecordMissionOutcome(m,retreated?'retreat':'failure',approach.id);v77FromMission(m,retreated?'retreat':'failure',approach.id)
+    game.flags.v65LastMission={id:m.id,outcome:retreated?'retreat':'failure',approach:approach.id};v68ApplyMissionOutcome(m,retreated?'retreat':'failure');v73RecordMissionOutcome(m,retreated?'retreat':'failure',approach.id);v81RecordMissionOutcome(m,retreated?'retreat':'failure');v77FromMission(m,retreated?'retreat':'failure',approach.id)
   }
   game.player.activity=m.previousActivity;game.player.activityType=m.previousType;game.player.situation=game.player.faction==='Pirates'?'Vie en équipage':game.player.faction==='Marine'?'Service actif':game.player.faction==='Révolutionnaires'?'Réseau clandestin':game.player.faction==='Gouvernement'?'Affectation gouvernementale':'Indépendant';game.activeMission=null;refreshMissionBoard()
 }
 
 function resolveDecision(action){
-  const p=game.player;if(!game.pendingDecision)return;const decisionEcho=game.pendingDecision,parts=action.split(':');
+  const p=game.player;if(!game.pendingDecision)return;const oldFaction=p.faction,decisionEcho=game.pendingDecision,parts=action.split(':');
   if(parts[0]==='ambition'){const item=AMBITIONS.find(x=>x[2]===parts[1]);if(item){p.ambition=item[0];p.ambitionType=item[2];addHistory('Ambition',`Tu décides de poursuivre avant tout un objectif : ${item[0].toLowerCase()}.`,'major')}}
   if(parts[0]==='career'){
     if(parts[1]==='marine'){p.faction='Marine';p.career='Marine';p.rank='Recrue';p.situation='Formation militaire';p.activity='Formation / entraînement';p.activityType='marine';p.money+=1500;p.reputation.marine+=3;codexAdd('factions','Marine');addHistory('Engagement dans la Marine','Tu signes comme recrue. Les règles deviennent plus strictes, mais les opportunités aussi.','major')}
@@ -3557,7 +3634,7 @@ function resolveDecision(action){
     if(parts[1]==='hunter'){p.faction='Chasseurs de primes';p.career='Chasseur de primes';p.rank='Débutant';p.situation='Indépendant';p.activity='Traquer des cibles';p.activityType='patrol';codexAdd('factions','Chasseurs de primes');addHistory('Chasseur de primes','Tu choisis de vivre des récompenses placées sur la tête des autres.','major')}
     if(parts[1]==='revolution'){p.faction='Révolutionnaires';p.career='Révolutionnaire';p.rank='Sympathisant';p.situation='Réseau clandestin';p.activity='Opérations clandestines';p.activityType='covert';p.reputation.revolution+=3;codexAdd('factions','Révolutionnaires');addHistory('Réseau révolutionnaire','Tu rejoins une organisation clandestine qui cherche à modifier l’ordre politique du monde.','major')}
     if(parts[1]==='government'){p.faction='Gouvernement';p.career='Agent du Gouvernement';p.rank='Recrue';p.situation='Formation d’agent';p.activity='Formation d’agent';p.activityType='government';p.money+=1800;p.reputation.government+=4;codexAdd('factions','Gouvernement Mondial');addHistory('Service du Gouvernement','Tu entres au service d’une institution immense, hiérarchisée et souvent opaque.','major')}
-    v79ApplyCareerPreparation(parts[1]);refreshMissionBoard();
+    v79ApplyCareerPreparation(parts[1]);v81OnFactionChange(oldFaction,p.faction);refreshMissionBoard();
   }
   if(parts[0]==='specialize'){p.specialization=parts[1];addHistory('Spécialisation',`Tu orientes désormais ta carrière vers : ${parts.slice(2).join(':')}.`,'major')}
   if(parts[0]==='fruit'){const id=parts[2],f=game.world.fruits.find(x=>x.id===id);if(f){if(parts[1]==='eat'){p.devilFruit={id:f.id,name:f.name,type:f.type,mastery:1};f.status='consumed';f.holder='player';p.equipment=p.equipment.filter(x=>x!==f.name);addHistory('Fruit consommé',`Tu manges ${f.name}. La mer devient désormais ton ennemie permanente.`,'major')}if(parts[1]==='keep'){if(!p.equipment.includes(f.name))p.equipment.push(f.name);f.status='held';f.holder='player_inventory';addHistory('Fruit conservé',`Tu gardes ${f.name} sans le consommer.`)}if(parts[1]==='sell'){const gain=randInt(150000,800000,'fruit');p.money+=gain;f.status='world';f.holder=null;f.region=p.region;addHistory('Vente exceptionnelle',`Tu vends ${f.name}. Quelqu’un d’autre l’a désormais dans ce monde.`,'major',`+${gain.toLocaleString('fr-FR')} B`)}}}
@@ -3581,6 +3658,7 @@ function resolveDecision(action){
   if(parts[0]==='v74arc')v74ResolveArcDecision(parts);
   if(parts[0]==='v79track'||parts[0]==='v79event')v79ResolveDecision(parts);
   if(parts[0]==='v78personal')v78ResolvePersonalDecision(parts);
+  if(parts[0]==='v81faction')v81ResolveDecision(parts);
   if(parts[0]==='v77consequence')v77ResolveConsequence(parts);
   else v77DecisionEcho(action,decisionEcho);
   game.pendingDecision=null;game.pacing.lastDecisionAge=game.ageMonths;$('#decisionModal').classList.add('hidden');saveGame();if(!game.alive){render();showDeath();return}if(game.agency?.annualTurn?.active){v61ResumeAnnualTurn();return}render();
@@ -3970,7 +4048,7 @@ function renderCharacter(){
     $('#crewDetails').innerHTML='<div class="info-grid"><div class="info-cell"><span>Rôle</span><strong>'+esc(p.rank)+'</strong></div><div class="info-cell"><span>Membres actifs</span><strong>'+members.length+'</strong></div><div class="info-cell"><span>Moral</span><strong>'+Math.round(p.crew.morale)+'%</strong></div><div class="info-cell"><span>État navire</span><strong>'+cond+'%</strong></div></div><div class="crew-roster">'+members.map(m=>'<span class="chip">'+esc(m.name)+' • '+esc(m.role)+' • '+esc(m.temperament)+' • '+esc(m.ambition)+' • loyauté '+Math.round(m.loyalty||0)+'</span>').join('')+'</div><div class="crew-actions"><button class="secondary-btn" data-ship-repair="patch">Réparer +25%</button><button class="secondary-btn" data-ship-repair="full">Remise en état</button></div>';
     $$('[data-ship-repair]').forEach(b=>b.onclick=()=>v6RepairShip(b.dataset.shipRepair==='full'))
   }else $('#crewSection').classList.add('hidden');
-  const storage=$('#storageStatus');if(storage)storage.textContent='Autosave • '+storageLabel();v62RenderDomainInline('careerAnnualActions','career');v62RenderDomainInline('resourcesAnnualActions','resources');v63RenderEconomy();renderCareerProgress();renderV73Organization();renderV69Endgame();renderAmbition();renderMissions()
+  const storage=$('#storageStatus');if(storage)storage.textContent='Autosave • '+storageLabel();v62RenderDomainInline('careerAnnualActions','career');v62RenderDomainInline('resourcesAnnualActions','resources');v63RenderEconomy();renderCareerProgress();renderV73Organization();renderV81FactionIdentity();renderV69Endgame();renderAmbition();renderMissions()
 }
 
 function renderAbilities(){

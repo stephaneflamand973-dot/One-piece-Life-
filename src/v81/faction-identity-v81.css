@@ -1,0 +1,11 @@
+.v81-faction-card{display:grid;gap:12px}
+.v81-faction-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start;padding:14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,rgba(45,113,129,.08),rgba(197,148,60,.08))}
+.v81-faction-hero h4{margin:3px 0 5px;font-size:1.02rem}.v81-faction-hero p{margin:0;color:var(--muted);line-height:1.45}
+.v81-faction-mark{display:grid;place-items:center;min-width:56px;height:56px;border-radius:18px;background:var(--navy);color:#fff;font-size:1.45rem;font-weight:900}
+.v81-values{display:flex;flex-wrap:wrap;gap:7px}.v81-values span{padding:6px 9px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.46);font-size:.78rem;font-weight:750}
+.v81-meters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.v81-meter{padding:10px 11px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.44)}
+.v81-meter-head{display:flex;justify-content:space-between;gap:10px;font-size:.78rem}.v81-meter-head strong{font-size:.82rem}
+.v81-meter-track{height:7px;margin-top:7px;border-radius:99px;background:rgba(23,63,78,.10);overflow:hidden}.v81-meter-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--sea),var(--gold))}
+.v81-faction-foot{display:flex;flex-wrap:wrap;gap:8px;color:var(--muted);font-size:.78rem}.v81-faction-foot span{padding:6px 8px;border-radius:10px;background:rgba(23,63,78,.06)}
+@media(max-width:520px){.v81-meters{grid-template-columns:1fr}.v81-faction-hero{grid-template-columns:1fr}.v81-faction-mark{min-width:48px;width:48px;height:48px}}

@@ -1,4 +1,4 @@
-name: V8.0 QA
+name: V8.1 QA
 on:
   push:
     branches: [main]
@@ -25,6 +25,7 @@ on:
       - 'scripts/qa-v78.mjs'
       - 'scripts/qa-v79.mjs'
       - 'scripts/qa-v80.mjs'
+      - 'scripts/qa-v81.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -35,13 +36,14 @@ on:
       - 'QA-V7.8.md'
       - 'QA-V7.9.md'
       - 'QA-V8.0.md'
+      - 'QA-V8.1.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v80-qa-${{ github.ref }}
+  group: v81-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -89,3 +91,5 @@ jobs:
         run: node scripts/qa-v79.mjs
       - name: Verify V8.0 Simulation Core and Life Director 4.0
         run: node scripts/qa-v80.mjs
+      - name: Verify V8.1 Faction Identity 4.0
+        run: node scripts/qa-v81.mjs

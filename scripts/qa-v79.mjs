@@ -136,7 +136,7 @@ for(const fn of ['function v79Ensure','function v79EducationMonth','function v79
 assert(html.includes('v79MilestoneTick();'),'Lifecycle milestone hook missing');
 assert(html.includes('trainProgress(1);v79EducationMonth(1);'),'Monthly education hook missing');
 assert(html.includes('if(!game.pendingDecision)v79MaybeEvent()')||(html.includes('function v80CollectInterruptionCandidates')&&html.includes("kind:'education'")),'Youth event arbitration missing');
-assert(html.includes('v79ApplyCareerPreparation(parts[1]);refreshMissionBoard()'),'Career preparation hook missing');
+assert(html.includes('v79ApplyCareerPreparation(parts[1]);refreshMissionBoard()')||html.includes('v79ApplyCareerPreparation(parts[1]);v81OnFactionChange(oldFaction,p.faction);refreshMissionBoard()'),'Career preparation hook missing');
 assert(html.includes("if(parts[0]==='v79track'||parts[0]==='v79event')v79ResolveDecision(parts)"),'Education decision routing missing');
 assert(html.includes("v79CareerHint('marine'"),'Career decision readiness hints missing');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
