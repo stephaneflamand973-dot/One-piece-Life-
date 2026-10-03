@@ -38,7 +38,7 @@
     const difficulty=clamp(base.baseDifficulty+danger*.13+Number(rolls.difficulty??.5)*14-mastery*.08,18,88);
     const rewardMult=clamp(.75+difficulty/95+num(ctx.worldRep)/250,.75,2.25);
     return {id:'daily_'+Math.floor(Number(rolls.id??.5)*9999999)+'_'+num(ctx.month),type:id,label:base.label,desc:base.desc,skill:base.skill,difficulty:+difficulty.toFixed(1),
-      risk:clamp(base.risk+danger*.08,2,85),reward:base.reward,money:Math.round(base.money*rewardMult),rep:base.rep,createdMonth:num(ctx.month),expiresMonth:num(ctx.month)+6,status:'open',activityType:ctx.activityType}
+      risk:clamp(base.risk+danger*.08,2,85),reward:base.reward,money:Math.round(base.money*rewardMult),rep:base.rep,createdMonth:num(ctx.month),expiresMonth:num(ctx.month)+18,status:'open',activityType:ctx.activityType}
   }
   function microEvent(state,p,ctx={},rolls={}){
     const s=normalizeState(state),mastery=normalizeTrack(s.tracks[ctx.activityType]||{}).mastery,energy=num(ctx.energy),types=['breakthrough','praise','windfall','bond','insight'];
@@ -66,7 +66,7 @@
     let micro=null,opportunity=null;
     const microChance=clamp(.08+novelty*.12+snap.masteryBonus*.2-s.routineFatigue/800,.035,.18);
     if(month-s.lastMicroMonth>=2&&Number(rolls.micro??1)<microChance){micro=microEvent(s,p,{...ctx,activityType:type},rolls);if(micro){s.microEvents++;s.lastMicroMonth=month;t.events++;s.history.unshift({month,type:'micro',event:micro.id,activityType:type})}}
-    const offerChance=clamp(.075+(p.family==='adventure'||p.family==='risk'?.035:0)+num(ctx.localOpportunity)/700+num(ctx.worldRep)/1400-s.opportunities.length*.035,.03,.20);
+    const offerChance=clamp(.075+((p.family==='adventure'||p.family==='risk')?.035:0)+num(ctx.localOpportunity)/700+num(ctx.worldRep)/1400-s.opportunities.length*.035,.03,.20);
     if(s.opportunities.length<3&&month-s.lastOfferMonth>=3&&Number(rolls.offer??1)<offerChance){
       opportunity=createOpportunity(s,p,{...ctx,activityType:type},rolls);if(opportunity){s.opportunities.push(opportunity);s.totalOpportunities++;s.lastOfferMonth=month}
     }
