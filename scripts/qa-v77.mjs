@@ -110,7 +110,7 @@ for(const asset of ['src/data/consequences-v77.js','src/v77/consequence-engine-v
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v7-[7-9]-\d+/.test(sw),'PWA cache must remain at V7.7 or newer');
+assert(/one-piece-life-v(?:7-[7-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.7 or newer');
 assert(html.includes("consequencesV77:{version:1,active:[]"),'Fresh-save consequence state missing');
 assert(html.includes("if(!game.consequencesV77||typeof game.consequencesV77!=='object')"),'Old-save V7.7 migration guard missing');
 assert(html.includes('id="v77ConsequencesCard"'),'Consequence UI card missing');
