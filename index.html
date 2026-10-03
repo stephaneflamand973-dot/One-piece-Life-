@@ -2621,7 +2621,7 @@ function v87Ensure(){
   return p.settlementV87
 }
 function v87OnArrival(island){
-  const mod=v87Module(),state=v87Ensure();if(!mod||!state)return null;
+  const mod=v87Module();if(!mod)return null;const state=mod.normalizeState(game.player.settlementV87||{});
   const exploration=Number(v85Ensure()?.islands?.[island]?.exploration)||0,r=mod.visit(state,island,{year:game.clock.year,exploration});game.player.settlementV87=r.state;
   addHistory(r.first?'Premiers pas à '+island:'Retour à '+island,r.first?'Tu commences à prendre tes repères dans la vie locale.':'Les habitudes, contacts et souvenirs de tes précédents passages rendent l’île moins étrangère.','normal','Familiarité '+Math.round(r.record.familiarity)+'/100');
   return r
