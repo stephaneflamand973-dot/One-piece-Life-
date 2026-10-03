@@ -33,7 +33,8 @@
         seen:state.legacy?.seen&&typeof state.legacy.seen==='object'?{...state.legacy.seen}:{},
         totals,
         count:Math.max(0,Math.floor(num(state.legacy?.count))),
-        scorePeak:Math.max(0,num(state.legacy?.scorePeak))
+        scorePeak:Math.max(0,num(state.legacy?.scorePeak)),
+        bootstrapDone:!!state.legacy?.bootstrapDone
       },
       render:{
         lastTab:state.render?.lastTab||'life',
