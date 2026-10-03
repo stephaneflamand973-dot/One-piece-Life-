@@ -1,0 +1,23 @@
+/* ONE PIECE LIFE V7.9 — Education & Youth 3.0 */
+
+.v79-education-card{background:linear-gradient(145deg,#fffaf0,#edf3ef)}
+.v79-education-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.v79-edu-stat{padding:9px;border-radius:12px;background:rgba(255,255,255,.62);border:1px solid rgba(75,118,96,.12)}
+.v79-edu-stat span,.v79-edu-stat strong{display:block}
+.v79-edu-stat span{font-size:8px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:800}
+.v79-edu-stat strong{font-size:13px;margin-top:3px}
+.v79-education-meta{font-size:11px;color:var(--muted);line-height:1.45;margin:10px 0}
+.v79-career-readiness{display:flex;gap:6px;overflow:auto;scrollbar-width:none;margin:10px 0}
+.v79-career-readiness::-webkit-scrollbar{display:none}
+.v79-readiness-chip{flex:0 0 auto;border-radius:999px;padding:6px 8px;font-size:9px;font-weight:800;background:#eee7d8;color:#645a46}
+.v79-readiness-chip.top{background:#e4eee8;color:#426653}
+.v79-education-actions,.v79-track-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}
+.v79-exam-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.v79-exam{border-radius:999px;padding:6px 8px;font-size:9px;font-weight:800;background:#edf3ef;color:#47635d}
+.v79-exam.fail{background:#f3dfdb;color:#8f4137}
+.v79-exam.partial{background:#f5ead2;color:#80601d}
+.v79-education-complete{opacity:.92}
+@media(max-width:520px){
+  .v79-education-grid{grid-template-columns:repeat(2,1fr)}
+  .v79-education-actions,.v79-track-actions{grid-template-columns:1fr}
+}
