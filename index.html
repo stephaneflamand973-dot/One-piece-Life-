@@ -1751,6 +1751,7 @@ function v76Context(){
   let highRelationRisk=0;
   if(mod)for(const r of game.relations||[]){if(r.status==='left')continue;const snap=v74RelationSnapshot(r);if((snap?.risk||0)>=58)highRelationRisk++}
   const worldThreats=(game.world?.worldHooks||[]).filter(h=>h.status==='open'&&((h.urgency||0)>=65||(h.difficulty||0)>=72)).length;
+  const consequences=v77Module()?v77Module().activeSummary(v77Ensure(),game.ageMonths):{active:0,high:0,overdue:0};
   const arc=game.world?.arcV71?.active;
   return {
     pendingDecision:!!game.pendingDecision,pendingDecisionTitle:game.pendingDecision?.title||'',
@@ -1758,7 +1759,7 @@ function v76Context(){
     annualTurnActive:!!game.agency?.annualTurn?.active,annualProgress:game.agency?.annualTurn?.monthsSimulated||0,
     health:p.health,energy:p.energy,activeMission:!!game.activeMission,activeMissionTitle:game.activeMission?.title||'',
     promotionEligible:!!review?.eligible,promotionMissing:review?.missing||[],
-    highRelationRisk,worldThreats,travel:p.travel?.destination||null,lastAnnualReport:game.agency?.lastAnnualReport||null,
+    highRelationRisk,worldThreats,highConsequences:consequences.high,overdueConsequences:consequences.overdue,travel:p.travel?.destination||null,lastAnnualReport:game.agency?.lastAnnualReport||null,
     power:overallPower(p),reputation:repValue(),reputationLabel:repLabel()
   }
 }
@@ -1880,7 +1881,7 @@ function v77Create(trigger){
   return c?v77Push(c):null
 }
 function v77DecisionEcho(action,decision){
-  const root=String(action||'').split(':')[0],eligible=['captain','command','shift','fruit','v74arc','v67crew','hook'];
+  const root=String(action||'').split(':')[0],eligible=['captain','command','shift','fruit','v67crew'];
   if(!eligible.includes(root))return null;
   let relationId=null,relationTone=null;
   if(root==='v74arc'){relationId=String(action).split(':')[1]||null;const choice=String(action).split(':')[3]||'';relationTone=['stand_by','respect_rival','learn','commit','repair','reconcile'].includes(choice)?'positive':'negative'}
