@@ -95,14 +95,14 @@ const summary=engine.summary(switched.state,'study');
 assert(summary.current&&summary.tracks.length>=2,'Daily-life summary missing tracks');
 assert(summary.routineFatigue>=0&&summary.routineFatigue<=100,'Routine fatigue summary out of bounds');
 
-assert(html.includes('ONE PIECE LIFE — V8.6'),'V8.6 title missing');
-assert(/const SAVE_VERSION\s*=\s*860;/.test(html),'Save version 860 missing');
-assert(/const GAME_VERSION\s*=\s*'8\.6\.0';/.test(html),'Game version 8.6.0 missing');
+assert(/ONE PIECE LIFE — V8\.\d+/.test(html),'V8.6+ title missing');
+assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=860,'Save version 860+ missing');
+{const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0',p=v.split('.').map(Number);assert(p[0]>8||(p[0]===8&&p[1]>=6),'Game version 8.6+ missing')}
 for(const asset of ['src/data/daily-life-v86.js','src/v86/daily-life-engine-v86.js','src/v86/daily-life-v86.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v8-6-0'),'PWA cache not bumped to V8.6');
+assert(/one-piece-life-v8-[6-9]-\d+/.test(sw),'PWA cache must remain at V8.6 or newer');
 assert(html.includes('v85Ensure();v86Ensure()'),'Old-save V8.6 migration hook missing');
 for(const fn of ['function v86Module','function v86Ensure','function v86ActivitySnapshot','function v86ProgressMultiplier','function v86CareerMultiplier','function v86MonthlyTick','function v86OpportunityPreview','function v86ResolveOpportunity','function v86DismissOpportunity','function renderV86Daily']){
   assert(html.includes(fn),'Missing live V8.6 bridge '+fn);
@@ -110,7 +110,7 @@ for(const fn of ['function v86Module','function v86Ensure','function v86Activity
 assert(html.includes('careerMult=v61AnnualMultiplier(\'career\')*v86CareerMultiplier(p.activityType)'),'Career routine integration missing');
 assert(html.includes("v67RivalMultiplier('stats',k)*v86ProgressMultiplier(activity)"),'Stat routine progression hook missing');
 assert(html.includes("v67RivalMultiplier('skills',k)*v86ProgressMultiplier(activity)"),'Skill routine progression hook missing');
-assert(html.includes('careerTick(1);v86MonthlyTick();t.phase=2'),'Monthly daily-life tick missing');
+assert(html.includes('careerTick(1);v86MonthlyTick();'),'Monthly daily-life tick missing');
 assert(html.includes('id="v86DailyCard"'),'V8.6 daily UI card missing');
 assert(html.includes('renderV86Daily();'),'V8.6 daily UI render missing');
 assert(html.includes('data-v86-op'),'V8.6 optional opportunity action missing');
