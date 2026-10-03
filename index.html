@@ -1790,8 +1790,8 @@ function v76OpenTab(tab,remember=true){
   const previous=state.activeTab||'life';
   if(remember&&previous!==tab)state.scroll[previous]=Math.max(0,Math.round(window.scrollY||0));
   state.activeTab=tab;
-  $('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
-  $('.tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===tab));
+  $$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
+  $$('.tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===tab));
   if(previous!==tab)v80RenderActiveTab(tab,true);
   if(remember&&previous!==tab){
     const y=Math.max(0,Number(state.scroll[tab])||0);
