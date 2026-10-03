@@ -1,4 +1,4 @@
-name: V8.0 Live Audit
+name: V8.2 Live Audit
 on:
   workflow_dispatch:
   push:
@@ -24,6 +24,8 @@ on:
       - 'scripts/qa-v78.mjs'
       - 'scripts/qa-v79.mjs'
       - 'scripts/qa-v80.mjs'
+      - 'scripts/qa-v81.mjs'
+      - 'scripts/qa-v82.mjs'
       - 'app.js'
       - 'content-v1.js'
       - 'scripts/audit-v32.mjs'
@@ -31,7 +33,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: v80-live-audit-${{ github.ref }}
+  group: v82-live-audit-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   audit:
@@ -78,6 +80,10 @@ jobs:
         run: node scripts/qa-v79.mjs
       - name: Run V8.0 Simulation Core and Life Director QA
         run: node scripts/qa-v80.mjs
+      - name: Run V8.1 Faction Identity QA
+        run: node scripts/qa-v81.mjs
+      - name: Run V8.2 Regional Sagas & Campaigns QA
+        run: node scripts/qa-v82.mjs
       - name: Run legacy engine trend audit
         continue-on-error: true
         run: node scripts/audit-v32.mjs
