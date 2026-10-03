@@ -2447,7 +2447,9 @@ function v82Module(){return window.OPL_MODULES?.get('campaignEngineV82')||null}
 function v82Data(){return window.OPL_MODULES?.get('campaignDataV82')||null}
 function v82Ensure(){
   if(!game?.world)return null;const mod=v82Module();if(!mod)return game.world.campaignV82||null;
-  game.world.campaignV82=mod.normalizeState(game.world.campaignV82||{},V82_REGIONS);return game.world.campaignV82
+  const current=game.world.campaignV82,ready=current?.version===1&&current.regions&&V82_REGIONS.every(r=>current.regions[r]);
+  if(!ready)game.world.campaignV82=mod.normalizeState(current||{},V82_REGIONS);
+  return game.world.campaignV82
 }
 function v82RegionContext(region,campaign=null){
   const rs=v68RegionState(region),inf=game.world?.territoryState?.[region]?.influence||{};
@@ -2488,7 +2490,7 @@ function v82ApplySwingToTerritory(campaign,side,amount){
   if(inf[other]!=null)inf[other]=clamp(Number(inf[other])-delta*.28,0,100)
 }
 function v82ArchiveResolved(region,campaign){
-  const state=v82Ensure(),slot=state?.regions?.[region];if(!slot||!campaign)return;
+  const state=game.world?.campaignV82,slot=state?.regions?.[region];if(!slot||!campaign)return;
   const mod=v82Module(),summary=mod.summary(campaign),inf=game.world?.territoryState?.[region]?.influence||{};
   const bonus=clamp(7+(campaign.resolution?.margin||0)*.12,7,13);
   if(inf[campaign.winner]!=null)inf[campaign.winner]=clamp(Number(inf[campaign.winner])+bonus,0,100);
