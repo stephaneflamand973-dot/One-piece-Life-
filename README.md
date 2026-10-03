@@ -1,3 +1,25 @@
+# ONE PIECE LIFE — V8.1 Faction Identity 4.0
+
+La V8.1 transforme les factions en expériences de vie distinctes. Les métriques V7.3 de carrière sont désormais reliées à une identité persistante : loyauté, autonomie, pression, friction, devoirs remplis ou ignorés et opportunités saisies.
+
+## Faction Identity 4.0
+
+- **Civil** : indépendance, réputation et ancrage local.
+- **Marine** : service, discipline et intégrité.
+- **Pirates** : liberté, loyauté d’équipage et audace.
+- **Chasseurs de primes** : contrats, précision et code personnel.
+- **Révolutionnaires** : conviction, réseau et clandestinité.
+- **Gouvernement** : secret, efficacité et loyauté institutionnelle.
+- Les événements de faction passent par le **Priority Director V8.0** : une obligation interne n’interrompt la simulation que si sa priorité dépasse les autres événements.
+- Les missions modifient désormais l’identité de faction en fonction du résultat, du danger et de l’alignement avec la branche V7.3.
+- Les changements de faction laissent une trace persistante et modifient immédiatement la relation avec la nouvelle organisation.
+- Nouvelle carte **Identité & pression** dans l’onglet Personnage.
+- Migration V8.0 → V8.1 automatique.
+- Save version : **810**.
+- Cache PWA : **one-piece-life-v8-1-0**.
+
+---
+
 # ONE PIECE LIFE — V8.0 Simulation Core & Life Director 4.0
 
 La V8.0 est une mise à jour de consolidation. Elle n’ajoute pas un nouveau domaine de vie : elle fait mieux travailler ensemble ceux qui existent déjà.
