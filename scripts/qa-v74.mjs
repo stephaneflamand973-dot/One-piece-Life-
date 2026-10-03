@@ -102,9 +102,9 @@ eq(zeroSocial.reliability,0,'Explicit zero reliability must be preserved');
 // Live integration contract.
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
 assert(saveVersion>=740,'V7.4 regression QA requires save version >= 740');
-assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=4,'V7.4 regression QA requires game version >= 7.4');
+const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);\nassert(gameMajor>7||(gameMajor===7&&gameMinor>=4),'V7.4 regression QA requires game version >= 7.4');
 for(const asset of ['src/data/relation-personas-v74.js','src/v74/relation-persona-engine-v74.js']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
