@@ -127,7 +127,10 @@ assert(html.includes("v84RecordMissionOutcome(m,'success')"),'Crew mission succe
 assert(html.includes("v84RecordMissionOutcome(m,'partial')"),'Crew mission partial hook missing');
 assert(html.includes("v84RecordMissionOutcome(m,retreated?'retreat':'failure')"),'Crew mission failure hook missing');
 assert(html.includes('organization:v69NetworkMissionBonus()+v84CampaignSupport(campaign)'),'Crew campaign support hook missing');
-assert(html.includes('const v84=v84MissionSupport(m),social=v67MissionRelationSupport();'),'Crew mission support integration missing');
+assert(html.includes('const social=v67MissionRelationSupport(),mod=v84Module();')&&html.includes('const v84=v84MissionSupport(m);'),'Crew mission support integration missing');
+for(const selector of ['data-v84-doctrine','data-v84-manage','data-v84-firstmate','data-v84-recruit','data-ship-repair']){
+  assert(html.includes("$('["+selector+"]')"+'.forEach'),'Crew dashboard multi-button binding missing: '+selector);
+}
 assert(html.includes('if(p.crew)v84RenderCrew();'),'Crew V8.4 UI render hook missing');
 
 console.log('V8.4 CREW & ORGANIZATION 4.0 QA OK',JSON.stringify({
