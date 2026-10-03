@@ -61,9 +61,9 @@
 
   const v80=registry.get('simulationCoreDataV80');
   if(v80&&!v80.interruptionKinds.nemesis)v80.interruptionKinds.nemesis={label:'Némésis',base:66,novelty:14};
-  if(v80?.narrativeDomains?.relations?.patterns&&!v80.narrativeDomains.relations.patterns.includes('némésis'))v80.narrativeDomains.relations.patterns.push('némésis');
+  if(v80?.narrativeDomains?.relation?.patterns&&!v80.narrativeDomains.relation.patterns.includes('némésis'))v80.narrativeDomains.relation.patterns.push('némésis');
   if(v80?.narrativeDomains?.world?.patterns&&!v80.narrativeDomains.world.patterns.includes('antagoniste'))v80.narrativeDomains.world.patterns.push('antagoniste');
-  if(v80?.legacyCategories?.rivalry?.patterns&&!v80.legacyCategories.rivalry.patterns.includes('némésis'))v80.legacyCategories.rivalry.patterns.push('némésis');
+  if(v80?.legacyCategories?.relation?.patterns&&!v80.legacyCategories.relation.patterns.includes('némésis'))v80.legacyCategories.relation.patterns.push('némésis');
 
   registry.register('antagonistDataV83',{version:'8.3.0',archetypes,factionArchetypes,motivations,temperaments,lieutenantRoles,firstNames,lastNames,actions,encounterChoices});
 })(window);
