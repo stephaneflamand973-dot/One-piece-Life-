@@ -129,7 +129,7 @@ for(const fn of ['function v78Ensure','function v78MaybeEvent','function v78Annu
   assert(html.includes(fn),'Missing live V7.8 bridge '+fn);
 }
 assert(html.includes('v69AnnualEconomy();v78AnnualHousehold();v69Milestones()'),'Annual household economy not connected');
-assert(html.includes('if(!game.pendingDecision)v78MaybeEvent()'),'Personal-life event tick missing');
+assert(html.includes('if(!game.pendingDecision)v78MaybeEvent()')||(html.includes('function v80CollectInterruptionCandidates')&&html.includes("kind:'personal'")),'Personal-life event arbitration missing');
 assert(html.includes("if(parts[0]==='v78personal')v78ResolvePersonalDecision(parts)"),'Personal-life decisions not connected');
 assert(html.includes('renderV74Network();renderV78PersonalLife();'),'Relations panel does not render household');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
