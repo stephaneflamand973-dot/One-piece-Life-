@@ -3934,8 +3934,13 @@ function v65MissionApproach(plan=v62PlanSource()){
 }
 function v65CrewSupport(m=game?.activeMission){
   v67Ensure();const c=game?.player?.crew;if(!c)return v67MissionRelationSupport();
-  const v84=v84MissionSupport(m),social=v67MissionRelationSupport();
-  return +clamp((v84?.bonus||0)+social*.55,0,18).toFixed(1)
+  const social=v67MissionRelationSupport(),mod=v84Module();
+  if(mod){const v84=v84MissionSupport(m);return +clamp((v84?.bonus||0)+social*.55,0,18).toFixed(1)}
+  const active=(c.members||[]).filter(x=>x.status!=='left');if(!active.length)return social;
+  const metrics=v67CrewMetrics(),morale=clamp(Number(c.morale)||50,0,100),roster=Math.min(5.5,active.length*.72);
+  const ship=['navigation','explore','escort'].includes(m?.type)&&c.ship?clamp((Number(c.ship.condition)||60)-50,0,50)/25:0;
+  const second=active.some(x=>/bras droit|second/i.test(String(x.role||'')))?1.2:0,cohesion=(metrics.cohesion-50)/18,tensionPenalty=Math.max(0,(metrics.tension-45)/16);
+  return +clamp(roster+morale/30+ship+second+cohesion+social-tensionPenalty,0,12).toFixed(1)
 }
 function v65MissionCondition(){
   const p=game.player;
