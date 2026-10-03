@@ -1,3 +1,34 @@
+# ONE PIECE LIFE — V8.6 Daily Life & Opportunities 4.0
+
+La V8.6 donne enfin du poids aux **mois ordinaires**. L’activité principale n’est plus un simple bouton qui détermine quelques gains : elle construit une maîtrise, une habitude, une série, une fatigue de routine et des occasions locales cohérentes avec ce que fait réellement le personnage.
+
+## Daily Life & Opportunities 4.0
+
+- **18 profils d’activité** reliés aux activités déjà existantes.
+- Chaque activité possède une maîtrise persistante de **0 à 100**.
+- Le moteur conserve le nombre de mois pratiqués et la meilleure série.
+- Une activité répétée devient progressivement plus efficace grâce à la constance et à la maîtrise.
+- Les gains restent volontairement modérés : V8.6 affine les moteurs de progression existants au lieu de les écraser.
+- Après une longue répétition, une **fatigue de routine** apparaît et réduit progressivement le rendement.
+- Changer d’activité réduit cette fatigue sans supprimer les maîtrises acquises.
+- Les routines peuvent produire des **micro-événements** : déclic, reconnaissance, petite rentrée d’argent, fatigue, moment relationnel ou observation utile.
+- Les micro-événements n’interrompent pas la simulation annuelle.
+- Jusqu’à **3 opportunités locales facultatives** peuvent être conservées simultanément.
+- Les opportunités restent disponibles **18 mois**, donc elles survivent à une avance annuelle complète.
+- 14 familles d’occasions : défi local, entraînement, prime secondaire, secours, piste, trésor, renseignement, recherche, contact, commerce, contrat, invitation, anomalie et coup opportuniste.
+- Chaque occasion possède une difficulté, un risque, une compétence pertinente et une récompense.
+- La probabilité de réussite dépend de la compétence concernée, de la puissance, de la maîtrise de l’activité, de l’énergie et de la réputation mondiale.
+- Le joueur peut **saisir ou ignorer** chaque occasion depuis l’onglet Personnage.
+- Les résultats peuvent modifier argent, réputation, énergie, santé, compétences, relations, pistes rares et exploration locale.
+- L’activité maîtrisée apporte un petit multiplicateur aux progressions physiques, techniques, Haki et Fruit.
+- Les activités professionnelles et de service influencent aussi légèrement l’efficacité de carrière.
+- Nouvelle interface Quotidien : activité actuelle, maîtrise, série, fatigue de routine, micro-événements, statistiques d’opportunités et meilleures habitudes.
+- Migration V8.5 → V8.6 automatique.
+- Save version : **860**.
+- Cache PWA : **one-piece-life-v8-6-0**.
+
+---
+
 # ONE PIECE LIFE — V8.5 Voyage & Exploration 4.0
 
 La V8.5 transforme les déplacements en **véritable gameplay maritime**. Une route n'est plus seulement une destination et une durée : elle possède un risque, une maîtrise, une météo, des incidents, une usure du navire et des opportunités de découverte.
