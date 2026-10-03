@@ -1,3 +1,30 @@
+# ONE PIECE LIFE — V7.8 Personal Life & Household 3.0
+
+La V7.8 développe enfin ce qui se passe entre deux grandes aventures : où ton personnage vit, ce que son foyer lui coûte, ce qu’il doit à sa famille et comment sa vie personnelle évolue avec l’âge.
+
+## Personal Life & Household 3.0
+
+- 6 formes de logement, du foyer familial à la grande propriété.
+- Logements de faction adaptés aux Pirates, Marines, Révolutionnaires, Gouvernement, chasseurs de primes et civils.
+- Coûts annuels réels de logement, enfants et personnes à charge.
+- Condition du logement, stabilité du foyer, stress et réserve financière.
+- Le lien familial tiré à la naissance est désormais conservé et évolue réellement.
+- Événement d’indépendance à l’âge adulte.
+- Actions annuelles de foyer : temps en famille, entretien, réserve et voisinage.
+- Rencontres personnelles adultes explicitement séparées des personnages canoniques.
+- Relations de couple possibles uniquement à partir de l’âge adulte.
+- Construction d’un foyer commun selon la force réelle de la relation.
+- Possibilité d’accueillir des enfants dans un foyer stable.
+- Responsabilités familiales et personnes à charge.
+- Retrouvailles, demandes d’aide, entretien du logement et transmissions familiales.
+- Les enfants vieillissent avec le temps.
+- Le budget du foyer peut créer des conséquences V7.7 lorsqu’il devient impossible à tenir.
+- Migration V7.7 → V7.8 automatique.
+- Save version : **780**.
+- Cache PWA : **one-piece-life-v7-8-0**.
+
+---
+
 # ONE PIECE LIFE — V7.7 Consequences & Life Events 3.0
 
 La V7.7 ajoute une mémoire causale à long terme. Une décision importante peut désormais créer une conséquence invisible au moment du choix, puis revenir des mois ou des années plus tard.
