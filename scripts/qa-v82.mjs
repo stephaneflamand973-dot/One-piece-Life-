@@ -98,14 +98,17 @@ assert(resolved.resolved,'Campaign above collapse threshold should resolve');
 eq(resolved.campaign.winner,'Pirates','Campaign winner mismatch');
 eq(resolved.campaign.status,'resolved','Campaign status should be resolved');
 
-assert(html.includes('ONE PIECE LIFE — V8.2'),'V8.2 title missing');
-assert(/const SAVE_VERSION\s*=\s*820;/.test(html),'Save version 820 missing');
-assert(/const GAME_VERSION\s*=\s*'8\.2\.0';/.test(html),'Game version 8.2.0 missing');
+assert(/ONE PIECE LIFE — V8\.\d+/.test(html),'V8.2+ title missing');
+const liveSave=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+assert(liveSave>=820,'Save version 820+ missing');
+const liveVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+const [liveMajor,liveMinor]=liveVersion.split('.').map(Number);
+assert(liveMajor>8||(liveMajor===8&&liveMinor>=2),'Game version 8.2+ missing');
 for(const asset of ['src/data/campaigns-v82.js','src/v82/campaign-engine-v82.js','src/v82/campaigns-v82.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v8-2-0'),'PWA cache not bumped to V8.2');
+assert(/one-piece-life-v8-[2-9]-\d+/.test(sw),'PWA cache must remain at V8.2 or newer');
 assert(html.includes('campaignV82:{version:1'),'Fresh campaign state missing');
 assert(html.includes('v80Ensure();v81Ensure();v82Ensure();'),'Old-save V8.2 migration hook missing');
 assert(html.includes('id="v82CampaignCard"'),'Campaign UI card missing');
@@ -115,7 +118,7 @@ for(const fn of ['function v82Module','function v82Ensure','function v82RegionCo
 assert(html.includes("kind:'campaign'"),'Campaign is not connected to Priority Director');
 assert(html.includes("else if(c.kind==='campaign')queued=v82QueueCampaign(c.payload)"),'Campaign queue missing');
 assert(html.includes("if(parts[0]==='v82campaign')v82ResolveDecision(parts)"),'Campaign decision route missing');
-assert(html.includes('v69Milestones();v82AnnualWorldTick();const newEvents='),'Campaign annual tick must run before Life Director snapshot');
+assert(html.includes('v69Milestones();v82AnnualWorldTick();const newEvents=')||html.includes('v69Milestones();v83AnnualWorldTick();v82AnnualWorldTick();const newEvents='),'Campaign annual tick must run before Life Director snapshot');
 assert(html.includes('const campaign=v82CampaignMissionCandidate();if(campaign)add(campaign);'),'Campaign mission board injection missing');
 assert(html.includes("v81RecordMissionOutcome(m,'success');v82RecordMissionOutcome(m,'success');"),'Campaign mission success hook missing');
 assert(html.includes("v81RecordMissionOutcome(m,'partial');v82RecordMissionOutcome(m,'partial');"),'Campaign mission partial hook missing');
