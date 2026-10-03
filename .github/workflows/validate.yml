@@ -25,7 +25,8 @@ on:
       - 'scripts/qa-v77.mjs'
       - 'scripts/qa-v78.mjs'
       - 'scripts/qa-v79.mjs'
-      - 'scripts/qa-v80.mjs'\n      - 'scripts/qa-v81.mjs'
+      - 'scripts/qa-v80.mjs'
+      - 'scripts/qa-v81.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -35,7 +36,8 @@ on:
       - 'QA-V7.7.md'
       - 'QA-V7.8.md'
       - 'QA-V7.9.md'
-      - 'QA-V8.0.md'\n      - 'QA-V8.1.md'
+      - 'QA-V8.0.md'
+      - 'QA-V8.1.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
       - '.github/workflows/audit-v32.yml'
@@ -77,7 +79,8 @@ jobs:
             'src/data/consequences-v77.js','src/v77/consequence-engine-v77.js','src/v77/consequences-v77.css',
             'src/data/personal-life-v78.js','src/v78/personal-life-engine-v78.js','src/v78/personal-life-v78.css',
             'src/data/education-v79.js','src/v79/education-engine-v79.js','src/v79/education-v79.css',
-            'src/data/simulation-core-v80.js','src/v80/simulation-core-v80.js','src/v80/simulation-core-v80.css',\n            'src/data/faction-identity-v81.js','src/v81/faction-identity-engine-v81.js','src/v81/faction-identity-v81.css'
+            'src/data/simulation-core-v80.js','src/v80/simulation-core-v80.js','src/v80/simulation-core-v80.css',
+            'src/data/faction-identity-v81.js','src/v81/faction-identity-engine-v81.js','src/v81/faction-identity-v81.css'
           ];
           for(const x of assets){if(!fs.existsSync(x))throw new Error('missing modular asset '+x);if(!html.includes(x))throw new Error('index does not load '+x)}
           for(const x of assets.filter(x=>x.endsWith('.js')))new Function(fs.readFileSync(x,'utf8'));
