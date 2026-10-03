@@ -107,6 +107,13 @@ Personal Life / Household 3.0 :
 - intégration aux relations, à l’économie annuelle et aux conséquences V7.7 ;
 - état persistant du foyer et migration des anciennes sauvegardes.
 
+### Cycle 2 — V7.9
+Education / Youth 3.0 :
+- parcours, rythmes, examens et événements dans `src/data/education-v79.js` ;
+- progression mensuelle, chances d’examen, préparation carrière et dossier de jeunesse dans `src/v79/education-engine-v79.js` ;
+- intégration aux étapes de vie, activités, foyer V7.8 et choix de carrière ;
+- migration synthétique des anciennes vies adultes sans bonus rétroactif.
+
 Le but n'est pas de supprimer immédiatement le moteur legacy, mais de réduire progressivement son rôle jusqu'à ce qu'il devienne essentiellement un orchestrateur.
 
 ## Interdictions
