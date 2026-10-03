@@ -34,6 +34,7 @@
       defections:Math.max(0,Math.floor(num(state.defections))),
       lastAnnualYear:Number.isFinite(Number(state.lastAnnualYear))?Number(state.lastAnnualYear):-99,
       lastDecisionYear:Number.isFinite(Number(state.lastDecisionYear))?Number(state.lastDecisionYear):-99,
+      lastEventCheckYear:Number.isFinite(Number(state.lastEventCheckYear))?Number(state.lastEventCheckYear):-99,
       lastFactionChangeMonth:Number.isFinite(Number(state.lastFactionChangeMonth))?Number(state.lastFactionChangeMonth):-99,
       lastMissionMonth:Number.isFinite(Number(state.lastMissionMonth))?Number(state.lastMissionMonth):-99,
       history:Array.isArray(state.history)?clone(state.history).slice(0,24):[]
@@ -49,6 +50,7 @@
       next.friction=clamp(Math.max(18,next.friction+8),0,100);
       next.lastFactionChangeMonth=num(ctx.month);
       next.lastDecisionYear=-99;
+      next.lastEventCheckYear=-99;
     }
     return next
   }
