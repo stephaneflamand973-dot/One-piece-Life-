@@ -1,4 +1,4 @@
-name: Validate V7.8
+name: Validate V7.9
 on:
   push:
     branches: [main]
@@ -24,6 +24,7 @@ on:
       - 'scripts/qa-v76.mjs'
       - 'scripts/qa-v77.mjs'
       - 'scripts/qa-v78.mjs'
+      - 'scripts/qa-v79.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -32,6 +33,7 @@ on:
       - 'QA-V7.6.md'
       - 'QA-V7.7.md'
       - 'QA-V7.8.md'
+      - 'QA-V7.9.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
       - '.github/workflows/audit-v32.yml'
@@ -40,7 +42,7 @@ on:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v78-validate-${{ github.ref }}
+  group: v79-validate-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -52,35 +54,36 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate standalone and modular V7.8
+      - name: Validate standalone and modular V7.9
         run: |
           node <<'NODE'
           const fs=require('fs');
           const html=fs.readFileSync('index.html','utf8');
           const m=html.match(/<script>([\s\S]*?)<\/script>/);
-          if(!m) throw new Error('inline game script missing');
+          if(!m)throw new Error('inline game script missing');
           new Function(m[1]);
           const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
           const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-          if(!html.includes('ONE PIECE LIFE — V7.8')) throw new Error('V7.8 title missing');
-          if(saveVersion<780) throw new Error('Save migration 780+ missing');
-          if(gameVersion!=='7.8.0') throw new Error('Game version 7.8.0 missing');
+          if(!html.includes('ONE PIECE LIFE — V7.9'))throw new Error('V7.9 title missing');
+          if(saveVersion<790)throw new Error('Save migration 790+ missing');
+          if(gameVersion!=='7.9.0')throw new Error('Game version 7.9.0 missing');
           const assets=[
             'src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css',
             'src/data/combat-techniques-v72.js','src/v72/combat-engine-v72.js','src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js',
             'src/data/relation-personas-v74.js','src/v74/relation-persona-engine-v74.js','src/data/world-canon-v75.js','src/v75/world-canon-engine-v75.js',
             'src/data/ui-layout-v76.js','src/v76/ui-components-v76.js','src/v76/ui-v76.css',
             'src/data/consequences-v77.js','src/v77/consequence-engine-v77.js','src/v77/consequences-v77.css',
-            'src/data/personal-life-v78.js','src/v78/personal-life-engine-v78.js','src/v78/personal-life-v78.css'
+            'src/data/personal-life-v78.js','src/v78/personal-life-engine-v78.js','src/v78/personal-life-v78.css',
+            'src/data/education-v79.js','src/v79/education-engine-v79.js','src/v79/education-v79.css'
           ];
           for(const x of assets){if(!fs.existsSync(x))throw new Error('missing modular asset '+x);if(!html.includes(x))throw new Error('index does not load '+x)}
           for(const x of assets.filter(x=>x.endsWith('.js')))new Function(fs.readFileSync(x,'utf8'));
-          for(const x of ['function v71Ensure','function v72CombatModule','function v73Module','function v74Module','function v75Module','function v76Module','function v77Module','function v78Module','function v78MaybeEvent','function v78AnnualHousehold'])if(!html.includes(x))throw new Error('missing '+x);
-          if(!html.includes('id="v78HouseholdCard"'))throw new Error('V7.8 household UI missing');
-          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V7.8'))throw new Error('manifest not V7.8');
-          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v7-8-0'))throw new Error('service worker cache not V7.8.0');
+          for(const x of ['function v71Ensure','function v72CombatModule','function v73Module','function v74Module','function v75Module','function v76Module','function v77Module','function v78Module','function v79Module','function v79EducationMonth','function v79MilestoneTick'])if(!html.includes(x))throw new Error('missing '+x);
+          if(!html.includes('id="v79EducationCard"'))throw new Error('V7.9 education UI missing');
+          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V7.9'))throw new Error('manifest not V7.9');
+          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v7-9-0'))throw new Error('service worker cache not V7.9.0');
           for(const x of assets)if(!sw.includes(x))throw new Error('service worker missing modular asset '+x);
-          console.log('V7.8 static + modular validation OK');
+          console.log('V7.9 static + modular validation OK');
           NODE
       - name: Validate V6.4 regression behavior
         run: node scripts/qa-v64.mjs
@@ -114,3 +117,5 @@ jobs:
         run: node scripts/qa-v77.mjs
       - name: Validate V7.8 Personal Life and Household
         run: node scripts/qa-v78.mjs
+      - name: Validate V7.9 Education and Youth
+        run: node scripts/qa-v79.mjs
