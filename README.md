@@ -1,3 +1,29 @@
+# ONE PIECE LIFE — V8.7 Islands & Settlements 4.0
+
+La V8.7 transforme chaque destination en **lieu de vie persistant**. Une île ne se résume plus à son danger et à son pourcentage d'exploration : elle se souvient de ta présence, ouvre des quartiers et services adaptés, ajuste ses prix et construit une relation locale propre à ton personnage.
+
+## Islands & Settlements 4.0
+
+- **Réputation propre à chaque île** : recherché, mal vu, méfiance, inconnu, connu, apprécié ou figure locale.
+- **Familiarité locale** persistante de 0 à 100.
+- **Chaleur locale** représentant l'attention indésirable, qui retombe progressivement avec le temps.
+- Nombre de visites, services utilisés et contacts suivis séparément pour chaque destination.
+- Quartiers générés à partir de l'identité réelle du lieu : port, centre civil, vieux quartier, périphérie ou bas-fonds.
+- **8 services locaux** : Marché, Clinique, Chantier naval, Taverne & réseau, Dojo, Archives, Réseau clandestin et Administration.
+- Les services disponibles dépendent des tags canoniques du lieu et de la familiarité acquise.
+- Les **prix utilisent directement l'indice économique V6.8**, la réputation locale, la familiarité et la chaleur.
+- Les services peuvent soigner, restaurer l'énergie, réparer le navire, renforcer les réserves V8.4, entraîner une compétence, améliorer l'exploration V8.5 ou produire pistes et contacts.
+- Une action locale majeure par an et par île pour éviter le spam économique.
+- Les réussites et échecs des opportunités V8.6 influencent désormais aussi la réputation et la chaleur de l'île concernée.
+- Les arrivées V8.5 augmentent la familiarité locale au lieu de seulement incrémenter la liste des lieux visités.
+- La réputation locale globale historique reste conservée : V8.7 ajoute une couche géographique sans casser les sauvegardes existantes.
+- Nouvelle interface **Île & services** dans l'onglet Monde.
+- Migration V8.6 → V8.7 automatique.
+- Save version : **870**.
+- Cache PWA : **one-piece-life-v8-7-0**.
+
+---
+
 # ONE PIECE LIFE — V8.6 Daily Life & Opportunities 4.0
 
 La V8.6 donne enfin du poids aux **mois ordinaires**. L’activité principale n’est plus un simple bouton qui détermine quelques gains : elle construit une maîtrise, une habitude, une série, une fatigue de routine et des occasions locales cohérentes avec ce que fait réellement le personnage.
