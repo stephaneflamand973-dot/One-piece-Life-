@@ -97,14 +97,16 @@ eq(ledger.actorId,'luffy','Ledger actor missing');
 eq(ledger.month,120,'Ledger month missing');
 
 // Live integration contract.
-assert(html.includes('ONE PIECE LIFE — V7.5'),'V7.5 title missing');
-assert(/const SAVE_VERSION\s*=\s*750;/.test(html),'Save version 750 missing');
-assert(/const GAME_VERSION\s*=\s*'7\.5\.0';/.test(html),'Game version 7.5.0 missing');
+const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(saveVersion>=750,'V7.5 regression QA requires save version >= 750');
+assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=5,'V7.5 regression QA requires game version >= 7.5');
 for(const asset of ['src/data/world-canon-v75.js','src/v75/world-canon-engine-v75.js']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v7-5-0'),'PWA cache not bumped to V7.5');
+assert(/one-piece-life-v7-[5-9]-\d+/.test(sw),'PWA cache must remain at V7.5 or newer');
 for(const fn of ['function v75Ensure','function v75WorldTick','function v75SyncCanonIntegrity','function v75ApplyAction','function v75EventCoherence','function renderV75WorldDirector']){
   assert(html.includes(fn),'Missing live V7.5 bridge '+fn);
 }
@@ -115,7 +117,7 @@ assert(html.includes('const reqReady=v70CanonRequirementMet(e),req=V70_CANON_REQ
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
 
 console.log('V7.5 WORLD & CANON QA OK',JSON.stringify({
-  version:'7.5.0',
+  version:gameVersion,
   regions:data.regions.length,
   factionProfiles:Object.keys(data.factionProfiles).length,
   eventAnchors:Object.keys(data.eventAnchors).length,
