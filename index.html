@@ -2694,7 +2694,7 @@ function renderV86Daily(){
   box.innerHTML='<div class="v86-daily-summary"><div><span>Activité</span><strong>'+esc(current.label)+'</strong></div><div><span>Maîtrise</span><strong>'+Math.round(current.mastery)+'/100</strong></div><div><span>Série actuelle</span><strong>'+s.streak+' mois</strong></div><div><span>Fatigue de routine</span><strong>'+fatigue+'</strong></div><div><span>Opportunités vues</span><strong>'+s.totalOpportunities+'</strong></div><div><span>Saisies</span><strong>'+s.accepted+'</strong></div><div><span>Réussies</span><strong>'+s.succeeded+'</strong></div><div><span>Micro-événements</span><strong>'+s.microEvents+'</strong></div></div>'+
     (top.length?'<div>'+top.map(t=>'<div class="v86-track-row"><span>'+esc(t.label)+' • '+Math.round(t.months)+' mois</span><strong>'+Math.round(t.mastery)+'/100</strong></div>').join('')+'</div>':'')+
     '<div><span class="eyebrow">Occasions facultatives</span>'+opportunities+'</div>';
-  $('[data-v86-op]').forEach(b=>b.onclick=()=>v86ResolveOpportunity(b.dataset.v86Op));$('[data-v86-dismiss]').forEach(b=>b.onclick=()=>v86DismissOpportunity(b.dataset.v86Dismiss))
+  $$('[data-v86-op]').forEach(b=>b.onclick=()=>v86ResolveOpportunity(b.dataset.v86Op));$$('[data-v86-dismiss]').forEach(b=>b.onclick=()=>v86DismissOpportunity(b.dataset.v86Dismiss))
 }
 
 function v85Module(){return window.OPL_MODULES?.get('voyageEngineV85')||null}
