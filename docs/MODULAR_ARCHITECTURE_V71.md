@@ -100,6 +100,13 @@ Consequences / Life Events 3.0 :
 - intégration aux missions, combats, relations, choix et événements mondiaux ;
 - présentation compacte dans l’écran Vie et le dashboard Focus.
 
+### Cycle 2 — V7.8
+Personal Life / Household 3.0 :
+- données de logement et événements personnels dans `src/data/personal-life-v78.js` ;
+- coûts annuels, stabilité, foyer, événements, contacts adultes et évolution des enfants dans `src/v78/personal-life-engine-v78.js` ;
+- intégration aux relations, à l’économie annuelle et aux conséquences V7.7 ;
+- état persistant du foyer et migration des anciennes sauvegardes.
+
 Le but n'est pas de supprimer immédiatement le moteur legacy, mais de réduire progressivement son rôle jusqu'à ce qu'il devienne essentiellement un orchestrateur.
 
 ## Interdictions

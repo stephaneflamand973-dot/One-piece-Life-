@@ -11,6 +11,7 @@
   ];
 
   const sections=[
+    {key:'household',anchor:'v78HouseholdCard',label:'Foyer & famille',defaultCollapsed:false},
     {key:'consequences',anchor:'v77ConsequencesList',label:'Conséquences actives',defaultCollapsed:false},
     {key:'career_progress',anchor:'careerProgressCard',label:'Progression de carrière',defaultCollapsed:false},
     {key:'organization',anchor:'v73OrganizationCard',label:'Organisation',defaultCollapsed:false},
