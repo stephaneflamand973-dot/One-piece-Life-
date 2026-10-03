@@ -86,14 +86,14 @@ eq(summary.record.visits,2,'Settlement summary visits mismatch');
 assert(summary.districts.length>0&&summary.services.length>0,'Settlement summary content missing');
 eq(engine.standingLabel(85),'Figure locale','Standing label mismatch');
 
-assert(html.includes('ONE PIECE LIFE — V8.7'),'V8.7 title missing');
-assert(/const SAVE_VERSION\s*=\s*870;/.test(html),'Save version 870 missing');
-assert(/const GAME_VERSION\s*=\s*'8\.7\.0';/.test(html),'Game version 8.7.0 missing');
+assert(/ONE PIECE LIFE — V8\.\d+/.test(html),'V8.7+ title missing');
+assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=870,'Save version 870+ missing');
+{const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0',p=v.split('.').map(Number);assert(p[0]>8||(p[0]===8&&p[1]>=7),'Game version 8.7+ missing')}
 for(const asset of ['src/data/settlements-v87.js','src/v87/settlement-engine-v87.js','src/v87/settlements-v87.css']){
  assert(html.includes(asset),'Index does not load '+asset);
  assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v8-7-0'),'PWA cache not bumped to V8.7');
+assert(/one-piece-life-v8-[7-9]-\d+/.test(sw),'PWA cache must remain at V8.7 or newer');
 assert(html.includes('v86Ensure();v87Ensure()'),'Old-save V8.7 migration hook missing');
 for(const fn of ['function v87Module','function v87Ensure','function v87OnArrival','function v87MonthlyTick','function v87OnLocalOutcome','function v87Service','function renderV87Settlement']){
  assert(html.includes(fn),'Missing live V8.7 bridge '+fn);

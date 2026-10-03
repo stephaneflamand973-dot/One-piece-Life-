@@ -1,4 +1,4 @@
-name: V8.7 Live Audit
+name: V8.8 Live Audit
 on:
   workflow_dispatch:
   push:
@@ -31,6 +31,7 @@ on:
       - 'scripts/qa-v85.mjs'
       - 'scripts/qa-v86.mjs'
       - 'scripts/qa-v87.mjs'
+      - 'scripts/qa-v88.mjs'
       - 'app.js'
       - 'content-v1.js'
       - 'scripts/audit-v32.mjs'
@@ -38,7 +39,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: v87-live-audit-${{ github.ref }}
+  group: v88-live-audit-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   audit:
@@ -99,6 +100,8 @@ jobs:
         run: node scripts/qa-v86.mjs
       - name: Run V8.7 Islands & Settlements QA
         run: node scripts/qa-v87.mjs
+      - name: Run V8.8 Markets, Cargo & Trade QA
+        run: node scripts/qa-v88.mjs
       - name: Run legacy engine trend audit
         continue-on-error: true
         run: node scripts/audit-v32.mjs
