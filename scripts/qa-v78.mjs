@@ -110,14 +110,16 @@ eq(summary.partnership,'committed','Household summary partnership mismatch');
 assert(summary.stability>=60,'Stable household summary unexpectedly weak');
 
 // Live integration contract.
-assert(html.includes('ONE PIECE LIFE — V7.8'),'V7.8 title missing');
-assert(/const SAVE_VERSION\s*=\s*780;/.test(html),'Save version 780 missing');
-assert(/const GAME_VERSION\s*=\s*'7\.8\.0';/.test(html),'Game version 7.8.0 missing');
+const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
+const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
+assert(html.includes('ONE PIECE LIFE — V7.'),'V7 release title missing');
+assert(saveVersion>=780,'V7.8 regression QA requires save version >= 780');
+assert(Number(gameVersion.split('.')[0])>=7&&Number(gameVersion.split('.')[1])>=8,'V7.8 regression QA requires game version >= 7.8');
 for(const asset of ['src/data/personal-life-v78.js','src/v78/personal-life-engine-v78.js','src/v78/personal-life-v78.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v7-8-0'),'PWA cache not bumped to V7.8');
+assert(/one-piece-life-v7-[8-9]-\d+/.test(sw),'PWA cache must remain at V7.8 or newer');
 assert(html.includes("personalV78:{version:1"),'Fresh-save personal-life state missing');
 assert(html.includes("if(!game.player.personalV78||typeof game.player.personalV78!=='object')"),'Old-save V7.8 migration guard missing');
 assert(html.includes('game.player.personalV78.familyBond=game.player.family.bond'),'Birth family bond synchronization missing');
@@ -132,7 +134,7 @@ assert(html.includes('renderV74Network();renderV78PersonalLife();'),'Relations p
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
 
 console.log('V7.8 PERSONAL LIFE & HOUSEHOLD QA OK',JSON.stringify({
-  version:'7.8.0',
+  version:gameVersion,
   housing:Object.keys(data.housing).length,
   actions:Object.keys(data.householdActions).length,
   events:Object.keys(data.personalEvents).length,
