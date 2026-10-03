@@ -1,4 +1,4 @@
-name: V7.7 QA
+name: V7.8 QA
 on:
   push:
     branches: [main]
@@ -22,6 +22,7 @@ on:
       - 'scripts/qa-v75.mjs'
       - 'scripts/qa-v76.mjs'
       - 'scripts/qa-v77.mjs'
+      - 'scripts/qa-v78.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -29,13 +30,14 @@ on:
       - 'QA-V7.5.md'
       - 'QA-V7.6.md'
       - 'QA-V7.7.md'
+      - 'QA-V7.8.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v77-qa-${{ github.ref }}
+  group: v78-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -77,3 +79,5 @@ jobs:
         run: node scripts/qa-v76.mjs
       - name: Verify V7.7 Consequences and Life Events 3.0
         run: node scripts/qa-v77.mjs
+      - name: Verify V7.8 Personal Life and Household 3.0
+        run: node scripts/qa-v78.mjs
