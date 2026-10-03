@@ -1,3 +1,32 @@
+# ONE PIECE LIFE — V8.8 Markets, Cargo & Trade 4.0
+
+La V8.8 transforme l'économie locale en **véritable boucle de commerce maritime**. Les Berry ne servent plus seulement à payer des services : le joueur peut acheter une cargaison là où l'offre est favorable, la transporter avec les systèmes de voyage existants et la revendre dans une région où la demande est plus forte.
+
+## Markets, Cargo & Trade 4.0
+
+- **8 familles de marchandises** : vivres, médicaments, bois & matériaux, outils, textiles, livres & cartes, produits de luxe et pièces de récupération.
+- Prix d'achat et de vente calculés séparément.
+- **Offre et demande géographiques** dérivées des tags réels de chaque destination.
+- Les prix combinent l'indice économique régional V6.8, le danger local, la réputation V8.7, la familiarité, la chaleur et l'expertise commerciale.
+- Un spread structurel empêche de gagner de l'argent en achetant et revendant immédiatement sur la même île.
+- Nouvelle **cargaison persistante**, distincte de l'inventaire personnel et des Fruits du Démon.
+- Chaque lot mémorise sa quantité, son coût moyen et son origine.
+- Capacité logistique limitée : un navire V8.4 et la Structure économique V6.9 augmentent la cale disponible.
+- Achat à l'unité, vente à l'unité ou liquidation complète d'un lot.
+- Les ventes calculent la **marge réelle** par rapport au coût moyen d'acquisition.
+- Les échanges entre deux îles créent des **routes commerciales persistantes** avec nombre de trajets, chiffre d'affaires, bénéfice cumulé et meilleur résultat.
+- Les carrières et spécialisations Commerce bénéficient davantage des transactions réussies.
+- Les compétences Navigation et Commandement améliorent progressivement les conditions commerciales.
+- Les profits commerciaux accordent un petit gain d'expérience de carrière sans créer de nouvelle monnaie ou une nouvelle statistique à entretenir.
+- L'historique commercial est borné afin de préserver les longues sauvegardes.
+- Le service Marché de la V8.7 ouvre désormais la couche commerciale V8.8 au lieu de consommer l'action locale annuelle.
+- Nouvelle interface **Marchés & cargaison** dans l'onglet Monde.
+- Migration V8.7 → V8.8 automatique.
+- Save version : **880**.
+- Cache PWA : **one-piece-life-v8-8-0**.
+
+---
+
 # ONE PIECE LIFE — V8.7 Islands & Settlements 4.0
 
 La V8.7 transforme chaque destination en **lieu de vie persistant**. Une île ne se résume plus à son danger et à son pourcentage d'exploration : elle se souvient de ta présence, ouvre des quartiers et services adaptés, ajuste ses prix et construit une relation locale propre à ton personnage.
