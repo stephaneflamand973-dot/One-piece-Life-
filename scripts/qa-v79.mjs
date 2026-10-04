@@ -119,14 +119,14 @@ assert(summary.career.length===6,'Career-readiness summary incomplete');
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
 const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
-assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7.9+ title missing');
+assert(/ONE PIECE LIFE — V(?:[7-9]|\d{2,})\./.test(html),'V7.9+ title missing');
 assert(saveVersion>=790,'V7.9 regression QA requires save version >= 790');
 assert(gameMajor>7||(gameMajor===7&&gameMinor>=9),'V7.9 regression QA requires game version >= 7.9');
 for(const asset of ['src/data/education-v79.js','src/v79/education-engine-v79.js','src/v79/education-v79.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:7-9|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.9 or newer');
+assert(/one-piece-life-v(?:7-9|8-[0-9]+|9-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.9 or newer');
 assert(html.includes("educationV79:{version:1"),'Fresh-save education state missing');
 assert(html.includes("if(!game.player.educationV79||typeof game.player.educationV79!=='object')"),'Old-save education migration guard missing');
 assert(html.includes('id="v79EducationCard"'),'Education UI missing');
