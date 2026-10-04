@@ -4694,7 +4694,7 @@ function resolveDecision(action){
   else v77DecisionEcho(action,decisionEcho);
   game.pendingDecision=null;game.pacing.lastDecisionAge=game.ageMonths;$('#decisionModal').classList.add('hidden');saveGame();if(!game.alive){render();showDeath();return}if(game.agency?.annualTurn?.active){v61ResumeAnnualTurn();return}render();
 }
-function showDecision(){const d=game.pendingDecision;if(!d)return;$('#decisionTitle').textContent=d.title;$('#decisionText').textContent=d.text;$('#decisionChoices').innerHTML=d.choices.map(c=>{const m=v90ChoiceMeta(c);return `<button class="choice-btn" data-action="${esc(c.action)}"><span class="v90-choice-tag ${esc(m.tone)}">${esc(m.label)}</span><strong>${esc(c.label)}</strong>${c.hint?`<small>${esc(c.hint)}</small>`:''}</button>`}).join('');$('#decisionModal').classList.remove('hidden');$('#decisionChoices .choice-btn').forEach(b=>b.onclick=()=>resolveDecision(b.dataset.action))}
+function showDecision(){const d=game.pendingDecision;if(!d)return;$('#decisionTitle').textContent=d.title;$('#decisionText').textContent=d.text;$('#decisionChoices').innerHTML=d.choices.map(c=>{const m=v90ChoiceMeta(c);return `<button class="choice-btn" data-action="${esc(c.action)}"><span class="v90-choice-tag ${esc(m.tone)}">${esc(m.label)}</span><strong>${esc(c.label)}</strong>${c.hint?`<small>${esc(c.hint)}</small>`:''}</button>`}).join('');$('#decisionModal').classList.remove('hidden');$$('#decisionChoices .choice-btn').forEach(b=>b.onclick=()=>resolveDecision(b.dataset.action))}
 
 
 function v62PlanSource(){const t=game?.agency?.annualTurn;if(t?.active&&t.plan)return t.plan;return game?.agency?.annualPlan||V62_DEFAULT_PLAN}
