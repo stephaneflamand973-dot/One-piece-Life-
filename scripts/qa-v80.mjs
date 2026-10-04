@@ -109,7 +109,7 @@ const renderWorld=engine.renderPlan('world');
 eq(renderWorld.tabs[0],'world','World render route mismatch');
 
 // Live integration contract.
-assert(/ONE PIECE LIFE — V8\.\d+/.test(html),'V8.x title missing');
+assert(/ONE PIECE LIFE — V(?:[89]|\d{2,})\.\d+/.test(html),'V8.x title missing');
 const liveSave=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 assert(liveSave>=800,'Save version 800+ missing');
 const liveVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
@@ -118,7 +118,7 @@ for(const asset of ['src/data/simulation-core-v80.js','src/v80/simulation-core-v
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v8-\d+-\d+/.test(sw),'PWA cache not on V8.x');
+assert(/one-piece-life-v(?:8|9|\d{2,})-\d+-\d+/.test(sw),'PWA cache not on V8.x');
 assert(html.includes("coreV80:{version:1"),'Fresh V8.0 core state missing');
 assert(html.includes('v80Ensure();'),'Old-save V8.0 migration hook missing');
 assert(html.includes('id="v80DirectorCard"'),'Life Director UI card missing');
