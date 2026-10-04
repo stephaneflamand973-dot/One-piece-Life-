@@ -1,4 +1,4 @@
-name: V8.9 Live Audit
+name: V9.0 Live Audit
 on:
   workflow_dispatch:
   push:
@@ -33,6 +33,7 @@ on:
       - 'scripts/qa-v87.mjs'
       - 'scripts/qa-v88.mjs'
       - 'scripts/qa-v89.mjs'
+      - 'scripts/qa-v90.mjs'
       - 'app.js'
       - 'content-v1.js'
       - 'scripts/audit-v32.mjs'
@@ -40,7 +41,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: v89-live-audit-${{ github.ref }}
+  group: v90-live-audit-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   audit:
@@ -105,6 +106,8 @@ jobs:
         run: node scripts/qa-v88.mjs
       - name: Run V8.9 Equipment, Items & Loot QA
         run: node scripts/qa-v89.mjs
+      - name: Run V9.0 Game Flow & UX QA
+        run: node scripts/qa-v90.mjs
       - name: Run legacy engine trend audit
         continue-on-error: true
         run: node scripts/audit-v32.mjs
