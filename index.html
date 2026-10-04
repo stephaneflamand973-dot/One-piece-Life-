@@ -2795,7 +2795,7 @@ function renderV90Flow(){
   box.innerHTML='<div class="v90-hero"><div><span class="eyebrow">V9.0 • Cockpit de vie</span><h3>'+esc(primary.title)+'</h3><p>'+esc(primary.desc)+'</p></div><div class="v90-flow-score"><span>Flow</span><strong>'+score+'</strong><small>'+esc(status)+'</small></div></div>'+
     '<div class="v90-priorities">'+items.map((x,i)=>'<button class="v90-priority '+esc(x.severity)+'" data-v90-action="'+esc(x.action)+'" data-v90-tab="'+esc(x.tab)+'" data-v90-key="'+esc(x.key)+'"><strong>'+(i===0?'Maintenant • ':'')+esc(x.title)+'</strong><small>'+esc(x.desc)+'</small></button>').join('')+'</div>'+
     '<div class="v90-mini-meta"><span>Santé '+Math.round(ctx.health)+'%</span><span>Énergie '+Math.round(ctx.energy)+'%</span><span>'+((game.agency?.annualTurn?.active)?Math.floor(ctx.annualProgress)+'/12 mois':'Prêt pour l’année')+'</span><span>Plan '+esc(mod.planSummary(v62PlanSource()).label)+'</span></div>';
-  $('[data-v90-action]').forEach(b=>b.onclick=()=>v90OpenPriority(b.dataset.v90Action,b.dataset.v90Tab,b.dataset.v90Key))
+  $$('[data-v90-action]').forEach(b=>b.onclick=()=>v90OpenPriority(b.dataset.v90Action,b.dataset.v90Tab,b.dataset.v90Key))
 }
 function renderV90Presets(){
   const shell=$('#v90PresetShell'),card=$('#annualTurnCard'),mod=v90Module(),data=v90Data(),state=v90Ensure();if(!shell||!card||!mod||!data||!state)return;
