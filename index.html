@@ -3004,7 +3004,7 @@ function v85LegacyTravelBase(from,to){
 function v85RoutePreview(from,to,mode='standard'){
   const mod=v85Module(),state=v85Ensure(),a=placeInfo(from),b=placeInfo(to);if(!mod||!state)return {duration:v85LegacyTravelBase(from,to),danger:(a.danger+b.danger)/2,riskPct:20,familiarity:0,preparedness:0,mode,modeLabel:'Route normale'};
   const sea=v85CrewSeaMetrics(),ship=game.player.crew?.ship?.condition??75;
-  return mod.routeProfile(state,{from,to,fromRegion:a.region,toRegion:b.region,fromDanger:a.danger,toDanger:b.danger,baseDuration:v85LegacyTravelBase(from,to),causalRisk:v68TravelRisk(from,to),navigation:game.player.skills?.Navigation,crewTravel:sea.travel,shipCondition:ship,mode})
+  return mod.routeProfile(state,{from,to,fromRegion:a.region,toRegion:b.region,fromDanger:a.danger,toDanger:b.danger,baseDuration:v85LegacyTravelBase(from,to),causalRisk:v68TravelRisk(from,to),navigation:(game.player.skills?.Navigation||0)+v89NavigationBonus(),crewTravel:sea.travel,shipCondition:ship,mode})
 }
 function v85StartVoyage(profile){
   const mod=v85Module(),state=v85Ensure();if(!mod||!state)return null;const r=mod.startVoyage(state,profile,{year:game.clock.year});game.player.voyageV85=r.state;return r.voyage
@@ -3015,7 +3015,7 @@ function v85ResolveTravelDecision(parts){
 function v85ApplyDiscovery(d,source='exploration'){
   if(!d)return;const p=game.player,id=d.id,label=d.label||id;
   if(id==='chart'){const g=v63SkillGain('Navigation',1.2+random('v85Discovery')*2);addHistory('Découverte maritime',label+' améliore ta lecture du monde.','major','Navigation +'+g.toFixed(1));return}
-  if(id==='treasure'||id==='resource'){const danger=REGION_DANGER[p.region]||10,gain=Math.round((id==='treasure'?3500:1800)+random('v85Discovery')*(id==='treasure'?12000:6500)*(1+danger/120));p.money+=gain;addHistory(label,'Une découverte pendant '+source+' rapporte quelque chose de concret.','major','+'+gain.toLocaleString('fr-FR')+' B');return}
+  if(id==='treasure'||id==='resource'){const danger=REGION_DANGER[p.region]||10,gain=Math.round((id==='treasure'?3500:1800)+random('v85Discovery')*(id==='treasure'?12000:6500)*(1+danger/120));p.money+=gain;addHistory(label,'Une découverte pendant '+source+' rapporte quelque chose de concret.','major','+'+gain.toLocaleString('fr-FR')+' B');v89MaybeLoot('treasure',danger,id==='treasure'?.14:.04);return}
   if(id==='ruin'){codexAdd('places',p.island+' • vestiges');p.reputation.local=clamp((p.reputation.local||0)+2,0,100);addHistory('Vestige découvert','Tu mets au jour une trace oubliée à '+p.island+'.','major','Codex enrichi');return}
   if(id==='contact'){p.reputation.local=clamp((p.reputation.local||0)+3,0,100);addHistory('Contact d’exploration','Une rencontre utile née de '+source+' renforce ton ancrage local.','normal','Réputation locale +3');return}
   if(id==='lead'){v64GrantRareLead(source);return}
@@ -3023,7 +3023,7 @@ function v85ApplyDiscovery(d,source='exploration'){
 }
 function v85TickVoyage(months){
   const mod=v85Module(),state=v85Ensure(),p=game.player,t=p.travel;if(!mod||!state||!t)return null;
-  const sea=v85CrewSeaMetrics(),ship=p.crew?.ship?.condition??75,result=mod.tickVoyage(state,t,{year:game.clock.year,region:p.region,navigation:p.skills?.Navigation,crewTravel:sea.travel,shipCondition:ship},months,{
+  const sea=v85CrewSeaMetrics(),ship=p.crew?.ship?.condition??75,result=mod.tickVoyage(state,t,{year:game.clock.year,region:p.region,navigation:(p.skills?.Navigation||0)+v89NavigationBonus(),crewTravel:sea.travel,shipCondition:ship},months,{
     weather:random('v85Weather'),event:random('v85Event'),hazard:random('v85Hazard'),discovery:random('v85SeaDiscovery'),discoveryType:random('v85SeaDiscoveryType')
   });
   p.voyageV85=result.state;p.travel=result.voyage;
@@ -3039,13 +3039,13 @@ function v85TickVoyage(months){
   return result
 }
 function v85Arrive(dest,voyage){
-  const mod=v85Module(),state=v85Ensure();if(!mod||!state)return null;const target=placeInfo(dest),r=mod.arrive(state,voyage,dest,{year:game.clock.year,region:target.region,navigation:game.player.skills?.Navigation},{mastery:random('v85RouteMastery'),exploration:random('v85ArrivalExplore')});
+  const mod=v85Module(),state=v85Ensure();if(!mod||!state)return null;const target=placeInfo(dest),r=mod.arrive(state,voyage,dest,{year:game.clock.year,region:target.region,navigation:(game.player.skills?.Navigation||0)+v89NavigationBonus()},{mastery:random('v85RouteMastery'),exploration:random('v85ArrivalExplore')});
   game.player.voyageV85=r.state;if(r.poseUpgrade)addHistory('Navigation améliorée',(v85Data()?.poseTiers?.[r.poseUpgrade.to]?.label||'Instrument de navigation')+' devient ton nouveau standard pour les routes à venir.','major');
   return r
 }
 function v85ExploreCurrent(mode='explore'){
   const mod=v85Module(),state=v85Ensure(),p=game.player;if(!mod||!state)return null;const sea=v85CrewSeaMetrics(),scholar=(p.skills?.Science||0)+(p.skills?.Médecine||0)*.25;
-  const r=mod.exploreIsland(state,p.island,{mode,year:game.clock.year,navigation:p.skills?.Navigation,stealth:p.skills?.Discrétion,knowledge:scholar,crewSupport:(sea.support+sea.travel)/2},{progress:random('v85ExploreProgress'),discovery:random('v85ExploreDiscovery'),type:random('v85ExploreType')});
+  const r=mod.exploreIsland(state,p.island,{mode,year:game.clock.year,navigation:(p.skills?.Navigation||0)+v89NavigationBonus(),stealth:(p.skills?.Discrétion||0)+v89StealthBonus(),knowledge:scholar+v89ExplorationBonus(),crewSupport:(sea.support+sea.travel)/2},{progress:random('v85ExploreProgress'),discovery:random('v85ExploreDiscovery'),type:random('v85ExploreType')});
   p.voyageV85=r.state;addHistory('Exploration de '+p.island,'Tu approfondis ta connaissance de l’île : '+Math.round(r.island.exploration)+'/100.','normal','Exploration +'+r.gain.toFixed(1));if(r.discovery)v85ApplyDiscovery(r.discovery,'l’exploration de '+p.island);return r
 }
 function renderV85Exploration(){
@@ -4100,7 +4100,7 @@ function resolveCombat(enemy,context='Combat',opts={}){
   const phasesWon=Number(opening)+Number(pressure)+Number(finish),phaseResults={opening,pressure,finish};v72RecordCombatUsage(a,phaseResults);
   const vp=a.v72?.phases;
   const phaseText=vp?`ouverture ${opening?'✓':'×'} ${vp.opening.technique.name} • échange ${pressure?'✓':'×'} ${vp.pressure.technique.name} • final ${finish?'✓':'×'} ${vp.finish.technique.name}`:`ouverture ${opening?'✓':'×'} • échange ${pressure?'✓':'×'} • endurance ${finish?'✓':'×'}`;
-  const energyCost=Math.round(randInt(5,11,'combatEnergy')*(a.approach==='bold'?1.18:a.approach==='cautious'?.86:1));p.energy=clamp(p.energy-energyCost,0,100);
+  const energyCost=Math.round(randInt(5,11,'combatEnergy')*(a.approach==='bold'?1.18:a.approach==='cautious'?.86:1));p.energy=clamp(p.energy-energyCost,0,100);v89WearCombat(phasesWon>=2?2:4);
   if(phasesWon>=2){
     p.wins++;v66Ensure();{const oldStyle=p.combatStyle.experience||0,styleGain=phasesWon===3?randInt(2,5,'combat'):randInt(1,4,'combat');p.combatStyle.experience=v66ProgressValue('style','experience',oldStyle,styleGain)}
     const injury=Math.max(0,Math.round((phasesWon===3?randInt(0,5,'combat'):randInt(2,12,'combat'))*damageMult));p.health=clamp(p.health-injury,0,100);
@@ -4108,6 +4108,7 @@ function resolveCombat(enemy,context='Combat',opts={}){
     if(!opts.mission)v77FromCombat(phasesWon===3?'decisive':'win',enemy);
     addHistory(context,`Tu prends ${phasesWon}/3 phases contre ${enemy.name.toLowerCase()} (${phaseText}) et remportes l’affrontement${injury?', avec des blessures':''}.`,'major',injury?`Santé -${injury}`:'Victoire maîtrisée');
     if(p.faction==='Pirates'){const inc=randInt(5000,45000,'combat');p.bounty+=inc;p.reputation.pirate+=2;p.highestBounty=Math.max(p.highestBounty,p.bounty)}
+    if(!opts.mission)v89MaybeLoot('combat',enemyPower,phasesWon===3?.05:0);
     return true
   }
   p.losses++;
@@ -4414,7 +4415,7 @@ function v6MissionReadiness(m){
   else if(m.type==='explore')base=(s.Navigation||0)*.42+(s.Discrétion||0)*.28+(t.Agilité||0)*.18+obs*.12;
   else base=(s.Commandement||0)*.34+(s.Navigation||0)*.28+(t.Discipline||0)*.24+repValue()*.14;
   const fatigue=v63FatigueProfile(p).mission,condition=v65MissionCondition(),conditionBonus=(condition-60)*.10;
-  v63Ensure();v69Ensure();const gear=typeof v89MissionBonus==='function'?v89MissionBonus():clamp(Number(p.economy?.gearLevel)||0,0,3)*2.2,crew=v65CrewSupport(m),intel=v63IntelBonus()?5:0,authority=v69MissionAuthorityBonus(m);
+  v63Ensure();v69Ensure();const gear=typeof v89MissionBonus==='function'?v89MissionBonus(m):clamp(Number(p.economy?.gearLevel)||0,0,3)*2.2,crew=v65CrewSupport(m),intel=v63IntelBonus()?5:0,authority=v69MissionAuthorityBonus(m);
   const score=Math.max(0,base*fatigue+conditionBonus+gear+crew+intel+authority);
   const target=m.power||missionDifficultyPower(m),gap=score-target;
   const label=gap>=16?'Avantage net':gap>=4?'Bien préparé':gap>=-8?'Incertain':gap>=-20?'Très risqué':'Critique';
@@ -4538,10 +4539,12 @@ function tickMission(months){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult)),reward=Math.round(m.reward*rewardMult);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=2;
     if(game.player.faction==='Marine')game.player.reputation.marine+=3;if(game.player.faction==='Révolutionnaires')game.player.reputation.revolution+=3;if(game.player.faction==='Gouvernement')game.player.reputation.government+=3;if(game.player.faction==='Pirates'){game.player.reputation.pirate+=3;game.player.bounty+=Math.round(reward*.45);game.player.highestBounty=Math.max(game.player.highestBounty,game.player.bounty)}
     addHistory('Mission accomplie',`${m.title} se termine en ta faveur avec une approche « ${strat.label.toLowerCase()} ».`,'major',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
+    v89MaybeLoot('mission',m.power,m.danger==='high'?.10:.03);
     game.flags.v65LastMission={id:m.id,outcome:'success',approach:approach.id};v68ApplyMissionOutcome(m,'success');v73RecordMissionOutcome(m,'success',approach.id);v81RecordMissionOutcome(m,'success');v82RecordMissionOutcome(m,'success');v84RecordMissionOutcome(m,'success');v77FromMission(m,'success',approach.id)
   }else if(partial&&game.alive){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult*.60)),reward=Math.round(m.reward*rewardMult*.45);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=1;
     addHistory('Mission partiellement réussie',`${m.title} n’atteint pas tous ses objectifs, mais tu sauves une partie du résultat au lieu de repartir avec absolument rien.`,'normal',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
+    v89MaybeLoot('mission',m.power*.7,.01);
     game.flags.v65LastMission={id:m.id,outcome:'partial',approach:approach.id};v68ApplyMissionOutcome(m,'partial');v73RecordMissionOutcome(m,'partial',approach.id);v81RecordMissionOutcome(m,'partial');v82RecordMissionOutcome(m,'partial');v84RecordMissionOutcome(m,'partial');v77FromMission(m,'partial',approach.id)
   }else if(game.alive){
     addHistory(retreated?'Mission abandonnée':'Mission échouée',retreated?`${m.title} est interrompue après un repli tactique. La récompense est perdue, pas nécessairement ta vie.`:`${m.title} tourne mal malgré ton approche « ${strat.label.toLowerCase()} ». Tu n’obtiens pas la récompense prévue.`,'danger');
