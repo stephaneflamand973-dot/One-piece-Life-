@@ -90,7 +90,7 @@ for(const asset of [
 ]) assert(html.includes(asset),`Index does not load modular asset: ${asset}`);
 assert(registry&&registry.has('arcDefinitionsV71')&&registry.has('arcDirector'),'V7.1 modules were not registered');
 assert(registry.list().length>=2,'Module registry does not expose loaded modules');
-assert(/one-piece-life-v(?:7-[1-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.1 or newer');
+assert(/one-piece-life-v(?:7-[1-9]|8-[0-9]+|9-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.1 or newer');
 for(const asset of ['src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css'])assert(sw.includes(asset),`PWA does not cache modular asset: ${asset}`);
 
 // Arc content floor.
