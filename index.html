@@ -4207,7 +4207,7 @@ function resolveCombat(enemy,context='Combat',opts={}){
     if(!opts.mission)v77FromCombat(phasesWon===3?'decisive':'win',enemy);
     addHistory(context,`Tu prends ${phasesWon}/3 phases contre ${enemy.name.toLowerCase()} (${phaseText}) et remportes l’affrontement${injury?', avec des blessures':''}.`,'major',injury?`Santé -${injury}`:'Victoire maîtrisée');
     if(p.faction==='Pirates'){const inc=randInt(5000,45000,'combat');p.bounty+=inc;p.reputation.pirate+=2;p.highestBounty=Math.max(p.highestBounty,p.bounty)}
-    if(!opts.mission)v89MaybeLoot('combat',enemyPower,phasesWon===3?.05:0);
+    if(!opts.mission)v89MaybeLoot('combat',Number(enemy.power)||0,phasesWon===3?.05:0);
     return true
   }
   p.losses++;
