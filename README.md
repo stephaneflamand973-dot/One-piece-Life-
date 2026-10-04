@@ -1,3 +1,33 @@
+# ONE PIECE LIFE — V9.0 Game Flow & UX 5.0
+
+La V9.0 ne cherche pas à ajouter davantage de profondeur brute. Elle transforme les systèmes accumulés en une expérience plus claire, plus rapide et plus agréable à piloter sur mobile.
+
+## Game Flow & UX 5.0
+
+- Nouveau **Cockpit de vie** en haut de l'écran Vie.
+- Les priorités sont classées dynamiquement selon l'état réel de la partie.
+- Une décision en attente reste toujours prioritaire.
+- Santé critique, énergie faible, mission, voyage, conséquences, campagne, némésis et équipement cassé remontent automatiquement.
+- Nouveau **score de Flow** de 20 à 100 pour résumer la stabilité immédiate de la vie.
+- Les cartes du cockpit permettent d'ouvrir directement la section concernée.
+- L'ancien Focus V7.6 reste dans le moteur pour compatibilité mais n'est plus affiché en doublon dans la vue V9.0.
+- **6 plans annuels rapides** : Équilibré, Progression, Carrière, Aventure, Fortune et Récupération.
+- Le moteur recommande automatiquement un plan selon santé, énergie, finances, mission et voyage.
+- Les réglages détaillés V6.5 restent disponibles via **Réglages avancés**.
+- Une modification manuelle transforme le plan en plan personnalisé sans casser les presets.
+- Les décisions reçoivent désormais un repère visuel : Combat, Prudent, Réseau, Aventure, Carrière ou Ressources.
+- La reprise automatique de l'année après une décision reste préservée.
+- Nouveau **digest annuel** : les changements les plus importants apparaissent avant les détails.
+- Promotions, puissance, santé, XP, finances, prime et nouveaux lieux sont hiérarchisés par importance.
+- Jusqu'à quatre événements majeurs résument l'année.
+- Risque consommé et découvertes annuelles restent visibles.
+- Réduction de la densité de l'écran Vie sans suppression des systèmes profonds.
+- Migration V8.9 → V9.0 automatique.
+- Save version : **900**.
+- Cache PWA : **one-piece-life-v9-0-0**.
+
+---
+
 # ONE PIECE LIFE — V8.9 Equipment, Items & Loot 4.0
 
 La V8.9 transforme l'ancien bonus d'équipement abstrait en **système d'objets persistant**. Les armes, tenues, accessoires et outils existent désormais réellement dans la sauvegarde, s'usent, se réparent, s'améliorent et influencent les systèmes où ils sont pertinents.
