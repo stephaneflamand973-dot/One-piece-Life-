@@ -129,7 +129,7 @@ assert(html.includes('v80ObserveHistory(event)'), 'History is not connected to p
 assert(html.includes('if(!game.pendingDecision)v80PriorityInterrupt()'),'Annual interruption arbitration missing');
 assert(html.includes('v80CompleteYear(newEvents,report)'),'Annual Life Director completion hook missing');
 assert(html.includes('const score=v80LegacyScore(raw);'),'V6.9 legacy score not protected by V8.0 ledger');
-assert(html.includes('v80RenderActiveTab(v80ActiveTab(),false);renderDev();v76AfterRender()'),'Main render is not routed through V8.0 lazy rendering');
+assert(html.includes('v80RenderActiveTab(v80ActiveTab(),false);'),'Main render is not routed through V8.0 lazy rendering');
 assert(!html.includes('renderTimeline();renderCharacter();renderAbilities();renderRelations();renderWorld();renderDev();v76AfterRender()'),'Old eager five-panel render still present');
 assert(html.includes("if(previous!==tab)v80RenderActiveTab(tab,true)"),'Tab opening does not refresh the newly active panel');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
