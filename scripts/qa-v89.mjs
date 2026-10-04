@@ -91,7 +91,7 @@ for(const asset of ['src/data/equipment-v89.js','src/v89/equipment-engine-v89.js
 }
 assert(sw.includes('one-piece-life-v8-9-0'),'PWA cache not bumped to V8.9');
 assert(html.includes('v88Ensure();v89Ensure()'),'Old-save V8.9 migration hook missing');
-for(const fn of ['function v89Module','function v89Ensure','function v89EquipmentEffects','function v89CombatBonus','function v89MissionBonus','function v89MaybeLoot','function v89AnnualUpgrade','function renderV89Equipment']){
+for(const fn of ['function v89Module','function v89Ensure','function v89EquipmentEffects','function v89CombatBonus','function v89MissionBonus','function v89MaybeLoot','function v89AnnualUpgrade','function v89UnequipSlot','function renderV89Equipment']){
   assert(html.includes(fn),'Missing live V8.9 bridge '+fn);
 }
 assert(html.includes("function v63GearDamageMult(){v63Ensure();if(typeof v89DamageMult==='function')return v89DamageMult();"),'Legacy gear damage handoff missing');
@@ -104,7 +104,8 @@ assert(html.includes("v89MaybeLoot('treasure'"),'Exploration loot hook missing')
 assert(html.includes("navigation:(game.player.skills?.Navigation||0)+v89NavigationBonus()"),'Travel equipment integration missing');
 assert(html.includes('id="v89EquipmentCard"'),'V8.9 equipment UI missing');
 assert(html.includes('renderV89Equipment();'),'V8.9 equipment render hook missing');
-assert(html.includes("$$('[data-v89-buy]').forEach"),'V8.9 shop binding missing');
+assert(html.includes("$('[data-v89-buy]').forEach"),'V8.9 shop binding missing');
+assert(html.includes("$('[data-v89-unequip]').forEach"),'V8.9 unequip binding missing');
 
 console.log('V8.9 EQUIPMENT, ITEMS & LOOT 4.0 QA OK',JSON.stringify({
   version:'8.9.0',
