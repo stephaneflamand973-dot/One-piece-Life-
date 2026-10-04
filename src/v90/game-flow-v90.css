@@ -42,3 +42,8 @@
 .v90-digest-event.danger{border-left:3px solid #963e35}.v90-digest-event.canon{border-left:3px solid var(--sea)}.v90-digest-event.major{border-left:3px solid var(--gold)}
 .v90-compact-life #v76FocusCard,.v90-compact-life .current-situation{margin-bottom:9px}
 @media(max-width:620px){.v90-priorities{grid-template-columns:1fr}.v90-presets{grid-template-columns:repeat(2,1fr)}}
+
+.v90-compact-life #v76FocusCard{display:none}
+.v90-choice-tag{display:inline-block;font-style:normal;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;border-radius:99px;padding:4px 7px;margin-bottom:7px;background:rgba(23,63,78,.07);color:var(--muted)}
+.v90-choice-tag.risk{background:#f4dfda;color:#963e35}.v90-choice-tag.safe{background:#e4f0e9;color:#3f6a56}.v90-choice-tag.social{background:#eee8f5;color:#67527d}.v90-choice-tag.adventure{background:#e6f0f2;color:#2d7181}.v90-choice-tag.career{background:#f6ead0;color:#806019}.v90-choice-tag.resource{background:#edf3ef;color:#47635d}
+.choice-btn .v90-choice-tag+strong{margin-top:0}
