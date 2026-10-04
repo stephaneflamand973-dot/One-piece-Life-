@@ -91,7 +91,7 @@ assert(tick1.changed,'First annual faction tick should run');
 const tick2=engine.annualTick(tick1.state,{...baseCtx,year:23,month:276});
 assert(!tick2.changed,'Faction annual tick must be idempotent per year');
 
-assert(/ONE PIECE LIFE — V8\.\d+/.test(html),'V8.1+ title missing');
+assert(/ONE PIECE LIFE — V(?:[89]|\d{2,})\.\d+/.test(html),'V8.1+ title missing');
 const liveSave=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 assert(liveSave>=810,'Save version 810+ missing');
 const liveVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
@@ -101,7 +101,7 @@ for(const asset of ['src/data/faction-identity-v81.js','src/v81/faction-identity
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v8-[1-9]-\d+/.test(sw),'PWA cache must remain at V8.1 or newer');
+assert(/one-piece-life-v(?:8-[1-9]|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.1 or newer');
 assert(html.includes("factionV81:{version:1"),'Fresh V8.1 state missing');
 assert(html.includes('v80Ensure();v81Ensure();'),'Old-save V8.1 migration hook missing');
 assert(html.includes('id="v81FactionCard"'),'Faction identity UI card missing');
