@@ -99,7 +99,7 @@ eq(ledger.month,120,'Ledger month missing');
 // Live integration contract.
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
+assert(/ONE PIECE LIFE — V(?:[7-9]|\d{2,})\./.test(html),'V7+ release title missing');
 assert(saveVersion>=750,'V7.5 regression QA requires save version >= 750');
 const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
 assert(gameMajor>7||(gameMajor===7&&gameMinor>=5),'V7.5 regression QA requires game version >= 7.5');
@@ -107,7 +107,7 @@ for(const asset of ['src/data/world-canon-v75.js','src/v75/world-canon-engine-v7
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:7-[5-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.5 or newer');
+assert(/one-piece-life-v(?:7-[5-9]|8-[0-9]+|9-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.5 or newer');
 for(const fn of ['function v75Ensure','function v75WorldTick','function v75SyncCanonIntegrity','function v75ApplyAction','function v75EventCoherence','function renderV75WorldDirector']){
   assert(html.includes(fn),'Missing live V7.5 bridge '+fn);
 }

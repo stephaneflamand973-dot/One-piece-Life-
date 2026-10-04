@@ -65,14 +65,14 @@ const market=engine.market(city,{priceIndex:1.1,standing:30,familiarity:20,heat:
 eq(market.length,8,'Market summary should expose every trade good');
 assert(market.every(x=>x.buy>x.sell),'Market spread should prevent same-island buy/sell exploit');
 
-assert(/ONE PIECE LIFE — V8\.\d+/.test(html),'V8.8+ title missing');
+assert(/ONE PIECE LIFE — V(?:[89]|\d{2,})\.\d+/.test(html),'V8.8+ title missing');
 assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=880,'Save version 880+ missing');
 {const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0',p=v.split('.').map(Number);assert(p[0]>8||(p[0]===8&&p[1]>=8),'Game version 8.8+ missing')}
 for(const asset of ['src/data/markets-v88.js','src/v88/market-engine-v88.js','src/v88/markets-v88.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v8-[8-9]-\d+/.test(sw),'PWA cache must remain at V8.8 or newer');
+assert(/one-piece-life-v(?:8-[8-9]|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.8 or newer');
 assert(html.includes('v87Ensure();v88Ensure()'),'Old-save V8.8 migration hook missing');
 for(const fn of ['function v88Module','function v88Ensure','function v88Context','function v88MarketAvailable','function v88Trade','function renderV88Market']){
   assert(html.includes(fn),'Missing live V8.8 bridge '+fn);

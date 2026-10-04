@@ -1,4 +1,4 @@
-name: V8.9 QA
+name: V9.0 QA
 on:
   push:
     branches: [main]
@@ -34,6 +34,7 @@ on:
       - 'scripts/qa-v87.mjs'
       - 'scripts/qa-v88.mjs'
       - 'scripts/qa-v89.mjs'
+      - 'scripts/qa-v90.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -53,13 +54,14 @@ on:
       - 'QA-V8.7.md'
       - 'QA-V8.8.md'
       - 'QA-V8.9.md'
+      - 'QA-V9.0.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v89-qa-${{ github.ref }}
+  group: v90-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -125,3 +127,5 @@ jobs:
         run: node scripts/qa-v88.mjs
       - name: Verify V8.9 Equipment, Items & Loot 4.0
         run: node scripts/qa-v89.mjs
+      - name: Verify V9.0 Game Flow & UX 5.0
+        run: node scripts/qa-v90.mjs

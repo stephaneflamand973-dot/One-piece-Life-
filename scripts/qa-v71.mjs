@@ -78,7 +78,7 @@ function eq(actual,expected,msg){if(actual!==expected)throw new Error(`${msg}: g
 // Release identity and modular loading.
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
+const releaseTitle=html.match(/ONE PIECE LIFE — V(\d+)\.(\d+)/);assert(releaseTitle&&Number(releaseTitle[1])>=7,'V7+ release title missing');
 assert(saveVersion>=710,'V7.1 regression QA requires save version >= 710');
 const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
 assert(gameMajor>7||(gameMajor===7&&gameMinor>=1),'V7.1 regression QA requires game version >= 7.1');
@@ -90,7 +90,7 @@ for(const asset of [
 ]) assert(html.includes(asset),`Index does not load modular asset: ${asset}`);
 assert(registry&&registry.has('arcDefinitionsV71')&&registry.has('arcDirector'),'V7.1 modules were not registered');
 assert(registry.list().length>=2,'Module registry does not expose loaded modules');
-assert(/one-piece-life-v(?:7-[1-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.1 or newer');
+assert(/one-piece-life-v(?:7-[1-9]|8-[0-9]+|9-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.1 or newer');
 for(const asset of ['src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css'])assert(sw.includes(asset),`PWA does not cache modular asset: ${asset}`);
 
 // Arc content floor.

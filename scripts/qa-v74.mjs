@@ -102,7 +102,7 @@ eq(zeroSocial.reliability,0,'Explicit zero reliability must be preserved');
 // Live integration contract.
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
+assert(/ONE PIECE LIFE — V(?:[7-9]|\d{2,})\./.test(html),'V7+ release title missing');
 assert(saveVersion>=740,'V7.4 regression QA requires save version >= 740');
 const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
 assert(gameMajor>7||(gameMajor===7&&gameMinor>=4),'V7.4 regression QA requires game version >= 7.4');
@@ -110,7 +110,7 @@ for(const asset of ['src/data/relation-personas-v74.js','src/v74/relation-person
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:7-[4-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.4 or newer');
+assert(/one-piece-life-v(?:7-[4-9]|8-[0-9]+|9-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.4 or newer');
 for(const fn of ['function v74EnsureRelation','function v74RecordMemory','function v74MaybeQueueArc','function v74ResolveArcDecision','function renderV74Network']){
   assert(html.includes(fn),'Missing live V7.4 bridge '+fn);
 }

@@ -98,7 +98,7 @@ assert(resolved.resolved,'Campaign above collapse threshold should resolve');
 eq(resolved.campaign.winner,'Pirates','Campaign winner mismatch');
 eq(resolved.campaign.status,'resolved','Campaign status should be resolved');
 
-assert(/ONE PIECE LIFE — V8\.\d+/.test(html),'V8.2+ title missing');
+assert(/ONE PIECE LIFE — V(?:[89]|\d{2,})\.\d+/.test(html),'V8.2+ title missing');
 const liveSave=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 assert(liveSave>=820,'Save version 820+ missing');
 const liveVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
@@ -108,7 +108,7 @@ for(const asset of ['src/data/campaigns-v82.js','src/v82/campaign-engine-v82.js'
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v8-[2-9]-\d+/.test(sw),'PWA cache must remain at V8.2 or newer');
+assert(/one-piece-life-v(?:8-[2-9]|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.2 or newer');
 assert(html.includes('campaignV82:{version:1'),'Fresh campaign state missing');
 assert(html.includes('v80Ensure();v81Ensure();v82Ensure();'),'Old-save V8.2 migration hook missing');
 assert(html.includes('id="v82CampaignCard"'),'Campaign UI card missing');

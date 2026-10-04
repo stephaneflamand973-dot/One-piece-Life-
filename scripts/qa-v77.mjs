@@ -102,7 +102,7 @@ eq(zeroState.lastTickMonth,0,'Explicit zero tick month must be preserved');
 // Live integration contract.
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
+assert(/ONE PIECE LIFE — V(?:[7-9]|\d{2,})\./.test(html),'V7+ release title missing');
 assert(saveVersion>=770,'V7.7 regression QA requires save version >= 770');
 const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
 assert(gameMajor>7||(gameMajor===7&&gameMinor>=7),'V7.7 regression QA requires game version >= 7.7');
@@ -110,7 +110,7 @@ for(const asset of ['src/data/consequences-v77.js','src/v77/consequence-engine-v
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:7-[7-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.7 or newer');
+assert(/one-piece-life-v(?:7-[7-9]|8-[0-9]+|9-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.7 or newer');
 assert(html.includes("consequencesV77:{version:1,active:[]"),'Fresh-save consequence state missing');
 assert(html.includes("if(!game.consequencesV77||typeof game.consequencesV77!=='object')"),'Old-save V7.7 migration guard missing');
 assert(html.includes('id="v77ConsequencesCard"'),'Consequence UI card missing');
