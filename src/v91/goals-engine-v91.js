@@ -48,7 +48,7 @@ function eligibleTemplate(id,t,ctx,level){
   return true;
 }
 function makeGoal(id,t,level,ctx,state){
-  const start={year:num(ctx.year),rank:String(ctx.rank||''),region:String(ctx.region||'')};
+  const start={year:num(ctx.year),rank:String(ctx.rank||''),rankIndex:num(ctx.rankIndex),region:String(ctx.region||'')};
   if(t.metric)start[t.metric]=metric(ctx,t.metric);
   if(t.metrics)for(const k of Object.keys(t.metrics))start[k]=metric(ctx,k);
   const target={};
