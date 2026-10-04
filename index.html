@@ -2804,7 +2804,7 @@ function renderV90Presets(){
   shell.innerHTML='<div class="v90-plan-toolbar"><span>Plans rapides • recommandé : <strong>'+esc(data.presets[recommended]?.label||'Équilibré')+'</strong></span><button id="v90PlanDetailBtn" class="v90-detail-btn">'+(state.detailOpen?'Masquer les réglages':'Réglages avancés')+'</button></div>'+
     '<div class="v90-presets">'+Object.entries(data.presets).map(([id,p])=>'<button class="v90-preset '+(summary.preset===id?'selected':'')+'" data-v90-preset="'+id+'" '+(turn?.active?'disabled':'')+'><strong>'+esc(p.label)+(recommended===id?' • conseillé':'')+'</strong><small>'+esc(p.desc)+'</small></button>').join('')+'</div>';
   $('#v90PlanDetailBtn').onclick=v90TogglePlanDetails;
-  $('[data-v90-preset]').forEach(b=>b.onclick=()=>v90ApplyPreset(b.dataset.v90Preset))
+  $$('[data-v90-preset]').forEach(b=>b.onclick=()=>v90ApplyPreset(b.dataset.v90Preset))
 }
 function renderV90Digest(){
   const box=$('#v90AnnualDigest'),mod=v90Module(),state=v90Ensure(),report=game.agency?.lastAnnualReport;if(!box||!mod||!state)return;
