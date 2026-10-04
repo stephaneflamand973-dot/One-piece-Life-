@@ -2759,7 +2759,8 @@ function v89InvestmentLevel(){
   return clamp(state.items.filter(x=>v89Data()?.templates?.[x.templateId]?.slot).reduce((m,x)=>Math.max(m,Number(x.upgrades)||0),0),0,3)
 }
 function v89EquipmentEffects(){
-  const mod=v89Module(),state=v89Ensure();return mod&&state?mod.effects(state):{damageMult:1,missionBonus:0,combatBonus:0}
+  const mod=v89Module(),state=v89Ensure();if(mod&&state)return mod.effects(state);
+  const legacy=clamp(Math.floor(Number(game?.player?.economy?.gearLevel)||0),0,3);return {damageMult:[1,.94,.88,.82][legacy]||1,missionBonus:legacy*2.2,combatBonus:legacy*2.4,offense:0,defense:legacy*3,combat:0,sabre:0,tir:0,navigation:0,stealth:0,medicine:0,science:0,exploration:0,command:0}
 }
 function v89DamageMult(){return Number(v89EquipmentEffects().damageMult)||1}
 function v89CombatBonus(){
