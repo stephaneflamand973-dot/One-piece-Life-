@@ -1,4 +1,4 @@
-name: Validate V8.9
+name: Validate V9.0
 on:
   push:
     branches: [main]
@@ -35,6 +35,7 @@ on:
       - 'scripts/qa-v87.mjs'
       - 'scripts/qa-v88.mjs'
       - 'scripts/qa-v89.mjs'
+      - 'scripts/qa-v90.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -54,6 +55,7 @@ on:
       - 'QA-V8.7.md'
       - 'QA-V8.8.md'
       - 'QA-V8.9.md'
+      - 'QA-V9.0.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
       - '.github/workflows/audit-v32.yml'
@@ -62,7 +64,7 @@ on:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v89-validate-${{ github.ref }}
+  group: v90-validate-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -74,7 +76,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate standalone and modular V8.9
+      - name: Validate standalone and modular V9.0
         run: |
           node <<'NODE'
           const fs=require('fs');
@@ -84,9 +86,9 @@ jobs:
           new Function(m[1]);
           const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
           const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-          if(!html.includes('ONE PIECE LIFE — V8.9'))throw new Error('V8.9 title missing');
-          if(saveVersion<890)throw new Error('Save migration 890+ missing');
-          if(gameVersion!=='8.9.0')throw new Error('Game version 8.9.0 missing');
+          if(!html.includes('ONE PIECE LIFE — V9.0'))throw new Error('V9.0 title missing');
+          if(saveVersion<900)throw new Error('Save migration 900+ missing');
+          if(gameVersion!=='9.0.0')throw new Error('Game version 9.0.0 missing');
           const assets=[
             'src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css',
             'src/data/combat-techniques-v72.js','src/v72/combat-engine-v72.js','src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js',
@@ -104,17 +106,18 @@ jobs:
             'src/data/daily-life-v86.js','src/v86/daily-life-engine-v86.js','src/v86/daily-life-v86.css',
             'src/data/settlements-v87.js','src/v87/settlement-engine-v87.js','src/v87/settlements-v87.css',
             'src/data/markets-v88.js','src/v88/market-engine-v88.js','src/v88/markets-v88.css',
-            'src/data/equipment-v89.js','src/v89/equipment-engine-v89.js','src/v89/equipment-v89.css'
+            'src/data/equipment-v89.js','src/v89/equipment-engine-v89.js','src/v89/equipment-v89.css',
+            'src/data/game-flow-v90.js','src/v90/game-flow-engine-v90.js','src/v90/game-flow-v90.css'
           ];
           for(const x of assets){if(!fs.existsSync(x))throw new Error('missing modular asset '+x);if(!html.includes(x))throw new Error('index does not load '+x)}
           for(const x of assets.filter(x=>x.endsWith('.js')))new Function(fs.readFileSync(x,'utf8'));
-          for(const x of ['function v71Ensure','function v72CombatModule','function v73Module','function v74Module','function v75Module','function v76Module','function v77Module','function v78Module','function v79Module','function v80Module','function v80PriorityInterrupt','function v80RenderActiveTab','function v81Module','function v81Ensure','function v81QueueFaction','function renderV81FactionIdentity','function v82Module','function v82Ensure','function v82AnnualWorldTick','function v82QueueCampaign','function renderV82Campaigns','function v83Module','function v83Ensure','function v83BindCampaign','function v83Candidate','function v83QueueNemesis','function renderV83Nemeses','function v84Module','function v84Ensure','function v84MissionSupport','function v84Candidate','function v84QueueCrew','function v84RenderCrew','function v85Module','function v85Ensure','function v85RoutePreview','function v85TickVoyage','function renderV85Exploration','function v86Module','function v86Ensure','function v86MonthlyTick','function v86ResolveOpportunity','function renderV86Daily','function v87Module','function v87Ensure','function v87OnArrival','function v87Service','function renderV87Settlement','function v88Module','function v88Ensure','function v88Context','function v88MarketAvailable','function v88Trade','function renderV88Market','function v89Module','function v89Ensure','function v89EquipmentEffects','function v89MaybeLoot','function renderV89Equipment'])if(!html.includes(x))throw new Error('missing '+x);
+          for(const x of ['function v71Ensure','function v72CombatModule','function v73Module','function v74Module','function v75Module','function v76Module','function v77Module','function v78Module','function v79Module','function v80Module','function v80PriorityInterrupt','function v80RenderActiveTab','function v81Module','function v81Ensure','function v81QueueFaction','function renderV81FactionIdentity','function v82Module','function v82Ensure','function v82AnnualWorldTick','function v82QueueCampaign','function renderV82Campaigns','function v83Module','function v83Ensure','function v83BindCampaign','function v83Candidate','function v83QueueNemesis','function renderV83Nemeses','function v84Module','function v84Ensure','function v84MissionSupport','function v84Candidate','function v84QueueCrew','function v84RenderCrew','function v85Module','function v85Ensure','function v85RoutePreview','function v85TickVoyage','function renderV85Exploration','function v86Module','function v86Ensure','function v86MonthlyTick','function v86ResolveOpportunity','function renderV86Daily','function v87Module','function v87Ensure','function v87OnArrival','function v87Service','function renderV87Settlement','function v88Module','function v88Ensure','function v88Context','function v88MarketAvailable','function v88Trade','function renderV88Market','function v89Module','function v89Ensure','function v89EquipmentEffects','function v89MaybeLoot','function renderV89Equipment','function v90Module','function v90Ensure','function v90Context','function v90ApplyPreset','function renderV90GameFlow'])if(!html.includes(x))throw new Error('missing '+x);
           if(!html.includes('id="v80DirectorCard"'))throw new Error('V8.0 Life Director UI missing');
           if(html.includes('renderTimeline();renderCharacter();renderAbilities();renderRelations();renderWorld();renderDev();v76AfterRender()'))throw new Error('eager heavy-panel render regression');
-          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V8.9'))throw new Error('manifest not V8.9');
-          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v8-9-0'))throw new Error('service worker cache not V8.9.0');
+          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V9.0'))throw new Error('manifest not V9.0');
+          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v9-0-0'))throw new Error('service worker cache not V9.0.0');
           for(const x of assets)if(!sw.includes(x))throw new Error('service worker missing modular asset '+x);
-          console.log('V8.9 static + modular validation OK');
+          console.log('V9.0 static + modular validation OK');
           NODE
       - name: Validate V6.4 regression behavior
         run: node scripts/qa-v64.mjs
@@ -170,3 +173,5 @@ jobs:
         run: node scripts/qa-v88.mjs
       - name: Validate V8.9 Equipment, Items & Loot
         run: node scripts/qa-v89.mjs
+      - name: Validate V9.0 Game Flow & UX
+        run: node scripts/qa-v90.mjs
