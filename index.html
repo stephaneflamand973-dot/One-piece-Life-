@@ -4991,7 +4991,7 @@ function renderCharacter(){
   renderV89Equipment();
   const inv=(p.equipment||[]).filter(e=>game.world.fruits.find(x=>x.name===e&&x.holder==='player_inventory'));
   $('#equipmentList').innerHTML=inv.length?'<span class="eyebrow">Objets spéciaux</span>'+inv.map(e=>{const f=game.world.fruits.find(x=>x.name===e&&x.holder==='player_inventory');return '<div class="inventory-item"><strong>'+esc(e)+' • '+esc(f.type)+'</strong><div class="inventory-actions"><button class="mini-action primary" data-fruit-eat="'+esc(e)+'">Manger</button><button class="mini-action" data-fruit-sell="'+esc(e)+'">Vendre</button></div></div>'}).join(''):'';
-  $('[data-fruit-eat]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitEat,'eat'));$('[data-fruit-sell]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitSell,'sell'));
+  $$('[data-fruit-eat]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitEat,'eat'));$$('[data-fruit-sell]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitSell,'sell'));
   const acts=availableActivities();renderV86Daily();$('#activityOptions').innerHTML=acts.map(([label,hint,type])=>'<button class="action-card '+(p.activityType===type?'active':'')+'" data-type="'+type+'" data-label="'+esc(label)+'"><strong>'+esc(label)+'</strong><small>'+esc(hint)+'</small>'+v86ActivityMetaHtml(type)+'</button>').join('');
   $$('#activityOptions .action-card').forEach(b=>b.onclick=()=>setActivity(b.dataset.type,b.dataset.label));
   if(p.crew)v84RenderCrew();else $('#crewSection').classList.add('hidden');
