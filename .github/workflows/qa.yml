@@ -1,4 +1,4 @@
-name: V8.8 QA
+name: V8.9 QA
 on:
   push:
     branches: [main]
@@ -33,6 +33,7 @@ on:
       - 'scripts/qa-v86.mjs'
       - 'scripts/qa-v87.mjs'
       - 'scripts/qa-v88.mjs'
+      - 'scripts/qa-v89.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -51,13 +52,14 @@ on:
       - 'QA-V8.6.md'
       - 'QA-V8.7.md'
       - 'QA-V8.8.md'
+      - 'QA-V8.9.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v88-qa-${{ github.ref }}
+  group: v89-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -121,3 +123,5 @@ jobs:
         run: node scripts/qa-v87.mjs
       - name: Verify V8.8 Markets, Cargo & Trade 4.0
         run: node scripts/qa-v88.mjs
+      - name: Verify V8.9 Equipment, Items & Loot 4.0
+        run: node scripts/qa-v89.mjs

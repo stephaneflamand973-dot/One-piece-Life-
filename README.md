@@ -1,3 +1,39 @@
+# ONE PIECE LIFE — V8.9 Equipment, Items & Loot 4.0
+
+La V8.9 transforme l'ancien bonus d'équipement abstrait en **système d'objets persistant**. Les armes, tenues, accessoires et outils existent désormais réellement dans la sauvegarde, s'usent, se réparent, s'améliorent et influencent les systèmes où ils sont pertinents.
+
+## Equipment, Items & Loot 4.0
+
+- **4 slots actifs** : Arme, Tenue, Accessoire et Outil.
+- **22 modèles d'objets** couvrant armes, protections, navigation, infiltration, médecine, science, commandement et consommables.
+- **5 niveaux de rareté** : Commun, Soigné, Rare, Exceptionnel et Légendaire.
+- Qualité individuelle de **20 à 100**.
+- Durabilité propre à chaque objet.
+- Un objet à 0 de durabilité ne fournit plus aucun bonus avant réparation.
+- Jusqu'à **3 améliorations permanentes** par pièce.
+- Inventaire borné à **24 objets** afin de protéger les longues sauvegardes.
+- Bouton **Équiper le meilleur** pour éviter le micro-management inutile.
+- Les bonus couvrent combat, défense, missions, Navigation, Discrétion, Médecine, Science, Commandement et exploration.
+- Les missions utilisent les objets réellement adaptés à leur type.
+- Les combats consomment la durabilité de l'arme et de la tenue.
+- La protection réelle réduit les blessures.
+- Navigation et exploration V8.5 utilisent les outils équipés.
+- **Loot contextuel** après certains combats, missions et trésors.
+- La qualité du loot dépend du danger, de l'exploration, de la puissance adverse et du contexte.
+- Les marchés V8.8 proposent jusqu'à **4 offres d'équipement locales par année**.
+- Les prix utilisent l'économie régionale, la réputation locale, la familiarité et la chaleur.
+- Réparation et revente disponibles lorsqu'un marché local est accessible.
+- Consommables utilisables directement depuis l'inventaire.
+- L'investissement annuel V6.3 améliore désormais **un vrai objet** au lieu d'augmenter une jauge invisible.
+- L'ancien `gearLevel` est migré automatiquement vers une pièce réelle et n'est conservé qu'en miroir de compatibilité.
+- Les Fruits du Démon conservés restent séparés dans les objets spéciaux.
+- Nouvelle interface mobile **Équipement & objets** dans l'onglet Personnage.
+- Migration V8.8 → V8.9 automatique.
+- Save version : **890**.
+- Cache PWA : **one-piece-life-v8-9-0**.
+
+---
+
 # ONE PIECE LIFE — V8.8 Markets, Cargo & Trade 4.0
 
 La V8.8 transforme l'économie locale en **véritable boucle de commerce maritime**. Les Berry ne servent plus seulement à payer des services : le joueur peut acheter une cargaison là où l'offre est favorable, la transporter avec les systèmes de voyage existants et la revendre dans une région où la demande est plus forte.

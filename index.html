@@ -26,7 +26,8 @@
   <link rel="stylesheet" href="src/v86/daily-life-v86.css" />
   <link rel="stylesheet" href="src/v87/settlements-v87.css" />
   <link rel="stylesheet" href="src/v88/markets-v88.css" />
-  <title>ONE PIECE LIFE — V8.8</title>
+  <link rel="stylesheet" href="src/v89/equipment-v89.css" />
+  <title>ONE PIECE LIFE — V8.9</title>
   <style>
 :root{--bg:#f4ecd8;--paper:#fffaf0;--ink:#1d2a2c;--muted:#6f7775;--navy:#173f4e;--sea:#2d7181;--sea2:#78a7a7;--gold:#c5943c;--red:#a34b3d;--green:#4b7660;--line:#dfd3b7;--shadow:0 12px 34px rgba(41,52,49,.09);--radius:22px;--safe:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}html{background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% -5%,rgba(120,167,167,.28),transparent 32%),linear-gradient(180deg,#f8f1df,var(--bg))}.app-shell{max-width:760px;margin:0 auto;min-height:100vh;padding-bottom:calc(90px + var(--safe))}.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px;background:rgba(244,236,216,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(100,90,70,.12)}.brand-wrap{display:flex;align-items:center;gap:10px;min-width:0}.brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:#fff;font-size:20px;box-shadow:0 6px 16px rgba(23,63,78,.2)}h1,h2,h3,p{margin-top:0}.brand-wrap h1{font-size:15px;letter-spacing:.08em;margin:0}.brand-wrap p{font-size:10px;color:var(--muted);margin:2px 0 0}.icon-btn{border:0;background:rgba(255,255,255,.55);width:38px;height:38px;border-radius:12px;font-size:18px;color:var(--ink)}main{padding:14px}.screen{display:none}.screen.active{display:block}.paper-card{background:rgba(255,250,240,.94);border:1px solid rgba(132,111,72,.16);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px}.hero-card{padding:24px;background:linear-gradient(145deg,#fffaf0 0%,#f4ead2 70%,#e6dfc8 100%);position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(45,113,129,.14);border-radius:50%;right:-70px;bottom:-100px;box-shadow:0 0 0 28px rgba(45,113,129,.035),0 0 0 56px rgba(45,113,129,.025)}.hero-card h2{font-family:Georgia,serif;font-size:34px;line-height:1.02;max-width:620px;margin:8px 0 14px}.hero-card p{color:#52605f;line-height:1.55;max-width:620px}.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--sea)}.feature-pills,.chip-list{display:flex;flex-wrap:wrap;gap:8px}.feature-pills span,.chip,.badge{font-size:11px;border-radius:999px;padding:7px 10px;background:#edf3ef;color:#47635d;border:1px solid rgba(75,118,96,.12)}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-heading.compact{margin-bottom:12px}.section-heading h3{margin:3px 0 0;font-size:18px}.save-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.save-slot{min-height:128px;border:1px dashed #c9b893;border-radius:17px;padding:14px;text-align:left;background:#fffbf3;color:var(--ink);display:flex;flex-direction:column;justify-content:space-between}.save-slot strong{font-size:14px}.save-slot small{color:var(--muted);line-height:1.35}.save-slot.empty{align-items:center;justify-content:center;text-align:center;color:var(--sea);font-weight:700}.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.mode-card{border:1px solid var(--line);border-radius:16px;background:#fffaf1;padding:14px;text-align:left;color:var(--ink)}.mode-card strong{display:block;margin-bottom:5px}.mode-card span{font-size:12px;color:var(--muted);line-height:1.35}.mode-card.selected{border-color:var(--sea);box-shadow:inset 0 0 0 1px var(--sea);background:#f1f8f6}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field>span{font-size:11px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:13px;padding:13px;background:#fffdf8;color:var(--ink);font-size:16px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary-btn,.secondary-btn,.choice-btn{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:800;font-size:14px}.primary-btn{background:var(--navy);color:#fff;box-shadow:0 8px 20px rgba(23,63,78,.18)}.primary-btn.small{padding:11px 14px;width:auto}.secondary-btn{background:#ece4d1;color:var(--ink)}.text-btn{border:0;background:transparent;color:var(--sea);font-weight:800;font-size:12px}.status-strip{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:1px;background:#d9ceb4;border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}.status-strip>div{background:#fffaf0;padding:11px 12px;min-width:0}.status-strip strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tiny-label{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}.tab-panel{display:none}.tab-panel.active{display:block}.profile-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#173f4e,#255e69);color:#fff}.avatar-ring{width:54px;height:54px;flex:0 0 54px;border-radius:50%;display:grid;place-items:center;background:#f7edd5;color:var(--navy);font:700 22px Georgia,serif;border:3px solid rgba(255,255,255,.24)}.profile-copy{min-width:0;flex:1}.profile-copy h2{margin:4px 0 3px;font-size:22px}.profile-copy p{margin:0;color:rgba(255,255,255,.72);font-size:12px}.profile-banner .eyebrow{color:#d9c79b}.reputation-pill{font-size:10px;font-weight:800;border-radius:999px;background:rgba(255,255,255,.13);padding:8px 10px;white-space:nowrap}.situation-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.situation-grid>div,.info-cell{padding:12px;border-radius:14px;background:#f4f0e5}.situation-grid span,.info-cell span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.situation-grid strong,.info-cell strong{font-size:13px}.danger-badge{font-size:10px;font-weight:900;border-radius:999px;padding:7px 10px}.danger-badge.low{background:#e4f0e9;color:#3f6a56}.danger-badge.medium{background:#f6ead0;color:#906b23}.danger-badge.high{background:#f4dfda;color:#963e35}.compact-list{margin-top:12px}.attention-card{border-color:#d3b46f;background:linear-gradient(145deg,#fff9e8,#f7eed7)}.attention-card h3{margin:6px 0}.attention-card p{font-size:13px;color:var(--muted);line-height:1.5}.timeline{position:relative;padding-left:18px}.timeline:before{content:"";position:absolute;left:5px;top:5px;bottom:8px;width:1px;background:#d6c9aa}.timeline-item{position:relative;padding:0 0 18px 13px}.timeline-dot{position:absolute;left:-17px;top:5px;width:9px;height:9px;background:#8f9f97;border:2px solid #fffaf0;border-radius:50%;box-shadow:0 0 0 1px #c8b997}.timeline-item.major .timeline-dot{background:var(--gold)}.timeline-item.danger .timeline-dot{background:var(--red)}.timeline-item.canon .timeline-dot{background:var(--sea)}.timeline-age{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.08em}.timeline-title{font-weight:900;margin:3px 0}.timeline-desc{font-size:13px;color:#5f6965;line-height:1.45}.timeline-delta{display:inline-block;margin-top:6px;background:#e8f0ea;color:#42644f;border-radius:9px;padding:4px 7px;font-size:10px;font-weight:800}.advance-dock{position:sticky;bottom:calc(72px + var(--safe));z-index:20;padding-top:2px}.advance-btn{width:100%;border:0;border-radius:18px;background:linear-gradient(135deg,#1d5360,#173f4e);color:#fff;padding:15px 18px;display:flex;gap:12px;align-items:center;text-align:left;box-shadow:0 15px 30px rgba(23,63,78,.24)}.advance-btn:disabled{opacity:.48}.advance-icon{font-size:24px}.advance-btn strong{display:block;letter-spacing:.08em}.advance-btn small{display:block;color:rgba(255,255,255,.65);font-size:10px;margin-top:3px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.career-card{padding:14px;border-radius:14px;background:#f4f0e5}.career-card strong{font-size:16px}.career-card p{font-size:12px;color:var(--muted);margin:5px 0 0;line-height:1.45}.action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.action-card{border:1px solid var(--line);background:#fffdf8;border-radius:14px;padding:12px;text-align:left;color:var(--ink)}.action-card strong{display:block;font-size:13px}.action-card small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}.action-card.active{border-color:var(--sea);background:#eef6f3}.action-card.locked{opacity:.45}.stats-list{display:flex;flex-direction:column;gap:9px}.stat-row{display:grid;grid-template-columns:100px 1fr 35px;align-items:center;gap:9px;font-size:12px}.stat-bar{height:8px;border-radius:999px;background:#e8e1d2;overflow:hidden}.stat-fill{height:100%;background:linear-gradient(90deg,#78a7a7,#2d7181);border-radius:999px}.stat-value{text-align:right;font-weight:900}.split-card{display:grid;grid-template-columns:1fr 1fr;gap:14px}.split-card>div+div{border-left:1px solid var(--line);padding-left:14px}.ability-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:8px 0;border-bottom:1px solid #eee6d6}.ability-row:last-child{border-bottom:0}.ability-row span{color:var(--muted)}.fruit-card{font-size:12px;line-height:1.45;color:#53605d}.relations-list{display:flex;flex-direction:column;gap:9px}.relation-card{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px;padding:10px;border-radius:14px;background:#f4f0e5}.relation-avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#dce9e5;color:var(--navy);font-weight:900}.relation-copy strong,.relation-copy span{display:block}.relation-copy span{font-size:11px;color:var(--muted);margin-top:2px}.relation-score{font-weight:900;color:var(--sea)}.world-hero{background:linear-gradient(145deg,#eaf2ec,#fffaf0)}.world-hero p{font-size:13px;color:var(--muted);line-height:1.5}.news-list,.canon-list{display:flex;flex-direction:column;gap:10px}.news-item,.canon-item{padding:12px;border-radius:14px;background:#f4f0e5}.news-item strong,.news-item span,.canon-item strong,.canon-item span{display:block}.news-item span,.canon-item span{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}.canon-item .status{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--sea);font-weight:900}.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;z-index:40;width:min(760px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,250,240,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(120,100,65,.14);padding:8px 7px calc(8px + var(--safe))}.nav-item{border:0;background:transparent;color:#80847f;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px}.nav-item span{font-size:17px}.nav-item small{font-size:9px}.nav-item.active{color:var(--navy);font-weight:900}.modal-backdrop{position:fixed;inset:0;z-index:80;background:rgba(15,27,28,.58);display:grid;place-items:end center;padding:14px}.modal-card{width:min(620px,100%);background:#fffaf0;border-radius:24px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:88vh;overflow:auto}.modal-card h3,.modal-card h2{margin:6px 0 9px}.modal-card p{color:var(--muted);font-size:13px;line-height:1.5}.decision-choices{display:flex;flex-direction:column;gap:9px;margin-top:18px}.choice-btn{background:#edf3ef;color:var(--ink);text-align:left;border:1px solid #d8e4df}.choice-btn strong,.choice-btn small{display:block}.choice-btn small{font-weight:500;color:var(--muted);margin-top:4px}.death-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}.death-summary>div{background:#f4f0e5;border-radius:13px;padding:11px}.death-summary span{display:block;font-size:9px;color:var(--muted)}.death-summary strong{font-size:13px}.dev-panel{position:fixed;inset:56px 8px 86px;z-index:70;background:#10272d;color:#dbe9e5;border-radius:18px;padding:14px;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.32)}.dev-head{display:flex;justify-content:space-between;align-items:center}.dev-panel pre{white-space:pre-wrap;font-size:10px;line-height:1.45}.toast{position:fixed;z-index:100;left:50%;transform:translateX(-50%);bottom:110px;background:#173f4e;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}.startup-error{margin-top:10px;padding:12px 14px;border-radius:14px;background:#f4dfda;color:#7d3028;border:1px solid rgba(150,62,53,.18);font-size:12px;line-height:1.45}.startup-error strong,.startup-error span{display:block}.startup-error span{margin-top:4px}.startup-ready{color:var(--green)}.startup-warn{color:#8a651f}.hidden{display:none!important}
@@ -216,7 +217,7 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Missions</span><h3>Opportunités actuelles</h3></div><span class="badge">Contexte réel</span></div><div id="missionBoard" class="mission-grid"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V8.6 • Quotidien</span><h3>Activité principale & opportunités</h3></div><span class="badge">Habitudes vivantes</span></div><div id="v86DailyCard" class="v86-daily-shell"></div><div id="activityOptions" class="action-grid"></div></section><section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Ressources</span><h3>Gestion de l’année</h3></div><span class="badge">Action annuelle</span></div><div id="resourcesAnnualActions"></div></section><section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V6.5 • Économie utile</span><h3>Investissement de l’année</h3></div><span class="badge">1 choix / an</span></div><div id="economyActions" class="v63-economy-grid"></div></section>
         <section id="crewSection" class="paper-card hidden"><div class="section-heading compact"><div><span class="eyebrow">Équipage</span><h3 id="crewName">Aucun équipage</h3></div><span id="crewMorale" class="badge"></span></div><div id="crewDetails"></div></section>
-        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Équipement</span><h3>Inventaire</h3></div></div><div id="equipmentList" class="chip-list"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V8.9 • Équipement</span><h3>Équipement & objets</h3></div><span id="v89EquipmentBadge" class="badge"></span></div><div id="v89EquipmentCard" class="v89-equipment"></div><div id="equipmentList" class="chip-list" style="margin-top:10px"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Sauvegarde</span><h3>Transfert & sécurité</h3></div><span id="storageStatus" class="badge">Autosave</span></div><p class="helper-text">L’autosave reste actif. Sur iPhone, tu peux aussi copier une sauvegarde texte pour la conserver ailleurs.</p><div class="action-grid"><button id="exportSaveBtn" class="action-card"><strong>Exporter</strong><small>Copier une sauvegarde portable</small></button><button id="importSaveBtn" class="action-card"><strong>Importer</strong><small>Restaurer une sauvegarde texte</small></button></div></section>
 
       </section>
@@ -316,6 +317,8 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 <script src="src/v87/settlement-engine-v87.js"></script>
 <script src="src/data/markets-v88.js"></script>
 <script src="src/v88/market-engine-v88.js"></script>
+<script src="src/data/equipment-v89.js"></script>
+<script src="src/v89/equipment-engine-v89.js"></script>
 <script>
 (() => {
 'use strict';
@@ -324,8 +327,8 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const DB_NAME = 'one-piece-life';
 const STORE = 'saves';
-const SAVE_VERSION = 880;
-const GAME_VERSION = '8.8.0';
+const SAVE_VERSION = 890;
+const GAME_VERSION = '8.9.0';
 const V61_ANNUAL_FOCUS={
   balanced:{icon:'⚖',label:'Équilibré',desc:'Aucun domaine sacrifié.',training:1,career:1,relations:1,resources:1,adventure:1},
   training:{icon:'🥊',label:'Progression',desc:'+35% progression • carrière -16% • revenus -18%.',training:1.35,career:.84,relations:.86,resources:.82,adventure:.90},
@@ -841,14 +844,14 @@ const V63_PRESTIGE_TITLES=['','Référence','Élite reconnue','Figure majeure','
 function v63MasteryEfficiency(value,kind='skill'){const v=Number(value)||0;if(kind==='power'){if(v<60)return 1;if(v<75)return .78;if(v<90)return .48;if(v<97)return .27;return .12}if(v<60)return 1;if(v<80)return .78;if(v<90)return .52;if(v<97)return .28;return .10}
 function v63FatigueProfile(p=game?.player){const e=Number(p?.energy??100);if(e>=60)return{label:'Frais',career:1,training:1,relations:1,resources:1,mission:1,injury:1,cls:'fresh'};if(e>=40)return{label:'Fatigue légère',career:.95,training:.95,relations:.96,resources:.97,mission:.98,injury:1.10,cls:'tired'};if(e>=20)return{label:'Fatigué',career:.90,training:.85,relations:.90,resources:.93,mission:.92,injury:1.28,cls:'tired'};return{label:'Épuisé',career:.78,training:.68,relations:.80,resources:.84,mission:.82,injury:1.62,cls:'exhausted'}}
 function v63SkillGain(key,amount){return v671Gain('skills',key,amount)}
-function v63Ensure(){if(!game?.player)return;const p=game.player;p.careerPrestige=p.careerPrestige&&typeof p.careerPrestige==='object'?p.careerPrestige:{level:0};if(!Number.isFinite(p.careerPrestige.level))p.careerPrestige.level=0;p.economy=p.economy&&typeof p.economy==='object'?p.economy:{};if(!Number.isFinite(p.economy.gearLevel))p.economy.gearLevel=0;if(!Number.isFinite(p.economy.lastActionYear))p.economy.lastActionYear=-99;if(!Number.isFinite(p.economy.intelUntilMonth))p.economy.intelUntilMonth=-99}
+function v63Ensure(){if(!game?.player)return;const p=game.player;p.careerPrestige=p.careerPrestige&&typeof p.careerPrestige==='object'?p.careerPrestige:{level:0};if(!Number.isFinite(p.careerPrestige.level))p.careerPrestige.level=0;p.economy=p.economy&&typeof p.economy==='object'?p.economy:{};if(!Number.isFinite(p.economy.gearLevel))p.economy.gearLevel=0;if(!Number.isFinite(p.economy.lastActionYear))p.economy.lastActionYear=-99;if(!Number.isFinite(p.economy.intelUntilMonth))p.economy.intelUntilMonth=-99;if(typeof v89Ensure==='function')v89Ensure()}
 function v63RankThreshold(ranks,index){const n=ranks?.length||4,f=n<=4?1.65:n<=5?1.45:n<=6?1.25:1;return Math.round((index+1)*18*f)}
 function v63PrestigeInfo(p=game.player){v63Ensure();const ranks=CAREER_RANKS[p.faction]||CAREER_RANKS.Civil,i=ranks.indexOf(p.rank),atMax=i===ranks.length-1,level=clamp(Math.floor(p.careerPrestige?.level||0),0,5),threshold=72+level*30,metrics=v6CareerMetrics(p),scoreNeed=Math.min(90,48+level*7);return{atMax,level,title:V63_PRESTIGE_TITLES[level]||`Prestige ${level}`,nextTitle:V63_PRESTIGE_TITLES[Math.min(5,level+1)]||'Prestige supérieur',threshold,scoreNeed,score:metrics.score,max:level>=5}}
 function v63PrestigeCheck(p=game.player){const x=v63PrestigeInfo(p);if(!x.atMax||x.max)return false;if((p.careerXP||0)>=x.threshold&&x.score>=x.scoreNeed){p.careerXP=Math.max(0,p.careerXP-x.threshold);p.careerPrestige.level=x.level+1;const title=V63_PRESTIGE_TITLES[p.careerPrestige.level];p.reputation[reputationKey(p.faction)]=clamp((p.reputation[reputationKey(p.faction)]||0)+6,0,100);p.reputation.world=clamp((p.reputation.world||0)+2,0,100);addHistory('Prestige de carrière',`Même sans nouveau grade, ton parcours franchit un palier : ${title}.`,'major',`Prestige ${x.level} → ${x.level+1}`);v69Milestones();return true}return false}
-function v63GearDamageMult(){v63Ensure();return [1,.94,.88,.82][clamp(Math.floor(game.player.economy.gearLevel||0),0,3)]||.82}
+function v63GearDamageMult(){v63Ensure();if(typeof v89DamageMult==='function')return v89DamageMult();return [1,.94,.88,.82][clamp(Math.floor(game.player.economy.gearLevel||0),0,3)]||.82}
 function v63IntelBonus(){v63Ensure();return game.ageMonths<=Number(game.player.economy.intelUntilMonth||-99)? .05:0}
 function v63EconomyCost(type){
-  v63Ensure();const p=game.player,age=Math.floor(game.ageMonths/12),g=p.economy.gearLevel||0,idx=v68LocalEconomyIndex();
+  v63Ensure();const p=game.player,age=Math.floor(game.ageMonths/12),g=typeof v89InvestmentLevel==='function'?v89InvestmentLevel():(p.economy.gearLevel||0),idx=v68LocalEconomyIndex();
   let base=0;
   if(type==='care')base=9000+age*180;
   else if(type==='training')base=16000+age*260;
@@ -858,8 +861,8 @@ function v63EconomyCost(type){
   return Math.max(500,Math.round(base*idx))
 }
 function v63TrainingTarget(){const p=game.player;if(p.specialization==='medicine')return'Médecine';if(p.specialization==='science')return'Science';if(p.specialization==='navigation'||p.specialization==='navigator')return'Navigation';if(['officer','network'].includes(p.specialization))return'Commandement';if(['operations','cipher','tracker'].includes(p.specialization))return'Discrétion';return p.combatStyle.primary==='Sabreur'?'Sabre':p.combatStyle.primary==='Tireur'?'Tir':'Combat'}
-function v63EconomyAction(type){v63Ensure();if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cet investissement.');return false}const p=game.player,year=Math.floor(game.ageMonths/12);if(year<12){toast('Ces investissements deviennent disponibles à partir de 12 ans.');return false}if(p.economy.lastActionYear===year){toast('Tu as déjà choisi ton investissement de l’année.');return false}const cost=v63EconomyCost(type);if(p.money<cost){toast(`${cost.toLocaleString('fr-FR')} B requis.`);return false}if(type==='gear'&&(p.economy.gearLevel||0)>=3){toast('Ton équipement est déjà au niveau maximal actuel.');return false}p.money-=cost;if(type==='care'){p.health=clamp(p.health+24,0,100);p.energy=clamp(p.energy+30,0,100);if(p.conditions?.length)p.conditions.splice(0,1);addHistory('Soins complets','Tu dépenses une partie de tes ressources pour réellement récupérer au lieu de traiter ton corps comme une ressource infinie.','normal',`-${cost.toLocaleString('fr-FR')} B • santé/énergie restaurées`)}if(type==='training'){const key=v63TrainingTarget(),g=v63SkillGain(key,4.5);addHistory('Formation spécialisée',`Tu finances une formation ciblée en ${key.toLowerCase()}. Plus ton niveau est élevé, plus chaque progrès coûte cher.`,'major',`-${cost.toLocaleString('fr-FR')} B • ${key} +${g.toFixed(1)}`)}if(type==='gear'){p.economy.gearLevel++;addHistory('Équipement renforcé',`Tu investis dans un équipement de niveau ${p.economy.gearLevel}. Il réduit désormais une partie des blessures de combat.`,'major',`-${cost.toLocaleString('fr-FR')} B • protection niveau ${p.economy.gearLevel}`)}if(type==='intel'){p.economy.intelUntilMonth=game.ageMonths+12;addHistory('Renseignements achetés','Tu finances des informations, cartes et contacts fiables pour les douze prochains mois.','normal',`-${cost.toLocaleString('fr-FR')} B • missions +5%`)}p.economy.lastActionYear=year;saveGame();render();return true}
-function v63RenderEconomy(){const box=$('#economyActions');if(!box)return;v63Ensure();const p=game.player,year=Math.floor(game.ageMonths/12),used=p.economy.lastActionYear===year,g=p.economy.gearLevel||0,items=[['care','Soins complets','Récupère santé/énergie et traite une blessure.'],['training','Formation spécialisée',`Progression ciblée : ${v63TrainingTarget()}.`],['gear',g>=3?'Équipement maximal':`Renforcer l’équipement • niveau ${g+1}`,'Réduit les dégâts subis en combat.'],['intel','Acheter des renseignements','+5% de réussite mission pendant 12 mois.']];box.innerHTML=`<div class="annual-focus-note">Berry disponibles : ${Math.floor(p.money).toLocaleString('fr-FR')} B • Prix locaux ×${v68LocalEconomyIndex().toFixed(2)} • Protection ${g}/3 • ${used?'investissement annuel déjà utilisé':'1 investissement direct disponible cette année'}</div>`+items.map(([id,label,desc])=>{const cost=v63EconomyCost(id),blocked=used||(id==='gear'&&g>=3)||p.money<cost||year<12;return `<button class="action-card" data-v63-economy="${id}" ${blocked?'disabled':''}><strong>${esc(label)}</strong><small>${esc(desc)} • ${cost>=999999999?'MAX':cost.toLocaleString('fr-FR')+' B'}</small></button>`}).join('');$$('[data-v63-economy]').forEach(b=>b.onclick=()=>v63EconomyAction(b.dataset.v63Economy))}
+function v63EconomyAction(type){v63Ensure();if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cet investissement.');return false}const p=game.player,year=Math.floor(game.ageMonths/12);if(year<12){toast('Ces investissements deviennent disponibles à partir de 12 ans.');return false}if(p.economy.lastActionYear===year){toast('Tu as déjà choisi ton investissement de l’année.');return false}const cost=v63EconomyCost(type);if(p.money<cost){toast(`${cost.toLocaleString('fr-FR')} B requis.`);return false}if(type==='gear'&&(p.economy.gearLevel||0)>=3){toast('Ton équipement est déjà au niveau maximal actuel.');return false}p.money-=cost;if(type==='care'){p.health=clamp(p.health+24,0,100);p.energy=clamp(p.energy+30,0,100);if(p.conditions?.length)p.conditions.splice(0,1);addHistory('Soins complets','Tu dépenses une partie de tes ressources pour réellement récupérer au lieu de traiter ton corps comme une ressource infinie.','normal',`-${cost.toLocaleString('fr-FR')} B • santé/énergie restaurées`)}if(type==='training'){const key=v63TrainingTarget(),g=v63SkillGain(key,4.5);addHistory('Formation spécialisée',`Tu finances une formation ciblée en ${key.toLowerCase()}. Plus ton niveau est élevé, plus chaque progrès coûte cher.`,'major',`-${cost.toLocaleString('fr-FR')} B • ${key} +${g.toFixed(1)}`)}if(type==='gear'){const item=v89AnnualUpgrade();if(!item){p.money+=cost;toast('Aucun équipement améliorable pour le moment.');return false}addHistory('Équipement amélioré',`Tu investis dans ${v89ItemLabel(item)}. L’objet gagne en qualité et devient une vraie pièce de ton arsenal.`,'major',`-${cost.toLocaleString('fr-FR')} B • amélioration +${item.upgrades}`)}if(type==='intel'){p.economy.intelUntilMonth=game.ageMonths+12;addHistory('Renseignements achetés','Tu finances des informations, cartes et contacts fiables pour les douze prochains mois.','normal',`-${cost.toLocaleString('fr-FR')} B • missions +5%`)}p.economy.lastActionYear=year;saveGame();render();return true}
+function v63RenderEconomy(){const box=$('#economyActions');if(!box)return;v63Ensure();const p=game.player,year=Math.floor(game.ageMonths/12),used=p.economy.lastActionYear===year,g=typeof v89InvestmentLevel==='function'?v89InvestmentLevel():(p.economy.gearLevel||0),items=[['care','Soins complets','Récupère santé/énergie et traite une blessure.'],['training','Formation spécialisée',`Progression ciblée : ${v63TrainingTarget()}.`],['gear',g>=3?'Équipement maximal':`Améliorer l’équipement • niveau ${g+1}`,'Renforce une vraie pièce équipée au lieu d’un bonus abstrait.'],['intel','Acheter des renseignements','+5% de réussite mission pendant 12 mois.']];box.innerHTML=`<div class="annual-focus-note">Berry disponibles : ${Math.floor(p.money).toLocaleString('fr-FR')} B • Prix locaux ×${v68LocalEconomyIndex().toFixed(2)} • Amélioration équipement ${g}/3 • ${used?'investissement annuel déjà utilisé':'1 investissement direct disponible cette année'}</div>`+items.map(([id,label,desc])=>{const cost=v63EconomyCost(id),blocked=used||(id==='gear'&&g>=3)||p.money<cost||year<12;return `<button class="action-card" data-v63-economy="${id}" ${blocked?'disabled':''}><strong>${esc(label)}</strong><small>${esc(desc)} • ${cost>=999999999?'MAX':cost.toLocaleString('fr-FR')+' B'}</small></button>`}).join('');$$('[data-v63-economy]').forEach(b=>b.onclick=()=>v63EconomyAction(b.dataset.v63Economy))}
 
 // -----------------------------------------------------------------------------
 // V6.5 — RISK DIRECTOR • ADVENTURE 2.0 • RARITY 2.0
@@ -2726,6 +2729,177 @@ function renderV88Market(){
   $$('[data-v88-sell-all]').forEach(b=>b.onclick=()=>{const qty=v88Ensure()?.cargo?.[b.dataset.v88SellAll]?.qty||0;if(qty)v88Trade('sell',b.dataset.v88SellAll,qty)})
 }
 
+function v89Module(){return window.OPL_MODULES?.get('equipmentEngineV89')||null}
+function v89Data(){return window.OPL_MODULES?.get('equipmentDataV89')||null}
+function v89ItemLabel(item){
+  const data=v89Data();return data?.templates?.[item?.templateId]?.label||item?.templateId||'Objet'
+}
+function v89Ensure(){
+  if(!game?.player)return null;
+  const mod=v89Module(),p=game.player;if(!mod)return p.equipmentV89||null;
+  p.economy=p.economy&&typeof p.economy==='object'?p.economy:{};
+  if(!Number.isFinite(p.economy.gearLevel))p.economy.gearLevel=0;
+  let state=mod.normalizeState(p.equipmentV89||{});
+  if(!state.legacyMigrated){
+    const level=clamp(Math.floor(Number(p.economy.gearLevel)||0),0,3),hasOutfit=state.items.some(x=>v89Data()?.templates?.[x.templateId]?.slot==='outfit');
+    if(level>0&&!hasOutfit){
+      const rarity=level>=3?'rare':level===2?'fine':'common';
+      const item=mod.createItem('legacy_protection',{uid:'legacy_gear_'+String(game.seed||'save'),rarity,origin:p.island||'Ancienne sauvegarde',source:'legacy',year:game.clock?.year||0,upgrades:level},{quality:.58+level*.08,rarity:.5,id:.1});
+      const a=mod.acquire(state,item,{});state=a.state;if(item)state=mod.equip(state,item.uid).state
+    }
+    state.legacyMigrated=true
+  }
+  p.equipmentV89=state;
+  const maxUpgrade=state.items.filter(x=>v89Data()?.templates?.[x.templateId]?.slot).reduce((m,x)=>Math.max(m,Number(x.upgrades)||0),0);
+  p.economy.gearLevel=clamp(Math.floor(maxUpgrade),0,3);
+  return p.equipmentV89
+}
+function v89InvestmentLevel(){
+  const state=v89Ensure();if(!state)return 0;
+  return clamp(state.items.filter(x=>v89Data()?.templates?.[x.templateId]?.slot).reduce((m,x)=>Math.max(m,Number(x.upgrades)||0),0),0,3)
+}
+function v89EquipmentEffects(){
+  const mod=v89Module(),state=v89Ensure();if(mod&&state)return mod.effects(state);
+  const legacy=clamp(Math.floor(Number(game?.player?.economy?.gearLevel)||0),0,3);return {damageMult:[1,.94,.88,.82][legacy]||1,missionBonus:legacy*2.2,combatBonus:legacy*2.4,offense:0,defense:legacy*3,combat:0,sabre:0,tir:0,navigation:0,stealth:0,medicine:0,science:0,exploration:0,command:0}
+}
+function v89DamageMult(){return Number(v89EquipmentEffects().damageMult)||1}
+function v89CombatBonus(){
+  const fx=v89EquipmentEffects(),style=game.player?.combatStyle?.primary||'';
+  const styleBonus=style==='Sabreur'?(fx.sabre||0):style==='Tireur'?(fx.tir||0):(fx.combat||0);
+  return +clamp((fx.combatBonus||0)+styleBonus*.55,0,13).toFixed(2)
+}
+function v89MissionBonus(m=null){
+  const fx=v89EquipmentEffects(),type=m?.type||game.activeMission?.type||'';
+  let specific=0;
+  if(type==='navigation')specific=(fx.navigation||0)*.7;
+  if(type==='explore')specific=(fx.navigation||0)*.35+(fx.exploration||0)*.55+(fx.stealth||0)*.2;
+  if(type==='covert')specific=(fx.stealth||0)*.7+(fx.command||0)*.15;
+  if(type==='medicine')specific=(fx.medicine||0)*.7+(fx.science||0)*.35;
+  if(type==='escort')specific=(fx.command||0)*.45+(fx.defense||0)*.2;
+  if(['combat','crime','patrol'].includes(type))specific=(fx.offense||0)*.35+(fx.combat||0)*.18+(fx.sabre||0)*.18+(fx.tir||0)*.18;
+  return +clamp((fx.missionBonus||0)+specific,0,14).toFixed(2)
+}
+function v89NavigationBonus(){const fx=v89EquipmentEffects();return +(Number(fx.navigation)||0).toFixed(2)}
+function v89StealthBonus(){const fx=v89EquipmentEffects();return +(Number(fx.stealth)||0).toFixed(2)}
+function v89ExplorationBonus(){const fx=v89EquipmentEffects();return +(Number(fx.exploration)||0).toFixed(2)}
+function v89MarketContext(){
+  const base=typeof v88Context==='function'?v88Context():{},p=game.player;
+  const explore=Number(v85Ensure()?.islands?.[p.island]?.exploration)||0;
+  return {...base,island:p.island,year:game.clock.year,origin:p.island,exploration:explore}
+}
+function v89OfferRoll(i,key){
+  const n=hash32(String(game.seed||'seed')+'|v89offer|'+game.player.island+'|'+game.clock.year+'|'+i+'|'+key);
+  return (n%10000)/10000
+}
+function v89ShopOffers(){
+  const mod=v89Module(),state=v89Ensure();if(!mod||!state||!v88MarketAvailable())return [];
+  const ctx=v89MarketContext(),rolls=[0,1,2,3].map(i=>({pick:v89OfferRoll(i,'pick'),rarity:v89OfferRoll(i,'rarity'),quality:v89OfferRoll(i,'quality'),id:v89OfferRoll(i,'id')}));
+  return mod.shopOffers(ctx.place,{...ctx,offerPrefix:'shop_'+slug(ctx.island)+'_'+ctx.year},rolls).filter(x=>!state.purchasedOffers.includes(x.id))
+}
+function v89BuyOffer(id){
+  if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cet achat.');return false}
+  const mod=v89Module(),state=v89Ensure(),offer=v89ShopOffers().find(x=>x.id===id),p=game.player;if(!mod||!state||!offer)return false;
+  if(p.money<offer.price){toast(offer.price.toLocaleString('fr-FR')+' B requis.');return false}
+  const a=mod.acquire(state,offer.item,{bought:true});if(a.error==='inventory_full'){toast('Inventaire plein : 24 objets maximum.');return false}if(a.error)return false;
+  a.state.purchasedOffers.unshift(offer.id);a.state.purchasedOffers=a.state.purchasedOffers.slice(0,40);p.equipmentV89=a.state;p.money-=offer.price;
+  addHistory('Achat d’équipement',v89ItemLabel(offer.item)+' rejoint ton inventaire à '+p.island+'.','normal','-'+offer.price.toLocaleString('fr-FR')+' B'+(a.autoEquipped?' • équipé automatiquement':''));
+  saveGame();render();return true
+}
+function v89EquipItem(uid){
+  const mod=v89Module(),state=v89Ensure();if(!mod||!state)return false;const r=mod.equip(state,uid);if(r.error)return false;
+  game.player.equipmentV89=r.state;addHistory('Équipement modifié',v89ItemLabel(r.item)+' devient ton équipement actif pour le slot '+(v89Data()?.slots?.[r.slot]?.label||r.slot).toLowerCase()+'.','normal');saveGame();render();return true
+}
+function v89UnequipSlot(slot){
+  const mod=v89Module(),state=v89Ensure();if(!mod||!state)return false;
+  const uid=state.equipped?.[slot],item=state.items.find(x=>x.uid===uid),r=mod.unequip(state,slot);if(r.error)return false;
+  game.player.equipmentV89=r.state;game.player.economy.gearLevel=v89InvestmentLevel();
+  if(item)addHistory('Objet déséquipé',v89ItemLabel(item)+' retourne dans ton inventaire.','normal');
+  saveGame();render();return true
+}
+function v89AutoEquip(){
+  const mod=v89Module(),state=v89Ensure();if(!mod||!state)return false;const r=mod.autoEquip(state);game.player.equipmentV89=r.state;
+  game.player.economy.gearLevel=v89InvestmentLevel();saveGame();render();toast('Meilleur équipement disponible équipé.');return true
+}
+function v89RepairItem(uid){
+  if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cette réparation.');return false}
+  if(!v88MarketAvailable()){toast('Aucun atelier ou marché adapté ici.');return false}
+  const mod=v89Module(),state=v89Ensure(),p=game.player,ctx=v89MarketContext();if(!mod||!state)return false;
+  const r=mod.repair(state,uid,{priceIndex:ctx.priceIndex,money:p.money,year:ctx.year});
+  if(r.error==='not_needed'){toast('Cet objet est déjà en bon état.');return false}
+  if(r.error==='insufficient_funds'){toast(r.cost.toLocaleString('fr-FR')+' B requis.');return false}
+  if(r.error)return false;p.equipmentV89=r.state;p.money=Math.max(0,p.money+r.moneyDelta);
+  addHistory('Réparation',v89ItemLabel(r.item)+' est remis en état.','normal','-'+r.cost.toLocaleString('fr-FR')+' B');saveGame();render();return true
+}
+function v89SellItem(uid){
+  if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cette vente.');return false}
+  if(!v88MarketAvailable()){toast('Aucun marché pour revendre cet objet ici.');return false}
+  const mod=v89Module(),state=v89Ensure(),p=game.player,item=state.items.find(x=>x.uid===uid);if(!mod||!item)return false;
+  if(item.source==='legacy'){toast('Cet équipement représente l’investissement hérité de ton ancienne sauvegarde.');return false}
+  const value=mod.saleValue(item,v89MarketContext()),r=mod.remove(state,uid);if(r.error)return false;
+  r.state.totalSold=(Number(r.state.totalSold)||0)+1;p.equipmentV89=r.state;p.money+=value;
+  addHistory('Objet revendu',v89ItemLabel(item)+' quitte ton inventaire.','normal','+'+value.toLocaleString('fr-FR')+' B');saveGame();render();return true
+}
+function v89UseItem(uid){
+  const mod=v89Module(),state=v89Ensure(),p=game.player;if(!mod||!state)return false;const r=mod.use(state,uid);if(r.error)return false;
+  p.equipmentV89=r.state;const fx=r.effects||{};
+  if(fx.health)p.health=clamp(p.health+fx.health,1,100);if(fx.energy)p.energy=clamp(p.energy+fx.energy,0,100);
+  if(fx.heat){const st=v87Ensure(),sm=v87Module();if(st&&sm){const local=sm.settlement(st,p.island);local.heat=clamp(local.heat+fx.heat,0,100);st.islands[p.island]=local;p.settlementV87=st}}
+  addHistory('Objet utilisé',v89ItemLabel(r.item)+' est consommé sur le terrain.','normal');saveGame();render();return true
+}
+function v89AnnualUpgrade(){
+  const mod=v89Module();let state=v89Ensure();if(!mod||!state)return null;const data=v89Data();
+  let candidates=Object.values(state.equipped).map(id=>state.items.find(x=>x.uid===id)).filter(x=>x&&x.upgrades<3);
+  if(!candidates.length)candidates=state.items.filter(x=>data?.templates?.[x.templateId]?.slot&&x.upgrades<3);
+  if(!candidates.length&&state.items.filter(x=>data?.templates?.[x.templateId]?.slot).length===0){
+    const item=mod.createItem('legacy_protection',{uid:'investment_'+String(game.clock.year)+'_'+String(game.ageMonths),origin:game.player.island,source:'investment',year:game.clock.year},{rarity:.8,quality:.55,id:.3});
+    const a=mod.acquire(state,item,{});state=a.state;state=mod.equip(state,item.uid).state;candidates=[state.items.find(x=>x.uid===item.uid)]
+  }
+  const target=candidates.sort((a,b)=>(a.upgrades-b.upgrades)||mod.itemScore(b)-mod.itemScore(a))[0];if(!target)return null;
+  const r=mod.upgrade(state,target.uid,{money:Number.MAX_SAFE_INTEGER,priceIndex:1,year:game.clock.year});if(r.error)return null;
+  game.player.equipmentV89=r.state;game.player.economy.gearLevel=clamp(v89InvestmentLevel(),0,3);return r.item
+}
+function v89WearCombat(amount=2){
+  const mod=v89Module(),state=v89Ensure();if(!mod||!state)return null;const before=new Set(state.items.filter(x=>x.durability<=0).map(x=>x.uid)),r=mod.wear(state,amount,['weapon','outfit']);
+  game.player.equipmentV89=r.state;for(const uid of r.broken)if(!before.has(uid)){const item=r.state.items.find(x=>x.uid===uid);if(item)addHistory('Équipement hors d’usage',v89ItemLabel(item)+' atteint 0 de durabilité et ne fournit plus de bonus avant réparation.','danger')}
+  return r
+}
+function v89MaybeLoot(source='combat',power=0,bonus=0){
+  const mod=v89Module(),state=v89Ensure(),p=game.player;if(!mod||!state||state.items.length>=24)return null;
+  const exploration=Number(v85Ensure()?.islands?.[p.island]?.exploration)||0,danger=Number(placeInfo(p.island)?.danger)||REGION_DANGER[p.region]||10;
+  const base=source==='treasure'?.30:source==='mission'?.12:.055,chanceLoot=clamp(base+danger/700+exploration/1000+Number(power||0)/1400+Number(bonus||0),.04,.52);
+  if(random('v89LootChance:'+source)>chanceLoot)return null;
+  const candidates=mod.candidateTemplates(placeInfo(p.island),false).filter(x=>x.id!=='legacy_protection').slice(0,10);if(!candidates.length)return null;
+  const pickIndex=Math.min(candidates.length-1,Math.floor(random('v89LootTemplate:'+source)*candidates.length)),templateId=candidates[pickIndex].id;
+  const uid='loot_'+String(game.ageMonths)+'_'+String(state.totalLoot)+'_'+String(Math.floor(random('v89LootUid')*1e6));
+  const item=mod.createItem(templateId,{uid,origin:p.island,source,year:game.clock.year,danger,exploration,power:Number(power)||0},{rarity:random('v89LootRarity:'+source),quality:random('v89LootQuality:'+source),id:random('v89LootItem:'+source)});
+  const a=mod.acquire(state,item,{loot:true});if(a.error)return null;p.equipmentV89=a.state;
+  const rarity=v89Data()?.rarities?.[item.rarity]?.label||item.rarity;
+  addHistory('Butin • '+rarity,v89ItemLabel(item)+' est récupéré '+(source==='mission'?'après la mission':source==='treasure'?'pendant l’exploration':'après l’affrontement')+'.','major','Qualité '+item.quality+'/100'+(a.autoEquipped?' • équipé automatiquement':''));
+  return item
+}
+function v89EffectPills(item){
+  const fx=v89Module()?.itemEffects(item)||{},labels={offense:'Off.',defense:'Déf.',mission:'Mission',navigation:'Nav.',stealth:'Discr.',medicine:'Méd.',science:'Sci.',exploration:'Expl.',command:'Cmd',combat:'Combat',sabre:'Sabre',tir:'Tir'};
+  const list=Object.entries(fx).filter(([,v])=>Number(v)>=.5).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  return list.map(([k,v])=>'<span>'+esc(labels[k]||k)+' +'+Number(v).toFixed(1)+'</span>').join('')
+}
+function renderV89Equipment(){
+  const box=$('#v89EquipmentCard'),badge=$('#v89EquipmentBadge'),mod=v89Module(),data=v89Data(),state=v89Ensure();if(!box||!badge||!mod||!data||!state)return;
+  const p=game.player,sum=mod.summary(state),market=typeof v88MarketAvailable==='function'&&v88MarketAvailable(),offers=market?v89ShopOffers():[];
+  badge.textContent=sum.count+'/24 • '+sum.equippedCount+'/4 équipés';
+  const slotHtml=sum.slots.map(x=>{const item=x.item,label=data.slots[x.slot]?.label||x.slot;if(!item)return '<div class="v89-card"><div class="v89-card-head"><strong>'+esc(label)+'</strong><span class="v89-rarity">Vide</span></div><small>Aucun objet équipé.</small></div>';const rarity=data.rarities[item.rarity]?.label||item.rarity,pct=Math.round(item.durability/item.maxDurability*100);return '<div class="v89-card '+(item.durability<=0?'v89-broken':'')+'"><div class="v89-card-head"><div><strong>'+esc(label)+' • '+esc(v89ItemLabel(item))+'</strong><small>'+esc(rarity)+' • qualité '+item.quality+' • amélioration +'+item.upgrades+'</small></div><span class="v89-rarity">'+Math.round(item.durability)+'/'+item.maxDurability+'</span></div><div class="v89-durability"><i style="width:'+clamp(pct,0,100)+'%"></i></div><div class="v89-effects">'+v89EffectPills(item)+'</div><div class="v89-actions">'+(market&&item.durability<item.maxDurability?'<button data-v89-repair="'+esc(item.uid)+'">Réparer</button>':'')+'<button data-v89-unequip="'+esc(x.slot)+'">Déséquiper</button></div></div>'}).join('');
+  const equippedIds=new Set(Object.values(state.equipped).filter(Boolean)),inventory=state.items.filter(x=>!equippedIds.has(x.uid));
+  const invHtml=inventory.length?inventory.map(item=>{const t=data.templates[item.templateId],rarity=data.rarities[item.rarity]?.label||item.rarity,pct=Math.round(item.durability/item.maxDurability*100);return '<div class="v89-card '+(item.durability<=0?'v89-broken':'')+'"><div class="v89-card-head"><div><strong>'+esc(v89ItemLabel(item))+'</strong><small>'+esc(rarity)+' • qualité '+item.quality+' • '+esc(item.origin)+'</small></div><span class="v89-rarity">'+(t?.consumable?'Consommable':Math.round(item.durability)+'/'+item.maxDurability)+'</span></div>'+(t?.consumable?'':'<div class="v89-durability"><i style="width:'+clamp(pct,0,100)+'%"></i></div>')+'<div class="v89-effects">'+v89EffectPills(item)+'</div><div class="v89-actions">'+(t?.slot?'<button class="primary" data-v89-equip="'+esc(item.uid)+'">Équiper</button>':'')+(t?.consumable?'<button class="primary" data-v89-use="'+esc(item.uid)+'">Utiliser</button>':'')+(market&&item.durability<item.maxDurability&&!t?.consumable?'<button data-v89-repair="'+esc(item.uid)+'">Réparer</button>':'')+(market&&item.source!=='legacy'?'<button data-v89-sell="'+esc(item.uid)+'">Vendre</button>':'')+'</div></div>'}).join(''):'<div class="career-card"><p>Aucun objet non équipé. Le loot reste rare et dépend des missions, combats et explorations réellement risqués.</p></div>';
+  const shopHtml=market?'<div><span class="eyebrow">Équipement local • '+esc(p.island)+'</span><div class="v89-shop">'+(offers.length?offers.map(o=>{const rarity=data.rarities[o.item.rarity]?.label||o.item.rarity;return '<div class="v89-card"><div class="v89-card-head"><strong>'+esc(v89ItemLabel(o.item))+'</strong><span class="v89-rarity">'+esc(rarity)+'</span></div><small>Qualité '+o.item.quality+' • '+o.price.toLocaleString('fr-FR')+' B</small><div class="v89-effects">'+v89EffectPills(o.item)+'</div><div class="v89-actions"><button class="primary" data-v89-buy="'+esc(o.id)+'" '+(p.money<o.price||state.items.length>=24?'disabled':'')+'>Acheter</button></div></div>'}).join(''):'<div class="career-card"><p>Les offres d’équipement de cette année ont déjà été achetées ou ne sont plus disponibles.</p></div>')+'</div></div>':'';
+  box.innerHTML='<div class="v89-summary"><div><span>Combat</span><strong>+'+v89CombatBonus().toFixed(1)+'</strong></div><div><span>Protection</span><strong>'+Math.round((1-v89DamageMult())*100)+'%</strong></div><div><span>Missions</span><strong>+'+(sum.effects.missionBonus||0).toFixed(1)+'</strong></div><div><span>Objets cassés</span><strong>'+sum.broken+'</strong></div></div><div class="section-heading compact"><div><span class="eyebrow">Slots actifs</span></div><button id="v89AutoEquipBtn" class="text-btn">Équiper le meilleur</button></div><div class="v89-slots">'+slotHtml+'</div><div><span class="eyebrow">Inventaire</span><div class="v89-items">'+invHtml+'</div></div>'+shopHtml;
+  $('#v89AutoEquipBtn').onclick=v89AutoEquip;
+  $$('[data-v89-equip]').forEach(b=>b.onclick=()=>v89EquipItem(b.dataset.v89Equip));
+  $$('[data-v89-unequip]').forEach(b=>b.onclick=()=>v89UnequipSlot(b.dataset.v89Unequip));
+  $$('[data-v89-use]').forEach(b=>b.onclick=()=>v89UseItem(b.dataset.v89Use));
+  $$('[data-v89-repair]').forEach(b=>b.onclick=()=>v89RepairItem(b.dataset.v89Repair));
+  $$('[data-v89-sell]').forEach(b=>b.onclick=()=>v89SellItem(b.dataset.v89Sell));
+  $$('[data-v89-buy]').forEach(b=>b.onclick=()=>v89BuyOffer(b.dataset.v89Buy))
+}
+
 function v86Module(){return window.OPL_MODULES?.get('dailyLifeEngineV86')||null}
 function v86Data(){return window.OPL_MODULES?.get('dailyLifeDataV86')||null}
 function v86Ensure(){
@@ -2839,7 +3013,7 @@ function v85LegacyTravelBase(from,to){
 function v85RoutePreview(from,to,mode='standard'){
   const mod=v85Module(),state=v85Ensure(),a=placeInfo(from),b=placeInfo(to);if(!mod||!state)return {duration:v85LegacyTravelBase(from,to),danger:(a.danger+b.danger)/2,riskPct:20,familiarity:0,preparedness:0,mode,modeLabel:'Route normale'};
   const sea=v85CrewSeaMetrics(),ship=game.player.crew?.ship?.condition??75;
-  return mod.routeProfile(state,{from,to,fromRegion:a.region,toRegion:b.region,fromDanger:a.danger,toDanger:b.danger,baseDuration:v85LegacyTravelBase(from,to),causalRisk:v68TravelRisk(from,to),navigation:game.player.skills?.Navigation,crewTravel:sea.travel,shipCondition:ship,mode})
+  return mod.routeProfile(state,{from,to,fromRegion:a.region,toRegion:b.region,fromDanger:a.danger,toDanger:b.danger,baseDuration:v85LegacyTravelBase(from,to),causalRisk:v68TravelRisk(from,to),navigation:(game.player.skills?.Navigation||0)+v89NavigationBonus(),crewTravel:sea.travel,shipCondition:ship,mode})
 }
 function v85StartVoyage(profile){
   const mod=v85Module(),state=v85Ensure();if(!mod||!state)return null;const r=mod.startVoyage(state,profile,{year:game.clock.year});game.player.voyageV85=r.state;return r.voyage
@@ -2850,7 +3024,7 @@ function v85ResolveTravelDecision(parts){
 function v85ApplyDiscovery(d,source='exploration'){
   if(!d)return;const p=game.player,id=d.id,label=d.label||id;
   if(id==='chart'){const g=v63SkillGain('Navigation',1.2+random('v85Discovery')*2);addHistory('Découverte maritime',label+' améliore ta lecture du monde.','major','Navigation +'+g.toFixed(1));return}
-  if(id==='treasure'||id==='resource'){const danger=REGION_DANGER[p.region]||10,gain=Math.round((id==='treasure'?3500:1800)+random('v85Discovery')*(id==='treasure'?12000:6500)*(1+danger/120));p.money+=gain;addHistory(label,'Une découverte pendant '+source+' rapporte quelque chose de concret.','major','+'+gain.toLocaleString('fr-FR')+' B');return}
+  if(id==='treasure'||id==='resource'){const danger=REGION_DANGER[p.region]||10,gain=Math.round((id==='treasure'?3500:1800)+random('v85Discovery')*(id==='treasure'?12000:6500)*(1+danger/120));p.money+=gain;addHistory(label,'Une découverte pendant '+source+' rapporte quelque chose de concret.','major','+'+gain.toLocaleString('fr-FR')+' B');v89MaybeLoot('treasure',danger,id==='treasure'?.14:.04);return}
   if(id==='ruin'){codexAdd('places',p.island+' • vestiges');p.reputation.local=clamp((p.reputation.local||0)+2,0,100);addHistory('Vestige découvert','Tu mets au jour une trace oubliée à '+p.island+'.','major','Codex enrichi');return}
   if(id==='contact'){p.reputation.local=clamp((p.reputation.local||0)+3,0,100);addHistory('Contact d’exploration','Une rencontre utile née de '+source+' renforce ton ancrage local.','normal','Réputation locale +3');return}
   if(id==='lead'){v64GrantRareLead(source);return}
@@ -2858,7 +3032,7 @@ function v85ApplyDiscovery(d,source='exploration'){
 }
 function v85TickVoyage(months){
   const mod=v85Module(),state=v85Ensure(),p=game.player,t=p.travel;if(!mod||!state||!t)return null;
-  const sea=v85CrewSeaMetrics(),ship=p.crew?.ship?.condition??75,result=mod.tickVoyage(state,t,{year:game.clock.year,region:p.region,navigation:p.skills?.Navigation,crewTravel:sea.travel,shipCondition:ship},months,{
+  const sea=v85CrewSeaMetrics(),ship=p.crew?.ship?.condition??75,result=mod.tickVoyage(state,t,{year:game.clock.year,region:p.region,navigation:(p.skills?.Navigation||0)+v89NavigationBonus(),crewTravel:sea.travel,shipCondition:ship},months,{
     weather:random('v85Weather'),event:random('v85Event'),hazard:random('v85Hazard'),discovery:random('v85SeaDiscovery'),discoveryType:random('v85SeaDiscoveryType')
   });
   p.voyageV85=result.state;p.travel=result.voyage;
@@ -2874,13 +3048,13 @@ function v85TickVoyage(months){
   return result
 }
 function v85Arrive(dest,voyage){
-  const mod=v85Module(),state=v85Ensure();if(!mod||!state)return null;const target=placeInfo(dest),r=mod.arrive(state,voyage,dest,{year:game.clock.year,region:target.region,navigation:game.player.skills?.Navigation},{mastery:random('v85RouteMastery'),exploration:random('v85ArrivalExplore')});
+  const mod=v85Module(),state=v85Ensure();if(!mod||!state)return null;const target=placeInfo(dest),r=mod.arrive(state,voyage,dest,{year:game.clock.year,region:target.region,navigation:(game.player.skills?.Navigation||0)+v89NavigationBonus()},{mastery:random('v85RouteMastery'),exploration:random('v85ArrivalExplore')});
   game.player.voyageV85=r.state;if(r.poseUpgrade)addHistory('Navigation améliorée',(v85Data()?.poseTiers?.[r.poseUpgrade.to]?.label||'Instrument de navigation')+' devient ton nouveau standard pour les routes à venir.','major');
   return r
 }
 function v85ExploreCurrent(mode='explore'){
   const mod=v85Module(),state=v85Ensure(),p=game.player;if(!mod||!state)return null;const sea=v85CrewSeaMetrics(),scholar=(p.skills?.Science||0)+(p.skills?.Médecine||0)*.25;
-  const r=mod.exploreIsland(state,p.island,{mode,year:game.clock.year,navigation:p.skills?.Navigation,stealth:p.skills?.Discrétion,knowledge:scholar,crewSupport:(sea.support+sea.travel)/2},{progress:random('v85ExploreProgress'),discovery:random('v85ExploreDiscovery'),type:random('v85ExploreType')});
+  const r=mod.exploreIsland(state,p.island,{mode,year:game.clock.year,navigation:(p.skills?.Navigation||0)+v89NavigationBonus(),stealth:(p.skills?.Discrétion||0)+v89StealthBonus(),knowledge:scholar+v89ExplorationBonus(),crewSupport:(sea.support+sea.travel)/2},{progress:random('v85ExploreProgress'),discovery:random('v85ExploreDiscovery'),type:random('v85ExploreType')});
   p.voyageV85=r.state;addHistory('Exploration de '+p.island,'Tu approfondis ta connaissance de l’île : '+Math.round(r.island.exploration)+'/100.','normal','Exploration +'+r.gain.toFixed(1));if(r.discovery)v85ApplyDiscovery(r.discovery,'l’exploration de '+p.island);return r
 }
 function renderV85Exploration(){
@@ -3532,7 +3706,7 @@ function ensureV5(){
   if(!game.consequencesV77||typeof game.consequencesV77!=='object')game.consequencesV77={version:1,active:[],history:[],totalCreated:0,totalResolved:0,totalEscalated:0,lastTickMonth:-99};
   if(!game.player.personalV78||typeof game.player.personalV78!=='object')game.player.personalV78={version:1,home:{id:game.ageMonths>=216?'rented_room':'family_home',condition:76,owned:false,region:game.player.region,sinceYear:Math.floor(game.ageMonths/12)},independent:game.ageMonths>=216,familyBond:Number(game.player.family?.bond)||55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}};
   if(!game.player.educationV79||typeof game.player.educationV79!=='object')game.player.educationV79=v79LegacyEducationState();
-  v80Ensure();v81Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();
+  v80Ensure();v81Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure();
   game.player.combatV72.usage=game.player.combatV72.usage&&typeof game.player.combatV72.usage==='object'?game.player.combatV72.usage:{};
   if(!['balanced','aggressive','defensive','precision','overwhelm'].includes(game.player.combatV72.doctrine))game.player.combatV72.doctrine='balanced';
   if(!game.player.haki)game.player.haki={Observation:{state:'Dormant',mastery:0,latent:true},Armement:{state:'Dormant',mastery:0,latent:true},Conquérant:{state:'Inconnu',mastery:0,latent:false}};
@@ -3935,7 +4109,7 @@ function resolveCombat(enemy,context='Combat',opts={}){
   const phasesWon=Number(opening)+Number(pressure)+Number(finish),phaseResults={opening,pressure,finish};v72RecordCombatUsage(a,phaseResults);
   const vp=a.v72?.phases;
   const phaseText=vp?`ouverture ${opening?'✓':'×'} ${vp.opening.technique.name} • échange ${pressure?'✓':'×'} ${vp.pressure.technique.name} • final ${finish?'✓':'×'} ${vp.finish.technique.name}`:`ouverture ${opening?'✓':'×'} • échange ${pressure?'✓':'×'} • endurance ${finish?'✓':'×'}`;
-  const energyCost=Math.round(randInt(5,11,'combatEnergy')*(a.approach==='bold'?1.18:a.approach==='cautious'?.86:1));p.energy=clamp(p.energy-energyCost,0,100);
+  const energyCost=Math.round(randInt(5,11,'combatEnergy')*(a.approach==='bold'?1.18:a.approach==='cautious'?.86:1));p.energy=clamp(p.energy-energyCost,0,100);v89WearCombat(phasesWon>=2?2:4);
   if(phasesWon>=2){
     p.wins++;v66Ensure();{const oldStyle=p.combatStyle.experience||0,styleGain=phasesWon===3?randInt(2,5,'combat'):randInt(1,4,'combat');p.combatStyle.experience=v66ProgressValue('style','experience',oldStyle,styleGain)}
     const injury=Math.max(0,Math.round((phasesWon===3?randInt(0,5,'combat'):randInt(2,12,'combat'))*damageMult));p.health=clamp(p.health-injury,0,100);
@@ -3943,6 +4117,7 @@ function resolveCombat(enemy,context='Combat',opts={}){
     if(!opts.mission)v77FromCombat(phasesWon===3?'decisive':'win',enemy);
     addHistory(context,`Tu prends ${phasesWon}/3 phases contre ${enemy.name.toLowerCase()} (${phaseText}) et remportes l’affrontement${injury?', avec des blessures':''}.`,'major',injury?`Santé -${injury}`:'Victoire maîtrisée');
     if(p.faction==='Pirates'){const inc=randInt(5000,45000,'combat');p.bounty+=inc;p.reputation.pirate+=2;p.highestBounty=Math.max(p.highestBounty,p.bounty)}
+    if(!opts.mission)v89MaybeLoot('combat',enemyPower,phasesWon===3?.05:0);
     return true
   }
   p.losses++;
@@ -4249,7 +4424,7 @@ function v6MissionReadiness(m){
   else if(m.type==='explore')base=(s.Navigation||0)*.42+(s.Discrétion||0)*.28+(t.Agilité||0)*.18+obs*.12;
   else base=(s.Commandement||0)*.34+(s.Navigation||0)*.28+(t.Discipline||0)*.24+repValue()*.14;
   const fatigue=v63FatigueProfile(p).mission,condition=v65MissionCondition(),conditionBonus=(condition-60)*.10;
-  v63Ensure();v69Ensure();const gear=clamp(Number(p.economy?.gearLevel)||0,0,3)*2.2,crew=v65CrewSupport(m),intel=v63IntelBonus()?5:0,authority=v69MissionAuthorityBonus(m);
+  v63Ensure();v69Ensure();const gear=typeof v89MissionBonus==='function'?v89MissionBonus(m):clamp(Number(p.economy?.gearLevel)||0,0,3)*2.2,crew=v65CrewSupport(m),intel=v63IntelBonus()?5:0,authority=v69MissionAuthorityBonus(m);
   const score=Math.max(0,base*fatigue+conditionBonus+gear+crew+intel+authority);
   const target=m.power||missionDifficultyPower(m),gap=score-target;
   const label=gap>=16?'Avantage net':gap>=4?'Bien préparé':gap>=-8?'Incertain':gap>=-20?'Très risqué':'Critique';
@@ -4301,7 +4476,7 @@ function v65CombatAssessment(enemy,opts={}){
   const p=game.player,s=p.stats||{},k=p.skills||{},h=p.haki||{};
   v63Ensure();v69Ensure();v72Ensure();
   const primary=Math.max(k.Combat||0,k.Sabre||0,k.Tir||0),obs=h.Observation?.mastery||0,arm=h.Armement?.mastery||0,conq=h.Conquérant?.mastery||0;
-  const condition=v65MissionCondition(),gear=clamp(Number(p.economy?.gearLevel)||0,0,3)*2.4;
+  const condition=v65MissionCondition(),gear=typeof v89CombatBonus==='function'?v89CombatBonus():clamp(Number(p.economy?.gearLevel)||0,0,3)*2.4;
   const crew=opts.mission?v65CrewSupport(opts.missionData||game.activeMission):0;
   const intel=opts.mission&&v63IntelBonus()?4:0,authority=opts.mission?v69MissionAuthorityBonus(opts.missionData||game.activeMission)*.75:0;
   const approach=opts.mission?v65MissionApproach():{id:'neutral',action:{mods:{missionOffense:0,missionRetreat:.18}}};
@@ -4373,10 +4548,12 @@ function tickMission(months){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult)),reward=Math.round(m.reward*rewardMult);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=2;
     if(game.player.faction==='Marine')game.player.reputation.marine+=3;if(game.player.faction==='Révolutionnaires')game.player.reputation.revolution+=3;if(game.player.faction==='Gouvernement')game.player.reputation.government+=3;if(game.player.faction==='Pirates'){game.player.reputation.pirate+=3;game.player.bounty+=Math.round(reward*.45);game.player.highestBounty=Math.max(game.player.highestBounty,game.player.bounty)}
     addHistory('Mission accomplie',`${m.title} se termine en ta faveur avec une approche « ${strat.label.toLowerCase()} ».`,'major',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
+    v89MaybeLoot('mission',m.power,m.danger==='high'?.10:.03);
     game.flags.v65LastMission={id:m.id,outcome:'success',approach:approach.id};v68ApplyMissionOutcome(m,'success');v73RecordMissionOutcome(m,'success',approach.id);v81RecordMissionOutcome(m,'success');v82RecordMissionOutcome(m,'success');v84RecordMissionOutcome(m,'success');v77FromMission(m,'success',approach.id)
   }else if(partial&&game.alive){
     const baseXp=m.danger==='high'?12:m.danger==='medium'?7:4,xp=Math.max(1,Math.round(baseXp*rewardMult*.60)),reward=Math.round(m.reward*rewardMult*.45);game.player.money+=reward;game.player.careerXP+=xp;game.player.reputation.local+=1;
     addHistory('Mission partiellement réussie',`${m.title} n’atteint pas tous ses objectifs, mais tu sauves une partie du résultat au lieu de repartir avec absolument rien.`,'normal',`+${reward.toLocaleString('fr-FR')} B • XP carrière +${xp}`);
+    v89MaybeLoot('mission',m.power*.7,.01);
     game.flags.v65LastMission={id:m.id,outcome:'partial',approach:approach.id};v68ApplyMissionOutcome(m,'partial');v73RecordMissionOutcome(m,'partial',approach.id);v81RecordMissionOutcome(m,'partial');v82RecordMissionOutcome(m,'partial');v84RecordMissionOutcome(m,'partial');v77FromMission(m,'partial',approach.id)
   }else if(game.alive){
     addHistory(retreated?'Mission abandonnée':'Mission échouée',retreated?`${m.title} est interrompue après un repli tactique. La récompense est perdue, pas nécessairement ta vie.`:`${m.title} tourne mal malgré ton approche « ${strat.label.toLowerCase()} ». Tu n’obtiens pas la récompense prévue.`,'danger');
@@ -4633,7 +4810,7 @@ function ensureV6(){
   if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;
   if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));
   ensureV59();for(const h of game.world.worldHooks||[])updateHakiStagesV6();
-  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure()
+  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure()
 }
 function v6RelationById(id){return game.relations.find(r=>r.id===id||slug(r.name)===id)}
 function v6InteractRelation(id,action){
@@ -4811,8 +4988,9 @@ function renderCharacter(){
   $('#identityGrid').innerHTML=rows.map(([k,v])=>'<div class="info-cell"><span>'+esc(k)+'</span><strong>'+esc(v)+'</strong></div>').join('');
   const cv73=v73Ensure(),org73=v73Organization(),branch73=v73Module()?.branchById(p.faction,cv73?.branch);
   $('#careerCard').innerHTML='<strong>'+esc(p.career)+'</strong><p>'+esc(p.activity)+' • '+esc(p.situation)+' • expérience carrière '+Math.floor(p.careerXP)+'</p><div class="annual-focus-note">V7.3 : '+esc(branch73?.label||'branche à définir')+' • '+esc(cv73?.responsibility||'member')+' • standing '+Math.round(cv73?.standing||0)+'/100. Les promotions dépendent désormais aussi du dossier interne.</div>';
-  const inv=p.equipment||[];
-  $('#equipmentList').innerHTML=inv.length?inv.map(e=>{const f=game.world.fruits.find(x=>x.name===e&&x.holder==='player_inventory');return f?'<div class="inventory-item"><strong>'+esc(e)+' • '+esc(f.type)+'</strong><div class="inventory-actions"><button class="mini-action primary" data-fruit-eat="'+esc(e)+'">Manger</button><button class="mini-action" data-fruit-sell="'+esc(e)+'">Vendre</button></div></div>':'<span class="chip">'+esc(e)+'</span>'}).join(''):'<span class="chip">Inventaire vide</span>';
+  renderV89Equipment();
+  const inv=(p.equipment||[]).filter(e=>game.world.fruits.find(x=>x.name===e&&x.holder==='player_inventory'));
+  $('#equipmentList').innerHTML=inv.length?'<span class="eyebrow">Objets spéciaux</span>'+inv.map(e=>{const f=game.world.fruits.find(x=>x.name===e&&x.holder==='player_inventory');return '<div class="inventory-item"><strong>'+esc(e)+' • '+esc(f.type)+'</strong><div class="inventory-actions"><button class="mini-action primary" data-fruit-eat="'+esc(e)+'">Manger</button><button class="mini-action" data-fruit-sell="'+esc(e)+'">Vendre</button></div></div>'}).join(''):'';
   $$('[data-fruit-eat]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitEat,'eat'));$$('[data-fruit-sell]').forEach(b=>b.onclick=()=>v6UseInventoryFruit(b.dataset.fruitSell,'sell'));
   const acts=availableActivities();renderV86Daily();$('#activityOptions').innerHTML=acts.map(([label,hint,type])=>'<button class="action-card '+(p.activityType===type?'active':'')+'" data-type="'+type+'" data-label="'+esc(label)+'"><strong>'+esc(label)+'</strong><small>'+esc(hint)+'</small>'+v86ActivityMetaHtml(type)+'</button>').join('');
   $$('#activityOptions .action-card').forEach(b=>b.onclick=()=>setActivity(b.dataset.type,b.dataset.label));
