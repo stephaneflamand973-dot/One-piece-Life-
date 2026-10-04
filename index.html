@@ -2829,8 +2829,8 @@ function renderV91Goals(){
   const locked=!!game.agency?.annualTurn?.active;
   options.innerHTML='<div class="v91-section-title"><strong>Intention annuelle</strong><span>oriente le plan, jamais le résultat</span></div><div class="v91-intents">'+Object.entries(data.intents).map(([id,x])=>'<button class="v91-intent '+(sum.intent.id===id?'selected ':'')+(recommended.has(id)?'recommended':'')+'" data-v91-intent="'+esc(id)+'" '+(locked?'disabled':'')+'><strong>'+esc(x.label)+'</strong><small>'+esc(x.desc)+'</small></button>').join('')+'</div>'+
     '<details class="v91-ambition-change"><summary>Changer d’ambition long terme</summary><div class="v91-ambition-buttons">'+Object.entries(data.ambitions).map(([id,x])=>'<button class="'+(p.ambitionType===id?'active':'')+'" data-v91-ambition="'+esc(id)+'">'+esc(x.label)+'</button>').join('')+'</div></details>';
-  $('[data-v91-intent]').forEach(b=>b.onclick=()=>v91ApplyIntent(b.dataset.v91Intent));
-  $('[data-v91-ambition]').forEach(b=>b.onclick=()=>{const id=b.dataset.v91Ambition,item=AMBITIONS.find(x=>x[2]===id);if(!item)return;p.ambition=item[0];p.ambitionType=item[2];v91OnAmbitionChange();addHistory('Nouvelle ambition','Tu redéfinis ta direction long terme : '+item[0].toLowerCase()+'.','major');saveGame();render()})
+  $$('[data-v91-intent]').forEach(b=>b.onclick=()=>v91ApplyIntent(b.dataset.v91Intent));
+  $$('[data-v91-ambition]').forEach(b=>b.onclick=()=>{const id=b.dataset.v91Ambition,item=AMBITIONS.find(x=>x[2]===id);if(!item)return;p.ambition=item[0];p.ambitionType=item[2];v91OnAmbitionChange();addHistory('Nouvelle ambition','Tu redéfinis ta direction long terme : '+item[0].toLowerCase()+'.','major');saveGame();render()})
 }
 
 function v90Module(){return window.OPL_MODULES?.get('gameFlowEngineV90')||null}
