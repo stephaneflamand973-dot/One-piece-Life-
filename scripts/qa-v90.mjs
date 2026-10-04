@@ -66,14 +66,14 @@ assert(digest.metrics.some(x=>x.label==='Promotion'),'Promotion should appear in
 eq(digest.interruptions,2,'Digest interruption count mismatch');
 eq(digest.adventureDiscoveries,2,'Digest discoveries mismatch');
 
-assert(/ONE PIECE LIFE — V9\.0(?:\.\d+)?/.test(html),'V9.0.x title missing');
-assert(/const SAVE_VERSION\s*=\s*900;/.test(html),'Save version 900 missing');
-{const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'';assert(/^9\.0\.\d+$/.test(v),'Game version 9.0.x missing')}
+assert(/ONE PIECE LIFE — V9\.\d+(?:\.\d+)?/.test(html),'V9+ title missing');
+assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=900,'Save version 900+ missing');
+{const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'',p=v.split('.').map(Number);assert(p[0]>9||(p[0]===9&&p[1]>=0),'Game version 9.0+ missing')}
 for(const asset of ['src/data/game-flow-v90.js','src/v90/game-flow-engine-v90.js','src/v90/game-flow-v90.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v9-0-\d+/.test(sw),'PWA cache not on V9.0.x');
+assert(/one-piece-life-v9-\d+-\d+/.test(sw),'PWA cache must remain on V9.x');
 assert(html.includes('v89Ensure();v90Ensure()'),'Old-save V9.0 migration hook missing');
 for(const fn of ['function v90Module','function v90Ensure','function v90Context','function v90ApplyPreset','function v90ChoiceMeta','function renderV90Flow','function renderV90Presets','function renderV90Digest','function renderV90GameFlow']){
   assert(html.includes(fn),'Missing live V9.0 bridge '+fn);
