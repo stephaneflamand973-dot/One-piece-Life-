@@ -1,4 +1,4 @@
-name: V9.0 QA
+name: V9.1 QA
 on:
   push:
     branches: [main]
@@ -35,6 +35,7 @@ on:
       - 'scripts/qa-v88.mjs'
       - 'scripts/qa-v89.mjs'
       - 'scripts/qa-v90.mjs'
+      - 'scripts/qa-v91.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -55,13 +56,14 @@ on:
       - 'QA-V8.8.md'
       - 'QA-V8.9.md'
       - 'QA-V9.0.md'
+      - 'QA-V9.1.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v90-qa-${{ github.ref }}
+  group: v91-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -129,3 +131,5 @@ jobs:
         run: node scripts/qa-v89.mjs
       - name: Verify V9.0 Game Flow & UX 5.0
         run: node scripts/qa-v90.mjs
+      - name: Verify V9.1 Goals & Player Agency 5.1
+        run: node scripts/qa-v91.mjs
