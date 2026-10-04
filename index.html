@@ -2739,6 +2739,100 @@ function renderV88Market(){
   $$('[data-v88-sell-all]').forEach(b=>b.onclick=()=>{const qty=v88Ensure()?.cargo?.[b.dataset.v88SellAll]?.qty||0;if(qty)v88Trade('sell',b.dataset.v88SellAll,qty)})
 }
 
+function v91Module(){return window.OPL_MODULES?.get('goalsEngineV91')||null}
+function v91Data(){return window.OPL_MODULES?.get('goalsDataV91')||null}
+function v91MissionCounters(){
+  const p=game.player;
+  p.goalsV91Counters=p.goalsV91Counters&&typeof p.goalsV91Counters==='object'?p.goalsV91Counters:{};
+  if(!p.goalsV91Counters.initialized){
+    p.goalsV91Counters.missionWins=(game.history||[]).filter(h=>h.title==='Mission accomplie').length;
+    p.goalsV91Counters.initialized=true
+  }
+  if(!Number.isFinite(p.goalsV91Counters.missionWins))p.goalsV91Counters.missionWins=0;
+  return p.goalsV91Counters
+}
+function v91Context(){
+  const p=game.player,ranks=CAREER_RANKS[p.faction]||CAREER_RANKS.Civil||[],rankIndex=ranks.indexOf(p.rank);
+  const rels=(game.relations||[]).filter(r=>r.status!=='left'),strongRelations=rels.filter(r=>(Number(r.trust)||0)>=65&&((Number(r.affection)||0)>=50||(Number(r.respect)||0)>=60)).length;
+  const equipment=typeof v89Ensure==='function'?v89Ensure():p.equipmentV89,eqSummary=v89Module()&&equipment?v89Module().summary(equipment):null;
+  const counters=v91MissionCounters(),market=p.marketV88||{};
+  return {
+    year:game.clock.year,ageYears:game.ageMonths/12,ambitionType:p.ambitionType||'survive',
+    power:overallPower(),money:Number(p.money)||0,visited:(p.visited||[]).length,region:p.region,
+    worldRep:Number(p.reputation?.world)||0,localRep:Number(p.reputation?.local)||0,strongRelations,
+    missionWins:Number(counters.missionWins)||0,wins:Number(p.wins)||0,
+    tradeProfit:Number(market.realizedProfit)||0,tradeAvailable:true,
+    crewSize:(p.crew?.members||[]).filter(m=>m.status!=='left').length,hasCrew:!!p.crew,
+    brokenEquipment:eqSummary?.broken||0,equippedCount:eqSummary?.equippedCount||0,
+    health:Number(p.health)||0,energy:Number(p.energy)||0,career:p.career,rank:p.rank,
+    rankIndex,rankCount:ranks.length,legacyScore:Number(game.coreV80?.legacy?.scorePeak)||0
+  }
+}
+function v91Ensure(){
+  if(!game?.player)return null;
+  const mod=v91Module(),p=game.player;if(!mod)return p.goalsV91||null;
+  v91MissionCounters();
+  let state=mod.normalizeState(p.goalsV91||{ambitionType:p.ambitionType||'survive'});
+  if(state.ambitionType!==(p.ambitionType||'survive'))state=mod.setAmbition(state,p.ambitionType||'survive',v91Context()).state;
+  if(game.ageMonths>=156)state=mod.refresh(state,v91Context());
+  p.goalsV91=state;return state
+}
+function v91Sync(logChanges=true){
+  const mod=v91Module(),state=v91Ensure();if(!mod||!state||game.ageMonths<156)return null;
+  const result=mod.tick(state,v91Context());game.player.goalsV91=result.state;
+  if(logChanges){
+    for(const g of result.completed.slice(0,4)){
+      const t=(g.level==='short'?v91Data()?.shortTemplates:v91Data()?.mediumTemplates)?.[g.templateId];
+      if(t)addHistory('Objectif atteint',t.label+'. '+t.desc,'major','Objectif V9.1 terminé')
+    }
+    if(result.milestones.length){
+      const m=Math.max(...result.milestones),amb=v91Data()?.ambitions?.[game.player.ambitionType];
+      addHistory(m>=100?'Ambition accomplie':'Ambition en progression',(amb?.headline||game.player.ambition)+' atteint '+m+'% de progression mesurée.','major',m+'%')
+    }
+  }
+  return result
+}
+function v91RecordMission(outcome){if(outcome!=='success')return;const c=v91MissionCounters();c.missionWins=(Number(c.missionWins)||0)+1;v91Sync(true)}
+function v91OnAmbitionChange(){
+  const mod=v91Module(),state=v91Ensure();if(!mod||!state)return;
+  game.player.goalsV91=mod.setAmbition(state,game.player.ambitionType||'survive',v91Context()).state
+}
+function v91ApplyIntent(id){
+  if(game.agency?.annualTurn?.active){toast('L’intention est verrouillée pendant l’année en cours.');return false}
+  const mod=v91Module(),state=v91Ensure(),data=v91Data();if(!mod||!state||!data?.intents?.[id])return false;
+  const result=mod.setIntent(state,id,game.clock.year);game.player.goalsV91=result.state;
+  game.agency.annualPlan=game.agency.annualPlan||{...V62_DEFAULT_PLAN};
+  for(const [domain,value] of Object.entries(result.patch||{}))if(V62_ANNUAL_ACTIONS[domain]?.options?.[value])game.agency.annualPlan[domain]=value;
+  v90MarkCustomPlan();saveGame();render();toast('Intention annuelle : '+data.intents[id].label);return true
+}
+function v91CockpitText(){
+  const mod=v91Module(),state=v91Ensure();if(!mod||!state||game.ageMonths<156)return '';
+  const sum=mod.summary(state,v91Context());return 'Ambition '+Math.round(sum.ambition.progress)+'%'
+}
+function v91GoalHtml(g,short=false){
+  const pct=Math.round(g.progress||0);
+  return '<div class="v91-objective '+(short?'short':'')+'"><strong>'+esc(g.label)+'</strong><small>'+esc(g.desc)+'</small><div class="v91-progress-row"><div class="v91-meter"><i style="width:'+clamp(pct,0,100)+'%"></i></div><span>'+pct+'%</span></div></div>'
+}
+function renderV91Goals(){
+  const card=$('#ambitionCard'),options=$('#ambitionOptions'),badge=$('#v91GoalsBadge'),mod=v91Module(),data=v91Data(),p=game.player;if(!card||!options||!mod||!data)return;
+  if(game.ageMonths<156){
+    badge.textContent='EN FORMATION';
+    card.innerHTML='<div class="v91-ambition"><div class="v91-ambition-head"><div><span class="eyebrow">Direction actuelle</span><h4>'+esc(p.ambition||'Survivre')+'</h4><p>Les objectifs personnels se structurent à partir de 13 ans, quand ton ambition devient un choix réel.</p></div></div></div>';
+    options.innerHTML='';return
+  }
+  v91Sync(false);const sum=mod.summary(v91Ensure(),v91Context()),pct=Math.round(sum.ambition.progress),recommended=new Set(sum.ambition.recommendedIntents||[]);
+  badge.textContent=pct+'%';
+  card.innerHTML='<div class="v91-ambition"><div class="v91-ambition-head"><div><span class="eyebrow">Ambition long terme</span><h4>'+esc(sum.ambition.headline)+'</h4><p>'+esc(sum.ambition.desc)+'</p></div><div class="v91-percent">'+pct+'%</div></div><div class="v91-meter"><i style="width:'+clamp(pct,0,100)+'%"></i></div></div>'+
+    '<div class="v91-section"><div class="v91-section-title"><strong>Objectifs intermédiaires</strong><span>2 trajectoires actives</span></div><div class="v91-objectives">'+sum.medium.map(g=>v91GoalHtml(g,false)).join('')+'</div></div>'+
+    '<div class="v91-section"><div class="v91-section-title"><strong>Prochaines étapes</strong><span>se complètent automatiquement</span></div><div class="v91-objectives">'+sum.short.map(g=>v91GoalHtml(g,true)).join('')+'</div></div>'+
+    (sum.completed.length?'<div class="v91-section"><div class="v91-section-title"><strong>Accomplissements récents</strong></div><div class="v91-completed">'+sum.completed.slice(0,4).map(g=>'<span>✓ '+esc(g.label)+'</span>').join('')+'</div></div>':'');
+  const locked=!!game.agency?.annualTurn?.active;
+  options.innerHTML='<div class="v91-section-title"><strong>Intention annuelle</strong><span>oriente le plan, jamais le résultat</span></div><div class="v91-intents">'+Object.entries(data.intents).map(([id,x])=>'<button class="v91-intent '+(sum.intent.id===id?'selected ':'')+(recommended.has(id)?'recommended':'')+'" data-v91-intent="'+esc(id)+'" '+(locked?'disabled':'')+'><strong>'+esc(x.label)+'</strong><small>'+esc(x.desc)+'</small></button>').join('')+'</div>'+
+    '<details class="v91-ambition-change"><summary>Changer d’ambition long terme</summary><div class="v91-ambition-buttons">'+Object.entries(data.ambitions).map(([id,x])=>'<button class="'+(p.ambitionType===id?'active':'')+'" data-v91-ambition="'+esc(id)+'">'+esc(x.label)+'</button>').join('')+'</div></details>';
+  $('[data-v91-intent]').forEach(b=>b.onclick=()=>v91ApplyIntent(b.dataset.v91Intent));
+  $('[data-v91-ambition]').forEach(b=>b.onclick=()=>{const id=b.dataset.v91Ambition,item=AMBITIONS.find(x=>x[2]===id);if(!item)return;p.ambition=item[0];p.ambitionType=item[2];v91OnAmbitionChange();addHistory('Nouvelle ambition','Tu redéfinis ta direction long terme : '+item[0].toLowerCase()+'.','major');saveGame();render()})
+}
+
 function v90Module(){return window.OPL_MODULES?.get('gameFlowEngineV90')||null}
 function v90Data(){return window.OPL_MODULES?.get('gameFlowDataV90')||null}
 function v90Ensure(){
