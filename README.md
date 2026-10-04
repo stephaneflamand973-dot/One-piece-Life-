@@ -1,3 +1,36 @@
+# ONE PIECE LIFE — V9.1 Goals & Player Agency 5.1
+
+La V9.1 transforme l'ambition en véritable système de direction personnelle. Le joueur choisit **ce qu'il veut tenter d'accomplir**, tandis que le moteur conserve l'autorité sur les probabilités, les opportunités et les résultats.
+
+## Goals & Player Agency 5.1
+
+- Les **6 ambitions historiques** restent intactes et deviennent des objectifs long terme mesurables.
+- Progression 0–100 calculée à partir de l'état réel du personnage.
+- **2 objectifs intermédiaires** générés selon ambition, carrière et contexte.
+- **3 prochaines étapes** courtes restent actives en permanence à partir de 13 ans.
+- Les objectifs se terminent automatiquement lorsque la condition réelle est atteinte.
+- Les objectifs terminés rejoignent les accomplissements récents et la timeline.
+- Les objectifs sont renouvelés automatiquement sans créer de monnaie ou de jauge artificielle.
+- Les promotions, victoires, voyages, relations, richesse, commerce, équipement et missions alimentent directement le système.
+- Les réussites de mission possèdent désormais un compteur persistant indépendant de la rotation de l'historique.
+- L'ambition **Survivre** dépend de l'âge, de la santé et de l'énergie.
+- L'ambition **Devenir puissant** dépend de la puissance réelle.
+- L'ambition **Explorer le monde** dépend des îles visitées et des grandes régions atteintes.
+- L'ambition **Faire fortune** dépend des Berry et des profits commerciaux.
+- L'ambition **Entrer dans l'histoire** dépend de la réputation mondiale et de l'héritage V8.0.
+- L'ambition **Protéger les autres** dépend de la réputation et des relations fortes.
+- **7 intentions annuelles** : Équilibre, Ascension, Maîtrise, Aventure, Fortune, Liens et Récupération.
+- Une intention modifie les vrais réglages V6.5 du plan annuel au lieu de créer un bonus caché.
+- Les autres domaines du plan restent inchangés et personnalisables.
+- La progression de l'ambition apparaît dans le **Cockpit V9.0**.
+- L'ancien écran Ambition est réutilisé au lieu d'ajouter un nouvel écran.
+- Aucun objectif personnel n'est généré avant 13 ans.
+- Migration V9.0.x → V9.1 automatique.
+- Save version : **910**.
+- Cache PWA : **one-piece-life-v9-1-0**.
+
+---
+
 # ONE PIECE LIFE — V9.0 Game Flow & UX 5.0
 
 La V9.0 ne cherche pas à ajouter davantage de profondeur brute. Elle transforme les systèmes accumulés en une expérience plus claire, plus rapide et plus agréable à piloter sur mobile.
