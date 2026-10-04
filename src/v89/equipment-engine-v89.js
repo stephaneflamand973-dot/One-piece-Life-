@@ -48,7 +48,8 @@ function rarityFor(ctx={},roll=.5){
 }
 function createItem(templateId,ctx={},rolls={}){
   const t=data.templates[templateId];if(!t)return null;
-  const rarity=ctx.rarity&&data.rarities[ctx.rarity]?ctx.rarity:rarityFor(ctx,Number(rolls.rarity??.5));
+  const rolled=ctx.rarity&&data.rarities[ctx.rarity]?ctx.rarity:rarityFor(ctx,Number(rolls.rarity??.5));
+  const rarity=t.consumable?(Number(rolls.rarity??.5)<.18?'fine':'common'):rolled;
   const tier=data.rarities[rarity].tier,quality=clamp(Math.round(42+tier*9+Number(rolls.quality??.5)*22+clamp(num(ctx.qualityBonus),0,12)),25,100);
   const maxDurability=clamp(Math.round(58+quality*.3+tier*7),45,100);
   return normalizeItem({uid:String(ctx.uid||('v89_'+templateId+'_'+Math.floor(Number(rolls.id??.5)*1e8))),templateId,rarity,quality,durability:maxDurability,maxDurability,upgrades:clamp(num(ctx.upgrades),0,3),origin:ctx.origin||'Inconnue',source:ctx.source||'inconnu',acquiredYear:num(ctx.year)});
