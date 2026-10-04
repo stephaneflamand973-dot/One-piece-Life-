@@ -2729,6 +2729,168 @@ function renderV88Market(){
   $$('[data-v88-sell-all]').forEach(b=>b.onclick=()=>{const qty=v88Ensure()?.cargo?.[b.dataset.v88SellAll]?.qty||0;if(qty)v88Trade('sell',b.dataset.v88SellAll,qty)})
 }
 
+function v89Module(){return window.OPL_MODULES?.get('equipmentEngineV89')||null}
+function v89Data(){return window.OPL_MODULES?.get('equipmentDataV89')||null}
+function v89ItemLabel(item){
+  const data=v89Data();return data?.templates?.[item?.templateId]?.label||item?.templateId||'Objet'
+}
+function v89Ensure(){
+  if(!game?.player)return null;
+  const mod=v89Module(),p=game.player;if(!mod)return p.equipmentV89||null;
+  p.economy=p.economy&&typeof p.economy==='object'?p.economy:{};
+  if(!Number.isFinite(p.economy.gearLevel))p.economy.gearLevel=0;
+  let state=mod.normalizeState(p.equipmentV89||{});
+  if(!state.legacyMigrated){
+    const level=clamp(Math.floor(Number(p.economy.gearLevel)||0),0,3),hasOutfit=state.items.some(x=>v89Data()?.templates?.[x.templateId]?.slot==='outfit');
+    if(level>0&&!hasOutfit){
+      const rarity=level>=3?'rare':level===2?'fine':'common';
+      const item=mod.createItem('legacy_protection',{uid:'legacy_gear_'+String(game.seed||'save'),rarity,origin:p.island||'Ancienne sauvegarde',source:'legacy',year:game.clock?.year||0,upgrades:level},{quality:.58+level*.08,rarity:.5,id:.1});
+      const a=mod.acquire(state,item,{});state=a.state;if(item)state=mod.equip(state,item.uid).state
+    }
+    state.legacyMigrated=true
+  }
+  p.equipmentV89=state;
+  const maxUpgrade=state.items.filter(x=>v89Data()?.templates?.[x.templateId]?.slot).reduce((m,x)=>Math.max(m,Number(x.upgrades)||0),0);
+  p.economy.gearLevel=clamp(Math.floor(maxUpgrade),0,3);
+  return p.equipmentV89
+}
+function v89InvestmentLevel(){
+  const state=v89Ensure();if(!state)return 0;
+  return clamp(state.items.filter(x=>v89Data()?.templates?.[x.templateId]?.slot).reduce((m,x)=>Math.max(m,Number(x.upgrades)||0),0),0,3)
+}
+function v89EquipmentEffects(){
+  const mod=v89Module(),state=v89Ensure();return mod&&state?mod.effects(state):{damageMult:1,missionBonus:0,combatBonus:0}
+}
+function v89DamageMult(){return Number(v89EquipmentEffects().damageMult)||1}
+function v89CombatBonus(){
+  const fx=v89EquipmentEffects(),style=game.player?.combatStyle?.primary||'';
+  const styleBonus=style==='Sabreur'?(fx.sabre||0):style==='Tireur'?(fx.tir||0):(fx.combat||0);
+  return +clamp((fx.combatBonus||0)+styleBonus*.55,0,13).toFixed(2)
+}
+function v89MissionBonus(m=null){
+  const fx=v89EquipmentEffects(),type=m?.type||game.activeMission?.type||'';
+  let specific=0;
+  if(type==='navigation')specific=(fx.navigation||0)*.7;
+  if(type==='explore')specific=(fx.navigation||0)*.35+(fx.exploration||0)*.55+(fx.stealth||0)*.2;
+  if(type==='covert')specific=(fx.stealth||0)*.7+(fx.command||0)*.15;
+  if(type==='medicine')specific=(fx.medicine||0)*.7+(fx.science||0)*.35;
+  if(type==='escort')specific=(fx.command||0)*.45+(fx.defense||0)*.2;
+  if(['combat','crime','patrol'].includes(type))specific=(fx.offense||0)*.35+(fx.combat||0)*.18+(fx.sabre||0)*.18+(fx.tir||0)*.18;
+  return +clamp((fx.missionBonus||0)+specific,0,14).toFixed(2)
+}
+function v89NavigationBonus(){const fx=v89EquipmentEffects();return +(Number(fx.navigation)||0).toFixed(2)}
+function v89StealthBonus(){const fx=v89EquipmentEffects();return +(Number(fx.stealth)||0).toFixed(2)}
+function v89ExplorationBonus(){const fx=v89EquipmentEffects();return +(Number(fx.exploration)||0).toFixed(2)}
+function v89MarketContext(){
+  const base=typeof v88Context==='function'?v88Context():{},p=game.player;
+  const explore=Number(v85Ensure()?.islands?.[p.island]?.exploration)||0;
+  return {...base,island:p.island,year:game.clock.year,origin:p.island,exploration:explore}
+}
+function v89OfferRoll(i,key){
+  const n=hash32(String(game.seed||'seed')+'|v89offer|'+game.player.island+'|'+game.clock.year+'|'+i+'|'+key);
+  return (n%10000)/10000
+}
+function v89ShopOffers(){
+  const mod=v89Module(),state=v89Ensure();if(!mod||!state||!v88MarketAvailable())return [];
+  const ctx=v89MarketContext(),rolls=[0,1,2,3].map(i=>({pick:v89OfferRoll(i,'pick'),rarity:v89OfferRoll(i,'rarity'),quality:v89OfferRoll(i,'quality'),id:v89OfferRoll(i,'id')}));
+  return mod.shopOffers(ctx.place,{...ctx,offerPrefix:'shop_'+slug(ctx.island)+'_'+ctx.year},rolls).filter(x=>!state.purchasedOffers.includes(x.id))
+}
+function v89BuyOffer(id){
+  if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cet achat.');return false}
+  const mod=v89Module(),state=v89Ensure(),offer=v89ShopOffers().find(x=>x.id===id),p=game.player;if(!mod||!state||!offer)return false;
+  if(p.money<offer.price){toast(offer.price.toLocaleString('fr-FR')+' B requis.');return false}
+  const a=mod.acquire(state,offer.item,{bought:true});if(a.error==='inventory_full'){toast('Inventaire plein : 24 objets maximum.');return false}if(a.error)return false;
+  a.state.purchasedOffers.unshift(offer.id);a.state.purchasedOffers=a.state.purchasedOffers.slice(0,40);p.equipmentV89=a.state;p.money-=offer.price;
+  addHistory('Achat d’équipement',v89ItemLabel(offer.item)+' rejoint ton inventaire à '+p.island+'.','normal','-'+offer.price.toLocaleString('fr-FR')+' B'+(a.autoEquipped?' • équipé automatiquement':''));
+  saveGame();render();return true
+}
+function v89EquipItem(uid){
+  const mod=v89Module(),state=v89Ensure();if(!mod||!state)return false;const r=mod.equip(state,uid);if(r.error)return false;
+  game.player.equipmentV89=r.state;addHistory('Équipement modifié',v89ItemLabel(r.item)+' devient ton équipement actif pour le slot '+(v89Data()?.slots?.[r.slot]?.label||r.slot).toLowerCase()+'.','normal');saveGame();render();return true
+}
+function v89AutoEquip(){
+  const mod=v89Module(),state=v89Ensure();if(!mod||!state)return false;const r=mod.autoEquip(state);game.player.equipmentV89=r.state;
+  game.player.economy.gearLevel=v89InvestmentLevel();saveGame();render();toast('Meilleur équipement disponible équipé.');return true
+}
+function v89RepairItem(uid){
+  if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cette réparation.');return false}
+  if(!v88MarketAvailable()){toast('Aucun atelier ou marché adapté ici.');return false}
+  const mod=v89Module(),state=v89Ensure(),p=game.player,ctx=v89MarketContext();if(!mod||!state)return false;
+  const r=mod.repair(state,uid,{priceIndex:ctx.priceIndex,money:p.money,year:ctx.year});
+  if(r.error==='not_needed'){toast('Cet objet est déjà en bon état.');return false}
+  if(r.error==='insufficient_funds'){toast(r.cost.toLocaleString('fr-FR')+' B requis.');return false}
+  if(r.error)return false;p.equipmentV89=r.state;p.money=Math.max(0,p.money+r.moneyDelta);
+  addHistory('Réparation',v89ItemLabel(r.item)+' est remis en état.','normal','-'+r.cost.toLocaleString('fr-FR')+' B');saveGame();render();return true
+}
+function v89SellItem(uid){
+  if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant cette vente.');return false}
+  if(!v88MarketAvailable()){toast('Aucun marché pour revendre cet objet ici.');return false}
+  const mod=v89Module(),state=v89Ensure(),p=game.player,item=state.items.find(x=>x.uid===uid);if(!mod||!item)return false;
+  if(item.source==='legacy'){toast('Cet équipement représente l’investissement hérité de ton ancienne sauvegarde.');return false}
+  const value=mod.saleValue(item,v89MarketContext()),r=mod.remove(state,uid);if(r.error)return false;
+  r.state.totalSold=(Number(r.state.totalSold)||0)+1;p.equipmentV89=r.state;p.money+=value;
+  addHistory('Objet revendu',v89ItemLabel(item)+' quitte ton inventaire.','normal','+'+value.toLocaleString('fr-FR')+' B');saveGame();render();return true
+}
+function v89UseItem(uid){
+  const mod=v89Module(),state=v89Ensure(),p=game.player;if(!mod||!state)return false;const r=mod.use(state,uid);if(r.error)return false;
+  p.equipmentV89=r.state;const fx=r.effects||{};
+  if(fx.health)p.health=clamp(p.health+fx.health,1,100);if(fx.energy)p.energy=clamp(p.energy+fx.energy,0,100);
+  if(fx.heat){const st=v87Ensure(),sm=v87Module();if(st&&sm){const local=sm.settlement(st,p.island);local.heat=clamp(local.heat+fx.heat,0,100);st.islands[p.island]=local;p.settlementV87=st}}
+  addHistory('Objet utilisé',v89ItemLabel(r.item)+' est consommé sur le terrain.','normal');saveGame();render();return true
+}
+function v89AnnualUpgrade(){
+  const mod=v89Module();let state=v89Ensure();if(!mod||!state)return null;const data=v89Data();
+  let candidates=Object.values(state.equipped).map(id=>state.items.find(x=>x.uid===id)).filter(x=>x&&x.upgrades<3);
+  if(!candidates.length)candidates=state.items.filter(x=>data?.templates?.[x.templateId]?.slot&&x.upgrades<3);
+  if(!candidates.length&&state.items.filter(x=>data?.templates?.[x.templateId]?.slot).length===0){
+    const item=mod.createItem('legacy_protection',{uid:'investment_'+String(game.clock.year)+'_'+String(game.ageMonths),origin:game.player.island,source:'investment',year:game.clock.year},{rarity:.8,quality:.55,id:.3});
+    const a=mod.acquire(state,item,{});state=a.state;state=mod.equip(state,item.uid).state;candidates=[state.items.find(x=>x.uid===item.uid)]
+  }
+  const target=candidates.sort((a,b)=>(a.upgrades-b.upgrades)||mod.itemScore(b)-mod.itemScore(a))[0];if(!target)return null;
+  const r=mod.upgrade(state,target.uid,{money:Number.MAX_SAFE_INTEGER,priceIndex:1,year:game.clock.year});if(r.error)return null;
+  game.player.equipmentV89=r.state;game.player.economy.gearLevel=clamp(v89InvestmentLevel(),0,3);return r.item
+}
+function v89WearCombat(amount=2){
+  const mod=v89Module(),state=v89Ensure();if(!mod||!state)return null;const before=new Set(state.items.filter(x=>x.durability<=0).map(x=>x.uid)),r=mod.wear(state,amount,['weapon','outfit']);
+  game.player.equipmentV89=r.state;for(const uid of r.broken)if(!before.has(uid)){const item=r.state.items.find(x=>x.uid===uid);if(item)addHistory('Équipement hors d’usage',v89ItemLabel(item)+' atteint 0 de durabilité et ne fournit plus de bonus avant réparation.','danger')}
+  return r
+}
+function v89MaybeLoot(source='combat',power=0,bonus=0){
+  const mod=v89Module(),state=v89Ensure(),p=game.player;if(!mod||!state||state.items.length>=24)return null;
+  const exploration=Number(v85Ensure()?.islands?.[p.island]?.exploration)||0,danger=Number(placeInfo(p.island)?.danger)||REGION_DANGER[p.region]||10;
+  const base=source==='treasure'?.30:source==='mission'?.12:.055,chanceLoot=clamp(base+danger/700+exploration/1000+Number(power||0)/1400+Number(bonus||0),.04,.52);
+  if(random('v89LootChance:'+source)>chanceLoot)return null;
+  const candidates=mod.candidateTemplates(placeInfo(p.island),false).filter(x=>x.id!=='legacy_protection').slice(0,10);if(!candidates.length)return null;
+  const pickIndex=Math.min(candidates.length-1,Math.floor(random('v89LootTemplate:'+source)*candidates.length)),templateId=candidates[pickIndex].id;
+  const uid='loot_'+String(game.ageMonths)+'_'+String(state.totalLoot)+'_'+String(Math.floor(random('v89LootUid')*1e6));
+  const item=mod.createItem(templateId,{uid,origin:p.island,source,year:game.clock.year,danger,exploration,power:Number(power)||0},{rarity:random('v89LootRarity:'+source),quality:random('v89LootQuality:'+source),id:random('v89LootItem:'+source)});
+  const a=mod.acquire(state,item,{loot:true});if(a.error)return null;p.equipmentV89=a.state;
+  const rarity=v89Data()?.rarities?.[item.rarity]?.label||item.rarity;
+  addHistory('Butin • '+rarity,v89ItemLabel(item)+' est récupéré '+(source==='mission'?'après la mission':source==='treasure'?'pendant l’exploration':'après l’affrontement')+'.','major','Qualité '+item.quality+'/100'+(a.autoEquipped?' • équipé automatiquement':''));
+  return item
+}
+function v89EffectPills(item){
+  const fx=v89Module()?.itemEffects(item)||{},labels={offense:'Off.',defense:'Déf.',mission:'Mission',navigation:'Nav.',stealth:'Discr.',medicine:'Méd.',science:'Sci.',exploration:'Expl.',command:'Cmd',combat:'Combat',sabre:'Sabre',tir:'Tir'};
+  const list=Object.entries(fx).filter(([,v])=>Number(v)>=.5).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  return list.map(([k,v])=>'<span>'+esc(labels[k]||k)+' +'+Number(v).toFixed(1)+'</span>').join('')
+}
+function renderV89Equipment(){
+  const box=$('#v89EquipmentCard'),badge=$('#v89EquipmentBadge'),mod=v89Module(),data=v89Data(),state=v89Ensure();if(!box||!badge||!mod||!data||!state)return;
+  const p=game.player,sum=mod.summary(state),market=typeof v88MarketAvailable==='function'&&v88MarketAvailable(),offers=market?v89ShopOffers():[];
+  badge.textContent=sum.count+'/24 • '+sum.equippedCount+'/4 équipés';
+  const slotHtml=sum.slots.map(x=>{const item=x.item,label=data.slots[x.slot]?.label||x.slot;if(!item)return '<div class="v89-card"><div class="v89-card-head"><strong>'+esc(label)+'</strong><span class="v89-rarity">Vide</span></div><small>Aucun objet équipé.</small></div>';const rarity=data.rarities[item.rarity]?.label||item.rarity,pct=Math.round(item.durability/item.maxDurability*100);return '<div class="v89-card '+(item.durability<=0?'v89-broken':'')+'"><div class="v89-card-head"><div><strong>'+esc(label)+' • '+esc(v89ItemLabel(item))+'</strong><small>'+esc(rarity)+' • qualité '+item.quality+' • amélioration +'+item.upgrades+'</small></div><span class="v89-rarity">'+Math.round(item.durability)+'/'+item.maxDurability+'</span></div><div class="v89-durability"><i style="width:'+clamp(pct,0,100)+'%"></i></div><div class="v89-effects">'+v89EffectPills(item)+'</div><div class="v89-actions">'+(market&&item.durability<item.maxDurability?'<button data-v89-repair="'+esc(item.uid)+'">Réparer</button>':'')+'</div></div>'}).join('');
+  const equippedIds=new Set(Object.values(state.equipped).filter(Boolean)),inventory=state.items.filter(x=>!equippedIds.has(x.uid));
+  const invHtml=inventory.length?inventory.map(item=>{const t=data.templates[item.templateId],rarity=data.rarities[item.rarity]?.label||item.rarity,pct=Math.round(item.durability/item.maxDurability*100);return '<div class="v89-card '+(item.durability<=0?'v89-broken':'')+'"><div class="v89-card-head"><div><strong>'+esc(v89ItemLabel(item))+'</strong><small>'+esc(rarity)+' • qualité '+item.quality+' • '+esc(item.origin)+'</small></div><span class="v89-rarity">'+(t?.consumable?'Consommable':Math.round(item.durability)+'/'+item.maxDurability)+'</span></div>'+(t?.consumable?'':'<div class="v89-durability"><i style="width:'+clamp(pct,0,100)+'%"></i></div>')+'<div class="v89-effects">'+v89EffectPills(item)+'</div><div class="v89-actions">'+(t?.slot?'<button class="primary" data-v89-equip="'+esc(item.uid)+'">Équiper</button>':'')+(t?.consumable?'<button class="primary" data-v89-use="'+esc(item.uid)+'">Utiliser</button>':'')+(market&&item.durability<item.maxDurability&&!t?.consumable?'<button data-v89-repair="'+esc(item.uid)+'">Réparer</button>':'')+(market&&item.source!=='legacy'?'<button data-v89-sell="'+esc(item.uid)+'">Vendre</button>':'')+'</div></div>'}).join(''):'<div class="career-card"><p>Aucun objet non équipé. Le loot reste rare et dépend des missions, combats et explorations réellement risqués.</p></div>';
+  const shopHtml=market?'<div><span class="eyebrow">Équipement local • '+esc(p.island)+'</span><div class="v89-shop">'+(offers.length?offers.map(o=>{const rarity=data.rarities[o.item.rarity]?.label||o.item.rarity;return '<div class="v89-card"><div class="v89-card-head"><strong>'+esc(v89ItemLabel(o.item))+'</strong><span class="v89-rarity">'+esc(rarity)+'</span></div><small>Qualité '+o.item.quality+' • '+o.price.toLocaleString('fr-FR')+' B</small><div class="v89-effects">'+v89EffectPills(o.item)+'</div><div class="v89-actions"><button class="primary" data-v89-buy="'+esc(o.id)+'" '+(p.money<o.price||state.items.length>=24?'disabled':'')+'>Acheter</button></div></div>'}).join(''):'<div class="career-card"><p>Les offres d’équipement de cette année ont déjà été achetées ou ne sont plus disponibles.</p></div>')+'</div></div>':'';
+  box.innerHTML='<div class="v89-summary"><div><span>Combat</span><strong>+'+v89CombatBonus().toFixed(1)+'</strong></div><div><span>Protection</span><strong>'+Math.round((1-v89DamageMult())*100)+'%</strong></div><div><span>Missions</span><strong>+'+(sum.effects.missionBonus||0).toFixed(1)+'</strong></div><div><span>Objets cassés</span><strong>'+sum.broken+'</strong></div></div><div class="section-heading compact"><div><span class="eyebrow">Slots actifs</span></div><button id="v89AutoEquipBtn" class="text-btn">Équiper le meilleur</button></div><div class="v89-slots">'+slotHtml+'</div><div><span class="eyebrow">Inventaire</span><div class="v89-items">'+invHtml+'</div></div>'+shopHtml;
+  $('#v89AutoEquipBtn').onclick=v89AutoEquip;
+  $('[data-v89-equip]').forEach(b=>b.onclick=()=>v89EquipItem(b.dataset.v89Equip));
+  $('[data-v89-use]').forEach(b=>b.onclick=()=>v89UseItem(b.dataset.v89Use));
+  $('[data-v89-repair]').forEach(b=>b.onclick=()=>v89RepairItem(b.dataset.v89Repair));
+  $('[data-v89-sell]').forEach(b=>b.onclick=()=>v89SellItem(b.dataset.v89Sell));
+  $('[data-v89-buy]').forEach(b=>b.onclick=()=>v89BuyOffer(b.dataset.v89Buy))
+}
+
 function v86Module(){return window.OPL_MODULES?.get('dailyLifeEngineV86')||null}
 function v86Data(){return window.OPL_MODULES?.get('dailyLifeDataV86')||null}
 function v86Ensure(){
