@@ -112,7 +112,7 @@ assert(summary.stability>=60,'Stable household summary unexpectedly weak');
 // Live integration contract.
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
+assert(/ONE PIECE LIFE — V(?:[7-9]|\d{2,})\./.test(html),'V7+ release title missing');
 assert(saveVersion>=780,'V7.8 regression QA requires save version >= 780');
 const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
 assert(gameMajor>7||(gameMajor===7&&gameMinor>=8),'V7.8 regression QA requires game version >= 7.8');
@@ -120,7 +120,7 @@ for(const asset of ['src/data/personal-life-v78.js','src/v78/personal-life-engin
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:7-[8-9]|8-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.8 or newer');
+assert(/one-piece-life-v(?:7-[8-9]|8-[0-9]+|9-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.8 or newer');
 assert(html.includes("personalV78:{version:1"),'Fresh-save personal-life state missing');
 assert(html.includes("if(!game.player.personalV78||typeof game.player.personalV78!=='object')"),'Old-save V7.8 migration guard missing');
 assert(html.includes('game.player.personalV78.familyBond=game.player.family.bond'),'Birth family bond synchronization missing');
