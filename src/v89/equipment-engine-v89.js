@@ -12,7 +12,7 @@ function normalizeItem(item){
   return {
     uid:String(item.uid||('item_'+Math.abs(Math.floor(num(item.created)||0)))),
     templateId:item.templateId,rarity,quality,
-    durability:clamp(num(item.durability)==null?maxDurability:num(item.durability),0,maxDurability),
+    durability:clamp(item.durability==null?maxDurability:num(item.durability),0,maxDurability),
     maxDurability,
     upgrades:clamp(Math.floor(num(item.upgrades)),0,3),
     origin:String(item.origin||'Inconnue'),
@@ -136,7 +136,7 @@ function marketPrice(item,ctx={}){
   return Math.max(250,Math.round(t.baseValue*r.value*(.82+i.quality*.0045)*relation*Math.max(.7,num(ctx.priceIndex)||1)/50)*50)
 }
 function candidateTemplates(place={},includeConsumables=true){
-  const tags=Array.isArray(place.tags)?place.tags:[],scored=Object.entries(data.templates).filter(([,t])=>t.templateId!=='legacy_protection'&& (includeConsumables||!t.consumable)).map(([id,t])=>({id,t,score:(t.tags||[]).filter(x=>tags.includes(x)||x===place.region).length}));
+  const tags=Array.isArray(place.tags)?place.tags:[],scored=Object.entries(data.templates).filter(([id,t])=>id!=='legacy_protection'&& (includeConsumables||!t.consumable)).map(([id,t])=>({id,t,score:(t.tags||[]).filter(x=>tags.includes(x)||x===place.region).length}));
   return scored.sort((a,b)=>b.score-a.score||a.id.localeCompare(b.id))
 }
 function shopOffers(place={},ctx={},rolls=[]){
