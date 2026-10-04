@@ -2885,11 +2885,11 @@ function renderV89Equipment(){
   const shopHtml=market?'<div><span class="eyebrow">Équipement local • '+esc(p.island)+'</span><div class="v89-shop">'+(offers.length?offers.map(o=>{const rarity=data.rarities[o.item.rarity]?.label||o.item.rarity;return '<div class="v89-card"><div class="v89-card-head"><strong>'+esc(v89ItemLabel(o.item))+'</strong><span class="v89-rarity">'+esc(rarity)+'</span></div><small>Qualité '+o.item.quality+' • '+o.price.toLocaleString('fr-FR')+' B</small><div class="v89-effects">'+v89EffectPills(o.item)+'</div><div class="v89-actions"><button class="primary" data-v89-buy="'+esc(o.id)+'" '+(p.money<o.price||state.items.length>=24?'disabled':'')+'>Acheter</button></div></div>'}).join(''):'<div class="career-card"><p>Les offres d’équipement de cette année ont déjà été achetées ou ne sont plus disponibles.</p></div>')+'</div></div>':'';
   box.innerHTML='<div class="v89-summary"><div><span>Combat</span><strong>+'+v89CombatBonus().toFixed(1)+'</strong></div><div><span>Protection</span><strong>'+Math.round((1-v89DamageMult())*100)+'%</strong></div><div><span>Missions</span><strong>+'+(sum.effects.missionBonus||0).toFixed(1)+'</strong></div><div><span>Objets cassés</span><strong>'+sum.broken+'</strong></div></div><div class="section-heading compact"><div><span class="eyebrow">Slots actifs</span></div><button id="v89AutoEquipBtn" class="text-btn">Équiper le meilleur</button></div><div class="v89-slots">'+slotHtml+'</div><div><span class="eyebrow">Inventaire</span><div class="v89-items">'+invHtml+'</div></div>'+shopHtml;
   $('#v89AutoEquipBtn').onclick=v89AutoEquip;
-  $('[data-v89-equip]').forEach(b=>b.onclick=()=>v89EquipItem(b.dataset.v89Equip));
-  $('[data-v89-use]').forEach(b=>b.onclick=()=>v89UseItem(b.dataset.v89Use));
-  $('[data-v89-repair]').forEach(b=>b.onclick=()=>v89RepairItem(b.dataset.v89Repair));
-  $('[data-v89-sell]').forEach(b=>b.onclick=()=>v89SellItem(b.dataset.v89Sell));
-  $('[data-v89-buy]').forEach(b=>b.onclick=()=>v89BuyOffer(b.dataset.v89Buy))
+  $$('[data-v89-equip]').forEach(b=>b.onclick=()=>v89EquipItem(b.dataset.v89Equip));
+  $$('[data-v89-use]').forEach(b=>b.onclick=()=>v89UseItem(b.dataset.v89Use));
+  $$('[data-v89-repair]').forEach(b=>b.onclick=()=>v89RepairItem(b.dataset.v89Repair));
+  $$('[data-v89-sell]').forEach(b=>b.onclick=()=>v89SellItem(b.dataset.v89Sell));
+  $$('[data-v89-buy]').forEach(b=>b.onclick=()=>v89BuyOffer(b.dataset.v89Buy))
 }
 
 function v86Module(){return window.OPL_MODULES?.get('dailyLifeEngineV86')||null}
