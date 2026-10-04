@@ -23,6 +23,7 @@ const intents={
 
 const mediumTemplates={
   power_growth:{label:'Franchir un palier de puissance',desc:'Augmenter ta puissance globale de 10 points.',kind:'delta',metric:'power',delta:10,ambitions:['power','legacy'],weight:10},
+  combat_record:{label:'Enchaîner les victoires',desc:'Remporter cinq combats supplémentaires.',kind:'delta',metric:'wins',delta:5,ambitions:['power','legacy'],weight:9},
   career_rank:{label:'Atteindre le rang suivant',desc:'Faire progresser ta carrière jusqu’au prochain rang.',kind:'rank',ambitions:['legacy','protect','power'],weight:9},
   explore_islands:{label:'Découvrir trois nouvelles îles',desc:'Élargir réellement ta carte du monde.',kind:'delta',metric:'visited',delta:3,ambitions:['explore','legacy'],weight:10},
   reach_region:{label:'Atteindre une nouvelle mer',desc:'Changer de grande région et repousser ta frontière personnelle.',kind:'region',ambitions:['explore'],weight:9},
