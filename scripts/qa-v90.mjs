@@ -84,6 +84,8 @@ assert(html.includes('id="v90AnnualDigest"'),'V9.0 annual digest UI missing');
 assert(html.includes('v90MarkCustomPlan();'),'Manual annual changes do not mark custom plan');
 assert(html.includes('renderV90GameFlow();'),'V9.0 render hook missing');
 assert(html.includes('v90ChoiceMeta(c)'),'Decision metadata integration missing');
+assert(html.includes("v89MaybeLoot('combat',Number(enemy.power)||0"),'Combat loot must use the active enemy power');
+assert(!html.includes("v89MaybeLoot('combat',enemyPower"),'Undefined enemyPower combat crash regression');
 assert(html.includes("$$('[data-v90-preset]').forEach"),'V9.0 preset bindings missing');
 assert(css.includes('.v90-compact-life #v76FocusCard{display:none}'),'Legacy focus card is not compacted in V9.0');
 assert(css.includes('.v90-choice-tag'),'Decision choice tag styling missing');
