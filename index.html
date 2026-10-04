@@ -2736,6 +2736,89 @@ function renderV88Market(){
   $$('[data-v88-sell-all]').forEach(b=>b.onclick=()=>{const qty=v88Ensure()?.cargo?.[b.dataset.v88SellAll]?.qty||0;if(qty)v88Trade('sell',b.dataset.v88SellAll,qty)})
 }
 
+function v90Module(){return window.OPL_MODULES?.get('gameFlowEngineV90')||null}
+function v90Data(){return window.OPL_MODULES?.get('gameFlowDataV90')||null}
+function v90Ensure(){
+  if(!game)return null;game.meta=game.meta||{};
+  const mod=v90Module();game.meta.flowV90=mod?mod.normalizeState(game.meta.flowV90||{}):(game.meta.flowV90||{version:1,annualPreset:'balanced',customPlan:false,lastDigestYear:-99,digestSeenYear:-99,lastPriorityKey:'',detailOpen:false,totalYearsViewed:0});
+  return game.meta.flowV90
+}
+function v90Context(){
+  const p=game.player,t=game.agency?.annualTurn,state77=typeof v77Ensure==='function'?v77Ensure():game.consequencesV77;
+  const severity=Math.max(0,...((state77?.active||[]).map(c=>Number(c.severity)||0)));
+  const campaign=typeof v82LocalCampaign==='function'?v82LocalCampaign():null,nemesis=typeof v83LocalThreat==='function'?v83LocalThreat():null;
+  const equipment=typeof v89Ensure==='function'?v89Ensure():p.equipmentV89,broken=(equipment?.items||[]).filter(x=>Number(x.durability)<=0).length;
+  const plan=v62PlanSource(),explorationIntent=['explore','hunt'].includes(plan?.adventure)?1:0;
+  return {
+    alive:!!game.alive,pendingDecision:!!game.pendingDecision,pendingDecisionTitle:game.pendingDecision?.title||'',
+    health:Number(p.health)||0,energy:Number(p.energy)||0,money:Number(p.money)||0,
+    annualActive:!!t?.active,annualProgress:(t?.monthsSimulated||0)+(t?.phase>0?.5:0),
+    activeMission:!!game.activeMission,activeMissionTitle:game.activeMission?.title||'',
+    travel:!!p.travel,travelDestination:p.travel?.destination||'',
+    brokenEquipment:broken,consequenceSeverity:severity,
+    campaign:!!campaign,campaignTitle:campaign?.title||'',nemesis:!!nemesis,nemesisName:nemesis?.name||'',
+    careerPressure:Number(p.factionV81?.pressure)||0,explorationIntent
+  }
+}
+function v90PriorityTarget(key){
+  return {mission:'missionBoard',equipment:'v89EquipmentCard',campaign:'v82CampaignCard',nemesis:'v83NemesisCard',consequence:'v77ConsequencesCard',health:'annualTurnCard',energy:'annualTurnCard',annual:'annualTurnCard','annual-plan':'annualTurnCard',money:'economyActions',travel:'v85ExplorationCard'}[key]||null
+}
+function v90OpenPriority(action,tab,key){
+  if(action==='decision'){showDecision();return}
+  if(action==='advance'){advance();return}
+  if(action==='plan'){const el=$('#annualTurnCard');el?.scrollIntoView({behavior:'smooth',block:'start'});return}
+  v76OpenTab(tab||'life',true);const target=v90PriorityTarget(key);if(target)setTimeout(()=>$('#'+target)?.scrollIntoView({behavior:'smooth',block:'center'}),40)
+}
+function v90ApplyPreset(id){
+  const mod=v90Module(),state=v90Ensure();if(!mod||!state||!v90Data()?.presets?.[id])return false;
+  if(game.agency?.annualTurn?.active){toast('Le plan est verrouillé jusqu’au bilan annuel.');return false}
+  game.agency.annualPlan=mod.presetPlan(id);state.annualPreset=id;state.customPlan=false;saveGame();render();toast('Plan annuel : '+v90Data().presets[id].label);return true
+}
+function v90MarkCustomPlan(){const state=v90Ensure();if(state)state.customPlan=true}
+function v90TogglePlanDetails(){const state=v90Ensure();if(!state)return;state.detailOpen=!state.detailOpen;saveGame();render()}
+function v90ChoiceMeta(choice={}){
+  const text=(String(choice.action||'')+' '+String(choice.label||'')+' '+String(choice.hint||'')).toLowerCase();
+  if(/combat|direct|attaque|bold|affront/.test(text))return{label:'Combat',tone:'risk'};
+  if(/cautious|prudent|refus|ignore|repli|decline/.test(text))return{label:'Prudent',tone:'safe'};
+  if(/relation|mentor|confide|help|network|leverage|invest/.test(text))return{label:'Réseau',tone:'social'};
+  if(/travel|explor|voyage|route/.test(text))return{label:'Aventure',tone:'adventure'};
+  if(/career|command|promotion|organisation|faction/.test(text))return{label:'Carrière',tone:'career'};
+  if(/money|ressource|vendre|acheter|sell|buy/.test(text))return{label:'Ressources',tone:'resource'};
+  return{label:'Décision',tone:'neutral'}
+}
+function renderV90Flow(){
+  const box=$('#v90FlowBody'),mod=v90Module(),state=v90Ensure();if(!box||!mod||!state)return;
+  const ctx=v90Context(),items=mod.priorities(ctx),primary=items[0],score=mod.flowScore(ctx);
+  if(!primary){box.innerHTML='';return}
+  state.lastPriorityKey=primary.key;
+  const status=score>=82?'Fluide':score>=65?'Stable':score>=48?'Sous tension':'Critique';
+  box.innerHTML='<div class="v90-hero"><div><span class="eyebrow">V9.0 • Cockpit de vie</span><h3>'+esc(primary.title)+'</h3><p>'+esc(primary.desc)+'</p></div><div class="v90-flow-score"><span>Flow</span><strong>'+score+'</strong><small>'+esc(status)+'</small></div></div>'+
+    '<div class="v90-priorities">'+items.map((x,i)=>'<button class="v90-priority '+esc(x.severity)+'" data-v90-action="'+esc(x.action)+'" data-v90-tab="'+esc(x.tab)+'" data-v90-key="'+esc(x.key)+'"><strong>'+(i===0?'Maintenant • ':'')+esc(x.title)+'</strong><small>'+esc(x.desc)+'</small></button>').join('')+'</div>'+
+    '<div class="v90-mini-meta"><span>Santé '+Math.round(ctx.health)+'%</span><span>Énergie '+Math.round(ctx.energy)+'%</span><span>'+((game.agency?.annualTurn?.active)?Math.floor(ctx.annualProgress)+'/12 mois':'Prêt pour l’année')+'</span><span>Plan '+esc(mod.planSummary(v62PlanSource()).label)+'</span></div>';
+  $('[data-v90-action]').forEach(b=>b.onclick=()=>v90OpenPriority(b.dataset.v90Action,b.dataset.v90Tab,b.dataset.v90Key))
+}
+function renderV90Presets(){
+  const shell=$('#v90PresetShell'),card=$('#annualTurnCard'),mod=v90Module(),data=v90Data(),state=v90Ensure();if(!shell||!card||!mod||!data||!state)return;
+  const turn=game.agency?.annualTurn,plan=v62PlanSource(),summary=mod.planSummary(plan),recommended=mod.recommendedPreset(v90Context());
+  card.classList.toggle('v90-plan-collapsed',!state.detailOpen);
+  shell.innerHTML='<div class="v90-plan-toolbar"><span>Plans rapides • recommandé : <strong>'+esc(data.presets[recommended]?.label||'Équilibré')+'</strong></span><button id="v90PlanDetailBtn" class="v90-detail-btn">'+(state.detailOpen?'Masquer les réglages':'Réglages avancés')+'</button></div>'+
+    '<div class="v90-presets">'+Object.entries(data.presets).map(([id,p])=>'<button class="v90-preset '+(summary.preset===id?'selected':'')+'" data-v90-preset="'+id+'" '+(turn?.active?'disabled':'')+'><strong>'+esc(p.label)+(recommended===id?' • conseillé':'')+'</strong><small>'+esc(p.desc)+'</small></button>').join('')+'</div>';
+  $('#v90PlanDetailBtn').onclick=v90TogglePlanDetails;
+  $('[data-v90-preset]').forEach(b=>b.onclick=()=>v90ApplyPreset(b.dataset.v90Preset))
+}
+function renderV90Digest(){
+  const box=$('#v90AnnualDigest'),mod=v90Module(),state=v90Ensure(),report=game.agency?.lastAnnualReport;if(!box||!mod||!state)return;
+  if(!report){box.innerHTML='';return}
+  const d=mod.digest(report,[]);state.lastDigestYear=d.year;
+  box.innerHTML='<div class="section-heading compact"><div><span class="eyebrow">V9.0 • Ce qui a changé</span><strong>'+esc(d.classification)+'</strong></div><span class="badge">'+d.interruptions+' décision'+(d.interruptions>1?'s':'')+'</span></div>'+
+    '<div class="v90-digest-grid">'+(d.metrics.length?d.metrics.map(m=>'<div class="v90-digest-metric '+m.tone+'"><span>'+esc(m.label)+'</span><strong>'+esc(m.text)+'</strong></div>').join(''):'<div class="v90-digest-metric"><span>Rythme</span><strong>Année stable</strong></div>')+'</div>'+
+    (d.highlights.length?'<div class="v90-digest-events">'+d.highlights.map(h=>'<div class="v90-digest-event '+esc(h.type)+'"><strong>'+esc(h.title)+'</strong>'+esc(h.desc)+'</div>').join('')+'</div>':'')+
+    '<div class="v90-mini-meta"><span>Risque '+Math.round(d.riskSpent)+'/'+Math.round(d.riskBudget)+'</span><span>'+d.adventureDiscoveries+' découverte(s)</span></div>'
+}
+function renderV90GameFlow(){
+  $('#lifePanel')?.classList.add('v90-compact-life');renderV90Flow();renderV90Presets();renderV90Digest()
+}
+
 function v89Module(){return window.OPL_MODULES?.get('equipmentEngineV89')||null}
 function v89Data(){return window.OPL_MODULES?.get('equipmentDataV89')||null}
 function v89ItemLabel(item){
