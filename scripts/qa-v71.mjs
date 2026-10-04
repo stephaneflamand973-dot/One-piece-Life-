@@ -78,7 +78,7 @@ function eq(actual,expected,msg){if(actual!==expected)throw new Error(`${msg}: g
 // Release identity and modular loading.
 const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
 const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-assert(/ONE PIECE LIFE — V(?:7|8)\./.test(html),'V7+ release title missing');
+const releaseTitle=html.match(/ONE PIECE LIFE — V(\d+)\.(\d+)/);assert(releaseTitle&&Number(releaseTitle[1])>=7,'V7+ release title missing');
 assert(saveVersion>=710,'V7.1 regression QA requires save version >= 710');
 const [gameMajor,gameMinor]=gameVersion.split('.').map(Number);
 assert(gameMajor>7||(gameMajor===7&&gameMinor>=1),'V7.1 regression QA requires game version >= 7.1');
