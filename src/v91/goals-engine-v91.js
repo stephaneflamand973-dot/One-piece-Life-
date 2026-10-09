@@ -20,6 +20,7 @@ function normalizeState(state={}){
     completed:(Array.isArray(state.completed)?state.completed:[]).map(normalizeGoal).filter(Boolean).slice(0,30),
     ambitionMilestones:Array.isArray(state.ambitionMilestones)?state.ambitionMilestones.map(Number).filter(x=>[25,50,75,100].includes(x)):[],
     lastRefreshYear:Number.isFinite(Number(state.lastRefreshYear))?Number(state.lastRefreshYear):-99,
+    lastAmbitionChangeYear:Number.isFinite(Number(state.lastAmbitionChangeYear))?Number(state.lastAmbitionChangeYear):-99,
     sequence:Math.max(0,Math.floor(num(state.sequence)))
   };
 }
