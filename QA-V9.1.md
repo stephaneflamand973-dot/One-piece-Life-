@@ -1,6 +1,6 @@
 # ONE PIECE LIFE — QA V9.1
 
-V9.1.0 — Goals & Player Agency 5.1
+V9.1.1 — Goals & Player Agency 5.1
 
 ## Objectif
 
@@ -84,6 +84,10 @@ Elle modifie les réglages du plan annuel V6.5 déjà existant :
 
 Le reste du plan reste intact et peut toujours être personnalisé manuellement.
 
+Les patches d’intention repartent toujours du plan de base de l’année. Passer de Récupération à Ascension ne conserve donc pas les anciens réglages prudents.
+
+Au bilan annuel, l’intention revient automatiquement sur Équilibre et le plan préparatoire retrouve sa base. Les presets V9.0 et les modifications manuelles reprennent également la priorité.
+
 ## Intégrations
 
 - V6.5 : les intentions réutilisent le vrai plan annuel.
@@ -103,6 +107,6 @@ Le reste du plan reste intact et peut toujours être personnalisé manuellement.
 
 ## Version
 
-- GAME_VERSION : **9.1.0**
+- GAME_VERSION : **9.1.1**
 - SAVE_VERSION : **910**
-- Cache PWA : **one-piece-life-v9-1-0**
+- Cache PWA : **one-piece-life-v9-1-1**
