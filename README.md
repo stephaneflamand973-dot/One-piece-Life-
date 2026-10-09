@@ -1,4 +1,4 @@
-# ONE PIECE LIFE — V9.1.5 Goals & Player Agency 5.1
+# ONE PIECE LIFE — V9.1.6 Goals & Player Agency 5.1
 
 La V9.1 transforme l'ambition en véritable système de direction personnelle. Le joueur choisit **ce qu'il veut tenter d'accomplir**, tandis que le moteur conserve l'autorité sur les probabilités, les opportunités et les résultats.
 
@@ -18,6 +18,7 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - L'ambition **Devenir puissant** dépend de la puissance réelle.
 - L'ambition **Explorer le monde** dépend des îles visitées et des grandes régions atteintes.
 - L'ambition **Faire fortune** dépend des Berry et des profits commerciaux, avec une courbe recalibrée pour que 50 000 B restent un début de trajectoire.
+- L'objectif financier mémorise désormais les Berry au début de l'objectif : sa progression mesure uniquement les gains réellement réalisés après sa création.
 - L'ambition **Entrer dans l'histoire** dépend de la réputation mondiale et de l'héritage V8.0.
 - L'ambition **Protéger les autres** dépend de la réputation et des relations fortes.
 - **7 intentions annuelles** : Équilibre, Ascension, Maîtrise, Aventure, Fortune, Liens et Récupération.

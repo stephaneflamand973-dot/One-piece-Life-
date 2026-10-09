@@ -1,6 +1,6 @@
 # ONE PIECE LIFE — QA V9.1
 
-V9.1.5 — Goals & Player Agency 5.1
+V9.1.6 — Goals & Player Agency 5.1
 
 ## Objectif
 
@@ -115,6 +115,12 @@ Une ambition long terme ne peut pas être changée pendant une année active et 
 - Les objectifs V9.1 sont générés à partir de l'état réel de la sauvegarde.
 - Aucun objectif n'est créé avant 13 ans.
 - Les compteurs historiques de mission sont initialisés à partir de l'historique disponible puis deviennent persistants.
+
+## Correctif V9.1.6
+
+- Le baseline financier des objectifs de réserve mémorise désormais les Berry au moment de la création.
+- Un objectif financier neuf commence donc à 0 % et progresse uniquement sur les gains futurs.
+- Aucun changement de schéma de sauvegarde n'est nécessaire.
 
 ## Version
 
