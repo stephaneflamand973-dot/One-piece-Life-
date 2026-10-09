@@ -2826,6 +2826,12 @@ function v91CockpitText(){
   const mod=v91Module(),state=v91Ensure();if(!mod||!state||game.ageMonths<156)return '';
   const sum=mod.summary(state,v91Context());return 'Ambition '+Math.round(sum.ambition.progress)+'%'
 }
+function v91CockpitGoal(){
+  const mod=v91Module(),state=v91Ensure();if(!mod||!state||game.ageMonths<156)return null;
+  const sum=mod.summary(state,v91Context()),g=[...(sum.short||[]),...(sum.medium||[])].sort((a,b)=>(Number(b.progress)||0)-(Number(a.progress)||0))[0];
+  if(!g)return null;
+  return {key:'goal',type:'goal',title:g.label,desc:g.desc+' • '+Math.round(g.progress||0)+'%',score:46,tab:'character',severity:'low',action:'open'}
+}
 function v91GoalHtml(g,short=false){
   const pct=Math.round(g.progress||0);
   return '<div class="v91-objective '+(short?'short':'')+'"><strong>'+esc(g.label)+'</strong><small>'+esc(g.desc)+'</small><div class="v91-progress-row"><div class="v91-meter"><i style="width:'+clamp(pct,0,100)+'%"></i></div><span>'+pct+'%</span></div></div>'
@@ -2875,7 +2881,7 @@ function v90Context(){
   }
 }
 function v90PriorityTarget(key){
-  return {mission:'missionBoard',equipment:'v89EquipmentCard',campaign:'v82CampaignCard',nemesis:'v83NemesisCard',consequence:'v77ConsequencesCard',health:'annualTurnCard',energy:'annualTurnCard',annual:'annualTurnCard','annual-plan':'annualTurnCard',money:'economyActions',travel:'v85ExplorationCard'}[key]||null
+  return {mission:'missionBoard',equipment:'v89EquipmentCard',campaign:'v82CampaignCard',nemesis:'v83NemesisCard',consequence:'v77ConsequencesCard',health:'annualTurnCard',energy:'annualTurnCard',annual:'annualTurnCard','annual-plan':'annualTurnCard',money:'economyActions',travel:'v85ExplorationCard',goal:'ambitionCard'}[key]||null
 }
 function v90OpenPriority(action,tab,key){
   if(action==='decision'){showDecision();return}
@@ -2902,7 +2908,7 @@ function v90ChoiceMeta(choice={}){
 }
 function renderV90Flow(){
   const box=$('#v90FlowBody'),mod=v90Module(),state=v90Ensure();if(!box||!mod||!state)return;
-  const ctx=v90Context(),items=mod.priorities(ctx),primary=items[0],score=mod.flowScore(ctx);
+  const ctx=v90Context(),items=mod.priorities(ctx),personalGoal=v91CockpitGoal();if(personalGoal&&!items.some(x=>x.key==='goal'))items.push(personalGoal);items.sort((a,b)=>b.score-a.score);items.splice(4);const primary=items[0],score=mod.flowScore(ctx);
   if(!primary){box.innerHTML='';return}
   state.lastPriorityKey=primary.key;
   const status=score>=82?'Fluide':score>=65?'Stable':score>=48?'Sous tension':'Critique';
