@@ -27,6 +27,9 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - Choisir un preset V9.0 ou modifier manuellement un domaine remet l’intention sur **Équilibre** afin de garder une seule source de vérité.
 - La progression de l'ambition apparaît dans le **Cockpit V9.0**.
 - Le prochain objectif personnel pertinent peut également remonter dans le Cockpit comme priorité secondaire et ouvrir directement la section Objectifs.
+- Les objectifs de carrière sont **rebasés automatiquement après un changement de faction** afin de ne jamais poursuivre un ancien rang devenu incohérent.
+- Le choix initial d'ambition déclenche le même verrou annuel qu'un changement volontaire ultérieur.
+- Un test runtime V9.1 simule plusieurs années complètes en CI pour vérifier intentions, objectifs, rendu et taille de sauvegarde.
 - L'ancien écran Ambition est réutilisé au lieu d'ajouter un nouvel écran.
 - Aucun objectif personnel n'est généré avant 13 ans.
 - Migration V9.0.x → V9.1 automatique.
