@@ -1,4 +1,4 @@
-# ONE PIECE LIFE — V9.1 Goals & Player Agency 5.1
+# ONE PIECE LIFE — V9.1.1 Goals & Player Agency 5.1
 
 La V9.1 transforme l'ambition en véritable système de direction personnelle. Le joueur choisit **ce qu'il veut tenter d'accomplir**, tandis que le moteur conserve l'autorité sur les probabilités, les opportunités et les résultats.
 
@@ -22,12 +22,15 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - **7 intentions annuelles** : Équilibre, Ascension, Maîtrise, Aventure, Fortune, Liens et Récupération.
 - Une intention modifie les vrais réglages V6.5 du plan annuel au lieu de créer un bonus caché.
 - Les autres domaines du plan restent inchangés et personnalisables.
+- Changer d’intention repart du plan de base de l’année : aucun réglage de l’intention précédente ne s’accumule.
+- À la clôture de l’année, l’intention revient sur **Équilibre** et le plan préparatoire retrouve sa base.
+- Un preset V9.0 ou une modification manuelle reprend immédiatement la priorité sur l’intention.
 - La progression de l'ambition apparaît dans le **Cockpit V9.0**.
 - L'ancien écran Ambition est réutilisé au lieu d'ajouter un nouvel écran.
 - Aucun objectif personnel n'est généré avant 13 ans.
 - Migration V9.0.x → V9.1 automatique.
 - Save version : **910**.
-- Cache PWA : **one-piece-life-v9-1-0**.
+- Cache PWA : **one-piece-life-v9-1-1**.
 
 ---
 
