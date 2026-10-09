@@ -26,7 +26,7 @@ eq(data.version,'9.1.0','Goals data version mismatch');
 eq(engine.version,'9.1.0','Goals engine version mismatch');
 eq(Object.keys(data.ambitions).length,6,'Historical ambition count changed');
 eq(Object.keys(data.intents).length,7,'Annual intent count mismatch');
-assert(Object.keys(data.mediumTemplates).length>=11,'Medium objective pool too small');
+assert(Object.keys(data.mediumTemplates).length>=12,'Medium objective pool too small');
 assert(Object.keys(data.shortTemplates).length>=8,'Short objective pool too small');
 
 const base={
@@ -45,10 +45,14 @@ gt(highExplore,lowExplore,'Exploration ambition should track travel progress');
 const lowWealth=engine.longProgress('wealth',{...base,money:1000,tradeProfit:0});
 const highWealth=engine.longProgress('wealth',{...base,money:1500000,tradeProfit:500000});
 gt(highWealth,lowWealth,'Wealth ambition should track actual assets');
+const earlyWealth=engine.longProgress('wealth',{...base,money:50000,tradeProfit:0});
+lt(earlyWealth,15,'50k Berry should remain early in a fortune ambition');
 
 let state=engine.refresh({},base);
 eq(state.activeMedium.length,2,'Two medium goals should be active');
 eq(state.activeShort.length,3,'Three short goals should be active');
+assert(state.activeShort.some(x=>x.templateId==='gain_power'),'Power ambition should prioritize a combat progression step');
+assert(state.activeShort.some(x=>x.templateId==='one_mission'),'Power ambition should keep mission progression relevant');
 assert(state.activeMedium.some(x=>x.templateId==='power_growth'),'Power ambition should prioritize power growth');
 const rankGoal=state.activeMedium.find(x=>x.templateId==='career_rank');
 assert(rankGoal,'Career rank goal should be generated in this context');
@@ -72,6 +76,9 @@ eq(recovery.patch.mission,'cautious','Recovery intent mission patch mismatch');
 recovery.state.intentBasePlan={career:'steady',training:'steady',relations:'steady',adventure:'steady',resources:'steady',mission:'standard'};
 const normalizedWithBase=engine.normalizeState(recovery.state);
 eq(normalizedWithBase.intentBasePlan.training,'steady','Intent baseline must survive normalization');
+normalizedWithBase.lastAmbitionChangeYear=21;
+const normalizedCooldown=engine.normalizeState(normalizedWithBase);
+eq(normalizedCooldown.lastAmbitionChangeYear,21,'Ambition cooldown year must survive normalization');
 
 const changed=engine.setAmbition(recovery.state,'explore',{...progressed,ambitionType:'explore'});
 assert(!changed.error,'Valid ambition change rejected');
@@ -92,6 +99,7 @@ for(const fn of ['function v91Module','function v91Ensure','function v91Context'
 }
 assert(html.includes('id="v91GoalsBadge"'),'V9.1 goals UI shell missing');
 assert(html.includes("v91RecordMission('success')"),'Mission success counter hook missing');
+assert(html.includes('visible-1'),'First post-migration mission must not be double-counted');
 assert(html.includes('game.player.danger=dangerLevel();v91Sync(true);'),'Monthly goal evaluation hook missing');
 assert(html.includes('function renderAmbition(){renderV91Goals()}'),'Legacy ambition render handoff missing');
 assert(html.includes('v91CockpitText()'),'V9.0 cockpit does not surface ambition progress');
