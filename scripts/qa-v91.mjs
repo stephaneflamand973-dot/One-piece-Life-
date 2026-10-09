@@ -27,7 +27,7 @@ eq(engine.version,'9.1.0','Goals engine version mismatch');
 eq(Object.keys(data.ambitions).length,6,'Historical ambition count changed');
 eq(Object.keys(data.intents).length,7,'Annual intent count mismatch');
 assert(Object.keys(data.mediumTemplates).length>=11,'Medium objective pool too small');
-assert(Object.keys(data.shortTemplates).length>=8,'Short objective pool too small');
+assert(Object.keys(data.shortTemplates).length>=11,'Short objective pool too small');
 
 const base={
   year:20,ageYears:20,ambitionType:'power',power:35,money:50000,visited:4,region:'Grand Line',
@@ -61,7 +61,11 @@ assert(shortByAmbition.power.includes('gain_power'),'Power ambition should prior
 assert(shortByAmbition.explore.includes('visit_one'),'Explore ambition should prioritize a travel short goal');
 assert(shortByAmbition.wealth.includes('earn_money')&&shortByAmbition.wealth.includes('trade_step'),'Wealth ambition should prioritize money and trade short goals');
 assert(shortByAmbition.protect.includes('one_bond'),'Protect ambition should prioritize a relationship short goal');
-assert(shortByAmbition.survive.includes('earn_money')||shortByAmbition.survive.includes('full_loadout'),'Survive ambition should prioritize resilience resources');
+assert(shortByAmbition.legacy.includes('gain_fame'),'Legacy ambition should prioritize world fame');
+assert(!shortByAmbition.explore.includes('gain_fame'),'Legacy-only fame goal leaked into exploration');
+assert(!shortByAmbition.wealth.includes('survive_year'),'Survival-only year goal leaked into wealth');
+assert(shortByAmbition.survive.includes('survive_year'),'Survive ambition should include the one-year survival step');
+assert(shortByAmbition.survive.includes('earn_money'),'Survive ambition should prioritize a financial reserve');
 eq(new Set(Object.values(shortByAmbition).map(x=>x.join('|'))).size,6,'Every ambition should expose a distinct short-goal profile');
 
 
@@ -69,6 +73,10 @@ let state=engine.refresh({},base);
 eq(state.activeMedium.length,2,'Two medium goals should be active');
 eq(state.activeShort.length,3,'Three short goals should be active');
 assert(state.activeMedium.some(x=>x.templateId==='power_growth'),'Power ambition should prioritize power growth');
+const surviveState=engine.refresh({}, {...base,ambitionType:'survive'});
+assert(surviveState.activeMedium.some(x=>x.templateId==='endure_years'),'Survive ambition should include five-year endurance');
+const legacyState=engine.refresh({}, {...base,ambitionType:'legacy'});
+assert(legacyState.activeMedium[0]?.templateId==='world_reputation','Legacy ambition should prioritize world reputation');
 const rankGoal=state.activeMedium.find(x=>x.templateId==='career_rank');
 assert(rankGoal,'Career rank goal should be generated in this context');
 eq(rankGoal.start.rankIndex,2,'Rank goal baseline must preserve the current rank index');
@@ -155,5 +163,7 @@ console.log('V9.1 GOALS & PLAYER AGENCY 5.1 QA OK',JSON.stringify({
   explorationGoals:changed.state.activeMedium.map(x=>x.templateId),
   rebasedRank:{from:rankGoal.start.faction,to:rebasedRank.start.faction},
   powerProgress:{low:+lowPower.toFixed(1),high:+highPower.toFixed(1)},
-  shortProfiles:shortByAmbition
+  shortProfiles:shortByAmbition,
+  survivalMedium:surviveState.activeMedium.map(x=>x.templateId),
+  legacyMedium:legacyState.activeMedium.map(x=>x.templateId)
 }));
