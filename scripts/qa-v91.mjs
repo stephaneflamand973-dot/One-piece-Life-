@@ -69,6 +69,9 @@ const recovery=engine.setIntent(mastery.state,'recovery',21);
 eq(recovery.patch.training,'recover','Recovery intent training patch mismatch');
 eq(recovery.patch.adventure,'cautious','Recovery intent adventure patch mismatch');
 eq(recovery.patch.mission,'cautious','Recovery intent mission patch mismatch');
+recovery.state.intentBasePlan={career:'steady',training:'steady',relations:'steady',adventure:'steady',resources:'steady',mission:'standard'};
+const normalizedWithBase=engine.normalizeState(recovery.state);
+eq(normalizedWithBase.intentBasePlan.training,'steady','Intent baseline must survive normalization');
 
 const changed=engine.setAmbition(recovery.state,'explore',{...progressed,ambitionType:'explore'});
 assert(!changed.error,'Valid ambition change rejected');
@@ -92,6 +95,11 @@ assert(html.includes("v91RecordMission('success')"),'Mission success counter hoo
 assert(html.includes('game.player.danger=dangerLevel();v91Sync(true);'),'Monthly goal evaluation hook missing');
 assert(html.includes('function renderAmbition(){renderV91Goals()}'),'Legacy ambition render handoff missing');
 assert(html.includes('v91CockpitText()'),'V9.0 cockpit does not surface ambition progress');
+assert(!html.includes('v91Ensure();v91Ensure();'),'V9.1 ensure must not run twice in migration');
+assert(!html.includes('showGame();v91Sync(true);'),'Passive render must not complete or log objectives');
+assert(html.includes('function v91OnManualPlanChange'),'Manual annual plan handoff missing');
+assert(html.includes('function v91OnPresetApplied'),'V9 preset handoff missing');
+assert(html.includes('intentBasePlan'),'Annual intent baseline preservation missing');
 assert(html.includes("$$('[data-v91-intent]').forEach"),'V9.1 intent binding must use querySelectorAll');
 assert(html.includes("$$('[data-v91-ambition]').forEach"),'V9.1 ambition binding must use querySelectorAll');
 assert(!/(?<!\$)\$\('\[data-v91-(?:intent|ambition)\]'\)\.forEach/.test(html),'V9.1 mono-element selector regression');
