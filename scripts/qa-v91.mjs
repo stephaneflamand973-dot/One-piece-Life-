@@ -69,20 +69,23 @@ const recovery=engine.setIntent(mastery.state,'recovery',21);
 eq(recovery.patch.training,'recover','Recovery intent training patch mismatch');
 eq(recovery.patch.adventure,'cautious','Recovery intent adventure patch mismatch');
 eq(recovery.patch.mission,'cautious','Recovery intent mission patch mismatch');
+recovery.state.intentBasePlan={career:'steady',training:'steady',relations:'steady',adventure:'steady',resources:'steady',mission:'standard'};
+const normalizedWithBase=engine.normalizeState(recovery.state);
+eq(normalizedWithBase.intentBasePlan.training,'steady','Intent baseline must survive normalization');
 
 const changed=engine.setAmbition(recovery.state,'explore',{...progressed,ambitionType:'explore'});
 assert(!changed.error,'Valid ambition change rejected');
 eq(changed.state.ambitionType,'explore','Ambition change not persisted');
 assert(changed.state.activeMedium.some(x=>['explore_islands','reach_region'].includes(x.templateId)),'Explore ambition should create exploration goals');
 
-assert(html.includes('ONE PIECE LIFE — V9.1'),'V9.1 title missing');
+assert(/ONE PIECE LIFE — V9\.1(?:\.\d+)?/.test(html),'V9.1.x title missing');
 assert(/const SAVE_VERSION\s*=\s*910;/.test(html),'Save version 910 missing');
-assert(/const GAME_VERSION\s*=\s*'9\.1\.0';/.test(html),'Game version 9.1.0 missing');
+{const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'';assert(/^9\.1\.\d+$/.test(v),'Game version 9.1.x missing')}
 for(const asset of ['src/data/goals-v91.js','src/v91/goals-engine-v91.js','src/v91/goals-v91.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v9-1-0'),'PWA cache not bumped to V9.1');
+assert(/one-piece-life-v9-1-\d+/.test(sw),'PWA cache not on V9.1.x');
 assert(html.includes('v90Ensure();v91Ensure()'),'Old-save V9.1 migration hook missing');
 for(const fn of ['function v91Module','function v91Ensure','function v91Context','function v91Sync','function v91ApplyIntent','function v91OnAmbitionChange','function v91RecordMission','function renderV91Goals']){
   assert(html.includes(fn),'Missing live V9.1 bridge '+fn);
@@ -92,6 +95,13 @@ assert(html.includes("v91RecordMission('success')"),'Mission success counter hoo
 assert(html.includes('game.player.danger=dangerLevel();v91Sync(true);'),'Monthly goal evaluation hook missing');
 assert(html.includes('function renderAmbition(){renderV91Goals()}'),'Legacy ambition render handoff missing');
 assert(html.includes('v91CockpitText()'),'V9.0 cockpit does not surface ambition progress');
+assert(!html.includes('v91Ensure();v91Ensure();'),'V9.1 ensure must not run twice in migration');
+assert(!html.includes('showGame();v91Sync(true);'),'Passive render must not complete or log objectives');
+assert(html.includes('function v91OnManualPlanChange'),'Manual annual plan handoff missing');
+assert(html.includes('function v91OnPresetApplied'),'V9 preset handoff missing');
+assert(html.includes('function v91CompleteAnnualIntent'),'Annual intent expiry hook missing');
+assert(html.includes('v91CompleteAnnualIntent();game.agency.annualTurn=null'),'Annual intent must expire when the yearly turn closes');
+assert(html.includes('intentBasePlan'),'Annual intent baseline preservation missing');
 assert(html.includes("$$('[data-v91-intent]').forEach"),'V9.1 intent binding must use querySelectorAll');
 assert(html.includes("$$('[data-v91-ambition]').forEach"),'V9.1 ambition binding must use querySelectorAll');
 assert(!/(?<!\$)\$\('\[data-v91-(?:intent|ambition)\]'\)\.forEach/.test(html),'V9.1 mono-element selector regression');
@@ -99,7 +109,7 @@ assert(css.includes('.v91-ambition'),'V9.1 ambition styling missing');
 assert(css.includes('.v91-intents'),'V9.1 intention styling missing');
 
 console.log('V9.1 GOALS & PLAYER AGENCY 5.1 QA OK',JSON.stringify({
-  version:'9.1.0',
+  version:'9.1.x',
   ambitions:Object.keys(data.ambitions),
   intents:Object.keys(data.intents),
   initialMedium:state.activeMedium.map(x=>x.templateId),
