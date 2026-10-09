@@ -37,14 +37,15 @@ const mediumTemplates={
 };
 
 const shortTemplates={
-  recover_now:{label:'Récupérer',desc:'Revenir à 75% de santé et 60% d’énergie.',kind:'pair',metrics:{health:75,energy:60},weight:10},
-  repair_gear:{label:'Réparer ton équipement',desc:'Ne plus avoir d’objet cassé équipé ou stocké.',kind:'zero',metric:'brokenEquipment',weight:10},
-  visit_one:{label:'Découvrir une nouvelle île',desc:'Ajouter une nouvelle destination à ton parcours.',kind:'delta',metric:'visited',delta:1,weight:8},
-  gain_power:{label:'Progresser au combat',desc:'Gagner 3 points de puissance globale.',kind:'delta',metric:'power',delta:3,weight:8},
-  earn_money:{label:'Constituer une réserve',desc:'Gagner 10 000 B nets par rapport au début de l’objectif.',kind:'delta',metric:'money',delta:10000,weight:7},
-  one_mission:{label:'Réussir une mission',desc:'Ajouter une mission réussie à ton parcours.',kind:'delta',metric:'missionWins',delta:1,weight:8},
-  one_bond:{label:'Créer un lien fort',desc:'Ajouter une relation solide à ton cercle.',kind:'delta',metric:'strongRelations',delta:1,weight:7},
-  full_loadout:{label:'Compléter ton équipement',desc:'Équiper les quatre slots actifs.',kind:'threshold',metric:'equippedCount',target:4,weight:6}
+  recover_now:{label:'Récupérer',desc:'Revenir à 75% de santé et 60% d’énergie.',kind:'pair',metrics:{health:75,energy:60},ambitions:['survive','protect'],weight:10},
+  repair_gear:{label:'Réparer ton équipement',desc:'Ne plus avoir d’objet cassé équipé ou stocké.',kind:'zero',metric:'brokenEquipment',ambitions:['survive','power','protect'],weight:10},
+  visit_one:{label:'Découvrir une nouvelle île',desc:'Ajouter une nouvelle destination à ton parcours.',kind:'delta',metric:'visited',delta:1,ambitions:['explore','legacy'],weight:8},
+  gain_power:{label:'Progresser au combat',desc:'Gagner 3 points de puissance globale.',kind:'delta',metric:'power',delta:3,ambitions:['power','legacy'],weight:8},
+  earn_money:{label:'Constituer une réserve',desc:'Gagner 10 000 B nets par rapport au début de l’objectif.',kind:'delta',metric:'money',delta:10000,ambitions:['wealth','survive'],weight:7},
+  trade_step:{label:'Réaliser un bénéfice commercial',desc:'Ajouter 10 000 B de bénéfice commercial réalisé.',kind:'delta',metric:'tradeProfit',delta:10000,ambitions:['wealth'],weight:8},
+  one_mission:{label:'Réussir une mission',desc:'Ajouter une mission réussie à ton parcours.',kind:'delta',metric:'missionWins',delta:1,ambitions:['power','protect','legacy'],weight:8},
+  one_bond:{label:'Créer un lien fort',desc:'Ajouter une relation solide à ton cercle.',kind:'delta',metric:'strongRelations',delta:1,ambitions:['protect','survive'],weight:7},
+  full_loadout:{label:'Compléter ton équipement',desc:'Équiper les quatre slots actifs.',kind:'threshold',metric:'equippedCount',target:4,ambitions:['power','survive'],weight:6}
 };
 
 registry.register('goalsDataV91',{version:'9.1.0',ambitions,intents,mediumTemplates,shortTemplates});
