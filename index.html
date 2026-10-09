@@ -2793,9 +2793,25 @@ function v91Sync(logChanges=true){
   return result
 }
 function v91RecordMission(outcome){if(outcome!=='success')return;const c=v91MissionCounters();c.missionWins=(Number(c.missionWins)||0)+1;v91Sync(true)}
-function v91OnAmbitionChange(){
-  const mod=v91Module(),state=v91Ensure();if(!mod||!state)return;
-  game.player.goalsV91=mod.setAmbition(state,game.player.ambitionType||'survive',v91Context()).state
+function v91OnAmbitionChange(force=false){
+  const mod=v91Module(),p=game.player;if(!mod||!p)return false;
+  let state=mod.normalizeState(p.goalsV91||{ambitionType:p.ambitionType||'survive'});
+  if(!force&&game.agency?.annualTurn?.active){toast('Termine l’année en cours avant de redéfinir ton ambition.');return false}
+  const year=game.clock.year;
+  if(!force&&Number(state.lastAmbitionChangeYear)===year){toast('Tu as déjà redéfini ton ambition cette année.');return false}
+  state=mod.setAmbition(state,p.ambitionType||'survive',v91Context()).state;
+  if(!force)state.lastAmbitionChangeYear=year;
+  p.goalsV91=state;return true
+}
+function v91ChangeAmbition(id){
+  const item=AMBITIONS.find(x=>x[2]===id),p=game.player,state=v91Ensure();if(!item||!p||!state)return false;
+  if(game.agency?.annualTurn?.active){toast('Termine l’année en cours avant de redéfinir ton ambition.');return false}
+  if(Number(state.lastAmbitionChangeYear)===game.clock.year){toast('Tu as déjà redéfini ton ambition cette année.');return false}
+  if(p.ambitionType===id)return true;
+  p.ambition=item[0];p.ambitionType=item[2];
+  if(!v91OnAmbitionChange(false))return false;
+  addHistory('Nouvelle ambition','Tu redéfinis ta direction long terme : '+item[0].toLowerCase()+'.','major');
+  saveGame();render();return true
 }
 function v91OnPresetApplied(){
   const state=v91Ensure();if(!state)return;
@@ -2853,7 +2869,7 @@ function renderV91Goals(){
   options.innerHTML='<div class="v91-section-title"><strong>Intention annuelle</strong><span>oriente le plan, jamais le résultat</span></div><div class="v91-intents">'+Object.entries(data.intents).map(([id,x])=>'<button class="v91-intent '+(sum.intent.id===id?'selected ':'')+(recommended.has(id)?'recommended':'')+'" data-v91-intent="'+esc(id)+'" '+(locked?'disabled':'')+'><strong>'+esc(x.label)+'</strong><small>'+esc(x.desc)+'</small></button>').join('')+'</div>'+
     '<details class="v91-ambition-change"><summary>Changer d’ambition long terme</summary><div class="v91-ambition-buttons">'+Object.entries(data.ambitions).map(([id,x])=>'<button class="'+(p.ambitionType===id?'active':'')+'" data-v91-ambition="'+esc(id)+'">'+esc(x.label)+'</button>').join('')+'</div></details>';
   $$('[data-v91-intent]').forEach(b=>b.onclick=()=>v91ApplyIntent(b.dataset.v91Intent));
-  $$('[data-v91-ambition]').forEach(b=>b.onclick=()=>{const id=b.dataset.v91Ambition,item=AMBITIONS.find(x=>x[2]===id);if(!item)return;p.ambition=item[0];p.ambitionType=item[2];v91OnAmbitionChange();addHistory('Nouvelle ambition','Tu redéfinis ta direction long terme : '+item[0].toLowerCase()+'.','major');saveGame();render()})
+  $('[data-v91-ambition]').forEach(b=>b.onclick=()=>v91ChangeAmbition(b.dataset.v91Ambition))
 }
 
 function v90Module(){return window.OPL_MODULES?.get('gameFlowEngineV90')||null}
@@ -4775,7 +4791,7 @@ function tickMission(months){
 
 function resolveDecision(action){
   const p=game.player;if(!game.pendingDecision)return;const oldFaction=p.faction,decisionEcho=game.pendingDecision,parts=action.split(':');
-  if(parts[0]==='ambition'){const item=AMBITIONS.find(x=>x[2]===parts[1]);if(item){p.ambition=item[0];p.ambitionType=item[2];v91OnAmbitionChange();addHistory('Ambition',`Tu décides de poursuivre avant tout un objectif : ${item[0].toLowerCase()}.`,'major')}}
+  if(parts[0]==='ambition'){const item=AMBITIONS.find(x=>x[2]===parts[1]);if(item){p.ambition=item[0];p.ambitionType=item[2];v91OnAmbitionChange(true);addHistory('Ambition',`Tu décides de poursuivre avant tout un objectif : ${item[0].toLowerCase()}.`,'major')}}
   if(parts[0]==='career'){
     if(parts[1]==='marine'){p.faction='Marine';p.career='Marine';p.rank='Recrue';p.situation='Formation militaire';p.activity='Formation / entraînement';p.activityType='marine';p.money+=1500;p.reputation.marine+=3;codexAdd('factions','Marine');addHistory('Engagement dans la Marine','Tu signes comme recrue. Les règles deviennent plus strictes, mais les opportunités aussi.','major')}
     if(parts[1]==='pirate'){p.faction='Pirates';p.career='Pirate';p.rank='Mousse';p.situation='En mer';p.activity='Vie d’équipage';p.activityType='crew';p.reputation.pirate+=4;codexAdd('factions','Pirates');createPirateCrewIfNeeded()}
