@@ -22,6 +22,9 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - **7 intentions annuelles** : Équilibre, Ascension, Maîtrise, Aventure, Fortune, Liens et Récupération.
 - Une intention modifie les vrais réglages V6.5 du plan annuel au lieu de créer un bonus caché.
 - Les autres domaines du plan restent inchangés et personnalisables.
+- Changer d’intention repart du plan de base de l’année : les réglages d’une intention précédente ne s’accumulent pas.
+- L’intention expire au bilan annuel et le plan de préparation de l’année suivante revient à sa base.
+- Choisir un preset V9.0 ou modifier manuellement un domaine remet l’intention sur **Équilibre** afin de garder une seule source de vérité.
 - La progression de l'ambition apparaît dans le **Cockpit V9.0**.
 - L'ancien écran Ambition est réutilisé au lieu d'ajouter un nouvel écran.
 - Aucun objectif personnel n'est généré avant 13 ans.
