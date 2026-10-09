@@ -1,6 +1,15 @@
-# ONE PIECE LIFE — V9.1.7 Goals & Player Agency 5.1
+# ONE PIECE LIFE — V9.1.8 Goals & Player Agency 5.1
 
 La V9.1 transforme l'ambition en véritable système de direction personnelle. Le joueur choisit **ce qu'il veut tenter d'accomplir**, tandis que le moteur conserve l'autorité sur les probabilités, les opportunités et les résultats.
+
+## V9.1.8 — Ambition Identity hotfix
+
+- **Survivre** reçoit désormais des objectifs réellement centrés sur la durée : traverser une année, tenir cinq années supplémentaires et consolider ses réserves.
+- **Entrer dans l’histoire** priorise maintenant la réputation mondiale et une étape courte dédiée : **Faire parler de toi**.
+- Les nouveaux objectifs identitaires sont exclusifs à leur ambition afin d’éviter qu’ils contaminent les profils Exploration, Fortune ou Protection.
+- Les profils courts restent distincts pour les 6 ambitions.
+- Aucun changement de schéma de sauvegarde : SAVE_VERSION reste 910.
+- Cache PWA : **one-piece-life-v9-1-8**.
 
 ## V9.1.7 — Goal Variety hotfix
 
@@ -48,7 +57,7 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - Aucun objectif personnel n'est généré avant 13 ans.
 - Migration V9.0.x → V9.1 automatique.
 - Save version : **910**.
-- Cache PWA : **one-piece-life-v9-1-5**.
+- Cache PWA : **one-piece-life-v9-1-8**.
 
 ---
 
