@@ -2807,6 +2807,11 @@ function v91OnManualPlanChange(domain,id){
   if(V62_ANNUAL_ACTIONS[domain]?.options?.[id])base[domain]=id;
   game.agency.annualPlan=base;state.annualIntent='balanced';state.intentYear=game.clock.year;state.intentBasePlan=JSON.parse(JSON.stringify(base));game.player.goalsV91=state
 }
+function v91CompleteAnnualIntent(){
+  const state=v91Ensure();if(!state)return;
+  if(state.annualIntent!=='balanced'&&state.intentBasePlan)game.agency.annualPlan=JSON.parse(JSON.stringify(state.intentBasePlan));
+  state.annualIntent='balanced';state.intentYear=game.clock.year;state.intentBasePlan=JSON.parse(JSON.stringify(game.agency?.annualPlan||V62_DEFAULT_PLAN));game.player.goalsV91=state
+}
 function v91ApplyIntent(id){
   if(game.agency?.annualTurn?.active){toast('L’intention est verrouillée pendant l’année en cours.');return false}
   const mod=v91Module(),state=v91Ensure(),data=v91Data();if(!mod||!state||!data?.intents?.[id])return false;
@@ -4844,7 +4849,7 @@ function v61CompleteAnnualTurn(){
   const report={year:game.clock.year,age:game.ageMonths,months:t.monthsSimulated,moneyDelta:Math.round(p.money-before.money),powerDelta:Math.round((overallPower()-before.power)*10)/10,rankBefore:before.rank,rankAfter:p.rank,xpDelta:Math.round((p.careerXP-before.careerXP)*10)/10,healthDelta:Math.round(p.health-before.health),relationsDelta:game.relations.length-before.relations,visitedDelta:p.visited.length-before.visited,bountyDelta:Math.round(p.bounty-before.bounty),focus:'custom',plan:t.plan,load:v62AnnualLoad(t.plan),interruptions:t.interruptions||0,riskSpent:Math.round(risk.spent||0),riskBudget:Math.round(risk.budget||0),riskLabel:v64RiskLabel(t),adventureDiscoveries:t.adventureDiscoveries||0,highlights:highlights.map(h=>({title:h.title,desc:h.desc,type:h.type}))};
   report.classification=v61ClassifyYear(report);v80CompleteYear(newEvents,report);game.agency.lastAnnualReport=report;game.agency.totalAnnualAdvances=(game.agency.totalAnnualAdvances||0)+1;
   game.dev.lastAdvance={months:t.monthsSimulated,annual:true,interactive:true,plan:t.plan,before:{age:t.startAge,worldYear:before.worldYear,power:before.power},after:{age:game.ageMonths,worldYear:game.clock.year,power:overallPower()},interruptions:t.interruptions||0,riskSpent:report.riskSpent};
-  game.agency.annualTurn=null;saveGame();render();if(!game.alive)showDeath();
+  v91CompleteAnnualIntent();game.agency.annualTurn=null;saveGame();render();if(!game.alive)showDeath();
 }
 function v61ResumeAnnualTurn(){
   ensureV6();const t=game.agency.annualTurn;if(!t?.active||!game.alive||game.pendingDecision)return;v64EnsureRiskTurn(t);let safety=0;
