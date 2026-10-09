@@ -84,6 +84,10 @@ Elle modifie les réglages du plan annuel V6.5 déjà existant :
 
 Le reste du plan reste intact et peut toujours être personnalisé manuellement.
 
+Les patches d’intention sont appliqués sur une copie du plan de base de l’année : passer de Récupération à Ascension ne conserve donc pas les anciens réglages prudents.
+
+À la clôture du bilan annuel, l’intention revient automatiquement sur Équilibre et le plan préparatoire revient à sa base. Les presets V9.0 et les modifications manuelles reprennent également la priorité sur l’intention.
+
 ## Intégrations
 
 - V6.5 : les intentions réutilisent le vrai plan annuel.
