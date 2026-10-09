@@ -126,7 +126,7 @@ assert(html.includes('function v91CompleteAnnualIntent'),'Annual intent expiry h
 assert(html.includes('v91CompleteAnnualIntent();game.agency.annualTurn=null'),'Annual intent must expire when the yearly turn closes');
 assert(html.includes('intentBasePlan'),'Annual intent baseline preservation missing');
 assert(html.includes("$$('[data-v91-intent]').forEach"),'V9.1 intent binding must use querySelectorAll');
-assert(html.includes("$('[data-v91-ambition]').forEach"),'V9.1 ambition binding must use querySelectorAll');
+assert(html.includes("$$('[data-v91-ambition]').forEach"),'V9.1 ambition binding must use querySelectorAll');
 assert(html.includes('lastAmbitionChangeYear'),'V9.1 ambition cooldown persistence missing');
 assert(html.includes('state.lastAmbitionChangeYear=year;'),'Initial ambition choice must count for the yearly cooldown');
 assert(html.includes('faction:p.faction'),'Goal context must expose faction changes');
