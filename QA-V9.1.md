@@ -98,6 +98,15 @@ Les patches d’intention sont appliqués sur une copie du plan de base de l’a
 - V9.0 : la progression d'ambition apparaît dans le Cockpit de vie.
 - Les réussites de mission sont comptées de manière persistante pour survivre à la rotation de l'historique.
 
+## Cas de robustesse ajoutés
+
+- Un objectif de promotion mémorise la faction et le rang de départ.
+- Si le personnage change de faction, l'ancien objectif de rang est abandonné et régénéré avec la nouvelle hiérarchie.
+- Le choix initial d'ambition compte comme changement pour l'année en cours : impossible de changer immédiatement deux fois la même année.
+- Le runtime intégré simule plusieurs années réelles et vérifie la fin automatique des intentions.
+- Passer d'une intention à une autre repart toujours du plan annuel de base : aucun patch précédent ne fuit dans la nouvelle intention.
+- Le runtime vérifie également les bornes santé/énergie, le rendu de l'interface et une sauvegarde inférieure à 500 KiB.
+
 ## Migration
 
 - Les anciennes ambitions sont conservées.
