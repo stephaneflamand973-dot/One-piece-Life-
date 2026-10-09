@@ -2,6 +2,15 @@
 
 V9.1.6 — Goals & Player Agency 5.1
 
+## V9.1.8 — Ambition Identity
+
+- Survie possède désormais un objectif moyen **Tenir dans la durée** (+5 ans) et une étape courte **Passer une année de plus**.
+- Héritage priorise **Gagner une reconnaissance mondiale** et ajoute **Faire parler de toi** (+5 réputation mondiale).
+- Ces objectifs identitaires sont exclusifs à leur ambition.
+- Les 6 ambitions gardent des profils courts distincts.
+- SAVE_VERSION reste 910 ; seul GAME_VERSION passe à 9.1.8.
+- Cache PWA : **one-piece-life-v9-1-8**.
+
 ## Objectif
 
 La V9.1 transforme l'ancienne ambition descriptive en système jouable d'objectifs personnels sans garantir les résultats.
