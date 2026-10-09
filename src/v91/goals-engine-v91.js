@@ -53,6 +53,7 @@ function makeGoal(id,t,level,ctx,state){
   const start={year:num(ctx.year),rank:String(ctx.rank||''),rankIndex:num(ctx.rankIndex),region:String(ctx.region||''),faction:String(ctx.faction||''),career:String(ctx.career||'')};
   if(t.metric)start[t.metric]=metric(ctx,t.metric);
   if(t.metrics)for(const k of Object.keys(t.metrics))start[k]=metric(ctx,k);
+  if(t.kind==='wealth')start.money=metric(ctx,'money');
   const target={};
   if(t.kind==='delta')target.value=metric(ctx,t.metric)+num(t.delta);
   if(t.kind==='threshold')target.value=num(t.target);
