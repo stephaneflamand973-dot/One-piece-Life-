@@ -15,6 +15,7 @@ function normalizeState(state={}){
     annualIntent:data.intents[state.annualIntent]?state.annualIntent:'balanced',
     intentYear:Number.isFinite(Number(state.intentYear))?Number(state.intentYear):-99,
     intentBasePlan:state.intentBasePlan&&typeof state.intentBasePlan==='object'?clone(state.intentBasePlan):null,
+    lastAmbitionChangeYear:Number.isFinite(Number(state.lastAmbitionChangeYear))?Number(state.lastAmbitionChangeYear):-99,
     activeMedium:(Array.isArray(state.activeMedium)?state.activeMedium:[]).map(normalizeGoal).filter(Boolean).slice(0,2),
     activeShort:(Array.isArray(state.activeShort)?state.activeShort:[]).map(normalizeGoal).filter(Boolean).slice(0,3),
     completed:(Array.isArray(state.completed)?state.completed:[]).map(normalizeGoal).filter(Boolean).slice(0,30),
@@ -29,8 +30,8 @@ function longProgress(ambition,ctx={}){
   if(ambition==='power')return clamp(num(ctx.power)/85*100,0,100);
   if(ambition==='explore')return clamp(num(ctx.visited)/15*72+regionTier(ctx.region)/3*28,0,100);
   if(ambition==='wealth'){
-    const wealth=Math.max(0,num(ctx.money)+Math.max(0,num(ctx.tradeProfit)));
-    return clamp(Math.log10(1+wealth)/Math.log10(1+5000000)*100,0,100);
+    const wealth=Math.max(0,num(ctx.money)+Math.max(0,num(ctx.tradeProfit))*.5);
+    return clamp(Math.sqrt(wealth/5000000)*100,0,100);
   }
   if(ambition==='legacy')return clamp(num(ctx.worldRep)*.58+num(ctx.legacyScore)*.42,0,100);
   if(ambition==='protect')return clamp(num(ctx.worldRep)*.48+clamp(num(ctx.localRep),0,100)*.20+Math.min(32,num(ctx.strongRelations)*8),0,100);
