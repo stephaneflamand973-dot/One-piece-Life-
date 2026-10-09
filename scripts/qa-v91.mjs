@@ -99,6 +99,8 @@ assert(!html.includes('v91Ensure();v91Ensure();'),'V9.1 ensure must not run twic
 assert(!html.includes('showGame();v91Sync(true);'),'Passive render must not complete or log objectives');
 assert(html.includes('function v91OnManualPlanChange'),'Manual annual plan handoff missing');
 assert(html.includes('function v91OnPresetApplied'),'V9 preset handoff missing');
+assert(html.includes('function v91CompleteAnnualIntent'),'Annual intent expiry hook missing');
+assert(html.includes('v91CompleteAnnualIntent();game.agency.annualTurn=null'),'Annual intent must expire when the yearly turn closes');
 assert(html.includes('intentBasePlan'),'Annual intent baseline preservation missing');
 assert(html.includes("$$('[data-v91-intent]').forEach"),'V9.1 intent binding must use querySelectorAll');
 assert(html.includes("$$('[data-v91-ambition]').forEach"),'V9.1 ambition binding must use querySelectorAll');
