@@ -76,7 +76,7 @@ Une intention ne garantit jamais un résultat.
 Elle modifie les réglages du plan annuel V6.5 déjà existant :
 
 - Ascension -> carrière intensive ;
-- Maîtrise -> entraînement intensif ;
+- Maîtrise -> travail de maîtrise technique / Haki / Fruit / spécialité ;
 - Aventure -> exploration ;
 - Fortune -> ressources supplémentaires ;
 - Liens -> investissement relationnel ;
