@@ -94,7 +94,7 @@ for(const asset of ['src/data/goals-v91.js','src/v91/goals-engine-v91.js','src/v
 }
 assert(/one-piece-life-v9-1-\d+/.test(sw),'PWA cache not on V9.1.x');
 assert(html.includes('v90Ensure();v91Ensure()'),'Old-save V9.1 migration hook missing');
-for(const fn of ['function v91Module','function v91Ensure','function v91Context','function v91Sync','function v91ApplyIntent','function v91OnAmbitionChange','function v91RecordMission','function renderV91Goals']){
+for(const fn of ['function v91Module','function v91Ensure','function v91Context','function v91Sync','function v91ApplyIntent','function v91OnAmbitionChange','function v91ChangeAmbition','function v91RecordMission','function renderV91Goals']){
   assert(html.includes(fn),'Missing live V9.1 bridge '+fn);
 }
 assert(html.includes('id="v91GoalsBadge"'),'V9.1 goals UI shell missing');
@@ -114,7 +114,11 @@ assert(html.includes('function v91CompleteAnnualIntent'),'Annual intent expiry h
 assert(html.includes('v91CompleteAnnualIntent();game.agency.annualTurn=null'),'Annual intent must expire when the yearly turn closes');
 assert(html.includes('intentBasePlan'),'Annual intent baseline preservation missing');
 assert(html.includes("$$('[data-v91-intent]').forEach"),'V9.1 intent binding must use querySelectorAll');
-assert(html.includes("$$('[data-v91-ambition]').forEach"),'V9.1 ambition binding must use querySelectorAll');
+assert(html.includes("$('[data-v91-ambition]').forEach"),'V9.1 ambition binding must use querySelectorAll');
+assert(html.includes('lastAmbitionChangeYear'),'V9.1 ambition cooldown persistence missing');
+assert(html.includes('Tu as déjà redéfini ton ambition cette année.'),'V9.1 ambition yearly cooldown missing');
+assert(html.includes('Termine l’année en cours avant de redéfinir ton ambition.'),'V9.1 ambition active-year lock missing');
+assert(html.includes('v91OnAmbitionChange(true)'),'Initial ambition choice must bypass the yearly cooldown');
 assert(!/(?<!\$)\$\('\[data-v91-(?:intent|ambition)\]'\)\.forEach/.test(html),'V9.1 mono-element selector regression');
 assert(css.includes('.v91-ambition'),'V9.1 ambition styling missing');
 assert(css.includes('.v91-intents'),'V9.1 intention styling missing');
