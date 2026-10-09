@@ -97,6 +97,7 @@ assert(html.includes('function renderAmbition(){renderV91Goals()}'),'Legacy ambi
 assert(html.includes('v91CockpitText()'),'V9.0 cockpit does not surface ambition progress');
 assert(html.includes('function v91CockpitGoal'),'V9.1 personal goal cockpit helper missing');
 assert(html.includes("goal:'ambitionCard'"),'V9.1 cockpit goal navigation target missing');
+assert(html.includes("urgent=items.some(x=>x.severity==='critical'||x.severity==='high')"),'V9.1 calm cockpit goal protection missing');
 assert(!html.includes('v91Ensure();v91Ensure();'),'V9.1 ensure must not run twice in migration');
 assert(!html.includes('showGame();v91Sync(true);'),'Passive render must not complete or log objectives');
 assert(html.includes('function v91OnManualPlanChange'),'Manual annual plan handoff missing');
