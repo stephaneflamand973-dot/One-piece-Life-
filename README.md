@@ -1,4 +1,4 @@
-# ONE PIECE LIFE — V9.1.3 Goals & Player Agency 5.1
+# ONE PIECE LIFE — V9.1.4 Goals & Player Agency 5.1
 
 La V9.1 transforme l'ambition en véritable système de direction personnelle. Le joueur choisit **ce qu'il veut tenter d'accomplir**, tandis que le moteur conserve l'autorité sur les probabilités, les opportunités et les résultats.
 
@@ -13,10 +13,11 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - Les objectifs sont renouvelés automatiquement sans créer de monnaie ou de jauge artificielle.
 - Les promotions, victoires, voyages, relations, richesse, commerce, équipement et missions alimentent directement le système.
 - Les réussites de mission possèdent désormais un compteur persistant indépendant de la rotation de l'historique.
+- La première mission réussie après migration ne peut plus être comptée deux fois.
 - L'ambition **Survivre** dépend de l'âge, de la santé et de l'énergie.
 - L'ambition **Devenir puissant** dépend de la puissance réelle.
 - L'ambition **Explorer le monde** dépend des îles visitées et des grandes régions atteintes.
-- L'ambition **Faire fortune** dépend des Berry et des profits commerciaux.
+- L'ambition **Faire fortune** dépend des Berry et des profits commerciaux, avec une courbe recalibrée pour que 50 000 B restent un début de trajectoire.
 - L'ambition **Entrer dans l'histoire** dépend de la réputation mondiale et de l'héritage V8.0.
 - L'ambition **Protéger les autres** dépend de la réputation et des relations fortes.
 - **7 intentions annuelles** : Équilibre, Ascension, Maîtrise, Aventure, Fortune, Liens et Récupération.
@@ -32,7 +33,7 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - Aucun objectif personnel n'est généré avant 13 ans.
 - Migration V9.0.x → V9.1 automatique.
 - Save version : **910**.
-- Cache PWA : **one-piece-life-v9-1-3**.
+- Cache PWA : **one-piece-life-v9-1-4**.
 
 ---
 
