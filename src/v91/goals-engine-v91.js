@@ -16,13 +16,11 @@ function normalizeState(state={}){
     intentYear:Number.isFinite(Number(state.intentYear))?Number(state.intentYear):-99,
     intentBasePlan:state.intentBasePlan&&typeof state.intentBasePlan==='object'?clone(state.intentBasePlan):null,
     lastAmbitionChangeYear:Number.isFinite(Number(state.lastAmbitionChangeYear))?Number(state.lastAmbitionChangeYear):-99,
-    intentBasePlan:state.intentBasePlan&&typeof state.intentBasePlan==='object'?clone(state.intentBasePlan):null,
     activeMedium:(Array.isArray(state.activeMedium)?state.activeMedium:[]).map(normalizeGoal).filter(Boolean).slice(0,2),
     activeShort:(Array.isArray(state.activeShort)?state.activeShort:[]).map(normalizeGoal).filter(Boolean).slice(0,3),
     completed:(Array.isArray(state.completed)?state.completed:[]).map(normalizeGoal).filter(Boolean).slice(0,30),
     ambitionMilestones:Array.isArray(state.ambitionMilestones)?state.ambitionMilestones.map(Number).filter(x=>[25,50,75,100].includes(x)):[],
     lastRefreshYear:Number.isFinite(Number(state.lastRefreshYear))?Number(state.lastRefreshYear):-99,
-    lastAmbitionChangeYear:Number.isFinite(Number(state.lastAmbitionChangeYear))?Number(state.lastAmbitionChangeYear):-99,
     sequence:Math.max(0,Math.floor(num(state.sequence)))
   };
 }
