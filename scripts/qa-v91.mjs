@@ -47,6 +47,12 @@ const highWealth=engine.longProgress('wealth',{...base,money:1500000,tradeProfit
 gt(highWealth,lowWealth,'Wealth ambition should track actual assets');
 const earlyWealth=engine.longProgress('wealth',{...base,money:50000,tradeProfit:0});
 lt(earlyWealth,15,'50k Berry should remain early in a fortune ambition');
+const wealthState=engine.refresh({}, {...base,ambitionType:'wealth',money:50000});
+const wealthGoal=wealthState.activeMedium.find(x=>x.templateId==='wealth_reserve');
+assert(wealthGoal,'Wealth reserve goal should be generated for fortune ambition');
+eq(wealthGoal.start.money,50000,'Wealth goal must preserve its starting money');
+lt(engine.goalProgress(wealthGoal,{...base,money:50000}),1,'Fresh wealth goal should start near 0%');
+gt(engine.goalProgress(wealthGoal,{...base,money:75000}),0,'Wealth goal should progress only after actual gains');
 
 let state=engine.refresh({},base);
 eq(state.activeMedium.length,2,'Two medium goals should be active');
