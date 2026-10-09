@@ -1,6 +1,6 @@
 # ONE PIECE LIFE — QA V9.1
 
-V9.1.3 — Goals & Player Agency 5.1
+V9.1.5 — Goals & Player Agency 5.1
 
 ## Objectif
 
@@ -88,7 +88,7 @@ Les patches d’intention repartent toujours du plan de base de l’année. Pass
 
 Au bilan annuel, l’intention revient automatiquement sur Équilibre et le plan préparatoire retrouve sa base. Les presets V9.0 et les modifications manuelles reprennent également la priorité.
 
-Une ambition long terme ne peut pas être changée pendant une année active et une seule réorientation volontaire est autorisée par année. Le choix fondateur de jeunesse reste exempté de ce cooldown.
+Une ambition long terme ne peut pas être changée pendant une année active et une seule réorientation est autorisée par année. Le choix fondateur de jeunesse compte désormais lui aussi pour cette limite annuelle.
 
 ## Intégrations
 
@@ -100,6 +100,15 @@ Une ambition long terme ne peut pas être changée pendant une année active et 
 - V9.0 : la progression d'ambition apparaît dans le Cockpit de vie.
 - Les réussites de mission sont comptées de manière persistante pour survivre à la rotation de l'historique.
 
+## Robustesse V9.1.5
+
+- Les objectifs de rang enregistrent la faction et le rang de départ.
+- Un changement de faction invalide l'ancien objectif de promotion et le régénère sur la nouvelle hiérarchie.
+- Le choix initial d'ambition déclenche immédiatement le cooldown annuel.
+- Un runtime intégré simule plusieurs années et vérifie que les intentions expirent correctement.
+- Changer d'intention repart toujours du plan annuel de base : aucun patch précédent ne fuit dans le suivant.
+- Le runtime contrôle aussi les bornes santé/énergie, le rendu Objectifs et la taille de sauvegarde.
+
 ## Migration
 
 - Les anciennes ambitions sont conservées.
@@ -109,6 +118,6 @@ Une ambition long terme ne peut pas être changée pendant une année active et 
 
 ## Version
 
-- GAME_VERSION : **9.1.3**
+- GAME_VERSION : **9.1.5**
 - SAVE_VERSION : **910**
-- Cache PWA : **one-piece-life-v9-1-3**
+- Cache PWA : **one-piece-life-v9-1-5**
