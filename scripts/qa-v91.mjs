@@ -64,7 +64,7 @@ assert(tick.state.completed.length>=2,'Completed objective history missing');
 
 const mastery=engine.setIntent(tick.state,'mastery',21);
 assert(!mastery.error,'Valid mastery intent rejected');
-eq(mastery.patch.training,'hard','Mastery intent must affect the real training plan');
+eq(mastery.patch.training,'mastery','Mastery intent must affect the real mastery training plan');
 const recovery=engine.setIntent(mastery.state,'recovery',21);
 eq(recovery.patch.training,'recover','Recovery intent training patch mismatch');
 eq(recovery.patch.adventure,'cautious','Recovery intent adventure patch mismatch');
@@ -95,6 +95,9 @@ assert(html.includes("v91RecordMission('success')"),'Mission success counter hoo
 assert(html.includes('game.player.danger=dangerLevel();v91Sync(true);'),'Monthly goal evaluation hook missing');
 assert(html.includes('function renderAmbition(){renderV91Goals()}'),'Legacy ambition render handoff missing');
 assert(html.includes('v91CockpitText()'),'V9.0 cockpit does not surface ambition progress');
+assert(html.includes('function v91CockpitGoal'),'V9.1 personal goal cockpit helper missing');
+assert(html.includes("goal:'ambitionCard'"),'V9.1 cockpit goal navigation target missing');
+assert(html.includes("urgent=items.some(x=>x.severity==='critical'||x.severity==='high')"),'V9.1 calm cockpit goal protection missing');
 assert(!html.includes('v91Ensure();v91Ensure();'),'V9.1 ensure must not run twice in migration');
 assert(!html.includes('showGame();v91Sync(true);'),'Passive render must not complete or log objectives');
 assert(html.includes('function v91OnManualPlanChange'),'Manual annual plan handoff missing');

@@ -1,6 +1,6 @@
 # ONE PIECE LIFE — QA V9.1
 
-V9.1.1 — Goals & Player Agency 5.1
+V9.1.2 — Goals & Player Agency 5.1
 
 ## Objectif
 
@@ -76,7 +76,7 @@ Une intention ne garantit jamais un résultat.
 Elle modifie les réglages du plan annuel V6.5 déjà existant :
 
 - Ascension -> carrière intensive ;
-- Maîtrise -> entraînement intensif ;
+- Maîtrise -> travail de maîtrise technique / Haki / Fruit / spécialité ;
 - Aventure -> exploration ;
 - Fortune -> ressources supplémentaires ;
 - Liens -> investissement relationnel ;
@@ -107,6 +107,6 @@ Au bilan annuel, l’intention revient automatiquement sur Équilibre et le plan
 
 ## Version
 
-- GAME_VERSION : **9.1.1**
+- GAME_VERSION : **9.1.2**
 - SAVE_VERSION : **910**
-- Cache PWA : **one-piece-life-v9-1-1**
+- Cache PWA : **one-piece-life-v9-1-2**
