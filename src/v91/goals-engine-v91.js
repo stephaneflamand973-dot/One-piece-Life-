@@ -50,7 +50,7 @@ function eligibleTemplate(id,t,ctx,level){
   return true;
 }
 function makeGoal(id,t,level,ctx,state){
-  const start={year:num(ctx.year),rank:String(ctx.rank||''),rankIndex:num(ctx.rankIndex),region:String(ctx.region||'')};
+  const start={year:num(ctx.year),rank:String(ctx.rank||''),rankIndex:num(ctx.rankIndex),region:String(ctx.region||''),faction:String(ctx.faction||''),career:String(ctx.career||'')};
   if(t.metric)start[t.metric]=metric(ctx,t.metric);
   if(t.metrics)for(const k of Object.keys(t.metrics))start[k]=metric(ctx,k);
   const target={};
@@ -90,8 +90,17 @@ function pickTemplates(pool,level,ambition,ctx,state,count){
     .map(([id,t])=>({id,t,score:num(t.weight)+(Array.isArray(t.ambitions)&&t.ambitions.includes(ambition)?8:0)+(id==='stabilize'&&num(ctx.health)<55?8:0)+(id==='recover_now'&&num(ctx.energy)<45?8:0)+(id==='repair_gear'&&num(ctx.brokenEquipment)>0?9:0)}))
     .sort((a,b)=>b.score-a.score||a.id.localeCompare(b.id)).slice(0,count);
 }
+function staleGoal(goal,ctx={}){
+  if(!goal)return true;
+  if(goal.templateId==='career_rank'&&goal.start?.faction&&String(goal.start.faction)!==String(ctx.faction||''))return true;
+  if(goal.templateId==='crew_growth'&&!ctx.hasCrew)return true;
+  if(goal.templateId==='trade_growth'&&ctx.tradeAvailable===false)return true;
+  return false
+}
 function refresh(state,ctx={}){
   const s=normalizeState(state),amb=data.ambitions[ctx.ambitionType]?ctx.ambitionType:s.ambitionType;s.ambitionType=amb;
+  s.activeMedium=s.activeMedium.filter(g=>!staleGoal(g,ctx));
+  s.activeShort=s.activeShort.filter(g=>!staleGoal(g,ctx));
   if(s.activeMedium.length<2)for(const x of pickTemplates(data.mediumTemplates,'medium',amb,ctx,s,2-s.activeMedium.length))s.activeMedium.push(makeGoal(x.id,x.t,'medium',ctx,s));
   if(s.activeShort.length<3)for(const x of pickTemplates(data.shortTemplates,'short',amb,ctx,s,3-s.activeShort.length))s.activeShort.push(makeGoal(x.id,x.t,'short',ctx,s));
   s.lastRefreshYear=num(ctx.year);return s;
@@ -123,5 +132,5 @@ function summary(state,ctx={}){
   const decorate=g=>{const t=(g.level==='short'?data.shortTemplates:data.mediumTemplates)[g.templateId]||{};return {...g,label:t.label||g.templateId,desc:t.desc||'',progress:goalProgress(g,ctx)}};
   return {state:s,ambition:{id:s.ambitionType,...amb,progress:longProgress(s.ambitionType,ctx)},intent:{id:s.annualIntent,...(data.intents[s.annualIntent]||data.intents.balanced)},medium:s.activeMedium.map(decorate),short:s.activeShort.map(decorate),completed:s.completed.slice(0,6).map(decorate)};
 }
-registry.register('goalsEngineV91',{version:'9.1.0',normalizeState,longProgress,goalProgress,refresh,tick,setAmbition,setIntent,summary,regionTier});
+registry.register('goalsEngineV91',{version:'9.1.0',normalizeState,longProgress,goalProgress,refresh,tick,setAmbition,setIntent,summary,regionTier,staleGoal});
 })(window);
