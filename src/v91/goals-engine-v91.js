@@ -37,7 +37,8 @@ function longProgress(ambition,ctx={}){
   if(ambition==='protect')return clamp(num(ctx.worldRep)*.48+clamp(num(ctx.localRep),0,100)*.20+Math.min(32,num(ctx.strongRelations)*8),0,100);
   return 0;
 }
-function eligibleTemplate(id,t,ctx,level){
+function eligibleTemplate(id,t,ctx,level,ambition){
+  if(t.exclusive&&!(Array.isArray(t.ambitions)&&t.ambitions.includes(ambition)))return false;
   if(id==='career_rank'&&(!(num(ctx.rankIndex)>=0)||num(ctx.rankIndex)>=num(ctx.rankCount)-1))return false;
   if(id==='reach_region'&&regionTier(ctx.region)>=3)return false;
   if(id==='trade_growth'&&ctx.tradeAvailable===false)return false;
@@ -87,7 +88,7 @@ function goalProgress(goal,ctx={}){
 function recentCompleted(state,id,years=3,nowYear=0){return state.completed.some(g=>g.templateId===id&&num(g.completedYear)>=nowYear-years)}
 function pickTemplates(pool,level,ambition,ctx,state,count){
   const activeIds=new Set([...(state.activeMedium||[]),...(state.activeShort||[])].map(x=>x.templateId));
-  return Object.entries(pool).filter(([id,t])=>!activeIds.has(id)&&!recentCompleted(state,id,level==='short'?2:4,num(ctx.year))&&eligibleTemplate(id,t,ctx,level))
+  return Object.entries(pool).filter(([id,t])=>!activeIds.has(id)&&!recentCompleted(state,id,level==='short'?2:4,num(ctx.year))&&eligibleTemplate(id,t,ctx,level,ambition))
     .map(([id,t])=>({id,t,score:num(t.weight)+(Array.isArray(t.ambitions)&&t.ambitions.includes(ambition)?8:0)+(id==='stabilize'&&num(ctx.health)<55?8:0)+(id==='recover_now'&&num(ctx.energy)<45?8:0)+(id==='repair_gear'&&num(ctx.brokenEquipment)>0?9:0)}))
     .sort((a,b)=>b.score-a.score||a.id.localeCompare(b.id)).slice(0,count);
 }

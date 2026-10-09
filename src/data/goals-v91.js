@@ -22,13 +22,14 @@ const intents={
 };
 
 const mediumTemplates={
+  endure_years:{label:'Tenir dans la durée',desc:'Traverser cinq années supplémentaires sans abandonner ta trajectoire.',kind:'delta',metric:'ageYears',delta:5,ambitions:['survive'],exclusive:true,weight:11},
   power_growth:{label:'Franchir un palier de puissance',desc:'Augmenter ta puissance globale de 10 points.',kind:'delta',metric:'power',delta:10,ambitions:['power','legacy'],weight:10},
   combat_record:{label:'Enchaîner les victoires',desc:'Remporter cinq combats supplémentaires.',kind:'delta',metric:'wins',delta:5,ambitions:['power','legacy'],weight:9},
   career_rank:{label:'Atteindre le rang suivant',desc:'Faire progresser ta carrière jusqu’au prochain rang.',kind:'rank',ambitions:['legacy','protect','power'],weight:9},
   explore_islands:{label:'Découvrir trois nouvelles îles',desc:'Élargir réellement ta carte du monde.',kind:'delta',metric:'visited',delta:3,ambitions:['explore','legacy'],weight:10},
   reach_region:{label:'Atteindre une nouvelle mer',desc:'Changer de grande région et repousser ta frontière personnelle.',kind:'region',ambitions:['explore'],weight:9},
   wealth_reserve:{label:'Construire une nouvelle réserve',desc:'Augmenter significativement tes Berry disponibles.',kind:'wealth',ambitions:['wealth','legacy'],weight:10},
-  world_reputation:{label:'Gagner une reconnaissance mondiale',desc:'Faire progresser ta réputation mondiale de 12 points.',kind:'delta',metric:'worldRep',delta:12,ambitions:['legacy','protect'],weight:9},
+  world_reputation:{label:'Gagner une reconnaissance mondiale',desc:'Faire progresser ta réputation mondiale de 12 points.',kind:'delta',metric:'worldRep',delta:12,ambitions:['legacy','protect'],weight:11},
   build_bonds:{label:'Renforcer ton cercle proche',desc:'Créer deux relations solides supplémentaires.',kind:'delta',metric:'strongRelations',delta:2,ambitions:['protect','survive'],weight:9},
   mission_record:{label:'Construire un dossier solide',desc:'Réussir trois missions supplémentaires.',kind:'delta',metric:'missionWins',delta:3,ambitions:['legacy','protect','power'],weight:8},
   trade_growth:{label:'Faire fructifier ton commerce',desc:'Réaliser 30 000 B de bénéfice commercial supplémentaire.',kind:'delta',metric:'tradeProfit',delta:30000,ambitions:['wealth'],weight:9},
@@ -38,8 +39,10 @@ const mediumTemplates={
 
 const shortTemplates={
   recover_now:{label:'Récupérer',desc:'Revenir à 75% de santé et 60% d’énergie.',kind:'pair',metrics:{health:75,energy:60},ambitions:['survive','protect'],weight:10},
+  survive_year:{label:'Passer une année de plus',desc:'Traverser douze mois supplémentaires et continuer ta trajectoire.',kind:'delta',metric:'ageYears',delta:1,ambitions:['survive'],exclusive:true,weight:10},
   repair_gear:{label:'Réparer ton équipement',desc:'Ne plus avoir d’objet cassé équipé ou stocké.',kind:'zero',metric:'brokenEquipment',ambitions:['survive','power','protect'],weight:10},
   visit_one:{label:'Découvrir une nouvelle île',desc:'Ajouter une nouvelle destination à ton parcours.',kind:'delta',metric:'visited',delta:1,ambitions:['explore','legacy'],weight:8},
+  gain_fame:{label:'Faire parler de toi',desc:'Gagner 5 points de réputation mondiale.',kind:'delta',metric:'worldRep',delta:5,ambitions:['legacy'],exclusive:true,weight:10},
   gain_power:{label:'Progresser au combat',desc:'Gagner 3 points de puissance globale.',kind:'delta',metric:'power',delta:3,ambitions:['power','legacy'],weight:8},
   earn_money:{label:'Constituer une réserve',desc:'Gagner 10 000 B nets par rapport au début de l’objectif.',kind:'delta',metric:'money',delta:10000,ambitions:['wealth','survive'],weight:7},
   trade_step:{label:'Réaliser un bénéfice commercial',desc:'Ajouter 10 000 B de bénéfice commercial réalisé.',kind:'delta',metric:'tradeProfit',delta:10000,ambitions:['wealth'],weight:8},
