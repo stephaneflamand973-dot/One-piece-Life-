@@ -53,6 +53,17 @@ assert(wealthGoal,'Wealth reserve goal should be generated for fortune ambition'
 eq(wealthGoal.start.money,50000,'Wealth goal must preserve its starting money');
 lt(engine.goalProgress(wealthGoal,{...base,money:50000}),1,'Fresh wealth goal should start near 0%');
 gt(engine.goalProgress(wealthGoal,{...base,money:75000}),0,'Wealth goal should progress only after actual gains');
+const shortByAmbition={};
+for(const ambition of ['survive','power','explore','wealth','legacy','protect']){
+  shortByAmbition[ambition]=engine.refresh({}, {...base,ambitionType:ambition}).activeShort.map(x=>x.templateId);
+}
+assert(shortByAmbition.power.includes('gain_power'),'Power ambition should prioritize a combat short goal');
+assert(shortByAmbition.explore.includes('visit_one'),'Explore ambition should prioritize a travel short goal');
+assert(shortByAmbition.wealth.includes('earn_money')&&shortByAmbition.wealth.includes('trade_step'),'Wealth ambition should prioritize money and trade short goals');
+assert(shortByAmbition.protect.includes('one_bond'),'Protect ambition should prioritize a relationship short goal');
+assert(shortByAmbition.survive.includes('earn_money')||shortByAmbition.survive.includes('full_loadout'),'Survive ambition should prioritize resilience resources');
+eq(new Set(Object.values(shortByAmbition).map(x=>x.join('|'))).size,6,'Every ambition should expose a distinct short-goal profile');
+
 
 let state=engine.refresh({},base);
 eq(state.activeMedium.length,2,'Two medium goals should be active');
@@ -143,5 +154,6 @@ console.log('V9.1 GOALS & PLAYER AGENCY 5.1 QA OK',JSON.stringify({
   completed:tick.completed.map(x=>x.templateId),
   explorationGoals:changed.state.activeMedium.map(x=>x.templateId),
   rebasedRank:{from:rankGoal.start.faction,to:rebasedRank.start.faction},
-  powerProgress:{low:+lowPower.toFixed(1),high:+highPower.toFixed(1)}
+  powerProgress:{low:+lowPower.toFixed(1),high:+highPower.toFixed(1)},
+  shortProfiles:shortByAmbition
 }));
