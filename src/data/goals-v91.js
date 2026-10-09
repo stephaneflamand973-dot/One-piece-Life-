@@ -14,7 +14,7 @@ const ambitions={
 const intents={
   balanced:{label:'Équilibre',desc:'Ne force aucune direction. Laisse ton plan annuel actuel s’exprimer.',planPatch:{}},
   career:{label:'Ascension',desc:'Priorité à la carrière et aux responsabilités.',planPatch:{career:'hard'}},
-  mastery:{label:'Maîtrise',desc:'Priorité à l’entraînement et au développement personnel.',planPatch:{training:'hard'}},
+  mastery:{label:'Maîtrise',desc:'Priorité à la qualité technique, au Haki, au Fruit et à la spécialité.',planPatch:{training:'mastery'}},
   adventure:{label:'Aventure',desc:'Priorité aux voyages, découvertes et occasions d’exploration.',planPatch:{adventure:'explore'}},
   wealth:{label:'Fortune',desc:'Priorité aux revenus et opportunités matérielles.',planPatch:{resources:'extra'}},
   bonds:{label:'Liens',desc:'Priorité aux relations importantes et au réseau.',planPatch:{relations:'invest'}},
