@@ -70,6 +70,12 @@ assert(rebasedRank,'Career rank goal should be regenerated after faction change'
 assert(rebasedRank.uid!==rankGoal.uid,'Stale career goal should be replaced after faction change');
 eq(rebasedRank.start.faction,'Pirates','Regenerated rank goal must use the new faction');
 eq(rebasedRank.start.rankIndex,0,'Regenerated rank goal must use the new rank baseline');
+const noCareer=engine.refresh({}, {...base,career:'Aucune',rank:'Enfant',rankIndex:-1,rankCount:4});
+assert(!noCareer.activeMedium.some(x=>x.templateId==='career_rank'||x.templateId==='mission_record'),'Career goals must not appear before a career exists');
+const staleShort=engine.normalizeState({...state,activeShort:[{...state.activeShort[0],startedYear:15,progress:10}]});
+const refreshedStale=engine.refresh(staleShort,{...base,year:20});
+assert(!refreshedStale.activeShort.some(x=>x.uid===staleShort.activeShort[0].uid),'Stagnant short goals should rotate after four years');
+
 
 const progressed={...base,power:46,rank:'Sergent',rankIndex:3,wins:8,missionWins:3};
 const tick=engine.tick(state,progressed);
