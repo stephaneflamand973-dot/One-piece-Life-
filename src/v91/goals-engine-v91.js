@@ -15,6 +15,8 @@ function normalizeState(state={}){
     annualIntent:data.intents[state.annualIntent]?state.annualIntent:'balanced',
     intentYear:Number.isFinite(Number(state.intentYear))?Number(state.intentYear):-99,
     intentBasePlan:state.intentBasePlan&&typeof state.intentBasePlan==='object'?clone(state.intentBasePlan):null,
+    lastAmbitionChangeYear:Number.isFinite(Number(state.lastAmbitionChangeYear))?Number(state.lastAmbitionChangeYear):-99,
+    intentBasePlan:state.intentBasePlan&&typeof state.intentBasePlan==='object'?clone(state.intentBasePlan):null,
     activeMedium:(Array.isArray(state.activeMedium)?state.activeMedium:[]).map(normalizeGoal).filter(Boolean).slice(0,2),
     activeShort:(Array.isArray(state.activeShort)?state.activeShort:[]).map(normalizeGoal).filter(Boolean).slice(0,3),
     completed:(Array.isArray(state.completed)?state.completed:[]).map(normalizeGoal).filter(Boolean).slice(0,30),
