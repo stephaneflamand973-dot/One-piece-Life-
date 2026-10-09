@@ -35,6 +35,7 @@ on:
       - 'scripts/qa-v89.mjs'
       - 'scripts/qa-v90.mjs'
       - 'scripts/qa-v91.mjs'
+      - 'scripts/qa-v91-runtime.mjs'
       - 'app.js'
       - 'content-v1.js'
       - 'scripts/audit-v32.mjs'
@@ -111,6 +112,8 @@ jobs:
         run: node scripts/qa-v90.mjs
       - name: Run V9.1 Goals & Player Agency QA
         run: node scripts/qa-v91.mjs
+      - name: Run V9.1 integrated runtime QA
+        run: node scripts/qa-v91-runtime.mjs
       - name: Run legacy engine trend audit
         continue-on-error: true
         run: node scripts/audit-v32.mjs

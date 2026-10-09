@@ -1,4 +1,4 @@
-# ONE PIECE LIFE — V9.1.4 Goals & Player Agency 5.1
+# ONE PIECE LIFE — V9.1.5 Goals & Player Agency 5.1
 
 La V9.1 transforme l'ambition en véritable système de direction personnelle. Le joueur choisit **ce qu'il veut tenter d'accomplir**, tandis que le moteur conserve l'autorité sur les probabilités, les opportunités et les résultats.
 
@@ -30,10 +30,13 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - Le prochain objectif personnel pertinent peut aussi remonter dans le Cockpit comme priorité secondaire et ouvrir directement la section Objectifs.
 - L'ancien écran Ambition est réutilisé au lieu d'ajouter un nouvel écran.
 - Une ambition long terme ne peut être redéfinie qu’une fois par année et jamais pendant une année déjà en cours.
+- Le **choix initial d’ambition compte lui aussi pour cette limite annuelle**, afin d’éviter de choisir puis retourner immédiatement sa direction dans la même année.
+- Les objectifs de rang mémorisent leur faction d’origine et sont **rebasés automatiquement après un changement de faction**.
+- La CI exécute désormais un **runtime V9.1 multi-années** pour vérifier les intentions, les objectifs, le rendu et la taille de sauvegarde.
 - Aucun objectif personnel n'est généré avant 13 ans.
 - Migration V9.0.x → V9.1 automatique.
 - Save version : **910**.
-- Cache PWA : **one-piece-life-v9-1-4**.
+- Cache PWA : **one-piece-life-v9-1-5**.
 
 ---
 

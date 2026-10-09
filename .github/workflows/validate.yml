@@ -37,6 +37,7 @@ on:
       - 'scripts/qa-v89.mjs'
       - 'scripts/qa-v90.mjs'
       - 'scripts/qa-v91.mjs'
+      - 'scripts/qa-v91-runtime.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -180,3 +181,5 @@ jobs:
         run: node scripts/qa-v90.mjs
       - name: Validate V9.1 Goals & Player Agency
         run: node scripts/qa-v91.mjs
+      - name: Validate V9.1 integrated runtime
+        run: node scripts/qa-v91-runtime.mjs
