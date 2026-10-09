@@ -2866,8 +2866,9 @@ function renderV91Goals(){
     '<div class="v91-section"><div class="v91-section-title"><strong>Prochaines étapes</strong><span>se complètent automatiquement</span></div><div class="v91-objectives">'+sum.short.map(g=>v91GoalHtml(g,true)).join('')+'</div></div>'+
     (sum.completed.length?'<div class="v91-section"><div class="v91-section-title"><strong>Accomplissements récents</strong></div><div class="v91-completed">'+sum.completed.slice(0,4).map(g=>'<span>✓ '+esc(g.label)+'</span>').join('')+'</div></div>':'');
   const locked=!!game.agency?.annualTurn?.active;
+  const ambitionLocked=locked||Number(v91Ensure()?.lastAmbitionChangeYear)===game.clock.year;
   options.innerHTML='<div class="v91-section-title"><strong>Intention annuelle</strong><span>oriente le plan, jamais le résultat</span></div><div class="v91-intents">'+Object.entries(data.intents).map(([id,x])=>'<button class="v91-intent '+(sum.intent.id===id?'selected ':'')+(recommended.has(id)?'recommended':'')+'" data-v91-intent="'+esc(id)+'" '+(locked?'disabled':'')+'><strong>'+esc(x.label)+'</strong><small>'+esc(x.desc)+'</small></button>').join('')+'</div>'+
-    '<details class="v91-ambition-change"><summary>Changer d’ambition long terme</summary><div class="v91-ambition-buttons">'+Object.entries(data.ambitions).map(([id,x])=>'<button class="'+(p.ambitionType===id?'active':'')+'" data-v91-ambition="'+esc(id)+'">'+esc(x.label)+'</button>').join('')+'</div></details>';
+    '<details class="v91-ambition-change"><summary>Changer d’ambition long terme'+(ambitionLocked?' • verrouillé cette année':'')+'</summary><div class="v91-ambition-buttons">'+Object.entries(data.ambitions).map(([id,x])=>'<button class="'+(p.ambitionType===id?'active':'')+'" data-v91-ambition="'+esc(id)+'" '+(ambitionLocked&&p.ambitionType!==id?'disabled':'')+'>'+esc(x.label)+'</button>').join('')+'</div></details>';
   $$('[data-v91-intent]').forEach(b=>b.onclick=()=>v91ApplyIntent(b.dataset.v91Intent));
   $('[data-v91-ambition]').forEach(b=>b.onclick=()=>v91ChangeAmbition(b.dataset.v91Ambition))
 }
