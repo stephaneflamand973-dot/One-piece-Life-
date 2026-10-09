@@ -1,4 +1,4 @@
-# ONE PIECE LIFE — V9.1.2 Goals & Player Agency 5.1
+# ONE PIECE LIFE — V9.1.3 Goals & Player Agency 5.1
 
 La V9.1 transforme l'ambition en véritable système de direction personnelle. Le joueur choisit **ce qu'il veut tenter d'accomplir**, tandis que le moteur conserve l'autorité sur les probabilités, les opportunités et les résultats.
 
@@ -16,13 +16,15 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - L'ambition **Survivre** dépend de l'âge, de la santé et de l'énergie.
 - L'ambition **Devenir puissant** dépend de la puissance réelle.
 - L'ambition **Explorer le monde** dépend des îles visitées et des grandes régions atteintes.
-- L'ambition **Faire fortune** dépend des Berry et des profits commerciaux.
+- L'ambition **Faire fortune** dépend des Berry et des profits commerciaux, avec une courbe recalibrée pour que 50 000 B restent réellement un début de trajectoire.
 - L'ambition **Entrer dans l'histoire** dépend de la réputation mondiale et de l'héritage V8.0.
 - L'ambition **Protéger les autres** dépend de la réputation et des relations fortes.
 - **7 intentions annuelles** : Équilibre, Ascension, Maîtrise, Aventure, Fortune, Liens et Récupération.
 - Une intention modifie les vrais réglages V6.5 du plan annuel au lieu de créer un bonus caché.
 - Les autres domaines du plan restent inchangés et personnalisables.
 - Changer d’intention repart du plan de base de l’année : aucun réglage de l’intention précédente ne s’accumule.
+- Le changement d’ambition long terme est limité à une fois par année et ce verrou survit désormais aux sauvegardes/normalisations.
+- La première mission réussie après migration ne peut plus être comptée deux fois dans les objectifs.
 - À la clôture de l’année, l’intention revient sur **Équilibre** et le plan préparatoire retrouve sa base.
 - Un preset V9.0 ou une modification manuelle reprend immédiatement la priorité sur l’intention.
 - La progression de l'ambition apparaît dans le **Cockpit V9.0**.
@@ -31,7 +33,7 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - Aucun objectif personnel n'est généré avant 13 ans.
 - Migration V9.0.x → V9.1 automatique.
 - Save version : **910**.
-- Cache PWA : **one-piece-life-v9-1-1**.
+- Cache PWA : **one-piece-life-v9-1-3**.
 
 ---
 
