@@ -2792,7 +2792,15 @@ function v91Sync(logChanges=true){
   }
   return result
 }
-function v91RecordMission(outcome){if(outcome!=='success')return;const c=v91MissionCounters();c.missionWins=(Number(c.missionWins)||0)+1;v91Sync(true)}
+function v91RecordMission(outcome){
+  if(outcome!=='success')return;
+  const p=game.player,alreadyInitialized=!!p.goalsV91Counters?.initialized,c=v91MissionCounters();
+  if(!alreadyInitialized){
+    const visible=(game.history||[]).filter(h=>h.title==='Mission accomplie').length;
+    c.missionWins=Math.max(0,visible-1)
+  }
+  c.missionWins=(Number(c.missionWins)||0)+1;v91Sync(true)
+}
 function v91OnAmbitionChange(force=false){
   const mod=v91Module(),p=game.player;if(!mod||!p)return false;
   let state=mod.normalizeState(p.goalsV91||{ambitionType:p.ambitionType||'survive'});
