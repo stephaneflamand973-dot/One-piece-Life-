@@ -1,6 +1,17 @@
-# ONE PIECE LIFE — V9.1.6 Goals & Player Agency 5.1
+# ONE PIECE LIFE — V9.1.7 Goals & Player Agency 5.1
 
 La V9.1 transforme l'ambition en véritable système de direction personnelle. Le joueur choisit **ce qu'il veut tenter d'accomplir**, tandis que le moteur conserve l'autorité sur les probabilités, les opportunités et les résultats.
+
+## V9.1.7 — Goal Variety hotfix
+
+- Les objectifs courts sont désormais pondérés par ambition.
+- **Puissance** favorise progression de combat, missions et équipement.
+- **Exploration** favorise les nouvelles îles.
+- **Fortune** favorise réserve et bénéfice commercial.
+- **Protection** favorise liens, missions et stabilité.
+- **Survie** favorise récupération, équipement et réserve.
+- Ajout d'une étape courte dédiée : **Réaliser un bénéfice commercial**.
+- Aucun changement de schéma de sauvegarde : SAVE_VERSION reste 910.
 
 ## Goals & Player Agency 5.1
 
