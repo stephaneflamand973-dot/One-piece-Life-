@@ -1,6 +1,6 @@
 # ONE PIECE LIFE — QA V9.1
 
-V9.1.2 — Goals & Player Agency 5.1
+V9.1.3 — Goals & Player Agency 5.1
 
 ## Objectif
 
@@ -88,6 +88,8 @@ Les patches d’intention repartent toujours du plan de base de l’année. Pass
 
 Au bilan annuel, l’intention revient automatiquement sur Équilibre et le plan préparatoire retrouve sa base. Les presets V9.0 et les modifications manuelles reprennent également la priorité.
 
+Une ambition long terme ne peut pas être changée pendant une année active et une seule réorientation volontaire est autorisée par année. Le choix fondateur de jeunesse reste exempté de ce cooldown.
+
 ## Intégrations
 
 - V6.5 : les intentions réutilisent le vrai plan annuel.
@@ -107,6 +109,6 @@ Au bilan annuel, l’intention revient automatiquement sur Équilibre et le plan
 
 ## Version
 
-- GAME_VERSION : **9.1.2**
+- GAME_VERSION : **9.1.3**
 - SAVE_VERSION : **910**
-- Cache PWA : **one-piece-life-v9-1-2**
+- Cache PWA : **one-piece-life-v9-1-3**
