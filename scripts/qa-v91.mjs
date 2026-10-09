@@ -33,7 +33,7 @@ const base={
   year:20,ageYears:20,ambitionType:'power',power:35,money:50000,visited:4,region:'Grand Line',
   worldRep:8,localRep:20,strongRelations:1,missionWins:2,wins:3,tradeProfit:0,tradeAvailable:true,
   crewSize:0,hasCrew:false,brokenEquipment:0,equippedCount:2,health:90,energy:80,
-  career:'Marine',rank:'Caporal',rankIndex:2,rankCount:6,legacyScore:5
+  career:'Marine',faction:'Marine',rank:'Caporal',rankIndex:2,rankCount:6,legacyScore:5
 };
 
 const lowPower=engine.longProgress('power',{...base,power:20});
@@ -55,6 +55,13 @@ assert(state.activeMedium.some(x=>x.templateId==='power_growth'),'Power ambition
 const rankGoal=state.activeMedium.find(x=>x.templateId==='career_rank');
 assert(rankGoal,'Career rank goal should be generated in this context');
 eq(rankGoal.start.rankIndex,2,'Rank goal baseline must preserve the current rank index');
+eq(rankGoal.start.faction,'Marine','Rank goal must remember its source faction');
+const rebased=engine.refresh(state,{...base,faction:'Pirates',career:'Pirate',rank:'Mousse',rankIndex:0,rankCount:5});
+const rebasedRank=rebased.activeMedium.find(x=>x.templateId==='career_rank');
+assert(rebasedRank,'Career rank goal should be regenerated after faction change');
+assert(rebasedRank.uid!==rankGoal.uid,'Stale career goal should be replaced after faction change');
+eq(rebasedRank.start.faction,'Pirates','Regenerated rank goal must use the new faction');
+eq(rebasedRank.start.rankIndex,0,'Regenerated rank goal must use the new rank baseline');
 
 const progressed={...base,power:46,rank:'Sergent',rankIndex:3,wins:8,missionWins:3};
 const tick=engine.tick(state,progressed);
@@ -114,6 +121,8 @@ assert(html.includes('intentBasePlan'),'Annual intent baseline preservation miss
 assert(html.includes("$$('[data-v91-intent]').forEach"),'V9.1 intent binding must use querySelectorAll');
 assert(html.includes("$('[data-v91-ambition]').forEach"),'V9.1 ambition binding must use querySelectorAll');
 assert(html.includes('lastAmbitionChangeYear'),'V9.1 ambition cooldown persistence missing');
+assert(html.includes('state.lastAmbitionChangeYear=year;'),'Initial ambition choice must start the yearly cooldown');
+assert(html.includes('faction:p.faction'),'V9.1 goal context must expose faction changes');
 assert(html.includes('Tu as déjà redéfini ton ambition cette année.'),'V9.1 yearly reorientation cooldown missing');
 assert(html.includes('Termine l’année en cours avant de redéfinir ton ambition.'),'V9.1 active-year ambition lock missing');
 assert(!/(?<!\$)\$\('\[data-v91-(?:intent|ambition)\]'\)\.forEach/.test(html),'V9.1 mono-element selector regression');
@@ -127,5 +136,6 @@ console.log('V9.1 GOALS & PLAYER AGENCY 5.1 QA OK',JSON.stringify({
   initialMedium:state.activeMedium.map(x=>x.templateId),
   completed:tick.completed.map(x=>x.templateId),
   explorationGoals:changed.state.activeMedium.map(x=>x.templateId),
+  rebasedRank:{from:rankGoal.start.faction,to:rebasedRank.start.faction},
   powerProgress:{low:+lowPower.toFixed(1),high:+highPower.toFixed(1)}
 }));
