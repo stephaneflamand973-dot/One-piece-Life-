@@ -2757,7 +2757,7 @@ function v91Context(){
   const equipment=typeof v89Ensure==='function'?v89Ensure():p.equipmentV89,eqSummary=v89Module()&&equipment?v89Module().summary(equipment):null;
   const counters=v91MissionCounters(),market=p.marketV88||{};
   return {
-    year:game.clock.year,ageYears:game.ageMonths/12,ambitionType:p.ambitionType||'survive',
+    year:game.clock.year,ageYears:game.ageMonths/12,ambitionType:p.ambitionType||'survive',faction:p.faction,
     power:overallPower(),money:Number(p.money)||0,visited:(p.visited||[]).length,region:p.region,
     worldRep:Number(p.reputation?.world)||0,localRep:Number(p.reputation?.local)||0,strongRelations,
     missionWins:Number(counters.missionWins)||0,wins:Number(p.wins)||0,
@@ -2808,7 +2808,7 @@ function v91OnAmbitionChange(force=false){
   const year=game.clock.year;
   if(!force&&Number(state.lastAmbitionChangeYear)===year){toast('Tu as déjà redéfini ton ambition cette année.');return false}
   state=mod.setAmbition(state,p.ambitionType||'survive',v91Context()).state;
-  if(!force)state.lastAmbitionChangeYear=year;
+  state.lastAmbitionChangeYear=year;
   p.goalsV91=state;return true
 }
 function v91ChangeAmbition(id){
