@@ -1,5 +1,7 @@
 name: V9.1 QA
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     paths:
