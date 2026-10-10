@@ -39,7 +39,8 @@ function longProgress(ambition,ctx={}){
 }
 function eligibleTemplate(id,t,ctx,level,ambition){
   if(t.exclusive&&!(Array.isArray(t.ambitions)&&t.ambitions.includes(ambition)))return false;
-  if(id==='career_rank'&&(!(num(ctx.rankIndex)>=0)||num(ctx.rankIndex)>=num(ctx.rankCount)-1))return false;
+  if(id==='career_rank'&&(ctx.career==='Aucune'||!(num(ctx.rankIndex)>=0)||num(ctx.rankIndex)>=num(ctx.rankCount)-1))return false;
+  if(id==='mission_record'&&ctx.career==='Aucune')return false;
   if(id==='reach_region'&&regionTier(ctx.region)>=3)return false;
   if(id==='trade_growth'&&ctx.tradeAvailable===false)return false;
   if(id==='crew_growth'&&!ctx.hasCrew)return false;
@@ -94,9 +95,13 @@ function pickTemplates(pool,level,ambition,ctx,state,count){
 }
 function staleGoal(goal,ctx={}){
   if(!goal)return true;
-  if(goal.templateId==='career_rank'&&goal.start?.faction&&String(goal.start.faction)!==String(ctx.faction||''))return true;
+  if(goal.templateId==='career_rank'&&(ctx.career==='Aucune'||(goal.start?.faction&&String(goal.start.faction)!==String(ctx.faction||''))))return true;
+  if(goal.templateId==='mission_record'&&ctx.career==='Aucune')return true;
   if(goal.templateId==='crew_growth'&&!ctx.hasCrew)return true;
   if(goal.templateId==='trade_growth'&&ctx.tradeAvailable===false)return true;
+  const age=Math.max(0,num(ctx.year)-num(goal.startedYear)),progress=clamp(num(goal.progress),0,100);
+  if(goal.level==='short'&&age>=4&&progress<80)return true;
+  if(goal.level==='medium'&&age>=10&&progress<75)return true;
   return false
 }
 function refresh(state,ctx={}){
