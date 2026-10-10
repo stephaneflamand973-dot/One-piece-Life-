@@ -1,6 +1,6 @@
 # ONE PIECE LIFE — QA V9.1
 
-V9.1.6 — Goals & Player Agency 5.1
+V9.1.8 — Goals & Player Agency 5.1
 
 ## V9.1.8 — Ambition Identity
 
@@ -133,6 +133,15 @@ Une ambition long terme ne peut pas être changée pendant une année active et 
 
 ## Version
 
-- GAME_VERSION : **9.1.5**
+- GAME_VERSION : **9.1.8**
 - SAVE_VERSION : **910**
-- Cache PWA : **one-piece-life-v9-1-5**
+- Cache PWA : **one-piece-life-v9-1-8**
+
+
+## Certification finale V9.1.8
+
+- Gate local moteur : PASS sur les 6 ambitions.
+- 2 objectifs intermédiaires + 3 étapes courtes générés pour chaque ambition testée.
+- Persistance de l'intention annuelle et du cooldown d'ambition : PASS.
+- Intégrations mission, cockpit V9.0, PWA et bindings : PASS.
+- La CI V9.1 statique et le runtime multi-années doivent être verts avant fusion de cette certification.
