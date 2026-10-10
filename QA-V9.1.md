@@ -11,6 +11,16 @@ V9.1.8 — Goals & Player Agency 5.1
 - SAVE_VERSION reste 910 ; seul GAME_VERSION passe à 9.1.8.
 - Cache PWA : **one-piece-life-v9-1-8**.
 
+
+## V9.1.9 — Garde-fous finaux
+
+- Pas d’objectif de rang ou de mission avant une carrière réelle.
+- Les objectifs invalidés par le contexte sont retirés automatiquement.
+- Rotation des objectifs courts stagnants après 4 ans.
+- Rotation des objectifs intermédiaires stagnants après 10 ans.
+- V9.1 est incluse dans la chaîne générale d’assurance d’état V6.
+- Cache PWA : **one-piece-life-v9-1-9**.
+
 ## Objectif
 
 La V9.1 transforme l'ancienne ambition descriptive en système jouable d'objectifs personnels sans garantir les résultats.

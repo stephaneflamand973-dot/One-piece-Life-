@@ -1,6 +1,16 @@
-# ONE PIECE LIFE — V9.1.8 Goals & Player Agency 5.1
+# ONE PIECE LIFE — V9.1.9 Goals & Player Agency 5.1
 
 La V9.1 transforme l'ambition en véritable système de direction personnelle. Le joueur choisit **ce qu'il veut tenter d'accomplir**, tandis que le moteur conserve l'autorité sur les probabilités, les opportunités et les résultats.
+
+## V9.1.9 — Final Goals Reliability hotfix
+
+- Les objectifs de **rang** et de **missions** ne peuvent plus être générés avant l’entrée réelle dans une carrière.
+- Un objectif de carrière devenu invalide est retiré automatiquement.
+- Les objectifs courts bloqués pendant 4 ans avec moins de 80 % de progression tournent vers une nouvelle étape.
+- Les objectifs intermédiaires bloqués pendant 10 ans avec moins de 75 % de progression peuvent eux aussi être renouvelés.
+- V9.1 est désormais incluse dans la chaîne générale `ensureV6()`, afin que les anciennes routes d’exécution maintiennent toujours son état.
+- Aucun changement de schéma de sauvegarde : SAVE_VERSION reste 910.
+- Cache PWA : **one-piece-life-v9-1-9**.
 
 ## V9.1.8 — Ambition Identity hotfix
 
@@ -9,7 +19,7 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - Les nouveaux objectifs identitaires sont exclusifs à leur ambition afin d’éviter qu’ils contaminent les profils Exploration, Fortune ou Protection.
 - Les profils courts restent distincts pour les 6 ambitions.
 - Aucun changement de schéma de sauvegarde : SAVE_VERSION reste 910.
-- Cache PWA : **one-piece-life-v9-1-8**.
+- Cache PWA : **one-piece-life-v9-1-9**.
 
 ## V9.1.7 — Goal Variety hotfix
 
@@ -57,7 +67,7 @@ La V9.1 transforme l'ambition en véritable système de direction personnelle. L
 - Aucun objectif personnel n'est généré avant 13 ans.
 - Migration V9.0.x → V9.1 automatique.
 - Save version : **910**.
-- Cache PWA : **one-piece-life-v9-1-8**.
+- Cache PWA : **one-piece-life-v9-1-9**.
 
 ---
 

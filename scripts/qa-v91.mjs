@@ -87,6 +87,11 @@ assert(rebasedRank,'Career rank goal should be regenerated after faction change'
 assert(rebasedRank.uid!==rankGoal.uid,'Stale career goal should be replaced after faction change');
 eq(rebasedRank.start.faction,'Pirates','Regenerated rank goal must use the new faction');
 eq(rebasedRank.start.rankIndex,0,'Regenerated rank goal must use the new rank baseline');
+const noCareer=engine.refresh({}, {...base,career:'Aucune',rank:'Enfant',rankIndex:-1,rankCount:4});
+assert(!noCareer.activeMedium.some(x=>x.templateId==='career_rank'||x.templateId==='mission_record'),'Career goals must not appear before a career exists');
+const staleShort=engine.normalizeState({...state,activeShort:[{...state.activeShort[0],startedYear:15,progress:10}]});
+const refreshedStale=engine.refresh(staleShort,{...base,year:20});
+assert(!refreshedStale.activeShort.some(x=>x.uid===staleShort.activeShort[0].uid),'Stagnant short goals should rotate after four years');
 
 const progressed={...base,power:46,rank:'Sergent',rankIndex:3,wins:8,missionWins:3};
 const tick=engine.tick(state,progressed);
@@ -148,6 +153,7 @@ assert(html.includes("$('[data-v91-ambition]').forEach"),'V9.1 ambition binding 
 assert(html.includes('lastAmbitionChangeYear'),'V9.1 ambition cooldown persistence missing');
 assert(html.includes('state.lastAmbitionChangeYear=year;'),'Initial ambition choice must start the yearly cooldown');
 assert(html.includes('faction:p.faction'),'V9.1 goal context must expose faction changes');
+assert(html.includes('v89Ensure();v90Ensure();v91Ensure()'),'V9.1 must participate in ensureV6 runtime chain');
 assert(html.includes('Tu as déjà redéfini ton ambition cette année.'),'V9.1 yearly reorientation cooldown missing');
 assert(html.includes('Termine l’année en cours avant de redéfinir ton ambition.'),'V9.1 active-year ambition lock missing');
 assert(!/(?<!\$)\$\('\[data-v91-(?:intent|ambition)\]'\)\.forEach/.test(html),'V9.1 mono-element selector regression');
