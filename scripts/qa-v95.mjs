@@ -87,7 +87,7 @@ game.agency.annualTurn=null;game.pendingDecision={title:'Décision prioritaire'}
 const waiting=runtime.build();
 assert(waiting.some(x=>x.id==='decision'&&x.available),'Pending decision must be actionable');
 assert(waiting.some(x=>x.id==='doctrine:precision'&&!x.available),'Combat choices must lock on pending decision');
-assert(!runtime.execute('mission:mission_one')&&last==='mission:mission_one','Locked action should not execute');
+assert(!runtime.execute('mission:mission_one')&&last==='hook:x','Locked action should not execute');
 
 for(const file of ['src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.js','src/v95/action-hub-runtime-v95.js','src/v95/action-hub-v95.css']){
  assert(html.includes(file),'Missing page asset '+file);
