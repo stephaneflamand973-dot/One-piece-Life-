@@ -96,7 +96,7 @@ for(const asset of ['src/data/npc-lives-v92.js','src/v92/npc-lives-engine-v92.js
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v9-[2-9]-\d+/.test(sw),'PWA cache must remain V9.2+');
+assert(/one-piece-life-v(?:9-[2-9]|10)-\d+/.test(sw),'PWA cache must remain V9.2+');
 assert(html.includes('v91Ensure();v92Ensure()'),'Old-save V9.2 migration hook missing');
 for(const fn of ['function v92Module','function v92Ensure','function v92TrackedActors','function v92RelationActor','function v92NemesisActors','function v92Tick','function v92RecordWorldAction','function renderV92Lives']){
   assert(html.includes(fn),'Missing live V9.2 bridge '+fn);
