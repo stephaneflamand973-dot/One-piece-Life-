@@ -8,7 +8,10 @@ const actions={
   mission:{label:'Accomplir la mission',limit:3,cost:0,yields:[1,1,1],requires:['mission']},
   promotion:{label:'Demander une promotion',limit:1,cost:3,yields:[1],requires:['career','promotion']},
   rest:{label:'Se reposer',limit:4,cost:0,yields:[1,.86,.70,.60],requires:['recovery']},
-  navigation:{label:'Effectuer la traversée',limit:4,cost:8,yields:[1,1,1,1],requires:['travel']}
+  navigation:{label:'Effectuer la traversée',limit:4,cost:8,yields:[1,1,1,1],requires:['travel']},
+  career_support:{label:'Aider ton équipe',limit:2,cost:8,yields:[1,.85],requires:['career','land']},
+  career_initiative:{label:'Prendre une initiative',limit:2,cost:11,yields:[1,.8],requires:['career','land']},
+  career_bonus:{label:'Demander une prime',limit:1,cost:3,yields:[1],requires:['career','land']}
 };
 const trainingFocus={
   physical:{label:'Condition physique',activity:'physical'},
