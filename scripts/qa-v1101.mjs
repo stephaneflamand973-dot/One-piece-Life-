@@ -7,13 +7,20 @@ assert(html.includes('id="deleteSaveModal"')&&html.includes('id="deleteSaveCance
 assert(html.includes('aria-labelledby="deleteSaveTitle"')&&html.includes('aria-describedby="deleteSaveDescription"'));
 assert(html.includes('data-delete-slot=')&&html.includes('class="save-slot-delete"'),'Missing per-slot delete action');
 assert(html.includes('🗑 Supprimer cette sauvegarde'),'Existing saves need a prominent visible delete button');
+assert(html.includes('id="manageSavesBtn"')&&html.includes('Gérer / supprimer mes sauvegardes'),'Always-visible manager button missing');
+assert(html.includes('id="saveManagerModal"')&&html.includes('id="saveManagerList"'),'Manager modal missing');
+assert(html.includes('async function openSaveManager()')&&html.includes('function renderSaveManagerRows(')&&html.includes('function closeSaveManager()'),'Manager behavior missing');
+assert(html.includes("$('#manageSavesBtn').onclick=openSaveManager"),'Manager button not wired');
+const deletion=html.match(/async function deleteSlot\(slot\)\{([\s\S]*?)\n\}\nfunction platformInfo\(\)/)?.[1]||'';
+assert(deletion.includes('if(!indexedDeleted)return false'),'Failed IndexedDB transactions must not discard local copies');
+assert(deletion.indexOf("tx.objectStore(STORE).delete")<deletion.indexOf('localStorage.removeItem(localKey(slot))'),'IndexedDB deletion must commit before local deletion');
 assert(html.indexOf('id="saveSlots"')<html.indexOf('class="hero-card paper-card"'),'Saved game controls must appear before hero on home');
 assert(html.includes('ONE PIECE LIFE • V11.0.1')&&!html.includes('V8.7 • Islands & Settlements 4.0'),'Home hero must match V11.0.1');
 for(let n=1;n<=3;n++)assert(html.includes('data-delete-slot="'+n+'" disabled'),'Empty slot must show disabled delete affordance '+n);
 assert(html.includes('Aucune sauvegarde à supprimer'),'Empty slot label missing');
 assert(html.includes("updateViaCache:'none'")&&html.includes("controllerchange"),'Installed iPhone app must detect updates');
 assert(sw.includes("event.request.mode==='navigate'")&&sw.includes("cache:'no-store'"),'Navigation must bypass stale PWA shell');
-assert(sw.includes('one-piece-life-v11-0-1-hotfix3'),'Hotfix PWA cache missing');
+assert(sw.includes('one-piece-life-v11-0-1-hotfix4'),'Hotfix4 PWA cache missing');
 
 assert(html.includes('function requestDeleteSlot(')&&html.includes('async function confirmDeleteSlot(')&&html.includes('function cancelDeleteSlot('));
 assert(html.includes('async function deleteSlot(slot)')&&html.includes('localStorage.removeItem(localKey(slot))'));
