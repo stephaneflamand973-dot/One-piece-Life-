@@ -1,4 +1,4 @@
-name: Validate V10.9
+name: Validate V11.0
 on:
   push:
     branches: [main, v10-manual-life-actions, v10.0.1-manual-life-hotfix]
@@ -56,7 +56,10 @@ on:
       - 'src/data/adventure-v106.js'
       - 'src/v106/**'
       - 'scripts/qa-v106.mjs'
-      - 'QA-V10.9.md'
+      - 'QA-V11.0.md'
+      - 'src/data/sagas-v110.js'
+      - 'src/v110/**'
+      - 'scripts/qa-v110.mjs'
       - 'src/data/contracts-v109.js'
       - 'src/v109/**'
       - 'scripts/qa-v109.mjs'
@@ -133,11 +136,11 @@ jobs:
           new Function(m[1]);
           const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
           const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-          if(!html.includes('ONE PIECE LIFE — V10.9'))throw new Error('V10.9 title missing');
+          if(!html.includes('ONE PIECE LIFE — V11.0'))throw new Error('V11.0 title missing');
           if(saveVersion<1000)throw new Error('Save migration 950+ missing');
-          if(gameVersion!=='10.9.0')throw new Error('V10.9 game version missing');
+          if(gameVersion!=='11.0.0')throw new Error('V11.0 game version missing');
           const assets=[
-            'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js','src/v100/manual-life-v100.css','src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js','src/data/economy-v105.js','src/v105/economy-engine-v105.js','src/data/adventure-v106.js','src/v106/adventure-engine-v106.js','src/v106/adventure-v106.css','src/data/encounters-v107.js','src/v107/encounter-engine-v107.js','src/v107/encounters-v107.css','src/data/encounters-v108.js','src/v108/encounter-engine-v108.js','src/v108/encounters-v108.css','src/data/contracts-v109.js','src/v109/contract-engine-v109.js','src/v109/contracts-v109.css',
+            'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js','src/v100/manual-life-v100.css','src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js','src/data/economy-v105.js','src/v105/economy-engine-v105.js','src/data/adventure-v106.js','src/v106/adventure-engine-v106.js','src/v106/adventure-v106.css','src/data/encounters-v107.js','src/v107/encounter-engine-v107.js','src/v107/encounters-v107.css','src/data/encounters-v108.js','src/v108/encounter-engine-v108.js','src/v108/encounters-v108.css','src/data/contracts-v109.js','src/v109/contract-engine-v109.js','src/v109/contracts-v109.css','src/data/sagas-v110.js','src/v110/saga-engine-v110.js','src/v110/sagas-v110.css',
             'src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css',
             'src/data/combat-techniques-v72.js','src/v72/combat-engine-v72.js','src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js',
             'src/data/relation-personas-v74.js','src/v74/relation-persona-engine-v74.js','src/data/world-canon-v75.js','src/v75/world-canon-engine-v75.js',
@@ -167,8 +170,8 @@ jobs:
           for(const x of ['function v71Ensure','function v72CombatModule','function v73Module','function v74Module','function v75Module','function v76Module','function v77Module','function v78Module','function v79Module','function v80Module','function v80PriorityInterrupt','function v80RenderActiveTab','function v81Module','function v81Ensure','function v81QueueFaction','function renderV81FactionIdentity','function v82Module','function v82Ensure','function v82AnnualWorldTick','function v82QueueCampaign','function renderV82Campaigns','function v83Module','function v83Ensure','function v83BindCampaign','function v83Candidate','function v83QueueNemesis','function renderV83Nemeses','function v84Module','function v84Ensure','function v84MissionSupport','function v84Candidate','function v84QueueCrew','function v84RenderCrew','function v85Module','function v85Ensure','function v85RoutePreview','function v85TickVoyage','function renderV85Exploration','function v86Module','function v86Ensure','function v86MonthlyTick','function v86ResolveOpportunity','function renderV86Daily','function v87Module','function v87Ensure','function v87OnArrival','function v87Service','function renderV87Settlement','function v88Module','function v88Ensure','function v88Context','function v88MarketAvailable','function v88Trade','function renderV88Market','function v89Module','function v89Ensure','function v89EquipmentEffects','function v89MaybeLoot','function renderV89Equipment','function v90Module','function v90Ensure','function v90Context','function v90ApplyPreset','function renderV90GameFlow','function v91Module','function v91Ensure','function v91Context','function v91Sync','function v91ApplyIntent','function renderV91Goals','function v92Module','function v92Ensure','function v92TrackedActors','function v92Tick','function renderV92Lives','function v93Module','function v93Ensure','function v93Profile','function v93OnNpcLifeEvent','function v93MaybePromoteNemesis','function v93MaybeQueueBeat','function v93ResolveDecision','function renderV93Relationships'])if(!html.includes(x))throw new Error('missing '+x);
           if(!html.includes('id="v80DirectorCard"'))throw new Error('V8.0 Life Director UI missing');
           if(html.includes('renderTimeline();renderCharacter();renderAbilities();renderRelations();renderWorld();renderDev();v76AfterRender()'))throw new Error('eager heavy-panel render regression');
-          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V10.9'))throw new Error('manifest not V10.9');
-          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v10-9-0'))throw new Error('service worker cache not V10.9');
+          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V11.0'))throw new Error('manifest not V11.0');
+          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v11-0-0'))throw new Error('service worker cache not V11.0');
           for(const x of assets)if(!sw.includes(x))throw new Error('service worker missing modular asset '+x);
           console.log('V9.5 static + modular validation OK');
           NODE
@@ -258,16 +261,19 @@ jobs:
         run: node scripts/qa-v104.mjs
       - name: Verify V10.5 Economy and Assets
         run: node scripts/qa-v105.mjs
-      - name: Verify V10.9 Active Expeditions
+      - name: Verify V11.0 Active Expeditions
         run: node scripts/qa-v106.mjs
       - name: Verify V9.5 integrated real-game runtime
         run: node scripts/qa-v95-runtime.mjs
 
-      - name: Verify V10.9 branching encounters
+      - name: Verify V11.0 branching encounters
         run: node scripts/qa-v107.mjs
 
-      - name: Verify V10.9 contextual dialogues and battles
+      - name: Verify V11.0 contextual dialogues and battles
         run: node scripts/qa-v108.mjs
 
-      - name: Verify V10.9 NPC contracts and manual quotas
+      - name: Verify V11.0 NPC contracts and manual quotas
         run: node scripts/qa-v109.mjs
+
+      - name: Verify V11.0 player sagas and chapter quotas
+        run: node scripts/qa-v110.mjs
