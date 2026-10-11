@@ -57,8 +57,10 @@ assert(!engine.begin(state,ctx).ok,'Finished campaign is replayable');
 assert(!engine.select(state,created.saga.id,ctx).ok,'Finished saga selectable');
 let rivalry=engine.create(state,contract('b','challenge'),{year:24,success:false});assert(rivalry.saga.kind==='rivalry');
 let intrigue=engine.create(rivalry.state,contract('c','diplomacy'),{year:24,success:true});assert(intrigue.saga.kind==='intrigue');
-assert(!engine.create(intrigue.state,contract('d'),{year:24}).saga,'Active campaign limit not enforced');
-state=engine.select(intrigue.state,rivalry.saga.id,ctx).state;
+const third=engine.create(intrigue.state,contract('d'),{year:24});
+assert(third.saga,'Third concurrent saga should remain possible');
+assert(!engine.create(third.state,contract('e'),{year:24}).saga,'Active campaign limit not enforced');
+state=engine.select(third.state,rivalry.saga.id,ctx).state;
 for(let i=0;i<5;i++){
  const begin=engine.begin(state,ctx);assert(begin.ok);
  const fail=engine.resolve(begin.state,'confront',ctx,{success:1,injury:0});
