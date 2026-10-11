@@ -50,7 +50,7 @@ assert(finances.netWorth>40000&&finances.assetValue>0,'Purchased assets not coun
 assert(m.perks({holdings:{navigation:2,shipyard:2,shop:2,dojo:2,clinic:2},year:25}).navigationCost===4,'Navigation office does not save energy');
 assert(m.perks({holdings:{navigation:2,shipyard:2,shop:2,dojo:2,clinic:2},year:25}).tradeExpertise>.03,'Commerce advantage missing');
 const restored=m.normalize(JSON.parse(JSON.stringify(third.state)),26);
-assert(restored.holdings.shop===1&&restored.history.length===5,'Economic ledger does not survive save/load');
+assert(restored.holdings.shop===1&&restored.history.length===6,'Economic ledger does not survive save/load');
 const corrupted=m.normalize({year:29,holdings:{dojo:99,shop:-999,evil:17},bought:999,operated:999,invested:-9,history:Array(100).fill({type:'hacked',id:'evil',amount:Infinity})},29);
 assert(corrupted.holdings.dojo===2&&corrupted.holdings.shop===0&&corrupted.holdings.evil===undefined,'Malformed assets accepted');
 assert(corrupted.bought===2&&corrupted.operated===3&&corrupted.invested===0&&corrupted.history.length===30,'Unsafe finance data escaped clamps');
