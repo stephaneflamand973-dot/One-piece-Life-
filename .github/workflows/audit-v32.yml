@@ -1,4 +1,4 @@
-name: V9.3 Live Audit
+name: V9.4 Live Audit
 on:
   workflow_dispatch:
   push:
@@ -126,6 +126,8 @@ jobs:
         run: node scripts/qa-v93.mjs
       - name: Run V9.3 integrated runtime QA
         run: node scripts/qa-v93-runtime.mjs
+      - name: Run V9.4 World Intelligence QA
+        run: node scripts/qa-v94.mjs
       - name: Run legacy engine trend audit
         continue-on-error: true
         run: node scripts/audit-v32.mjs
