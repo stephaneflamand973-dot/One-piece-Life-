@@ -175,7 +175,7 @@ assert(hub.build().some(x=>x.id==='manual:career_support'&&x.available),'Career 
 assert(q.manual('career_support')===true,'Professional support action failed');
 assert(q.manual('career_initiative')===true,'Professional initiative failed');
 assert(g.player.careerV103.performance>60,'Professional actions did not improve performance');
-assert(q.manualStatus('career_bonus').available,'Successful work should unlock bonus request');
+assert(q.manualStatus('career_bonus').available,'Successful work should unlock bonus request: '+JSON.stringify({status:q.manualStatus('career_bonus'),performance:g.player.careerV103.performance,standing:g.player.careerV73.standing,energy:g.player.energy,identity:g.player.careerV103.identity,career:g.player.career}));
 const attemptedBonus=q.manual('career_bonus');
 assert(attemptedBonus===true,'Bonus review was not performed');
 assert(q.manualStatus('career_bonus').remaining===0,'Bonus request quota was not consumed');
