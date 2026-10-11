@@ -120,14 +120,14 @@ assert(!changed.error,'Valid ambition change rejected');
 eq(changed.state.ambitionType,'explore','Ambition change not persisted');
 assert(changed.state.activeMedium.some(x=>['explore_islands','reach_region'].includes(x.templateId)),'Explore ambition should create exploration goals');
 
-assert(/ONE PIECE LIFE — V9\.1(?:\.\d+)?/.test(html),'V9.1.x title missing');
-assert(/const SAVE_VERSION\s*=\s*910;/.test(html),'Save version 910 missing');
-{const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'';assert(/^9\.1\.\d+$/.test(v),'Game version 9.1.x missing')}
+assert(/ONE PIECE LIFE — V9\.(?:1(?:\.\d+)?|[2-9](?:\.\d+)*)/.test(html),'V9.1+ title missing');
+assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=910,'Save version 910+ missing');
+{const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0',p=v.split('.').map(Number);assert(p[0]>9||(p[0]===9&&p[1]>=1),'Game version 9.1+ missing')}
 for(const asset of ['src/data/goals-v91.js','src/v91/goals-engine-v91.js','src/v91/goals-v91.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v9-1-\d+/.test(sw),'PWA cache not on V9.1.x');
+assert(/one-piece-life-v9-[1-9]-\d+/.test(sw),'PWA cache must remain on V9.1 or newer');
 assert(html.includes('v90Ensure();v91Ensure()'),'Old-save V9.1 migration hook missing');
 for(const fn of ['function v91Module','function v91Ensure','function v91Context','function v91Sync','function v91ApplyIntent','function v91OnAmbitionChange','function v91ChangeAmbition','function v91RecordMission','function renderV91Goals']){
   assert(html.includes(fn),'Missing live V9.1 bridge '+fn);
