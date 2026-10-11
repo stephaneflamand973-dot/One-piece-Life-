@@ -1,7 +1,7 @@
 {
   "name": "ONE PIECE LIFE",
   "short_name": "OP LIFE",
-  "description": "ONE PIECE LIFE V11.0.1 — Suppression des sauvegardes directement sur l'accueil avec confirmation",
+  "description": "ONE PIECE LIFE V11.0.1 — Gameplay épuré : activités, résultats, vieillissement manuel et gestion des sauvegardes",
   "id": "./",
   "start_url": "./",
   "scope": "./",
