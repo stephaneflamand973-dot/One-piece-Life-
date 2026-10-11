@@ -89,7 +89,7 @@ eq(rows.totalTracked,1,'NPC summary tracked count mismatch');
 assert(rows.local.length===1,'Local NPC summary should expose actor');
 assert(rows.local[0].careerLabel,'Career label missing from summary');
 
-assert(/ONE PIECE LIFE — V9\.[2-9](?:\.\d+)?/.test(html),'V9.2+ title missing');
+assert(/ONE PIECE LIFE — V(?:9\.[2-9]|10\.\d+)(?:\.\d+)?/.test(html),'V9.2+ title missing');
 assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=920,'Save version 920+ missing');
 {const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'',p=v.split('.').map(Number);assert(p[0]>9||(p[0]===9&&p[1]>=2),'Game version 9.2+ missing')}
 for(const asset of ['src/data/npc-lives-v92.js','src/v92/npc-lives-engine-v92.js','src/v92/npc-lives-v92.css']){
