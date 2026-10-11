@@ -4,7 +4,7 @@ const html=fs.readFileSync('index.html','utf8');
 let source=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 const init="init().catch(()=>{storageFallback=true;renderSlots();startupMessage('Démarrage en mode de secours local.','warn')});";
 assert(source&&source.includes(init),'Game runtime entrypoint missing');
-source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,socialStatus:v104Status,socialAction:v104Perform,economyStatus:v105ActionStatus,economySelect:v105SelectTarget,economyPerks:v105Perks,adventureStatus:v106Status,adventureApproach:v106SetApproach,adventureState:v106Ensure,encounterState:v107Ensure,encounterModule:v107Module,contractSelect:v109Select,contractStatus:v109Status,sagaSelect:v110Select,sagaStatus:v110Status,sagaState:v110Ensure,advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
+source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,socialStatus:v104Status,socialAction:v104Perform,economyStatus:v105ActionStatus,economySelect:v105SelectTarget,economyPerks:v105Perks,adventureStatus:v106Status,adventureApproach:v106SetApproach,adventureState:v106Ensure,encounterState:v107Ensure,encounterModule:v107Module,contractSelect:v109Select,contractStatus:v109Status,sagaSelect:v110Select,sagaStatus:v110Status,sagaState:v110Ensure,saveSlotMarkup:slotHtml,renderSlots,requestDeleteSlot,confirmDeleteSlot,cancelDeleteSlot,deleteSlot,loadSlot,setStorageBackend(d,fallback=false){db=d;storageFallback=fallback},advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
 const elements=new Map();
 function el(sel){
  if(!elements.has(sel)){
@@ -56,7 +56,7 @@ g.player.specialization='combat';
 g.missionBoard=[{id:'v95_escort_qa',title:'Escorte de QA',desc:'Protéger un convoi',reward:1500,duration:3,danger:'low',power:20,type:'escort'}];
 g.relations.push({id:'v95_friend',name:'Nami QA',role:'Ami',affection:60,respect:67,trust:69,loyalty:60,familiarity:67,rivalry:1,status:'active',ambition:'Loyauté',temperament:'Curieux'});
 q.ensure();
-assert(q.gameVersion==='11.0.0'&&q.saveVersion===1000,'Version mismatch');
+assert(q.gameVersion==='11.0.1'&&q.saveVersion===1000,'Version mismatch');
 const hub=q.hub();assert(hub&&hub.version==='9.5.0','Live Action Hub failed to initialize');
 let actions=hub.build();
 assert(actions.some(x=>x.id==='mission:v95_escort_qa'&&x.available),'Live mission action missing');
@@ -368,3 +368,44 @@ console.log('V10.6 INTEGRATED ADVENTURE QA OK',JSON.stringify({prepared:g.player
 
 console.log('V10.1 INTEGRATED RUNTIME QA OK',JSON.stringify({tabs:['life','actions','character','relations','world'],actions:actions.length,
  favorites:g.meta.actionHubV95.favorites.length,lastAction:g.meta.actionHubV95.recent[0],saveVersion:q.saveVersion}));
+
+/* V11.0.1 : full menu deletion using the real save functions and simulated storage. */
+q.setGame(null);q.setStorageBackend(null,true);
+const slotA={player:{name:'Sauvegarde A',faction:'Marine',island:'Loguetown'},ageMonths:24*12,version:'11.0.0',seed:111};
+const slotB={player:{name:'Sauvegarde B',faction:'Pirates',island:'Water 7'},ageMonths:25*12,version:'11.0.0',seed:222};
+store.set('opl-slot-1',JSON.stringify(slotA));store.set('opl-slot-2',JSON.stringify(slotB));
+await q.renderSlots();
+assert(el('#saveSlots').innerHTML.includes('data-delete-slot="1"')&&el('#saveSlots').innerHTML.includes('data-delete-slot="2"'),'Occupied slots lack delete buttons');
+assert(!el('#saveSlots').innerHTML.includes('data-delete-slot="3"'),'Empty slot has a delete button');
+assert(!q.requestDeleteSlot(3,null),'Empty slot must not open confirmation');
+assert(q.requestDeleteSlot(1,slotA),'First save cannot request deletion');
+assert(el('#deleteSaveDescription').textContent.includes('Sauvegarde A')&&el('#deleteSaveDescription').textContent.includes('emplacement 1'),'Confirmation does not identify save');
+assert(q.cancelDeleteSlot(),'Cancellation failed');
+assert(store.has('opl-slot-1')&&store.has('opl-slot-2'),'Cancellation modified save data');
+assert(q.requestDeleteSlot(1,slotA),'Confirmation cannot reopen');
+assert(await q.confirmDeleteSlot(),'Local delete was not confirmed');
+assert(!store.has('opl-slot-1')&&store.has('opl-slot-2'),'Deletion damaged other slots or failed');
+assert(el('#saveSlots').innerHTML.includes('Nouvelle vie')&&el('#saveSlots').innerHTML.includes('Sauvegarde B'),'Home slots were not refreshed');
+assert(!await q.deleteSlot(0)&&!await q.deleteSlot(4),'Invalid save slot allowed');
+await q.renderSlots();
+assert(!el('#saveSlots').innerHTML.includes('data-delete-slot="1"'),'Deleted save returned after render');
+assert(q.requestDeleteSlot(2,slotB),'Other save not individually deletable');
+assert(await q.confirmDeleteSlot()&&!store.has('opl-slot-2'),'Other save could not be deleted independently');
+const indexed=new Map([['slot-3',{id:'slot-3',game:slotA,updatedAt:1}]]);
+const fakeDb={transaction(_name,_mode){const tx={oncomplete:null,onerror:null,onabort:null,
+ objectStore(){return{delete(id){queueMicrotask(()=>{indexed.delete(id);tx.oncomplete?.()})},
+ get(id){const req={result:null,onsuccess:null,onerror:null};
+ queueMicrotask(()=>{req.result=indexed.get(id)||null;req.onsuccess?.()});return req}}}};return tx}};
+store.set('opl-slot-3',JSON.stringify(slotB));
+q.setStorageBackend(fakeDb,false);
+await q.renderSlots();
+assert(el('#saveSlots').innerHTML.includes('Sauvegarde A'),'IndexedDB save not shown');
+assert(q.requestDeleteSlot(3,slotA),'IndexedDB save cannot request deletion');
+assert(await q.confirmDeleteSlot(),'IndexedDB delete did not confirm');
+assert(!indexed.has('slot-3')&&!store.has('opl-slot-3'),'IndexedDB/local fallback not both deleted');
+assert(await q.loadSlot(3)===null,'Deleted IndexedDB save can still be loaded');
+assert(!el('#saveSlots').innerHTML.includes('data-delete-slot="3"'),'IndexedDB deleted slot remains occupied');
+q.setStorageBackend({transaction(){throw Error('IndexedDB unavailable')}},false);
+assert(!await q.deleteSlot(1),'Database failure falsely reported success');
+q.setStorageBackend(null,true);
+console.log('V11.0.1 INTEGRATED HOME SAVE DELETION QA OK');

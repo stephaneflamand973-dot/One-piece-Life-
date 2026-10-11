@@ -1,4 +1,4 @@
-name: V11.0 QA
+name: V11.0.1 QA
 on:
   push:
     branches: [main, v10-manual-life-actions, v10.0.1-manual-life-hotfix]
@@ -53,7 +53,8 @@ on:
       - 'scripts/qa-v106.mjs'
       - 'src/data/adventure-v106.js'
       - 'src/v106/**'
-      - 'QA-V11.0.md'
+      - 'QA-V11.0.1.md'
+      - 'scripts/qa-v1101.mjs'
       - 'src/data/sagas-v110.js'
       - 'src/v110/**'
       - 'scripts/qa-v110.mjs'
@@ -195,7 +196,7 @@ jobs:
         run: node scripts/qa-v94.mjs
       - name: Verify V9.5 Action Hub & UX 6.0
         run: node scripts/qa-v95.mjs
-      - name: Verify V11.0 Active Expeditions
+      - name: Verify V11.0.1 Active Expeditions
         run: node scripts/qa-v106.mjs
       - name: Verify V9.5 integrated real-game runtime
         run: node scripts/qa-v95-runtime.mjs
@@ -214,14 +215,17 @@ jobs:
       - name: Verify V10.5 Economy and Assets
         run: node scripts/qa-v105.mjs
 
-      - name: Verify V11.0 branching encounters
+      - name: Verify V11.0.1 branching encounters
         run: node scripts/qa-v107.mjs
 
-      - name: Verify V11.0 contextual dialogues and battles
+      - name: Verify V11.0.1 contextual dialogues and battles
         run: node scripts/qa-v108.mjs
 
-      - name: Verify V11.0 NPC contracts and manual quotas
+      - name: Verify V11.0.1 NPC contracts and manual quotas
         run: node scripts/qa-v109.mjs
 
-      - name: Verify V11.0 player sagas and chapter quotas
+      - name: Verify V11.0.1 player sagas and chapter quotas
         run: node scripts/qa-v110.mjs
+
+      - name: Verify V11.0.1 save deletion and confirmation
+        run: node scripts/qa-v1101.mjs

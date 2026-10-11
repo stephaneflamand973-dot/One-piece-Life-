@@ -1,3 +1,16 @@
+# ONE PIECE LIFE V11.0.1 : Suppression des sauvegardes sur l'accueil
+
+- Un bouton **Supprimer** apparaît sous chaque emplacement de sauvegarde occupé.
+- Avant de confirmer, une fenêtre précise le **nom du personnage** et le **numéro d'emplacement**.
+- La confirmation supprime la partie à la fois du stockage local et d'IndexedDB, avec vérification de l'effacement. L'annulation ne modifie rien.
+- Une suppression libère uniquement l'emplacement sélectionné et affiche immédiatement « Nouvelle vie ». Les deux autres sauvegardes sont préservées.
+- Cette fonctionnalité est accessible sur mobile, sans démarrer la partie. Les anciennes parties restent compatibles.
+- GAME_VERSION **11.0.1**, SAVE_VERSION **1000**, cache PWA **one-piece-life-v11-0-1**.
+
+Voir [QA-V11.0.1.md](QA-V11.0.1.md).
+
+---
+
 # ONE PIECE LIFE V11.0 : Sagas personnelles et choix décisifs
 
 - Après un contrat, **une saga en trois chapitres** peut naître avec un contact connu : alliance, intrigue de faction ou rivalité.

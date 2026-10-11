@@ -1,7 +1,7 @@
 {
   "name": "ONE PIECE LIFE",
   "short_name": "OP LIFE",
-  "description": "ONE PIECE LIFE V11.0 — Sagas personnelles interactives en trois chapitres, arcs de personnages et choix manuels",
+  "description": "ONE PIECE LIFE V11.0.1 — Suppression des sauvegardes directement sur l'accueil avec confirmation",
   "id": "./",
   "start_url": "./",
   "scope": "./",
