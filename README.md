@@ -1,3 +1,20 @@
+# ONE PIECE LIFE — V10.3 Carrières et organisations 2.0
+
+Cette version relie les **actions professionnelles manuelles** à des performances mesurables et au dossier de promotion V7.3.
+
+- Six profils de rémunération par faction ; les salaires dépendent aussi du grade et de la méthode de travail.
+- Travail régulier, intensif ou stratégique, avec coûts réels d’énergie et choix enregistré.
+- Performance professionnelle persistante, revenus cumulés, séances et historique de carrière.
+- Aider l'équipe (2/an), prendre une initiative (2/an) et demander une prime (1/an) directement dans le Centre d’actions et le tableau Carrière.
+- Standing, confiance et influence de V7.3 se renforcent par les actions effectuées. Promotions toujours manuelles.
+- Moteur V10.2 conservé : quotas communs, rendements décroissants, validation centralisée, aucune progression professionnelle automatique lors du passage d'une année.
+
+**GAME_VERSION 10.3.0 • SAVE_VERSION 1000 • CACHE one-piece-life-v10-3-0**
+
+Voir [QA-V10.3.md](QA-V10.3.md) pour les tests et limites de cette livraison.
+
+---
+
 # ONE PIECE LIFE — V10.2 Action Engine 2.0
 
 Le jeu passe à des **actions répétables à rendement décroissant**, toujours sans progression automatique lors du passage d'une année.

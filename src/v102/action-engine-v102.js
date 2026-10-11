@@ -29,15 +29,16 @@ function status(raw,id,year,context={}){
   const s=normalize(raw,year),a=data.actions[id];
   if(!a)return {available:false,id,remaining:0,limit:0,cost:0,efficiency:0,reason:'Action inconnue.'};
   const count=s.spent[id]||0,remaining=a.limit-count,efficiency=a.yields[Math.min(count,a.yields.length-1)],energy=Number(context.energy??100);
+  const cost=Math.max(0,Number.isFinite(Number(context.costOverrides?.[id]))?Number(context.costOverrides[id]):a.cost);
   let reason='';
   if(context.alive===false)reason='Cette vie est terminée.';
   else if(context.pending)reason='Résous d’abord la décision en attente.';
   else if(remaining<=0)reason='Limite annuelle atteinte. Avance d’un an pour renouveler cette action.';
-  else if(!Number.isFinite(energy)||energy<a.cost)reason='Énergie insuffisante.';
+  else if(!Number.isFinite(energy)||energy<cost)reason='Énergie insuffisante.';
   else for(const gate of a.requires){
     if(context[gate]===false){reason=gate==='promotion'&&context.promotionReason?String(context.promotionReason):needs[gate];break}
   }
-  return {available:!reason,id,remaining:Math.max(0,remaining),limit:a.limit,spent:count,cost:a.cost,
+  return {available:!reason,id,remaining:Math.max(0,remaining),limit:a.limit,spent:count,cost,
     efficiency,reason,label:a.label,repeatable:a.limit>1};
 }
 function perform(raw,id,year,context,applyEffect){
