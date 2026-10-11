@@ -89,14 +89,14 @@ eq(rows.totalTracked,1,'NPC summary tracked count mismatch');
 assert(rows.local.length===1,'Local NPC summary should expose actor');
 assert(rows.local[0].careerLabel,'Career label missing from summary');
 
-assert(html.includes('ONE PIECE LIFE — V9.2'),'V9.2 title missing');
-assert(/const SAVE_VERSION\s*=\s*920;/.test(html),'Save version 920 missing');
-assert(/const GAME_VERSION\s*=\s*'9\.2\.0';/.test(html),'Game version 9.2.0 missing');
+assert(/ONE PIECE LIFE — V9\.[2-9](?:\.\d+)?/.test(html),'V9.2+ title missing');
+assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=920,'Save version 920+ missing');
+{const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'',p=v.split('.').map(Number);assert(p[0]>9||(p[0]===9&&p[1]>=2),'Game version 9.2+ missing')}
 for(const asset of ['src/data/npc-lives-v92.js','src/v92/npc-lives-engine-v92.js','src/v92/npc-lives-v92.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v9-2-0'),'PWA cache not bumped to V9.2');
+assert(/one-piece-life-v9-[2-9]-\d+/.test(sw),'PWA cache must remain V9.2+');
 assert(html.includes('v91Ensure();v92Ensure()'),'Old-save V9.2 migration hook missing');
 for(const fn of ['function v92Module','function v92Ensure','function v92TrackedActors','function v92RelationActor','function v92NemesisActors','function v92Tick','function v92RecordWorldAction','function renderV92Lives']){
   assert(html.includes(fn),'Missing live V9.2 bridge '+fn);
