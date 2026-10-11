@@ -36,6 +36,7 @@ assert(fail.healthLoss>=1,'Failed dangerous expedition can hurt player');
 assert(!engine.status(s,'expedition_prepare',{...ctx,energy:0}).available,'Energy gate omitted');
 assert(engine.normalize(s,24,'Water 7').preparedness===0,'Preparations persist after changing islands');
 assert(engine.normalize(s,24,ctx.island).missionBonus===s.missionBonus,'Aging improperly grants or clears mission plan');
+assert(engine.normalize(s,24,ctx.island).commandBoost===0,'Crew command bonus should expire at the next annual action reset');
 const bad=engine.normalize({preparedness:Infinity,commandBoost:999,missionBonus:-5,totalCosts:-1,expeditions:1e16,history:Array(40).fill({kind:'hack',place:'x'})},23,'Water 7');
 assert(bad.preparedness>=0&&bad.preparedness<=80&&bad.commandBoost===12&&bad.missionBonus===0&&bad.history.length===24);
 let ledger=registry.normalize({},23);
