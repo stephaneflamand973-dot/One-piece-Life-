@@ -101,7 +101,7 @@ for(const asset of ['src/data/faction-identity-v81.js','src/v81/faction-identity
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:8-[1-9]|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.1 or newer');
+assert(/one-piece-life-v(?:8-[1-9]|9-\d+|10)-\d+/.test(sw),'PWA cache must remain at V8.1 or newer');
 assert(html.includes("factionV81:{version:1"),'Fresh V8.1 state missing');
 assert(html.includes('v80Ensure();v81Ensure();'),'Old-save V8.1 migration hook missing');
 assert(html.includes('id="v81FactionCard"'),'Faction identity UI card missing');
