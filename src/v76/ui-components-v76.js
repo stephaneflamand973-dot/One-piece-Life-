@@ -9,7 +9,7 @@
 
   function normalizeState(state={}){
     const density=['focus','expanded'].includes(state.density)?state.density:'focus';
-    const activeTab=data.tabs.some(t=>t.id===state.activeTab)?state.activeTab:'life';
+    const activeTab=state.activeTab==='abilities'?'abilities':data.tabs.some(t=>t.id===state.activeTab)?state.activeTab:'life';
     return {
       version:1,
       density,
