@@ -30,7 +30,7 @@ function createRuntime(bridge){
     ];
     for(const [id,cat,title,detail,score] of manual){
       const st=bridge.manualStatus?.(id)||{available:false,reason:'Moteur V10 indisponible'};
-      add(a,'manual:'+id,cat,title,detail+' • '+(st.remaining||0)+' fois restante(s) cette année.',{
+      add(a,'manual:'+id,cat,title,detail+' • '+(st.remaining||0)+'/'+(st.limit||'?')+' restantes • '+(st.cost||0)+' énergie'+(st.efficiency<1?' • rendement '+Math.round(st.efficiency*100)+'%':'')+'.',{
         available:!!st.available,reason:st.reason||'',score,tags:'action manuelle carrière évolution'});
     }
     if(game.activeMission)add(a,'open:character:missionBoard','career','Mission en cours : '+game.activeMission.title,'Voir la mission active.',{kind:'open',score:82});
@@ -126,7 +126,7 @@ function createRuntime(bridge){
   function renderHub(){
     const root=node('v95Hub'),state=getState();if(!root||!state)return;
     const recommended=engine.featured(build(),state,3);
-    root.innerHTML='<div class="v95-hub-head"><span class="eyebrow">V9.5 • Action Hub</span><h2>Que veux-tu faire ?</h2>'+
+    root.innerHTML='<div class="v95-hub-head"><span class="eyebrow">V10.2 • Centre d’actions</span><h2>Que veux-tu faire ?</h2>'+
       '<p>Toutes les actions importantes, triées selon ta situation. Les menus d’information restent accessibles pour les détails.</p></div>'+
       '<div class="v95-quick">'+recommended.map(x=>'<button type="button" data-v95-quick="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Action recommandée</span></button>').join('')+'</div>'+
       '<label class="eyebrow" for="v95HubSearch">Rechercher une action</label><input id="v95HubSearch" class="v95-search" type="search" autocomplete="off" value="'+escapeHtml(query)+'" placeholder="Mission, Haki, équipage, commerce…">'+
@@ -145,7 +145,7 @@ function createRuntime(bridge){
   function renderLife(){
     const root=node('v95LifeQuick'),state=getState();if(!root||!state)return;
     const top=engine.featured(build(),state,2);
-    root.innerHTML='<div class="v95-breadcrumb"><span class="eyebrow">V9.5 • Actions rapides</span><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
+    root.innerHTML='<div class="v95-breadcrumb"><span class="eyebrow">V10.2 • Actions rapides</span><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
       '<div class="v95-quick">'+top.map(x=>'<button type="button" data-v95-life="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Raccourci</span></button>').join('')+'</div>';
     const all=node('v95AllActionsBtn');if(all)all.onclick=()=>bridge.openTab('actions');
     root.querySelectorAll?.('[data-v95-life]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Life));
