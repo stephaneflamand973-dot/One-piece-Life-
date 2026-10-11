@@ -1,3 +1,19 @@
+# ONE PIECE LIFE — V10.6 : Aventures, expéditions et commandement 2.0
+
+La V10.6 transforme l'exploration en actions volontaires, plutôt qu'en bonus invisibles au changement d'année.
+
+- Préparer une expédition, explorer une île, planifier une mission et mobiliser son équipage : 4 nouvelles actions à quotas annuels, coût énergétique et risques réels.
+- Trois approches d'exploration : équilibrée, prudente et audacieuse. Risque, compétences, équipage et préparation influencent les chances de réussite.
+- Les plans tactiques renforcent les missions acceptées, avec avantages plafonnés et consommation à leur résolution.
+- Nouvel espace Expéditions et commandement dans Monde et accès rapide depuis le Centre d’actions.
+- Sauvegardes antérieures compatibles ; le passage d’un an ne donne toujours aucun gain automatique au personnage.
+
+**GAME_VERSION 10.6.0 • SAVE_VERSION 1000 • CACHE one-piece-life-v10-6-0**
+
+Voir [QA-V10.6.md](QA-V10.6.md) pour le fonctionnement détaillé, les coûts et les tests.
+
+---
+
 # ONE PIECE LIFE — V10.5 : Économie et patrimoine 2.0
 
 La V10.5 rend les Berry utiles grâce aux achats, améliorations et entreprises **pilotées par le joueur**.
