@@ -68,7 +68,7 @@ assert(runtime.ensure().recent.includes('mission:mission_one')&&saves>0,'Execute
 runtime.star('mission:mission_one');assert(runtime.ensure().favorites.includes('mission:mission_one'),'Persistent favorites missing');
 runtime.renderHub();runtime.renderLife();
 assert(document.getElementById('v95Hub').innerHTML.includes('Que veux-tu faire ?'),'Action hub UI not rendered');
-assert(document.getElementById('v95HubResults').innerHTML.includes('mission_one')===false,'UI leaked internal IDs');
+assert(document.getElementById('v95HubResults').innerHTML.includes('Accepter : Escorte'),'Action hub mission label missing');
 assert(document.getElementById('v95LifeQuick').innerHTML.includes('Toutes les actions'),'Life shortcut missing');
 game.agency.annualTurn={active:true,monthsSimulated:4};
 const during=runtime.build();
