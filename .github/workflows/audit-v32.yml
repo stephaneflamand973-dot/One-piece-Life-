@@ -130,6 +130,8 @@ jobs:
         run: node scripts/qa-v94.mjs
       - name: Run V9.5 Action Hub QA
         run: node scripts/qa-v95.mjs
+      - name: Verify V9.5 integrated real-game runtime
+        run: node scripts/qa-v95-runtime.mjs
       - name: Run legacy engine trend audit
         continue-on-error: true
         run: node scripts/audit-v32.mjs
