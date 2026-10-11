@@ -45,6 +45,14 @@ function missionBonus(raw,missionId,year,island){
  const s=normalize(raw,year,island);
  return clamp((s.missionId===String(missionId||'')?s.missionBonus:0)+s.commandBoost*.35,0,18)
 }
+function scoutPreview(raw,ctx={}){
+ const s=normalize(raw,ctx.year,ctx.island),strategy=d.approaches[s.approach];
+ const skill=bounded(ctx.navigation)*.18+bounded(ctx.stealth)*.16+bounded(ctx.crewSupport)*.11+
+  s.preparedness*.17+s.commandBoost*.35;
+ const chance=clamp(.57+skill/130+strategy.success-bounded(ctx.danger)*.003,.22,.94);
+ const injuryChance=clamp((.10+bounded(ctx.danger)*.003)*strategy.risk,0,.75);
+ return {chance,injuryChance,skill};
+}
 function perform(raw,id,ctx={}){
  const s=normalize(raw,ctx.year,ctx.island),gate=status(s,id,ctx);
  if(!gate.available)return {ok:false,reason:gate.reason,state:s};
@@ -63,13 +71,10 @@ function perform(raw,id,ctx={}){
   next.missionId=missionId;next.missionBonus=bounded(current+bonus,0,14);next.missionPlans++;
   detail='Plan tactique +'+(next.missionBonus-current).toFixed(0)+' • '+next.missionBonus+'/14';
  }else{
-  const skill=bounded(ctx.navigation)*.18+bounded(ctx.stealth)*.16+bounded(ctx.crewSupport)*.11+
-    s.preparedness*.17+s.commandBoost*.35;
-  const chance=clamp(.57+skill/130+strategy.success-bounded(ctx.danger)*.003,.22,.94);
+  const odds=scoutPreview(s,ctx),chance=odds.chance;
   success=roll<chance;
-  if(!success){const injuryChance=clamp((.10+bounded(ctx.danger)*.003)*strategy.risk,0,.75);
-   if(clamp(num(ctx.injuryRoll,1),0,1)<injuryChance)healthLoss=Math.max(1,Math.round((3+bounded(ctx.danger)*.09)*strategy.risk));
-  }
+  if(!success&&clamp(num(ctx.injuryRoll,1),0,1)<odds.injuryChance)
+    healthLoss=Math.max(1,Math.round((3+bounded(ctx.danger)*.09)*strategy.risk));
   next.expeditions++;if(success){next.discoveries++;next.preparedness=Math.max(0,s.preparedness-18)}
   else next.preparedness=Math.max(0,s.preparedness-8);
   detail=(success?'Reconnaissance réussie':'Expédition contrariée')+' • réussite '+Math.round(chance*100)+' %'+(healthLoss?' • blessure -'+healthLoss:'');
@@ -83,5 +88,5 @@ function consumeMission(raw,missionId,year,island){
  const s=normalize(raw,year,island);if(s.missionId!==String(missionId||''))return s;
  return {...s,missionId:'',missionBonus:0}
 }
-r.register('adventureEngineV106',{version:'10.6.0',normalize,selectApproach,status,perform,missionBonus,consumeMission});
+r.register('adventureEngineV106',{version:'10.6.0',normalize,selectApproach,status,scoutPreview,perform,missionBonus,consumeMission});
 })(window);
