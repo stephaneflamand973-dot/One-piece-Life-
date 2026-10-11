@@ -27,6 +27,7 @@ function status(raw,relation,action,ctx={}){
  let reason='';
  if(ctx.alive===false)reason='Cette vie est terminée.';
  else if(ctx.pending)reason='Résous d’abord la décision en attente.';
+ else if(ctx.annual)reason='Termine le passage de l’année en cours.';
  else if(remaining<=0)reason='Interactions sociales épuisées pour cette année ou cette personne.';
  else if(finite(ctx.energy,0)<a.cost)reason='Énergie insuffisante.';
  else if(finite(ctx.money,0)<a.money)reason='Berry insuffisants.';
