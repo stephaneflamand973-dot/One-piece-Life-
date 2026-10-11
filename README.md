@@ -1,3 +1,16 @@
+# ONE PIECE LIFE — V10.7 : Rencontres et choix successifs
+
+- Explorer une île ouvre une aventure en **trois étapes** (ou un repli volontaire).
+- Rencontres selon faction, groupe/personnage et acteurs canoniques présents dans la région.
+- Chances dynamiques, contacts durables, blessures, butin et réputation liées aux décisions.
+- Sauvegarde V10.6 conservée et aucun gain automatique en vieillissant.
+
+**GAME_VERSION 10.7.0 • SAVE_VERSION 1000 • CACHE one-piece-life-v10-7-0**
+
+[QA-V10.7.md](QA-V10.7.md)
+
+---
+
 # ONE PIECE LIFE — V10.6 : Aventures, expéditions et commandement 2.0
 
 La V10.6 transforme l'exploration en actions volontaires, plutôt qu'en bonus invisibles au changement d'année.

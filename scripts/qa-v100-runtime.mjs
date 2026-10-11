@@ -4,7 +4,7 @@ const html=fs.readFileSync('index.html','utf8');
 let source=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 const init="init().catch(()=>{storageFallback=true;renderSlots();startupMessage('Démarrage en mode de secours local.','warn')});";
 assert(source&&source.includes(init),'Game runtime entrypoint missing');
-source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,socialStatus:v104Status,socialAction:v104Perform,economyStatus:v105ActionStatus,economySelect:v105SelectTarget,economyPerks:v105Perks,adventureStatus:v106Status,adventureApproach:v106SetApproach,adventureState:v106Ensure,advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
+source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,socialStatus:v104Status,socialAction:v104Perform,economyStatus:v105ActionStatus,economySelect:v105SelectTarget,economyPerks:v105Perks,adventureStatus:v106Status,adventureApproach:v106SetApproach,adventureState:v106Ensure,encounterState:v107Ensure,encounterModule:v107Module,advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
 const elements=new Map();
 function el(sel){
  if(!elements.has(sel)){
@@ -40,7 +40,7 @@ const modulePaths=[
  'src/data/world-intel-v94.js','src/v94/world-intel-engine-v94.js',
  'src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.js','src/v95/action-hub-runtime-v95.js',
  'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js',
- 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js','src/data/economy-v105.js','src/v105/economy-engine-v105.js','src/data/adventure-v106.js','src/v106/adventure-engine-v106.js','src/data/voyage-v85.js','src/v85/voyage-engine-v85.js'
+ 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js','src/data/economy-v105.js','src/v105/economy-engine-v105.js','src/data/adventure-v106.js','src/v106/adventure-engine-v106.js','src/data/encounters-v107.js','src/v107/encounter-engine-v107.js','src/data/voyage-v85.js','src/v85/voyage-engine-v85.js'
 ];
 for(const path of modulePaths)new Function('window',fs.readFileSync(path,'utf8'))(w);
 new Function('window','document','localStorage','navigator','location','indexedDB','setTimeout','clearTimeout','requestAnimationFrame','console','Promise',source)(
@@ -56,7 +56,7 @@ g.player.specialization='combat';
 g.missionBoard=[{id:'v95_escort_qa',title:'Escorte de QA',desc:'Protéger un convoi',reward:1500,duration:3,danger:'low',power:20,type:'escort'}];
 g.relations.push({id:'v95_friend',name:'Nami QA',role:'Ami',affection:60,respect:67,trust:69,loyalty:60,familiarity:67,rivalry:1,status:'active',ambition:'Loyauté',temperament:'Curieux'});
 q.ensure();
-assert(q.gameVersion==='10.6.0'&&q.saveVersion===1000,'Version mismatch');
+assert(q.gameVersion==='10.7.0'&&q.saveVersion===1000,'Version mismatch');
 const hub=q.hub();assert(hub&&hub.version==='9.5.0','Live Action Hub failed to initialize');
 let actions=hub.build();
 assert(actions.some(x=>x.id==='mission:v95_escort_qa'&&x.available),'Live mission action missing');
@@ -267,10 +267,19 @@ assert(q.manualStatus('expedition_coordinate').available,'Accepted mission shoul
 assert(q.manual('expedition_coordinate')===true,'Tactical mission planning failed');
 assert(g.player.adventureV106.missionId===g.activeMission.id&&g.player.adventureV106.missionBonus>0,'Mission tactical bonus missing');
 assert(q.manual('expedition_scout')===true,'Island scouting action failed');
-assert(g.player.adventureV106.expeditions===1,'Scouting not persisted on player');
-assert(g.meta.manualLifeV102.spent.expedition_scout===1,'Scouting bypassed shared quotas');
+assert(g.pendingDecision&&g.player.encounterV107.active,'V10.7 encounter not opened');
+assert(g.meta.manualLifeV102.spent.expedition_scout===1,'Scout quota not reserved');
+assert(!q.manualStatus('expedition_scout').available,'Pending encounter did not lock other actions');
+for(let stage=0;stage<3;stage++){
+ const choiceName=['observe','help','share'][stage];
+ const option=g.pendingDecision.choices.find(x=>x.action.endsWith(':'+choiceName));
+ assert(option,'Missing encounter choice '+choiceName);
+ q.resolveDecision(option.action);
+}
+assert(!g.player.encounterV107.active&&g.player.encounterV107.total===1,'Interactive encounter not finalized');
+assert(g.player.adventureV106.expeditions===1,'Scouting not registered in V10.6 state');
 const restoredJSON=JSON.parse(JSON.stringify(g));
-assert(restoredJSON.player.adventureV106.expeditions===1&&restoredJSON.player.adventureV106.missionBonus>0,'V10.6 state missing after save roundtrip');
+assert(restoredJSON.player.adventureV106.expeditions===1&&restoredJSON.player.adventureV106.missionBonus>0&&restoredJSON.player.encounterV107.total===1,'V10.7 state missing after save roundtrip');
 g.pendingDecision={id:'v106_lock',title:'En attente',text:'Décision',choices:[]};
 assert(!q.manualStatus('expedition_scout').available,'Pending decision should lock scouts');
 g.pendingDecision=null;
