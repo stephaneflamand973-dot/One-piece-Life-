@@ -72,7 +72,7 @@ for(const asset of ['src/data/markets-v88.js','src/v88/market-engine-v88.js','sr
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:8-[8-9]|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.8 or newer');
+assert(/one-piece-life-v(?:8-[8-9]|9-\d+|10)-\d+/.test(sw),'PWA cache must remain at V8.8 or newer');
 assert(html.includes('v87Ensure();v88Ensure()'),'Old-save V8.8 migration hook missing');
 for(const fn of ['function v88Module','function v88Ensure','function v88Context','function v88MarketAvailable','function v88Trade','function renderV88Market']){
   assert(html.includes(fn),'Missing live V8.8 bridge '+fn);
