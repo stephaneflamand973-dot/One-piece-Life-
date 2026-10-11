@@ -29,7 +29,8 @@
   <link rel="stylesheet" href="src/v89/equipment-v89.css" />
   <link rel="stylesheet" href="src/v90/game-flow-v90.css" />
   <link rel="stylesheet" href="src/v91/goals-v91.css" />
-  <title>ONE PIECE LIFE — V9.1.9</title>
+  <link rel="stylesheet" href="src/v92/npc-lives-v92.css" />
+  <title>ONE PIECE LIFE — V9.2</title>
   <style>
 :root{--bg:#f4ecd8;--paper:#fffaf0;--ink:#1d2a2c;--muted:#6f7775;--navy:#173f4e;--sea:#2d7181;--sea2:#78a7a7;--gold:#c5943c;--red:#a34b3d;--green:#4b7660;--line:#dfd3b7;--shadow:0 12px 34px rgba(41,52,49,.09);--radius:22px;--safe:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}html{background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% -5%,rgba(120,167,167,.28),transparent 32%),linear-gradient(180deg,#f8f1df,var(--bg))}.app-shell{max-width:760px;margin:0 auto;min-height:100vh;padding-bottom:calc(90px + var(--safe))}.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px;background:rgba(244,236,216,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(100,90,70,.12)}.brand-wrap{display:flex;align-items:center;gap:10px;min-width:0}.brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:#fff;font-size:20px;box-shadow:0 6px 16px rgba(23,63,78,.2)}h1,h2,h3,p{margin-top:0}.brand-wrap h1{font-size:15px;letter-spacing:.08em;margin:0}.brand-wrap p{font-size:10px;color:var(--muted);margin:2px 0 0}.icon-btn{border:0;background:rgba(255,255,255,.55);width:38px;height:38px;border-radius:12px;font-size:18px;color:var(--ink)}main{padding:14px}.screen{display:none}.screen.active{display:block}.paper-card{background:rgba(255,250,240,.94);border:1px solid rgba(132,111,72,.16);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px}.hero-card{padding:24px;background:linear-gradient(145deg,#fffaf0 0%,#f4ead2 70%,#e6dfc8 100%);position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(45,113,129,.14);border-radius:50%;right:-70px;bottom:-100px;box-shadow:0 0 0 28px rgba(45,113,129,.035),0 0 0 56px rgba(45,113,129,.025)}.hero-card h2{font-family:Georgia,serif;font-size:34px;line-height:1.02;max-width:620px;margin:8px 0 14px}.hero-card p{color:#52605f;line-height:1.55;max-width:620px}.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--sea)}.feature-pills,.chip-list{display:flex;flex-wrap:wrap;gap:8px}.feature-pills span,.chip,.badge{font-size:11px;border-radius:999px;padding:7px 10px;background:#edf3ef;color:#47635d;border:1px solid rgba(75,118,96,.12)}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-heading.compact{margin-bottom:12px}.section-heading h3{margin:3px 0 0;font-size:18px}.save-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.save-slot{min-height:128px;border:1px dashed #c9b893;border-radius:17px;padding:14px;text-align:left;background:#fffbf3;color:var(--ink);display:flex;flex-direction:column;justify-content:space-between}.save-slot strong{font-size:14px}.save-slot small{color:var(--muted);line-height:1.35}.save-slot.empty{align-items:center;justify-content:center;text-align:center;color:var(--sea);font-weight:700}.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.mode-card{border:1px solid var(--line);border-radius:16px;background:#fffaf1;padding:14px;text-align:left;color:var(--ink)}.mode-card strong{display:block;margin-bottom:5px}.mode-card span{font-size:12px;color:var(--muted);line-height:1.35}.mode-card.selected{border-color:var(--sea);box-shadow:inset 0 0 0 1px var(--sea);background:#f1f8f6}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field>span{font-size:11px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:13px;padding:13px;background:#fffdf8;color:var(--ink);font-size:16px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary-btn,.secondary-btn,.choice-btn{width:100%;border:0;border-radius:14px;padding:14px 16px;font-weight:800;font-size:14px}.primary-btn{background:var(--navy);color:#fff;box-shadow:0 8px 20px rgba(23,63,78,.18)}.primary-btn.small{padding:11px 14px;width:auto}.secondary-btn{background:#ece4d1;color:var(--ink)}.text-btn{border:0;background:transparent;color:var(--sea);font-weight:800;font-size:12px}.status-strip{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:1px;background:#d9ceb4;border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}.status-strip>div{background:#fffaf0;padding:11px 12px;min-width:0}.status-strip strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tiny-label{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}.tab-panel{display:none}.tab-panel.active{display:block}.profile-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#173f4e,#255e69);color:#fff}.avatar-ring{width:54px;height:54px;flex:0 0 54px;border-radius:50%;display:grid;place-items:center;background:#f7edd5;color:var(--navy);font:700 22px Georgia,serif;border:3px solid rgba(255,255,255,.24)}.profile-copy{min-width:0;flex:1}.profile-copy h2{margin:4px 0 3px;font-size:22px}.profile-copy p{margin:0;color:rgba(255,255,255,.72);font-size:12px}.profile-banner .eyebrow{color:#d9c79b}.reputation-pill{font-size:10px;font-weight:800;border-radius:999px;background:rgba(255,255,255,.13);padding:8px 10px;white-space:nowrap}.situation-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.situation-grid>div,.info-cell{padding:12px;border-radius:14px;background:#f4f0e5}.situation-grid span,.info-cell span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.situation-grid strong,.info-cell strong{font-size:13px}.danger-badge{font-size:10px;font-weight:900;border-radius:999px;padding:7px 10px}.danger-badge.low{background:#e4f0e9;color:#3f6a56}.danger-badge.medium{background:#f6ead0;color:#906b23}.danger-badge.high{background:#f4dfda;color:#963e35}.compact-list{margin-top:12px}.attention-card{border-color:#d3b46f;background:linear-gradient(145deg,#fff9e8,#f7eed7)}.attention-card h3{margin:6px 0}.attention-card p{font-size:13px;color:var(--muted);line-height:1.5}.timeline{position:relative;padding-left:18px}.timeline:before{content:"";position:absolute;left:5px;top:5px;bottom:8px;width:1px;background:#d6c9aa}.timeline-item{position:relative;padding:0 0 18px 13px}.timeline-dot{position:absolute;left:-17px;top:5px;width:9px;height:9px;background:#8f9f97;border:2px solid #fffaf0;border-radius:50%;box-shadow:0 0 0 1px #c8b997}.timeline-item.major .timeline-dot{background:var(--gold)}.timeline-item.danger .timeline-dot{background:var(--red)}.timeline-item.canon .timeline-dot{background:var(--sea)}.timeline-age{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.08em}.timeline-title{font-weight:900;margin:3px 0}.timeline-desc{font-size:13px;color:#5f6965;line-height:1.45}.timeline-delta{display:inline-block;margin-top:6px;background:#e8f0ea;color:#42644f;border-radius:9px;padding:4px 7px;font-size:10px;font-weight:800}.advance-dock{position:sticky;bottom:calc(72px + var(--safe));z-index:20;padding-top:2px}.advance-btn{width:100%;border:0;border-radius:18px;background:linear-gradient(135deg,#1d5360,#173f4e);color:#fff;padding:15px 18px;display:flex;gap:12px;align-items:center;text-align:left;box-shadow:0 15px 30px rgba(23,63,78,.24)}.advance-btn:disabled{opacity:.48}.advance-icon{font-size:24px}.advance-btn strong{display:block;letter-spacing:.08em}.advance-btn small{display:block;color:rgba(255,255,255,.65);font-size:10px;margin-top:3px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.career-card{padding:14px;border-radius:14px;background:#f4f0e5}.career-card strong{font-size:16px}.career-card p{font-size:12px;color:var(--muted);margin:5px 0 0;line-height:1.45}.action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.action-card{border:1px solid var(--line);background:#fffdf8;border-radius:14px;padding:12px;text-align:left;color:var(--ink)}.action-card strong{display:block;font-size:13px}.action-card small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}.action-card.active{border-color:var(--sea);background:#eef6f3}.action-card.locked{opacity:.45}.stats-list{display:flex;flex-direction:column;gap:9px}.stat-row{display:grid;grid-template-columns:100px 1fr 35px;align-items:center;gap:9px;font-size:12px}.stat-bar{height:8px;border-radius:999px;background:#e8e1d2;overflow:hidden}.stat-fill{height:100%;background:linear-gradient(90deg,#78a7a7,#2d7181);border-radius:999px}.stat-value{text-align:right;font-weight:900}.split-card{display:grid;grid-template-columns:1fr 1fr;gap:14px}.split-card>div+div{border-left:1px solid var(--line);padding-left:14px}.ability-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:8px 0;border-bottom:1px solid #eee6d6}.ability-row:last-child{border-bottom:0}.ability-row span{color:var(--muted)}.fruit-card{font-size:12px;line-height:1.45;color:#53605d}.relations-list{display:flex;flex-direction:column;gap:9px}.relation-card{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px;padding:10px;border-radius:14px;background:#f4f0e5}.relation-avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#dce9e5;color:var(--navy);font-weight:900}.relation-copy strong,.relation-copy span{display:block}.relation-copy span{font-size:11px;color:var(--muted);margin-top:2px}.relation-score{font-weight:900;color:var(--sea)}.world-hero{background:linear-gradient(145deg,#eaf2ec,#fffaf0)}.world-hero p{font-size:13px;color:var(--muted);line-height:1.5}.news-list,.canon-list{display:flex;flex-direction:column;gap:10px}.news-item,.canon-item{padding:12px;border-radius:14px;background:#f4f0e5}.news-item strong,.news-item span,.canon-item strong,.canon-item span{display:block}.news-item span,.canon-item span{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}.canon-item .status{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--sea);font-weight:900}.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;z-index:40;width:min(760px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,250,240,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(120,100,65,.14);padding:8px 7px calc(8px + var(--safe))}.nav-item{border:0;background:transparent;color:#80847f;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px}.nav-item span{font-size:17px}.nav-item small{font-size:9px}.nav-item.active{color:var(--navy);font-weight:900}.modal-backdrop{position:fixed;inset:0;z-index:80;background:rgba(15,27,28,.58);display:grid;place-items:end center;padding:14px}.modal-card{width:min(620px,100%);background:#fffaf0;border-radius:24px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:88vh;overflow:auto}.modal-card h3,.modal-card h2{margin:6px 0 9px}.modal-card p{color:var(--muted);font-size:13px;line-height:1.5}.decision-choices{display:flex;flex-direction:column;gap:9px;margin-top:18px}.choice-btn{background:#edf3ef;color:var(--ink);text-align:left;border:1px solid #d8e4df}.choice-btn strong,.choice-btn small{display:block}.choice-btn small{font-weight:500;color:var(--muted);margin-top:4px}.death-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}.death-summary>div{background:#f4f0e5;border-radius:13px;padding:11px}.death-summary span{display:block;font-size:9px;color:var(--muted)}.death-summary strong{font-size:13px}.dev-panel{position:fixed;inset:56px 8px 86px;z-index:70;background:#10272d;color:#dbe9e5;border-radius:18px;padding:14px;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.32)}.dev-head{display:flex;justify-content:space-between;align-items:center}.dev-panel pre{white-space:pre-wrap;font-size:10px;line-height:1.45}.toast{position:fixed;z-index:100;left:50%;transform:translateX(-50%);bottom:110px;background:#173f4e;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}.startup-error{margin-top:10px;padding:12px 14px;border-radius:14px;background:#f4dfda;color:#7d3028;border:1px solid rgba(150,62,53,.18);font-size:12px;line-height:1.45}.startup-error strong,.startup-error span{display:block}.startup-error span{margin-top:4px}.startup-ready{color:var(--green)}.startup-warn{color:#8a651f}.hidden{display:none!important}
@@ -239,6 +240,7 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
       <section id="relationsPanel" class="tab-panel" data-panel="relations">
         <section class="paper-card v78-household-card"><div class="section-heading compact"><div><span class="eyebrow">V7.8 • Vie personnelle</span><h2>Foyer & famille</h2></div><span id="v78HouseholdBadge" class="badge"></span></div><div id="v78HouseholdCard"></div><div id="v78HouseholdActions" class="v78-household-actions"></div><div id="v78HomeActions" class="v78-home-actions"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V7.4 • Réseau social</span><h2>Relations vivantes</h2></div><span id="v74NetworkBadge" class="badge"></span></div><div id="v74NetworkCard" class="career-card"></div></section>
+        <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">V9.2 • Vies autonomes</span><h3>Trajectoires hors écran</h3></div><span id="v92LivesBadge" class="badge"></span></div><div id="v92LivesCard" class="v92-lives"></div></section>
         <section class="paper-card"><span class="eyebrow">Relations</span><h2>Personnes importantes</h2><div id="relationsList" class="relations-list"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Vie sociale</span><h3>Attitude de l’année</h3></div><span class="badge">Action annuelle</span></div><div id="relationsAnnualActions"></div></section>
       </section>
@@ -329,6 +331,8 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 <script src="src/v90/game-flow-engine-v90.js"></script>
 <script src="src/data/goals-v91.js"></script>
 <script src="src/v91/goals-engine-v91.js"></script>
+<script src="src/data/npc-lives-v92.js"></script>
+<script src="src/v92/npc-lives-engine-v92.js"></script>
 <script>
 (() => {
 'use strict';
@@ -337,8 +341,8 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const DB_NAME = 'one-piece-life';
 const STORE = 'saves';
-const SAVE_VERSION = 910;
-const GAME_VERSION = '9.1.9';
+const SAVE_VERSION = 920;
+const GAME_VERSION = '9.2.0';
 const V61_ANNUAL_FOCUS={
   balanced:{icon:'⚖',label:'Équilibré',desc:'Aucun domaine sacrifié.',training:1,career:1,relations:1,resources:1,adventure:1},
   training:{icon:'🥊',label:'Progression',desc:'+35% progression • carrière -16% • revenus -18%.',training:1.35,career:.84,relations:.86,resources:.82,adventure:.90},
@@ -2739,6 +2743,91 @@ function renderV88Market(){
   $$('[data-v88-sell-all]').forEach(b=>b.onclick=()=>{const qty=v88Ensure()?.cargo?.[b.dataset.v88SellAll]?.qty||0;if(qty)v88Trade('sell',b.dataset.v88SellAll,qty)})
 }
 
+function v92Module(){return window.OPL_MODULES?.get('npcLivesEngineV92')||null}
+function v92Data(){return window.OPL_MODULES?.get('npcLivesDataV92')||null}
+function v92InferFaction(r){
+  if(r?.canonId){const c=(game.world?.characters||[]).find(x=>x.id===r.canonId);if(c?.faction)return c.faction}
+  if(r?.crewMemberId)return game.player.faction==='Pirates'?'Pirates':game.player.faction;
+  const role=String(r?.role||'').toLowerCase();
+  if(/marine|instructeur|supérieur|officier|médecin de base/.test(role))return'Marine';
+  if(/révolution/.test(role))return'Révolutionnaires';
+  if(/gouvernement|agent/.test(role))return'Gouvernement';
+  if(/chasseur|prime/.test(role))return'Chasseurs de primes';
+  if(/pirate|équipage|navigateur/.test(role)&&game.player.faction==='Pirates')return'Pirates';
+  return r?.faction||'Civil'
+}
+function v92RelationActor(r){
+  if(!r)return null;
+  if(r.canonId){const c=(game.world.characters||[]).find(x=>x.id===r.canonId);return c?{...c,sourceType:'canon'}:null}
+  const faction=v92InferFaction(r),existing=game.world?.npcLivesV92?.actors?.['rel:'+r.id];
+  return {
+    id:'rel:'+r.id,name:r.name,sourceType:'relation',faction,
+    region:existing?.region||game.player.region,currentRegion:existing?.region||game.player.region,
+    power:existing?.power||clamp(14+(Number(r.respect)||0)*.32+(Number(r.rivalry)||0)*.14,8,68),
+    potentialPower:existing?.potentialPower||clamp(38+(Number(r.respect)||0)*.45+(Number(r.rivalry)||0)*.22,35,92),
+    age:existing?.age||Math.max(16,game.ageMonths/12+Math.round((v67StableFloat('v92age:'+r.id)-.5)*14)),
+    temperament:r.temperament,ambition:r.ambition,respect:r.respect,familiarity:r.familiarity,
+    status:r.status==='left'?'retired':'active',importance:clamp(22+v67RelationStrength(r)*.45,20,75)
+  }
+}
+function v92TrackedCanon(){
+  v70Ensure();const year=game.clock.year;
+  return (game.world.characters||[]).filter(c=>c.status==='alive'&&year>=c.from&&year<=c.to&&(Number(c.importance)||0)>=68).slice(0,18)
+}
+function v92Ensure(){
+  if(!game?.world)return null;const mod=v92Module(),w=game.world;
+  w.npcLivesV92=mod?mod.normalizeState(w.npcLivesV92||{}):(w.npcLivesV92||{version:1,actors:{},lastTickMonth:-99,totalTracked:0,totalActions:0,totalMoves:0,totalPromotions:0,totalCareerChanges:0,totalMilestones:0,totalObjectives:0,globalHistory:[]});
+  return w.npcLivesV92
+}
+function v92Publish(events=[]){
+  for(const e of events){
+    if(!e)continue;
+    if(e.sourceType==='relation'){
+      const rel=game.relations.find(r=>'rel:'+r.id===e.actorId);
+      if(rel&&Number(e.importance)>=55){
+        v74RecordMemory(rel,{id:e.id,type:'npc_life',label:e.title,valence:e.type==='setback'?-3:3,impact:Math.max(2,Math.round(Number(e.importance)/25)),month:game.ageMonths,tags:['npc_life',e.type]});
+        addHistory('Vie autonome • '+rel.name,e.desc,Number(e.importance)>=68?'major':'normal')
+      }
+    }else if(Number(e.importance)>=62){
+      const worldEvent=v58AutonomousEvent(e.title,e.desc,e.region||'Global',e.importance,'npc_life',[e.actorId]);
+      e.known=!!worldEvent?.known
+    }
+  }
+}
+function v92Tick(months=1){
+  const mod=v92Module();let state=v92Ensure();if(!mod||!state)return;
+  const now=v58MonthIndex();if(state.lastTickMonth===now)return;
+  for(const r of (game.relations||[]).filter(x=>x.status!=='left'&&!x.canonId).slice(0,18)){
+    const actor=v92RelationActor(r);if(!actor)continue;
+    const result=mod.stepRelation(state,actor,{month:now,months,playerAge:game.ageMonths/12,playerRegion:game.player.region},{
+      action:random('v92Action:'+r.id),effect:random('v92Effect:'+r.id),effect2:random('v92Effect2:'+r.id),
+      outcome:random('v92Outcome:'+r.id),travel:random('v92Travel:'+r.id),career:random('v92Career:'+r.id),
+      careerTarget:random('v92CareerTarget:'+r.id),objective:random('v92Objective:'+r.id),retire:random('v92Retire:'+r.id)
+    });
+    state=result.state;game.world.npcLivesV92=state;v92Publish(result.events)
+  }
+  for(const actor of v92TrackedCanon()){
+    const result=mod.tickCanon(state,{...actor,sourceType:'canon',lockedCareer:true},{month:now,months,playerAge:game.ageMonths/12,playerRegion:game.player.region},{objective:random('v92CanonObjective:'+actor.id)});
+    state=result.state;game.world.npcLivesV92=state;v92Publish(result.events)
+  }
+  state.lastTickMonth=now;game.world.npcLivesV92=state
+}
+function v92RelationSnapshot(r){
+  const mod=v92Module(),state=v92Ensure(),actor=v92RelationActor(r);if(!mod||!state||!actor)return null;
+  return mod.snapshot(state,actor,{playerAge:game.ageMonths/12,playerRegion:game.player.region})
+}
+function renderV92Lives(){
+  const box=$('#v92LivesCard'),badge=$('#v92LivesBadge'),mod=v92Module(),state=v92Ensure();if(!box||!badge||!mod||!state)return;
+  const actors=(game.relations||[]).filter(r=>r.status!=='left').map(v92RelationActor).filter(Boolean);
+  const canon=v92TrackedCanon().map(c=>({...c,sourceType:'canon',lockedCareer:true}));
+  const byId=new Map([...actors,...canon].map(a=>[String(a.id),a])),sum=mod.summary(state,[...byId.values()],{region:game.player.region,playerAge:game.ageMonths/12,playerRegion:game.player.region});
+  badge.textContent=sum.totalTracked+' vies suivies';
+  const rows=(sum.local.length?sum.local:sum.notable).slice(0,6);
+  const lifeHtml=rows.length?rows.map(x=>'<div class="v92-life '+(x.region!==game.player.region?'v92-away':'')+'"><div class="v92-life-head"><strong>'+esc(x.name)+'</strong><span class="v92-phase '+esc(x.phase)+'">'+esc(x.phaseLabel)+'</span></div><small>'+esc(x.profession)+' • '+esc(x.rankLabel)+' • '+esc(x.region)+'</small><small>'+esc(x.lastAction)+'</small><div class="v92-progress"><div><i style="width:'+clamp(Math.round(x.objectiveProgress),0,100)+'%"></i></div><span>'+Math.round(x.objectiveProgress)+'%</span></div><div class="v92-chips"><span>Objectif : '+esc(x.objectiveLabel)+'</span><span>Puissance '+Math.round(x.power)+'</span><span>Renommée '+Math.round(x.renown)+'</span><span>'+Math.round(x.wealth).toLocaleString('fr-FR')+' B</span></div></div>').join(''):'<div class="career-card"><p>Aucune trajectoire importante n’est encore suivie.</p></div>';
+  const recent=(sum.recent||[]).filter(e=>e.known!==false).slice(0,4);
+  box.innerHTML='<div class="v92-overview"><div><span>Vies suivies</span><strong>'+sum.totalTracked+'</strong></div><div><span>Promotions</span><strong>'+sum.totalPromotions+'</strong></div><div><span>Déplacements</span><strong>'+sum.totalMoves+'</strong></div><div><span>Changements de voie</span><strong>'+sum.totalCareerChanges+'</strong></div></div><div><span class="eyebrow">'+(sum.local.length?'Dans ta région':'Trajectoires notables')+'</span><div class="v92-life-list">'+lifeHtml+'</div></div>'+(recent.length?'<div><span class="eyebrow">Jalons récents</span><div class="v92-chronicle">'+recent.map(e=>'<div class="v92-event"><strong>'+esc(e.title)+'</strong><span>'+esc(e.desc)+'</span></div>').join('')+'</div></div>':'')
+}
+
 function v91Module(){return window.OPL_MODULES?.get('goalsEngineV91')||null}
 function v91Data(){return window.OPL_MODULES?.get('goalsDataV91')||null}
 function v91MissionCounters(){
@@ -3940,7 +4029,7 @@ function ensureV5(){
   if(!game.consequencesV77||typeof game.consequencesV77!=='object')game.consequencesV77={version:1,active:[],history:[],totalCreated:0,totalResolved:0,totalEscalated:0,lastTickMonth:-99};
   if(!game.player.personalV78||typeof game.player.personalV78!=='object')game.player.personalV78={version:1,home:{id:game.ageMonths>=216?'rented_room':'family_home',condition:76,owned:false,region:game.player.region,sinceYear:Math.floor(game.ageMonths/12)},independent:game.ageMonths>=216,familyBond:Number(game.player.family?.bond)||55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}};
   if(!game.player.educationV79||typeof game.player.educationV79!=='object')game.player.educationV79=v79LegacyEducationState();
-  v80Ensure();v81Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure();v90Ensure();v91Ensure();
+  v80Ensure();v81Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure();v90Ensure();v91Ensure();v92Ensure();
   game.player.combatV72.usage=game.player.combatV72.usage&&typeof game.player.combatV72.usage==='object'?game.player.combatV72.usage:{};
   if(!['balanced','aggressive','defensive','precision','overwhelm'].includes(game.player.combatV72.doctrine))game.player.combatV72.doctrine='balanced';
   if(!game.player.haki)game.player.haki={Observation:{state:'Dormant',mastery:0,latent:true},Armement:{state:'Dormant',mastery:0,latent:true},Conquérant:{state:'Inconnu',mastery:0,latent:false}};
@@ -4889,7 +4978,7 @@ function v61ResumeAnnualTurn(){
     if(t.phase===2){simulateWorld(1);tickMission(1);tickTravel(1);t.phase=3;if(!game.alive)break;if(game.pendingDecision){v61PauseForDecision();return}}
     if(t.phase===3){v64AdventureMonthTick();if(!game.pendingDecision&&!game.activeMission&&!game.player.travel)simulateEvent(1);t.phase=4;if(game.pendingDecision){v61PauseForDecision();return}}
     if(t.phase===4){if(!game.pendingDecision)v80PriorityInterrupt();t.phase=5;if(game.pendingDecision){v61PauseForDecision();return}}
-    if(t.phase===5){naturalMortality(1);game.player.danger=dangerLevel();v91Sync(true);t.monthsSimulated++;t.phase=0;delete t.pausedDecisionId;if(!game.alive)break}
+    if(t.phase===5){naturalMortality(1);game.player.danger=dangerLevel();v91Sync(true);v92Tick(1);t.monthsSimulated++;t.phase=0;delete t.pausedDecisionId;if(!game.alive)break}
   }
   if(!game.alive||t.monthsSimulated>=12)v61CompleteAnnualTurn();else{saveGame();render()}
 }
@@ -5045,7 +5134,7 @@ function ensureV6(){
   if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;
   if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));
   ensureV59();for(const h of game.world.worldHooks||[])updateHakiStagesV6();
-  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure();v90Ensure();v91Ensure()
+  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure();v90Ensure();v91Ensure();v92Ensure()
 }
 function v6RelationById(id){return game.relations.find(r=>r.id===id||slug(r.name)===id)}
 function v6InteractRelation(id,action){
@@ -5261,7 +5350,7 @@ function renderAbilities(){
   v62RenderDomainInline('trainingAnnualActions','training')
 }
 function renderRelations(){
-  v67Ensure();v74EnsureGlobal();renderV74Network();renderV78PersonalLife();const list=game.relations.filter(r=>r.status!=='left'),mod=v74Module();
+  v67Ensure();v74EnsureGlobal();renderV74Network();renderV78PersonalLife();renderV92Lives();const list=game.relations.filter(r=>r.status!=='left'),mod=v74Module();
   $('#relationsList').innerHTML=list.length?list.map(r=>{
     const mentor=game.player.socialV67?.mentorId===r.id,snap=v74RelationSnapshot(r),state=snap?.state||{label:'Relation',strength:v67RelationStrength(r)},social=snap?.social||{},compat=snap?.compat||{score:50,matches:[],conflicts:[]};
     const mentorBtn=!mentor&&v67MentorCandidate(r)?'<button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="mentor">Demander mentorat</button>':'';
@@ -5270,8 +5359,9 @@ function renderRelations(){
     const crew=r.crewMemberId?' • équipage':'',memory=snap?.memory?.major;
     const values=(social.values||[]).slice(0,4).map(v=>'<span class="chip">'+esc(v)+'</span>').join('');
     const riskLabel=(snap?.risk||0)>=58?'fracture élevée':(snap?.risk||0)>=34?'tension réelle':'stable';
-    const persona=v74CanonPersona(r);
-    return '<div class="relation-card v6"><div class="relation-avatar">'+esc((r.name||'?')[0])+'</div><div class="relation-copy"><strong>'+esc(r.name)+(mentor?' • Mentor':'')+'</strong><span>'+esc(r.role)+' • '+esc(state.label)+crew+'</span><span>'+esc(r.temperament)+' • ambition '+esc(String(r.ambition).toLowerCase())+' • lien '+Math.round(state.strength)+'/100 • compatibilité '+Math.round(compat.score)+'/100 • '+riskLabel+'</span>'+(persona?.goal?'<small>But : '+esc(persona.goal)+'</small>':'')+(memory?'<small>Souvenir dominant : '+esc(memory.label)+'</small>':'')+(values?'<div class="chip-list compact-list">'+values+'</div>':'')+'</div><div class="relation-actions"><button class="mini-action primary" data-rel="'+esc(r.id)+'" data-rel-action="time">Passer du temps</button><button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="train">S’entraîner</button><button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="help">Aider</button>'+confideBtn+challengeBtn+mentorBtn+'<span class="relation-score">'+Math.round(state.strength)+'</span></div></div>'
+    const persona=v74CanonPersona(r),life=v92RelationSnapshot(r),away=life&&life.region!==game.player.region;
+    const lifeMeta=life?'<div class="v92-relation-meta"><span>'+esc(life.profession)+' • '+esc(life.rankLabel)+'</span><span>'+esc(life.region)+(away?' • loin de toi':' • même région')+'</span><span>Puissance '+Math.round(life.power)+'</span><span>'+esc(life.lastAction)+'</span></div>':'';
+    return '<div class="relation-card v6 '+(away?'v92-away':'')+'"><div class="relation-avatar">'+esc((r.name||'?')[0])+'</div><div class="relation-copy"><strong>'+esc(r.name)+(mentor?' • Mentor':'')+'</strong><span>'+esc(r.role)+' • '+esc(state.label)+crew+'</span><span>'+esc(r.temperament)+' • ambition '+esc(String(r.ambition).toLowerCase())+' • lien '+Math.round(state.strength)+'/100 • compatibilité '+Math.round(compat.score)+'/100 • '+riskLabel+'</span>'+(persona?.goal?'<small>But : '+esc(persona.goal)+'</small>':'')+(memory?'<small>Souvenir dominant : '+esc(memory.label)+'</small>':'')+lifeMeta+(values?'<div class="chip-list compact-list">'+values+'</div>':'')+'</div><div class="relation-actions"><button class="mini-action primary" data-rel="'+esc(r.id)+'" data-rel-action="time">Passer du temps</button><button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="train">S’entraîner</button><button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="help">Aider</button>'+confideBtn+challengeBtn+mentorBtn+'<span class="relation-score">'+Math.round(state.strength)+'</span></div></div>'
   }).join(''):'<p style="color:var(--muted);font-size:13px">Aucune relation importante n’a encore émergé.</p>';
   $$('[data-rel-action]').forEach(b=>b.onclick=()=>v6InteractRelation(b.dataset.rel,b.dataset.relAction));v62RenderDomainInline('relationsAnnualActions','relations')
 }
