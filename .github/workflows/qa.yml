@@ -44,6 +44,7 @@ on:
       - 'scripts/qa-v94.mjs'
       - 'scripts/qa-v95.mjs'
       - 'scripts/qa-v100.mjs'
+      - 'scripts/qa-v100-runtime.mjs'
       - 'scripts/qa-v95-runtime.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
@@ -165,3 +166,5 @@ jobs:
         run: node scripts/qa-v95-runtime.mjs
       - name: Verify V10.0 Manual Life
         run: node scripts/qa-v100.mjs
+      - name: Verify V10.0 Real Manual Life Runtime
+        run: node scripts/qa-v100-runtime.mjs
