@@ -154,5 +154,38 @@ g.pendingDecision=null;
 assert(Array.isArray(g.agency.lastAnnualReport.highlights),'Manual yearly events missing from digest');
 assert(g.agency.lastAnnualReport.director&&typeof g.agency.lastAnnualReport.director.theme==='string','Life Director no longer receives annual events');
 
+/* V10.3: active career gameplay across multiple actions, with contextual costs. */
+g.player.energy=100;g.player.health=90;g.player.career='Marine';g.player.faction='Marine';g.pendingDecision=null;g.player.travel=null;
+assert(q.careerMode('intensive')===true,'V10.3 intensive mode cannot be selected');
+assert(g.player.careerV103.mode==='intensive','Work mode not saved');
+assert(q.manualStatus('work').cost===18,'Dynamic intensive work energy cost not displayed');
+g.player.energy=14;
+assert(!q.manualStatus('work').available,'Intensive work should be blocked with only 14 energy');
+g.player.energy=100;
+const startCareerMoney=g.player.money,startCareerXp=g.player.careerXP;
+const careerRank=g.player.rank;
+assert(q.manualStatus('work').remaining===4,'Career work quota unexpectedly used');
+for(let i=0;i<4;i++)assert(q.manual('work')===true,'V10.3 manual work session '+i+' failed');
+assert(g.player.money>startCareerMoney&&g.player.careerXP>startCareerXp,'Work should pay and earn career XP');
+assert(g.player.rank===careerRank,'Work automatically changed rank');
+assert(g.player.careerV103.workSessions===4&&g.player.careerV103.performance>55,'Career performance did not track actual work');
+assert(!q.manualStatus('work').available,'Yearly work cap was bypassed');
+assert(q.manualStatus('career_support').available,'Team support unavailable with an active career');
+assert(hub.build().some(x=>x.id==='manual:career_support'&&x.available),'Career action absent from Hub');
+assert(q.manual('career_support')===true,'Professional support action failed');
+assert(q.manual('career_initiative')===true,'Professional initiative failed');
+assert(g.player.careerV103.performance>60,'Professional actions did not improve performance');
+assert(q.manualStatus('career_bonus').available,'Successful work should unlock bonus request');
+const attemptedBonus=q.manual('career_bonus');
+assert(attemptedBonus===true,'Bonus review was not performed');
+assert(q.manualStatus('career_bonus').remaining===0,'Bonus request quota was not consumed');
+assert(g.player.careerV103.history.some(x=>x.kind==='career_bonus'),'Bonus review not written to career ledger');
+assert(g.player.careerV73.standing>30&&g.player.careerV73.trust>40,'Professional decisions did not impact V7.3 hierarchy');
+assert(q.careerMode('strategic')===true,'Work mode cannot be changed');
+assert(q.manualStatus('career_bonus').available===false,'One bonus review per year was not enforced');
+assert(g.meta.manualLifeV102.spent.career_support===1&&g.meta.manualLifeV102.spent.career_initiative===1,'Career actions not counted through unified V10.2 engine');
+assert(g.player.careerV103.earned>=g.player.careerV103.bonusEarned,'Career account totals inconsistent');
+console.log('V10.3 INTEGRATED CAREER QA OK',JSON.stringify({performance:g.player.careerV103.performance,sessions:g.player.careerV103.workSessions,bonus:g.player.careerV103.bonusEarned}));
+
 console.log('V10.1 INTEGRATED RUNTIME QA OK',JSON.stringify({tabs:['life','actions','character','relations','world'],actions:actions.length,
  favorites:g.meta.actionHubV95.favorites.length,lastAction:g.meta.actionHubV95.recent[0],saveVersion:q.saveVersion}));
