@@ -30,7 +30,7 @@ for(const p of ['src/data/manual-life-v100.js','src/v100/manual-life-engine-v100
 assert(html.includes('ONE PIECE LIFE — V10.0'),'V10 title missing');
 assert(/const GAME_VERSION\s*=\s*'10\.0\.0';/.test(html),'GAME_VERSION missing');
 assert(/const SAVE_VERSION\s*=\s*1000;/.test(html),'SAVE_VERSION missing');
-assert(sw.includes('one-piece-life-v10-0-0'),'V10 cache missing');
+assert(sw.includes('one-piece-life-v10-0-1'),'V10 cache missing');
 assert(html.includes('function advance(){return v100AdvanceYear()}'),'Age button must call new manual progression handler');
 const startFn=html.indexOf('function v100AdvanceYear()'),endFn=html.indexOf('function v100RenderManualPanel()',startFn);
 assert(startFn>=0&&endFn>startFn,'Annual handler missing');
