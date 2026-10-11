@@ -55,13 +55,13 @@ const corrupted=m.normalize({year:29,holdings:{dojo:99,shop:-999,evil:17},bought
 assert(corrupted.holdings.dojo===2&&corrupted.holdings.shop===0&&corrupted.holdings.evil===undefined,'Malformed assets accepted');
 assert(corrupted.bought===2&&corrupted.operated===3&&corrupted.invested===0&&corrupted.history.length===30,'Unsafe finance data escaped clamps');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes("const GAME_VERSION = '10.5.0'")&&html.includes('src/v105/economy-engine-v105.js'),'V10.5 release missing');
+assert(html.includes("const GAME_VERSION = '10.6.0'")&&html.includes('src/v105/economy-engine-v105.js'),'V10.5 release missing');
 assert(html.includes('function v105RenderEconomy()')&&html.includes('function v105SelectTarget(kind,id)'),'Economy selection UI missing');
 assert(html.includes('trainProgress(Math.max(.35,2*factor*v105Perks().training))'),'Training equipment not applied');
 assert(html.includes('v105Perks().recovery'),'Recovery equipment not applied');
 assert(html.includes('costOverrides:{work:cm&&cs?cm.workCost(cs):12,navigation:v105Perks().navigationCost}'),'Navigation energy perk not applied');
 assert(html.includes('function v100AdvanceYear()'),'Manual aging must survive');
-assert(sw.includes('one-piece-life-v10-5-0')&&sw.includes('src/v105/economy-engine-v105.js'),'PWA assets missing');
-assert(manifest.description.includes('V10.5'),'Installable app is stale');
+assert(sw.includes('one-piece-life-v10-6-0')&&sw.includes('src/v105/economy-engine-v105.js'),'PWA assets missing');
+assert(manifest.description.includes('V10.6'),'Installable app is stale');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 console.log('V10.5 ECONOMY QA OK',JSON.stringify({assets:Object.keys(d.assets).length,purchaseLimit:d.buyLimit,operateLimit:d.operateLimit,netFirst:profitable.net,netFailure:unprofitable.net}));
