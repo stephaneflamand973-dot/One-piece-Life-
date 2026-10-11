@@ -3149,6 +3149,7 @@ function v100AdvanceYear(){
   v83AnnualWorldTick();v82AnnualWorldTick();
   if(p.career!=='Aucune'&&!game.activeMission)refreshMissionBoard();
   naturalMortality(12);p.danger=dangerLevel();
+  v91CompleteAnnualIntent();
   game.meta.manualLifeV100=mod.nextYear(state,Math.floor(game.ageMonths/12));
   game.agency.lastAnnualReport={manualV100:true,year:game.clock.year,age:game.ageMonths,months:12,
     moneyDelta:Math.round(p.money-before.money),powerDelta:Math.round((overallPower()-before.power)*10)/10,
@@ -4543,11 +4544,11 @@ function advanceClock(months){game.ageMonths+=months;let total=game.clock.month+
 
 function lifecycleTransitions(){
   const age=Math.floor(game.ageMonths/12),p=game.player;
-  v79MilestoneTick();
+  if(!game.meta?.manualLifeV100)v79MilestoneTick();
   if(age>=4&&p.rank==='Enfant'){p.rank='Jeune';p.activity='Explorer les environs';p.activityType='explore';addHistory('Premiers choix','Tu commences à t’éloigner du foyer et à découvrir réellement '+p.island+'.')}
   if(age>=8&&!game.flags.childTalent){
-    game.flags.childTalent=true;const key=pick(STAT_KEYS,'life'),old=p.stats[key],gain=v671Gain('stats',key,randInt(1,4,'life'));
-    addHistory('Talent remarqué','Une aptitude commence à se distinguer chez toi : '+key.toLowerCase()+'.','major',key+' +'+gain.toFixed(1)+' • '+Math.floor(old)+' → '+Math.floor(p.stats[key]))
+    game.flags.childTalent=true;const key=pick(STAT_KEYS,'life');
+    addHistory('Talent remarqué','Une aptitude commence à se distinguer chez toi : '+key.toLowerCase()+'. Tu pourras choisir de la développer grâce aux actions d’entraînement.','major')
   }
   if(age>=10&&p.situation==='Enfance'){p.situation='Formation';p.rank='Jeune en formation';p.activity='Apprentissage local';p.activityType='study';addHistory('L’enfance change de rythme','Tu entres dans une période où tes activités commencent à façonner réellement tes compétences.','major')}
   if(age>=13&&!game.flags.ambitionOffered&&!game.pendingDecision){game.flags.ambitionOffered=true;game.pendingDecision=ambitionDecision()}
