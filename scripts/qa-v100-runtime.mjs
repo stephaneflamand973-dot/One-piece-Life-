@@ -404,7 +404,7 @@ assert(q.requestDeleteSlot(3,slotA),'IndexedDB save cannot request deletion');
 assert(await q.confirmDeleteSlot(),'IndexedDB delete did not confirm');
 assert(!indexed.has('slot-3')&&!store.has('opl-slot-3'),'IndexedDB/local fallback not both deleted');
 assert(await q.loadSlot(3)===null,'Deleted IndexedDB save can still be loaded');
-assert(!el('#saveSlots').innerHTML.includes('data-delete-slot="3"'),'IndexedDB deleted slot remains occupied');
+assert(el('#saveSlots').innerHTML.includes('data-delete-slot="3" disabled'),'Deleted IndexedDB slot must show disabled delete button');
 q.setStorageBackend({transaction(){throw Error('IndexedDB unavailable')}},false);
 assert(!await q.deleteSlot(1),'Database failure falsely reported success');
 q.setStorageBackend(null,true);
