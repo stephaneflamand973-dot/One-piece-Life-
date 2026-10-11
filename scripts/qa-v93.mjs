@@ -80,7 +80,7 @@ for(const asset of ['src/data/relationships-v93.js','src/v93/relationships-engin
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v10-0-0'),'PWA cache not V9.3');
+assert(sw.includes('one-piece-life-v10-0-1'),'PWA cache not V9.3');
 assert(html.includes('v92Ensure();v93Ensure()'),'V9.3 ensure chain missing');
 for(const fn of ['function v93Module','function v93Ensure','function v93Profile','function v93OnNpcLifeEvent','function v93MaybePromoteNemesis','function v93MaybeQueueBeat','function v93ResolveDecision','function renderV93Relationships']){
   assert(html.includes(fn),'Missing V9.3 live bridge '+fn);
