@@ -6724,13 +6724,13 @@ function v111SyncUi(){
   if(!screen||!game)return;
   const expanded=!!game.meta?.uiAdvanced;
   screen.classList.toggle('opl-advanced',expanded);
-  if(button){button.setAttribute('aria-expanded',String(expanded));button.innerHTML=expanded?'Masquer les détails de cette vie <span aria-hidden="true">⌃</span>':'Afficher les détails de cette vie <span aria-hidden="true">⌄</span>'}
+  if(button){button.setAttribute?.('aria-expanded',String(expanded));button.innerHTML=expanded?'Masquer les détails de cette vie <span aria-hidden="true">⌃</span>':'Afficher les détails de cette vie <span aria-hidden="true">⌄</span>'}
   if(age){
     age.disabled=!game.alive;
     const pending=!!game.pendingDecision;
     $('#oplAgeMain').textContent=pending?'Prendre une décision':'Avancer d’un an';
     $('#oplAgeSub').textContent=pending?'Un choix attend ta réponse':'Renouvelle tes actions, sans progrès automatique';
-    age.setAttribute('aria-label',pending?'Ouvrir la décision en attente':'Avancer d’un an');
+    age.setAttribute?.('aria-label',pending?'Ouvrir la décision en attente':'Avancer d’un an');
     age.classList.toggle('opl-age-pending',pending);
   }
 }
