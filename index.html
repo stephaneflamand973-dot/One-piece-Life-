@@ -2846,6 +2846,89 @@ function renderV92Lives(){
   box.innerHTML='<div class="v92-overview"><div><span>Suivis</span><strong>'+sum.totalTracked+'</strong></div><div><span>Carrières</span><strong>'+sum.totalPromotions+'</strong></div><div><span>Objectifs</span><strong>'+sum.totalObjectives+'</strong></div><div><span>Jalons</span><strong>'+sum.totalMilestones+'</strong></div></div><div><span class="eyebrow">Vies importantes</span><div class="v92-life-list">'+lifeHtml+'</div></div>'+historyHtml
 }
 
+function v93Module(){return window.OPL_MODULES?.get('relationshipsEngineV93')||null}
+function v93Data(){return window.OPL_MODULES?.get('relationshipsDataV93')||null}
+function v93Ensure(){
+  if(!game?.player)return null;const mod=v93Module(),p=game.player;
+  p.socialV93=mod?mod.normalizeState(p.socialV93||{}):(p.socialV93||{version:1,relations:{},pending:[],lastBeatYear:-99,lastAnnualYear:-99,totalBeats:0,totalNemeses:0,totalCommitments:0,history:[]});
+  return p.socialV93
+}
+function v93RelationContext(r){
+  const social=v74EnsureRelation(r)||{},life=v92RelationSnapshot(r)||{};
+  return {social,life:{...life,playerRegion:game.player.region},year:Math.floor(game.ageMonths/12),month:game.ageMonths}
+}
+function v93Profile(r){
+  const mod=v93Module(),state=v93Ensure();if(!mod||!state||!r)return null;
+  const ctx=v93RelationContext(r),link=state.relations?.[r.id]||{};
+  return {...mod.profile(r,ctx.social,ctx.life,link),nemesisScore:mod.nemesisScore(r,ctx.social,ctx.life,link),promotedNemesis:!!link.promotedNemesis}
+}
+function v93SyncRelations(){
+  const mod=v93Module();let state=v93Ensure();if(!mod||!state)return null;
+  const year=Math.floor(game.ageMonths/12),rels=(game.relations||[]).filter(r=>r.status!=='left');
+  for(const r of rels){const got=mod.ensureLink(state,r.id);state=got.state}
+  if(state.lastAnnualYear!==year)state=mod.annualTick(state,rels,year);
+  game.player.socialV93=state;
+  for(const r of rels)v93MaybePromoteNemesis(r);
+  return state
+}
+function v93RecordInteraction(r,action){
+  const mod=v93Module(),state=v93Ensure();if(!mod||!state||!r)return null;
+  const result=mod.interaction(state,r.id,action,{year:Math.floor(game.ageMonths/12),month:game.ageMonths});
+  game.player.socialV93=result.state;v93MaybePromoteNemesis(r);return result.link
+}
+function v93OnNpcLifeEvent(r,event){
+  const mod=v93Module(),state=v93Ensure();if(!mod||!state||!r||!event)return null;
+  const mapped=event.type==='fall'?{...event,type:'setback'}:event,ctx=v93RelationContext(r);
+  const result=mod.queueLifeEvent(state,r,mapped,{...ctx,year:Math.floor(game.ageMonths/12)});
+  game.player.socialV93=result.state;v93MaybePromoteNemesis(r);return result.queued
+}
+function v93MaybePromoteNemesis(r){
+  const mod=v93Module();let state=v93Ensure();if(!mod||!state||!r||r.canonId)return null;
+  const ctx=v93RelationContext(r),link=state.relations?.[r.id]||{};
+  if(!mod.nemesisEligible(r,ctx.social,ctx.life,link))return link.nemesisId||null;
+  ensureV59();let rival=(game.world.rivals||[]).find(x=>x.sourceRelationId===r.id);
+  if(!rival){
+    const life=ctx.life,power=Math.max(18,Number(life.power)||22),potential=Math.max(power+8,Number(life.potentialPower)||power+18);
+    rival={id:'rival_rel_'+hash32(r.id),name:r.name,faction:life.faction||r.faction||'Indépendant',region:life.region||game.player.region,power,potentialPower:clamp(potential,power,100),growthRate:1.02,rivalry:Number(r.rivalry)||70,respect:Number(r.respect)||45,encounters:0,wins:0,losses:0,status:'active',lastSeen:v58MonthIndex(),canonId:null,source:'v93_relation',sourceRelationId:r.id};
+    game.world.rivals.unshift(rival);if(game.world.rivals.length>12)game.world.rivals.length=12
+  }
+  const antagonist=v83PromoteRival(rival),nemesisId=antagonist?.id||rival.v83Id||rival.id;
+  const marked=mod.markNemesis(state,r.id,nemesisId,{year:game.clock.year});game.player.socialV93=marked.state;
+  v74RecordMemory(r,{id:'v93_nemesis_'+game.clock.year,type:'v93',label:'La rivalité devient personnelle',valence:-7,impact:5,tags:['v93','nemesis','rivalry']});
+  addHistory('Une rivalité devient Némésis',r.name+' n’est plus une simple tension sociale. Votre histoire commune devient désormais une rivalité persistante qui peut revenir dans le monde.','danger','Némésis • '+Math.round(mod.nemesisScore(r,ctx.social,ctx.life,marked.link))+'/100');
+  return nemesisId
+}
+function v93MaybeQueueBeat(){
+  const mod=v93Module();let state=v93SyncRelations();if(!mod||!state||game.pendingDecision||!game.alive||game.ageMonths<156)return false;
+  const year=Math.floor(game.ageMonths/12),beat=mod.nextBeat(state,game.relations||[],year);if(!beat||beat.priority<55)return false;
+  const r=v6RelationById(beat.relationId);if(!r)return false;
+  const link=state.relations?.[r.id]||{},choices=mod.choiceDefs(beat,link);if(!choices.length)return false;
+  game.pendingDecision={id:'v93_'+beat.id,title:beat.title+' • '+r.name,text:beat.text+(beat.eventDesc?' '+beat.eventDesc:''),
+    choices:choices.map(c=>({label:c.label,hint:c.hint,action:'v93bond:'+encodeURIComponent(beat.id)+':'+c.id}))};
+  return true
+}
+function v93ResolveDecision(parts){
+  const mod=v93Module(),state=v93Ensure(),beatId=decodeURIComponent(parts[1]||''),choiceId=parts[2];if(!mod||!state)return false;
+  const beat=state.pending.find(x=>x.id===beatId),r=beat?v6RelationById(beat.relationId):null;if(!beat||!r)return false;
+  const result=mod.applyChoice(state,beatId,choiceId,r,{year:Math.floor(game.ageMonths/12),month:game.ageMonths});if(result.error)return false;
+  const relMod=v74Module();if(relMod&&result.delta)Object.assign(r,relMod.applyRelationDelta(r,result.delta));
+  game.player.energy=clamp(game.player.energy+Number(result.energy||0),0,100);
+  if(choiceId==='support')r.favors=clamp((r.favors||0)+1,0,9);
+  if(choiceId==='ask_favor'){r.favors=Math.max(0,(r.favors||0)-1);r.support=clamp((r.support||0)+12,0,100)}
+  v74RecordMemory(r,result.memory);game.player.socialV93=result.state;
+  addHistory(result.beat.title,result.choice.memory+' avec '+r.name+'.','major',v93Profile(r)?.tierLabel||'Relation');
+  v93MaybePromoteNemesis(r);return true
+}
+function v93SupportBonus(r){const mod=v93Module(),state=v93Ensure();return mod&&state&&r?mod.supportBonus(state,r.id):0}
+function renderV93Relationships(){
+  const box=$('#v93SocialCard'),badge=$('#v93SocialBadge'),mod=v93Module(),state=v93SyncRelations();if(!box||!badge||!mod||!state)return;
+  const rows=(game.relations||[]).filter(r=>r.status!=='left').map(r=>({r,p:v93Profile(r)})).filter(x=>x.p).sort((a,b)=>b.p.score-a.p.score).slice(0,6);
+  const debts=Object.values(state.relations||{}).reduce((n,x)=>n+Number(x.npcOwes||0)+Number(x.playerOwes||0),0),nemeses=Object.values(state.relations||{}).filter(x=>x.promotedNemesis).length;
+  badge.textContent=state.totalBeats+' moments • '+nemeses+' némésis';
+  box.innerHTML='<div class="v93-overview"><div><span>Moments vécus</span><strong>'+state.totalBeats+'</strong></div><div><span>Engagements</span><strong>'+state.totalCommitments+'</strong></div><div><span>Dettes actives</span><strong>'+debts+'</strong></div><div><span>Némésis relationnelles</span><strong>'+nemeses+'</strong></div></div>'+
+    '<div><span class="eyebrow">Liens les plus structurants</span><div class="v93-links">'+(rows.length?rows.map(x=>{const link=state.relations[x.r.id]||{},pending=state.pending.some(b=>b.relationId===x.r.id);return '<div class="v93-link '+(x.p.promotedNemesis?'v93-nemesis ':'')+(pending?'v93-pending':'')+'"><div class="v93-link-head"><strong>'+esc(x.r.name)+'</strong><span class="v93-tier">'+esc(x.p.tierLabel)+'</span></div><small>Solidité '+Math.round(x.p.score)+'/100 • rivalité structurante '+Math.round(x.p.nemesisScore)+'/100</small><div class="v93-meter"><i style="width:'+clamp(Math.round(x.p.score),0,100)+'%"></i></div><div class="v93-chips">'+(link.npcOwes?'<span>Te doit '+link.npcOwes+' service'+(link.npcOwes>1?'s':'')+'</span>':'')+(link.playerOwes?'<span>Tu dois '+link.playerOwes+' service'+(link.playerOwes>1?'s':'')+'</span>':'')+(link.grudge?'<span class="v93-grudge">Rancune '+Math.round(link.grudge)+'</span>':'')+(pending?'<span>Moment relationnel en attente</span>':'')+(x.p.promotedNemesis?'<span>Némésis persistante</span>':'')+'</div></div>'}).join(''):'<div class="career-card"><p>Aucun lien assez développé pour produire une dynamique V9.3.</p></div>')+'</div></div>'
+}
+
 function v91Module(){return window.OPL_MODULES?.get('goalsEngineV91')||null}
 function v91Data(){return window.OPL_MODULES?.get('goalsDataV91')||null}
 function v91MissionCounters(){
