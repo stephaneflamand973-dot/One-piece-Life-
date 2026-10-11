@@ -41,7 +41,7 @@ const game={meta:{},ageMonths:240,alive:true,pendingDecision:null,agency:{annual
   region:'East Blue',island:'Shells Town',travel:null,health:90,energy:75},
   missionBoard:[{id:'mission_one',title:'Escorte',desc:'Convoi',reward:400}],
   relations:[{id:'friend',name:'Mira',status:'active',trust:75,familiarity:75}],
-  flags:{relationInteractionYear:{}},activeMission:null
+  flags:{relationInteractionYear:{}},activeMission:null,history:[]
 };
 let saves=0,last=null,view='';
 const runtime=api.createRuntime({
@@ -56,7 +56,7 @@ const runtime=api.createRuntime({
  hooks:()=>[{id:'hook:x',actionable:true,hookId:'x',title:'Départ immédiat',region:'East Blue',priority:90,remaining:3}],
  services:()=>[{id:'inn',label:'Auberge',used:false}],
  toast:()=>{},save:()=>{saves++},openTab:tab=>{view=tab},
- execute:id=>{last=id;if(id==='mission:mission_one')game.player.money=(game.player.money||0)+250;return true}
+ execute:id=>{last=id;if(id==='mission:mission_one')game.player.money=(game.player.money||0)+250;if(id==='hook:x')game.history.unshift({id:'event_qa',title:'Rencontre inattendue'});return true}
 });
 const actions=runtime.build();
 for(const cat of ['career','training','relations','exploration','economy','life'])
@@ -71,6 +71,13 @@ assert(document.getElementById('v95Hub').innerHTML.includes('Que veux-tu faire ?
 assert(document.getElementById('v95HubResults').innerHTML.includes('Accepter : Escorte'),'Action hub mission label missing');
 assert(document.getElementById('v95LifeQuick').innerHTML.includes('Toutes les actions'),'Life shortcut missing');
 assert(game.meta.actionFeedbackV111?.summary.includes('Berry +250'),'Immediate action result not saved');
+runtime.execute('hook:x');
+assert(game.meta.actionFeedbackV111?.summary.includes('Rencontre inattendue'),'Narrative-only action result was lost');
+runtime.renderHub();
+assert(document.getElementById('v95Hub').innerHTML.includes('Retour à ma vie'),'Activity result must offer one-tap return to life');
+game.meta.actionHubV95.category='career';runtime.renderHub();
+assert(document.getElementById('v95Hub').innerHTML.includes('oplHubBack'),'Activity subcategory must have a visible return link');
+game.meta.actionHubV95.category='all';runtime.renderHub();
 assert(document.getElementById('v95LifeQuick').innerHTML.includes('Dernière action'),'Life view must reveal the last action result');
 game.agency.annualTurn={active:true,monthsSimulated:4};
 const during=runtime.build();
