@@ -102,11 +102,22 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 
   <main>
     <section id="startScreen" class="screen active">
+      <section class="paper-card">
+        <div class="section-heading"><div><span class="eyebrow">Sauvegardes</span><h3>Choisir une vie</h3></div><span class="badge">3 emplacements • V11.0.1</span></div>
+        <div id="saveSlots" class="save-grid">
+          <div class="save-slot-shell"><button type="button" class="save-slot empty" data-slot="1">＋ Nouvelle vie<br><small>Emplacement 1</small></button><button type="button" class="save-slot-delete" data-delete-slot="1" disabled>Aucune sauvegarde à supprimer</button></div>
+          <div class="save-slot-shell"><button type="button" class="save-slot empty" data-slot="2">＋ Nouvelle vie<br><small>Emplacement 2</small></button><button type="button" class="save-slot-delete" data-delete-slot="2" disabled>Aucune sauvegarde à supprimer</button></div>
+          <div class="save-slot-shell"><button type="button" class="save-slot empty" data-slot="3">＋ Nouvelle vie<br><small>Emplacement 3</small></button><button type="button" class="save-slot-delete" data-delete-slot="3" disabled>Aucune sauvegarde à supprimer</button></div>
+        </div>
+        <p id="startupStatus" class="helper-text">Initialisation du moteur et des sauvegardes…</p>
+        <noscript><div class="startup-error"><strong>JavaScript n’est pas exécuté.</strong><span>Cette prévisualisation peut afficher le jeu sans pouvoir le faire fonctionner. Ouvre le fichier dans un navigateur qui autorise JavaScript ou utilise le pack web hébergé.</span></div></noscript>
+      </section>
+
       <section class="hero-card paper-card">
-        <span class="eyebrow">V8.7 • Islands & Settlements 4.0</span>
-        <h2>Les îles deviennent enfin des lieux où vivre, pas seulement des cases sur une route maritime.</h2>
-        <p>La V8.7 donne une mémoire locale à chaque destination : réputation propre à l’île, chaleur, familiarité, quartiers, services, prix, contacts et avantages durables liés à ta présence.</p>
-        <div class="feature-pills"><span>Réputation par île</span><span>Quartiers locaux</span><span>8 services</span><span>Prix dynamiques</span><span>Contacts</span><span>Chaleur locale</span><span>Économie régionale</span></div>
+        <span class="eyebrow">ONE PIECE LIFE • V11.0.1</span>
+        <h2>À chaque vie son histoire.</h2>
+        <p>Choisis un personnage ci-dessus pour continuer ta partie, ou utilise le bouton <strong>Supprimer cette sauvegarde</strong> de son emplacement. La suppression demande confirmation et ne touche pas aux autres vies.</p>
+        <div class="feature-pills"><span>Sauvegardes indépendantes</span><span>Suppression avec confirmation</span><span>3 emplacements</span><span>Sagas et contrats</span></div>
       </section>
 
 
@@ -120,17 +131,6 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
         <span class="eyebrow">Installation iPhone</span>
         <h3>Transformer le site en app</h3>
         <p>Dans Safari : <strong>Partager → Sur l’écran d’accueil → Ouvrir comme app web</strong>. La sauvegarde reste locale à cet iPhone.</p>
-      </section>
-
-      <section class="paper-card">
-        <div class="section-heading"><div><span class="eyebrow">Sauvegardes</span><h3>Choisir une vie</h3></div><span class="badge">3 emplacements • V11.0.1</span></div>
-        <div id="saveSlots" class="save-grid">
-          <div class="save-slot-shell"><button type="button" class="save-slot empty" data-slot="1">＋ Nouvelle vie<br><small>Emplacement 1</small></button><button type="button" class="save-slot-delete" data-delete-slot="1" disabled>Aucune sauvegarde à supprimer</button></div>
-          <div class="save-slot-shell"><button type="button" class="save-slot empty" data-slot="2">＋ Nouvelle vie<br><small>Emplacement 2</small></button><button type="button" class="save-slot-delete" data-delete-slot="2" disabled>Aucune sauvegarde à supprimer</button></div>
-          <div class="save-slot-shell"><button type="button" class="save-slot empty" data-slot="3">＋ Nouvelle vie<br><small>Emplacement 3</small></button><button type="button" class="save-slot-delete" data-delete-slot="3" disabled>Aucune sauvegarde à supprimer</button></div>
-        </div>
-        <p id="startupStatus" class="helper-text">Initialisation du moteur et des sauvegardes…</p>
-        <noscript><div class="startup-error"><strong>JavaScript n’est pas exécuté.</strong><span>Cette prévisualisation peut afficher le jeu sans pouvoir le faire fonctionner. Ouvre le fichier dans un navigateur qui autorise JavaScript ou utilise le pack web hébergé.</span></div></noscript>
       </section>
 
       <section id="creationCard" class="paper-card setup-card hidden">

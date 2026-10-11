@@ -1,3 +1,11 @@
+# ONE PIECE LIFE V11.0.1 : Suppression visible dès l’accueil
+
+- Les trois emplacements et leurs boutons **Supprimer cette sauvegarde** sont maintenant les premiers éléments de la page d’accueil, visibles sur iPhone sans traverser une ancienne présentation V8.7.
+- Suppression confirmée par boîte de dialogue, ciblée sur l’emplacement choisi, sans effet sur les autres vies.
+- Rafraîchissement du cache PWA en `one-piece-life-v11-0-1-hotfix3` et vérification de l’ordre des sections par la QA.
+
+---
+
 # ONE PIECE LIFE V11.0.1 : Suppression des sauvegardes sur l'accueil
 
 - Le bouton rouge **🗑 Supprimer cette sauvegarde** est affiché sous chaque partie occupée. Un bouton grisé reste visible lorsque l'emplacement est vide.
