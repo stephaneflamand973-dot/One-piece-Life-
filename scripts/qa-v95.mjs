@@ -95,6 +95,17 @@ const waiting=runtime.build();
 assert(waiting.some(x=>x.id==='decision'&&x.available),'Pending decision must be actionable');
 assert(waiting.some(x=>x.id==='doctrine:precision'&&!x.available),'Combat choices must lock on pending decision');
 assert(!runtime.execute('mission:mission_one')&&last==='service:inn','Locked action should not execute');
+runtime.renderLife();runtime.renderHub();
+assert(document.getElementById('v95LifeQuick').innerHTML.includes('oplLifeDecisionBtn'),'Life must spotlight the waiting story choice');
+assert(document.getElementById('v95Hub').innerHTML.includes('oplHubDecisionBtn'),'Activities must spotlight the waiting story choice');
+assert(!document.getElementById('v95Hub').innerHTML.includes('data-v95-quick='),'Pending choice must replace distracting activity suggestions');
+assert(!document.getElementById('v95LifeQuick').innerHTML.includes('data-v95-life='),'Pending choice must replace unusable life actions');
+assert(typeof document.getElementById('oplLifeDecisionBtn').onclick==='function','Life decision call-to-action not wired');
+assert(typeof document.getElementById('oplHubDecisionBtn').onclick==='function','Activity decision call-to-action not wired');
+document.getElementById('oplLifeDecisionBtn').onclick();
+assert(last==='decision','Life decision button must launch the existing narrative choice flow');
+game.pendingDecision=null;runtime.renderHub();
+assert(document.getElementById('v95Hub').innerHTML.includes('Que veux-tu faire ?'),'Actions must reappear after decision is cleared');
 
 for(const file of ['src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.js','src/v95/action-hub-runtime-v95.js','src/v95/action-hub-v95.css']){
  assert(html.includes(file),'Missing page asset '+file);
