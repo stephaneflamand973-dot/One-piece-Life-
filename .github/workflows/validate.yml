@@ -87,7 +87,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate standalone and modular V9.3
+      - name: Validate standalone and modular V9.4
         run: |
           node <<'NODE'
           const fs=require('fs');
@@ -129,10 +129,10 @@ jobs:
           for(const x of ['function v71Ensure','function v72CombatModule','function v73Module','function v74Module','function v75Module','function v76Module','function v77Module','function v78Module','function v79Module','function v80Module','function v80PriorityInterrupt','function v80RenderActiveTab','function v81Module','function v81Ensure','function v81QueueFaction','function renderV81FactionIdentity','function v82Module','function v82Ensure','function v82AnnualWorldTick','function v82QueueCampaign','function renderV82Campaigns','function v83Module','function v83Ensure','function v83BindCampaign','function v83Candidate','function v83QueueNemesis','function renderV83Nemeses','function v84Module','function v84Ensure','function v84MissionSupport','function v84Candidate','function v84QueueCrew','function v84RenderCrew','function v85Module','function v85Ensure','function v85RoutePreview','function v85TickVoyage','function renderV85Exploration','function v86Module','function v86Ensure','function v86MonthlyTick','function v86ResolveOpportunity','function renderV86Daily','function v87Module','function v87Ensure','function v87OnArrival','function v87Service','function renderV87Settlement','function v88Module','function v88Ensure','function v88Context','function v88MarketAvailable','function v88Trade','function renderV88Market','function v89Module','function v89Ensure','function v89EquipmentEffects','function v89MaybeLoot','function renderV89Equipment','function v90Module','function v90Ensure','function v90Context','function v90ApplyPreset','function renderV90GameFlow','function v91Module','function v91Ensure','function v91Context','function v91Sync','function v91ApplyIntent','function renderV91Goals','function v92Module','function v92Ensure','function v92TrackedActors','function v92Tick','function renderV92Lives','function v93Module','function v93Ensure','function v93Profile','function v93OnNpcLifeEvent','function v93MaybePromoteNemesis','function v93MaybeQueueBeat','function v93ResolveDecision','function renderV93Relationships'])if(!html.includes(x))throw new Error('missing '+x);
           if(!html.includes('id="v80DirectorCard"'))throw new Error('V8.0 Life Director UI missing');
           if(html.includes('renderTimeline();renderCharacter();renderAbilities();renderRelations();renderWorld();renderDev();v76AfterRender()'))throw new Error('eager heavy-panel render regression');
-          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V9.3'))throw new Error('manifest not V9.3');
-          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v9-3-0'))throw new Error('service worker cache not V9.3.0');
+          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V9.4'))throw new Error('manifest not V9.4');
+          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v9-4-0'))throw new Error('service worker cache not V9.4.0');
           for(const x of assets)if(!sw.includes(x))throw new Error('service worker missing modular asset '+x);
-          console.log('V9.3 static + modular validation OK');
+          console.log('V9.4 static + modular validation OK');
           NODE
       - name: Validate V6.4 regression behavior
         run: node scripts/qa-v64.mjs
