@@ -9,7 +9,7 @@ const modules=[
   'src/data/goals-v91.js','src/v91/goals-engine-v91.js',
   'src/data/npc-lives-v92.js','src/v92/npc-lives-engine-v92.js',
   'src/data/relationships-v93.js','src/v93/relationships-engine-v93.js',
-  'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js'
+  'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js','src/data/action-v102.js','src/v102/action-engine-v102.js'
 ].map(p=>fs.readFileSync(p,'utf8'));
 
 function assert(c,m){if(!c)throw new Error(m)}
