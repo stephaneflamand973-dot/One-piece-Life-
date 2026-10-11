@@ -44,6 +44,14 @@ function createRuntime(bridge){
       add(a,'manual:'+id,cat,title,detail+' • '+(st.remaining||0)+'/'+(st.limit||'?')+' restantes • '+(st.cost||0)+' énergie'+(st.efficiency<1?' • rendement '+Math.round(st.efficiency*100)+'%':'')+'.',{
         available:!!st.available,reason:st.reason||'',score,tags:'action manuelle carrière évolution'});
     }
+    // Youth choices must be playable from the life screen, not hidden in Profile.
+    // The existing education engine remains authoritative for age, energy and yearly limits.
+    for(const education of (bridge.educationChoices?.()||[])){
+      add(a,'education:'+education.id,'life',education.title,education.detail||'Décision de formation.',{
+        available:!locked&&!!education.available,
+        reason:locked?why:(education.reason||''),
+        score:education.score||98,tags:'école apprentissage études enfance formation jeunesse'});
+    }
     if(game.activeMission)add(a,'open:character:missionBoard','career','Mission en cours : '+game.activeMission.title,'Voir la mission active.',{kind:'open',score:82});
     else for(const m of (game.missionBoard||[]).slice(0,7)){
       add(a,'mission:'+m.id,'career','Accepter : '+m.title,(m.desc||'Mission')+' • '+Math.round(m.reward||0).toLocaleString('fr-FR')+' B',{
