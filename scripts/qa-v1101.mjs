@@ -20,7 +20,7 @@ for(let n=1;n<=3;n++)assert(html.includes('data-delete-slot="'+n+'" disabled'),'
 assert(html.includes('Aucune sauvegarde à supprimer'),'Empty slot label missing');
 assert(html.includes("updateViaCache:'none'")&&html.includes("controllerchange"),'Installed iPhone app must detect updates');
 assert(sw.includes("event.request.mode==='navigate'")&&sw.includes("cache:'no-store'"),'Navigation must bypass stale PWA shell');
-assert(sw.includes('one-piece-life-v11-0-1-hotfix4'),'Hotfix4 PWA cache missing');
+assert(sw.includes('one-piece-life-v11-0-1-gameplay-purifie'),'Hotfix4 PWA cache missing');
 
 assert(html.includes('function requestDeleteSlot(')&&html.includes('async function confirmDeleteSlot(')&&html.includes('function cancelDeleteSlot('));
 assert(html.includes('async function deleteSlot(slot)')&&html.includes('localStorage.removeItem(localKey(slot))'));
