@@ -171,7 +171,13 @@ function createRuntime(bridge){
       if(game?.meta&&a.kind!=='open'&&!['decision','advance'].includes(id)){
         renderLife();
         // The game may have switched screens or opened a narrative decision.
-        if(!game.pendingDecision)renderHub();
+        if(!game.pendingDecision){
+          renderHub();
+          // Show the consequence where the player is, without an extra trip through tabs.
+          const tab=bridge.activeTab?.()||'life';
+          const result=node(tab==='actions'?'v95Hub':'v95LifeQuick')?.querySelector?.('.opl-result-flow');
+          if(result)global.requestAnimationFrame?.(()=>result.scrollIntoView?.({block:'start',behavior:'smooth'}));
+        }
       }
     }
     return ok
