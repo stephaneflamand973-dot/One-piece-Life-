@@ -6,7 +6,7 @@ const integer=(n,min=0,max=1e9)=>Math.max(min,Math.min(max,Math.floor(Number.isF
 const known=Object.keys(data.actions);
 function normalize(raw={},year=0){
   const y=integer(year),same=integer(raw.year)===y,spent={};
-  if(same)for(const id of known)spent[id]=integer(raw.spent?.[id],0,data.actions[id].limit);
+  for(const id of known)spent[id]=same?integer(raw.spent?.[id],0,data.actions[id].limit):0;
   const history=Array.isArray(raw.history)?raw.history.slice(-24).filter(x=>x&&typeof x==='object').map(x=>({
     year:integer(x.year),id:known.includes(x.id)?x.id:'unknown',efficiency:Math.max(0,Math.min(1,Number(x.efficiency)||0)),detail:String(x.detail||'').slice(0,110)
   })):[];
