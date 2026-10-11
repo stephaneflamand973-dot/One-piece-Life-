@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 
 const html=fs.readFileSync('index.html','utf8');
-const registrySrc=fs.readFileSync('src/core/module-registry.js','utf8');
+const registrySrc=fs.readFileSync('src/core/module-registry.js',
+ 'src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js','utf8');
 const modules=[
   'src/data/relation-personas-v74.js','src/v74/relation-persona-engine-v74.js',
   'src/data/antagonists-v83.js','src/v83/antagonist-engine-v83.js',
