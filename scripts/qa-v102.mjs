@@ -7,7 +7,7 @@ const ctx={console,Math,JSON,Object,Array,String,Number,Set,Map};ctx.window=ctx;
 for(const p of paths)vm.runInContext(fs.readFileSync(p,'utf8'),ctx,{filename:p});
 const mod=ctx.OPL_MODULES.get('actionEngineV102'),data=ctx.OPL_MODULES.get('actionDataV102');
 assert(mod?.version==='10.2.0'&&data?.version==='10.2.0','V10.5 modules missing');
-assert(Object.keys(data.actions).length===16,'V10.5 should extend the V10.2 action registry');
+assert(Object.keys(data.actions).length===17,'V10.5 should extend the V10.2 action registry');
 const allowed={alive:true,pending:false,energy:100,career:true,land:true,mission:true,promotion:true,recovery:true,travel:true};
 let s=mod.normalize({},19);
 assert(s.version===2&&s.year===19&&s.spent.work===0,'New action state missing');
@@ -56,10 +56,10 @@ assert(malformed.spent.work===4&&malformed.spent.training===0&&malformed.spent.a
 assert(malformed.trainingFocus==='physical'&&malformed.history.length===24&&malformed.history.every(x=>x.efficiency<=1&&x.detail.length<=110),'Invalid focus or unbounded ledger accepted');
 
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes('<title>ONE PIECE LIFE — V10.9</title>')&&html.includes("const GAME_VERSION = '10.9.0'"),'V10.5 version missing');
+assert(html.includes('<title>ONE PIECE LIFE — V11.0</title>')&&html.includes("const GAME_VERSION = '11.0.0'"),'V10.5 version missing');
 assert(html.includes('src/data/action-v102.js')&&html.includes('src/v102/action-engine-v102.js'),'V10.5 modules not loaded');
-assert(sw.includes('one-piece-life-v10-9-0')&&sw.includes('src/data/action-v102.js')&&sw.includes('src/v102/action-engine-v102.js'),'V10.5 offline assets missing');
-assert(manifest.description.includes('V10.9'),'PWA metadata outdated');
+assert(sw.includes('one-piece-life-v11-0-0')&&sw.includes('src/data/action-v102.js')&&sw.includes('src/v102/action-engine-v102.js'),'V10.5 offline assets missing');
+assert(manifest.description.includes('V11.0'),'PWA metadata outdated');
 assert(html.includes('function v102SetTrainingFocus(id)'), 'Training focus selector missing');
 assert(html.includes('game.meta.manualLifeV102=mod.nextYear(state'), 'V10.5 annual state reset missing');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
