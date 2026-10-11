@@ -87,7 +87,7 @@ for(const file of ['src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.j
 assert(html.includes('<title>ONE PIECE LIFE — V10.0</title>'),'Wrong game title');
 assert(/const GAME_VERSION\s*=\s*'10\.0\.0';/.test(html),'Wrong game version');
 assert(/const SAVE_VERSION\s*=\s*1000;/.test(html),'Save migration 950 missing');
-assert(sw.includes('one-piece-life-v10-0-0'),'PWA cache not V9.5');
+assert(sw.includes('one-piece-life-v10-0-1'),'PWA cache not V9.5');
 assert((html.match(/class="nav-item/g)||[]).length===5,'Mobile navigation not limited to five');
 assert(html.includes('data-tab="actions"')&&html.includes('id="actionsPanel"'),'Action tab not wired');
 assert(html.includes('v95Ensure()?.renderHub()')&&html.includes('v95Ensure()?.renderLife()'),'Action Hub hooks not wired');
