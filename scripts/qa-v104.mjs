@@ -60,9 +60,9 @@ assert(malformed.used===12&&malformed.counts.alice===3&&malformed.lifetime===0&&
 assert(malformed.history.every(x=>x.id.length<=100&&x.label.length<=110),'History record too large');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8'),manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes("const GAME_VERSION = '10.8.0'")&&html.includes('social-engine-v104.js'),'V10.5 game release not linked');
+assert(html.includes("const GAME_VERSION = '10.9.0'")&&html.includes('social-engine-v104.js'),'V10.5 game release not linked');
 assert(html.includes('function v104Perform(id,action)')&&html.includes('function v104RenderOverview()'),'Social game integration missing');
-assert(sw.includes('one-piece-life-v10-8-0')&&sw.includes('social-engine-v104.js'),'V10.5 assets unavailable offline');
-assert(manifest.description.includes('V10.8'),'V10.5 PWA metadata absent');
+assert(sw.includes('one-piece-life-v10-9-0')&&sw.includes('social-engine-v104.js'),'V10.5 assets unavailable offline');
+assert(manifest.description.includes('V10.9'),'V10.5 PWA metadata absent');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 console.log('V10.5 SOCIAL ENGINE QA OK',JSON.stringify({actions:Object.keys(data.actions).length,globalLimit:data.limits.global,perPerson:data.limits.perRelation}));
