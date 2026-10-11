@@ -1,3 +1,17 @@
+# ONE PIECE LIFE V11.0 : Sagas personnelles et choix décisifs
+
+- Après un contrat, **une saga en trois chapitres** peut naître avec un contact connu : alliance, intrigue de faction ou rivalité.
+- Chaque chapitre coûte **une action annuelle manuelle**, suivie d'un choix à probabilités dynamiques. Aucun chapitre n'est accompli à l'avance et le vieillissement ne donne pas d'expérience, d'argent ni de victoire.
+- Trois tactiques : négocier, s'infiltrer et confronter, plus la retraite. Les réussites débloquent le chapitre suivant ; les échecs nécessitent une nouvelle tentative et cinq échecs peuvent mettre fin à la saga.
+- Les conséquences modifient **Berry, santé, réputation et liens persistants avec les personnages**. La récompense majeure est versée une seule fois, en fin de saga.
+- Maximum 3 sagas actives, 3 chapitres par an, reprise de la décision après sauvegarde.
+
+**GAME_VERSION 11.0.0 • SAVE_VERSION 1000 • CACHE one-piece-life-v11-0-0**
+
+Voir [QA-V11.0.md](QA-V11.0.md).
+
+---
+
 # ONE PIECE LIFE — V10.9 : Contrats et conséquences durables
 
 - Chaque rencontre peut générer **un contrat actif**, contextualisé selon le contact, sa confiance, sa rivalité et les dangers locaux.
