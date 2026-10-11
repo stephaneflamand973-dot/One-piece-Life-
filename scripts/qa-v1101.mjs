@@ -15,5 +15,5 @@ assert(html.includes("$('#deleteSaveConfirm').onclick=confirmDeleteSlot"));
 assert(html.includes("$('#deleteSaveCancel').onclick=cancelDeleteSlot"));
 assert(sw.includes('one-piece-life-v11-0-1'),'PWA cache not bumped');
 assert(manifest.description.includes('V11.0.1'),'Installable game version missing');
-new Function(html.match(/<script>([\\s\\S]*?)<\\/script>/)?.[1]||'');
+new Function(html.split('<script>')[1]?.split('</script>')[0]||'');
 console.log('V11.0.1 HOME DELETE STATIC QA OK');
