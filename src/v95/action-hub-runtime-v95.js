@@ -231,8 +231,28 @@ function createRuntime(bridge){
       more.setAttribute('aria-expanded',String(showAll));
     }
   }
+  function decisionFocus(screen='actions'){
+    const decision=bridge.getGame()?.pendingDecision;
+    if(!decision)return '';
+    const id=screen==='life'?'oplLifeDecisionBtn':'oplHubDecisionBtn';
+    return '<section class="opl-decision-focus" role="status" aria-label="Décision en attente">'+
+      '<span class="eyebrow">Ton histoire attend un choix</span>'+
+      '<h3>'+escapeHtml(decision.title||'Décision importante')+'</h3>'+
+      (decision.text?'<p>'+escapeHtml(decision.text)+'</p>':'')+
+      '<button type="button" class="opl-decision-focus-btn" id="'+id+'">Voir les choix →</button>'+
+      '<small>Résous cet événement pour reprendre tes activités.</small></section>';
+  }
   function renderHub(){
     const root=node('v95Hub'),state=getState();if(!root||!state)return;
+    // A story choice owns the screen until it is resolved. Do not suggest
+    // forbidden missions or ask the player to advance past a pending choice.
+    if(bridge.getGame()?.pendingDecision){
+      root.classList?.remove('opl-hub-drilldown');
+      root.innerHTML=decisionFocus();
+      const decide=node('oplHubDecisionBtn');
+      if(decide)decide.onclick=()=>execute('decision');
+      return;
+    }
     const allActions=build();
     const recommended=engine.featured(allActions.filter(x=>x.id!=='advance'&&x.id!=='decision'&&x.kind!=='open'),state,2);
     const actionable=allActions.filter(x=>x.available&&x.kind!=='open'&&x.id!=='advance'&&x.id!=='decision');
@@ -274,6 +294,12 @@ function createRuntime(bridge){
   }
   function renderLife(){
     const root=node('v95LifeQuick'),state=getState();if(!root||!state)return;
+    if(bridge.getGame()?.pendingDecision){
+      root.innerHTML=decisionFocus('life');
+      const decide=node('oplLifeDecisionBtn');
+      if(decide)decide.onclick=()=>execute('decision');
+      return;
+    }
     const top=engine.featured(build().filter(x=>x.available&&x.kind!=='open'&&x.id!=='advance'&&x.id!=='decision'),state,2);
     root.innerHTML=actionFeedback()+'<div class="v95-breadcrumb"><div><span class="eyebrow">Cette année</span><h3>À toi de jouer</h3></div><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
       (top.length?'<div class="v95-quick">'+top.map(x=>'<button type="button" data-v95-life="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Action disponible</span></button>').join('')+'</div>':
