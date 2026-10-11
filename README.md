@@ -1,3 +1,21 @@
+# ONE PIECE LIFE — V9.4 World Intelligence 5.0
+
+La V9.4 ajoute un véritable tableau de renseignements, qui présente uniquement ce que ton personnage peut savoir. Les opportunités du monde deviennent faciles à examiner et les renseignements importants peuvent être suivis entre les années.
+
+- Informations hiérarchisées selon l'urgence, le risque, la région et la fraîcheur.
+- Affichage séparé des rumeurs non vérifiées, des faits confirmés et des opportunités réellement ouvertes.
+- Aucun événement autonome inconnu n'est dévoilé.
+- Filtres Priorité, Ma région, Suivis et Non lus.
+- Suivi persistant des renseignements, archivage des suivis inactifs et marqueurs de lecture.
+- Bouton Examiner reliant directement les choix existants du moteur V5.9, sans altérer ses tirages aléatoires.
+- Alerte synthétique sur la page Vie.
+- Sauvegardes bornées et migration automatique V9.3 → V9.4.
+- PWA V9.4 compatible iPhone et ordinateur.
+
+**GAME_VERSION 9.4.0 • SAVE_VERSION 940 • CACHE one-piece-life-v9-4-0**
+
+---
+
 # ONE PIECE LIFE — V9.3 Relationships & Nemesis 5.0
 
 La V9.3 transforme les relations importantes en véritables fils narratifs systémiques. Les souvenirs V7.4, les trajectoires autonomes V9.2 et les Némésis V8.3 peuvent désormais se répondre.
