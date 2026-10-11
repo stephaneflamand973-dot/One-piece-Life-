@@ -262,9 +262,10 @@ function createRuntime(bridge){
   }
   function renderLife(){
     const root=node('v95LifeQuick'),state=getState();if(!root||!state)return;
-    const top=engine.featured(build().filter(x=>x.id!=='advance'&&x.id!=='decision'&&x.category!=='life'),state,2);
+    const top=engine.featured(build().filter(x=>x.available&&x.kind!=='open'&&x.id!=='advance'&&x.id!=='decision'),state,2);
     root.innerHTML=actionFeedback()+'<div class="v95-breadcrumb"><div><span class="eyebrow">Cette année</span><h3>À toi de jouer</h3></div><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
-      '<div class="v95-quick">'+top.map(x=>'<button type="button" data-v95-life="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Action disponible</span></button>').join('')+'</div>';
+      (top.length?'<div class="v95-quick">'+top.map(x=>'<button type="button" data-v95-life="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Action disponible</span></button>').join('')+'</div>':
+        '<p class="v95-empty">Aucune activité immédiate disponible. Avance d’un an pour renouveler tes possibilités.</p>');
     bindFeedback(root);
     const all=node('v95AllActionsBtn');if(all)all.onclick=()=>bridge.openTab('actions');
     root.querySelectorAll?.('[data-v95-life]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Life));
