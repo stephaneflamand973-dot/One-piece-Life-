@@ -58,10 +58,12 @@ function initiative(raw,id,ctx={}){
  if(!a||id==='career_bonus')return {ok:false,reason:'Action non prise en charge.'};
  const gate=status(s,id,ctx);
  if(!gate.available)return {ok:false,reason:gate.reason};
- const performance=bounded(s.performance+a.performance);
- const next={...s,performance,xpEarned:s.xpEarned+a.xp};
- next.history=[...s.history,{year:Math.floor(num(ctx.year)),kind:id,money:0,xp:a.xp}].slice(-12);
- return {ok:true,state:next,delta:a.delta,xp:a.xp,cost:a.cost,performanceGain:a.performance}
+ const efficiency=bounded(ctx.efficiency??1,0,1),performanceGain=Math.max(1,Math.round(a.performance*efficiency)),xp=Math.max(1,Math.round(a.xp*efficiency));
+ const performance=bounded(s.performance+performanceGain);
+ const next={...s,performance,xpEarned:s.xpEarned+xp};
+ next.history=[...s.history,{year:Math.floor(num(ctx.year)),kind:id,money:0,xp}].slice(-12);
+ const delta=Object.fromEntries(Object.entries(a.delta).map(([key,value])=>[key,Math.round(value*efficiency*100)/100]));
+ return {ok:true,state:next,delta,xp,cost:a.cost,performanceGain}
 }
 function bonus(raw,ctx={}){
  const s=normalize(raw,ctx.identity),gate=status(s,'career_bonus',ctx);
