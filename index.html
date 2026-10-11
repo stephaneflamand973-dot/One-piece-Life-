@@ -84,6 +84,18 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 .annual-plan-grid{display:flex;flex-direction:column;gap:10px}.annual-domain{padding:11px;border-radius:14px;background:rgba(255,255,255,.68);border:1px solid rgba(45,113,129,.13)}.annual-domain-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.annual-domain-head strong{font-size:12px}.annual-domain-head span{font-size:9px;color:var(--muted)}.annual-domain-options{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.annual-plan-option{border:1px solid var(--line);background:#fffdf8;border-radius:11px;padding:8px;text-align:left;color:var(--ink)}.annual-plan-option.selected{border-color:var(--sea);background:#e9f4f1;box-shadow:inset 0 0 0 1px rgba(45,113,129,.2)}.annual-plan-option:disabled{opacity:.58}.annual-plan-option strong{display:block;font-size:10px}.annual-plan-option small{display:block;font-size:8.5px;color:var(--muted);line-height:1.3;margin-top:3px}.annual-load{margin-top:10px;padding:9px 10px;border-radius:11px;background:#f4f0e5;font-size:10px;color:var(--muted)}.annual-load b{color:var(--ink)}.mission-approach-row{margin-top:8px}.mission-approach-row .annual-domain-options{grid-template-columns:repeat(3,1fr)}@media(max-width:480px){.annual-domain-options{grid-template-columns:1fr 1fr}.mission-approach-row .annual-domain-options{grid-template-columns:1fr}.annual-plan-option{padding:8px}}
 
 .save-slot-shell{display:flex;flex-direction:column;gap:6px;min-width:0}.save-slot-shell>.save-slot{flex:1;width:100%;min-width:0}.save-slot-delete{width:100%;min-height:44px;border:1px solid #e3c6bd;border-radius:12px;background:#fff1ed;color:#933d33;font-size:12px;font-weight:800;cursor:pointer}.save-slot-delete:hover:not(:disabled),.save-slot-delete:focus-visible:not(:disabled){background:#f9ded7;border-color:#b96e61}.save-slot-delete:disabled{opacity:.55;background:#edeae2;color:#666;border-color:#e5e0d7;cursor:default}.save-slot-shell{border:1px solid rgba(142,103,82,.15);border-radius:16px;padding:7px;background:rgba(255,255,255,.33)}.save-slot-delete:not(:disabled){background:#fce4dc;color:#83291f;border:2px solid #cf877b;font-size:13px;box-shadow:0 2px 9px rgba(147,61,51,.08)}.delete-save-warning{color:#8d3830!important;font-weight:700}.delete-save-modal .modal-actions{margin-top:18px}.delete-save-modal .danger-btn{border:0;border-radius:14px;padding:13px 16px;background:#993e34;color:white;font-size:14px;font-weight:800}.delete-save-modal .danger-btn:disabled{opacity:.45}
+.save-manager-entry{display:flex;flex-direction:column;gap:5px;margin:10px 0 14px}
+.save-manage-main{display:block;width:100%;min-height:48px;padding:13px 14px;text-align:center;border-radius:13px;border:2px solid #b86958;background:#fff1eb;color:#82362c;font-weight:850;font-size:14px;cursor:pointer}
+.save-manage-main:focus-visible{outline:3px solid #2d7181;outline-offset:2px}
+.save-manager-entry small{font-size:11px;color:var(--muted);line-height:1.45}
+.save-manager-list{display:grid;gap:10px;margin:18px 0}
+.save-manager-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fffbf5}
+.save-manager-row span{display:flex;flex-direction:column;gap:4px;min-width:0;overflow-wrap:anywhere}
+.save-manager-row strong{font-size:13px}
+.save-manager-row small{font-size:11px;color:var(--muted)}
+.save-manager-row button{min-height:44px;padding:10px 12px;border-radius:11px;border:1px solid #b96e61;background:#fae5df;color:#82362c;font-weight:800;font-size:12px;flex-shrink:0}
+.save-manager-row button:disabled{opacity:.55;border-color:var(--line);background:#eee9df;color:#606c66}
+@media(max-width:420px){.save-manager-row{align-items:stretch;flex-direction:column}.save-manager-row button{width:100%}}
 </style>
 </head>
 <body>
@@ -104,6 +116,10 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
     <section id="startScreen" class="screen active">
       <section class="paper-card">
         <div class="section-heading"><div><span class="eyebrow">Sauvegardes</span><h3>Choisir une vie</h3></div><span class="badge">3 emplacements • V11.0.1</span></div>
+        <div class="save-manager-entry">
+          <button id="manageSavesBtn" type="button" class="save-manage-main">Gérer / supprimer mes sauvegardes</button>
+          <small>Retrouve chaque partie, vérifie son emplacement et supprime-la avec confirmation.</small>
+        </div>
         <div id="saveSlots" class="save-grid">
           <div class="save-slot-shell"><button type="button" class="save-slot empty" data-slot="1">＋ Nouvelle vie<br><small>Emplacement 1</small></button><button type="button" class="save-slot-delete" data-delete-slot="1" disabled>Aucune sauvegarde à supprimer</button></div>
           <div class="save-slot-shell"><button type="button" class="save-slot empty" data-slot="2">＋ Nouvelle vie<br><small>Emplacement 2</small></button><button type="button" class="save-slot-delete" data-delete-slot="2" disabled>Aucune sauvegarde à supprimer</button></div>
@@ -313,6 +329,15 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 <div id="decisionModal" class="modal-backdrop hidden" role="dialog" aria-modal="true"><div class="modal-card"><span class="eyebrow">Décision</span><h3 id="decisionTitle">Une décision t’attend</h3><p id="decisionText"></p><div id="decisionChoices" class="decision-choices"></div></div></div>
 <div id="deathModal" class="modal-backdrop hidden" role="dialog" aria-modal="true"><div class="modal-card death-card"><span class="eyebrow">Bilan de vie</span><h2 id="deathTitle">Ta vie s’achève</h2><div id="deathSummary" class="death-summary"></div><button id="deathNewBtn" class="primary-btn">Nouvelle vie sur cet emplacement</button><button id="deathHomeBtn" class="secondary-btn" style="margin-top:8px">Retour aux sauvegardes</button></div></div>
 
+<div id="saveManagerModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="saveManagerTitle" aria-describedby="saveManagerStatus">
+  <div class="modal-card save-manager-modal">
+    <span class="eyebrow">ONE PIECE LIFE • Sauvegardes</span>
+    <h3 id="saveManagerTitle">Gérer mes parties</h3>
+    <p id="saveManagerStatus" aria-live="polite">Vérification des emplacements…</p>
+    <div id="saveManagerList" class="save-manager-list"></div>
+    <div class="modal-actions"><button type="button" id="saveManagerClose" class="secondary-btn">Fermer</button></div>
+  </div>
+</div>
 <div id="deleteSaveModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="deleteSaveTitle" aria-describedby="deleteSaveDescription"><div class="modal-card delete-save-modal"><span class="eyebrow">Gestion des sauvegardes</span><h3 id="deleteSaveTitle">Supprimer cette sauvegarde ?</h3><p id="deleteSaveDescription"></p><p class="delete-save-warning">Cette suppression est définitive. Les autres sauvegardes restent intactes.</p><div class="modal-actions"><button type="button" id="deleteSaveCancel" class="secondary-btn">Annuler</button><button type="button" id="deleteSaveConfirm" class="danger-btn">Supprimer définitivement</button></div></div></div>
 <div id="backupModal" class="modal-backdrop hidden" role="dialog" aria-modal="true"><div class="modal-card"><span class="eyebrow">Sauvegarde portable</span><h3 id="backupTitle">Exporter</h3><p id="backupHelp" class="helper-text"></p><textarea id="backupText" class="backup-text" spellcheck="false"></textarea><div class="modal-actions"><button id="backupPrimaryBtn" class="primary-btn">Copier</button><button id="backupCloseBtn" class="secondary-btn">Fermer</button></div></div></div>
 <div id="toast" class="toast hidden"></div>
@@ -1041,7 +1066,7 @@ let creationMode = 'destiny';
 let timelineMajorOnly = false;
 let storageFallback = false;
 let worldDepthOpen = false;
-let pendingDeleteSlot=null,deleteBusy=false,slotRenderEpoch=0;
+let pendingDeleteSlot=null,deleteBusy=false,slotRenderEpoch=0,saveManagerOpen=false,saveManagerEpoch=0;
 
 const ORIGINS = ['East Blue','North Blue','West Blue','South Blue'];
 const ISLANDS = {
@@ -4944,20 +4969,29 @@ async function loadSlot(slot){
 }
 async function deleteSlot(slot){
   if(!Number.isInteger(slot)||slot<1||slot>3)return false;
-  let localAvailable=true,localDeleted=false;
-  try{localStorage.removeItem(localKey(slot));localDeleted=localStorage.getItem(localKey(slot))===null}
-  catch(e){localAvailable=false}
-  if(storageFallback||!db)return localAvailable&&localDeleted;
-  const indexedDeleted=await new Promise(res=>{
-    let done=false;
-    const finish=ok=>{if(done)return;done=true;clearTimeout(timer);res(ok)};
-    const timer=setTimeout(()=>finish(false),1200);
-    try{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(`slot-${slot}`);
-      tx.oncomplete=()=>finish(true);tx.onerror=()=>finish(false);tx.onabort=()=>finish(false)}
-    catch(e){finish(false)}
-  });
-  return indexedDeleted&&(!localAvailable||localDeleted)
+  // Never remove the local copy before the IndexedDB transaction commits.
+  if(!storageFallback&&db){
+    const indexedDeleted=await new Promise(res=>{
+      let done=false;
+      const finish=ok=>{if(done)return;done=true;clearTimeout(timer);res(ok)};
+      const timer=setTimeout(()=>finish(false),1200);
+      try{
+        const tx=db.transaction(STORE,'readwrite');
+        tx.objectStore(STORE).delete(`slot-${slot}`);
+        tx.oncomplete=()=>finish(true);tx.onerror=()=>finish(false);tx.onabort=()=>finish(false);
+      }catch(e){finish(false)}
+    });
+    if(!indexedDeleted)return false;
+  }
+  try{
+    localStorage.removeItem(localKey(slot));
+    return localStorage.getItem(localKey(slot))===null;
+  }catch(e){
+    // IndexedDB-only storage remains usable if localStorage is unavailable.
+    return !storageFallback&&!!db&&!canUseLocalStorage()
+  }
 }
+
 function platformInfo(){
   const ua=navigator.userAgent||'';
   const ios=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -6407,6 +6441,48 @@ function bindSlotButtons(slots){
   $$('.save-slot').forEach(b=>b.onclick=()=>{if(!deleteBusy&&pendingDeleteSlot===null)openSlot(+b.dataset.slot,slots[+b.dataset.slot-1])});
   $$('.save-slot-delete').forEach(b=>b.onclick=()=>requestDeleteSlot(+b.dataset.deleteSlot,slots[+b.dataset.deleteSlot-1]));
 }
+function renderSaveManagerRows(slots){
+  if(!saveManagerOpen)return;
+  const box=$('#saveManagerList');if(!box)return;
+  box.innerHTML=slots.map((g,i)=>{
+    const n=i+1,name=esc(g?.player?.name||'Sans nom'),faction=esc(g?.player?.faction||'Civil');
+    return '<div class="save-manager-row"><span><strong>Emplacement '+n+(g?' • '+name:' • Libre')+
+      '</strong><small>'+(g?faction+' • '+esc(ageTextFor(g.ageMonths||0)):'Aucune sauvegarde sur cet emplacement')+
+      '</small></span><button type="button" data-manager-delete="'+n+'"'+(g?'':' disabled')+'>'+
+      (g?'Supprimer':'Emplacement libre')+'</button></div>';
+  }).join('');
+  $('#saveManagerList button[data-manager-delete]').forEach(b=>{
+    b.onclick=()=>{
+      const slot=Number(b.dataset.managerDelete);
+      if(!Number.isInteger(slot)||slot<1||slot>3||!slots[slot-1])return;
+      closeSaveManager();requestDeleteSlot(slot,slots[slot-1]);
+    }
+  });
+}
+async function openSaveManager(){
+  if(game||deleteBusy||pendingDeleteSlot!==null||saveManagerOpen)return false;
+  saveManagerOpen=true;const epoch=++saveManagerEpoch;
+  $('#saveManagerModal').classList.remove('hidden');
+  $('#saveManagerStatus').textContent='Recherche des sauvegardes sur cet appareil…';
+  renderSaveManagerRows([1,2,3].map(localLoadSlot));
+  try{
+    const slots=await Promise.all([1,2,3].map(loadSlot));
+    if(!saveManagerOpen||epoch!==saveManagerEpoch)return false;
+    renderSaveManagerRows(slots);
+    const count=slots.filter(Boolean).length;
+    $('#saveManagerStatus').textContent=count+' partie'+(count>1?'s':'')+
+      ' trouvée'+(count>1?'s':'')+' sur 3 emplacements • '+storageLabel();
+  }catch(e){
+    if(!saveManagerOpen||epoch!==saveManagerEpoch)return false;
+    $('#saveManagerStatus').textContent='Accès au stockage avancé indisponible. Affichage des copies locales.';
+  }
+  return true
+}
+function closeSaveManager(){
+  saveManagerOpen=false;saveManagerEpoch++;
+  $('#saveManagerModal')?.classList.add('hidden');
+  return true
+}
 function requestDeleteSlot(slot,slotGame){
   if(game||deleteBusy||pendingDeleteSlot!==null||!Number.isInteger(slot)||slot<1||slot>3||!slotGame)return false;
   pendingDeleteSlot=slot;
@@ -6461,7 +6537,7 @@ async function openSlot(slot,g){
   if(g){try{game=migrate(g);if(!game?.player||!game?.world)throw new Error('save');game.meta.slot=slot;if(!game.missionBoard.length&&game.player.career!=='Aucune')refreshMissionBoard();await saveGame();showGame();render();if(game.pendingDecision)showDecision();if(!game.alive)showDeath()}catch(e){game=null;startupMessage(`La sauvegarde ${slot} est illisible. Les autres emplacements restent accessibles.`,'warn');toast('Sauvegarde incompatible ou corrompue.')}}
   else{$('#creationCard').classList.remove('hidden');$('#saveSlots').closest('.paper-card')?.scrollIntoView({behavior:'smooth',block:'start'})}
 }
-function showStart(){cancelDeleteSlot();game=null;v76LastSnapshot=null;$('#gameScreen').classList.remove('active');$('#startScreen').classList.add('active');$('#bottomNav').classList.add('hidden');$('#homeBtn').classList.add('hidden');$('#uiDensityToggle')?.classList.add('hidden');$('#deathModal').classList.add('hidden');$('#decisionModal').classList.add('hidden');$('#creationCard').classList.add('hidden');renderSlots()}
+function showStart(){closeSaveManager();cancelDeleteSlot();game=null;v76LastSnapshot=null;$('#gameScreen').classList.remove('active');$('#startScreen').classList.add('active');$('#bottomNav').classList.add('hidden');$('#homeBtn').classList.add('hidden');$('#uiDensityToggle')?.classList.add('hidden');$('#deathModal').classList.add('hidden');$('#decisionModal').classList.add('hidden');$('#creationCard').classList.add('hidden');renderSlots()}
 function showGame(){$('#startScreen').classList.remove('active');$('#gameScreen').classList.add('active');$('#bottomNav').classList.remove('hidden');$('#homeBtn').classList.remove('hidden');$('#uiDensityToggle')?.classList.remove('hidden')}
 
 function renderAnnualReportV6(){
@@ -6601,6 +6677,7 @@ function bindUi(){
   $('#cancelCreate').onclick=()=>$('#creationCard').classList.add('hidden');
   $('#advanceBtn').onclick=advance;$('#v95AdvanceBtn').onclick=advance;$('#attentionBtn').onclick=showDecision;$('#homeBtn').onclick=showStart;const wdt=$('#worldDepthToggle');if(wdt)wdt.onclick=()=>{worldDepthOpen=!worldDepthOpen;renderWorldDepthV6()};
   $('#deathHomeBtn').onclick=showStart;$('#deathNewBtn').onclick=async()=>{if(!await deleteSlot(activeSlot)){toast('Impossible de supprimer cette sauvegarde.');return}$('#deathModal').classList.add('hidden');showStart();setTimeout(()=>{$('#creationCard').classList.remove('hidden')},0)};
+  $('#manageSavesBtn').onclick=openSaveManager;$('#saveManagerClose').onclick=closeSaveManager;
   $('#deleteSaveCancel').onclick=cancelDeleteSlot;$('#deleteSaveConfirm').onclick=confirmDeleteSlot;
   $('#timelineFilter').onclick=()=>{timelineMajorOnly=!timelineMajorOnly;$('#timelineFilter').textContent=timelineMajorOnly?'Tout afficher':'Événements majeurs';renderTimeline()};
   document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>v76OpenTab(b.dataset.tab,true));
