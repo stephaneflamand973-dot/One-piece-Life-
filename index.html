@@ -6066,6 +6066,15 @@ function tickMission(months){
 }
 
 function resolveDecision(action){
+  const v111BeforeDecision=game?.pendingDecision?{
+    label:game.pendingDecision.choices?.find(c=>c.action===action)?.label||game.pendingDecision.title||'Décision',
+    year:Math.floor(game.ageMonths/12),
+    money:Number(game.player.money)||0,health:Number(game.player.health)||0,
+    energy:Number(game.player.energy)||0,experience:Number(game.player.careerXP)||0,
+    bounty:Number(game.player.bounty)||0,rank:game.player.rank,faction:game.player.faction,
+    historyId:game.history?.[0]?.id||null
+  }:null;
+  try{
   const p=game.player;if(!game.pendingDecision)return;const oldFaction=p.faction,decisionEcho=game.pendingDecision,parts=action.split(':');
   if(parts[0]==='ambition'){const item=AMBITIONS.find(x=>x[2]===parts[1]);if(item){p.ambition=item[0];p.ambitionType=item[2];v91OnAmbitionChange(true);addHistory('Ambition',`Tu décides de poursuivre avant tout un objectif : ${item[0].toLowerCase()}.`,'major')}}
   if(parts[0]==='career'){
@@ -6110,6 +6119,9 @@ function resolveDecision(action){
   if(parts[0]==='v77consequence')v77ResolveConsequence(parts);
   else v77DecisionEcho(action,decisionEcho);
   game.pendingDecision=null;game.pacing.lastDecisionAge=game.ageMonths;$('#decisionModal').classList.add('hidden');saveGame();if(!game.alive){render();showDeath();return}if(game.agency?.annualTurn?.active){v61ResumeAnnualTurn();return}render();
+  }finally{
+    v111DecisionOutcome(v111BeforeDecision);
+  }
 }
 function showDecision(){const d=game.pendingDecision;if(!d)return;$('#decisionTitle').textContent=d.title;$('#decisionText').textContent=d.text;$('#decisionChoices').innerHTML=d.choices.map(c=>{const m=v90ChoiceMeta(c);return `<button class="choice-btn" data-action="${esc(c.action)}"><span class="v90-choice-tag ${esc(m.tone)}">${esc(m.label)}</span><strong>${esc(c.label)}</strong>${c.hint?`<small>${esc(c.hint)}</small>`:''}</button>`}).join('');$('#decisionModal').classList.remove('hidden');$$('#decisionChoices .choice-btn').forEach(b=>b.onclick=()=>resolveDecision(b.dataset.action))}
 
@@ -6740,6 +6752,34 @@ function render(){if(!game)return;const p=game.player;v111SyncUi();v110Ensure();
 function showDeath(){const p=game.player;$('#deathTitle').textContent=`${p.name}, ${ageText()}`;const data=[['Cause',game.death?.cause||'Inconnue'],['Carrière',p.career],['Rang maximal',p.rank],['Ambition',p.ambition],['Prime max',`${Math.floor(p.highestBounty).toLocaleString('fr-FR')} B`],['Victoires',p.wins],['Défaites',p.losses],['Lieux visités',p.visited.length],['Divergence mondiale',`${Math.round(game.world.divergence)}%`]];$('#deathSummary').innerHTML=data.map(([k,v])=>`<div><span>${esc(k)}</span><strong>${esc(v)}</strong></div>`).join('');$('#deathModal').classList.remove('hidden')}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.add('hidden'),1800)}
 
+function v111DecisionOutcome(before){
+  if(!before||!game?.meta||!game.alive||game.pendingDecision)return;
+  const p=game.player;
+  const parts=[];
+  const changed=(label,start,end)=>{
+    const diff=Math.round((Number(end)||0)-(Number(start)||0));
+    if(diff)parts.push(label+' '+(diff>0?'+':'')+diff.toLocaleString('fr-FR'));
+  };
+  changed('Berry',before.money,p.money);
+  changed('Expérience',before.experience,p.careerXP);
+  changed('Santé',before.health,p.health);
+  changed('Énergie',before.energy,p.energy);
+  changed('Prime',before.bounty,p.bounty);
+  if(before.rank!==p.rank)parts.push('Rang : '+String(before.rank)+' → '+String(p.rank));
+  if(before.faction!==p.faction)parts.push('Faction : '+String(p.faction));
+  const history=game.history?.[0];
+  if(history?.id&&history.id!==before.historyId)parts.push(String(history.title));
+  game.meta.actionFeedbackV111={
+    year:Math.floor(game.ageMonths/12),actionId:null,title:'Choix : '+before.label,
+    summary:parts.slice(0,5).join(' • ')||'Ta décision a été enregistrée.'
+  };
+  saveGame();
+  const hub=v95Ensure();
+  hub?.renderLife();
+  if(game.meta.uiV76?.activeTab==='actions')hub?.renderHub();
+  if(!['actions','life'].includes(game.meta.uiV76?.activeTab||'life'))
+    toast(parts.slice(0,2).join(' • ')||'Décision enregistrée');
+}
 function v111SyncUi(){
   const screen=$('#gameScreen'),button=$('#oplDetailsBtn'),age=$('#oplAgeBtn');
   if(!screen||!game)return;
