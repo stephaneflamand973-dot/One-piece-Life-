@@ -31,6 +31,7 @@ const modulePaths=[
  'src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js',
  'src/data/relation-personas-v74.js','src/v74/relation-persona-engine-v74.js',
  'src/data/personal-life-v78.js','src/v78/personal-life-engine-v78.js',
+ 'src/data/education-v79.js','src/v79/education-engine-v79.js',
  'src/data/ui-layout-v76.js','src/v76/ui-components-v76.js',
  'src/data/simulation-core-v80.js','src/v80/simulation-core-v80.js',
  'src/data/game-flow-v90.js','src/v90/game-flow-engine-v90.js',
