@@ -89,7 +89,7 @@ for(const asset of ['src/data/equipment-v89.js','src/v89/equipment-engine-v89.js
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:8-9|9-\d+|10)-\d+/.test(sw),'PWA cache must remain at V8.9 or newer');
+assert(/one-piece-life-v(?:8-9|9-\d+|10|10)-\d+/.test(sw),'PWA cache must remain at V8.9 or newer');
 assert(html.includes('v88Ensure();v89Ensure()'),'Old-save V8.9 migration hook missing');
 for(const fn of ['function v89Module','function v89Ensure','function v89EquipmentEffects','function v89CombatBonus','function v89MissionBonus','function v89MaybeLoot','function v89AnnualUpgrade','function v89UnequipSlot','function renderV89Equipment']){
   assert(html.includes(fn),'Missing live V8.9 bridge '+fn);
