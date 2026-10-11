@@ -228,20 +228,26 @@ function createRuntime(bridge){
       (category==='career'?'Travailler →':'S’entraîner →')+'</button></div></section>';
   }
   function renderRelationCards(selected){
-    const game=bridge.getGame();
-    const people=(game?.relations||[]).filter(p=>p?.id&&p.status!=='left').slice(0,8);
+    const game=bridge.getGame(),state=getState();
+    const people=(game?.relations||[]).filter(p=>p?.id&&p.status!=='left').map((person,index)=>{
+      const prefix='relation:'+encodeURIComponent(person.id)+':';
+      // Use the actual action catalogue rather than a hand-maintained subset:
+      // romance, rivalries and new interactions must never vanish silently.
+      const actions=selected.filter(x=>x.id.startsWith(prefix)&&x.kind!=='open');
+      const available=actions.filter(x=>x.available).length;
+      const favorite=actions.some(x=>state?.favorites.includes(x.id));
+      return {person,index,actions,available,favorite};
+    }).sort((a,b)=>Number(b.favorite)-Number(a.favorite)||b.available-a.available||a.index-b.index).slice(0,6);
     if(!people.length)return '<p class="v95-empty">Tu n’as pas encore de relations. Continue à explorer et à rencontrer des personnages.</p>';
-    return '<div class="opl-people-list">'+people.map(p=>{
-      const prefix='relation:'+encodeURIComponent(p.id)+':';
-      const options=['time','help','date','reconcile','train','confide']
-        .map(kind=>selected.find(x=>x.id===prefix+kind)).filter(Boolean);
-      const ordered=[...options.filter(x=>x.available),...options.filter(x=>!x.available)].slice(0,2);
+    return '<div class="opl-people-list">'+people.map(({person:p,actions,available})=>{
+      const ordered=[...actions.filter(x=>x.available),...actions.filter(x=>!x.available)].slice(0,2);
+      const buttons=ordered.length?ordered.map(x=>'<button type="button" data-v95-run="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
+        '<strong>'+escapeHtml(x.title.replace(p.name||'', '').trim())+'</strong>'+
+        '<small>'+escapeHtml(x.available?x.detail:x.reason||'Indisponible')+'</small></button>').join(''):
+        '<p class="opl-person-empty">Aucune interaction proposée pour le moment.</p>';
       return '<article class="opl-person-card"><div class="opl-person-head"><strong>'+escapeHtml(p.name||'Relation')+'</strong>'+
-        '<small>Confiance : '+Math.round(Number(p.trust)||0)+'</small></div>'+
-        '<div class="opl-person-actions">'+ordered.map(x=>'<button type="button" data-v95-run="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
-          '<strong>'+escapeHtml(x.title.replace(p.name||'', '').trim())+'</strong>'+
-          '<small>'+escapeHtml(x.available?x.detail:x.reason||'Indisponible')+'</small></button>').join('')+
-        '</div></article>';
+        '<small>'+available+' interaction'+(available>1?'s':'')+' possible'+(available>1?'s':'')+' • confiance '+Math.round(Number(p.trust)||0)+'/100</small></div>'+
+        '<div class="opl-person-actions">'+buttons+'</div></article>';
     }).join('')+'</div>';
   }
   function renderResults(){
@@ -250,8 +256,11 @@ function createRuntime(bridge){
     const all=build();
     // Age-up is a single persistent global button, not a competing activity.
     const selected=engine.select(all.filter(x=>x.id!=='advance'),state,query);
-    const direct=selected.filter(x=>x.available&&x.kind!=='open');
-    const visible=showAll||query.trim()?selected.slice(0,70):(direct.length?direct:selected.filter(x=>x.available)).slice(0,7);
+    // The spotlight already offers this action; do not repeat the same button immediately below.
+    const spotlightId=state.category==='career'?'manual:work':state.category==='training'?'manual:training':null;
+    const listed=!showAll&&!query.trim()&&spotlightId?selected.filter(x=>x.id!==spotlightId):selected;
+    const direct=listed.filter(x=>x.available&&x.kind!=='open');
+    const visible=showAll||query.trim()?listed.slice(0,70):(direct.length?direct:listed.filter(x=>x.available)).slice(0,7);
     const count=node('v95HubCount');
     if(count){
       const eligible=selected.filter(x=>x.available).length;
@@ -274,7 +283,9 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v95-star]').forEach(b=>b.onclick=()=>star(b.dataset.v95Star));
     const more=node('oplHubMore');
     if(more){
-      const hasMore=selected.length>visible.length;
+      // Person cards display only two actions each; the rest must always stay reachable.
+      const displayed=groupedRelations?(root.querySelectorAll?.('[data-v95-run]')?.length||0):visible.length;
+      const hasMore=selected.length>displayed;
       more.classList.toggle('hidden',!hasMore&&!showAll);
       more.textContent=showAll?'Afficher seulement les actions disponibles':'Voir toutes les possibilités ('+selected.length+')';
       more.setAttribute('aria-expanded',String(showAll));
