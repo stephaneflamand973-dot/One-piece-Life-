@@ -119,10 +119,25 @@ function createRuntime(bridge){
   };
   function actionFeedback(withReturn=false){
     const game=bridge.getGame(),feedback=game?.meta?.actionFeedbackV111;
-    if(!feedback||feedback.year!==Math.floor((game.ageMonths||0)/12))return '';
-    return '<div class="opl-result-note" role="status"><span>Dernière action</span><strong>'+escapeHtml(feedback.title)+
-      '</strong><small>'+escapeHtml(feedback.summary)+'</small>'+
-      (withReturn?'<button type="button" class="opl-feedback-back" data-v95-life-return>Retour à ma vie ›</button>':'')+'</div>';
+    if(!feedback||feedback.year!==Math.floor((game.ageMonths||0)/12)||game.pendingDecision)return '';
+    const actions=build(),prior=actions.find(x=>x.id===feedback.actionId);
+    const canRepeat=!!(game.alive&&prior?.available&&prior.kind!=='open'&&feedback.actionId!=='advance'&&feedback.actionId!=='decision');
+    const next=engine.featured(actions.filter(x=>x.available&&x.kind!=='open'&&x.id!=='advance'&&x.id!=='decision'&&x.id!==feedback.actionId),getState(),1)[0];
+    return '<div class="opl-result-note opl-result-flow" role="status" aria-label="Résultat de la dernière activité">'+
+      '<span>Résultat de ton action</span><strong>'+escapeHtml(feedback.title)+'</strong>'+
+      '<small>'+escapeHtml(feedback.summary||'Aucun changement immédiat mesurable.')+'</small>'+
+      '<div class="opl-result-actions">'+
+      (canRepeat?'<button type="button" class="opl-result-primary" data-v95-repeat="'+escapeHtml(feedback.actionId)+'">↻ Refaire cette action</button>':'')+
+      (next?'<button type="button" class="opl-result-secondary" data-v95-next="'+escapeHtml(next.id)+'">Ensuite : '+escapeHtml(next.title)+' →</button>':'')+
+      (withReturn?'<button type="button" class="opl-feedback-back" data-v95-life-return>Retour à ma vie ›</button>':
+        '<button type="button" class="opl-feedback-back" data-v95-see-activities>Toutes les activités ›</button>')+
+      '</div></div>';
+  }
+  function bindFeedback(root){
+    root?.querySelectorAll?.('[data-v95-repeat]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Repeat));
+    root?.querySelectorAll?.('[data-v95-next]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Next));
+    root?.querySelectorAll?.('[data-v95-life-return]').forEach(b=>b.onclick=()=>bridge.openTab('life'));
+    root?.querySelectorAll?.('[data-v95-see-activities]').forEach(b=>b.onclick=()=>bridge.openTab('actions'));
   }
   function execute(id){
     const a=build().find(x=>x.id===id);
@@ -145,10 +160,10 @@ function createRuntime(bridge){
           ].map(([label,x,y])=>{const d=Math.round(y-x);return d!==0?label+' '+(d>0?'+':'')+d.toLocaleString('fr-FR'):null}).filter(Boolean);
           const eventChanged=after.lastHistoryId&&after.lastHistoryId!==before.lastHistoryId;
           const narrative=eventChanged?after.lastHistoryTitle:'';
-          // An action can produce a narrative consequence without changing numeric attributes.
-          if(delta.length||narrative)game.meta.actionFeedbackV111={
-            year:after.year,title:a.title,
-            summary:[...delta.slice(0,4),...(narrative?[narrative]:[])].join(' • ')
+          // A finished action always replaces the previous result; never show stale effects.
+          if(!game.pendingDecision)game.meta.actionFeedbackV111={
+            year:after.year,actionId:id,title:a.title,
+            summary:[...delta.slice(0,4),...(narrative?[narrative]:[])].join(' • ')||'Aucun changement immédiat mesurable.'
           };
         }
       }
@@ -224,8 +239,7 @@ function createRuntime(bridge){
       root.classList?.remove('opl-hub-drilldown');
       renderHub();bridge.save();
     };
-    const returnToLife=root.querySelector?.('[data-v95-life-return]');
-    if(returnToLife)returnToLife.onclick=()=>bridge.openTab('life');
+    bindFeedback(root);
     const search=node('v95HubSearch');
     if(search)search.oninput=e=>{query=e.target.value;showAll=true;renderResults()};
     const more=node('oplHubMore');
@@ -245,6 +259,7 @@ function createRuntime(bridge){
     const top=engine.featured(build().filter(x=>x.id!=='advance'&&x.id!=='decision'&&x.category!=='life'),state,2);
     root.innerHTML=actionFeedback()+'<div class="v95-breadcrumb"><div><span class="eyebrow">Cette année</span><h3>À toi de jouer</h3></div><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
       '<div class="v95-quick">'+top.map(x=>'<button type="button" data-v95-life="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Action disponible</span></button>').join('')+'</div>';
+    bindFeedback(root);
     const all=node('v95AllActionsBtn');if(all)all.onclick=()=>bridge.openTab('actions');
     root.querySelectorAll?.('[data-v95-life]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Life));
   }
