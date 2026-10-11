@@ -5,6 +5,8 @@ const safe=(s,n=100)=>String(s||'').slice(0,n);
 function normalize(raw={}){
  const a=raw&&typeof raw==='object'?raw:{};
  const combat=a.combat&&typeof a.combat==='object'?a.combat:null;
+ const talk=a.dialogue&&typeof a.dialogue==='object'?a.dialogue:null;
+ const dialogue=talk?{id:safe(talk.id,75),tone:safe(talk.tone,32),trust:bound(num(talk.trust),-20,20),rivalry:bound(num(talk.rivalry),0,20),success:!!talk.success}:null;
  const duel=combat&&combat.id&&integer(combat.turn,0,5)<4?{
   id:safe(combat.id,75),stage:integer(combat.stage,0,2),turn:integer(combat.turn,0,3),hp:bound(num(combat.hp,40),0,100),
   maxHp:bound(num(combat.maxHp,40),1,100),guard:bound(num(combat.guard),0,20),
@@ -13,7 +15,7 @@ function normalize(raw={}){
   key:safe(x.key,180),name:safe(x.name),faction:safe(x.faction,50),
   encounters:integer(x.encounters,0,999),lastYear:integer(x.lastYear,0,9999),
   lastOutcome:['success','failure','withdraw'].includes(x.lastOutcome)?x.lastOutcome:'failure',
-  lastChoice:safe(x.lastChoice,32),tone:safe(x.tone,100),
+  lastChoice:safe(x.lastChoice,32),tone:safe(x.tone,100),lastId:safe(x.lastId,75),
   trust:integer(x.trust,0,100),rivalry:integer(x.rivalry,0,100)
  })):[];
  const leads=Array.isArray(a.leads)?a.leads.filter(x=>x&&typeof x==='object').slice(-10).map(x=>({
@@ -21,7 +23,7 @@ function normalize(raw={}){
   faction:safe(x.faction,55),actor:safe(x.actor,110),title:safe(x.title,150),
   boost:bound(num(x.boost,18),0,30),used:!!x.used,year:integer(x.year,0,9999)
  })):[];
- return {version:1,combat:duel,memory,leads,selected:safe(a.selected,80),
+ return {version:1,combat:duel,dialogue,memory,leads,selected:safe(a.selected,80),
   dialogues:integer(a.dialogues),battles:integer(a.battles),victories:integer(a.victories)};
 }
 function decorate(raw,encounter,decision,ctx={}){
@@ -71,7 +73,7 @@ function resolveDialogue(raw,encounter,base,id,ctx={},roll=.5){
   text:x.text[encounter.faction]||'Tu engages le dialogue.',base,
   tone:id};
  const s=normalize(raw);
- return {...result,state:{...s,dialogues:s.dialogues+1}};
+ return {...result,state:{...s,dialogues:s.dialogues+1,dialogue:{id:encounter.id,tone:id,trust:result.trust,rivalry:result.rivalry,success}}};
 }
 function combatOdds(duel,id,ctx={}){
  const x=d.combat[id];if(!x)return null;if(x.retreat)return {chance:1};
@@ -87,7 +89,7 @@ function startCombat(raw,encounter,ctx={}){
 }
 function combatDecision(raw,encounter,ctx={}){
  const s=normalize(raw),c=s.combat;if(!c||!encounter||c.id!==encounter.id)return null;
- const choices=Object.entries(d.combat).map(([id,x])=>{
+ const choices=Object.entries(d.combat).filter(([,x])=>x.retreat||num(ctx.energy,100)>=2).map(([id,x])=>{
   const chance=combatOdds(c,id,ctx).chance;
   return {label:x.label,hint:x.desc+(x.retreat?'':' • '+Math.round(chance*100)+' % de toucher'),
     action:'v108round:'+c.id+':'+c.stage+':'+c.turn+':'+id};
@@ -99,6 +101,7 @@ function combatDecision(raw,encounter,ctx={}){
 }
 function combatTurn(raw,id,ctx={},rolls={}){
  const s=normalize(raw),c=s.combat,x=d.combat[id];if(!c||!x)return {ok:false,state:s};
+ if(!x.retreat&&num(ctx.energy,100)<2)return {ok:false,state:s,reason:'Énergie insuffisante. Choisis de rompre le combat.'};
  if(x.retreat)return {ok:true,finished:true,outcome:'withdraw',healthLoss:0,energyLoss:0,damage:0,
   state:{...s,combat:null,battles:s.battles+1},turn:c.turn};
  const odds=combatOdds(c,id,ctx),hit=bound(num(rolls.hit,.5),0,1)<odds.chance;
@@ -148,7 +151,7 @@ function complete(raw,summary,ctx={}){
   actor:safe(summary.actor,110),
   title:'Piste liée à '+safe(summary.actor,70),boost:18,used:false}:null;
  const leads=lead?[...s.leads,lead].slice(-10):s.leads;
- return {state:{...s,memory:[...s.memory.filter(x=>x.key!==key),entry].slice(-24),leads},lead};
+ return {state:{...s,dialogue:null,memory:[...s.memory.filter(x=>x.key!==key),entry].slice(-24),leads},lead};
 }
 r.register('encounterEngineV108',{version:'10.8.0',normalize,decorate,dialogueDecision,dialogueOdds,resolveDialogue,
  combatOdds,startCombat,combatDecision,combatTurn,selectLead,currentLead,consumeLead,complete});

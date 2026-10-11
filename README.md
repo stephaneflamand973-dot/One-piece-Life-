@@ -1,3 +1,14 @@
+# ONE PIECE LIFE — V10.8 : Dialogues, duels et mémoire
+
+- Dialogues contextualisés par faction, confiance et rivalité, avec trois attitudes et probabilités explicites.
+- Combat tactique en jusqu'à quatre tours avec attaque, parade, feinte et retraite, sans quota supplémentaire.
+- Les personnages rencontrés conservent les souvenirs des résultats. Les succès marquants débloquent des pistes exploitables volontairement.
+- Les anciennes sauvegardes et l'avancement manuel d'un an sont conservés. **GAME_VERSION 10.8.0 • SAVE_VERSION 1000**.
+
+[QA-V10.8.md](QA-V10.8.md)
+
+---
+
 # ONE PIECE LIFE — V10.7 : Rencontres et choix successifs
 
 - Explorer une île ouvre une aventure en **trois étapes** (ou un repli volontaire).

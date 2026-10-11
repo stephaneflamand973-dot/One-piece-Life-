@@ -27,7 +27,8 @@ function choiceOdds(a,id,ctx={}){
  const skill=clamp(num(ctx.skills?.[def.skill]),0,100),crew=clamp(num(ctx.crew),0,100);
  const ap=a.approach==='cautious'?.07:a.approach==='daring'?-.06:0,danger=clamp(num(ctx.danger,a.danger),0,100);
  const chance=clamp(.58+def.bonus+skill*.0022+crew*.0007+a.preparation*.0006+(a.wins-a.losses)*.055+
-  ap-danger*.0032-(a.faction==='Marine'&&ctx.playerFaction==='Pirates'?.055:0),.09,.94);
+  ap-danger*.0032-(a.faction==='Marine'&&ctx.playerFaction==='Pirates'?.055:0)+
+  (clamp(num(ctx.contactTrust,50),0,100)-50)*.001-clamp(num(ctx.contactRivalry),0,100)*.0008,.09,.94);
  const injury=clamp((.07+danger*.003)*def.risk*(a.approach==='cautious'?.6:a.approach==='daring'?1.35:1),0,.78);
  return {chance,injury,skill:def.skill,label:def.label,retreat:false};
 }
@@ -39,9 +40,11 @@ function pickEncounter(ctx={},rolls={}){
  const total=Object.values(weights).reduce((a,b)=>a+b,0);
  let target=clamp(num(rolls.faction,.5),0,.999999)*total,faction='Civil';
  for(const key of factions){target-=weights[key];if(target<0){faction=key;break}}
+ if(factions.includes(ctx.leadFaction))faction=ctx.leadFaction;
  const known=Array.isArray(ctx.actors)?ctx.actors.filter(x=>x&&typeof x==='object'&&x.faction===faction):[];
  const canon=known.filter(x=>x.canon),eligible=canon.length?canon:known;
- const pick=eligible.length?eligible[Math.floor(clamp(num(rolls.actor,.5),0,.999999)*eligible.length)]:null;
+ const preferred=eligible.find(x=>ctx.leadActor&&x.name===ctx.leadActor);
+ const pick=preferred||(eligible.length?eligible[Math.floor(clamp(num(rolls.actor,.5),0,.999999)*eligible.length)]:null);
  return {faction,actor:String(pick?.name||d.encounters[faction].actor).slice(0,110),actorId:String(pick?.id||'').slice(0,100),
  canon:!!pick?.canon,group:String(pick?.group||d.encounters[faction].label).slice(0,110)};
 }
@@ -101,7 +104,7 @@ function resolve(raw,id,ctx={},rolls={}){
  next.relation=clamp(next.relation+(success?def.relation:(def.relation<0?def.relation:0)),-30,30);
  next.hostility=clamp(next.hostility+(success?0:Math.max(0,def.power||0)),0,10);
  const step={choice:id,success,healthLoss,chance:odds.chance,skill:odds.skill,stage:a.stage};
- if(a.stage===2)return finish(s,next,next.wins>=2?'success':'failure',ctx,step);
+ if(a.stage===2)return finish(s,next,ctx.duelDefeat?'failure':next.wins>=2?'success':'failure',ctx,step);
  next.stage++;return {ok:true,finished:false,state:{...s,active:next},step};
 }
 r.register('encounterEngineV107',{version:'10.7.0',normalize,pickEncounter,begin,decision,choiceOdds,resolve});

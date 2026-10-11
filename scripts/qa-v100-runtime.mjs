@@ -40,7 +40,7 @@ const modulePaths=[
  'src/data/world-intel-v94.js','src/v94/world-intel-engine-v94.js',
  'src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.js','src/v95/action-hub-runtime-v95.js',
  'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js',
- 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js','src/data/economy-v105.js','src/v105/economy-engine-v105.js','src/data/adventure-v106.js','src/v106/adventure-engine-v106.js','src/data/encounters-v107.js','src/v107/encounter-engine-v107.js','src/data/voyage-v85.js','src/v85/voyage-engine-v85.js'
+ 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js','src/data/economy-v105.js','src/v105/economy-engine-v105.js','src/data/adventure-v106.js','src/v106/adventure-engine-v106.js','src/data/encounters-v107.js','src/v107/encounter-engine-v107.js','src/data/encounters-v108.js','src/v108/encounter-engine-v108.js','src/data/voyage-v85.js','src/v85/voyage-engine-v85.js'
 ];
 for(const path of modulePaths)new Function('window',fs.readFileSync(path,'utf8'))(w);
 new Function('window','document','localStorage','navigator','location','indexedDB','setTimeout','clearTimeout','requestAnimationFrame','console','Promise',source)(
@@ -56,7 +56,7 @@ g.player.specialization='combat';
 g.missionBoard=[{id:'v95_escort_qa',title:'Escorte de QA',desc:'Protéger un convoi',reward:1500,duration:3,danger:'low',power:20,type:'escort'}];
 g.relations.push({id:'v95_friend',name:'Nami QA',role:'Ami',affection:60,respect:67,trust:69,loyalty:60,familiarity:67,rivalry:1,status:'active',ambition:'Loyauté',temperament:'Curieux'});
 q.ensure();
-assert(q.gameVersion==='10.7.0'&&q.saveVersion===1000,'Version mismatch');
+assert(q.gameVersion==='10.8.0'&&q.saveVersion===1000,'Version mismatch');
 const hub=q.hub();assert(hub&&hub.version==='9.5.0','Live Action Hub failed to initialize');
 let actions=hub.build();
 assert(actions.some(x=>x.id==='mission:v95_escort_qa'&&x.available),'Live mission action missing');
@@ -271,7 +271,7 @@ assert(g.pendingDecision&&g.player.encounterV107.active,'V10.7 encounter not ope
 assert(g.meta.manualLifeV102.spent.expedition_scout===1,'Scout quota not reserved');
 assert(!q.manualStatus('expedition_scout').available,'Pending encounter did not lock other actions');
 for(let stage=0;stage<3;stage++){
- const choiceName=['observe','help','share'][stage];
+ const choiceName=['observe','search','share'][stage];
  const option=g.pendingDecision.choices.find(x=>x.action.endsWith(':'+choiceName));
  assert(option,'Missing encounter choice '+choiceName);
  q.resolveDecision(option.action);
