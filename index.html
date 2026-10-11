@@ -3072,7 +3072,7 @@ function v95Ensure(){
       if(kind==='hook'){v59OpenHook(decodeURIComponent(chunks.slice(1).join(':')));return true}
       if(kind==='service')return v87Service(chunks[1]);
       if(kind==='open'){
-        const tab=chunks[1],target=chunks.slice(2).join(':');
+        const tab=chunks[1],requested=chunks.slice(2).join(':'),target=requested==='trainingAnnualActions'?'abilitiesPanel':requested;
         const ui=v76Ensure(),section=v76Data()?.sections?.find(x=>x.anchor===target);
         if(ui&&section)ui.collapsed[section.key]=false;
         v76OpenTab(tab,true);
