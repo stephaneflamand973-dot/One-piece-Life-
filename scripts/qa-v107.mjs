@@ -32,7 +32,7 @@ for(const id of ['attack','fight','secure']){const out=m.resolve(bad,id,ctx,{out
 const dirty=m.normalize({history:Array(99).fill({id:'x',berry:1e20}),contacts:Array(80).fill({key:'x',rivalry:-5}),active:{stage:100,faction:'Invalid'}});
 assert(dirty.history.length===30&&dirty.contacts.length===24);
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes("const GAME_VERSION = '10.8.0'")&&html.includes('function v107Resolve(parts)'));
+assert(html.includes("const GAME_VERSION = '10.8.0'")&&html.includes('function v107Resolve(parts,overrides={})'));
 assert(html.includes("if(parts[0]==='v107exp'){v107Resolve(parts);return}"));
 assert(html.includes("if(id==='expedition_scout'&&v107Module())"));
 assert(sw.includes('one-piece-life-v10-8-0')&&sw.includes('src/v107/encounter-engine-v107.js'));
