@@ -1,12 +1,30 @@
-# ONE PIECE LIFE • V11.0 : Sagas personnelles
+# ONE PIECE LIFE — V11.0 : Sagas personnelles
 
-## Contenu
-Après un contrat V10.9, le personnage peut déclencher une saga en 3 chapitres : **alliance**, **intrigue de faction** ou **rivalité**. Une saga reste en attente jusqu'à ce que le joueur la sélectionne dans **Monde > Mes sagas personnelles**.
+## Fonctionnalités
 
-Chaque chapitre est une **action volontaire** qui coûte 10 énergie et utilise l'un des 3 créneaux annuels. Une décision interactive permet de négocier, s'infiltrer, se confronter ou se retirer. Les chances varient selon les compétences, les relations, la difficulté de l'histoire, l'équipage, les tentatives précédentes et le choix effectué. Une réussite ouvre le chapitre suivant. Un échec ne progresse pas automatiquement ; cinq échecs compromettent définitivement l'histoire. Le prix final n'est versé qu'une fois.
+- Les contrats liés à une rencontre peuvent engendrer une **saga personnelle en trois chapitres**.
+- Trois arcs : alliance décisive, opération clandestine, saga de rivalité, selon le contrat déclencheur.
+- Le joueur doit **sélectionner la saga**, puis utiliser **une action annuelle** pour démarrer chaque chapitre. Trois actions maximum par an.
+- Chaque chapitre propose quatre réponses, dont la retraite volontaire. Négociation, discrétion et affrontement modifient les chances de réussite et les blessures.
+- Un échec ne saute pas automatiquement au chapitre suivant ; cinq échecs compromettent définitivement l'arc.
+- La récompense en Berry est remise **seulement après les trois réussites**, une fois. Santé, confiance, rivalité, réputation et monde causal suivent les actions réalisées.
+- Les sagas et décisions en cours survivent au rechargement et aux anciennes sauvegardes ; le passage annuel ne crée aucun chapitre automatiquement.
 
-La résolution modifie réellement santé, Berry, réputation et contacts persistants. Les événements sont consignés dans le journal et le registre causal du monde. Les choix en attente et la progression sont sauvegardés. Le vieillissement ne déclenche aucune étape ni aucune récompense.
+## Flux joueur
 
-**GAME_VERSION 11.0.0 • SAVE_VERSION 1000 • Cache PWA one-piece-life-v11-0-0**
+**Expédition** → rencontre → **contrat V10.9** → exécution manuelle du contrat → **saga V11.0** → choisir la saga → jouer les chapitres.
 
-QA : `scripts/qa-v110.mjs`, `scripts/qa-v100-runtime.mjs`, workflows GitHub Actions.
+Les sagas sont dans *Monde > Mes sagas personnelles* et accessibles depuis le Centre d'actions.
+
+## Sécurité et équilibrage
+
+- Maximum 3 sagas simultanément actives ; historique borné, données re-normalisées au chargement.
+- Une décision ouverte bloque les actions annuelles et l'avancement de l'année.
+- Le système de quotas commun V10.2 empêche de répéter la même action indéfiniment.
+- **GAME_VERSION 11.0.0 ; SAVE_VERSION 1000** ; cache PWA `one-piece-life-v11-0-0`.
+
+## Vérifications
+
+- Test de moteur, probabilité, retraite, fin et échec définitif, limites, sauvegarde et version : `scripts/qa-v110.mjs`.
+- Vérification intégrée d'une partie complète : `scripts/qa-v100-runtime.mjs`.
+- Régressions historiques exécutées dans les workflows GitHub.

@@ -329,6 +329,36 @@ assert(g.player.money===cashBefore+g.player.contractsV109.history.at(-1).berry,'
 assert(g.meta.manualLifeV102.spent.contact_contract===1,'Manual quota not recorded');
 assert(q.manualStatus('contact_contract').available===false,'Must select another available contract');
 const savedContract=JSON.parse(JSON.stringify(g));assert(savedContract.player.contractsV109.total>=1,'Contract save roundtrip failed');
+/* V11.0 : run live selectable saga, persist a pending chapter and enforce a 3-action annual cap. */
+g.player.energy=100;g.player.health=100;
+const firstSaga=g.player.sagasV110.campaigns.find(x=>x.status==='active'&&x.region===g.player.region);
+assert(firstSaga,'Contract has not generated an actionable saga');
+assert(q.sagaSelect(firstSaga.id),'Saga cannot be selected from World');
+assert(q.manualStatus('saga_chapter').available,'Saga chapter locked unexpectedly');
+assert(hub.build().some(x=>x.id==='manual:saga_chapter'&&x.available),'Saga missing from Action Hub');
+const sagaCash=g.player.money,sagaHistory=g.player.sagasV110.history.length;
+for(let attempt=0;attempt<3;attempt++){
+ assert(q.manual('saga_chapter'),'Manual saga action failed at attempt '+attempt);
+ assert(g.player.sagasV110.pending&&g.pendingDecision?.choices?.length===4,'Live saga decision not queued');
+ if(attempt===0){
+  const id=g.pendingDecision.id;
+  g.pendingDecision=null;q.sagaState();
+  assert(g.pendingDecision?.id===id,'Reload cannot restore pending saga decision');
+ }
+ assert(!q.manualStatus('saga_chapter').available,'Pending choice must lock annual action');
+ const selection=attempt===0?'withdraw':'negotiate';
+ const answer=g.pendingDecision.choices.find(x=>x.action.endsWith(':'+selection));
+ assert(answer,'Saga choice missing '+selection);
+ q.resolveDecision(answer.action);
+ assert(!g.player.sagasV110.pending&&!g.pendingDecision,'Saga decision did not close');
+}
+assert(g.player.sagasV110.history.length===sagaHistory+3,'Each manual chapter decision should be recorded');
+assert(g.player.sagasV110.totalReward===0&&g.player.money===sagaCash,'Partial saga awarded money without completion');
+assert(g.meta.manualLifeV102.spent.saga_chapter===3,'Chapter decisions charged the wrong quota');
+assert(!q.manualStatus('saga_chapter').available,'Third annual action limit ignored');
+assert(JSON.parse(JSON.stringify(g)).player.sagasV110.campaigns.length>=1,'V11 save roundtrip lost saga');
+console.log('V11.0 INTEGRATED SAGAS QA OK',JSON.stringify({attempts:3,recorded:g.player.sagasV110.history.length,paid:g.player.sagasV110.totalReward}));
+
 console.log('V10.9 INTEGRATED NPC CONTRACT QA OK',JSON.stringify({total:g.player.contractsV109.total,net:g.player.contractsV109.net}));
 console.log('V10.8 INTEGRATED DIALOGUE AND DUEL QA OK',JSON.stringify({dialogues:g.player.encounterDepthV108.dialogues,battles:g.player.encounterDepthV108.battles,memories:g.player.encounterDepthV108.memory.length}));
 g.pendingDecision={id:'v106_lock',title:'En attente',text:'Décision',choices:[]};
