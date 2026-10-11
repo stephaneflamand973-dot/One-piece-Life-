@@ -71,14 +71,21 @@ assert(document.getElementById('v95Hub').innerHTML.includes('Que veux-tu faire ?
 assert(document.getElementById('v95HubResults').innerHTML.includes('Accepter : Escorte'),'Action hub mission label missing');
 assert(document.getElementById('v95LifeQuick').innerHTML.includes('Toutes les actions'),'Life shortcut missing');
 assert(game.meta.actionFeedbackV111?.summary.includes('Berry +250'),'Immediate action result not saved');
+assert(game.meta.actionFeedbackV111?.actionId==='mission:mission_one','Result must retain the executed action for repeat');
+assert(document.getElementById('v95Hub').innerHTML.includes('data-v95-repeat="mission:mission_one"'),'Repeat action must be offered while available');
+assert(document.getElementById('v95Hub').innerHTML.includes('data-v95-next='),'A relevant next activity must be offered immediately');
 runtime.execute('hook:x');
 assert(game.meta.actionFeedbackV111?.summary.includes('Rencontre inattendue'),'Narrative-only action result was lost');
+assert(game.meta.actionFeedbackV111?.actionId==='hook:x','Narrative action identifier must persist');
+runtime.execute('service:inn');
+assert(game.meta.actionFeedbackV111?.actionId==='service:inn','A later action must replace older outcome');
+assert(game.meta.actionFeedbackV111?.summary==='Aucun changement immédiat mesurable.','Do not pretend an unchanged action changed stats');
 runtime.renderHub();
 assert(document.getElementById('v95Hub').innerHTML.includes('Retour à ma vie'),'Activity result must offer one-tap return to life');
 game.meta.actionHubV95.category='career';runtime.renderHub();
 assert(document.getElementById('v95Hub').innerHTML.includes('oplHubBack'),'Activity subcategory must have a visible return link');
 game.meta.actionHubV95.category='all';runtime.renderHub();
-assert(document.getElementById('v95LifeQuick').innerHTML.includes('Dernière action'),'Life view must reveal the last action result');
+assert(document.getElementById('v95LifeQuick').innerHTML.includes('Résultat de ton action'),'Life view must reveal the last action result');
 game.agency.annualTurn={active:true,monthsSimulated:4};
 const during=runtime.build();
 assert(during.some(x=>x.id==='advance'&&x.available),'Advance should remain active mid-year');
@@ -87,7 +94,7 @@ game.agency.annualTurn=null;game.pendingDecision={title:'Décision prioritaire'}
 const waiting=runtime.build();
 assert(waiting.some(x=>x.id==='decision'&&x.available),'Pending decision must be actionable');
 assert(waiting.some(x=>x.id==='doctrine:precision'&&!x.available),'Combat choices must lock on pending decision');
-assert(!runtime.execute('mission:mission_one')&&last==='hook:x','Locked action should not execute');
+assert(!runtime.execute('mission:mission_one')&&last==='service:inn','Locked action should not execute');
 
 for(const file of ['src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.js','src/v95/action-hub-runtime-v95.js','src/v95/action-hub-v95.css']){
  assert(html.includes(file),'Missing page asset '+file);
