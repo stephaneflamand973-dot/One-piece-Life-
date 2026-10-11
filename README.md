@@ -1,3 +1,21 @@
+# ONE PIECE LIFE — V10.1 Action Stability
+
+La V10.1 fiabilise le gameplay manuel introduit en V10.0, avant l'unification plus profonde prévue en V10.2.
+
+- **Une vérification unique** décide si une action est disponible dans les panneaux, le Centre d'actions et le moteur réel.
+- Le travail, la progression, la navigation et les promotions restent des **choix volontaires**. Vieillir ne donne toujours pas de salaire, XP ou promotion automatique.
+- Les demandes de promotion refusées pour absence de prérequis, une revue déjà effectuée ou un rang maximal sont correctement indiquées avant de consommer une action.
+- Une traversée débite désormais le coût énergétique annoncé.
+- L'historique du Centre d'actions n'enregistre plus les actions rejetées.
+- Le bilan annuel comprend à nouveau les événements mondiaux majeurs connus et alimente le Life Director.
+- Les quotas annuels restent inchangés dans cette version. Leur refonte est prévue pour V10.2.
+
+**GAME_VERSION 10.1.0 • SAVE_VERSION 1000 • CACHE one-piece-life-v10-1-0**
+
+Consulter [QA-V10.1.md](QA-V10.1.md) pour les tests et les limites de cette livraison.
+
+---
+
 # ONE PIECE LIFE — V10.0 Manual Life
 
 Le système de progression est désormais piloté par des **actions volontaires**. Comme dans les simulations de vie de type BitLife, avancer d'un an renouvelle les quotas annuels et fait vieillir le personnage, sans attribuer automatiquement de l'XP, des promotions, de l'argent ni des compétences. Le monde conserve sa chronologie indépendante.
