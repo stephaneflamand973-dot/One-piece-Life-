@@ -1,0 +1,1 @@
+(function(global){'use strict';const r=global.OPL_MODULES;if(!r)throw new Error('Module registry missing');r.register('manualLifeDataV100',{version:'10.0.0',limits:{work:1,training:2,mission:1,promotion:1,rest:1,navigation:1},energy:{work:12,training:12,mission:0,promotion:3,rest:0,navigation:8}})})(window);
