@@ -36,6 +36,8 @@ assert(hub.includes('id="oplHubBack"')&&hub.includes('opl-hub-drilldown'),'One-l
 assert(hub.includes('lastHistoryTitle')&&hub.includes('const eventChanged=after.lastHistoryId'),'Narrative-only consequences missing from results');
 assert(hub.includes('data-v95-life-return')&&hub.includes("bridge.openTab('life')"),'Cannot return to life after an action');
 assert(hub.includes('data-v95-repeat')&&hub.includes('data-v95-next'),'One-click repetition and next action must exist');
+assert(hub.includes("function decisionFocus(screen='actions')")&&hub.includes('oplLifeDecisionBtn')&&hub.includes('oplHubDecisionBtn'),'Pending story decisions must become the sole prominent action on both tabs');
+assert(hub.includes("if(bridge.getGame()?.pendingDecision){"),'Narrative decisions must suppress blocked activity catalogs');
 assert(hub.includes('bridge.educationChoices?.()'),'Education options must appear in the Action Hub');
 assert(html.includes("educationChoices:()=>{")&&html.includes("if(kind==='education')"),'School actions must call the authentic education engine');
 assert(hub.includes('categoryCount=id=>')&&hub.includes('v95-category-count'),'Every domain must display a real actionable count');
@@ -51,7 +53,7 @@ assert(html.includes('v111DecisionOutcome(v111BeforeDecision);'),'All decision r
 assert(html.includes('if(!before||!game?.meta||!game.alive||game.pendingDecision)return;'),'Do not interrupt ongoing multi-step events');
 
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Invalid single-element query loop');
-assert(sw.includes('one-piece-life-v11-0-1-gameplay-purifie6'),'Offline update not invalidated');
+assert(sw.includes('one-piece-life-v11-0-1-gameplay-purifie7'),'Offline update not invalidated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 new Function('window',hub);
 console.log('ONE PIECE LIFE : GAMEPLAY PURIFIÉ STATIC QA OK');
