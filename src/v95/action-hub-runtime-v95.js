@@ -20,18 +20,24 @@ function createRuntime(bridge){
     else if(game.alive)add(a,'advance','life',annual?'Reprendre l’année':'Avancer d’un an',
       annual?String(game.agency.annualTurn?.monthsSimulated||0)+'/12 mois simulés.':'Lancer la simulation jusqu’au prochain choix majeur.',
       {score:annual?110:78,urgent:annual});
-    const presets=bridge.presets(),recommend=bridge.recommendedPreset();
-    for(const [key,item] of Object.entries(presets))add(a,'preset:'+key,'life','Plan : '+item.label,item.desc,{
-      available:!locked,reason:why,score:recommend===key?65:30,tags:'année rythme stratégie',hideFromFeatured:true});
-    const domains={career:'career',training:'training',relations:'relations',adventure:'exploration',resources:'economy',mission:'career'};
-    for(const [key,cat] of Object.entries(domains)){
-      if(key==='mission'&&!game.activeMission)continue;
-      const group=bridge.planGroups()?.[key];if(!group)continue;
-      for(const [option,spec] of Object.entries(group.options||{})){
-        const selected=bridge.plan()?.[key]===option;
-        add(a,'plan:'+key+':'+option,cat,group.label+' : '+spec.label,spec.desc+(selected?' • Plan actuel.':''),{
-          available:!locked,reason:why,score:selected?9:30,tags:'plan annuel '+group.label,hideFromFeatured:true});
-      }
+    const manual=[
+      ['work','career','Travailler','Gagner de l’expérience professionnelle et un salaire seulement en travaillant.',91],
+      ['training','training','S’entraîner','Développer tes aptitudes par une séance volontaire.',82],
+      ['mission','career','Accomplir la mission acceptée','Résoudre la mission active maintenant, sans attendre une année.',84],
+      ['promotion','career','Demander une promotion','Soumettre ton dossier. Aucun avancement automatique.',70],
+      ['rest','life','Se reposer','Récupérer de l’énergie et de la santé par un choix volontaire.',47],
+      ['navigation','exploration','Effectuer la traversée','Mener le voyage choisi sans avoir besoin de vieillir.',67]
+    ];
+    for(const [id,cat,title,detail,score] of manual){
+      const st=bridge.manualStatus?.(id)||{available:false,reason:'Moteur V10 indisponible'};
+      let allowed=!!st.available,reason=st.reason||'';
+      if(id==='work'&&(p.career==='Aucune'||p.travel)){allowed=false;reason='Commence une carrière et rejoins la terre ferme.'}
+      if(id==='training'&&p.travel){allowed=false;reason='En mer : termine la traversée.'}
+      if(id==='promotion'&&p.career==='Aucune'){allowed=false;reason='Commence une carrière.'}
+      if(id==='mission'&&!game.activeMission){allowed=false;reason='Accepte d’abord une mission.'}
+      if(id==='navigation'&&!p.travel){allowed=false;reason='Choisis d’abord une destination.'}
+      add(a,'manual:'+id,cat,title,detail+' • '+(st.remaining||0)+' fois restante(s) cette année.',{
+        available:allowed&&!pending,reason:pending?why:reason,score,tags:'action manuelle carrière évolution'});
     }
     if(game.activeMission)add(a,'open:character:missionBoard','career','Mission en cours : '+game.activeMission.title,'Voir la mission active.',{kind:'open',score:82});
     else for(const m of (game.missionBoard||[]).slice(0,7)){

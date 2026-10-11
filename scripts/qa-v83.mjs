@@ -112,7 +112,7 @@ for(const asset of ['src/data/antagonists-v83.js','src/v83/antagonist-engine-v83
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:8-[3-9]|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.3 or newer');
+assert(/one-piece-life-v(?:8-[3-9]|9-\d+|10)-\d+/.test(sw),'PWA cache must remain at V8.3 or newer');
 assert(html.includes('antagonistV83:{version:1'),'Fresh antagonist state missing');
 assert(html.includes('v80Ensure();v81Ensure();v82Ensure();v83Ensure();'),'Old-save V8.3 migration hook missing');
 assert(html.includes('id="v83NemesisCard"'),'Nemesis UI card missing');

@@ -1,7 +1,7 @@
-name: V9.5 QA
+name: V10.0 QA
 on:
   push:
-    branches: [main]
+    branches: [main, v10-manual-life-actions]
     paths:
       - 'index.html'
       - 'manifest.webmanifest'
@@ -43,6 +43,7 @@ on:
       - 'scripts/qa-v93-runtime.mjs'
       - 'scripts/qa-v94.mjs'
       - 'scripts/qa-v95.mjs'
+      - 'scripts/qa-v100.mjs'
       - 'scripts/qa-v95-runtime.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
@@ -69,13 +70,14 @@ on:
       - 'QA-V9.3.md'
       - 'QA-V9.4.md'
       - 'QA-V9.5.md'
+      - 'QA-V10.0.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v95-qa-${{ github.ref }}
+  group: v100-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -161,3 +163,5 @@ jobs:
         run: node scripts/qa-v95.mjs
       - name: Verify V9.5 integrated real-game runtime
         run: node scripts/qa-v95-runtime.mjs
+      - name: Verify V10.0 Manual Life
+        run: node scripts/qa-v100.mjs

@@ -66,7 +66,9 @@ const windowObj={
 windowObj.window=windowObj;windowObj.document=document;windowObj.localStorage=localStorage;
 
 new Function('window',registrySrc)(windowObj);
+for(const path of ['src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js'])new Function('window',fs.readFileSync(path,'utf8'))(windowObj);
 for(const src of [v90DataSrc,v90EngineSrc,v91DataSrc,v91EngineSrc])new Function('window',src)(windowObj);
+for(const path of ['src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js'])new Function('window',fs.readFileSync(path,'utf8'))(windowObj);
 
 new Function(
   'window','document','localStorage','navigator','location','indexedDB',

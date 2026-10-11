@@ -115,7 +115,7 @@ for(const asset of ['src/data/crew-v84.js','src/v84/crew-engine-v84.js','src/v84
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:8-[4-9]|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.4 or newer');
+assert(/one-piece-life-v(?:8-[4-9]|9-\d+|10)-\d+/.test(sw),'PWA cache must remain at V8.4 or newer');
 assert(html.includes('v80Ensure();v81Ensure();v82Ensure();v83Ensure();v84Ensure();'),'Old-save V8.4 migration hook missing');
 for(const fn of ['function v84Module','function v84Ensure','function v84TickCrew','function v84MissionSupport','function v84CampaignSupport','function v84RecordMissionOutcome','function v84ManagementAction','function v84RecruitDecision','function v84SetDoctrine','function v84AppointFirstMate','function v84Candidate','function v84QueueCrew','function v84ResolveDecision','function v84RenderCrew']){
   assert(html.includes(fn),'Missing live V8.4 bridge '+fn);

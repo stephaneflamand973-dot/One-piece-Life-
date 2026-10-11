@@ -90,7 +90,7 @@ for(const asset of ['src/data/voyage-v85.js','src/v85/voyage-engine-v85.js','src
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:8-[5-9]|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.5 or newer');
+assert(/one-piece-life-v(?:8-[5-9]|9-\d+|10)-\d+/.test(sw),'PWA cache must remain at V8.5 or newer');
 assert(html.includes('v84Ensure();v85Ensure()'),'Old-save V8.5 migration hook missing');
 for(const fn of ['function v85Module','function v85Ensure','function v85RoutePreview','function v85StartVoyage','function v85ResolveTravelDecision','function v85TickVoyage','function v85Arrive','function v85ExploreCurrent','function renderV85Exploration']){
   assert(html.includes(fn),'Missing live V8.5 bridge '+fn);

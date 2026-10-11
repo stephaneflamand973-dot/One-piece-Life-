@@ -107,7 +107,7 @@ for(const asset of ['src/data/world-canon-v75.js','src/v75/world-canon-engine-v7
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:7-[5-9]|8-[0-9]+|9-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.5 or newer');
+assert(/one-piece-life-v(?:7-[5-9]|8-[0-9]+|9-[0-9]+|10)-[0-9]+/.test(sw),'PWA cache must remain at V7.5 or newer');
 for(const fn of ['function v75Ensure','function v75WorldTick','function v75SyncCanonIntegrity','function v75ApplyAction','function v75EventCoherence','function renderV75WorldDirector']){
   assert(html.includes(fn),'Missing live V7.5 bridge '+fn);
 }

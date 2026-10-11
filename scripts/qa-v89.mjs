@@ -82,14 +82,14 @@ const auto=engine.autoEquip(engine.acquire(engine.acquire({},coat,{}).state,blad
 eq(auto.state.equipped.weapon,'blade','Auto-equip should choose weapon');
 eq(auto.state.equipped.outfit,'coat','Auto-equip should choose outfit');
 
-assert(/ONE PIECE LIFE — V(?:8\.9|9\.\d+)/.test(html),'V8.9+ title missing');
+assert(/ONE PIECE LIFE — V(?:8\.9|9\.\d+|10\.\d+)/.test(html),'V8.9+ title missing');
 assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=890,'Save version 890+ missing');
 {const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0',p=v.split('.').map(Number);assert(p[0]>8||(p[0]===8&&p[1]>=9),'Game version 8.9+ missing')}
 for(const asset of ['src/data/equipment-v89.js','src/v89/equipment-engine-v89.js','src/v89/equipment-v89.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:8-9|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.9 or newer');
+assert(/one-piece-life-v(?:8-9|9-\d+|10|10)-\d+/.test(sw),'PWA cache must remain at V8.9 or newer');
 assert(html.includes('v88Ensure();v89Ensure()'),'Old-save V8.9 migration hook missing');
 for(const fn of ['function v89Module','function v89Ensure','function v89EquipmentEffects','function v89CombatBonus','function v89MissionBonus','function v89MaybeLoot','function v89AnnualUpgrade','function v89UnequipSlot','function renderV89Equipment']){
   assert(html.includes(fn),'Missing live V8.9 bridge '+fn);

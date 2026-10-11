@@ -33,8 +33,10 @@ const store=new Map(),localStorage={getItem:k=>store.has(k)?store.get(k):null,se
 const w={addEventListener(){},removeEventListener(){},scrollTo(){},matchMedia(){return{matches:false}},isSecureContext:true};w.window=w;w.document=document;w.localStorage=localStorage;
 
 new Function('window',registrySrc)(w);
+for(const path of ['src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js'])new Function('window',fs.readFileSync(path,'utf8'))(w);
 new Function('window',goalsData)(w);new Function('window',goalsEngine)(w);
 new Function('window',livesData)(w);new Function('window',livesEngine)(w);
+for(const path of ['src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js'])new Function('window',fs.readFileSync(path,'utf8'))(w);
 new Function('window','document','localStorage','navigator','location','indexedDB','setTimeout','clearTimeout','requestAnimationFrame','console','Promise',source)(
   w,document,localStorage,{userAgent:'V92-RUNTIME',clipboard:{writeText(){return Promise.resolve()}},storage:{persist(){return Promise.resolve(true)}}},{protocol:'https:'},undefined,()=>1,()=>{},cb=>{if(typeof cb==='function')cb();return 1},{log(){},warn(){},error(){}},Promise
 );

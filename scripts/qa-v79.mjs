@@ -126,7 +126,7 @@ for(const asset of ['src/data/education-v79.js','src/v79/education-engine-v79.js
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:7-9|8-[0-9]+|9-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.9 or newer');
+assert(/one-piece-life-v(?:7-9|8-[0-9]+|9-[0-9]+|10)-[0-9]+/.test(sw),'PWA cache must remain at V7.9 or newer');
 assert(html.includes("educationV79:{version:1"),'Fresh-save education state missing');
 assert(html.includes("if(!game.player.educationV79||typeof game.player.educationV79!=='object')"),'Old-save education migration guard missing');
 assert(html.includes('id="v79EducationCard"'),'Education UI missing');

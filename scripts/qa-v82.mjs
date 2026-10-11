@@ -108,7 +108,7 @@ for(const asset of ['src/data/campaigns-v82.js','src/v82/campaign-engine-v82.js'
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:8-[2-9]|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.2 or newer');
+assert(/one-piece-life-v(?:8-[2-9]|9-\d+|10)-\d+/.test(sw),'PWA cache must remain at V8.2 or newer');
 assert(html.includes('campaignV82:{version:1'),'Fresh campaign state missing');
 assert(html.includes('v80Ensure();v81Ensure();v82Ensure();'),'Old-save V8.2 migration hook missing');
 assert(html.includes('id="v82CampaignCard"'),'Campaign UI card missing');

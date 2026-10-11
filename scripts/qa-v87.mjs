@@ -93,7 +93,7 @@ for(const asset of ['src/data/settlements-v87.js','src/v87/settlement-engine-v87
  assert(html.includes(asset),'Index does not load '+asset);
  assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:8-[7-9]|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.7 or newer');
+assert(/one-piece-life-v(?:8-[7-9]|9-\d+|10)-\d+/.test(sw),'PWA cache must remain at V8.7 or newer');
 assert(html.includes('v86Ensure();v87Ensure()'),'Old-save V8.7 migration hook missing');
 for(const fn of ['function v87Module','function v87Ensure','function v87OnArrival','function v87MonthlyTick','function v87OnLocalOutcome','function v87Service','function renderV87Settlement']){
  assert(html.includes(fn),'Missing live V8.7 bridge '+fn);

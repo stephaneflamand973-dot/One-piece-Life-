@@ -73,14 +73,14 @@ const friendlyLife={power:76,renown:72,region:'Grand Line',playerRegion:'Grand L
 const friendlyLink=engine.ensureLink({},friendlyRival.id).link;
 assert(!engine.nemesisEligible(friendlyRival,friendlySocial,friendlyLife,friendlyLink),'Respectful close rivalry should not automatically become nemesis');
 
-assert(html.includes('ONE PIECE LIFE — V9.5'),'V9.3 title missing');
-assert(/const SAVE_VERSION\s*=\s*950;/.test(html),'Save version 930 missing');
-assert(/const GAME_VERSION\s*=\s*'9\.5\.0';/.test(html),'Game version 9.3.0 missing');
+assert(html.includes('ONE PIECE LIFE — V10.0'),'V9.3 title missing');
+assert(/const SAVE_VERSION\s*=\s*1000;/.test(html),'Save version 930 missing');
+assert(/const GAME_VERSION\s*=\s*'10\.0\.0';/.test(html),'Game version 9.3.0 missing');
 for(const asset of ['src/data/relationships-v93.js','src/v93/relationships-engine-v93.js','src/v93/relationships-v93.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(sw.includes('one-piece-life-v9-5-0'),'PWA cache not V9.3');
+assert(sw.includes('one-piece-life-v10-0-0'),'PWA cache not V9.3');
 assert(html.includes('v92Ensure();v93Ensure()'),'V9.3 ensure chain missing');
 for(const fn of ['function v93Module','function v93Ensure','function v93Profile','function v93OnNpcLifeEvent','function v93MaybePromoteNemesis','function v93MaybeQueueBeat','function v93ResolveDecision','function renderV93Relationships']){
   assert(html.includes(fn),'Missing V9.3 live bridge '+fn);
