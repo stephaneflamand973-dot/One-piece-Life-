@@ -6,14 +6,14 @@ const bounded=(x,a=0,b=100)=>clamp(num(x),a,b),integer=(x,a=0,b=1e9)=>Math.floor
 const keys=Object.keys(d.actions);
 function normalize(raw={},year=0,island=''){
  const s=raw&&typeof raw==='object'?raw:{},place=String(island||s.island||'').slice(0,100);
- const changed=s.island&&place&&s.island!==place,approach=d.approaches[s.approach]?s.approach:'balanced';
+ const changed=s.island&&place&&s.island!==place,sameYear=integer(s.year,0,9999)===integer(year,0,9999),approach=d.approaches[s.approach]?s.approach:'balanced';
  const history=Array.isArray(s.history)?s.history.filter(e=>e&&typeof e==='object').slice(-24).map(e=>({
   year:integer(e.year,0,9999),kind:keys.includes(e.kind)?e.kind:'expedition_scout',
   place:String(e.place||'').slice(0,100),success:!!e.success,detail:String(e.detail||'').slice(0,140)
  })):[];
  return {version:1,year:integer(year,0,9999),island:place,approach,
   preparedness:changed?0:bounded(s.preparedness,0,80),
-  commandBoost:bounded(s.commandBoost,0,12),
+  commandBoost:sameYear?bounded(s.commandBoost,0,12):0,
   missionId:String(s.missionId||'').slice(0,140),
   missionBonus:bounded(s.missionBonus,0,14),
   expeditions:integer(s.expeditions),discoveries:integer(s.discoveries),missionPlans:integer(s.missionPlans),
