@@ -35,3 +35,12 @@
 .v95-category-count{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;min-width:24px;height:24px;padding:0 6px;border-radius:99px;background:rgba(23,63,78,.09);color:#275463;font-size:11px;font-weight:900}
 .v95-category.selected .v95-category-count{background:rgba(255,255,255,.22);color:white}
 @media(min-width:680px){.v95-categories{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* A pending decision is the only playable step until the story resolves. */
+.opl-decision-focus{display:grid;gap:10px;background:#f7f1e5;border:1px solid #d5c29b;border-radius:16px;padding:17px 15px;color:#324748}
+.opl-decision-focus .eyebrow{font-size:10px;color:#79613d;font-weight:800;letter-spacing:.08em}
+.opl-decision-focus h3{margin:0;font-family:Georgia,serif;font-size:21px;line-height:1.25}
+.opl-decision-focus p{margin:0;font-size:13px;line-height:1.5;max-height:11em;overflow:auto}
+.opl-decision-focus small{font-size:11px;color:#6a6456;line-height:1.4}
+.opl-decision-focus-btn{min-height:51px;width:100%;padding:12px 14px;background:#184658;color:#fff;border:0;border-radius:11px;font-size:14px;font-weight:800;text-align:center;cursor:pointer}
+.opl-decision-focus-btn:focus-visible{outline:3px solid #ccaa60;outline-offset:3px}
