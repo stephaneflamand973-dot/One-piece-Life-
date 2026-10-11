@@ -1,4 +1,4 @@
-name: V9.2 QA
+name: V9.3 QA
 on:
   push:
     branches: [main]
@@ -39,6 +39,8 @@ on:
       - 'scripts/qa-v91-runtime.mjs'
       - 'scripts/qa-v92.mjs'
       - 'scripts/qa-v92-runtime.mjs'
+      - 'scripts/qa-v93.mjs'
+      - 'scripts/qa-v93-runtime.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -61,13 +63,14 @@ on:
       - 'QA-V9.0.md'
       - 'QA-V9.1.md'
       - 'QA-V9.2.md'
+      - 'QA-V9.3.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v92-qa-${{ github.ref }}
+  group: v93-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -143,3 +146,7 @@ jobs:
         run: node scripts/qa-v92.mjs
       - name: Verify V9.2 integrated runtime
         run: node scripts/qa-v92-runtime.mjs
+      - name: Verify V9.3 Relationships & Nemesis 5.0
+        run: node scripts/qa-v93.mjs
+      - name: Verify V9.3 integrated runtime
+        run: node scripts/qa-v93-runtime.mjs
