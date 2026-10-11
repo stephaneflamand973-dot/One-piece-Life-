@@ -5662,7 +5662,7 @@ function v104Ensure(){
 function v104Context(r){
  const p=game.player,partner=p.personalV78||{},snap=r?.id?v74RelationSnapshot(r):null;
  return {year:Math.floor(game.ageMonths/12),age:game.ageMonths/12,alive:game.alive,
-  pending:!!game.pendingDecision,energy:p.energy,money:p.money,
+  pending:!!game.pendingDecision,annual:!!game.agency?.annualTurn?.active,energy:p.energy,money:p.money,
   partnerId:partner.partnerId||null,partnership:partner.partnership||'single',compatibility:snap?.compat?.score||50}
 }
 function v104Status(id,action){
