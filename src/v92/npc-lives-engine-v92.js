@@ -156,6 +156,9 @@ function tickActor(state,actor,ctx={},rolls={}){
   let {state:s,life}=ensureActor(state,actor,ctx),events=[];
   const months=Math.max(0,num(ctx.months)||1),powerDelta=num(actor.power)-num(life.lastPower),healthNow=Number.isFinite(Number(actor.health))?Number(actor.health):life.lastHealth,healthDelta=healthNow-num(life.lastHealth);
   const region=String(actor.currentRegion||actor.region||life.lastRegion),goal=String(actor.goal||actor.ambition||''),drift=Number(rolls.drift??.5)-.5;
+  const fragile=num(actor.injuryMonths)>0||healthNow<48||life.stress>78||life.energy<34;
+  if(fragile&&life.objectiveId!=='recover'){life.objectiveId='recover';life.objectiveProgress=0;historyPush(life,{month:num(ctx.month),type:'recovery_focus',label:'Priorité à la récupération',region})}
+  else if(!fragile&&life.objectiveId==='recover'){life.objectiveId=chooseObjective(actor,{...life,objectiveId:'recover'},Number(rolls.objective??.5));life.objectiveProgress=0;historyPush(life,{month:num(ctx.month),type:'return',label:'Retour à sa trajectoire',region})}
   life.momentum=clamp(life.momentum+(powerDelta>0?Math.min(3,powerDelta*.45):0)+(healthDelta<-10?-3:0)+months*.10*drift,0,100);
   life.renown=clamp(life.renown+Math.max(0,powerDelta)*.32+months*(num(actor.importance)/100)*.035+Math.max(0,life.careerTier-1)*months*.01,0,100);
   life.influence=clamp(life.influence+months*(.015+life.careerTier*.012+life.renown/9000)+drift*.18,0,100);
