@@ -392,6 +392,8 @@ assert(youth.meta.actionFeedbackV111?.title.includes('Études'),'School action d
 assert(!youthHub.build().find(x=>x.id==='education:focus:practice')?.available,'School annual limit can be bypassed');
 q.advance();
 assert(youth.ageMonths===13*12,'School aging did not advance precisely one year');
+// A randomized school encounter can legitimately interrupt the next available action.
+youth.pendingDecision=null;
 assert(youthHub.build().find(x=>x.id==='education:focus:practice')?.available,'School choices did not renew on age-up');
 console.log('V11.0.1 INTEGRATED YOUTH DIRECT ACTION QA OK');
 
