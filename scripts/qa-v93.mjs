@@ -75,7 +75,7 @@ assert(!engine.nemesisEligible(friendlyRival,friendlySocial,friendlyLife,friendl
 
 assert(html.includes('ONE PIECE LIFE — V10.9'),'V9.3 title missing');
 assert(/const SAVE_VERSION\s*=\s*1000;/.test(html),'Save version 930 missing');
-assert(/const GAME_VERSION\s*=\s*'10\.8\.0';/.test(html),'Game version 9.3.0 missing');
+assert(/const GAME_VERSION\s*=\s*'10\.9\.0';/.test(html),'Game version 9.3.0 missing');
 for(const asset of ['src/data/relationships-v93.js','src/v93/relationships-engine-v93.js','src/v93/relationships-v93.css']){
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);

@@ -54,7 +54,7 @@ assert(overflow.tracked.length<=24&&overflow.read.length<=90&&overflow.history.l
 const many=Array.from({length:90},(_,i)=>({id:'item'+i,status:'open',expiresAt:150,region:'East Blue',title:'Signal '+i,urgency:50}));
 assert(m.collect({...world,worldHooks:many},p,120).length<=45,'Signal cap broken');
 assert(source.includes('<title>ONE PIECE LIFE — V10.9</title>'),'Page title not V9.4');
-assert(/const GAME_VERSION\s*=\s*'10\.8\.0';/.test(source),'Game version missing');
+assert(/const GAME_VERSION\s*=\s*'10\.9\.0';/.test(source),'Game version missing');
 assert(/const SAVE_VERSION\s*=\s*1000;/.test(source),'Save version missing');
 for(const file of ['src/data/world-intel-v94.js','src/v94/world-intel-engine-v94.js','src/v94/world-intel-v94.css'])assert(source.includes(file)&&sw.includes(file),'Missing live and offline asset '+file);
 assert(sw.includes('one-piece-life-v10-9-0'),'Offline cache version missing');

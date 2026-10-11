@@ -7,7 +7,7 @@ const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
 const inline=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 assert(inline,'Inline game script missing');
 new Function(inline);
-assert(/const GAME_VERSION\s*=\s*'10\.8\.0'/.test(html),'V10.5 release missing');
+assert(/const GAME_VERSION\s*=\s*'10\.9\.0'/.test(html),'V10.5 release missing');
 assert(/const SAVE_VERSION\s*=\s*1000/.test(html),'Save format incompatibility');
 assert(sw.includes('one-piece-life-v10-9-0'),'Offline cache out of date');
 assert(manifest.description.includes('V10.9'),'PWA metadata out of date');
