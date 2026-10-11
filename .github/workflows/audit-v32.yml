@@ -1,4 +1,4 @@
-name: V9.1 Live Audit
+name: V9.2 Live Audit
 on:
   workflow_dispatch:
   push:
@@ -36,6 +36,8 @@ on:
       - 'scripts/qa-v90.mjs'
       - 'scripts/qa-v91.mjs'
       - 'scripts/qa-v91-runtime.mjs'
+      - 'scripts/qa-v92.mjs'
+      - 'scripts/qa-v92-runtime.mjs'
       - 'app.js'
       - 'content-v1.js'
       - 'scripts/audit-v32.mjs'
@@ -43,7 +45,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: v91-live-audit-${{ github.ref }}
+  group: v92-live-audit-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   audit:
@@ -114,6 +116,10 @@ jobs:
         run: node scripts/qa-v91.mjs
       - name: Run V9.1 integrated runtime QA
         run: node scripts/qa-v91-runtime.mjs
+      - name: Run V9.2 NPC Living Lives QA
+        run: node scripts/qa-v92.mjs
+      - name: Run V9.2 integrated runtime QA
+        run: node scripts/qa-v92-runtime.mjs
       - name: Run legacy engine trend audit
         continue-on-error: true
         run: node scripts/audit-v32.mjs
