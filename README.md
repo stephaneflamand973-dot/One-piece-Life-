@@ -1,3 +1,19 @@
+# ONE PIECE LIFE — V10.0 Manual Life
+
+Le système de progression est désormais piloté par des **actions volontaires**. Comme dans les simulations de vie de type BitLife, avancer d'un an renouvelle les quotas annuels et fait vieillir le personnage, sans attribuer automatiquement de l'XP, des promotions, de l'argent ni des compétences. Le monde conserve sa chronologie indépendante.
+
+- La carrière progresse avec « Travailler », les missions réalisées et les demandes de promotion. La promotion n'est jamais décidée automatiquement par le temps.
+- L'entraînement est une action directe limitée à deux séances par an, qui produit la progression du personnage.
+- Les missions et traversées se terminent sur décision explicite et non au prochain passage d'année.
+- Le repos restaure la santé et l'énergie par une action volontaire.
+- Les interactions sociales, études, achats et autres décisions existantes gardent leurs règles et se déverrouillent quand l'année change.
+- Les plans annuels et gains passifs de carrière sont désactivés dans la navigation. Les progrès professionnels ne dépendent plus d'un régime automatique.
+- Sauvegardes V9.5 migrées automatiquement, y compris les années interrompues, sans effacer le personnage.
+
+**GAME_VERSION 10.0.0 • SAVE_VERSION 1000 • CACHE one-piece-life-v10-0-0**
+
+---
+
 # ONE PIECE LIFE — V9.5 Action Hub & UX 6.0
 
 La V9.5 rassemble les actions importantes dans un nouvel onglet **Actions** au lieu de les laisser dispersées dans cinq rubriques. Le joueur conserve les détails de son monde, mais peut agir sans se perdre dans l’interface.
