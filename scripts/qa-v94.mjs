@@ -58,6 +58,6 @@ assert(/const GAME_VERSION\s*=\s*'9\.5\.0';/.test(source),'Game version missing'
 assert(/const SAVE_VERSION\s*=\s*950;/.test(source),'Save version missing');
 for(const file of ['src/data/world-intel-v94.js','src/v94/world-intel-engine-v94.js','src/v94/world-intel-v94.css'])assert(source.includes(file)&&sw.includes(file),'Missing live and offline asset '+file);
 assert(sw.includes('one-piece-life-v9-5-0'),'Offline cache version missing');
-for(const frag of ['function v94Ensure','function v94Signals','function v94Action','function v94RenderLife','function v94RenderIntel','id="v94LifeCard"','id="v94IntelCard"','v93Ensure();v94Ensure();','renderV88Market();v94RenderIntel();','v94RenderLife();v80RenderActiveTab','v59OpenHook(signal.hookId)'])assert(source.includes(frag),'World Intelligence integration missing: '+frag);
+for(const frag of ['function v94Ensure','function v94Signals','function v94Action','function v94RenderLife','function v94RenderIntel','id="v94LifeCard"','id="v94IntelCard"','v93Ensure();v94Ensure();','renderV88Market();v94RenderIntel();','v94RenderLife();v95Ensure()?.renderLife();v80RenderActiveTab','v59OpenHook(signal.hookId)'])assert(source.includes(frag),'World Intelligence integration missing: '+frag);
 assert(css.includes('.v94-signal')&&css.includes('.v94-life'),'Missing styling');
 console.log('V9.4 WORLD INTELLIGENCE QA OK',JSON.stringify({signals:signals.length,local:m.visible(signals,state,'local').length,tracked:state.tracked.length,unread:m.overview(signals,state,p.region).unread}));
