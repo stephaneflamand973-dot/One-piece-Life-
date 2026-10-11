@@ -1,3 +1,19 @@
+# ONE PIECE LIFE — V10.5 : Économie et patrimoine 2.0
+
+La V10.5 rend les Berry utiles grâce aux achats, améliorations et entreprises **pilotées par le joueur**.
+
+- Six actifs : salle d'entraînement, soins, bureau de navigation, commerce, atelier naval et location de logements.
+- Avantages mesurables sur les séances d'entraînement, le repos, les traversées et le commerce.
+- Investissements (2/an) et gestion d'entreprise (3/an), avec coûts, profits **ou pertes** et rendements décroissants.
+- Panneau de patrimoine unique, également accessible depuis le Centre d'actions.
+- Compatibilité V6.9, V7.8, V8.8 et sauvegardes antérieures ; aucun revenu professionnel automatique en vieillissant.
+
+**GAME_VERSION 10.5.0 • SAVE_VERSION 1000 • CACHE one-piece-life-v10-5-0**
+
+[QA-V10.5.md](QA-V10.5.md) contient le cahier des tests et les limites de cette version.
+
+---
+
 # ONE PIECE LIFE — V10.4 Relations et vie personnelle 2.0
 
 - **Neuf interactions sociales** disponibles : passer du temps, entraîner, aider, se confier, confronter, se réconcilier, flirter, proposer un rendez-vous ou vivre ensemble.

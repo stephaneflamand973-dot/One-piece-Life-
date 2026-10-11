@@ -4,7 +4,7 @@ const html=fs.readFileSync('index.html','utf8');
 let source=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 const init="init().catch(()=>{storageFallback=true;renderSlots();startupMessage('Démarrage en mode de secours local.','warn')});";
 assert(source&&source.includes(init),'Game runtime entrypoint missing');
-source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,socialStatus:v104Status,socialAction:v104Perform,advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
+source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,socialStatus:v104Status,socialAction:v104Perform,economyStatus:v105ActionStatus,economySelect:v105SelectTarget,economyPerks:v105Perks,advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
 const elements=new Map();
 function el(sel){
  if(!elements.has(sel)){
@@ -40,7 +40,7 @@ const modulePaths=[
  'src/data/world-intel-v94.js','src/v94/world-intel-engine-v94.js',
  'src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.js','src/v95/action-hub-runtime-v95.js',
  'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js',
- 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js'
+ 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js','src/data/economy-v105.js','src/v105/economy-engine-v105.js'
 ];
 for(const path of modulePaths)new Function('window',fs.readFileSync(path,'utf8'))(w);
 new Function('window','document','localStorage','navigator','location','indexedDB','setTimeout','clearTimeout','requestAnimationFrame','console','Promise',source)(
@@ -56,7 +56,7 @@ g.player.specialization='combat';
 g.missionBoard=[{id:'v95_escort_qa',title:'Escorte de QA',desc:'Protéger un convoi',reward:1500,duration:3,danger:'low',power:20,type:'escort'}];
 g.relations.push({id:'v95_friend',name:'Nami QA',role:'Ami',affection:60,respect:67,trust:69,loyalty:60,familiarity:67,rivalry:1,status:'active',ambition:'Loyauté',temperament:'Curieux'});
 q.ensure();
-assert(q.gameVersion==='10.4.0'&&q.saveVersion===1000,'Version mismatch');
+assert(q.gameVersion==='10.5.0'&&q.saveVersion===1000,'Version mismatch');
 const hub=q.hub();assert(hub&&hub.version==='9.5.0','Live Action Hub failed to initialize');
 let actions=hub.build();
 assert(actions.some(x=>x.id==='mission:v95_escort_qa'&&x.available),'Live mission action missing');
@@ -220,6 +220,33 @@ else assert(g.player.personalV78?.partnerId!=='v104_adult_qa','Rejected dating i
 assert(!q.socialStatus('v104_adult_qa','commit').available||paired,'Commitment possible without being in a couple');
 assert(g.meta.manualLifeV102.spent.work===4,'V10.4 social actions modified career quota');
 console.log('V10.4 INTEGRATED SOCIAL QA OK',JSON.stringify({socialActions:g.player.socialV104.used,partner:paired,memory:g.player.socialV104.history.length}));
+
+/* V10.5 : game-level purchase and active revenue, not passive salary while aging. */
+g.pendingDecision=null;g.player.travel=null;g.player.money=250000;g.player.energy=100;
+assert(q.economyPerks().training===1,'Training perk must start neutral');
+assert(q.economySelect('purchase','dojo')===true,'Cannot select training facility');
+assert(q.manualStatus('economy_buy').available,'Economic purchase unavailable despite cash and adulthood');
+const beforeBuyMoney=g.player.money,expectedCost=q.economyStatus('economy_buy').cost;
+assert(q.manual('economy_buy')===true,'Purchasing training facility failed');
+assert(g.player.money===beforeBuyMoney-expectedCost,'Purchase must deduct region-adjusted Berry exactly once');
+assert(g.player.economyV105.holdings.dojo===1,'Bought asset missing from player save');
+assert(q.economyPerks().training>1,'Purchased facility does not boost voluntary training');
+assert(q.economySelect('purchase','shop')===true,'Cannot select business for investment');
+assert(q.manual('economy_buy')===true,'Purchase of business failed');
+assert(g.player.economyV105.holdings.shop===1,'Purchased business not retained');
+assert(!q.manualStatus('economy_buy').available,'Two annual investments limit ignored');
+assert(q.economySelect('operate','shop')===true,'Cannot select enterprise operation');
+const beforeOperate=g.player.money;
+assert(q.manualStatus('economy_operate').available,'Purchased enterprise cannot operate');
+assert(hub.build().some(x=>x.id==='manual:economy_operate'&&x.available),'Business operating action missing from central Hub');
+assert(q.manual('economy_operate')===true,'Enterprise operation failed');
+assert(g.player.economyV105.operated===1,'Enterprise decision not counted');
+const result=g.player.economyV105.history.at(-1);
+assert(result.type==='operate'&&g.player.money-beforeOperate===result.amount,'Operational P&L differs from actual Berry balance');
+assert(g.player.careerV103.workSessions===4,'Business operations improperly increased professional work');
+assert(g.meta.manualLifeV102.spent.economy_buy===2&&g.meta.manualLifeV102.spent.economy_operate===1,'Economy actions bypassed unified quota engine');
+assert(q.economyStatus('economy_operate').available,'Second operation should be available');
+console.log('V10.5 INTEGRATED ECONOMY QA OK',JSON.stringify({invested:g.player.economyV105.invested,net:g.player.economyV105.netOperating,businessLevel:g.player.economyV105.holdings.shop}));
 
 console.log('V10.1 INTEGRATED RUNTIME QA OK',JSON.stringify({tabs:['life','actions','character','relations','world'],actions:actions.length,
  favorites:g.meta.actionHubV95.favorites.length,lastAction:g.meta.actionHubV95.recent[0],saveVersion:q.saveVersion}));

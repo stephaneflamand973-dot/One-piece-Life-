@@ -11,7 +11,9 @@ const actions={
   navigation:{label:'Effectuer la traversée',limit:4,cost:8,yields:[1,1,1,1],requires:['travel']},
   career_support:{label:'Aider ton équipe',limit:2,cost:8,yields:[1,.85],requires:['career','land']},
   career_initiative:{label:'Prendre une initiative',limit:2,cost:11,yields:[1,.8],requires:['career','land']},
-  career_bonus:{label:'Demander une prime',limit:1,cost:3,yields:[1],requires:['career','land']}
+  career_bonus:{label:'Demander une prime',limit:1,cost:3,yields:[1],requires:['career','land']},
+  economy_buy:{label:'Acheter ou améliorer un actif',limit:2,cost:2,yields:[1,1],requires:['land']},
+  economy_operate:{label:'Exploiter une entreprise',limit:3,cost:7,yields:[1,.82,.65],requires:['land']}
 };
 const trainingFocus={
   physical:{label:'Condition physique',activity:'physical'},
