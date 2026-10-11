@@ -270,7 +270,7 @@ function createRuntime(bridge){
     const visible=showAll||query.trim()?scoped.slice(0,70):(direct.length?direct:scoped.filter(x=>x.available)).slice(0,7);
     const count=node('v95HubCount');
     if(count){
-      const eligible=selected.filter(x=>x.available).length;
+      const eligible=scoped.filter(x=>x.available).length;
       count.textContent=eligible+' possible'+(eligible>1?'s':'')+(showAll?' • autres choix ci-dessous':'');
     }
     // Relationships show people rather than a confusing wall of repeated actions.
@@ -314,7 +314,7 @@ function createRuntime(bridge){
   }
   function focusPerson(id){
     const game=bridge.getGame();
-    const person=(game?.relations||[]).find(p=>p?.id===id&&p.status!=='left');
+    const person=(game?.relations||[]).find(p=>p?.id!=null&&String(p.id)===String(id)&&p.status!=='left');
     if(!person)return false;
     personFocus=id;showAll=false;query='';
     const state=getState();state.category='relations';game.meta.actionHubV95=state;
@@ -338,7 +338,7 @@ function createRuntime(bridge){
     const categoryCount=id=>id==='all'?actionable.length:id==='favorites'?
       actionable.filter(x=>state.favorites.includes(x.id)).length:actionable.filter(x=>x.category===id).length;
     const chosen=data.categories.find(x=>x.id===state.category);
-    const person=state.category==='relations'?(bridge.getGame()?.relations||[]).find(p=>p?.id===personFocus&&p.status!=='left'):null;
+    const person=state.category==='relations'?(bridge.getGame()?.relations||[]).find(p=>p?.id!=null&&String(p.id)===String(personFocus)&&p.status!=='left'):null;
     if(personFocus&&!person)personFocus=null;
     root.classList?.toggle('opl-hub-drilldown',state.category!=='all');
     root.innerHTML=actionFeedback(true)+'<div class="v95-hub-head"><span class="eyebrow">Activités</span><h2>'+(person?'Interagir avec '+escapeHtml(person.name):'Que veux-tu faire ?')+'</h2>'+
