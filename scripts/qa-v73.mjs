@@ -105,7 +105,7 @@ for(const asset of ['src/data/career-organizations-v73.js','src/v73/career-organ
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:7-[3-9]|8-[0-9]+|9-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.3 or newer');
+assert(/one-piece-life-v(?:7-[3-9]|8-[0-9]+|9-[0-9]+|10)-[0-9]+/.test(sw),'PWA cache must remain at V7.3 or newer');
 assert(html.includes('function v73PromotionReview'),'Promotion bridge missing');
 assert(html.includes('v73RecordMissionOutcome'),'Mission-to-career bridge missing');
 assert(html.includes('function renderV73Organization'),'Organization UI bridge missing');
