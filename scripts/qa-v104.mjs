@@ -5,7 +5,7 @@ const context={console,Math,JSON,Object,Array,String,Number,Map,Set};context.win
 for(const path of ['src/core/module-registry.js','src/data/social-v104.js','src/v104/social-engine-v104.js'])
   vm.runInContext(fs.readFileSync(path,'utf8'),context,{filename:path});
 const data=context.OPL_MODULES.get('socialDataV104'),engine=context.OPL_MODULES.get('socialEngineV104');
-assert(data.version==='10.4.0'&&engine.version==='10.4.0','V10.4 modules missing');
+assert(data.version==='10.4.0'&&engine.version==='10.4.0','V10.5 modules missing');
 assert(Object.keys(data.actions).length===9,'Expected nine social actions');
 const alice={id:'alice',name:'Alice',adult:true,trust:72,affection:74,familiarity:65,respect:60,loyalty:48,rivalry:16,status:'active'};
 const kid={...alice,id:'kid',adult:false};
@@ -60,9 +60,9 @@ assert(malformed.used===12&&malformed.counts.alice===3&&malformed.lifetime===0&&
 assert(malformed.history.every(x=>x.id.length<=100&&x.label.length<=110),'History record too large');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8'),manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes("const GAME_VERSION = '10.4.0'")&&html.includes('social-engine-v104.js'),'V10.4 game release not linked');
+assert(html.includes("const GAME_VERSION = '10.4.0'")&&html.includes('social-engine-v104.js'),'V10.5 game release not linked');
 assert(html.includes('function v104Perform(id,action)')&&html.includes('function v104RenderOverview()'),'Social game integration missing');
-assert(sw.includes('one-piece-life-v10-4-0')&&sw.includes('social-engine-v104.js'),'V10.4 assets unavailable offline');
-assert(manifest.description.includes('V10.4'),'V10.4 PWA metadata absent');
+assert(sw.includes('one-piece-life-v10-5-0')&&sw.includes('social-engine-v104.js'),'V10.5 assets unavailable offline');
+assert(manifest.description.includes('V10.5'),'V10.5 PWA metadata absent');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
-console.log('V10.4 SOCIAL ENGINE QA OK',JSON.stringify({actions:Object.keys(data.actions).length,globalLimit:data.limits.global,perPerson:data.limits.perRelation}));
+console.log('V10.5 SOCIAL ENGINE QA OK',JSON.stringify({actions:Object.keys(data.actions).length,globalLimit:data.limits.global,perPerson:data.limits.perRelation}));
