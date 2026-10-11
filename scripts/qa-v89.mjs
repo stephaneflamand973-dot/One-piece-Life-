@@ -82,7 +82,7 @@ const auto=engine.autoEquip(engine.acquire(engine.acquire({},coat,{}).state,blad
 eq(auto.state.equipped.weapon,'blade','Auto-equip should choose weapon');
 eq(auto.state.equipped.outfit,'coat','Auto-equip should choose outfit');
 
-assert(/ONE PIECE LIFE — V(?:8\.9|9\.\d+|10\.\d+)/.test(html),'V8.9+ title missing');
+assert(/ONE PIECE LIFE — V(?:8\.9|9\.\d+|1[0-9]\.\d+)/.test(html),'V8.9+ title missing');
 assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=890,'Save version 890+ missing');
 {const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0',p=v.split('.').map(Number);assert(p[0]>8||(p[0]===8&&p[1]>=9),'Game version 8.9+ missing')}
 for(const asset of ['src/data/equipment-v89.js','src/v89/equipment-engine-v89.js','src/v89/equipment-v89.css']){

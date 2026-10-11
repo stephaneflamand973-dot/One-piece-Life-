@@ -120,7 +120,7 @@ assert(!changed.error,'Valid ambition change rejected');
 eq(changed.state.ambitionType,'explore','Ambition change not persisted');
 assert(changed.state.activeMedium.some(x=>['explore_islands','reach_region'].includes(x.templateId)),'Explore ambition should create exploration goals');
 
-assert(/ONE PIECE LIFE — V(?:9\.(?:1(?:\.\d+)?|[2-9](?:\.\d+)*)|10\.\d+)/.test(html),'V9.1+ title missing');
+assert(/ONE PIECE LIFE — V(?:9\.(?:1(?:\.\d+)?|[2-9](?:\.\d+)*)|1[0-9]\.\d+)/.test(html),'V9.1+ title missing');
 assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=910,'Save version 910+ missing');
 {const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0',p=v.split('.').map(Number);assert(p[0]>9||(p[0]===9&&p[1]>=1),'Game version 9.1+ missing')}
 for(const asset of ['src/data/goals-v91.js','src/v91/goals-engine-v91.js','src/v91/goals-v91.css']){

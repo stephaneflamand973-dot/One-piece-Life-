@@ -66,7 +66,7 @@ assert(digest.metrics.some(x=>x.label==='Promotion'),'Promotion should appear in
 eq(digest.interruptions,2,'Digest interruption count mismatch');
 eq(digest.adventureDiscoveries,2,'Digest discoveries mismatch');
 
-assert(/ONE PIECE LIFE — V(?:9\.\d+|10\.\d+)(?:\.\d+)?/.test(html),'V9+ title missing');
+assert(/ONE PIECE LIFE — V(?:9\.\d+|1[0-9]\.\d+)(?:\.\d+)?/.test(html),'V9+ title missing');
 assert(Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0)>=900,'Save version 900+ missing');
 {const v=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'',p=v.split('.').map(Number);assert(p[0]>9||(p[0]===9&&p[1]>=0),'Game version 9.0+ missing')}
 for(const asset of ['src/data/game-flow-v90.js','src/v90/game-flow-engine-v90.js','src/v90/game-flow-v90.css']){
