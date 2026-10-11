@@ -55,9 +55,11 @@ assert(html.includes('if(!before||!game?.meta||!game.alive||game.pendingDecision
 assert(hub.includes('function renderDomainSpotlight(category,actions)')&&hub.includes("category==='career'?'manual:work':'manual:training'"),'Career and training must each have a one-tap action');
 assert(hub.includes("const listed=!showAll&&!query.trim()&&spotlightId?selected.filter(x=>x.id!==spotlightId):selected;"),'Spotlight actions must not be duplicated in the compact list');
 assert(hub.includes("const actions=selected.filter(x=>x.id.startsWith(prefix)&&x.kind!=='open');"),'Social cards must use all engine-provided interactions, including romance and rivalry');
-assert(hub.includes("const displayed=groupedRelations?(root.querySelectorAll?.('[data-v95-run]')?.length||0):visible.length;"),'Hidden person actions must retain a way to open the full list');
+assert(hub.includes("root.querySelectorAll?.('[data-v95-person]')")&&hub.includes("function focusPerson(id)")&&hub.includes("String(p.id)===String(id)"),'Relationship cards must open each person\'s full interaction menu');
 assert(hub.includes('Number(b.favorite)-Number(a.favorite)||b.available-a.available'),'Prioritize favorite people and those with actions available');
 assert(hubCss.includes('.opl-person-actions>button:disabled')&&hubCss.includes('.opl-person-empty'),'Compact social buttons must explain disabled or missing actions');
+assert(hubCss.includes('.opl-person-open:focus-visible'),'Person detail menu must be accessible by keyboard');
+assert(hub.includes('const eligible=scoped.filter(x=>x.available).length;'),'Person interaction counts must apply to the selected person');
 assert(html.includes('setTrainingFocus:id=>v102SetTrainingFocus(id)')&&hub.includes('focus.onchange=()=>bridge.setTrainingFocus?.(focus.value)'),'Training focus must call the existing saved training engine');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Invalid single-element query loop');
 assert(sw.includes('one-piece-life-v11-0-1-gameplay-purifie8'),'Offline update not invalidated');
