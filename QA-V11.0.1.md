@@ -19,3 +19,12 @@
 - scripts/qa-v1101.mjs : vérification statique de l'interface et de la version.
 - scripts/qa-v100-runtime.mjs : annulation, suppression individuelle, persistance au rechargement, double effacement IndexedDB/localStorage, et échec contrôlé de la transaction.
 - Régression globale historique : workflows GitHub.
+
+## Hotfix 4 — Gestion permanente et protection des données
+
+- Un bouton visible en permanence sur l’accueil ouvre **Gérer / supprimer mes sauvegardes**, indépendamment de la détection initiale des slots.
+- Écran dédié avec l’identité de chaque personnage et la possibilité de supprimer chaque partie existante après confirmation.
+- Lecture des sauvegardes locales immédiate, puis synchronisation IndexedDB sans supprimer ni modifier les données.
+- Protection supplémentaire : la copie locale n’est effacée **qu’après** une transaction IndexedDB de suppression réussie.
+- Cache PWA hotfix4 renouvelé ; compatibilité V11.0.1 / données SAVE_VERSION 1000 inchangée.
+- Tests statiques et tests intégrés renforcés ; vérifier le déploiement dans les GitHub Actions.
