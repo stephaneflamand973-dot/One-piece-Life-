@@ -50,6 +50,10 @@ on:
       - 'scripts/qa-v103.mjs'
       - 'scripts/qa-v104.mjs'
       - 'scripts/qa-v105.mjs'
+      - 'scripts/qa-v106.mjs'
+      - 'src/data/adventure-v106.js'
+      - 'src/v106/**'
+      - 'QA-V10.6.md'
       - 'src/data/economy-v105.js'
       - 'src/v105/economy-engine-v105.js'
       - 'src/data/social-v104.js'
@@ -179,6 +183,8 @@ jobs:
         run: node scripts/qa-v94.mjs
       - name: Verify V9.5 Action Hub & UX 6.0
         run: node scripts/qa-v95.mjs
+      - name: Verify V10.6 Active Expeditions
+        run: node scripts/qa-v106.mjs
       - name: Verify V9.5 integrated real-game runtime
         run: node scripts/qa-v95-runtime.mjs
       - name: Verify V10.0 Manual Life
