@@ -642,7 +642,7 @@ function v67RelationshipsTick(months){
     v74RecordMemory(mentor,{id:'mentor_end_'+Math.floor(game.ageMonths/12),type:'mentor',label:'Fin du mentorat',valence:-7,impact:4,tags:['mentor','rupture']});
     addHistory('Fin du mentorat','Le lien avec '+mentor.name+' s’est trop dégradé pour que le mentorat continue.','major')
   }
-  v74MaybeQueueArc()
+  v74MaybeQueueArc();if(!game.pendingDecision)v93MaybeQueueBeat()
 }
 function v67CrewTick(months){
   v67Ensure();const c=game.player.crew;if(!c)return;
@@ -2790,7 +2790,7 @@ function v92Publish(events=[]){
     if(!e)continue;
     if(String(e.actorId).startsWith('rel:')){
       const id=String(e.actorId).slice(4),r=(game.relations||[]).find(x=>x.id===id),known=!!r&&v67RelationStrength(r)>=48&&Number(e.importance)>=58;
-      v92MarkKnown(e,known);if(known)addHistory('Vie de '+(r?.name||e.actorName),e.desc,'normal',e.title);continue
+      v92MarkKnown(e,known);if(known){addHistory('Vie de '+(r?.name||e.actorName),e.desc,'normal',e.title);if(r)v93OnNpcLifeEvent(r,e)}continue
     }
     if(String(e.actorId).startsWith('nemesis:')){
       const known=Number(e.importance)>=62;v92MarkKnown(e,known);if(known)addHistory('Trajectoire adverse',e.desc,'danger',e.title);continue
@@ -2834,7 +2834,7 @@ function v92ActorSnapshot(actor){
 function v92RelationSnapshot(r){const actor=v92RelationActor(r);return actor?v92ActorSnapshot(actor):null}
 function v92RelationSupportBonus(r){
   const mod=v92Module(),snap=v92RelationSnapshot(r);if(!mod||!snap||r.status!=='active')return 0;
-  return +clamp(mod.supportScore(snap)*.42,0,1.6).toFixed(2)
+  return +clamp(mod.supportScore(snap)*.42+v93SupportBonus(r),0,2.8).toFixed(2)
 }
 function renderV92Lives(){
   const box=$('#v92LivesCard'),badge=$('#v92LivesBadge'),mod=v92Module(),data=v92Data(),state=v92Ensure();if(!box||!badge||!mod||!data||!state)return;
@@ -4130,7 +4130,7 @@ function ensureV5(){
   if(!game.consequencesV77||typeof game.consequencesV77!=='object')game.consequencesV77={version:1,active:[],history:[],totalCreated:0,totalResolved:0,totalEscalated:0,lastTickMonth:-99};
   if(!game.player.personalV78||typeof game.player.personalV78!=='object')game.player.personalV78={version:1,home:{id:game.ageMonths>=216?'rented_room':'family_home',condition:76,owned:false,region:game.player.region,sinceYear:Math.floor(game.ageMonths/12)},independent:game.ageMonths>=216,familyBond:Number(game.player.family?.bond)||55,partnership:'single',partnerId:null,children:[],dependents:0,reserve:0,stability:58,stress:18,growthClosed:false,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,lastAnnualYear:-99,lifetimeCosts:0,lifetimeSupport:0,homesOwned:0,milestones:{}};
   if(!game.player.educationV79||typeof game.player.educationV79!=='object')game.player.educationV79=v79LegacyEducationState();
-  v80Ensure();v81Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure();v90Ensure();v91Ensure();v92Ensure();
+  v80Ensure();v81Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure();v90Ensure();v91Ensure();v92Ensure();v93Ensure();
   game.player.combatV72.usage=game.player.combatV72.usage&&typeof game.player.combatV72.usage==='object'?game.player.combatV72.usage:{};
   if(!['balanced','aggressive','defensive','precision','overwhelm'].includes(game.player.combatV72.doctrine))game.player.combatV72.doctrine='balanced';
   if(!game.player.haki)game.player.haki={Observation:{state:'Dormant',mastery:0,latent:true},Armement:{state:'Dormant',mastery:0,latent:true},Conquérant:{state:'Inconnu',mastery:0,latent:false}};
@@ -5024,6 +5024,7 @@ function resolveDecision(action){
   if(parts[0]==='v81faction')v81ResolveDecision(parts);
   if(parts[0]==='v82campaign')v82ResolveDecision(parts);
   if(parts[0]==='v83nemesis')v83ResolveDecision(parts);
+  if(parts[0]==='v93bond')v93ResolveDecision(parts);
   if(parts[0]==='v84crew')v84ResolveDecision(parts);
   if(parts[0]==='v77consequence')v77ResolveConsequence(parts);
   else v77DecisionEcho(action,decisionEcho);
@@ -5235,7 +5236,7 @@ function ensureV6(){
   if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;
   if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));
   ensureV59();for(const h of game.world.worldHooks||[])updateHakiStagesV6();
-  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure();v90Ensure();v91Ensure();v92Ensure()
+  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure();v90Ensure();v91Ensure();v92Ensure(;v93Ensure()
 }
 function v6RelationById(id){return game.relations.find(r=>r.id===id||slug(r.name)===id)}
 function v6InteractRelation(id,action){
@@ -5277,7 +5278,7 @@ function v6InteractRelation(id,action){
   if(action==='help')addHistory('Service rendu','Tu aides concrètement '+r.name+'. Ce geste devient un souvenir durable de votre relation.','normal','-1 500 B');
   if(action==='confide')addHistory('Confidence','Tu confies quelque chose d’important à '+r.name+'. La confiance réelle détermine la façon dont ce moment vous rapproche.','major');
   if(action==='challenge')addHistory('Confrontation franche','Tu confrontes '+r.name+' sans contourner votre désaccord. Cela peut nourrir le respect ou la tension selon votre compatibilité.','major');
-  const social=v74EnsureRelation(r);if(social)social.lastInteractionYear=year;
+  const social=v74EnsureRelation(r);if(social)social.lastInteractionYear=year;v93RecordInteraction(r,action);
   game.flags.relationInteractionYear[r.id]=year;saveGame();render();return true
 }
 function v6UseInventoryFruit(name,action){
@@ -5451,7 +5452,7 @@ function renderAbilities(){
   v62RenderDomainInline('trainingAnnualActions','training')
 }
 function renderRelations(){
-  v67Ensure();v74EnsureGlobal();renderV74Network();renderV78PersonalLife();renderV92Lives();const list=game.relations.filter(r=>r.status!=='left'),mod=v74Module();
+  v67Ensure();v74EnsureGlobal();renderV74Network();renderV78PersonalLife();renderV92Lives();renderV93Relationships();const list=game.relations.filter(r=>r.status!=='left'),mod=v74Module();
   $('#relationsList').innerHTML=list.length?list.map(r=>{
     const mentor=game.player.socialV67?.mentorId===r.id,snap=v74RelationSnapshot(r),state=snap?.state||{label:'Relation',strength:v67RelationStrength(r)},social=snap?.social||{},compat=snap?.compat||{score:50,matches:[],conflicts:[]};
     const mentorBtn=!mentor&&v67MentorCandidate(r)?'<button class="mini-action" data-rel="'+esc(r.id)+'" data-rel-action="mentor">Demander mentorat</button>':'';
