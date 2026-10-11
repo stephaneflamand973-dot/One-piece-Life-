@@ -1,3 +1,17 @@
+# ONE PIECE LIFE — Gameplay épuré (mise à jour du 11 octobre 2026)
+
+L'interface principale suit désormais une logique de simulation de vie : **Vie → Activités → résultat → avancer d'un an**.
+- **Vie** : identité, situation, deux actions pertinentes, dernières décisions et événements récents. Les anciens tableaux secondaires s'ouvrent avec « Afficher les détails de cette vie ».
+- **Activités** : choix par domaines (carrière, combat, relations, voyage, Berry, quotidien), sept actions réalisables au maximum affichées en priorité ; l'ensemble du catalogue reste accessible par « Voir toutes les possibilités » et recherche.
+- **Avancer d'un an** : un seul bouton principal toujours accessible au-dessus de la navigation ; en présence d'une décision, il invite à la résoudre. L'âge renouvelle les actions, sans gain automatique.
+- **Navigation** : Vie, Activités, Relations, Profil, Monde. Les éléments complexes restent accessibles, sans encombrer l'écran principal.
+- **Sauvegardes** : V11.0.1 et anciens emplacements conservés ; la préférence « détails » se sauvegarde par personnage, version des données 1000 inchangée.
+- **PWA** : cache one-piece-life-v11-0-1-gameplay-purifie pour forcer la mise à jour sur iPhone.
+
+Validation : `scripts/qa-gameplay-purifie.mjs` et suite historique GitHub Actions.
+
+---
+
 # ONE PIECE LIFE V11.0.1 : Suppression visible dès l’accueil
 
 - Les trois emplacements et leurs boutons **Supprimer cette sauvegarde** sont maintenant les premiers éléments de la page d’accueil, visibles sur iPhone sans traverser une ancienne présentation V8.7.
