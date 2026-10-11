@@ -352,6 +352,9 @@ for(let attempt=0;attempt<3;attempt++){
  q.resolveDecision(answer.action);
  assert(!g.player.sagasV110.pending&&!g.pendingDecision,'Saga decision did not close');
 }
+assert(g.meta.actionFeedbackV111?.title?.startsWith('Choix :'),'A resolved interactive saga choice must produce a saved action result');
+assert(g.meta.actionFeedbackV111?.summary,'The choice outcome must always explain what happened');
+assert(el('#v95LifeQuick').innerHTML.includes('Résultat de ton action'),'Narrative outcome not immediately visible in the life screen');
 assert(g.player.sagasV110.history.length===sagaHistory+3,'Each manual chapter decision should be recorded');
 assert(g.player.sagasV110.totalReward===0&&g.player.money===sagaCash,'Partial saga awarded money without completion');
 assert(g.meta.manualLifeV102.spent.saga_chapter===3,'Chapter decisions charged the wrong quota');
