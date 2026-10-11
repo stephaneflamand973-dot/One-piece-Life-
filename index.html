@@ -1855,7 +1855,7 @@ function v76OpenTab(tab,remember=true){
   const previous=state.activeTab||'life';
   if(remember&&previous!==tab)state.scroll[previous]=Math.max(0,Math.round(window.scrollY||0));
   state.activeTab=tab;
-  $('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.tab===(tab==='abilities'?'character':tab)));
+  $$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.tab===(tab==='abilities'?'character':tab)));
   $$('.tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===tab));
   if(previous!==tab)v80RenderActiveTab(tab,true);
   if(remember&&previous!==tab){
@@ -1867,7 +1867,7 @@ function v76OpenTab(tab,remember=true){
 function v76RestoreTab(){
   const state=v76Ensure();if(!state)return;
   const tab=state.activeTab==='abilities'||v76Data()?.tabs?.some(t=>t.id===state.activeTab)?state.activeTab:'life';
-  $('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.tab===(tab==='abilities'?'character':tab)));
+  $$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.tab===(tab==='abilities'?'character':tab)));
   $$('.tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===tab))
 }
 function v76RenderFocus(){
