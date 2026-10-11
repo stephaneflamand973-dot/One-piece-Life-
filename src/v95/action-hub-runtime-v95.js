@@ -29,7 +29,9 @@ function createRuntime(bridge){
       ['navigation','exploration','Effectuer la traversée','Mener le voyage choisi sans avoir besoin de vieillir.',67],
       ['career_support','career','Aider ton équipe','Construire la confiance et la réputation au travail.',64],
       ['career_initiative','career','Prendre une initiative','Améliorer ton dossier et ton influence au sein de l’organisation.',72],
-      ['career_bonus','career','Demander une prime','Négocier une prime basée sur tes performances.',63]
+      ['career_bonus','career','Demander une prime','Négocier une prime basée sur tes performances.',63],
+      ['economy_buy','life','Acheter un actif','Acheter du matériel ou développer une entreprise choisie dans Patrimoine.',63],
+      ['economy_operate','life','Gérer une entreprise','Encaisser les revenus ou pertes en agissant directement.',58]
     ];
     for(const [id,cat,title,detail,score] of manual){
       const st=bridge.manualStatus?.(id)||{available:false,reason:'Moteur V10 indisponible'};
@@ -43,6 +45,7 @@ function createRuntime(bridge){
     }
     add(a,'open:character:careerProgressCard','career','Progression & promotions','Examiner les critères de promotion.',{kind:'open',score:44});
     add(a,'open:character:v103CareerCard','career','Tableau professionnel','Consulter performance, rémunération et méthode de travail.',{kind:'open',score:55});
+    add(a,'open:character:v105EconomyCard','life','Patrimoine et entreprises','Choisir des actifs, préparer un investissement et exploiter ton patrimoine.',{kind:'open',score:59});
     add(a,'open:character:v73OrganizationCard','career','Organisation & hiérarchie','Choisir une branche, une responsabilité ou une décision interne.',{kind:'open',score:36});
     add(a,'open:character:ambitionCard','career','Ambitions personnelles','Orienter la carrière et les objectifs.',{kind:'open',score:43});
     for(const [id,doc] of Object.entries(bridge.doctrines())){
