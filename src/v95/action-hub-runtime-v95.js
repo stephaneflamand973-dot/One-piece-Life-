@@ -26,7 +26,10 @@ function createRuntime(bridge){
       ['mission','career','Accomplir la mission acceptée','Résoudre la mission active maintenant, sans attendre une année.',84],
       ['promotion','career','Demander une promotion','Soumettre ton dossier. Aucun avancement automatique.',70],
       ['rest','life','Se reposer','Récupérer de l’énergie et de la santé par un choix volontaire.',47],
-      ['navigation','exploration','Effectuer la traversée','Mener le voyage choisi sans avoir besoin de vieillir.',67]
+      ['navigation','exploration','Effectuer la traversée','Mener le voyage choisi sans avoir besoin de vieillir.',67],
+      ['career_support','career','Aider ton équipe','Construire la confiance et la réputation au travail.',64],
+      ['career_initiative','career','Prendre une initiative','Améliorer ton dossier et ton influence au sein de l’organisation.',72],
+      ['career_bonus','career','Demander une prime','Négocier une prime basée sur tes performances.',63]
     ];
     for(const [id,cat,title,detail,score] of manual){
       const st=bridge.manualStatus?.(id)||{available:false,reason:'Moteur V10 indisponible'};
@@ -39,6 +42,7 @@ function createRuntime(bridge){
         available:!locked,reason:why,score:age>=15?73:31,tags:'mission travail carrière'});
     }
     add(a,'open:character:careerProgressCard','career','Progression & promotions','Examiner les critères de promotion.',{kind:'open',score:44});
+    add(a,'open:character:v103CareerCard','career','Tableau professionnel','Consulter performance, rémunération et méthode de travail.',{kind:'open',score:55});
     add(a,'open:character:v73OrganizationCard','career','Organisation & hiérarchie','Choisir une branche, une responsabilité ou une décision interne.',{kind:'open',score:36});
     add(a,'open:character:ambitionCard','career','Ambitions personnelles','Orienter la carrière et les objectifs.',{kind:'open',score:43});
     for(const [id,doc] of Object.entries(bridge.doctrines())){
@@ -126,7 +130,7 @@ function createRuntime(bridge){
   function renderHub(){
     const root=node('v95Hub'),state=getState();if(!root||!state)return;
     const recommended=engine.featured(build(),state,3);
-    root.innerHTML='<div class="v95-hub-head"><span class="eyebrow">V10.2 • Centre d’actions</span><h2>Que veux-tu faire ?</h2>'+
+    root.innerHTML='<div class="v95-hub-head"><span class="eyebrow">V10.3 • Centre d’actions</span><h2>Que veux-tu faire ?</h2>'+
       '<p>Toutes les actions importantes, triées selon ta situation. Les menus d’information restent accessibles pour les détails.</p></div>'+
       '<div class="v95-quick">'+recommended.map(x=>'<button type="button" data-v95-quick="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Action recommandée</span></button>').join('')+'</div>'+
       '<label class="eyebrow" for="v95HubSearch">Rechercher une action</label><input id="v95HubSearch" class="v95-search" type="search" autocomplete="off" value="'+escapeHtml(query)+'" placeholder="Mission, Haki, équipage, commerce…">'+
@@ -145,7 +149,7 @@ function createRuntime(bridge){
   function renderLife(){
     const root=node('v95LifeQuick'),state=getState();if(!root||!state)return;
     const top=engine.featured(build(),state,2);
-    root.innerHTML='<div class="v95-breadcrumb"><span class="eyebrow">V10.2 • Actions rapides</span><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
+    root.innerHTML='<div class="v95-breadcrumb"><span class="eyebrow">V10.3 • Actions rapides</span><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
       '<div class="v95-quick">'+top.map(x=>'<button type="button" data-v95-life="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Raccourci</span></button>').join('')+'</div>';
     const all=node('v95AllActionsBtn');if(all)all.onclick=()=>bridge.openTab('actions');
     root.querySelectorAll?.('[data-v95-life]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Life));
