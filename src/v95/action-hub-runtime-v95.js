@@ -29,7 +29,10 @@ function createRuntime(bridge){
       ['navigation','exploration','Effectuer la traversée','Mener le voyage choisi sans avoir besoin de vieillir.',67],
       ['career_support','career','Aider ton équipe','Construire la confiance et la réputation au travail.',64],
       ['career_initiative','career','Prendre une initiative','Améliorer ton dossier et ton influence au sein de l’organisation.',72],
-      ['career_bonus','career','Demander une prime','Négocier une prime basée sur tes performances.',63]
+      ['career_bonus','career','Demander une prime','Négocier une prime basée sur tes performances.',63],
+      ['invest','economy','Investir dans un actif','Acquérir ou améliorer l’entreprise sélectionnée dans le portefeuille.',60],
+      ['operate','economy','Exploiter mon entreprise','Mener une opération risquée mais potentiellement rentable.',74],
+      ['divest','economy','Revendre un actif','Céder une entreprise et récupérer sa valeur de revente.',40]
     ];
     for(const [id,cat,title,detail,score] of manual){
       const st=bridge.manualStatus?.(id)||{available:false,reason:'Moteur V10 indisponible'};
