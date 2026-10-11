@@ -1,4 +1,4 @@
-name: V10.7 QA
+name: V10.8 QA
 on:
   push:
     branches: [main, v10-manual-life-actions, v10.0.1-manual-life-hotfix]
@@ -53,7 +53,10 @@ on:
       - 'scripts/qa-v106.mjs'
       - 'src/data/adventure-v106.js'
       - 'src/v106/**'
-      - 'QA-V10.7.md'
+      - 'QA-V10.8.md'
+      - 'src/data/encounters-v108.js'
+      - 'src/v108/**'
+      - 'scripts/qa-v108.mjs'
       - 'src/data/encounters-v107.js'
       - 'src/v107/**'
       - 'scripts/qa-v107.mjs'
@@ -186,7 +189,7 @@ jobs:
         run: node scripts/qa-v94.mjs
       - name: Verify V9.5 Action Hub & UX 6.0
         run: node scripts/qa-v95.mjs
-      - name: Verify V10.7 Active Expeditions
+      - name: Verify V10.8 Active Expeditions
         run: node scripts/qa-v106.mjs
       - name: Verify V9.5 integrated real-game runtime
         run: node scripts/qa-v95-runtime.mjs
@@ -205,5 +208,8 @@ jobs:
       - name: Verify V10.5 Economy and Assets
         run: node scripts/qa-v105.mjs
 
-      - name: Verify V10.7 branching encounters
+      - name: Verify V10.8 branching encounters
         run: node scripts/qa-v107.mjs
+
+      - name: Verify V10.8 contextual dialogues and battles
+        run: node scripts/qa-v108.mjs
