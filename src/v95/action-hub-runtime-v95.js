@@ -197,6 +197,53 @@ function createRuntime(bridge){
     if(r.full){bridge.toast('10 favoris maximum.');return}
     bridge.getGame().meta.actionHubV95=r.state;bridge.save();renderResults()
   }
+  function renderDomainSpotlight(category,actions){
+    if(!['career','training'].includes(category))return '';
+    const game=bridge.getGame(),p=game?.player||{};
+    const relevant=category==='career'?'manual:work':'manual:training';
+    const a=actions.find(x=>x.id===relevant);
+    const st=bridge.manualStatus?.(category==='career'?'work':'training');
+    const available=!!a?.available;
+    const details=st?Math.max(0,st.remaining||0)+' / '+(st.limit||0)+' actions restantes • '+(st.cost||0)+' énergie':'Aucune session disponible.';
+    const title=category==='career'?'Ma carrière':'Mon entraînement';
+    let extra='';
+    if(category==='career'){
+      const rank=p.rank||'Non défini',career=p.career||'Aucune';
+      extra='<p class="opl-domain-caption">'+escapeHtml(career)+' • '+escapeHtml(rank)+'</p>'+
+        '<small>Expérience professionnelle : '+Math.round(Number(p.careerXP)||0).toLocaleString('fr-FR')+'</small>';
+    }else{
+      const focus=bridge.trainingConfig?.();
+      if(focus?.options?.length){
+        extra='<label class="opl-training-focus" for="oplTrainingFocus">Spécialité d’entraînement'+
+          '<select id="oplTrainingFocus" '+(game.pendingDecision?'disabled':'')+'>'+
+          focus.options.map(o=>'<option value="'+escapeHtml(o.id)+'" '+(focus.current===o.id?'selected':'')+'>'+escapeHtml(o.label)+'</option>').join('')+
+          '</select></label><small>Choisir une spécialité ne consomme pas de séance.</small>';
+      }
+    }
+    return '<section class="opl-domain-spotlight" aria-label="'+title+'">'+
+      '<span class="eyebrow">'+title+'</span>'+extra+
+      '<div class="opl-domain-cta"><div><strong>'+escapeHtml(details)+'</strong>'+
+      '<small>'+escapeHtml(available?'Tu peux agir maintenant.':a?.reason||'Action temporairement bloquée.')+'</small></div>'+
+      '<button type="button" data-v95-run="'+relevant+'" '+(available?'':'disabled')+'>'+
+      (category==='career'?'Travailler →':'S’entraîner →')+'</button></div></section>';
+  }
+  function renderRelationCards(selected){
+    const game=bridge.getGame();
+    const people=(game?.relations||[]).filter(p=>p?.id&&p.status!=='left').slice(0,8);
+    if(!people.length)return '<p class="v95-empty">Tu n’as pas encore de relations. Continue à explorer et à rencontrer des personnages.</p>';
+    return '<div class="opl-people-list">'+people.map(p=>{
+      const prefix='relation:'+encodeURIComponent(p.id)+':';
+      const options=['time','help','date','reconcile','train','confide']
+        .map(kind=>selected.find(x=>x.id===prefix+kind)).filter(Boolean);
+      const ordered=[...options.filter(x=>x.available),...options.filter(x=>!x.available)].slice(0,2);
+      return '<article class="opl-person-card"><div class="opl-person-head"><strong>'+escapeHtml(p.name||'Relation')+'</strong>'+
+        '<small>Confiance : '+Math.round(Number(p.trust)||0)+'</small></div>'+
+        '<div class="opl-person-actions">'+ordered.map(x=>'<button type="button" data-v95-run="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
+          '<strong>'+escapeHtml(x.title.replace(p.name||'', '').trim())+'</strong>'+
+          '<small>'+escapeHtml(x.available?x.detail:x.reason||'Indisponible')+'</small></button>').join('')+
+        '</div></article>';
+    }).join('')+'</div>';
+  }
   function renderResults(){
     const root=node('v95HubResults'),state=getState();
     if(!root||!state)return;
@@ -210,7 +257,9 @@ function createRuntime(bridge){
       const eligible=selected.filter(x=>x.available).length;
       count.textContent=eligible+' possible'+(eligible>1?'s':'')+(showAll?' • autres choix ci-dessous':'');
     }
-    root.innerHTML=visible.length?visible.map(x=>{
+    // Relationships show people rather than a confusing wall of repeated actions.
+    const groupedRelations=state.category==='relations'&&!showAll&&!query.trim();
+    root.innerHTML=groupedRelations?renderRelationCards(selected):visible.length?visible.map(x=>{
       const fav=state.favorites.includes(x.id);
       const isOpen=x.kind==='open';
       return '<article class="v95-item opl-action-card '+(x.available?'':'locked')+'">'+
@@ -266,6 +315,7 @@ function createRuntime(bridge){
       '<button type="button" id="oplHubBack" class="opl-hub-back '+(state.category==='all'?'hidden':'')+'">‹ Tous les domaines</button>'+
       '<div class="opl-hub-categories-heading"><strong>Choisir un domaine</strong><small>Travail, combat, relations, voyages…</small></div>'+
       '<div id="v95HubCategories" class="v95-categories" role="group" aria-label="Catégories d’actions">'+data.categories.map(x=>'<button type="button" data-v95-category="'+x.id+'" class="v95-category '+(x.id===state.category?'selected':'')+'" aria-pressed="'+(x.id===state.category?'true':'false')+'"><span class="v95-category-name">'+x.icon+' '+escapeHtml(x.label)+'</span><small class="v95-category-count" aria-label="'+categoryCount(x.id)+' actions disponibles">'+categoryCount(x.id)+'</small></button>').join('')+'</div>'+
+      renderDomainSpotlight(state.category,allActions)+
       '<div class="v95-section-title"><strong>'+(state.category==='all'?'Actions à faire maintenant':escapeHtml(chosen?.label||'Activités'))+'</strong><small id="v95HubCount"></small></div>'+
       '<div id="v95HubResults" class="v95-results"></div>'+
       '<button id="oplHubMore" type="button" class="opl-hub-more" aria-expanded="'+String(showAll)+'">Voir toutes les possibilités</button>'+
@@ -280,6 +330,9 @@ function createRuntime(bridge){
     bindFeedback(root);
     const search=node('v95HubSearch');
     if(search)search.oninput=e=>{query=e.target.value;showAll=true;renderResults()};
+    const focus=node('oplTrainingFocus');
+    if(focus)focus.onchange=()=>bridge.setTrainingFocus?.(focus.value);
+    root.querySelectorAll?.('.opl-domain-cta [data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
     const more=node('oplHubMore');
     if(more)more.onclick=()=>{showAll=!showAll;if(!showAll)query='';const shell=node('oplSearchShell');if(shell)shell.classList.toggle('hidden',!showAll);if(search)search.value=query;renderResults()};
     root.querySelectorAll?.('[data-v95-quick]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Quick));
