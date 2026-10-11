@@ -17,7 +17,8 @@ const actions={
   expedition_prepare:{label:'Préparer une expédition',limit:2,cost:5,yields:[1,.72],requires:['land']},
   expedition_scout:{label:'Explorer l’île',limit:3,cost:10,yields:[1,.84,.65],requires:['land']},
   expedition_coordinate:{label:'Préparer une mission',limit:2,cost:6,yields:[1,.70],requires:['mission','land']},
-  expedition_command:{label:'Mobiliser l’équipage',limit:2,cost:8,yields:[1,.70],requires:['land']}
+  expedition_command:{label:'Mobiliser l’équipage',limit:2,cost:8,yields:[1,.70],requires:['land']},
+  contact_contract:{label:'Accomplir un contrat',limit:2,cost:12,yields:[1,.80],requires:['land']}
 };
 const trainingFocus={
   physical:{label:'Condition physique',activity:'physical'},

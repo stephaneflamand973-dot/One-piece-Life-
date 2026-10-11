@@ -4,7 +4,7 @@ const html=fs.readFileSync('index.html','utf8');
 let source=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 const init="init().catch(()=>{storageFallback=true;renderSlots();startupMessage('Démarrage en mode de secours local.','warn')});";
 assert(source&&source.includes(init),'Game runtime entrypoint missing');
-source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,socialStatus:v104Status,socialAction:v104Perform,economyStatus:v105ActionStatus,economySelect:v105SelectTarget,economyPerks:v105Perks,adventureStatus:v106Status,adventureApproach:v106SetApproach,adventureState:v106Ensure,encounterState:v107Ensure,encounterModule:v107Module,advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
+source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,socialStatus:v104Status,socialAction:v104Perform,economyStatus:v105ActionStatus,economySelect:v105SelectTarget,economyPerks:v105Perks,adventureStatus:v106Status,adventureApproach:v106SetApproach,adventureState:v106Ensure,encounterState:v107Ensure,encounterModule:v107Module,contractSelect:v109Select,contractStatus:v109Status,advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
 const elements=new Map();
 function el(sel){
  if(!elements.has(sel)){
@@ -40,7 +40,7 @@ const modulePaths=[
  'src/data/world-intel-v94.js','src/v94/world-intel-engine-v94.js',
  'src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.js','src/v95/action-hub-runtime-v95.js',
  'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js',
- 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js','src/data/economy-v105.js','src/v105/economy-engine-v105.js','src/data/adventure-v106.js','src/v106/adventure-engine-v106.js','src/data/encounters-v107.js','src/v107/encounter-engine-v107.js','src/data/encounters-v108.js','src/v108/encounter-engine-v108.js','src/data/voyage-v85.js','src/v85/voyage-engine-v85.js'
+ 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js','src/data/economy-v105.js','src/v105/economy-engine-v105.js','src/data/adventure-v106.js','src/v106/adventure-engine-v106.js','src/data/encounters-v107.js','src/v107/encounter-engine-v107.js','src/data/encounters-v108.js','src/v108/encounter-engine-v108.js','src/data/contracts-v109.js','src/v109/contract-engine-v109.js','src/data/voyage-v85.js','src/v85/voyage-engine-v85.js'
 ];
 for(const path of modulePaths)new Function('window',fs.readFileSync(path,'utf8'))(w);
 new Function('window','document','localStorage','navigator','location','indexedDB','setTimeout','clearTimeout','requestAnimationFrame','console','Promise',source)(
@@ -56,7 +56,7 @@ g.player.specialization='combat';
 g.missionBoard=[{id:'v95_escort_qa',title:'Escorte de QA',desc:'Protéger un convoi',reward:1500,duration:3,danger:'low',power:20,type:'escort'}];
 g.relations.push({id:'v95_friend',name:'Nami QA',role:'Ami',affection:60,respect:67,trust:69,loyalty:60,familiarity:67,rivalry:1,status:'active',ambition:'Loyauté',temperament:'Curieux'});
 q.ensure();
-assert(q.gameVersion==='10.8.0'&&q.saveVersion===1000,'Version mismatch');
+assert(q.gameVersion==='10.9.0'&&q.saveVersion===1000,'Version mismatch');
 const hub=q.hub();assert(hub&&hub.version==='9.5.0','Live Action Hub failed to initialize');
 let actions=hub.build();
 assert(actions.some(x=>x.id==='mission:v95_escort_qa'&&x.available),'Live mission action missing');
@@ -298,6 +298,7 @@ for(const name of ['search','map']){
 }
 assert(g.player.encounterV107.total===2&&g.meta.manualLifeV102.spent.expedition_scout===2,'Dialogue cost or result is wrong');
 assert(g.player.encounterDepthV108.memory.length>0,'NPC memory missing after dialogue');
+assert(g.player.contractsV109.offers.length>=2,'Completed encounters should create persistent NPC contracts');
 g.player.energy=100;
 assert(q.manual('expedition_scout')===true,'Cannot start combat expedition');
 const fight=g.pendingDecision?.choices?.find(x=>x.action.startsWith('v108fight:'));
@@ -312,6 +313,22 @@ const retreat=g.pendingDecision.choices.find(x=>x.action.endsWith(':retreat'));
 assert(retreat,'Retreat option missing');q.resolveDecision(retreat.action);
 assert(!g.player.encounterDepthV108.combat&&!g.player.encounterV107.active,'Retreat did not close duel and expedition');
 assert(g.meta.manualLifeV102.spent.expedition_scout===3&&!q.manualStatus('expedition_scout').available,'Duel spent more than one action');
+/* V10.9 real game runtime: select, execute and persist a contract without aging. */
+g.pendingDecision=null;g.player.money=50000;g.player.energy=100;g.player.health=100;
+const offer=g.player.contractsV109.offers.find(x=>x.status==='available'&&x.region===g.player.region);
+assert(offer,'No regional NPC contract available');
+assert(q.contractSelect(offer.id),'Selecting contract failed');
+assert(q.manualStatus('contact_contract').available,'Contract should be actionable');
+assert(hub.build().some(x=>x.id==='manual:contact_contract'&&x.available),'Central Action Hub contract missing');
+const contractsBefore=g.player.contractsV109.total,cashBefore=g.player.money;
+assert(q.manual('contact_contract'),'Manual NPC contract action failed');
+assert(g.player.contractsV109.total===contractsBefore+1,'Contract execution not persisted');
+assert(g.player.contractsV109.offers.find(x=>x.id===offer.id).status!=='available','Completed contract replayable');
+assert(g.player.money===cashBefore+g.player.contractsV109.history.at(-1).berry,'Reward differs from real cash delta');
+assert(g.meta.manualLifeV102.spent.contact_contract===1,'Manual quota not recorded');
+assert(q.manualStatus('contact_contract').available===false,'Must select another available contract');
+const savedContract=JSON.parse(JSON.stringify(g));assert(savedContract.player.contractsV109.total>=1,'Contract save roundtrip failed');
+console.log('V10.9 INTEGRATED NPC CONTRACT QA OK',JSON.stringify({total:g.player.contractsV109.total,net:g.player.contractsV109.net}));
 console.log('V10.8 INTEGRATED DIALOGUE AND DUEL QA OK',JSON.stringify({dialogues:g.player.encounterDepthV108.dialogues,battles:g.player.encounterDepthV108.battles,memories:g.player.encounterDepthV108.memory.length}));
 g.pendingDecision={id:'v106_lock',title:'En attente',text:'Décision',choices:[]};
 assert(!q.manualStatus('expedition_scout').available,'Pending decision should lock scouts');

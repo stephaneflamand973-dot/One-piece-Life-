@@ -1,3 +1,16 @@
+# ONE PIECE LIFE — V10.9 : Contrats et conséquences durables
+
+- Chaque rencontre peut générer **un contrat actif**, contextualisé selon le contact, sa confiance, sa rivalité et les dangers locaux.
+- Trois types : coopération, médiation ou règlement de comptes. La résolution coûte énergie et Berry, avec probabilités, blessures et récompenses non garanties.
+- **Deux contrats par an** via le Centre d’actions et Monde > Contrats. Les contrats résolus ne sont jamais rejouables et les récompenses ne sont jamais accordées simplement en avançant l’année.
+- Réputation et relations mises à jour dans l’historique du personnage, sauvegardes V10.8 compatibles.
+
+**GAME_VERSION 10.9.0 • SAVE_VERSION 1000 • CACHE one-piece-life-v10-9-0**
+
+Voir [QA-V10.9.md](QA-V10.9.md).
+
+---
+
 # ONE PIECE LIFE — V10.8 : Dialogues, duels et mémoire
 
 - Dialogues contextualisés par faction, confiance et rivalité, avec trois attitudes et probabilités explicites.

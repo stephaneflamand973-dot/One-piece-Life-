@@ -74,7 +74,7 @@ function perform(raw,ctx={},rolls={}){
  const offer=gate.offer,profile=d.kinds[offer.kind],success=clamp(num(rolls.success,.5),0,1)<gate.chance;
  const healthLoss=!success&&clamp(num(rolls.injury,1),0,1)<gate.injuryChance?
   Math.max(1,Math.round((3+offer.difficulty*.10)*profile.healthRisk)):0;
- const earned=success?offer.reward:0,net=earned-gate.cost;
+ const earned=success?Math.round(offer.reward*clamp(num(ctx.efficiency,1),.5,1)):0,net=earned-gate.cost;
  const trustDelta=success?profile.trust:Math.min(-2,Math.floor(profile.trust/2)),
   rivalryDelta=success?profile.rivalry:Math.max(3,Math.round(Math.abs(profile.rivalry)*.6));
  const entry={id:offer.id,year:integer(ctx.year,0,9999),kind:offer.kind,contact:offer.contact,
