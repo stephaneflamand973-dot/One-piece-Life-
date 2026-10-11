@@ -280,6 +280,39 @@ assert(!g.player.encounterV107.active&&g.player.encounterV107.total===1,'Interac
 assert(g.player.adventureV106.expeditions===1,'Scouting not registered in V10.6 state');
 const restoredJSON=JSON.parse(JSON.stringify(g));
 assert(restoredJSON.player.adventureV106.expeditions===1&&restoredJSON.player.adventureV106.missionBonus>0&&restoredJSON.player.encounterV107.total===1,'V10.7 state missing after save roundtrip');
+/* V10.8 integrated decisions, combat and save. */
+g.pendingDecision=null;g.player.energy=100;g.player.health=100;
+assert(q.manual('expedition_scout')===true,'Cannot start V10.8 dialogue');
+const talkChoice=g.pendingDecision?.choices?.find(x=>x.action.startsWith('v108talk:'));
+assert(talkChoice,'Contextual dialogue missing from live scene');
+q.resolveDecision(talkChoice.action);
+assert(g.pendingDecision?.id?.startsWith('v108talk_'),'Dialogue choices did not open');
+const frank=g.pendingDecision.choices.find(x=>x.action.endsWith(':frank'));
+assert(frank,'Dialogue reply missing');q.resolveDecision(frank.action);
+assert(g.player.encounterDepthV108.dialogues===1,'Dialogue not persisted');
+assert(g.player.encounterV107.active?.stage===1,'Dialogue did not advance encounter');
+for(const name of ['search','map']){
+ const choice=g.pendingDecision.choices.find(x=>x.action.endsWith(':'+name));
+ assert(choice,'Follow-up scene missing '+name);
+ q.resolveDecision(choice.action);
+}
+assert(g.player.encounterV107.total===2&&g.meta.manualLifeV102.spent.expedition_scout===2,'Dialogue cost or result is wrong');
+assert(g.player.encounterDepthV108.memory.length>0,'NPC memory missing after dialogue');
+g.player.energy=100;
+assert(q.manual('expedition_scout')===true,'Cannot start combat expedition');
+const fight=g.pendingDecision?.choices?.find(x=>x.action.startsWith('v108fight:'));
+assert(fight,'Duel option missing');q.resolveDecision(fight.action);
+assert(g.player.encounterDepthV108.combat&&g.pendingDecision?.id?.startsWith('v108combat_'),'Duel did not start');
+const guard=g.pendingDecision.choices.find(x=>x.action.endsWith(':guard')),beforeEnergy=g.player.energy;
+assert(guard,'Guard move missing');q.resolveDecision(guard.action);
+assert(g.player.encounterDepthV108.combat?.turn===1&&g.player.energy===beforeEnergy-2,'Round did not affect energy or turn');
+const savedDuel=JSON.parse(JSON.stringify(g));
+assert(savedDuel.player.encounterDepthV108.combat?.turn===1&&savedDuel.pendingDecision?.id.startsWith('v108combat_'),'Duel cannot resume after save');
+const retreat=g.pendingDecision.choices.find(x=>x.action.endsWith(':retreat'));
+assert(retreat,'Retreat option missing');q.resolveDecision(retreat.action);
+assert(!g.player.encounterDepthV108.combat&&!g.player.encounterV107.active,'Retreat did not close duel and expedition');
+assert(g.meta.manualLifeV102.spent.expedition_scout===3&&!q.manualStatus('expedition_scout').available,'Duel spent more than one action');
+console.log('V10.8 INTEGRATED DIALOGUE AND DUEL QA OK',JSON.stringify({dialogues:g.player.encounterDepthV108.dialogues,battles:g.player.encounterDepthV108.battles,memories:g.player.encounterDepthV108.memory.length}));
 g.pendingDecision={id:'v106_lock',title:'En attente',text:'Décision',choices:[]};
 assert(!q.manualStatus('expedition_scout').available,'Pending decision should lock scouts');
 g.pendingDecision=null;
