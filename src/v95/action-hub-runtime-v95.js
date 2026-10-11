@@ -5,7 +5,7 @@ const data=registry.get('actionHubDataV95'),engine=registry.get('actionHubEngine
 if(!data||!engine)throw new Error('V9.5 action hub prerequisites missing');
 const escapeHtml=s=>String(s==null?'':s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 function createRuntime(bridge){
-  let query='',showAll=false;
+  let query='',showAll=false,personFocus=null;
   const document=global.document;
   const node=id=>document?.getElementById?.(id)||document?.querySelector?.('#'+id);
   const getState=()=>{const g=bridge.getGame();if(!g)return null;g.meta=g.meta||{};g.meta.actionHubV95=engine.normalizeState(g.meta.actionHubV95||{});return g.meta.actionHubV95};
@@ -237,7 +237,7 @@ function createRuntime(bridge){
       const available=actions.filter(x=>x.available).length;
       const favorite=actions.some(x=>state?.favorites.includes(x.id));
       return {person,index,actions,available,favorite};
-    }).sort((a,b)=>Number(b.favorite)-Number(a.favorite)||b.available-a.available||a.index-b.index).slice(0,6);
+    }).sort((a,b)=>Number(b.favorite)-Number(a.favorite)||b.available-a.available||a.index-b.index).slice(0,10);
     if(!people.length)return '<p class="v95-empty">Tu n’as pas encore de relations. Continue à explorer et à rencontrer des personnages.</p>';
     return '<div class="opl-people-list">'+people.map(({person:p,actions,available})=>{
       const ordered=[...actions.filter(x=>x.available),...actions.filter(x=>!x.available)].slice(0,2);
@@ -247,7 +247,9 @@ function createRuntime(bridge){
         '<p class="opl-person-empty">Aucune interaction proposée pour le moment.</p>';
       return '<article class="opl-person-card"><div class="opl-person-head"><strong>'+escapeHtml(p.name||'Relation')+'</strong>'+
         '<small>'+available+' interaction'+(available>1?'s':'')+' possible'+(available>1?'s':'')+' • confiance '+Math.round(Number(p.trust)||0)+'/100</small></div>'+
-        '<div class="opl-person-actions">'+buttons+'</div></article>';
+        '<div class="opl-person-actions">'+buttons+'</div>'+
+        (actions.length>2?'<button type="button" class="opl-person-open" data-v95-person="'+escapeHtml(p.id)+'">Toutes les interactions avec '+escapeHtml(p.name||'ce personnage')+' ›</button>':'')+
+        '</article>';
     }).join('')+'</div>';
   }
   function renderResults(){
@@ -259,15 +261,20 @@ function createRuntime(bridge){
     // The spotlight already offers this action; do not repeat the same button immediately below.
     const spotlightId=state.category==='career'?'manual:work':state.category==='training'?'manual:training':null;
     const listed=!showAll&&!query.trim()&&spotlightId?selected.filter(x=>x.id!==spotlightId):selected;
-    const direct=listed.filter(x=>x.available&&x.kind!=='open');
-    const visible=showAll||query.trim()?listed.slice(0,70):(direct.length?direct:listed.filter(x=>x.available)).slice(0,7);
+    // Inside Relations, the player chooses a person first, then their interactions.
+    // No mixing someone else's actions into the selected person's screen.
+    const focused=state.category==='relations'&&personFocus;
+    const focusPrefix=focused?'relation:'+encodeURIComponent(personFocus)+':':'';
+    const scoped=focused?listed.filter(x=>x.id.startsWith(focusPrefix)):listed;
+    const direct=scoped.filter(x=>x.available&&x.kind!=='open');
+    const visible=showAll||query.trim()?scoped.slice(0,70):(direct.length?direct:scoped.filter(x=>x.available)).slice(0,7);
     const count=node('v95HubCount');
     if(count){
       const eligible=selected.filter(x=>x.available).length;
       count.textContent=eligible+' possible'+(eligible>1?'s':'')+(showAll?' • autres choix ci-dessous':'');
     }
     // Relationships show people rather than a confusing wall of repeated actions.
-    const groupedRelations=state.category==='relations'&&!showAll&&!query.trim();
+    const groupedRelations=state.category==='relations'&&!personFocus&&!showAll&&!query.trim();
     root.innerHTML=groupedRelations?renderRelationCards(selected):visible.length?visible.map(x=>{
       const fav=state.favorites.includes(x.id);
       const isOpen=x.kind==='open';
@@ -281,13 +288,16 @@ function createRuntime(bridge){
     }).join(''):'<p class="v95-empty">Aucune action disponible ici pour le moment. Change de catégorie ou avance d’un an.</p>';
     root.querySelectorAll?.('[data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
     root.querySelectorAll?.('[data-v95-star]').forEach(b=>b.onclick=()=>star(b.dataset.v95Star));
+    root.querySelectorAll?.('[data-v95-person]').forEach(b=>b.onclick=()=>focusPerson(b.dataset.v95Person));
     const more=node('oplHubMore');
     if(more){
-      // Person cards display only two actions each; the rest must always stay reachable.
-      const displayed=groupedRelations?(root.querySelectorAll?.('[data-v95-run]')?.length||0):visible.length;
-      const hasMore=selected.length>displayed;
-      more.classList.toggle('hidden',!hasMore&&!showAll);
-      more.textContent=showAll?'Afficher seulement les actions disponibles':'Voir toutes les possibilités ('+selected.length+')';
+      // Each person has an explicit detail page, so the full catalogue never
+      // replaces the people list with a wall of mixed relationship actions.
+      const hasMore=scoped.length>visible.length;
+      more.classList.toggle('hidden',groupedRelations||(!hasMore&&!showAll));
+      more.textContent=showAll?'Afficher seulement les actions disponibles':
+        personFocus&&state.category==='relations'?'Voir toutes les interactions ('+scoped.length+')':
+        'Voir toutes les possibilités ('+selected.length+')';
       more.setAttribute('aria-expanded',String(showAll));
     }
   }
@@ -301,6 +311,15 @@ function createRuntime(bridge){
       (decision.text?'<p>'+escapeHtml(decision.text)+'</p>':'')+
       '<button type="button" class="opl-decision-focus-btn" id="'+id+'">Voir les choix →</button>'+
       '<small>Résous cet événement pour reprendre tes activités.</small></section>';
+  }
+  function focusPerson(id){
+    const game=bridge.getGame();
+    const person=(game?.relations||[]).find(p=>p?.id===id&&p.status!=='left');
+    if(!person)return false;
+    personFocus=id;showAll=false;query='';
+    const state=getState();state.category='relations';game.meta.actionHubV95=state;
+    renderHub();bridge.save();
+    return true;
   }
   function renderHub(){
     const root=node('v95Hub'),state=getState();if(!root||!state)return;
@@ -319,23 +338,25 @@ function createRuntime(bridge){
     const categoryCount=id=>id==='all'?actionable.length:id==='favorites'?
       actionable.filter(x=>state.favorites.includes(x.id)).length:actionable.filter(x=>x.category===id).length;
     const chosen=data.categories.find(x=>x.id===state.category);
+    const person=state.category==='relations'?(bridge.getGame()?.relations||[]).find(p=>p?.id===personFocus&&p.status!=='left'):null;
+    if(personFocus&&!person)personFocus=null;
     root.classList?.toggle('opl-hub-drilldown',state.category!=='all');
-    root.innerHTML=actionFeedback(true)+'<div class="v95-hub-head"><span class="eyebrow">Activités</span><h2>Que veux-tu faire ?</h2>'+
-      '<p>Choisis un domaine, puis touche une action. Les possibilités indisponibles restent rangées dans « Voir toutes les possibilités ».</p></div>'+
+    root.innerHTML=actionFeedback(true)+'<div class="v95-hub-head"><span class="eyebrow">Activités</span><h2>'+(person?'Interagir avec '+escapeHtml(person.name):'Que veux-tu faire ?')+'</h2>'+
+      '<p>'+(person?'Choisis directement une interaction. Les actions impossibles sont disponibles dans les détails.':'Choisis un domaine, puis touche une action. Les possibilités indisponibles restent rangées dans « Voir toutes les possibilités ».')+'</p></div>'+
       '<div class="v95-quick">'+recommended.map(x=>'<button type="button" data-v95-quick="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Recommandé pour toi</span></button>').join('')+'</div>'+
-      '<button type="button" id="oplHubBack" class="opl-hub-back '+(state.category==='all'?'hidden':'')+'">‹ Tous les domaines</button>'+
+      '<button type="button" id="oplHubBack" class="opl-hub-back '+(state.category==='all'?'hidden':'')+'">'+(person?'‹ Toutes les relations':'‹ Tous les domaines')+'</button>'+
       '<div class="opl-hub-categories-heading"><strong>Choisir un domaine</strong><small>Travail, combat, relations, voyages…</small></div>'+
       '<div id="v95HubCategories" class="v95-categories" role="group" aria-label="Catégories d’actions">'+data.categories.map(x=>'<button type="button" data-v95-category="'+x.id+'" class="v95-category '+(x.id===state.category?'selected':'')+'" aria-pressed="'+(x.id===state.category?'true':'false')+'"><span class="v95-category-name">'+x.icon+' '+escapeHtml(x.label)+'</span><small class="v95-category-count" aria-label="'+categoryCount(x.id)+' actions disponibles">'+categoryCount(x.id)+'</small></button>').join('')+'</div>'+
       renderDomainSpotlight(state.category,allActions)+
-      '<div class="v95-section-title"><strong>'+(state.category==='all'?'Actions à faire maintenant':escapeHtml(chosen?.label||'Activités'))+'</strong><small id="v95HubCount"></small></div>'+
+      '<div class="v95-section-title"><strong>'+(person?'Interactions avec '+escapeHtml(person.name):state.category==='all'?'Actions à faire maintenant':escapeHtml(chosen?.label||'Activités'))+'</strong><small id="v95HubCount"></small></div>'+
       '<div id="v95HubResults" class="v95-results"></div>'+
       '<button id="oplHubMore" type="button" class="opl-hub-more" aria-expanded="'+String(showAll)+'">Voir toutes les possibilités</button>'+
       '<div class="opl-search-shell '+(showAll?'':'hidden')+'" id="oplSearchShell"><label for="v95HubSearch">Rechercher une action</label>'+
       '<input id="v95HubSearch" class="v95-search" type="search" autocomplete="off" value="'+escapeHtml(query)+'" placeholder="Mission, Haki, équipage…"></div>';
     const back=node('oplHubBack');
     if(back)back.onclick=()=>{
-      bridge.getGame().meta.actionHubV95.category='all';
-      root.classList?.remove('opl-hub-drilldown');
+      if(personFocus){personFocus=null;showAll=false;query=''}
+      else bridge.getGame().meta.actionHubV95.category='all';
       renderHub();bridge.save();
     };
     bindFeedback(root);
@@ -349,6 +370,7 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v95-quick]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Quick));
     root.querySelectorAll?.('[data-v95-category]').forEach(b=>b.onclick=()=>{
       bridge.getGame().meta.actionHubV95.category=b.dataset.v95Category;
+      personFocus=null;
       root.querySelectorAll?.('[data-v95-category]').forEach(x=>{const active=x===b;x.classList.toggle('selected',active);x.setAttribute('aria-pressed',String(active))});
       showAll=false;query='';if(search)search.value='';
       node('oplSearchShell')?.classList.add('hidden');
@@ -372,7 +394,7 @@ function createRuntime(bridge){
     const all=node('v95AllActionsBtn');if(all)all.onclick=()=>bridge.openTab('actions');
     root.querySelectorAll?.('[data-v95-life]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Life));
   }
-  return {ensure:getState,build,execute,star,renderHub,renderLife,renderResults,version:'9.5.0'}
+  return {ensure:getState,build,execute,star,focusPerson,renderHub,renderLife,renderResults,version:'9.5.0'}
 }
 registry.register('actionHubRuntimeV95',{version:'9.5.0',createRuntime});
 })(window);
