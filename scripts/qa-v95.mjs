@@ -56,7 +56,7 @@ const runtime=api.createRuntime({
  hooks:()=>[{id:'hook:x',actionable:true,hookId:'x',title:'Départ immédiat',region:'East Blue',priority:90,remaining:3}],
  services:()=>[{id:'inn',label:'Auberge',used:false}],
  toast:()=>{},save:()=>{saves++},openTab:tab=>{view=tab},
- execute:id=>{last=id;return true}
+ execute:id=>{last=id;if(id==='mission:mission_one')game.player.money=(game.player.money||0)+250;return true}
 });
 const actions=runtime.build();
 for(const cat of ['career','training','relations','exploration','economy','life'])
@@ -70,6 +70,8 @@ runtime.renderHub();runtime.renderLife();
 assert(document.getElementById('v95Hub').innerHTML.includes('Que veux-tu faire ?'),'Action hub UI not rendered');
 assert(document.getElementById('v95HubResults').innerHTML.includes('Accepter : Escorte'),'Action hub mission label missing');
 assert(document.getElementById('v95LifeQuick').innerHTML.includes('Toutes les actions'),'Life shortcut missing');
+assert(game.meta.actionFeedbackV111?.summary.includes('Berry +250'),'Immediate action result not saved');
+assert(document.getElementById('v95LifeQuick').innerHTML.includes('Dernière action'),'Life view must reveal the last action result');
 game.agency.annualTurn={active:true,monthsSimulated:4};
 const during=runtime.build();
 assert(during.some(x=>x.id==='advance'&&x.available),'Advance should remain active mid-year');
