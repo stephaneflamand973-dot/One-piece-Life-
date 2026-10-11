@@ -6451,7 +6451,7 @@ function renderSaveManagerRows(slots){
       '</small></span><button type="button" data-manager-delete="'+n+'"'+(g?'':' disabled')+'>'+
       (g?'Supprimer':'Emplacement libre')+'</button></div>';
   }).join('');
-  $('#saveManagerList button[data-manager-delete]').forEach(b=>{
+  $$('#saveManagerList button[data-manager-delete]').forEach(b=>{
     b.onclick=()=>{
       const slot=Number(b.dataset.managerDelete);
       if(!Number.isInteger(slot)||slot<1||slot>3||!slots[slot-1])return;
