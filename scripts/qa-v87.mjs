@@ -102,7 +102,7 @@ assert(html.includes('careerTick(1);v86MonthlyTick();v87MonthlyTick();t.phase=2'
 assert(html.includes('p.island=dest;p.region=target.region;v87OnArrival(dest);p.travel=null;'),'Arrival settlement hook missing');
 assert(html.includes('v87OnLocalOutcome(result.outcome,e.rep||0);'),'Daily opportunity local-standing hook missing');
 assert(html.includes('id="v87SettlementCard"'),'V8.7 settlement UI missing');
-assert(html.includes('renderV75WorldDirector();renderV82Campaigns();renderV83Nemeses();renderV85Exploration();v106RenderAdventure();renderV87Settlement();'),'V8.7 world render hook missing');
+assert(html.includes('renderV75WorldDirector();renderV82Campaigns();renderV83Nemeses();renderV85Exploration();v106RenderAdventure();v107RenderEncounter();renderV87Settlement();'),'V8.7 world render hook missing');
 assert(html.includes("$$('[data-v87-service]').forEach"),'V8.7 service button collection binding missing');
 
 console.log('V8.7 ISLANDS & SETTLEMENTS 4.0 QA OK',JSON.stringify({
