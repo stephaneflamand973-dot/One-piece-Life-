@@ -1,3 +1,32 @@
+# ONE PIECE LIFE — V9.2 NPC Living Lives
+
+La V9.2 donne enfin une trajectoire propre aux personnes importantes qui entourent le joueur. Une relation ne reste plus congelée en attendant le prochain clic : elle peut travailler, progresser, voyager, changer de voie, gagner en réputation ou se retirer pendant que ta propre vie continue.
+
+## NPC Living Lives
+
+- Relations procédurales dotées d'une **carrière persistante**.
+- 7 familles de carrière avec rangs et promotions.
+- Puissance, potentiel, condition, fortune et renommée propres à chaque PNJ.
+- Objectifs autonomes adaptés à la faction et à l'ambition.
+- Actions hors écran : travail, entraînement, voyage, réseau, prise de risque, récupération et soutien.
+- Déplacements géographiques indépendants du joueur.
+- Promotions fondées sur l'XP accumulée.
+- Changements de carrière rares et contextuels.
+- Retraite possible avec l'âge.
+- Les revers peuvent diminuer condition et élan.
+- Les réussites risquées construisent réputation, carrière et fortune.
+- Les jalons importants deviennent des souvenirs dans le système relationnel V7.4.
+- Les relations affichent désormais leur profession, leur rang, leur région, leur puissance et leur dernière action.
+- Nouveau tableau **Vies autonomes** dans Relations.
+- Les personnages canoniques restent pilotés par le World Director : V9.2 suit leurs évolutions sans réécrire leur canon.
+- Les Némésis V8.3 restent un système distinct.
+- Historiques et états bornés pour protéger les longues sauvegardes.
+- Migration V9.1.x → V9.2 automatique.
+- Save version : **920**.
+- Cache PWA : **one-piece-life-v9-2-0**.
+
+---
+
 # ONE PIECE LIFE — V9.1.9 Goals & Player Agency 5.1
 
 La V9.1 transforme l'ambition en véritable système de direction personnelle. Le joueur choisit **ce qu'il veut tenter d'accomplir**, tandis que le moteur conserve l'autorité sur les probabilités, les opportunités et les résultats.
