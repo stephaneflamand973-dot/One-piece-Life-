@@ -36,7 +36,8 @@ const modulePaths=[
  'src/data/relationships-v93.js','src/v93/relationships-engine-v93.js',
  'src/data/world-intel-v94.js','src/v94/world-intel-engine-v94.js',
  'src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.js','src/v95/action-hub-runtime-v95.js',
- 'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js'
+ 'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js',
+ 'src/data/action-v102.js','src/v102/action-engine-v102.js'
 ];
 for(const path of modulePaths)new Function('window',fs.readFileSync(path,'utf8'))(w);
 new Function('window','document','localStorage','navigator','location','indexedDB','setTimeout','clearTimeout','requestAnimationFrame','console','Promise',source)(
