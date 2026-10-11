@@ -35,6 +35,13 @@ assert(hub.includes('function renderLife()')&&hub.includes('Toutes les actions')
 assert(hub.includes('id="oplHubBack"')&&hub.includes('opl-hub-drilldown'),'One-level navigation for activities missing');
 assert(hub.includes('lastHistoryTitle')&&hub.includes('const eventChanged=after.lastHistoryId'),'Narrative-only consequences missing from results');
 assert(hub.includes('data-v95-life-return')&&hub.includes("bridge.openTab('life')"),'Cannot return to life after an action');
+assert(hub.includes('data-v95-repeat')&&hub.includes('data-v95-next'),'One-click repetition and next action must exist');
+assert(hub.includes('activeTab?.()')&&html.includes("activeTab:()=>game?.meta?.uiV76?.activeTab||'life'"),'Result must scroll to the active screen');
+assert(hub.includes('Aucun changement immédiat mesurable.'),'No invented numeric gains when actions produce no delta');
+assert(html.includes('function v111DecisionOutcome(before)'),'Narrative choices must have immediate outcome feedback');
+assert(html.includes('v111DecisionOutcome(v111BeforeDecision);'),'All decision routes must report their outcome');
+assert(html.includes('if(!before||!game?.meta||!game.alive||game.pendingDecision)return;'),'Do not interrupt ongoing multi-step events');
+
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Invalid single-element query loop');
 assert(sw.includes('one-piece-life-v11-0-1-gameplay-purifie3'),'Offline update not invalidated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
