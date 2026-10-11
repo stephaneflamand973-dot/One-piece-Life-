@@ -5147,7 +5147,7 @@ function ensureV6(){
   if(game.agency.annualTurn&&!game.agency.annualTurn.active)game.agency.annualTurn=null;
   if(game.agency.annualTurn?.active&&!game.agency.annualTurn.plan)game.agency.annualTurn.plan=JSON.parse(JSON.stringify(game.agency.annualPlan));
   ensureV59();for(const h of game.world.worldHooks||[])updateHakiStagesV6();
-  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure();v90Ensure();v91Ensure(;v92Ensure()
+  v63Ensure();v64Ensure();v66Ensure();v67Ensure();v74EnsureGlobal();v68Ensure();v69Ensure();v70Ensure();v75Ensure();v71Ensure();v82Ensure();v83Ensure();v84Ensure();v85Ensure();v86Ensure();v87Ensure();v88Ensure();v89Ensure();v90Ensure();v91Ensure();v92Ensure()
 }
 function v6RelationById(id){return game.relations.find(r=>r.id===id||slug(r.name)===id)}
 function v6InteractRelation(id,action){
