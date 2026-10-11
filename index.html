@@ -3125,9 +3125,9 @@ function v102PromotionGate(){
     return {allowed:false,reason:'Dossier insuffisant : consulte les critères de promotion.'};
   return {allowed:true,reason:''}
 }
-function v102Context(){
+function v102Context(id){
   const p=game.player;
-  const promotion=p.career==='Aucune'?{allowed:false,reason:'Commence une carrière.'}:v102PromotionGate();
+  const promotion=id==='promotion'?(p.career==='Aucune'?{allowed:false,reason:'Commence une carrière.'}:v102PromotionGate()):{allowed:true,reason:''};
   return {alive:game.alive,pending:!!game.pendingDecision,energy:p.energy,
     career:p.career!=='Aucune',land:!p.travel,mission:!!game.activeMission,
     travel:!!p.travel,recovery:p.energy<100||p.health<100,
@@ -3135,7 +3135,7 @@ function v102Context(){
 }
 function v100Status(id){
   const mod=v102Module(),state=v102Ensure();
-  return mod&&state&&game?.player?mod.status(state,id,Math.floor(game.ageMonths/12),v102Context()):
+  return mod&&state&&game?.player?mod.status(state,id,Math.floor(game.ageMonths/12),v102Context(id)):
     {available:false,remaining:0,reason:'Moteur d’actions indisponible.'}
 }
 function v102SetTrainingFocus(id){
@@ -3158,7 +3158,7 @@ function v100Act(id){
   catch(e){toast('Impossible de sécuriser cette action.');return false}
   try{
     const year=Math.floor(game.ageMonths/12),p=game.player;
-    const execution=mod.perform(state,id,year,v102Context(),availability=>{
+    const execution=mod.perform(state,id,year,v102Context(id),availability=>{
       const factor=availability.efficiency;
       if(id==='work'){
         const ranks=CAREER_RANKS[p.faction]||CAREER_RANKS.Civil||[];
@@ -3256,7 +3256,7 @@ function v100RenderManualPanel(){
   '<div class="v100-manual-actions">'+entries.map(([id,definition])=>{
     const st=v100Status(id),count=st.limit-st.remaining;
     const suffix=st.efficiency<1?' • rendement '+Math.round(st.efficiency*100)+'%':'';
-    const info=st.available?st.remaining+'/'+st.limit+' cette année • '+st.cost+' énergie'+suffix:esc(st.reason||'Indisponible');
+    const info=st.available?st.remaining+'/'+st.limit+' cette année • '+st.cost+' énergie'+suffix:st.reason||'Indisponible';
     return '<button type="button" data-v100-action="'+esc(id)+'" '+(st.available?'':'disabled')+'><strong>'+esc(definition.label)+'</strong><small>'+esc(info)+'</small><span class="v102-progress" aria-hidden="true"><i style="width:'+Math.round(count/st.limit*100)+'%"></i></span></button>'
   }).join('')+'</div>';
   box.querySelectorAll?.('[data-v100-action]').forEach(b=>b.onclick=()=>v100Act(b.dataset.v100Action));
