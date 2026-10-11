@@ -28,3 +28,7 @@ Réduire la dispersion de l'interactivité sans supprimer les mécaniques V6–V
 ## Vérifications
 
 Le script `scripts/qa-v95.mjs` teste les catégories, la recherche, la persistance des favoris, les raccourcis, les actions dynamiques, les verrous annuels, la priorité des décisions, les cinq onglets, l'accès aux capacités et la mise en cache PWA. Les tests de régression existants sont toujours exécutés par CI.
+
+## Test d'intégration V9.5
+
+Le script `scripts/qa-v95-runtime.mjs` exécute le moteur réel dans un environnement navigateur simulé, confirme le lancement d'une mission via le Centre d'Actions, la sauvegarde des favoris, le passage Profil → Capacités → Actions et les verrouillages pendant une année en cours ou une décision.
