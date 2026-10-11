@@ -1,4 +1,4 @@
-name: Validate V10.1
+name: Validate V10.2
 on:
   push:
     branches: [main, v10-manual-life-actions, v10.0.1-manual-life-hotfix]
@@ -47,7 +47,11 @@ on:
       - 'scripts/qa-v100.mjs'
       - 'scripts/qa-v100-runtime.mjs'
       - 'scripts/qa-v101.mjs'
+      - 'scripts/qa-v102.mjs'
+      - 'src/data/action-v102.js'
+      - 'src/v102/action-engine-v102.js'
       - 'QA-V10.1.md'
+      - 'QA-V10.2.md'
       - 'scripts/qa-v95-runtime.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
@@ -105,11 +109,11 @@ jobs:
           new Function(m[1]);
           const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
           const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-          if(!html.includes('ONE PIECE LIFE — V10.1'))throw new Error('V10.1 title missing');
+          if(!html.includes('ONE PIECE LIFE — V10.2'))throw new Error('V10.2 title missing');
           if(saveVersion<1000)throw new Error('Save migration 950+ missing');
-          if(gameVersion!=='10.1.0')throw new Error('V10.1 game version missing');
+          if(gameVersion!=='10.2.0')throw new Error('V10.2 game version missing');
           const assets=[
-            'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js','src/v100/manual-life-v100.css',
+            'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js','src/v100/manual-life-v100.css','src/data/action-v102.js','src/v102/action-engine-v102.js',
             'src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css',
             'src/data/combat-techniques-v72.js','src/v72/combat-engine-v72.js','src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js',
             'src/data/relation-personas-v74.js','src/v74/relation-persona-engine-v74.js','src/data/world-canon-v75.js','src/v75/world-canon-engine-v75.js',
@@ -139,8 +143,8 @@ jobs:
           for(const x of ['function v71Ensure','function v72CombatModule','function v73Module','function v74Module','function v75Module','function v76Module','function v77Module','function v78Module','function v79Module','function v80Module','function v80PriorityInterrupt','function v80RenderActiveTab','function v81Module','function v81Ensure','function v81QueueFaction','function renderV81FactionIdentity','function v82Module','function v82Ensure','function v82AnnualWorldTick','function v82QueueCampaign','function renderV82Campaigns','function v83Module','function v83Ensure','function v83BindCampaign','function v83Candidate','function v83QueueNemesis','function renderV83Nemeses','function v84Module','function v84Ensure','function v84MissionSupport','function v84Candidate','function v84QueueCrew','function v84RenderCrew','function v85Module','function v85Ensure','function v85RoutePreview','function v85TickVoyage','function renderV85Exploration','function v86Module','function v86Ensure','function v86MonthlyTick','function v86ResolveOpportunity','function renderV86Daily','function v87Module','function v87Ensure','function v87OnArrival','function v87Service','function renderV87Settlement','function v88Module','function v88Ensure','function v88Context','function v88MarketAvailable','function v88Trade','function renderV88Market','function v89Module','function v89Ensure','function v89EquipmentEffects','function v89MaybeLoot','function renderV89Equipment','function v90Module','function v90Ensure','function v90Context','function v90ApplyPreset','function renderV90GameFlow','function v91Module','function v91Ensure','function v91Context','function v91Sync','function v91ApplyIntent','function renderV91Goals','function v92Module','function v92Ensure','function v92TrackedActors','function v92Tick','function renderV92Lives','function v93Module','function v93Ensure','function v93Profile','function v93OnNpcLifeEvent','function v93MaybePromoteNemesis','function v93MaybeQueueBeat','function v93ResolveDecision','function renderV93Relationships'])if(!html.includes(x))throw new Error('missing '+x);
           if(!html.includes('id="v80DirectorCard"'))throw new Error('V8.0 Life Director UI missing');
           if(html.includes('renderTimeline();renderCharacter();renderAbilities();renderRelations();renderWorld();renderDev();v76AfterRender()'))throw new Error('eager heavy-panel render regression');
-          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V10.1'))throw new Error('manifest not V10.1');
-          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v10-1-0'))throw new Error('service worker cache not V10.1');
+          const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V10.2'))throw new Error('manifest not V10.2');
+          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v10-2-0'))throw new Error('service worker cache not V10.2');
           for(const x of assets)if(!sw.includes(x))throw new Error('service worker missing modular asset '+x);
           console.log('V9.5 static + modular validation OK');
           NODE
@@ -216,11 +220,13 @@ jobs:
         run: node scripts/qa-v94.mjs
       - name: Validate V9.5 Action Hub
         run: node scripts/qa-v95.mjs
-      - name: Validate V10.0/V10.1 Manual Life
+      - name: Validate V10.0/V10.2 Manual Life
         run: node scripts/qa-v100.mjs
       - name: Verify V10 Real Game Aging
         run: node scripts/qa-v100-runtime.mjs
-      - name: Verify V10.1 Manual Actions Stabilization
+      - name: Verify V10.2 Manual Actions Stabilization
         run: node scripts/qa-v101.mjs
+      - name: Verify V10.2 Action Engine
+        run: node scripts/qa-v102.mjs
       - name: Verify V9.5 integrated real-game runtime
         run: node scripts/qa-v95-runtime.mjs
