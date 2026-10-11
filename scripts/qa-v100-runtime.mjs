@@ -93,6 +93,9 @@ const ageBefore=g.ageMonths,moneyBefore=g.player.money,xpBefore=g.player.careerX
 const powerBefore=Object.values(g.player.stats).map(x=>Number(x)||0);
 assert(q.advance()!==false,'Manual-year aging must succeed');
 assert(g.ageMonths===ageBefore+12,'Advance must increment precisely one year');
+assert(g.meta.actionFeedbackV111?.title.startsWith('Nouvelle année'),'Age-up should display a concise new chapter recap');
+assert(g.meta.actionFeedbackV111?.actionId===null,'Age-up must not be offered as a repeatable manual action');
+assert(g.meta.actionFeedbackV111?.summary.includes('Actions disponibles renouvelées'),'Age-up report must state refreshed manual quotas');
 assert(g.player.money===moneyBefore,'Aging changed money without manual action');
 assert(g.player.careerXP===xpBefore,'Aging generated career XP automatically');
 assert(g.player.rank===rankBefore,'Aging generated automatic promotion');
