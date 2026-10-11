@@ -1,3 +1,18 @@
+# ONE PIECE LIFE — V10.4 Relations et vie personnelle 2.0
+
+- **Neuf interactions sociales** disponibles : passer du temps, entraîner, aider, se confier, confronter, se réconcilier, flirter, proposer un rendez-vous ou vivre ensemble.
+- **12 actions sociales par an**, au maximum **3 par relation**, avec rendements décroissants.
+- Compétences de relations V7.4, archives et némésis V9.3, foyer V7.8 réutilisés : les choix ont des conséquences durables.
+- Une relation amoureuse exige des âges compatibles et une réponse positive ; un refus reste possible et est enregistré.
+- Interface Relations enrichie et Centre d'actions synchronisé.
+- Compatible avec les parties V10.0–V10.3 ; le passage d'une année ne génère toujours aucune progression automatique de carrière.
+
+**GAME_VERSION 10.4.0 • SAVE_VERSION 1000 • CACHE one-piece-life-v10-4-0**
+
+[QA-V10.4.md](QA-V10.4.md) décrit les scénarios de validation et limites.
+
+---
+
 # ONE PIECE LIFE — V10.3 Carrières et organisations 2.0
 
 Cette version relie les **actions professionnelles manuelles** à des performances mesurables et au dossier de promotion V7.3.

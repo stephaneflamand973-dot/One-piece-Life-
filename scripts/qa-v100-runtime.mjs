@@ -4,7 +4,7 @@ const html=fs.readFileSync('index.html','utf8');
 let source=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 const init="init().catch(()=>{storageFallback=true;renderSlots();startupMessage('Démarrage en mode de secours local.','warn')});";
 assert(source&&source.includes(init),'Game runtime entrypoint missing');
-source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
+source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,socialStatus:v104Status,socialAction:v104Perform,advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
 const elements=new Map();
 function el(sel){
  if(!elements.has(sel)){
@@ -29,6 +29,8 @@ w.window=w;w.document=document;w.localStorage=localStorage;
 const modulePaths=[
  'src/core/module-registry.js',
  'src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js',
+ 'src/data/relation-personas-v74.js','src/v74/relation-persona-engine-v74.js',
+ 'src/data/personal-life-v78.js','src/v78/personal-life-engine-v78.js',
  'src/data/ui-layout-v76.js','src/v76/ui-components-v76.js',
  'src/data/simulation-core-v80.js','src/v80/simulation-core-v80.js',
  'src/data/game-flow-v90.js','src/v90/game-flow-engine-v90.js',
@@ -38,7 +40,7 @@ const modulePaths=[
  'src/data/world-intel-v94.js','src/v94/world-intel-engine-v94.js',
  'src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.js','src/v95/action-hub-runtime-v95.js',
  'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js',
- 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js'
+ 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js'
 ];
 for(const path of modulePaths)new Function('window',fs.readFileSync(path,'utf8'))(w);
 new Function('window','document','localStorage','navigator','location','indexedDB','setTimeout','clearTimeout','requestAnimationFrame','console','Promise',source)(
@@ -54,7 +56,7 @@ g.player.specialization='combat';
 g.missionBoard=[{id:'v95_escort_qa',title:'Escorte de QA',desc:'Protéger un convoi',reward:1500,duration:3,danger:'low',power:20,type:'escort'}];
 g.relations.push({id:'v95_friend',name:'Nami QA',role:'Ami',affection:60,respect:67,trust:69,loyalty:60,familiarity:67,rivalry:1,status:'active',ambition:'Loyauté',temperament:'Curieux'});
 q.ensure();
-assert(q.gameVersion==='10.3.0'&&q.saveVersion===1000,'Version mismatch');
+assert(q.gameVersion==='10.4.0'&&q.saveVersion===1000,'Version mismatch');
 const hub=q.hub();assert(hub&&hub.version==='9.5.0','Live Action Hub failed to initialize');
 let actions=hub.build();
 assert(actions.some(x=>x.id==='mission:v95_escort_qa'&&x.available),'Live mission action missing');
@@ -187,6 +189,37 @@ assert(q.manualStatus('career_bonus').available===false,'One bonus review per ye
 assert(g.meta.manualLifeV102.spent.career_support===1&&g.meta.manualLifeV102.spent.career_initiative===1,'Career actions not counted through unified V10.2 engine');
 assert(g.player.careerV103.earned>=g.player.careerV103.bonusEarned,'Career account totals inconsistent');
 console.log('V10.3 INTEGRATED CAREER QA OK',JSON.stringify({performance:g.player.careerV103.performance,sessions:g.player.careerV103.workSessions,bonus:g.player.careerV103.bonusEarned}));
+
+/* V10.4: same real browser/character data, repeatable social encounters and mutual romance. */
+g.player.energy=100;g.player.money=Math.max(20000,g.player.money);g.pendingDecision=null;g.agency.annualTurn=null;
+const friend=g.relations.find(r=>r.id==='v95_friend');
+friend.adult=true;
+assert(q.socialStatus('v95_friend','time').available,'Friendship action unavailable');
+const originalBond=friend.trust;
+assert(q.socialAction('v95_friend','time')===true,'V10.4 friendship action failed');
+assert(g.player.socialV104.counts.v95_friend===1,'Social action not recorded in new ledger');
+assert(friend.trust>=originalBond,'Social friendship did not affect trust');
+assert(q.socialAction('v95_friend','help')===true,'Second social action with same person failed');
+assert(q.socialStatus('v95_friend','confide').available,'Third social action unexpectedly locked');
+assert(q.socialAction('v95_friend','confide')===true,'Third social action failed');
+assert(!q.socialStatus('v95_friend','time').available,'Per-person social limit not enforced');
+assert(g.player.socialV104.history.length===3,'Social interaction memory missing');
+assert(hub.build().some(x=>x.id==='relation:v95_friend:time'&&!x.available),'Hub and game disagree on exhausted social actions');
+assert(g.player.socialV93.relations.v95_friend,'V9.3 relationship history no longer synchronized');
+const adult={...friend,id:'v104_adult_qa',name:'Relation QA adulte',role:'Ami',adult:true,trust:77,affection:79,familiarity:72,rivalry:0};
+g.relations.push(adult);
+const noRomance={...adult,id:'v104_minor_qa',name:'Personnage âge inconnu',adult:false};
+g.relations.push(noRomance);
+assert(!q.socialStatus('v104_minor_qa','flirt').available,'Adult age check ignored');
+assert(q.socialStatus('v104_adult_qa','date').available,'Qualified adult relation cannot propose dating');
+assert(q.socialAction('v104_adult_qa','date')===true,'Dating proposal was not resolved');
+assert(g.player.socialV104.history.some(x=>x.action==='date'),'Dating proposal not stored');
+const paired=g.player.personalV78?.partnerId==='v104_adult_qa';
+if(paired)assert(g.player.personalV78.partnership==='dating','Accepted dating not reflected in household');
+else assert(g.player.personalV78?.partnerId!=='v104_adult_qa','Rejected dating improperly created a partner');
+assert(!q.socialStatus('v104_adult_qa','commit').available||paired,'Commitment possible without being in a couple');
+assert(g.meta.manualLifeV102.spent.work===4,'V10.4 social actions modified career quota');
+console.log('V10.4 INTEGRATED SOCIAL QA OK',JSON.stringify({socialActions:g.player.socialV104.used,partner:paired,memory:g.player.socialV104.history.length}));
 
 console.log('V10.1 INTEGRATED RUNTIME QA OK',JSON.stringify({tabs:['life','actions','character','relations','world'],actions:actions.length,
  favorites:g.meta.actionHubV95.favorites.length,lastAction:g.meta.actionHubV95.recent[0],saveVersion:q.saveVersion}));

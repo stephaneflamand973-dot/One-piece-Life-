@@ -55,8 +55,8 @@ assert(switched.performance===30&&switched.workSessions===0&&switched.bonusEarne
 const malformed=engine.normalize({identity,performance:9000,workSessions:-3,earned:-99,mode:'fake',history:Array(300).fill({kind:'invalid'.repeat(20),money:9999999999,year:999999})},identity);
 assert(malformed.performance===100&&malformed.workSessions===0&&malformed.earned===0&&malformed.mode==='steady'&&malformed.history.length===12,'Invalid save data not bounded');
 const index=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
-assert(index.includes("const GAME_VERSION = '10.3.0'")&&index.includes('src/v103/career-engine-v103.js'),'Game has not loaded V10.3');
-assert(sw.includes('one-piece-life-v10-3-0')&&sw.includes('src/v103/career-engine-v103.js'),'Offline cache is stale');
+assert(index.includes("const GAME_VERSION = '10.4.0'")&&index.includes('src/v103/career-engine-v103.js'),'Game has not loaded V10.3');
+assert(sw.includes('one-piece-life-v10-4-0')&&sw.includes('src/v103/career-engine-v103.js'),'Offline cache is stale');
 assert(index.includes('function v103RenderCareer()')&&index.includes('function v103SetMode(id)'),'Active career UI missing');
 assert(index.includes('function v100AdvanceYear()'),'Aging system must remain manual');
 new Function(index.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');

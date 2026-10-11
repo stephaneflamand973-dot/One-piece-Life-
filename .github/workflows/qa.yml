@@ -1,4 +1,4 @@
-name: V10.3 QA
+name: V10.4 QA
 on:
   push:
     branches: [main, v10-manual-life-actions, v10.0.1-manual-life-hotfix]
@@ -48,6 +48,9 @@ on:
       - 'scripts/qa-v101.mjs'
       - 'scripts/qa-v102.mjs'
       - 'scripts/qa-v103.mjs'
+      - 'scripts/qa-v104.mjs'
+      - 'src/data/social-v104.js'
+      - 'src/v104/social-engine-v104.js'
       - 'src/data/career-v103.js'
       - 'src/v103/career-engine-v103.js'
       - 'src/data/action-v102.js'
@@ -82,6 +85,7 @@ on:
       - 'QA-V10.1.md'
       - 'QA-V10.2.md'
       - 'QA-V10.3.md'
+      - 'QA-V10.4.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
@@ -178,9 +182,11 @@ jobs:
         run: node scripts/qa-v100.mjs
       - name: Verify V10 Real Game Aging
         run: node scripts/qa-v100-runtime.mjs
-      - name: Verify V10.3 Shared Manual Eligibility
+      - name: Verify V10.4 Shared Manual Eligibility
         run: node scripts/qa-v101.mjs
-      - name: Verify V10.3 Action Engine
+      - name: Verify V10.4 Action Engine
         run: node scripts/qa-v102.mjs
-      - name: Verify V10.3 Careers and Organizations
+      - name: Verify V10.4 Careers and Organizations
         run: node scripts/qa-v103.mjs
+      - name: Verify V10.4 Social and Family Integration
+        run: node scripts/qa-v104.mjs

@@ -6,8 +6,8 @@ const paths=['src/core/module-registry.js','src/data/action-v102.js','src/v102/a
 const ctx={console,Math,JSON,Object,Array,String,Number,Set,Map};ctx.window=ctx;vm.createContext(ctx);
 for(const p of paths)vm.runInContext(fs.readFileSync(p,'utf8'),ctx,{filename:p});
 const mod=ctx.OPL_MODULES.get('actionEngineV102'),data=ctx.OPL_MODULES.get('actionDataV102');
-assert(mod?.version==='10.2.0'&&data?.version==='10.2.0','V10.3 modules missing');
-assert(Object.keys(data.actions).length===9,'V10.3 should extend the V10.2 action registry');
+assert(mod?.version==='10.2.0'&&data?.version==='10.2.0','V10.4 modules missing');
+assert(Object.keys(data.actions).length===9,'V10.4 should extend the V10.2 action registry');
 const allowed={alive:true,pending:false,energy:100,career:true,land:true,mission:true,promotion:true,recovery:true,travel:true};
 let s=mod.normalize({},19);
 assert(s.version===2&&s.year===19&&s.spent.work===0,'New action state missing');
@@ -56,11 +56,11 @@ assert(malformed.spent.work===4&&malformed.spent.training===0&&malformed.spent.a
 assert(malformed.trainingFocus==='physical'&&malformed.history.length===24&&malformed.history.every(x=>x.efficiency<=1&&x.detail.length<=110),'Invalid focus or unbounded ledger accepted');
 
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes('<title>ONE PIECE LIFE — V10.3</title>')&&html.includes("const GAME_VERSION = '10.3.0'"),'V10.3 version missing');
-assert(html.includes('src/data/action-v102.js')&&html.includes('src/v102/action-engine-v102.js'),'V10.3 modules not loaded');
-assert(sw.includes('one-piece-life-v10-3-0')&&sw.includes('src/data/action-v102.js')&&sw.includes('src/v102/action-engine-v102.js'),'V10.3 offline assets missing');
-assert(manifest.description.includes('V10.3'),'PWA metadata outdated');
+assert(html.includes('<title>ONE PIECE LIFE — V10.4</title>')&&html.includes("const GAME_VERSION = '10.4.0'"),'V10.4 version missing');
+assert(html.includes('src/data/action-v102.js')&&html.includes('src/v102/action-engine-v102.js'),'V10.4 modules not loaded');
+assert(sw.includes('one-piece-life-v10-4-0')&&sw.includes('src/data/action-v102.js')&&sw.includes('src/v102/action-engine-v102.js'),'V10.4 offline assets missing');
+assert(manifest.description.includes('V10.4'),'PWA metadata outdated');
 assert(html.includes('function v102SetTrainingFocus(id)'), 'Training focus selector missing');
-assert(html.includes('game.meta.manualLifeV102=mod.nextYear(state'), 'V10.3 annual state reset missing');
+assert(html.includes('game.meta.manualLifeV102=mod.nextYear(state'), 'V10.4 annual state reset missing');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
-console.log('V10.3 ACTION ENGINE QA OK',JSON.stringify({limits:Object.fromEntries(Object.entries(data.actions).map(([k,v])=>[k,v.limit])),workYields:incomes,migration:imported.total,yearRestored:renewed.year}));
+console.log('V10.4 ACTION ENGINE QA OK',JSON.stringify({limits:Object.fromEntries(Object.entries(data.actions).map(([k,v])=>[k,v.limit])),workYields:incomes,migration:imported.total,yearRestored:renewed.year}));
