@@ -221,5 +221,36 @@ assert(!q.socialStatus('v104_adult_qa','commit').available||paired,'Commitment p
 assert(g.meta.manualLifeV102.spent.work===4,'V10.4 social actions modified career quota');
 console.log('V10.4 INTEGRATED SOCIAL QA OK',JSON.stringify({socialActions:g.player.socialV104.used,partner:paired,memory:g.player.socialV104.history.length}));
 
+/* V10.5: test actual investments through shared manual action engine and save state. */
+g.player.energy=100;g.player.money=400000;g.pendingDecision=null;g.player.travel=null;g.agency.annualTurn=null;
+assert(q.selectAsset('shop')===true,'V10.5 cannot select a business');
+const upfrontMoney=g.player.money;
+assert(q.investmentGate('invest').available,'Business purchase incorrectly blocked');
+assert(q.manualStatus('invest').available,'Shared manual engine disallows first investment');
+assert(hub.build().some(a=>a.id==='manual:invest'&&a.available),'Economy action missing from Action Hub');
+assert(q.manual('invest')===true,'V10.5 acquisition failed');
+assert(g.player.economyV105.assets.shop.tier===1&&g.player.money<upfrontMoney,'Business purchase did not charge cash');
+const shopPerk=windowObj.OPL_MODULES.get('economyEngineV105').perks(g.player.economyV105);
+assert(shopPerk.workPayMultiplier>1,'Investing does not grant the promised career pay boost');
+const beforeOperating=g.player.money;
+assert(q.manualStatus('operate').available,'Owned company cannot be operated');
+assert(q.manual('operate')===true,'Business operation failed');
+assert(g.player.economyV105.assets.shop.operatedCount===1,'Business operation not recorded');
+assert(g.player.money!==beforeOperating,'Business operation had no economic outcome');
+assert(g.meta.manualLifeV102.spent.operate===1,'Operating action escaped unified annual quota');
+assert(q.selectAsset('transport')===true,'Transport company cannot be selected');
+assert(q.manual('invest')===true,'Second V10.5 acquisition failed');
+assert(g.player.economyV105.assets.transport.tier===1,'Transport company missing after acquisition');
+const transportPerk=windowObj.OPL_MODULES.get('economyEngineV105').perks(g.player.economyV105);
+assert(transportPerk.cargoCapacity===6,'Transport investment did not increase freight capacity');
+assert(!q.manualStatus('invest').available,'Third investment incorrectly allowed in same year');
+assert(q.manual('divest')===true,'Voluntary business sale failed');
+assert(g.player.economyV105.assets.transport.tier===0,'Sold company remains owned');
+assert(g.player.economyV105.history.some(x=>x.action==='divest'),'Sale omitted from asset history');
+assert(g.meta.manualLifeV102.spent.work===4,'Economy actions modified career-work quota');
+assert(g.player.economyV105.assets.shop.tier===1,'Selling one company incorrectly deleted others');
+console.log('V10.5 INTEGRATED ECONOMY QA OK',JSON.stringify({assets:g.player.economyV105.assets.shop.tier,
+ annualQuota:g.meta.manualLifeV102.spent.invest,earned:g.player.economyV105.totalGross,transportPerk:transportPerk.cargoCapacity}));
+
 console.log('V10.1 INTEGRATED RUNTIME QA OK',JSON.stringify({tabs:['life','actions','character','relations','world'],actions:actions.length,
  favorites:g.meta.actionHubV95.favorites.length,lastAction:g.meta.actionHubV95.recent[0],saveVersion:q.saveVersion}));
