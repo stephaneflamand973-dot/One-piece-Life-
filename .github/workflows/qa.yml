@@ -1,4 +1,4 @@
-name: V10.0 QA
+name: V10.1 QA
 on:
   push:
     branches: [main, v10-manual-life-actions, v10.0.1-manual-life-hotfix]
@@ -45,6 +45,7 @@ on:
       - 'scripts/qa-v95.mjs'
       - 'scripts/qa-v100.mjs'
       - 'scripts/qa-v100-runtime.mjs'
+      - 'scripts/qa-v101.mjs'
       - 'scripts/qa-v95-runtime.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
@@ -72,6 +73,7 @@ on:
       - 'QA-V9.4.md'
       - 'QA-V9.5.md'
       - 'QA-V10.0.md'
+      - 'QA-V10.1.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
@@ -168,3 +170,5 @@ jobs:
         run: node scripts/qa-v100.mjs
       - name: Verify V10 Real Game Aging
         run: node scripts/qa-v100-runtime.mjs
+      - name: Verify V10.1 Shared Manual Eligibility
+        run: node scripts/qa-v101.mjs

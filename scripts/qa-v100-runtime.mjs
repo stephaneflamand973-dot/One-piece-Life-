@@ -52,7 +52,7 @@ g.player.specialization='combat';
 g.missionBoard=[{id:'v95_escort_qa',title:'Escorte de QA',desc:'Protéger un convoi',reward:1500,duration:3,danger:'low',power:20,type:'escort'}];
 g.relations.push({id:'v95_friend',name:'Nami QA',role:'Ami',affection:60,respect:67,trust:69,loyalty:60,familiarity:67,rivalry:1,status:'active',ambition:'Loyauté',temperament:'Curieux'});
 q.ensure();
-assert(q.gameVersion==='10.0.0'&&q.saveVersion===1000,'Version mismatch');
+assert(q.gameVersion==='10.1.0'&&q.saveVersion===1000,'Version mismatch');
 const hub=q.hub();assert(hub&&hub.version==='9.5.0','Live Action Hub failed to initialize');
 let actions=hub.build();
 assert(actions.some(x=>x.id==='mission:v95_escort_qa'&&x.available),'Live mission action missing');
@@ -110,5 +110,35 @@ const blockedAge=g.ageMonths;
 assert(q.advance()===false&&g.ageMonths===blockedAge,'Aging must not skip pending decisions');
 g.pendingDecision=null;
 
-console.log('V10.0 INTEGRATED RUNTIME QA OK',JSON.stringify({tabs:['life','actions','character','relations','world'],actions:actions.length,
+/* V10.1: shared real-game eligibility and rejected-action history consistency. */
+const previousCareer=g.player.career;
+g.player.career='Aucune';
+const unavailableWork=q.manualStatus('work');
+assert(!unavailableWork.available&&/carrière/.test(unavailableWork.reason),'Manual work eligibility ignored absent career');
+const hubWork=hub.build().find(a=>a.id==='manual:work');
+assert(hubWork&&!hubWork.available&&hubWork.reason===unavailableWork.reason,'Hub and manual engine disagree on blocked work');
+q.openTab('life');q.render();
+assert(/data-v100-action="work" disabled/.test(el('#annualFocusOptions').innerHTML),'Manual panel still shows unavailable work as enabled');
+const recentBefore=[...hub.ensure().recent];
+assert(hub.execute('manual:work')===false,'Rejected work was executed through the Hub');
+assert(JSON.stringify(hub.ensure().recent)===JSON.stringify(recentBefore),'Rejected Hub action polluted the action history');
+g.player.career=previousCareer;
+const previousTravel=g.player.travel,previousEnergy=g.player.energy,previousHealth=g.player.health;
+g.player.travel={from:'Shells Town',destination:'Loguetown',remaining:2,total:2,danger:10};
+assert(!q.manualStatus('training').available,'Training while traveling was not blocked by shared status');
+assert(!hub.build().find(a=>a.id==='manual:training').available,'Hub training while traveling is inconsistently enabled');
+g.player.energy=5;
+assert(!q.manualStatus('navigation').available&&/Énergie/.test(q.manualStatus('navigation').reason),'Navigation cost is not enforced at eligibility');
+g.player.travel=previousTravel;
+g.player.energy=100;g.player.health=100;
+assert(!q.manualStatus('rest').available,'Full health and energy should not spend a rest action');
+g.player.health=previousHealth;g.player.energy=previousEnergy;
+assert(!q.manualStatus('mission').available,'Mission completion offered without an active mission');
+g.pendingDecision={id:'qa_v101',title:'Décision',choices:[]};
+assert(!q.manualStatus('work').available,'Shared manual status ignored a pending decision');
+g.pendingDecision=null;
+assert(Array.isArray(g.agency.lastAnnualReport.highlights),'Manual yearly events missing from digest');
+assert(g.agency.lastAnnualReport.director&&typeof g.agency.lastAnnualReport.director.theme==='string','Life Director no longer receives annual events');
+
+console.log('V10.1 INTEGRATED RUNTIME QA OK',JSON.stringify({tabs:['life','actions','character','relations','world'],actions:actions.length,
  favorites:g.meta.actionHubV95.favorites.length,lastAction:g.meta.actionHubV95.recent[0],saveVersion:q.saveVersion}));
