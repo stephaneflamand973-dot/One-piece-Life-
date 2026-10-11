@@ -44,6 +44,7 @@ on:
       - 'scripts/qa-v93-runtime.mjs'
       - 'scripts/qa-v94.mjs'
       - 'scripts/qa-v95.mjs'
+      - 'scripts/qa-v95-runtime.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -209,3 +210,5 @@ jobs:
         run: node scripts/qa-v94.mjs
       - name: Validate V9.5 Action Hub
         run: node scripts/qa-v95.mjs
+      - name: Verify V9.5 integrated real-game runtime
+        run: node scripts/qa-v95-runtime.mjs
