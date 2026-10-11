@@ -376,7 +376,7 @@ const slotB={player:{name:'Sauvegarde B',faction:'Pirates',island:'Water 7'},age
 store.set('opl-slot-1',JSON.stringify(slotA));store.set('opl-slot-2',JSON.stringify(slotB));
 await q.renderSlots();
 assert(el('#saveSlots').innerHTML.includes('data-delete-slot="1"')&&el('#saveSlots').innerHTML.includes('data-delete-slot="2"'),'Occupied slots lack delete buttons');
-assert(!el('#saveSlots').innerHTML.includes('data-delete-slot="3"'),'Empty slot has a delete button');
+assert(el('#saveSlots').innerHTML.includes('data-delete-slot="3" disabled'),'Empty slot must show a disabled delete button');
 assert(!q.requestDeleteSlot(3,null),'Empty slot must not open confirmation');
 assert(q.requestDeleteSlot(1,slotA),'First save cannot request deletion');
 assert(el('#deleteSaveDescription').textContent.includes('Sauvegarde A')&&el('#deleteSaveDescription').textContent.includes('emplacement 1'),'Confirmation does not identify save');
@@ -388,7 +388,7 @@ assert(!store.has('opl-slot-1')&&store.has('opl-slot-2'),'Deletion damaged other
 assert(el('#saveSlots').innerHTML.includes('Nouvelle vie')&&el('#saveSlots').innerHTML.includes('Sauvegarde B'),'Home slots were not refreshed');
 assert(!await q.deleteSlot(0)&&!await q.deleteSlot(4),'Invalid save slot allowed');
 await q.renderSlots();
-assert(!el('#saveSlots').innerHTML.includes('data-delete-slot="1"'),'Deleted save returned after render');
+assert(el('#saveSlots').innerHTML.includes('data-delete-slot="1" disabled'),'Deleted slot must show a disabled delete button after refresh');
 assert(q.requestDeleteSlot(2,slotB),'Other save not individually deletable');
 assert(await q.confirmDeleteSlot()&&!store.has('opl-slot-2'),'Other save could not be deleted independently');
 const indexed=new Map([['slot-3',{id:'slot-3',game:slotA,updatedAt:1}]]);
