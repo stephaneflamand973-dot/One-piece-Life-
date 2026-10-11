@@ -127,7 +127,7 @@ for(const asset of ['src/data/goals-v91.js','src/v91/goals-engine-v91.js','src/v
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:9-[1-9]|10)-\d+-\d+/.test(sw),'PWA cache must remain on V9.1 or newer');
+assert(/one-piece-life-v(?:9-[1-9]|1[0-9])-\d+-\d+/.test(sw),'PWA cache must remain on V9.1 or newer');
 assert(html.includes('v90Ensure();v91Ensure()'),'Old-save V9.1 migration hook missing');
 for(const fn of ['function v91Module','function v91Ensure','function v91Context','function v91Sync','function v91ApplyIntent','function v91OnAmbitionChange','function v91ChangeAmbition','function v91RecordMission','function renderV91Goals']){
   assert(html.includes(fn),'Missing live V9.1 bridge '+fn);

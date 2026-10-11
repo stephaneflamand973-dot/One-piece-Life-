@@ -73,7 +73,7 @@ for(const asset of ['src/data/game-flow-v90.js','src/v90/game-flow-engine-v90.js
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:9-\d+|10)-\d+-\d+/.test(sw),'PWA cache must remain on V9.x');
+assert(/one-piece-life-v(?:9-\d+|1[0-9])-\d+-\d+/.test(sw),'PWA cache must remain on V9.x');
 assert(html.includes('v89Ensure();v90Ensure()'),'Old-save V9.0 migration hook missing');
 for(const fn of ['function v90Module','function v90Ensure','function v90Context','function v90ApplyPreset','function v90ChoiceMeta','function renderV90Flow','function renderV90Presets','function renderV90Digest','function renderV90GameFlow']){
   assert(html.includes(fn),'Missing live V9.0 bridge '+fn);
