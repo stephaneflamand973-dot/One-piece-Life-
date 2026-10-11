@@ -226,9 +226,9 @@ g.pendingDecision=null;g.player.travel=null;g.player.money=250000;g.player.energ
 assert(q.economyPerks().training===1,'Training perk must start neutral');
 assert(q.economySelect('purchase','dojo')===true,'Cannot select training facility');
 assert(q.manualStatus('economy_buy').available,'Economic purchase unavailable despite cash and adulthood');
-const beforeBuyMoney=g.player.money;
+const beforeBuyMoney=g.player.money,expectedCost=q.economyStatus('economy_buy').cost;
 assert(q.manual('economy_buy')===true,'Purchasing training facility failed');
-assert(g.player.money===beforeBuyMoney-16000,'Purchase must deduct Berry exactly once');
+assert(g.player.money===beforeBuyMoney-expectedCost,'Purchase must deduct region-adjusted Berry exactly once');
 assert(g.player.economyV105.holdings.dojo===1,'Bought asset missing from player save');
 assert(q.economyPerks().training>1,'Purchased facility does not boost voluntary training');
 assert(q.economySelect('purchase','shop')===true,'Cannot select business for investment');
