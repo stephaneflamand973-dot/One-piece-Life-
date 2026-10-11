@@ -3275,9 +3275,9 @@ function v106FinishMission(mission){
 function v106RenderAdventure(){
   const box=$('#v106AdventureCard'),badge=$('#v106AdventureBadge'),m=v106Module(),d=v106Data(),s=v106Ensure();
   if(!box||!badge||!m||!d||!s)return;
-  const used=v102Ensure()?.spent||{},active=game.activeMission;
+  const used=v102Ensure()?.spent||{},active=game.activeMission,odds=m.scoutPreview(s,v106Context());
   badge.textContent='Préparation '+Math.round(s.preparedness)+'/80';
-  const measures=[['Préparation',s.preparedness+'/80'],['Coordination',s.commandBoost+'/12'],
+  const measures=[['Chance de reconnaissance',Math.round(odds.chance*100)+'%'],['Blessure après échec',Math.round(odds.injuryChance*100)+'%'],['Préparation',s.preparedness+'/80'],['Coordination',s.commandBoost+'/12'],
     ['Explorations',s.expeditions],['Reconnaissances réussies',s.discoveries],
     ['Plan de mission',active&&s.missionId===active.id?s.missionBonus+'/14':'Aucun']].map(([k,v])=>
     '<div class="v106-metric"><small>'+esc(k)+'</small><strong>'+esc(String(v))+'</strong></div>').join('');
