@@ -1,3 +1,22 @@
+# ONE PIECE LIFE — V9.5 Action Hub & UX 6.0
+
+La V9.5 rassemble les actions importantes dans un nouvel onglet **Actions** au lieu de les laisser dispersées dans cinq rubriques. Le joueur conserve les détails de son monde, mais peut agir sans se perdre dans l’interface.
+
+- Barre de navigation mobile sur **5 onglets : Vie, Actions, Profil, Relations, Monde**.
+- Capacités, Haki et statistiques toujours accessibles depuis Profil.
+- Catalogue dynamique : plans annuels, missions, entraînement, doctrines, relations, voyages, opportunités, services locaux, économie et vie quotidienne.
+- Recherche en français tolérante aux accents.
+- Filtres métiers et **10 favoris sauvegardés** ; historique récent de 12 actions.
+- Actions indisponibles visibles avec explication et respect des verrouillages annuels.
+- Raccourcis adaptés à la situation actuelle, en tête de la page Vie et du Centre d’Actions.
+- Navigation directe vers les écrans avancés en conservant la sauvegarde et les règles métiers.
+- Aucune nouvelle RNG : toutes les opérations passent par les fonctions du moteur existant.
+- Optimisation iPhone et conservation des anciennes sauvegardes.
+
+**Version 9.5.0 • Sauvegarde 950 • Cache one-piece-life-v9-5-0**
+
+---
+
 # ONE PIECE LIFE — V9.4 World Intelligence 5.0
 
 La V9.4 ajoute un véritable tableau de renseignements, qui présente uniquement ce que ton personnage peut savoir. Les opportunités du monde deviennent faciles à examiner et les renseignements importants peuvent être suivis entre les années.
