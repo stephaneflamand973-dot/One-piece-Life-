@@ -5,7 +5,7 @@ for(const file of ['src/core/module-registry.js','src/data/action-v102.js','src/
 const m=w.OPL_MODULES.get('contractEngineV109'),data=w.OPL_MODULES.get('contractDataV109'),
  actions=w.OPL_MODULES.get('actionDataV102'),quota=w.OPL_MODULES.get('actionEngineV102');
 assert.equal(m.version,'10.9.0');assert.equal(Object.keys(data.kinds).length,3);
-assert.equal(Object.keys(actions.actions).length,16);
+assert.equal(Object.keys(actions.actions).length,17);
 assert.equal(actions.actions.contact_contract.limit,2);
 const ctx={year:24,age:24,alive:true,pending:false,travel:false,energy:100,money:10000,
  region:'Grand Line',island:'Water 7',danger:37,power:57,crewSupport:45,
@@ -58,10 +58,10 @@ assert(!quota.status(ledger,'contact_contract',24,{alive:true,pending:false,land
 const renewal=quota.nextYear(ledger,25);assert(renewal.spent.contact_contract===0&&renewal.total===ledger.total,'Year renewal gained actions or money');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes("const GAME_VERSION = '10.9.0'")&&html.includes('function v109RenderContracts()'),'Missing V10.9 UI');
+assert(html.includes("const GAME_VERSION = '11.0.0'")&&html.includes('function v109RenderContracts()'),'Missing V10.9 UI');
 assert(html.includes("if(id==='contact_contract')")&&html.includes('createOffer(v109Ensure(),sum'),'Manual resolution or generation missing');
 assert(html.includes('v109RenderContracts();')&&html.includes('id="v109ContractCard"'),'World section not connected');
-assert(sw.includes('one-piece-life-v10-9-0')&&sw.includes('src/v109/contract-engine-v109.js'),'Offline assets stale');
-assert(manifest.description.includes('V10.9'),'Manifest stale');
+assert(sw.includes('one-piece-life-v11-0-0')&&sw.includes('src/v109/contract-engine-v109.js'),'Offline assets stale');
+assert(manifest.description.includes('V11.0'),'Manifest stale');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 console.log('V10.9 NPC CONTRACT QA OK',JSON.stringify({types:Object.keys(data.kinds).length,net:success.net,failed:loss.healthLoss,annualLimit:2}));

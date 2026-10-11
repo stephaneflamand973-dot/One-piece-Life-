@@ -72,10 +72,10 @@ assert(bad.memory.length===24&&bad.leads.length===10&&bad.combat.hp<=100&&bad.di
 assert(m.normalize(JSON.parse(JSON.stringify(done.state))).leads.length===1,'Save migration changed leads');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes("const GAME_VERSION = '10.9.0'")&&html.includes('function v108ResolveChoice(parts)'),'V10.8 integration missing');
+assert(html.includes("const GAME_VERSION = '11.0.0'")&&html.includes('function v108ResolveChoice(parts)'),'V10.8 integration missing');
 assert(html.includes('function v108RenderDepth(root)')&&html.includes('v108BuildDecision'),'V10.8 UI missing');
 assert(html.includes("function v100AdvanceYear()")&&!html.includes("p.money+=result.pay;advanceClock(12)"),'Annual manual aging regressed');
-assert(sw.includes('one-piece-life-v10-9-0')&&sw.includes('src/v108/encounter-engine-v108.js'),'Offline files not precached');
-assert(manifest.description.includes('V10.9'),'Manifest stale');
+assert(sw.includes('one-piece-life-v11-0-0')&&sw.includes('src/v108/encounter-engine-v108.js'),'Offline files not precached');
+assert(manifest.description.includes('V11.0'),'Manifest stale');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 console.log('V10.8 BRANCHING DIALOGUE AND DUEL QA OK',JSON.stringify({choices:decorated.choices.length,duels:combat.battles,memories:done.state.memory.length,lead:done.lead.id}));
