@@ -25,10 +25,10 @@ function choiceOdds(a,id,ctx={}){
  const def=d.stages[a?.stage]?.choices?.[id];if(!a||!def)return null;
  if(def.retreat)return {chance:1,injury:0,skill:'',label:def.label,retreat:true};
  const skill=clamp(num(ctx.skills?.[def.skill]),0,100),crew=clamp(num(ctx.crew),0,100);
- const ap=a.approach==='cautious'?.07:a.approach==='daring'?-.06:0;
+ const ap=a.approach==='cautious'?.07:a.approach==='daring'?-.06:0,danger=clamp(num(ctx.danger,a.danger),0,100);
  const chance=clamp(.58+def.bonus+skill*.0022+crew*.0007+a.preparation*.0006+(a.wins-a.losses)*.055+
-  ap-a.danger*.0032-(a.faction==='Marine'&&ctx.playerFaction==='Pirates'?.055:0),.09,.94);
- const injury=clamp((.07+a.danger*.003)*def.risk*(a.approach==='cautious'?.6:a.approach==='daring'?1.35:1),0,.78);
+  ap-danger*.0032-(a.faction==='Marine'&&ctx.playerFaction==='Pirates'?.055:0),.09,.94);
+ const injury=clamp((.07+danger*.003)*def.risk*(a.approach==='cautious'?.6:a.approach==='daring'?1.35:1),0,.78);
  return {chance,injury,skill:def.skill,label:def.label,retreat:false};
 }
 function pickEncounter(ctx={},rolls={}){
