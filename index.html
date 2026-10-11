@@ -3176,6 +3176,22 @@ function v95Ensure(){
     planGroups:()=>V62_ANNUAL_ACTIONS,plan:()=>v62PlanSource(),
     doctrines:()=>v72CombatData()?.doctrines||{},
     routes:()=>travelDestinations(),hooks:()=>v94Signals(),
+    educationChoices:()=>{
+      const ctx=v79Context(),mod=v79Module(),data=v79Data(),state=v79Ensure();
+      if(!mod||!data||!state||ctx.age<5||ctx.age>=16)return[];
+      const used=state.lastActionYear===ctx.year;
+      const focus=Object.entries(data.focuses).filter(([id])=>id!==state.focus).map(([id,option])=>{
+        const energy=Math.max(0,Number(option.energy)||0);
+        const reason=used?'Tu as déjà choisi ta formation cette année.':game.player.energy<energy?'Énergie insuffisante.':'';
+        return {id:'focus:'+id,title:'Études : '+option.label,detail:option.desc+' • '+energy+' énergie',
+          available:!reason,reason,score:109};
+      });
+      const tracks=ctx.age>=10?Object.entries(data.tracks).filter(([id])=>id!==state.track).map(([id,option])=>({
+        id:'track:'+id,title:'Orientation : '+option.label,detail:option.desc,
+        available:!used,reason:used?'Tu as déjà choisi ta formation cette année.':'',score:99
+      })):[];
+      return [...focus,...tracks];
+    },
     services:()=>{
       if(game.player.travel)return[];
       const m=v87Module(),s=v87Ensure();
@@ -3189,6 +3205,7 @@ function v95Ensure(){
     execute:id=>{
       const chunks=id.split(':'),kind=chunks[0];
       if(kind==='manual')return v100Act(chunks[1]);
+      if(kind==='education')return chunks[1]==='focus'?v79SetFocus(chunks[2]):chunks[1]==='track'?v79SetTrack(chunks[2]):false;
       if(kind==='decision'){showDecision();return true}
       if(kind==='advance'){advance();return true}
       if(kind==='preset')return v90ApplyPreset(chunks[1]);
