@@ -230,7 +230,7 @@ assert(q.manualStatus('invest').available,'Shared manual engine disallows first 
 assert(hub.build().some(a=>a.id==='manual:invest'&&a.available),'Economy action missing from Action Hub');
 assert(q.manual('invest')===true,'V10.5 acquisition failed');
 assert(g.player.economyV105.assets.shop.tier===1&&g.player.money<upfrontMoney,'Business purchase did not charge cash');
-const shopPerk=windowObj.OPL_MODULES.get('economyEngineV105').perks(g.player.economyV105);
+const shopPerk=w.OPL_MODULES.get('economyEngineV105').perks(g.player.economyV105);
 assert(shopPerk.workPayMultiplier>1,'Investing does not grant the promised career pay boost');
 const beforeOperating=g.player.money;
 assert(q.manualStatus('operate').available,'Owned company cannot be operated');
@@ -241,7 +241,7 @@ assert(g.meta.manualLifeV102.spent.operate===1,'Operating action escaped unified
 assert(q.selectAsset('transport')===true,'Transport company cannot be selected');
 assert(q.manual('invest')===true,'Second V10.5 acquisition failed');
 assert(g.player.economyV105.assets.transport.tier===1,'Transport company missing after acquisition');
-const transportPerk=windowObj.OPL_MODULES.get('economyEngineV105').perks(g.player.economyV105);
+const transportPerk=w.OPL_MODULES.get('economyEngineV105').perks(g.player.economyV105);
 assert(transportPerk.cargoCapacity===6,'Transport investment did not increase freight capacity');
 assert(!q.manualStatus('invest').available,'Third investment incorrectly allowed in same year');
 assert(q.manual('divest')===true,'Voluntary business sale failed');
