@@ -1,4 +1,19 @@
-# ONE PIECE LIFE — Gameplay épuré (mise à jour du 11 octobre 2026)
+# ONE PIECE LIFE — Gameplay épuré, deuxième passe (11 octobre 2026)
+
+Le parcours principal se limite à **Vie → Activités → résultat → Avancer d'un an**.
+
+- **Vie** : fiche rapide, deux activités contextualisées et les cinq premiers événements récents. Les anciens tableaux analytiques et les contrôles annuels secondaires restent derrière « Afficher les détails ».
+- **Activités** : catégories simples et liste courte d'actions réalisables. Les actions bloquées et le catalogue complet restent accessibles à la demande, avec leurs conditions.
+- **Effets visibles** : après une action manuelle réussie, les variations réellement calculées (Berry, expérience, santé, énergie et prime) peuvent s'afficher directement, sans inventer de récompense.
+- **Profil / Relations / Monde** : écrans allégés ; un bouton affiche toutes les informations. Les raccourcis vers les activités avancées ouvrent automatiquement la section voulue.
+- **Un seul avancement annuel** : bouton persistant au-dessus de la navigation, qui ouvre toute décision prioritaire avant d'autoriser le passage d'un an. Aucun XP, salaire ou grade n'est accordé simplement parce qu'une année passe.
+- **Conservation** : sauvegardes et mécaniques existantes inchangées, y compris le gestionnaire de suppression sur l'accueil. Le choix d'afficher les détails reste lié au personnage.
+- **PWA** : cache `one-piece-life-v11-0-1-gameplay-purifie2` pour actualiser l'installation mobile.
+
+Tests : `scripts/qa-gameplay-purifie.mjs`, `scripts/qa-v95.mjs` et suites historiques GitHub Actions. Cette refonte porte sur l'ergonomie, le moteur reste en V11.0.1.
+
+---
+
 
 L'interface principale suit désormais une logique de simulation de vie : **Vie → Activités → résultat → avancer d'un an**.
 - **Vie** : identité, situation, deux actions pertinentes, dernières décisions et événements récents. Les anciens tableaux secondaires s'ouvrent avec « Afficher les détails de cette vie ».
