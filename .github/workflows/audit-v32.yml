@@ -1,4 +1,4 @@
-name: V9.5 Live Audit
+name: V10.0 Live Audit
 on:
   workflow_dispatch:
   push:
@@ -132,6 +132,8 @@ jobs:
         run: node scripts/qa-v95.mjs
       - name: Verify V9.5 integrated real-game runtime
         run: node scripts/qa-v95-runtime.mjs
+      - name: Verify V10.0 Manual Life
+        run: node scripts/qa-v100.mjs
       - name: Run legacy engine trend audit
         continue-on-error: true
         run: node scripts/audit-v32.mjs
