@@ -1,3 +1,28 @@
+# ONE PIECE LIFE — V9.3 Relationships & Nemesis 5.0
+
+La V9.3 transforme les relations importantes en véritables fils narratifs systémiques. Les souvenirs V7.4, les trajectoires autonomes V9.2 et les Némésis V8.3 peuvent désormais se répondre.
+
+## Relationships & Nemesis 5.0
+
+- Solidité relationnelle calculée à partir du lien existant, des souvenirs et des engagements.
+- Dettes sociales persistantes : services dus par le joueur ou par le PNJ.
+- Aider une relation produit désormais un avantage de soutien concret à long terme.
+- Les événements V9.2 importants peuvent générer un **moment relationnel**.
+- Maximum un grand moment V9.3 par année afin de préserver le rythme.
+- Choix contextuels : célébrer, soutenir, prendre de la distance, maintenir le contact, confronter, exploiter ou demander un service.
+- Chaque choix devient un souvenir durable V7.4.
+- Rancune persistante pour les choix hostiles.
+- Tableau **Liens & rivalités** dans l'onglet Relations.
+- Une relation personnelle peut devenir une véritable Némésis V8.3 si rivalité, familiarité, hostilité et menace sont toutes suffisamment élevées.
+- Les rivalités proches et respectueuses ne sont pas automatiquement transformées en antagonistes.
+- Une Némésis relationnelle rejoint les systèmes existants de retour, campagne et affrontement V8.3.
+- Historiques bornés pour préserver les longues sauvegardes.
+- Migration V9.2 → V9.3 automatique.
+- Save version : **930**.
+- Cache PWA : **one-piece-life-v9-3-0**.
+
+---
+
 # ONE PIECE LIFE — V9.2 NPC Living Lives 5.2
 
 La V9.2 transforme l'autonomie mondiale existante en **vies individuelles persistantes**. Les personnages importants ne se contentent plus de gagner de la puissance ou de déclencher un événement : ils accumulent désormais carrière, influence, ressources, fatigue, objectifs et jalons pendant que le joueur vit sa propre histoire.
