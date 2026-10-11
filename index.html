@@ -3184,6 +3184,7 @@ function v95Ensure(){
       return (sum.services||[]).map(x=>({...x,used:sum.record.lastServiceYear===game.clock.year}))
     },
     toast,save:()=>saveGame(),
+    activeTab:()=>game?.meta?.uiV76?.activeTab||'life',
     openTab:tab=>v76OpenTab(tab,true),
     execute:id=>{
       const chunks=id.split(':'),kind=chunks[0];
