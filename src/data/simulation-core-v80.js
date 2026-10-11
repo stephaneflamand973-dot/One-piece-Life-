@@ -31,6 +31,7 @@
 
   const renderDomains={
     life:['life'],
+    actions:['actions'],
     character:['character'],
     abilities:['abilities'],
     relations:['relations'],

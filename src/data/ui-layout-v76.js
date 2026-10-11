@@ -4,8 +4,8 @@
 
   const tabs=[
     {id:'life',label:'Vie',icon:'⌁'},
-    {id:'character',label:'Personnage',icon:'◉'},
-    {id:'abilities',label:'Capacités',icon:'✦'},
+    {id:'actions',label:'Actions',icon:'✦'},
+    {id:'character',label:'Profil',icon:'◉'},
     {id:'relations',label:'Relations',icon:'♟'},
     {id:'world',label:'Monde',icon:'◎'}
   ];
