@@ -109,14 +109,47 @@ function createRuntime(bridge){
     add(a,'open:character:storageStatus','life','Sauvegarde portable','Exporter ou importer une vie.',{kind:'open',score:12,hideFromFeatured:true});
     return a;
   }
+  const actionSnapshot=()=>{
+    const g=bridge.getGame(),p=g?.player;
+    return !g||!p?null:{year:Math.floor((g.ageMonths||0)/12),
+      money:Number(p.money)||0,health:Number(p.health)||0,energy:Number(p.energy)||0,
+      experience:Number(p.careerXP)||0,bounty:Number(p.bounty)||0};
+  };
+  function actionFeedback(){
+    const game=bridge.getGame(),feedback=game?.meta?.actionFeedbackV111;
+    if(!feedback||feedback.year!==Math.floor((game.ageMonths||0)/12))return '';
+    return '<div class="opl-result-note" role="status"><span>Dernière action</span><strong>'+escapeHtml(feedback.title)+
+      '</strong><small>'+escapeHtml(feedback.summary)+'</small></div>';
+  }
   function execute(id){
     const a=build().find(x=>x.id===id);
     if(!a||!a.available){bridge.toast(a?.reason||'Cette action est indisponible.');return false}
+    const before=actionSnapshot();
     const ok=bridge.execute(id);
     if(ok!==false){
-      const state=getState();
-      if(state)bridge.getGame().meta.actionHubV95=engine.recordAction(state,id);
+      const state=getState(),game=bridge.getGame();
+      if(state&&game?.meta)game.meta.actionHubV95=engine.recordAction(state,id);
+      // Information panels, age-up and dialogs are not presented as finished actions.
+      if(game?.meta&&before&&a.kind!=='open'&&!['advance','decision'].includes(id)){
+        const after=actionSnapshot();
+        if(after&&after.year===before.year){
+          const delta=[
+            ['Berry',before.money,after.money,0],
+            ['Expérience',before.experience,after.experience,0],
+            ['Santé',before.health,after.health,0],
+            ['Énergie',before.energy,after.energy,0],
+            ['Prime',before.bounty,after.bounty,0]
+          ].map(([label,x,y])=>{const d=Math.round(y-x);return d!==0?label+' '+(d>0?'+':'')+d.toLocaleString('fr-FR'):null}).filter(Boolean);
+          // Only show a result when a real immediate state change occurred.
+          if(delta.length)game.meta.actionFeedbackV111={year:after.year,title:a.title,summary:delta.slice(0,4).join(' • ')};
+        }
+      }
       bridge.save();
+      if(game?.meta&&a.kind!=='open'&&!['decision','advance'].includes(id)){
+        renderLife();
+        // The game may have switched screens or opened a narrative decision.
+        if(!game.pendingDecision)renderHub();
+      }
     }
     return ok
   }
@@ -163,7 +196,7 @@ function createRuntime(bridge){
   function renderHub(){
     const root=node('v95Hub'),state=getState();if(!root||!state)return;
     const recommended=engine.featured(build().filter(x=>x.id!=='advance'&&x.category!=='life'),state,2);
-    root.innerHTML='<div class="v95-hub-head"><span class="eyebrow">Activités</span><h2>Que veux-tu faire ?</h2>'+
+    root.innerHTML=actionFeedback()+'<div class="v95-hub-head"><span class="eyebrow">Activités</span><h2>Que veux-tu faire ?</h2>'+
       '<p>Choisis un domaine, puis touche une action. Les possibilités indisponibles restent rangées dans « Voir toutes les possibilités ».</p></div>'+
       '<div class="v95-quick">'+recommended.map(x=>'<button type="button" data-v95-quick="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Recommandé pour toi</span></button>').join('')+'</div>'+
       '<div id="v95HubCategories" class="v95-categories" role="group" aria-label="Catégories d’actions">'+data.categories.map(x=>'<button type="button" data-v95-category="'+x.id+'" class="v95-category '+(x.id===state.category?'selected':'')+'" aria-pressed="'+(x.id===state.category?'true':'false')+'">'+x.icon+' '+escapeHtml(x.label)+'</button>').join('')+'</div>'+
@@ -189,7 +222,7 @@ function createRuntime(bridge){
   function renderLife(){
     const root=node('v95LifeQuick'),state=getState();if(!root||!state)return;
     const top=engine.featured(build().filter(x=>x.id!=='advance'&&x.id!=='decision'&&x.category!=='life'),state,2);
-    root.innerHTML='<div class="v95-breadcrumb"><div><span class="eyebrow">Cette année</span><h3>À toi de jouer</h3></div><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
+    root.innerHTML=actionFeedback()+'<div class="v95-breadcrumb"><div><span class="eyebrow">Cette année</span><h3>À toi de jouer</h3></div><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
       '<div class="v95-quick">'+top.map(x=>'<button type="button" data-v95-life="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Action disponible</span></button>').join('')+'</div>';
     const all=node('v95AllActionsBtn');if(all)all.onclick=()=>bridge.openTab('actions');
     root.querySelectorAll?.('[data-v95-life]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Life));
