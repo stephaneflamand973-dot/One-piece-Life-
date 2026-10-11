@@ -1,3 +1,18 @@
+# ONE PIECE LIFE — V10.5 Économie et patrimoine 2.0
+
+- **Entreprises à gérer :** atelier maritime, commerce, réseau de contacts et service de transport.
+- **Actions directes :** acquérir, améliorer, exploiter et revendre des entreprises. Pas de revenus gratuits en vieillissant.
+- **Risque économique :** résultats d'exploitation positifs ou déficitaires, charges et valeur de revente décotée.
+- **Vrais avantages :** rémunération professionnelle, bonus de mission, expertise commerciale et fret supplémentaire.
+- **Interface :** portefeuille financier dans l'onglet Personnage, actions accessibles depuis le Centre d'actions.
+- **Compatibilité :** patrimoines V6.9, logements V7.8 et marchés V8.8 conservés.
+
+**GAME_VERSION 10.5.0 • SAVE_VERSION 1000 • CACHE one-piece-life-v10-5-0**
+
+Voir [QA-V10.5.md](QA-V10.5.md) pour les tests et les limites.
+
+---
+
 # ONE PIECE LIFE — V10.4 Relations et vie personnelle 2.0
 
 - **Neuf interactions sociales** disponibles : passer du temps, entraîner, aider, se confier, confronter, se réconcilier, flirter, proposer un rendez-vous ou vivre ensemble.
