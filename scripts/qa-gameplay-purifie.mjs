@@ -43,7 +43,7 @@ assert(html.includes('v111DecisionOutcome(v111BeforeDecision);'),'All decision r
 assert(html.includes('if(!before||!game?.meta||!game.alive||game.pendingDecision)return;'),'Do not interrupt ongoing multi-step events');
 
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Invalid single-element query loop');
-assert(sw.includes('one-piece-life-v11-0-1-gameplay-purifie3'),'Offline update not invalidated');
+assert(sw.includes('one-piece-life-v11-0-1-gameplay-purifie4'),'Offline update not invalidated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 new Function('window',hub);
 console.log('ONE PIECE LIFE : GAMEPLAY PURIFIÉ STATIC QA OK');
