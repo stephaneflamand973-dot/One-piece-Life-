@@ -18,7 +18,7 @@ function createRuntime(bridge){
     const why=pending?'Résous d’abord la décision en cours.':annual?'Année en cours : les actions se débloquent après le bilan.':!game.alive?'Cette vie est terminée.':'';
     if(pending)add(a,'decision','life','Prendre une décision',game.pendingDecision.title,{score:110,urgent:true});
     else if(game.alive)add(a,'advance','life',annual?'Reprendre l’année':'Avancer d’un an',
-      annual?String(game.agency.annualTurn?.monthsSimulated||0)+'/12 mois simulés.':'Lancer la simulation jusqu’au prochain choix majeur.',
+      annual?String(game.agency.annualTurn?.monthsSimulated||0)+'/12 mois simulés.':'Renouvelle les actions. Aucun gain automatique de salaire, de compétences ou de grade.',
       {score:annual?110:78,urgent:annual});
     const manual=[
       ['work','career','Travailler','Gagner de l’expérience professionnelle et un salaire seulement en travaillant.',91],
@@ -30,14 +30,8 @@ function createRuntime(bridge){
     ];
     for(const [id,cat,title,detail,score] of manual){
       const st=bridge.manualStatus?.(id)||{available:false,reason:'Moteur V10 indisponible'};
-      let allowed=!!st.available,reason=st.reason||'';
-      if(id==='work'&&(p.career==='Aucune'||p.travel)){allowed=false;reason='Commence une carrière et rejoins la terre ferme.'}
-      if(id==='training'&&p.travel){allowed=false;reason='En mer : termine la traversée.'}
-      if(id==='promotion'&&p.career==='Aucune'){allowed=false;reason='Commence une carrière.'}
-      if(id==='mission'&&!game.activeMission){allowed=false;reason='Accepte d’abord une mission.'}
-      if(id==='navigation'&&!p.travel){allowed=false;reason='Choisis d’abord une destination.'}
       add(a,'manual:'+id,cat,title,detail+' • '+(st.remaining||0)+' fois restante(s) cette année.',{
-        available:allowed&&!pending,reason:pending?why:reason,score,tags:'action manuelle carrière évolution'});
+        available:!!st.available,reason:st.reason||'',score,tags:'action manuelle carrière évolution'});
     }
     if(game.activeMission)add(a,'open:character:missionBoard','career','Mission en cours : '+game.activeMission.title,'Voir la mission active.',{kind:'open',score:82});
     else for(const m of (game.missionBoard||[]).slice(0,7)){
@@ -97,10 +91,12 @@ function createRuntime(bridge){
   function execute(id){
     const a=build().find(x=>x.id===id);
     if(!a||!a.available){bridge.toast(a?.reason||'Cette action est indisponible.');return false}
-    const state=getState();
-    if(state)bridge.getGame().meta.actionHubV95=engine.recordAction(state,id);
     const ok=bridge.execute(id);
-    if(ok!==false)bridge.save();
+    if(ok!==false){
+      const state=getState();
+      if(state)bridge.getGame().meta.actionHubV95=engine.recordAction(state,id);
+      bridge.save();
+    }
     return ok
   }
   function star(id){
