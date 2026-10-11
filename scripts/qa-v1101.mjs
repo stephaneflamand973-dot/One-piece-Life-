@@ -11,7 +11,7 @@ assert(html.includes('id="manageSavesBtn"')&&html.includes('Gérer / supprimer m
 assert(html.includes('id="saveManagerModal"')&&html.includes('id="saveManagerList"'),'Manager modal missing');
 assert(html.includes('async function openSaveManager()')&&html.includes('function renderSaveManagerRows(')&&html.includes('function closeSaveManager()'),'Manager behavior missing');
 assert(html.includes("$('#manageSavesBtn').onclick=openSaveManager"),'Manager button not wired');
-const deletion=html.match(/async function deleteSlot\(slot\)\{([\s\S]*?)\n\}\nfunction platformInfo\(\)/)?.[1]||'';
+const deletion=html.slice(html.indexOf('async function deleteSlot(slot){'),html.indexOf('function platformInfo(){'));
 assert(deletion.includes('if(!indexedDeleted)return false'),'Failed IndexedDB transactions must not discard local copies');
 assert(deletion.indexOf("tx.objectStore(STORE).delete")<deletion.indexOf('localStorage.removeItem(localKey(slot))'),'IndexedDB deletion must commit before local deletion');
 assert(html.indexOf('id="saveSlots"')<html.indexOf('class="hero-card paper-card"'),'Saved game controls must appear before hero on home');
