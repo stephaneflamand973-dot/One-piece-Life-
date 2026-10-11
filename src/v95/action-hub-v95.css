@@ -69,3 +69,8 @@
 .opl-person-actions>button small{font-size:10px;line-height:1.35;color:#55736e}
 .opl-person-actions>button:disabled{background:#f3f2ee;color:#747a73;border-color:#dfdfd9}
 @media(max-width:375px){.opl-domain-cta{flex-wrap:wrap}.opl-domain-cta>button{width:100%}.opl-person-actions{grid-template-columns:1fr}}
+
+.opl-person-empty{grid-column:1/-1;margin:0;color:#6b736d;font-size:12px;line-height:1.45;padding:10px 4px}
+.opl-person-head{flex-wrap:wrap}
+.opl-person-head small{line-height:1.4}
+.opl-person-actions>button:focus-visible,.opl-domain-cta>button:focus-visible{outline:3px solid #c19a50;outline-offset:2px}
