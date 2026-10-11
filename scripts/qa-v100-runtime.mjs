@@ -375,6 +375,26 @@ console.log('V10.6 INTEGRATED ADVENTURE QA OK',JSON.stringify({prepared:g.player
 console.log('V10.1 INTEGRATED RUNTIME QA OK',JSON.stringify({tabs:['life','actions','character','relations','world'],actions:actions.length,
  favorites:g.meta.actionHubV95.favorites.length,lastAction:g.meta.actionHubV95.recent[0],saveVersion:q.saveVersion}));
 
+/* Youth gameplay: school choices must be real actions accessible without opening Profile. */
+const youth=q.initialGame();
+youth.ageMonths=12*12;
+youth.player.energy=85;
+youth.pendingDecision=null;
+youth.agency.annualTurn=null;
+q.setGame(youth);
+const youthHub=q.hub();
+const youthActions=youthHub.build();
+assert(youthActions.some(x=>x.id==='education:focus:theory'&&x.available),'Teenagers cannot access direct school studies');
+assert(youthActions.some(x=>x.id==='education:track:martial'&&x.available),'Teenagers cannot choose a direct training pathway');
+assert(youthHub.execute('education:focus:theory')!==false,'Education action failed through the real activity bridge');
+assert(youth.player.educationV79?.focus==='theory','School choice failed to persist to the education system');
+assert(youth.meta.actionFeedbackV111?.title.includes('Études'),'School action did not produce an immediate consequence');
+assert(!youthHub.build().find(x=>x.id==='education:focus:practice')?.available,'School annual limit can be bypassed');
+q.advance();
+assert(youth.ageMonths===13*12,'School aging did not advance precisely one year');
+assert(youthHub.build().find(x=>x.id==='education:focus:practice')?.available,'School choices did not renew on age-up');
+console.log('V11.0.1 INTEGRATED YOUTH DIRECT ACTION QA OK');
+
 /* V11.0.1 : full menu deletion using the real save functions and simulated storage. */
 q.setGame(null);q.setStorageBackend(null,true);
 const slotA={player:{name:'Sauvegarde A',faction:'Marine',island:'Loguetown'},ageMonths:24*12,version:'11.0.0',seed:111};
