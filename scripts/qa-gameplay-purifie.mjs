@@ -28,7 +28,7 @@ assert(hub.includes('const before=actionSnapshot()')&&hub.includes('const after=
 
 assert(html.includes('data-tab="actions"><span>✦</span><small>Activités</small>'),'Navigation missing Activities');
 assert(hub.includes("const selected=engine.select(all.filter(x=>x.id!=='advance')"),'Age-up still duplicated in activity catalog');
-assert(hub.includes('const direct=listed.filter(x=>x.available&&x.kind!==\'open\')'),'Main actions overload has not been removed');
+assert(hub.includes('const direct=scoped.filter(x=>x.available&&x.kind!==\'open\')'),'Main actions overload has not been removed');
 assert(hub.includes("showAll?'Afficher seulement les actions disponibles'"),'Advanced catalog toggle missing');
 assert(hub.includes('aria-expanded'),'Progressive disclosure is not accessible');
 assert(hub.includes('function renderLife()')&&hub.includes('Toutes les actions'),'Life-to-activities journey is missing');
