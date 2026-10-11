@@ -5,7 +5,7 @@ const data=registry.get('actionHubDataV95'),engine=registry.get('actionHubEngine
 if(!data||!engine)throw new Error('V9.5 action hub prerequisites missing');
 const escapeHtml=s=>String(s==null?'':s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 function createRuntime(bridge){
-  let query='';
+  let query='',showAll=false;
   const document=global.document;
   const node=id=>document?.getElementById?.(id)||document?.querySelector?.('#'+id);
   const getState=()=>{const g=bridge.getGame();if(!g)return null;g.meta=g.meta||{};g.meta.actionHubV95=engine.normalizeState(g.meta.actionHubV95||{});return g.meta.actionHubV95};
@@ -130,44 +130,67 @@ function createRuntime(bridge){
   function renderResults(){
     const root=node('v95HubResults'),state=getState();
     if(!root||!state)return;
-    const all=build(),found=engine.select(all,state,query).slice(0,70);
-    const count=node('v95HubCount'),summary=engine.summary(all);
-    if(count)count.textContent=summary.available+' / '+summary.total+' disponibles';
-    root.innerHTML=found.length?found.map(x=>{
+    const all=build();
+    // Age-up is a single persistent global button, not a competing activity.
+    const selected=engine.select(all.filter(x=>x.id!=='advance'),state,query);
+    const visible=showAll||query.trim()?selected.slice(0,70):selected.filter(x=>x.available).slice(0,7);
+    const count=node('v95HubCount');
+    if(count){
+      const eligible=selected.filter(x=>x.available).length;
+      count.textContent=eligible+' possible'+(eligible>1?'s':'')+(showAll?' • autres choix ci-dessous':'');
+    }
+    root.innerHTML=visible.length?visible.map(x=>{
       const fav=state.favorites.includes(x.id);
-      return '<article class="v95-item '+(x.available?'':'locked')+'"><div class="v95-item-head"><div class="v95-item-body"><strong>'+escapeHtml(x.title)+'</strong>'+
-        '<p>'+escapeHtml(x.detail)+'</p>'+(!x.available?'<small>'+escapeHtml(x.reason||'Conditions non réunies.')+'</small>':'')+'</div>'+
-        '<button type="button" class="v95-star '+(fav?'starred':'')+'" aria-label="'+(fav?'Retirer des favoris':'Mettre en favoris')+'" data-v95-star="'+escapeHtml(x.id)+'">'+(fav?'★':'☆')+'</button></div>'+
-        '<div class="v95-buttons"><button type="button" class="v95-action" data-v95-run="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
-        (x.kind==='open'?'Afficher les détails':'Effectuer cette action')+'</button></div></article>';
-    }).join(''):'<p class="v95-empty">Aucune action pour cette recherche. Change de catégorie ou de mots-clés.</p>';
+      const isOpen=x.kind==='open';
+      return '<article class="v95-item opl-action-card '+(x.available?'':'locked')+'">'+
+        '<button type="button" class="v95-action opl-action-entry" data-v95-run="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
+        '<span class="opl-action-copy"><strong>'+escapeHtml(x.title)+'</strong>'+
+        '<small>'+escapeHtml(x.available?x.detail:(x.reason||'Conditions non réunies.'))+'</small></span>'+
+        '<span class="opl-action-chevron" aria-hidden="true">'+(isOpen?'›':'→')+'</span></button>'+
+        (showAll?'<button type="button" class="v95-star '+(fav?'starred':'')+'" aria-label="'+(fav?'Retirer des favoris':'Mettre en favoris')+'" data-v95-star="'+escapeHtml(x.id)+'">'+(fav?'★':'☆')+'</button>':'')+
+        '</article>';
+    }).join(''):'<p class="v95-empty">Aucune action disponible ici pour le moment. Change de catégorie ou avance d’un an.</p>';
     root.querySelectorAll?.('[data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
     root.querySelectorAll?.('[data-v95-star]').forEach(b=>b.onclick=()=>star(b.dataset.v95Star));
+    const more=node('oplHubMore');
+    if(more){
+      const hasMore=selected.length>visible.length;
+      more.classList.toggle('hidden',!hasMore&&!showAll);
+      more.textContent=showAll?'Afficher seulement les actions disponibles':'Voir toutes les possibilités ('+selected.length+')';
+      more.setAttribute('aria-expanded',String(showAll));
+    }
   }
   function renderHub(){
     const root=node('v95Hub'),state=getState();if(!root||!state)return;
-    const recommended=engine.featured(build(),state,3);
-    root.innerHTML='<div class="v95-hub-head"><span class="eyebrow">V10.3 • Centre d’actions</span><h2>Que veux-tu faire ?</h2>'+
-      '<p>Toutes les actions importantes, triées selon ta situation. Les menus d’information restent accessibles pour les détails.</p></div>'+
-      '<div class="v95-quick">'+recommended.map(x=>'<button type="button" data-v95-quick="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Action recommandée</span></button>').join('')+'</div>'+
-      '<label class="eyebrow" for="v95HubSearch">Rechercher une action</label><input id="v95HubSearch" class="v95-search" type="search" autocomplete="off" value="'+escapeHtml(query)+'" placeholder="Mission, Haki, équipage, commerce…">'+
+    const recommended=engine.featured(build().filter(x=>x.id!=='advance'&&x.category!=='life'),state,2);
+    root.innerHTML='<div class="v95-hub-head"><span class="eyebrow">Activités</span><h2>Que veux-tu faire ?</h2>'+
+      '<p>Choisis un domaine, puis touche une action. Les possibilités indisponibles restent rangées dans « Voir toutes les possibilités ».</p></div>'+
+      '<div class="v95-quick">'+recommended.map(x=>'<button type="button" data-v95-quick="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Recommandé pour toi</span></button>').join('')+'</div>'+
       '<div id="v95HubCategories" class="v95-categories" role="group" aria-label="Catégories d’actions">'+data.categories.map(x=>'<button type="button" data-v95-category="'+x.id+'" class="v95-category '+(x.id===state.category?'selected':'')+'" aria-pressed="'+(x.id===state.category?'true':'false')+'">'+x.icon+' '+escapeHtml(x.label)+'</button>').join('')+'</div>'+
-      '<div class="v95-section-title"><strong>Catalogue d’actions</strong><small id="v95HubCount"></small></div>'+
-      '<div id="v95HubResults" class="v95-results"></div>';
-    const search=node('v95HubSearch');if(search)search.oninput=e=>{query=e.target.value;renderResults()};
+      '<div class="v95-section-title"><strong>Choisir une action</strong><small id="v95HubCount"></small></div>'+
+      '<div id="v95HubResults" class="v95-results"></div>'+
+      '<button id="oplHubMore" type="button" class="opl-hub-more" aria-expanded="'+String(showAll)+'">Voir toutes les possibilités</button>'+
+      '<div class="opl-search-shell '+(showAll?'':'hidden')+'" id="oplSearchShell"><label for="v95HubSearch">Rechercher une action</label>'+
+      '<input id="v95HubSearch" class="v95-search" type="search" autocomplete="off" value="'+escapeHtml(query)+'" placeholder="Mission, Haki, équipage…"></div>';
+    const search=node('v95HubSearch');
+    if(search)search.oninput=e=>{query=e.target.value;showAll=true;renderResults()};
+    const more=node('oplHubMore');
+    if(more)more.onclick=()=>{showAll=!showAll;if(!showAll)query='';const shell=node('oplSearchShell');if(shell)shell.classList.toggle('hidden',!showAll);if(search)search.value=query;renderResults()};
     root.querySelectorAll?.('[data-v95-quick]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Quick));
     root.querySelectorAll?.('[data-v95-category]').forEach(b=>b.onclick=()=>{
       bridge.getGame().meta.actionHubV95.category=b.dataset.v95Category;
       root.querySelectorAll?.('[data-v95-category]').forEach(x=>{const active=x===b;x.classList.toggle('selected',active);x.setAttribute('aria-pressed',String(active))});
+      showAll=false;query='';if(search)search.value='';
+      node('oplSearchShell')?.classList.add('hidden');
       renderResults();bridge.save();
     });
     renderResults();
   }
   function renderLife(){
     const root=node('v95LifeQuick'),state=getState();if(!root||!state)return;
-    const top=engine.featured(build(),state,2);
-    root.innerHTML='<div class="v95-breadcrumb"><span class="eyebrow">V10.3 • Actions rapides</span><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
-      '<div class="v95-quick">'+top.map(x=>'<button type="button" data-v95-life="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Raccourci</span></button>').join('')+'</div>';
+    const top=engine.featured(build().filter(x=>x.id!=='advance'&&x.id!=='decision'&&x.category!=='life'),state,2);
+    root.innerHTML='<div class="v95-breadcrumb"><div><span class="eyebrow">Cette année</span><h3>À toi de jouer</h3></div><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
+      '<div class="v95-quick">'+top.map(x=>'<button type="button" data-v95-life="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Action disponible</span></button>').join('')+'</div>';
     const all=node('v95AllActionsBtn');if(all)all.onclick=()=>bridge.openTab('actions');
     root.querySelectorAll?.('[data-v95-life]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Life));
   }
