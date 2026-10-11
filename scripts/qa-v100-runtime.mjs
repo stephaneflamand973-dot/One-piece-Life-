@@ -40,7 +40,7 @@ const modulePaths=[
  'src/data/world-intel-v94.js','src/v94/world-intel-engine-v94.js',
  'src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.js','src/v95/action-hub-runtime-v95.js',
  'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js',
- 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js','src/data/economy-v105.js','src/v105/economy-engine-v105.js','src/data/adventure-v106.js','src/v106/adventure-engine-v106.js'
+ 'src/data/action-v102.js','src/v102/action-engine-v102.js','src/data/career-v103.js','src/v103/career-engine-v103.js','src/data/social-v104.js','src/v104/social-engine-v104.js','src/data/economy-v105.js','src/v105/economy-engine-v105.js','src/data/adventure-v106.js','src/v106/adventure-engine-v106.js','src/data/voyage-v85.js','src/v85/voyage-engine-v85.js'
 ];
 for(const path of modulePaths)new Function('window',fs.readFileSync(path,'utf8'))(w);
 new Function('window','document','localStorage','navigator','location','indexedDB','setTimeout','clearTimeout','requestAnimationFrame','console','Promise',source)(
@@ -247,6 +247,34 @@ assert(g.player.careerV103.workSessions===4,'Business operations improperly incr
 assert(g.meta.manualLifeV102.spent.economy_buy===2&&g.meta.manualLifeV102.spent.economy_operate===1,'Economy actions bypassed unified quota engine');
 assert(q.economyStatus('economy_operate').available,'Second operation should be available');
 console.log('V10.5 INTEGRATED ECONOMY QA OK',JSON.stringify({invested:g.player.economyV105.invested,net:g.player.economyV105.netOperating,businessLevel:g.player.economyV105.holdings.shop}));
+
+/* V10.6 : real game action execution, dynamic preparation, mission planning and island scouting. */
+g.pendingDecision=null;g.player.travel=null;g.player.money=50000;g.player.energy=100;g.player.health=100;g.activeMission=null;
+assert(q.adventureStatus('expedition_prepare').available,'Expedition preparation incorrectly blocked');
+assert(!q.adventureStatus('expedition_command').available,'Crewless command should be unavailable');
+assert(!q.manualStatus('expedition_coordinate').available,'Mission planning needs an accepted mission');
+assert(hub.build().some(x=>x.id==='manual:expedition_prepare'&&x.available),'Expedition action missing from Hub');
+assert(hub.build().some(x=>x.id==='open:world:v106AdventureCard'),'Active adventure page missing from Hub');
+const cash0=g.player.money,energy0=g.player.energy;
+assert(q.manual('expedition_prepare')===true,'Expedition prep action failed');
+assert(g.player.money===cash0-400&&g.player.energy===energy0-5,'Expedition action charged wrong cash or energy');
+assert(g.player.adventureV106.preparedness>0,'Expedition prep state missing');
+assert(g.meta.manualLifeV102.spent.expedition_prepare===1,'Prep not recorded in shared action registry');
+assert(q.manual('expedition_prepare')===true,'Second expedition preparation failed');
+assert(!q.manualStatus('expedition_prepare').available,'Expedition limit must stop the third preparation');
+g.activeMission={id:'qa-expedition-mission',title:'V10.6 mission',type:'explore',danger:'low',power:6,reward:1000,remaining:2};
+assert(q.manualStatus('expedition_coordinate').available,'Accepted mission should enable tactical plan');
+assert(q.manual('expedition_coordinate')===true,'Tactical mission planning failed');
+assert(g.player.adventureV106.missionId===g.activeMission.id&&g.player.adventureV106.missionBonus>0,'Mission tactical bonus missing');
+assert(q.manual('expedition_scout')===true,'Island scouting action failed');
+assert(g.player.adventureV106.expeditions===1,'Scouting not persisted on player');
+assert(g.meta.manualLifeV102.spent.expedition_scout===1,'Scouting bypassed shared quotas');
+const restoredJSON=JSON.parse(JSON.stringify(g));
+assert(restoredJSON.player.adventureV106.expeditions===1&&restoredJSON.player.adventureV106.missionBonus>0,'V10.6 state missing after save roundtrip');
+g.pendingDecision={id:'v106_lock',title:'En attente',text:'Décision',choices:[]};
+assert(!q.manualStatus('expedition_scout').available,'Pending decision should lock scouts');
+g.pendingDecision=null;
+console.log('V10.6 INTEGRATED ADVENTURE QA OK',JSON.stringify({prepared:g.player.adventureV106.preparedness,expeditions:g.player.adventureV106.expeditions,missionBoost:g.player.adventureV106.missionBonus}));
 
 console.log('V10.1 INTEGRATED RUNTIME QA OK',JSON.stringify({tabs:['life','actions','character','relations','world'],actions:actions.length,
  favorites:g.meta.actionHubV95.favorites.length,lastAction:g.meta.actionHubV95.recent[0],saveVersion:q.saveVersion}));
