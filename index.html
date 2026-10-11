@@ -3961,6 +3961,15 @@ function v100AdvanceYear(){
   game.agency.totalAnnualAdvances=(game.agency.totalAnnualAdvances||0)+1;
   game.dev.lastAdvance={months:12,annual:true,manual:true,actionsSpent:spent,before:{age:before.age},after:{age:game.ageMonths}};
   addHistory('Nouvelle année','Les actions de travail, entraînement, repos, mission et navigation sont renouvelées. Aucun salaire, XP ou grade n’est accordé pour le simple passage du temps.');
+  // BitLife-style annual recap. Aging refreshes choices but never grants automatic
+  // career levels, salary or skill points. The report surfaces genuine world events.
+  const recap=['Actions disponibles renouvelées'];
+  if(spent>0)recap.push(spent+' action'+(spent>1?'s':'')+' manuelle'+(spent>1?'s':'')+' l’année précédente');
+  for(const h of highlights.slice(0,2))if(h?.title)recap.push(String(h.title));
+  game.meta.actionFeedbackV111={
+    year:Math.floor(game.ageMonths/12),actionId:null,
+    title:'Nouvelle année • '+ageText(),summary:recap.join(' • ')
+  };
   v91Sync(true);saveGame();render();
   if(!game.alive)showDeath();else if(game.pendingDecision)showDecision();
   return true
