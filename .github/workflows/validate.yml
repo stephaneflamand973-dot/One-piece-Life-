@@ -1,4 +1,4 @@
-name: Validate V9.3
+name: Validate V9.4
 on:
   push:
     branches: [main]
@@ -42,6 +42,7 @@ on:
       - 'scripts/qa-v92-runtime.mjs'
       - 'scripts/qa-v93.mjs'
       - 'scripts/qa-v93-runtime.mjs'
+      - 'scripts/qa-v94.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -65,6 +66,7 @@ on:
       - 'QA-V9.1.md'
       - 'QA-V9.2.md'
       - 'QA-V9.3.md'
+      - 'QA-V9.4.md'
       - '.github/workflows/validate.yml'
       - '.github/workflows/qa.yml'
       - '.github/workflows/audit-v32.yml'
@@ -73,7 +75,7 @@ on:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v93-validate-${{ github.ref }}
+  group: v94-validate-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -95,9 +97,9 @@ jobs:
           new Function(m[1]);
           const saveVersion=Number(html.match(/const SAVE_VERSION\s*=\s*(\d+);/)?.[1]||0);
           const gameVersion=html.match(/const GAME_VERSION\s*=\s*'([0-9.]+)';/)?.[1]||'0.0.0';
-          if(!html.includes('ONE PIECE LIFE — V9.3'))throw new Error('V9.3 title missing');
-          if(saveVersion<930)throw new Error('Save migration 930+ missing');
-          if(gameVersion!=='9.3.0')throw new Error('Game version 9.3.0 missing');
+          if(!html.includes('ONE PIECE LIFE — V9.4'))throw new Error('V9.4 title missing');
+          if(saveVersion<940)throw new Error('Save migration 940+ missing');
+          if(gameVersion!=='9.4.0')throw new Error('Game version 9.4.0 missing');
           const assets=[
             'src/core/module-registry.js','src/data/arc-definitions-v71.js','src/v71/arc-director.js','src/v71/arc-director.css',
             'src/data/combat-techniques-v72.js','src/v72/combat-engine-v72.js','src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js',
@@ -119,7 +121,8 @@ jobs:
             'src/data/game-flow-v90.js','src/v90/game-flow-engine-v90.js','src/v90/game-flow-v90.css',
             'src/data/goals-v91.js','src/v91/goals-engine-v91.js','src/v91/goals-v91.css',
             'src/data/npc-lives-v92.js','src/v92/npc-lives-engine-v92.js','src/v92/npc-lives-v92.css',
-            'src/data/relationships-v93.js','src/v93/relationships-engine-v93.js','src/v93/relationships-v93.css'
+            'src/data/relationships-v93.js','src/v93/relationships-engine-v93.js','src/v93/relationships-v93.css',
+            'src/data/world-intel-v94.js','src/v94/world-intel-engine-v94.js','src/v94/world-intel-v94.css'
           ];
           for(const x of assets){if(!fs.existsSync(x))throw new Error('missing modular asset '+x);if(!html.includes(x))throw new Error('index does not load '+x)}
           for(const x of assets.filter(x=>x.endsWith('.js')))new Function(fs.readFileSync(x,'utf8'));
@@ -199,3 +202,5 @@ jobs:
         run: node scripts/qa-v93.mjs
       - name: Validate V9.3 integrated runtime
         run: node scripts/qa-v93-runtime.mjs
+      - name: Validate V9.4 World Intelligence
+        run: node scripts/qa-v94.mjs
