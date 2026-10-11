@@ -4,7 +4,7 @@ const html=fs.readFileSync('index.html','utf8');
 let source=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 const init="init().catch(()=>{storageFallback=true;renderSlots();startupMessage('Démarrage en mode de secours local.','warn')});";
 assert(source&&source.includes(init),'Game runtime entrypoint missing');
-source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
+source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
 const elements=new Map();
 function el(sel){
  if(!elements.has(sel)){
@@ -36,7 +36,8 @@ const modulePaths=[
  'src/data/relationships-v93.js','src/v93/relationships-engine-v93.js',
  'src/data/world-intel-v94.js','src/v94/world-intel-engine-v94.js',
  'src/data/action-hub-v95.js','src/v95/action-hub-engine-v95.js','src/v95/action-hub-runtime-v95.js',
- 'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js'
+ 'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js',
+ 'src/data/action-v102.js','src/v102/action-engine-v102.js'
 ];
 for(const path of modulePaths)new Function('window',fs.readFileSync(path,'utf8'))(w);
 new Function('window','document','localStorage','navigator','location','indexedDB','setTimeout','clearTimeout','requestAnimationFrame','console','Promise',source)(
@@ -52,7 +53,7 @@ g.player.specialization='combat';
 g.missionBoard=[{id:'v95_escort_qa',title:'Escorte de QA',desc:'Protéger un convoi',reward:1500,duration:3,danger:'low',power:20,type:'escort'}];
 g.relations.push({id:'v95_friend',name:'Nami QA',role:'Ami',affection:60,respect:67,trust:69,loyalty:60,familiarity:67,rivalry:1,status:'active',ambition:'Loyauté',temperament:'Curieux'});
 q.ensure();
-assert(q.gameVersion==='10.1.0'&&q.saveVersion===1000,'Version mismatch');
+assert(q.gameVersion==='10.2.0'&&q.saveVersion===1000,'Version mismatch');
 const hub=q.hub();assert(hub&&hub.version==='9.5.0','Live Action Hub failed to initialize');
 let actions=hub.build();
 assert(actions.some(x=>x.id==='mission:v95_escort_qa'&&x.available),'Live mission action missing');
@@ -98,8 +99,14 @@ const afterAge=g.ageMonths,afterMoney=g.player.money,afterXp=g.player.careerXP;
 assert(q.manual('work')===true,'Manual career work action rejected');
 assert(g.ageMonths===afterAge,'Work should not advance age');
 assert(g.player.money>afterMoney&&g.player.careerXP>afterXp,'Manual work must add real salary and XP');
-assert(q.manualStatus('work').remaining===0,'Work quota not consumed');
-assert(q.manual('work')===false,'Work unexpectedly repeats in the same year');
+assert(q.manualStatus('work').remaining===3,'First work action did not decrement the annual allowance');
+assert(q.manualStatus('work').efficiency===.78,'Second work action must yield 78%');
+assert(q.manual('work')===true,'Second work session rejected');
+assert(q.manualStatus('work').remaining===2,'Second work session not counted');
+assert(q.manual('work')===true&&q.manual('work')===true,'Third or fourth work session rejected');
+assert(q.manualStatus('work').remaining===0,'Four work sessions should exhaust the cap');
+assert(q.manual('work')===false,'Work cap was bypassed');
+assert(g.meta.manualLifeV102.spent.work===4&&g.meta.manualLifeV102.history.filter(x=>x.id==='work').length===4,'V10.2 work ledger does not match successful actions');
 const afterWorkXp=g.player.careerXP;
 g.pendingDecision=null;
 assert(q.advance()!==false,'Second year aging failed');
@@ -134,6 +141,13 @@ g.player.energy=100;g.player.health=100;
 assert(!q.manualStatus('rest').available,'Full health and energy should not spend a rest action');
 g.player.health=previousHealth;g.player.energy=previousEnergy;
 assert(!q.manualStatus('mission').available,'Mission completion offered without an active mission');
+assert(q.manualStatus('training').remaining===5,'Training capacity should be 5 at start of year');
+assert(q.trainingFocus('combat')===true,'Training focus selection failed');
+assert(g.meta.manualLifeV102.trainingFocus==='combat','Training focus not persisted');
+assert(q.manual('training')===true,'Manual combat training rejected');
+assert(q.manualStatus('training').efficiency===.82,'Second training must diminish to 82%');
+assert(q.manualStatus('training').remaining===4,'Training cap not consumed correctly');
+
 g.pendingDecision={id:'qa_v101',title:'Décision',choices:[]};
 assert(!q.manualStatus('work').available,'Shared manual status ignored a pending decision');
 g.pendingDecision=null;

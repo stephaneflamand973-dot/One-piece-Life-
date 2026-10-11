@@ -1,3 +1,20 @@
+# ONE PIECE LIFE — V10.2 Action Engine 2.0
+
+Le jeu passe à des **actions répétables à rendement décroissant**, toujours sans progression automatique lors du passage d'une année.
+
+- Travail : **4 actions/an**, rendements 100 %, 78 %, 58 %, 42 %.
+- Entraînement : **5 actions/an**, rendements 100 %, 82 %, 65 %, 50 %, 38 % ; spécialités sélectionnables.
+- Repos : **4 actions/an**, rendement décroissant. Missions : **3/an**, voyages : **4/an**, demandes de promotion : **1/an**.
+- Les coûts, quotas, effets, prérequis et messages de blocage sont gérés par un **registre d'actions unique**.
+- Les actions sont sécurisées par un instantané réversible ; un effet qui échoue ne dépense pas de quota.
+- Le Centre d'actions et les boutons manuels affichent les mêmes règles ; les anciennes parties V10.0/V10.1 sont migrées au chargement.
+
+**GAME_VERSION 10.2.0 • SAVE_VERSION 1000 • CACHE one-piece-life-v10-2-0**
+
+Documentation : [QA-V10.2.md](QA-V10.2.md).
+
+---
+
 # ONE PIECE LIFE — V10.1 Action Stability
 
 La V10.1 fiabilise le gameplay manuel introduit en V10.0, avant l'unification plus profonde prévue en V10.2.
