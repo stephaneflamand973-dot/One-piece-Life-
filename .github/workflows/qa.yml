@@ -1,4 +1,4 @@
-name: V9.4 QA
+name: V9.5 QA
 on:
   push:
     branches: [main]
@@ -42,6 +42,7 @@ on:
       - 'scripts/qa-v93.mjs'
       - 'scripts/qa-v93-runtime.mjs'
       - 'scripts/qa-v94.mjs'
+      - 'scripts/qa-v95.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -66,13 +67,14 @@ on:
       - 'QA-V9.2.md'
       - 'QA-V9.3.md'
       - 'QA-V9.4.md'
+      - 'QA-V9.5.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v94-qa-${{ github.ref }}
+  group: v95-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -154,3 +156,5 @@ jobs:
         run: node scripts/qa-v93-runtime.mjs
       - name: Verify V9.4 World Intelligence 5.0
         run: node scripts/qa-v94.mjs
+      - name: Verify V9.5 Action Hub & UX 6.0
+        run: node scripts/qa-v95.mjs
