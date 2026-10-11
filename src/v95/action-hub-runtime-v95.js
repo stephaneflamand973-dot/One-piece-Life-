@@ -31,7 +31,11 @@ function createRuntime(bridge){
       ['career_initiative','career','Prendre une initiative','Améliorer ton dossier et ton influence au sein de l’organisation.',72],
       ['career_bonus','career','Demander une prime','Négocier une prime basée sur tes performances.',63],
       ['economy_buy','life','Acheter un actif','Acheter du matériel ou développer une entreprise choisie dans Patrimoine.',63],
-      ['economy_operate','life','Gérer une entreprise','Encaisser les revenus ou pertes en agissant directement.',58]
+      ['economy_operate','life','Gérer une entreprise','Encaisser les revenus ou pertes en agissant directement.',58],
+      ['expedition_prepare','exploration','Préparer une expédition','Réunir vivres et matériel pour renforcer les futures explorations.',77],
+      ['expedition_scout','exploration','Explorer l’île','Reconnaissance risquée et découverte réelle de l’île actuelle.',85],
+      ['expedition_coordinate','career','Préparer la mission','Améliorer les chances de réussite de la mission active.',72],
+      ['expedition_command','exploration','Mobiliser l’équipage','Renforcer temporairement la synergie des opérations.',65]
     ];
     for(const [id,cat,title,detail,score] of manual){
       const st=bridge.manualStatus?.(id)||{available:false,reason:'Moteur V10 indisponible'};
@@ -82,6 +86,7 @@ function createRuntime(bridge){
         available:!locked,reason:why,score:70+Math.round(h.priority||0)*.15,tags:'renseignement monde quête'});
     }
     add(a,'open:world:v94IntelCard','exploration','Renseignements & rumeurs','Voir les informations connues du personnage.',{kind:'open',score:38});
+    add(a,'open:world:v106AdventureCard','exploration','Expéditions et équipage','Planification, exploration et soutien des missions.',{kind:'open',score:66});
     add(a,'open:world:v85ExplorationCard','exploration','Carte & exploration','Accéder aux routes et découvertes.',{kind:'open',score:36});
     for(const svc of bridge.services()){
       if(svc.id==='market')continue;
