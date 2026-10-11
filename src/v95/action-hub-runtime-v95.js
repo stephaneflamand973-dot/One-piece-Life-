@@ -88,6 +88,7 @@ function createRuntime(bridge){
     }
     add(a,'open:world:v88MarketCard','economy','Commerce & cargaison','Acheter ou vendre des marchandises au marché local.',{
       kind:'open',score:48,available:!p.travel,reason:p.travel?'Marché inaccessible en mer.':''});
+    add(a,'open:character:v105PortfolioCard','economy','Gérer mes entreprises','Exploiter, développer ou revendre mes entreprises depuis le portefeuille.',{kind:'open',score:65});
     add(a,'open:character:v69AssetsCard','economy','Patrimoine & investissement','Acheter des actifs durables selon tes moyens.',{kind:'open',score:43});
     add(a,'open:character:economyActions','economy','Budget & investissements annuels','Optimiser l’économie de l’année.',{kind:'open',score:32});
     add(a,'open:character:v86DailyCard','life','Vie quotidienne','Choisir ses activités et opportunités locales.',{kind:'open',score:42});
