@@ -2783,14 +2783,15 @@ function v92MarkKnown(entry,known){
 }
 function v92Publish(events=[]){
   for(const e of events){
-    if(!e||Number(e.importance)<52)continue;
+    if(!e)continue;
     if(String(e.actorId).startsWith('rel:')){
-      const id=String(e.actorId).slice(4),r=(game.relations||[]).find(x=>x.id===id),known=!!r&&v67RelationStrength(r)>=42;
-      v92MarkKnown(e,known);if(known&&Number(e.importance)>=58)addHistory('Vie de '+(r?.name||e.actorName),e.desc,'normal',e.title);continue
+      const id=String(e.actorId).slice(4),r=(game.relations||[]).find(x=>x.id===id),known=!!r&&v67RelationStrength(r)>=48&&Number(e.importance)>=58;
+      v92MarkKnown(e,known);if(known)addHistory('Vie de '+(r?.name||e.actorName),e.desc,'normal',e.title);continue
     }
     if(String(e.actorId).startsWith('nemesis:')){
-      const known=Number(e.importance)>=58;v92MarkKnown(e,known);if(known)addHistory('Trajectoire adverse',e.desc,'danger',e.title);continue
+      const known=Number(e.importance)>=62;v92MarkKnown(e,known);if(known)addHistory('Trajectoire adverse',e.desc,'danger',e.title);continue
     }
+    const threshold=e.type==='fall'?60:['career','phase'].includes(e.type)?64:72;if(Number(e.importance)<threshold)continue;
     const worldEvent=v58AutonomousEvent(e.title,e.desc,e.region||'Global',e.importance,'npc_life',[e.actorId]);v92MarkKnown(e,worldEvent?.known)
   }
 }
