@@ -18,7 +18,12 @@ assert(!engine.status(s,'expedition_prepare',{...ctx,travel:true}).available,'Tr
 assert(!engine.status(s,'expedition_prepare',{...ctx,money:399}).available,'Missing Berry affordability gate');
 assert(!engine.status(s,'expedition_command',{...ctx,crewActive:false}).available,'Command without crew');
 assert(!engine.status(s,'expedition_coordinate',{...ctx,missionId:''}).available,'Mission planning without accepted mission');
+const odds=engine.scoutPreview(s,ctx);
+assert(odds.chance>=.22&&odds.chance<=.94,'Odds out of range');
+assert(engine.scoutPreview(s,{...ctx,danger:90}).chance<odds.chance,'Danger ignored in odds');
+assert(engine.scoutPreview(engine.selectApproach(s,'cautious',23,ctx.island),ctx).chance>engine.scoutPreview(engine.selectApproach(s,'daring',23,ctx.island),ctx).chance,'Approach not reflected in odds');
 const start=engine.perform(s,'expedition_prepare',ctx);
+assert(engine.scoutPreview(start.state,ctx).chance>odds.chance,'Preparation not reflected in odds');
 assert(start.ok&&start.cost===400&&start.energy===5&&start.state.preparedness>0,'Plan must cost money and yield preparedness');
 assert.equal(s.preparedness,0,'Engine must be pure and not mutate source state');
 s=start.state;
@@ -51,7 +56,7 @@ const renewed=registry.nextYear(ledger,24);assert(renewed.spent.expedition_scout
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
 assert(html.includes("const GAME_VERSION = '10.6.0'")&&html.includes('src/v106/adventure-engine-v106.js'),'Game V10.6 modules missing');
-assert(html.includes('function v106RenderAdventure()')&&html.includes('v106FinishMission(m)'),'V10.6 gameplay not integrated');
+assert(html.includes('function v106RenderAdventure()')&&html.includes('v106FinishMission(m)')&&html.includes('odds.injuryChance'),'V10.6 visible probabilities missing');
 assert(html.includes('function v100AdvanceYear()')&&!html.includes("p.money+=result.pay;advanceClock(12)"),'Manual aging regressed');
 assert(sw.includes('one-piece-life-v10-6-0')&&sw.includes('src/v106/adventure-v106.css'),'Offline V10.6 bundle missing');
 assert(manifest.description.includes('V10.6'),'PWA manifest outdated');
