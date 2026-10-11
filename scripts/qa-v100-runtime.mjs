@@ -29,6 +29,7 @@ w.window=w;w.document=document;w.localStorage=localStorage;
 const modulePaths=[
  'src/core/module-registry.js',
  'src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js',
+ 'src/data/career-organizations-v73.js','src/v73/career-organization-engine-v73.js',
  'src/data/ui-layout-v76.js','src/v76/ui-components-v76.js',
  'src/data/simulation-core-v80.js','src/v80/simulation-core-v80.js',
  'src/data/game-flow-v90.js','src/v90/game-flow-engine-v90.js',
