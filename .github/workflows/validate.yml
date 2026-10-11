@@ -1,7 +1,7 @@
 name: Validate V10.0
 on:
   push:
-    branches: [main, v10-manual-life-actions]
+    branches: [main, v10-manual-life-actions, v10.0.1-manual-life-hotfix]
     paths:
       - 'index.html'
       - 'manifest.webmanifest'
@@ -45,6 +45,7 @@ on:
       - 'scripts/qa-v94.mjs'
       - 'scripts/qa-v95.mjs'
       - 'scripts/qa-v100.mjs'
+      - 'scripts/qa-v100-runtime.mjs'
       - 'scripts/qa-v95-runtime.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
@@ -137,7 +138,7 @@ jobs:
           if(!html.includes('id="v80DirectorCard"'))throw new Error('V8.0 Life Director UI missing');
           if(html.includes('renderTimeline();renderCharacter();renderAbilities();renderRelations();renderWorld();renderDev();v76AfterRender()'))throw new Error('eager heavy-panel render regression');
           const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));if(!String(manifest.description||'').includes('V10.0'))throw new Error('manifest not V9.5');
-          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v10-0-0'))throw new Error('service worker cache not V9.5.0');
+          const sw=fs.readFileSync('sw.js','utf8');if(!sw.includes('v10-0-1'))throw new Error('service worker cache not V9.5.0');
           for(const x of assets)if(!sw.includes(x))throw new Error('service worker missing modular asset '+x);
           console.log('V9.5 static + modular validation OK');
           NODE
@@ -215,5 +216,7 @@ jobs:
         run: node scripts/qa-v95.mjs
       - name: Validate V10.0 Manual Life
         run: node scripts/qa-v100.mjs
+      - name: Verify V10 Real Game Aging
+        run: node scripts/qa-v100-runtime.mjs
       - name: Verify V9.5 integrated real-game runtime
         run: node scripts/qa-v95-runtime.mjs
