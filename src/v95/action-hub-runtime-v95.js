@@ -233,7 +233,11 @@ function createRuntime(bridge){
   }
   function renderHub(){
     const root=node('v95Hub'),state=getState();if(!root||!state)return;
-    const recommended=engine.featured(build().filter(x=>x.id!=='advance'&&x.kind!=='open'&&x.category!=='life'),state,2);
+    const allActions=build();
+    const recommended=engine.featured(allActions.filter(x=>x.id!=='advance'&&x.id!=='decision'&&x.kind!=='open'),state,2);
+    const actionable=allActions.filter(x=>x.available&&x.kind!=='open'&&x.id!=='advance'&&x.id!=='decision');
+    const categoryCount=id=>id==='all'?actionable.length:id==='favorites'?
+      actionable.filter(x=>state.favorites.includes(x.id)).length:actionable.filter(x=>x.category===id).length;
     const chosen=data.categories.find(x=>x.id===state.category);
     root.classList?.toggle('opl-hub-drilldown',state.category!=='all');
     root.innerHTML=actionFeedback(true)+'<div class="v95-hub-head"><span class="eyebrow">Activités</span><h2>Que veux-tu faire ?</h2>'+
@@ -241,7 +245,7 @@ function createRuntime(bridge){
       '<div class="v95-quick">'+recommended.map(x=>'<button type="button" data-v95-quick="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Recommandé pour toi</span></button>').join('')+'</div>'+
       '<button type="button" id="oplHubBack" class="opl-hub-back '+(state.category==='all'?'hidden':'')+'">‹ Tous les domaines</button>'+
       '<div class="opl-hub-categories-heading"><strong>Choisir un domaine</strong><small>Travail, combat, relations, voyages…</small></div>'+
-      '<div id="v95HubCategories" class="v95-categories" role="group" aria-label="Catégories d’actions">'+data.categories.map(x=>'<button type="button" data-v95-category="'+x.id+'" class="v95-category '+(x.id===state.category?'selected':'')+'" aria-pressed="'+(x.id===state.category?'true':'false')+'">'+x.icon+' '+escapeHtml(x.label)+'</button>').join('')+'</div>'+
+      '<div id="v95HubCategories" class="v95-categories" role="group" aria-label="Catégories d’actions">'+data.categories.map(x=>'<button type="button" data-v95-category="'+x.id+'" class="v95-category '+(x.id===state.category?'selected':'')+'" aria-pressed="'+(x.id===state.category?'true':'false')+'"><span class="v95-category-name">'+x.icon+' '+escapeHtml(x.label)+'</span><small class="v95-category-count" aria-label="'+categoryCount(x.id)+' actions disponibles">'+categoryCount(x.id)+'</small></button>').join('')+'</div>'+
       '<div class="v95-section-title"><strong>'+(state.category==='all'?'Actions à faire maintenant':escapeHtml(chosen?.label||'Activités'))+'</strong><small id="v95HubCount"></small></div>'+
       '<div id="v95HubResults" class="v95-results"></div>'+
       '<button id="oplHubMore" type="button" class="opl-hub-more" aria-expanded="'+String(showAll)+'">Voir toutes les possibilités</button>'+
