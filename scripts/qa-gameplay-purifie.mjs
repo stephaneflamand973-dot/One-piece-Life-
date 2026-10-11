@@ -52,8 +52,15 @@ assert(html.includes('function v111DecisionOutcome(before)'),'Narrative choices 
 assert(html.includes('v111DecisionOutcome(v111BeforeDecision);'),'All decision routes must report their outcome');
 assert(html.includes('if(!before||!game?.meta||!game.alive||game.pendingDecision)return;'),'Do not interrupt ongoing multi-step events');
 
+assert(hub.includes('function renderDomainSpotlight(category,actions)')&&hub.includes("category==='career'?'manual:work':'manual:training'"),'Career and training must each have a one-tap action');
+assert(hub.includes("const listed=!showAll&&!query.trim()&&spotlightId?selected.filter(x=>x.id!==spotlightId):selected;"),'Spotlight actions must not be duplicated in the compact list');
+assert(hub.includes("const actions=selected.filter(x=>x.id.startsWith(prefix)&&x.kind!=='open');"),'Social cards must use all engine-provided interactions, including romance and rivalry');
+assert(hub.includes("const displayed=groupedRelations?(root.querySelectorAll?.('[data-v95-run]')?.length||0):visible.length;"),'Hidden person actions must retain a way to open the full list');
+assert(hub.includes('Number(b.favorite)-Number(a.favorite)||b.available-a.available'),'Prioritize favorite people and those with actions available');
+assert(hubCss.includes('.opl-person-actions>button:disabled')&&hubCss.includes('.opl-person-empty'),'Compact social buttons must explain disabled or missing actions');
+assert(html.includes('setTrainingFocus:id=>v102SetTrainingFocus(id)')&&hub.includes('focus.onchange=()=>bridge.setTrainingFocus?.(focus.value)'),'Training focus must call the existing saved training engine');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Invalid single-element query loop');
-assert(sw.includes('one-piece-life-v11-0-1-gameplay-purifie7'),'Offline update not invalidated');
+assert(sw.includes('one-piece-life-v11-0-1-gameplay-purifie8'),'Offline update not invalidated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 new Function('window',hub);
 console.log('ONE PIECE LIFE : GAMEPLAY PURIFIÉ STATIC QA OK');
