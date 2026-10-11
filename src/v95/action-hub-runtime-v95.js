@@ -113,13 +113,16 @@ function createRuntime(bridge){
     const g=bridge.getGame(),p=g?.player;
     return !g||!p?null:{year:Math.floor((g.ageMonths||0)/12),
       money:Number(p.money)||0,health:Number(p.health)||0,energy:Number(p.energy)||0,
-      experience:Number(p.careerXP)||0,bounty:Number(p.bounty)||0};
+      experience:Number(p.careerXP)||0,bounty:Number(p.bounty)||0,
+      lastHistoryId:g.history?.[0]?.id||null,
+      lastHistoryTitle:String(g.history?.[0]?.title||'')};
   };
-  function actionFeedback(){
+  function actionFeedback(withReturn=false){
     const game=bridge.getGame(),feedback=game?.meta?.actionFeedbackV111;
     if(!feedback||feedback.year!==Math.floor((game.ageMonths||0)/12))return '';
     return '<div class="opl-result-note" role="status"><span>Dernière action</span><strong>'+escapeHtml(feedback.title)+
-      '</strong><small>'+escapeHtml(feedback.summary)+'</small></div>';
+      '</strong><small>'+escapeHtml(feedback.summary)+'</small>'+
+      (withReturn?'<button type="button" class="opl-feedback-back" data-v95-life-return>Retour à ma vie ›</button>':'')+'</div>';
   }
   function execute(id){
     const a=build().find(x=>x.id===id);
@@ -140,8 +143,13 @@ function createRuntime(bridge){
             ['Énergie',before.energy,after.energy,0],
             ['Prime',before.bounty,after.bounty,0]
           ].map(([label,x,y])=>{const d=Math.round(y-x);return d!==0?label+' '+(d>0?'+':'')+d.toLocaleString('fr-FR'):null}).filter(Boolean);
-          // Only show a result when a real immediate state change occurred.
-          if(delta.length)game.meta.actionFeedbackV111={year:after.year,title:a.title,summary:delta.slice(0,4).join(' • ')};
+          const eventChanged=after.lastHistoryId&&after.lastHistoryId!==before.lastHistoryId;
+          const narrative=eventChanged?after.lastHistoryTitle:'';
+          // An action can produce a narrative consequence without changing numeric attributes.
+          if(delta.length||narrative)game.meta.actionFeedbackV111={
+            year:after.year,title:a.title,
+            summary:[...delta.slice(0,4),...(narrative?[narrative]:[])].join(' • ')
+          };
         }
       }
       bridge.save();
@@ -166,7 +174,8 @@ function createRuntime(bridge){
     const all=build();
     // Age-up is a single persistent global button, not a competing activity.
     const selected=engine.select(all.filter(x=>x.id!=='advance'),state,query);
-    const visible=showAll||query.trim()?selected.slice(0,70):selected.filter(x=>x.available).slice(0,7);
+    const direct=selected.filter(x=>x.available&&x.kind!=='open');
+    const visible=showAll||query.trim()?selected.slice(0,70):(direct.length?direct:selected.filter(x=>x.available)).slice(0,7);
     const count=node('v95HubCount');
     if(count){
       const eligible=selected.filter(x=>x.available).length;
@@ -195,16 +204,28 @@ function createRuntime(bridge){
   }
   function renderHub(){
     const root=node('v95Hub'),state=getState();if(!root||!state)return;
-    const recommended=engine.featured(build().filter(x=>x.id!=='advance'&&x.category!=='life'),state,2);
-    root.innerHTML=actionFeedback()+'<div class="v95-hub-head"><span class="eyebrow">Activités</span><h2>Que veux-tu faire ?</h2>'+
+    const recommended=engine.featured(build().filter(x=>x.id!=='advance'&&x.kind!=='open'&&x.category!=='life'),state,2);
+    const chosen=data.categories.find(x=>x.id===state.category);
+    root.classList?.toggle('opl-hub-drilldown',state.category!=='all');
+    root.innerHTML=actionFeedback(true)+'<div class="v95-hub-head"><span class="eyebrow">Activités</span><h2>Que veux-tu faire ?</h2>'+
       '<p>Choisis un domaine, puis touche une action. Les possibilités indisponibles restent rangées dans « Voir toutes les possibilités ».</p></div>'+
       '<div class="v95-quick">'+recommended.map(x=>'<button type="button" data-v95-quick="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Recommandé pour toi</span></button>').join('')+'</div>'+
+      '<button type="button" id="oplHubBack" class="opl-hub-back '+(state.category==='all'?'hidden':'')+'">‹ Tous les domaines</button>'+
+      '<div class="opl-hub-categories-heading"><strong>Choisir un domaine</strong><small>Travail, combat, relations, voyages…</small></div>'+
       '<div id="v95HubCategories" class="v95-categories" role="group" aria-label="Catégories d’actions">'+data.categories.map(x=>'<button type="button" data-v95-category="'+x.id+'" class="v95-category '+(x.id===state.category?'selected':'')+'" aria-pressed="'+(x.id===state.category?'true':'false')+'">'+x.icon+' '+escapeHtml(x.label)+'</button>').join('')+'</div>'+
-      '<div class="v95-section-title"><strong>Choisir une action</strong><small id="v95HubCount"></small></div>'+
+      '<div class="v95-section-title"><strong>'+(state.category==='all'?'Actions à faire maintenant':escapeHtml(chosen?.label||'Activités'))+'</strong><small id="v95HubCount"></small></div>'+
       '<div id="v95HubResults" class="v95-results"></div>'+
       '<button id="oplHubMore" type="button" class="opl-hub-more" aria-expanded="'+String(showAll)+'">Voir toutes les possibilités</button>'+
       '<div class="opl-search-shell '+(showAll?'':'hidden')+'" id="oplSearchShell"><label for="v95HubSearch">Rechercher une action</label>'+
       '<input id="v95HubSearch" class="v95-search" type="search" autocomplete="off" value="'+escapeHtml(query)+'" placeholder="Mission, Haki, équipage…"></div>';
+    const back=node('oplHubBack');
+    if(back)back.onclick=()=>{
+      bridge.getGame().meta.actionHubV95.category='all';
+      root.classList?.remove('opl-hub-drilldown');
+      renderHub();bridge.save();
+    };
+    const returnToLife=root.querySelector?.('[data-v95-life-return]');
+    if(returnToLife)returnToLife.onclick=()=>bridge.openTab('life');
     const search=node('v95HubSearch');
     if(search)search.oninput=e=>{query=e.target.value;showAll=true;renderResults()};
     const more=node('oplHubMore');
@@ -215,7 +236,7 @@ function createRuntime(bridge){
       root.querySelectorAll?.('[data-v95-category]').forEach(x=>{const active=x===b;x.classList.toggle('selected',active);x.setAttribute('aria-pressed',String(active))});
       showAll=false;query='';if(search)search.value='';
       node('oplSearchShell')?.classList.add('hidden');
-      renderResults();bridge.save();
+      renderHub();bridge.save();
     });
     renderResults();
   }
