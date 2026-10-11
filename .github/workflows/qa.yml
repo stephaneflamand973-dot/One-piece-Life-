@@ -55,6 +55,7 @@ on:
       - 'src/v106/**'
       - 'QA-V11.0.1.md'
       - 'scripts/qa-v1101.mjs'
+      - 'scripts/qa-gameplay-purifie.mjs'
       - 'src/data/sagas-v110.js'
       - 'src/v110/**'
       - 'scripts/qa-v110.mjs'
@@ -229,3 +230,6 @@ jobs:
 
       - name: Verify V11.0.1 save deletion and confirmation
         run: node scripts/qa-v1101.mjs
+
+      - name: Verify simplified BitLife-style gameplay
+        run: node scripts/qa-gameplay-purifie.mjs
