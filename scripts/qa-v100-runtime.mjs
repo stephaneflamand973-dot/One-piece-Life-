@@ -4,7 +4,7 @@ const html=fs.readFileSync('index.html','utf8');
 let source=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 const init="init().catch(()=>{storageFallback=true;renderSlots();startupMessage('Démarrage en mode de secours local.','warn')});";
 assert(source&&source.includes(init),'Game runtime entrypoint missing');
-source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,socialStatus:v104Status,socialAction:v104Perform,economyStatus:v105ActionStatus,economySelect:v105SelectTarget,economyPerks:v105Perks,adventureStatus:v106Status,adventureApproach:v106SetApproach,adventureState:v106Ensure,encounterState:v107Ensure,encounterModule:v107Module,contractSelect:v109Select,contractStatus:v109Status,sagaSelect:v110Select,sagaStatus:v110Status,sagaState:v110Ensure,saveSlotMarkup:slotHtml,renderSlots,requestDeleteSlot,confirmDeleteSlot,cancelDeleteSlot,deleteSlot,loadSlot,setStorageBackend(d,fallback=false){db=d;storageFallback=fallback},advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
+source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),manualStatus:v100Status,manual:v100Act,trainingFocus:v102SetTrainingFocus,careerMode:v103SetMode,careerStatus:v103ActionStatus,socialStatus:v104Status,socialAction:v104Perform,economyStatus:v105ActionStatus,economySelect:v105SelectTarget,economyPerks:v105Perks,adventureStatus:v106Status,adventureApproach:v106SetApproach,adventureState:v106Ensure,encounterState:v107Ensure,encounterModule:v107Module,contractSelect:v109Select,contractStatus:v109Status,sagaSelect:v110Select,sagaStatus:v110Status,sagaState:v110Ensure,saveSlotMarkup:slotHtml,renderSlots,openSaveManager,closeSaveManager,renderSaveManagerRows,requestDeleteSlot,confirmDeleteSlot,cancelDeleteSlot,deleteSlot,loadSlot,setStorageBackend(d,fallback=false){db=d;storageFallback=fallback},advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
 const elements=new Map();
 function el(sel){
  if(!elements.has(sel)){
@@ -375,6 +375,10 @@ const slotA={player:{name:'Sauvegarde A',faction:'Marine',island:'Loguetown'},ag
 const slotB={player:{name:'Sauvegarde B',faction:'Pirates',island:'Water 7'},ageMonths:25*12,version:'11.0.0',seed:222};
 store.set('opl-slot-1',JSON.stringify(slotA));store.set('opl-slot-2',JSON.stringify(slotB));
 await q.renderSlots();
+assert(await q.openSaveManager(),'Main home save manager failed to open');
+assert(el('#saveManagerList').innerHTML.includes('Sauvegarde A')&&el('#saveManagerList').innerHTML.includes('Sauvegarde B'),'Main manager must show saved characters');
+assert(el('#saveManagerList').innerHTML.includes('data-manager-delete="3" disabled'),'Main manager must not delete empty slots');
+assert(q.closeSaveManager(),'Main save manager failed to close');
 assert(el('#saveSlots').innerHTML.includes('data-delete-slot="1"')&&el('#saveSlots').innerHTML.includes('data-delete-slot="2"'),'Occupied slots lack delete buttons');
 assert(el('#saveSlots').innerHTML.includes('data-delete-slot="3" disabled'),'Empty slot must show a disabled delete button');
 assert(!q.requestDeleteSlot(3,null),'Empty slot must not open confirmation');
@@ -406,6 +410,8 @@ assert(!indexed.has('slot-3')&&!store.has('opl-slot-3'),'IndexedDB/local fallbac
 assert(await q.loadSlot(3)===null,'Deleted IndexedDB save can still be loaded');
 assert(el('#saveSlots').innerHTML.includes('data-delete-slot="3" disabled'),'Deleted IndexedDB slot must show disabled delete button');
 q.setStorageBackend({transaction(){throw Error('IndexedDB unavailable')}},false);
+store.set('opl-slot-1',JSON.stringify(slotB));
 assert(!await q.deleteSlot(1),'Database failure falsely reported success');
+assert(store.has('opl-slot-1'),'Failed IndexedDB transaction erased the last local copy');
 q.setStorageBackend(null,true);
 console.log('V11.0.1 INTEGRATED HOME SAVE DELETION QA OK');
