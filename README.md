@@ -1,6 +1,7 @@
 # ONE PIECE LIFE V11.0.1 : Suppression des sauvegardes sur l'accueil
 
-- Un bouton **Supprimer** apparaît sous chaque emplacement de sauvegarde occupé.
+- Le bouton rouge **🗑 Supprimer cette sauvegarde** est affiché sous chaque partie occupée. Un bouton grisé reste visible lorsque l'emplacement est vide.
+- Le cache de l'application iPhone est corrigé : les pages d'accueil sont récupérées en priorité depuis le réseau, avec mise à jour du service worker.
 - Avant de confirmer, une fenêtre précise le **nom du personnage** et le **numéro d'emplacement**.
 - La confirmation supprime la partie à la fois du stockage local et d'IndexedDB, avec vérification de l'effacement. L'annulation ne modifie rien.
 - Une suppression libère uniquement l'emplacement sélectionné et affiche immédiatement « Nouvelle vie ». Les deux autres sauvegardes sont préservées.

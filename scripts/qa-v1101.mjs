@@ -6,6 +6,13 @@ assert(html.includes("const GAME_VERSION = '11.0.1'"));
 assert(html.includes('id="deleteSaveModal"')&&html.includes('id="deleteSaveCancel"')&&html.includes('id="deleteSaveConfirm"'));
 assert(html.includes('aria-labelledby="deleteSaveTitle"')&&html.includes('aria-describedby="deleteSaveDescription"'));
 assert(html.includes('data-delete-slot=')&&html.includes('class="save-slot-delete"'),'Missing per-slot delete action');
+assert(html.includes('🗑 Supprimer cette sauvegarde'),'Existing saves need a prominent visible delete button');
+for(let n=1;n<=3;n++)assert(html.includes('data-delete-slot="'+n+'" disabled'),'Empty slot must show disabled delete affordance '+n);
+assert(html.includes('Aucune sauvegarde à supprimer'),'Empty slot label missing');
+assert(html.includes("updateViaCache:'none'")&&html.includes("controllerchange"),'Installed iPhone app must detect updates');
+assert(sw.includes("event.request.mode==='navigate'")&&sw.includes("cache:'no-store'"),'Navigation must bypass stale PWA shell');
+assert(sw.includes('one-piece-life-v11-0-1-hotfix2'),'Hotfix PWA cache missing');
+
 assert(html.includes('function requestDeleteSlot(')&&html.includes('async function confirmDeleteSlot(')&&html.includes('function cancelDeleteSlot('));
 assert(html.includes('async function deleteSlot(slot)')&&html.includes('localStorage.removeItem(localKey(slot))'));
 assert(html.includes("tx.objectStore(STORE).delete(\`slot-\${slot}\`)"),'IndexedDB deletion missing');
