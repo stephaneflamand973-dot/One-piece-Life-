@@ -53,13 +53,17 @@ function createRuntime(bridge){
     add(a,'open:character:v89EquipmentCard','training','Équipement & objets','Gérer les objets et leurs effets.',{kind:'open',score:37});
     for(const person of (game.relations||[]).filter(x=>x&&x.id&&x.status!=='left').slice(0,10)){
       const used=game.flags?.relationInteractionYear?.[person.id]===year;
-      for(const [key,title,score] of [['time','Passer du temps avec',52],['help','Aider',48],['train','S’entraîner avec',24],['confide','Se confier à',24],['challenge','Confronter',23]]){
-        if(key==='confide'&&!(person.trust>=30&&person.familiarity>=20))continue;
-        if(key==='challenge'&&!(person.familiarity>=20))continue;
+      const social=[['time','Passer du temps avec',52],['help','Aider',48],['train','S’entraîner avec',24],
+        ['confide','Se confier à',24],['challenge','Confronter',23],['reconcile','Se réconcilier avec',32],
+        ['flirt','Flirter avec',28],['date','Inviter à un rendez-vous',38],['commit','Construire un foyer avec',44]];
+      for(const [key,title,score] of social){
+        if(['flirt','date','commit'].includes(key)&&person.adult!==true)continue;
+        const st=bridge.socialStatus?.(person.id,key);
+        const available=st?st.available:!used,reason=st?st.reason:(used?'Action sociale déjà utilisée cette année.':'');
         add(a,'relation:'+encodeURIComponent(person.id)+':'+key,'relations',title+' '+person.name,
-          used?'Interaction annuelle déjà utilisée.':'Interaction directe : une action par relation et par année.',{
-          available:!locked&&!used,reason:used?'Action sociale déjà utilisée cette année.':why,score,
-          tags:'social amitié équipage mentor',hideFromFeatured:key!=='time'});
+          st?st.remaining+' interaction(s) possibles • '+st.cost+' énergie'+(st.money?' • '+st.money+' B':''):'Interaction directe.',{
+          available:!locked&&available,reason:locked?why:reason,score,
+          tags:'social amitié rivalité romance famille',hideFromFeatured:key!=='time'});
       }
     }
     add(a,'open:relations:relationsList','relations','Toutes les relations','Voir les liens, les interactions et les rivalités.',{kind:'open',score:37});
