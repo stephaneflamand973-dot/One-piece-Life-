@@ -52,7 +52,7 @@ g.player.specialization='combat';
 g.missionBoard=[{id:'v95_escort_qa',title:'Escorte de QA',desc:'Protéger un convoi',reward:1500,duration:3,danger:'low',power:20,type:'escort'}];
 g.relations.push({id:'v95_friend',name:'Nami QA',role:'Ami',affection:60,respect:67,trust:69,loyalty:60,familiarity:67,rivalry:1,status:'active',ambition:'Loyauté',temperament:'Curieux'});
 q.ensure();
-assert(q.gameVersion==='10.0.0'&&q.saveVersion===1000,'Version mismatch');
+assert(q.gameVersion==='10.1.0'&&q.saveVersion===1000,'Version mismatch');
 const hub=q.hub();assert(hub&&hub.version==='9.5.0','Live Action Hub failed to initialize');
 let actions=hub.build();
 assert(actions.some(x=>x.id==='mission:v95_escort_qa'&&x.available),'Live mission action missing');
