@@ -8,7 +8,8 @@ const modules=[
   'src/data/game-flow-v90.js','src/v90/game-flow-engine-v90.js',
   'src/data/goals-v91.js','src/v91/goals-engine-v91.js',
   'src/data/npc-lives-v92.js','src/v92/npc-lives-engine-v92.js',
-  'src/data/relationships-v93.js','src/v93/relationships-engine-v93.js'
+  'src/data/relationships-v93.js','src/v93/relationships-engine-v93.js',
+  'src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js'
 ].map(p=>fs.readFileSync(p,'utf8'));
 
 function assert(c,m){if(!c)throw new Error(m)}
