@@ -3169,6 +3169,12 @@ function v95Ensure(){
   v95LiveRuntime=mod.createRuntime({
     getGame:()=>game,
     manualStatus:id=>v100Status(id),
+    trainingConfig:()=>{
+      const data=v102Data(),state=v102Ensure();
+      if(!data||!state)return null;
+      return {current:state.trainingFocus,options:Object.entries(data.trainingFocus).map(([id,option])=>({id,label:option.label}))};
+    },
+    setTrainingFocus:id=>v102SetTrainingFocus(id),
     economyTarget:(kind,id)=>v105SelectTarget(kind,id),
     socialStatus:(id,action)=>v104Status(id,action),
     presets:()=>v90Data()?.presets||{},
