@@ -102,7 +102,7 @@ for(const asset of ['src/data/daily-life-v86.js','src/v86/daily-life-engine-v86.
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:8-[6-9]|9-\d+)-\d+/.test(sw),'PWA cache must remain at V8.6 or newer');
+assert(/one-piece-life-v(?:8-[6-9]|9-\d+|10)-\d+/.test(sw),'PWA cache must remain at V8.6 or newer');
 assert(html.includes('v85Ensure();v86Ensure()'),'Old-save V8.6 migration hook missing');
 for(const fn of ['function v86Module','function v86Ensure','function v86ActivitySnapshot','function v86ProgressMultiplier','function v86CareerMultiplier','function v86MonthlyTick','function v86OpportunityPreview','function v86ResolveOpportunity','function v86DismissOpportunity','function renderV86Daily']){
   assert(html.includes(fn),'Missing live V8.6 bridge '+fn);
