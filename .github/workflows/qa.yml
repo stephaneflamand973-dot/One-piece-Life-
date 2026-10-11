@@ -1,4 +1,4 @@
-name: V9.1 QA
+name: V9.2 QA
 on:
   push:
     branches: [main]
@@ -37,6 +37,8 @@ on:
       - 'scripts/qa-v90.mjs'
       - 'scripts/qa-v91.mjs'
       - 'scripts/qa-v91-runtime.mjs'
+      - 'scripts/qa-v92.mjs'
+      - 'scripts/qa-v92-runtime.mjs'
       - 'QA-V7.1.md'
       - 'QA-V7.2.md'
       - 'QA-V7.3.md'
@@ -58,13 +60,14 @@ on:
       - 'QA-V8.9.md'
       - 'QA-V9.0.md'
       - 'QA-V9.1.md'
+      - 'QA-V9.2.md'
       - '.github/workflows/qa.yml'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: v91-qa-${{ github.ref }}
+  group: v92-qa-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -136,3 +139,7 @@ jobs:
         run: node scripts/qa-v91.mjs
       - name: Verify V9.1 integrated runtime
         run: node scripts/qa-v91-runtime.mjs
+      - name: Verify V9.2 NPC Living Lives 5.2
+        run: node scripts/qa-v92.mjs
+      - name: Verify V9.2 integrated runtime
+        run: node scripts/qa-v92-runtime.mjs

@@ -1,3 +1,34 @@
+# ONE PIECE LIFE — V9.2 NPC Living Lives 5.2
+
+La V9.2 transforme l'autonomie mondiale existante en **vies individuelles persistantes**. Les personnages importants ne se contentent plus de gagner de la puissance ou de déclencher un événement : ils accumulent désormais carrière, influence, ressources, fatigue, objectifs et jalons pendant que le joueur vit sa propre histoire.
+
+## NPC Living Lives 5.2
+
+- **Trajectoires persistantes** pour les personnages mondiaux importants, relations personnelles, équipiers et némésis.
+- Déduplication automatique des personnages canoniques déjà connus via une relation.
+- **6 paliers de carrière génériques** allant du début de trajectoire à l'autorité mondiale.
+- Ces paliers décrivent l'importance d'une carrière sans remplacer les rangs canoniques.
+- Chaque PNJ suivi possède désormais : objectif, progression, renommée, influence, aisance, énergie, stress, carrière, victoires, défaites, déplacements, alliances et revers.
+- Les objectifs évoluent selon la faction, l'état de santé et les besoins réels du personnage.
+- Les PNJ fragilisés peuvent entrer en **récupération** et abandonner temporairement leurs objectifs habituels.
+- La V5.8 reste responsable de la puissance, des conflits et des factions ; V9.2 enrichit ces événements au lieu de les dupliquer.
+- Les actions du World Director V7.5 alimentent directement les trajectoires V9.2.
+- Les conflits autonomes V5.8 enregistrent désormais leurs conséquences individuelles.
+- Les relations non canoniques peuvent **changer de région hors écran**.
+- Les équipiers, partenaires, mentors actifs et personnages canoniques conservent les systèmes de déplacement déjà responsables d'eux.
+- Les relations les plus influentes apportent un petit bonus supplémentaire au soutien de mission.
+- Nouvelle carte **Trajectoires autour de toi** dans Relations.
+- Les fiches de relation affichent désormais trajectoire, région actuelle, influence et stress.
+- La vue Monde affiche la phase et l'objectif actuel des personnages canoniques locaux.
+- Publication sélective des grands jalons afin que le monde puisse simuler beaucoup sans noyer le joueur sous les notifications.
+- Maximum **90 trajectoires persistantes**, 50 jalons globaux, 10 jalons et 8 événements récents par personnage.
+- Runtime multi-années ajouté à la CI.
+- Migration V9.1.9 → V9.2 automatique.
+- Save version : **920**.
+- Cache PWA : **one-piece-life-v9-2-0**.
+
+---
+
 # ONE PIECE LIFE — V9.1.9 Goals & Player Agency 5.1
 
 La V9.1 transforme l'ambition en véritable système de direction personnelle. Le joueur choisit **ce qu'il veut tenter d'accomplir**, tandis que le moteur conserve l'autorité sur les probabilités, les opportunités et les résultats.
