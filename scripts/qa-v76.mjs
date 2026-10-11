@@ -104,7 +104,7 @@ for(const asset of ['src/data/ui-layout-v76.js','src/v76/ui-components-v76.js','
   assert(html.includes(asset),'Index does not load '+asset);
   assert(sw.includes(asset),'PWA does not cache '+asset);
 }
-assert(/one-piece-life-v(?:7-[6-9]|8-[0-9]+|9-[0-9]+)-[0-9]+/.test(sw),'PWA cache must remain at V7.6 or newer');
+assert(/one-piece-life-v(?:7-[6-9]|8-[0-9]+|9-[0-9]+|10)-[0-9]+/.test(sw),'PWA cache must remain at V7.6 or newer');
 assert(html.includes('id="v76FocusCard"'),'Focus dashboard missing');
 assert(html.includes('id="uiDensityToggle"'),'Density control missing');
 assert(html.includes("uiV76:{version:1,density:'focus'"),'Fresh-save UI state missing');
