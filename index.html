@@ -3231,7 +3231,7 @@ function v100Act(id){
         const engine=v103Module(),careerState=v103Ensure(),org=v73Ensure(),ranks=CAREER_RANKS[p.faction]||CAREER_RANKS.Civil||[];
         const ctx={identity:v103Identity(),faction:p.faction,careerActive:p.career!=='Aucune',travel:!!p.travel,
           alive:game.alive,pending:!!game.pendingDecision,energy:p.energy,standing:org?.standing||0,trust:org?.trust||0,
-          year,rankIndex:Math.max(0,ranks.indexOf(p.rank)),roll:random('v103CareerDecision')};
+          year,efficiency:factor,rankIndex:Math.max(0,ranks.indexOf(p.rank)),roll:random('v103CareerDecision')};
         const result=id==='career_bonus'?engine.bonus(careerState,ctx):engine.initiative(careerState,id,ctx);
         if(!result.ok)return {ok:false,reason:result.reason};
         p.energy=clamp(p.energy-availability.cost,0,100);p.careerV103=result.state;
