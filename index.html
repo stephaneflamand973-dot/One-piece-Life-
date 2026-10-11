@@ -2743,6 +2743,104 @@ function renderV88Market(){
   $$('[data-v88-sell-all]').forEach(b=>b.onclick=()=>{const qty=v88Ensure()?.cargo?.[b.dataset.v88SellAll]?.qty||0;if(qty)v88Trade('sell',b.dataset.v88SellAll,qty)})
 }
 
+function v92Module(){return window.OPL_MODULES?.get('npcLivesEngineV92')||null}
+function v92Data(){return window.OPL_MODULES?.get('npcLivesDataV92')||null}
+function v92WorldActors(){
+  v70Ensure();const y=game.clock.year;
+  return (game.world.characters||[]).filter(c=>c.status==='alive'&&y>=c.from&&y<=c.to&&(Number(c.importance)||0)>=50).map(c=>({...c,sourceType:'world',v92Id:c.id}))
+}
+function v92CanonForRelation(r){
+  if(!r)return null;const chars=game.world?.characters||[];
+  return chars.find(c=>(r.canonId&&c.id===r.canonId)||c.id===r.id||String(c.name).toLowerCase()===String(r.name||'').toLowerCase())||null
+}
+function v92RelationActor(r){
+  if(!r)return null;const canon=v92CanonForRelation(r);if(canon)return {...canon,sourceType:'world',v92Id:canon.id};
+  const member=r.crewMemberId?game.player.crew?.members?.find(m=>m.id===r.crewMemberId):null;
+  const state=game.world?.npcLivesV92?.actors?.['rel:'+r.id],region=member?game.player.region:(r.currentRegion||state?.lastRegion||game.player.region);
+  const power=member?Number(member.power)||20:clamp(18+(Number(r.respect)||0)*.42+(Number(r.rivalry)||0)*.12+(Number(r.sharedExperience)||0)*.10,8,88);
+  return {id:'rel:'+r.id,v92Id:'rel:'+r.id,sourceType:member?'crew':'relation',name:r.name,faction:r.faction||'Indépendant',currentRegion:region,region,power,importance:clamp(v67RelationStrength(r),18,90),experience:Number(r.sharedExperience)||0,health:Number(r.health)||100,injuryMonths:0,goal:r.ambition||'Préserver ses intérêts',status:'alive'}
+}
+function v92NemesisActors(){
+  const st=typeof v83Ensure==='function'?v83Ensure():null;if(!st)return[];
+  return (st.antagonists||[]).filter(a=>a.status!=='retired').map(a=>({id:'nemesis:'+a.id,v92Id:'nemesis:'+a.id,sourceType:'nemesis',name:a.name,faction:a.faction||'Indépendant',currentRegion:a.region,region:a.region,power:Number(a.power)||20,importance:clamp(55+(Number(a.rivalry)||0)*.22+(Number(a.obsession)||0)*.12,55,96),experience:(Number(a.encounters)||0)*8,health:100,injuryMonths:0,goal:a.goal||'Poursuivre sa rivalité',status:'alive'}))
+}
+function v92RelationActors(){
+  v67Ensure();return (game.relations||[]).filter(r=>r.status!=='left').sort((a,b)=>v67RelationStrength(b)-v67RelationStrength(a)).slice(0,12).map(v92RelationActor).filter(Boolean)
+}
+function v92TrackedActors(){
+  const map=new Map();for(const a of [...v92WorldActors(),...v92RelationActors(),...v92NemesisActors()])if(a&&!map.has(String(a.v92Id||a.id)))map.set(String(a.v92Id||a.id),a);
+  return [...map.values()]
+}
+function v92Ensure(){
+  if(!game?.world)return null;const mod=v92Module(),w=game.world;
+  w.npcLivesV92=mod?mod.normalizeState(w.npcLivesV92||{}):(w.npcLivesV92||{version:2,actors:{},lastTickMonth:-99,totalTransitions:0,totalMilestones:0,totalObjectives:0,totalPromotions:0,globalHistory:[]});
+  return w.npcLivesV92
+}
+function v92MarkKnown(entry,known){
+  const state=v92Ensure();if(!state||!entry)return;
+  const global=(state.globalHistory||[]).find(x=>x.id===entry.id);if(global)global.known=!!known;
+  const life=state.actors?.[entry.actorId],local=(life?.milestones||[]).find(x=>x.id===entry.id);if(local)local.known=!!known
+}
+function v92Publish(events=[]){
+  for(const e of events){
+    if(!e||Number(e.importance)<52)continue;
+    if(String(e.actorId).startsWith('rel:')){
+      const id=String(e.actorId).slice(4),r=(game.relations||[]).find(x=>x.id===id),known=!!r&&v67RelationStrength(r)>=42;
+      v92MarkKnown(e,known);if(known&&Number(e.importance)>=58)addHistory('Vie de '+(r?.name||e.actorName),e.desc,'normal',e.title);continue
+    }
+    if(String(e.actorId).startsWith('nemesis:')){
+      const known=Number(e.importance)>=58;v92MarkKnown(e,known);if(known)addHistory('Trajectoire adverse',e.desc,'danger',e.title);continue
+    }
+    const worldEvent=v58AutonomousEvent(e.title,e.desc,e.region||'Global',e.importance,'npc_life',[e.actorId]);v92MarkKnown(e,worldEvent?.known)
+  }
+}
+function v92RecordWorldAction(actorId,type,meta={}){
+  const mod=v92Module(),state=v92Ensure(),actor=(game.world.characters||[]).find(c=>c.id===actorId);if(!mod||!state||!actor)return null;
+  const result=mod.recordAction(state,{...actor,sourceType:'world',v92Id:actor.id},type,{...meta,nextObjectiveRoll:random('v92Objective:'+actorId+':'+type)},{month:v58MonthIndex()});
+  game.world.npcLivesV92=result.state;v92Publish(result.events);return result.life
+}
+function v92MaybeMoveRelation(r,months=1){
+  if(!r||r.status==='left'||r.crewMemberId||v92CanonForRelation(r))return false;
+  if(game.player.personalV78?.partnerId===r.id||game.player.socialV67?.mentorId===r.id)return false;
+  const ambition=String(r.ambition||''),p=clamp((ambition==='Aventure'?.011:.0055)*Math.max(1,months),.002,.09);if(!chance(p,'v92RelationMove:'+r.id))return false;
+  const current=r.currentRegion||game.player.region,opts=V58_REGIONS.filter(x=>x!==current);if(!opts.length)return false;
+  const next=pick(opts,'v92RelationMove:'+r.id);r.currentRegion=next;
+  const snap=v74RelationSnapshot(r);if((snap?.state?.strength||v67RelationStrength(r))>=55)v74RecordMemory(r,{id:'v92_move_'+v58MonthIndex(),type:'life',label:'Départ vers '+next,valence:0,impact:3,tags:['distance','life']});
+  return true
+}
+function v92Tick(months=1){
+  const mod=v92Module();let state=v92Ensure();if(!mod||!state)return;
+  const now=v58MonthIndex();if(state.lastTickMonth===now)return;
+  for(const r of (game.relations||[]).filter(x=>x.status!=='left'))v92MaybeMoveRelation(r,months);
+  const activeIds=new Set();
+  for(const actor of v92TrackedActors()){
+    const id=String(actor.v92Id||actor.id);activeIds.add(id);
+    const result=mod.tickActor(state,actor,{month:now,months},{drift:random('v92Drift:'+id),objective:random('v92Objective:'+id)});
+    state=result.state;game.world.npcLivesV92=state;v92Publish(result.events)
+  }
+  const ids=Object.keys(state.actors||{});if(ids.length>90){for(const id of ids.sort((a,b)=>(state.actors[a]?.lastMonth||-99)-(state.actors[b]?.lastMonth||-99)))if(!activeIds.has(id)&&Object.keys(state.actors).length>90)delete state.actors[id]}
+  state.lastTickMonth=now;game.world.npcLivesV92=state
+}
+function v92ActorSnapshot(actor){
+  const mod=v92Module(),data=v92Data(),state=v92Ensure();if(!mod||!data||!state||!actor)return null;
+  const id=String(actor.v92Id||actor.id),life=mod.normalizeActor(state.actors?.[id]||{},actor),objective=data.objectives?.[life.objectiveId],tier=data.careerTiers?.[life.careerTier];
+  return {...life,phaseLabel:data.phases?.[life.phase]?.label||life.phase,careerLabel:tier?.label||'Trajectoire',objectiveLabel:objective?.label||actor.goal||life.objectiveId}
+}
+function v92RelationSnapshot(r){const actor=v92RelationActor(r);return actor?v92ActorSnapshot(actor):null}
+function v92RelationSupportBonus(r){
+  const mod=v92Module(),snap=v92RelationSnapshot(r);if(!mod||!snap||r.status!=='active')return 0;
+  return +clamp(mod.supportScore(snap)*.42,0,1.6).toFixed(2)
+}
+function renderV92Lives(){
+  const box=$('#v92LivesCard'),badge=$('#v92LivesBadge'),mod=v92Module(),data=v92Data(),state=v92Ensure();if(!box||!badge||!mod||!data||!state)return;
+  const all=v92TrackedActors(),sum=mod.summary(state,all,{region:game.player.region}),personal=[...v92RelationActors(),...v92NemesisActors()],personalSum=mod.summary(state,personal,{region:game.player.region});
+  badge.textContent=sum.totalTracked+' vies suivies';
+  const rows=(personalSum.notable.length?personalSum.notable:sum.notable).slice(0,5),known=(sum.history||[]).filter(x=>x.known).slice(0,4);
+  const lifeHtml=rows.length?rows.map(x=>'<div class="v92-life"><div class="v92-life-head"><div><strong>'+esc(x.name)+' • '+esc(x.faction)+'</strong><small>'+esc(data.sourceLabels?.[x.sourceType]||x.sourceType)+' • '+esc(x.region)+'</small></div><span class="v92-phase">'+esc(x.phaseLabel)+'</span></div><small>'+esc(x.careerLabel)+' • objectif : '+esc(x.objectiveLabel)+'</small><div class="v92-progress"><div><i style="width:'+clamp(Math.round(x.objectiveProgress),0,100)+'%"></i></div><span>'+Math.round(x.objectiveProgress)+'%</span></div><div class="v92-progress career"><div><i style="width:'+clamp(Math.round(x.careerProgress),0,100)+'%"></i></div><span>carrière '+Math.round(x.careerProgress)+'%</span></div><div class="v92-chips"><span>Influence '+Math.round(x.influence)+'</span><span>Aisance '+Math.round(x.wealth)+'</span><span>Énergie '+Math.round(x.energy)+'</span><span>Stress '+Math.round(x.stress)+'</span></div></div>').join(''):'<div class="career-card"><p>Aucune trajectoire personnelle importante n’est encore assez développée pour être suivie.</p></div>';
+  const historyHtml=known.length?'<div><span class="eyebrow">Jalons connus</span><div class="v92-chronicle">'+known.map(e=>'<div class="v92-event"><strong>'+esc(e.title)+'</strong><span>'+esc(e.desc)+'</span></div>').join('')+'</div></div>':'';
+  box.innerHTML='<div class="v92-overview"><div><span>Suivis</span><strong>'+sum.totalTracked+'</strong></div><div><span>Carrières</span><strong>'+sum.totalPromotions+'</strong></div><div><span>Objectifs</span><strong>'+sum.totalObjectives+'</strong></div><div><span>Jalons</span><strong>'+sum.totalMilestones+'</strong></div></div><div><span class="eyebrow">Vies importantes</span><div class="v92-life-list">'+lifeHtml+'</div></div>'+historyHtml
+}
+
 function v91Module(){return window.OPL_MODULES?.get('goalsEngineV91')||null}
 function v91Data(){return window.OPL_MODULES?.get('goalsDataV91')||null}
 function v91MissionCounters(){
