@@ -32,6 +32,7 @@ function normalizeState(state={}){
     version:1,relations,
     pending:Array.isArray(state.pending)?state.pending.map(normalizeBeat).filter(x=>x.id&&x.relationId).slice(0,16):[],
     lastBeatYear:Number.isFinite(Number(state.lastBeatYear))?Number(state.lastBeatYear):-99,
+    lastAnnualYear:Number.isFinite(Number(state.lastAnnualYear))?Number(state.lastAnnualYear):-99,
     totalBeats:Math.max(0,Math.floor(num(state.totalBeats))),
     totalNemeses:Math.max(0,Math.floor(num(state.totalNemeses))),
     totalCommitments:Math.max(0,Math.floor(num(state.totalCommitments))),
@@ -137,6 +138,7 @@ function annualTick(state,relations=[],year=0){
     l.grudge=clamp(l.grudge-1.2,0,100);l.bondXp=clamp(l.bondXp-(l.bondXp>0?.8:l.bondXp<0?-.4:0),-40,100)
   }
   s.pending=s.pending.filter(b=>active.has(b.relationId)&&num(year)-num(b.year)<=2);
+  s.lastAnnualYear=num(year);
   return s
 }
 
