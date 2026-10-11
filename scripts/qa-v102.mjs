@@ -56,7 +56,7 @@ assert(malformed.spent.work===4&&malformed.spent.training===0&&malformed.spent.a
 assert(malformed.trainingFocus==='physical'&&malformed.history.length===24&&malformed.history.every(x=>x.efficiency<=1&&x.detail.length<=110),'Invalid focus or unbounded ledger accepted');
 
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes('<title>ONE PIECE LIFE — V10.5</title>')&&html.includes("const GAME_VERSION = '10.4.0'"),'V10.5 version missing');
+assert(html.includes('<title>ONE PIECE LIFE — V10.5</title>')&&html.includes("const GAME_VERSION = '10.5.0'"),'V10.5 version missing');
 assert(html.includes('src/data/action-v102.js')&&html.includes('src/v102/action-engine-v102.js'),'V10.5 modules not loaded');
 assert(sw.includes('one-piece-life-v10-5-0')&&sw.includes('src/data/action-v102.js')&&sw.includes('src/v102/action-engine-v102.js'),'V10.5 offline assets missing');
 assert(manifest.description.includes('V10.5'),'PWA metadata outdated');
