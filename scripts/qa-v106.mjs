@@ -55,10 +55,10 @@ assert(!registry.status(ledger,'expedition_scout',23,{alive:true,pending:false,l
 const renewed=registry.nextYear(ledger,24);assert(renewed.spent.expedition_scout===0&&renewed.total===ledger.total,'New year must only replenish quota');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes("const GAME_VERSION = '11.0.1'")&&html.includes('src/v106/adventure-engine-v106.js'),'Game V10.6 modules missing');
+assert(html.includes("const GAME_VERSION = '12.0.0'")&&html.includes('src/v106/adventure-engine-v106.js'),'Game V10.6 modules missing');
 assert(html.includes('function v106RenderAdventure()')&&html.includes('v106FinishMission(m)')&&html.includes('odds.injuryChance'),'V10.6 visible probabilities missing');
 assert(html.includes('function v100AdvanceYear()')&&!html.includes("p.money+=result.pay;advanceClock(12)"),'Manual aging regressed');
-assert(sw.includes('one-piece-life-v11-0-1')&&sw.includes('src/v106/adventure-v106.css'),'Offline V10.6 bundle missing');
-assert(manifest.description.includes('V11.0.1'),'PWA manifest outdated');
+assert(sw.includes('one-piece-life-v12-0-0')&&sw.includes('src/v106/adventure-v106.css'),'Offline V10.6 bundle missing');
+assert(manifest.description.includes('V12.0.0'),'PWA manifest outdated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 console.log('V10.6 EXPEDITION QA OK',JSON.stringify({actions:Object.keys(data.actions).length,prepared:start.state.preparedness,command:command.state.commandBoost,mission:coordinate.state.missionBonus,remaining:renewed.spent.expedition_scout}));
