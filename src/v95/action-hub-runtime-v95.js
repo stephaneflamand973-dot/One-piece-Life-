@@ -5,7 +5,7 @@ const data=registry.get('actionHubDataV95'),engine=registry.get('actionHubEngine
 if(!data||!engine)throw new Error('V9.5 action hub prerequisites missing');
 const escapeHtml=s=>String(s==null?'':s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 function createRuntime(bridge){
-  let query='',showAll=false,personFocus=null;
+  let query='',showAll=false,personFocus=null,practiceOpen=false;
   const document=global.document;
   const node=id=>document?.getElementById?.(id)||document?.querySelector?.('#'+id);
   const getState=()=>{const g=bridge.getGame();if(!g)return null;g.meta=g.meta||{};g.meta.actionHubV95=engine.normalizeState(g.meta.actionHubV95||{});return g.meta.actionHubV95};
@@ -327,7 +327,7 @@ function createRuntime(bridge){
       '<div class="opl-job-header"><strong>Mes compétences</strong><small>'+available+
       ' session'+(available>1?'s':'')+' disponible'+(available>1?'s':'')+' cette année</small></div>'+
       '<p>Pas de diplômes : améliore tes aptitudes par la pratique, puis postule aux métiers qui les demandent.</p>'+
-      '<details class="opl-skill-details"><summary>S’entraîner à une compétence ›</summary>'+
+      '<details class="opl-skill-details"'+(practiceOpen?' open':'')+'><summary>S’entraîner à une compétence ›</summary>'+
       '<div class="opl-skill-grid">'+list.map(x=>{
         const st=x.status||{},blocked=!st.available;
         return '<button type="button" data-v112-practice="'+escapeHtml(x.id)+'" '+(blocked?'disabled':'')+'>'+
@@ -614,7 +614,8 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-raise]').forEach(b=>b.onclick=()=>bridge.careerAction?.('raise'));
     root.querySelectorAll?.('[data-v112-civil-promotion]').forEach(b=>b.onclick=()=>bridge.careerAction?.('civil_promotion'));
     root.querySelectorAll?.('[data-v112-ordinary-task]').forEach(b=>b.onclick=()=>bridge.careerAction?.('ordinary_task',b.dataset.v112OrdinaryTask));
-    root.querySelectorAll?.('[data-v112-practice]').forEach(b=>b.onclick=()=>bridge.careerAction?.('practice',b.dataset.v112Practice));
+    root.querySelectorAll?.('[data-v112-practice]').forEach(b=>b.onclick=()=>{practiceOpen=true;bridge.careerAction?.('practice',b.dataset.v112Practice)});
+    root.querySelectorAll?.('.opl-skill-details').forEach(d=>d.ontoggle=()=>{practiceOpen=!!d.open});
     root.querySelectorAll?.('[data-v112-special]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special',b.dataset.v112Special));
     root.querySelectorAll?.('[data-v112-special-path]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special_path',b.dataset.v112SpecialPath));
     root.querySelectorAll?.('[data-v112-special-promotion]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special_promotion'));
