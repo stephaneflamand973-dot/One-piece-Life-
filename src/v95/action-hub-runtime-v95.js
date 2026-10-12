@@ -451,10 +451,21 @@ function createRuntime(bridge){
         (bridge.getGame()?.player?.faction==='Pirates'?
           '<button type="button" class="opl-job-more" data-v112-crew>Gérer mon équipage pirate ›</button>':'')+
         '</section>';
+      const incident=market.ordinaryIncident;
+      const incidentCard=incident?'<section class="opl-civil-incident" aria-label="Événement du métier ordinaire">'+
+        '<div class="opl-job-header"><strong>Un choix au travail</strong><small>Une situation par an</small></div>'+
+        '<h3>'+escapeHtml(incident.title)+'</h3><p>'+escapeHtml(incident.description)+'</p>'+
+        (incident.resolved?'<div class="opl-incident-done">Tu as pris ta décision pour cette année. Une nouvelle situation pourra survenir l’année prochaine.</div>':
+          '<div class="opl-incident-options">'+incident.choices.map(option=>
+            '<button type="button" data-v112-ordinary-incident="'+escapeHtml(option.id)+'" '+(option.available?'':'disabled')+'>'+
+            '<strong>'+escapeHtml(option.label)+'</strong><span>'+escapeHtml(option.detail)+'</span>'+
+            '<small>'+escapeHtml(option.available?'Réussite '+Math.round(option.chance*100)+' % • '+option.cost+' énergie':
+              option.reason||'Indisponible')+'</small></button>').join('')+'</div>')+
+        '</section>':'';
       const sector='<section class="opl-sector-tasks" aria-label="Tâches propres au secteur">'+
         '<div class="opl-job-header"><strong>Mon métier au quotidien</strong><small>'+
         escapeHtml(active.sector||'Emploi ordinaire')+'</small></div>'+sectorTasks+'</section>';
-      return '<section class="opl-job-market" aria-label="Ma carrière actuelle">'+current+sector+workplace+renderSkillPractice(market)+'</section>';
+      return '<section class="opl-job-market" aria-label="Ma carrière actuelle">'+current+incidentCard+sector+workplace+renderSkillPractice(market)+'</section>';
     }
     const tabs=market.jobHunt?
       '<div class="opl-job-tabs"><button type="button" data-v112-view="switch">‹ Retour à mon métier actuel</button></div>':
@@ -647,6 +658,7 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-raise]').forEach(b=>b.onclick=()=>bridge.careerAction?.('raise'));
     root.querySelectorAll?.('[data-v112-civil-promotion]').forEach(b=>b.onclick=()=>bridge.careerAction?.('civil_promotion'));
     root.querySelectorAll?.('[data-v112-ordinary-task]').forEach(b=>b.onclick=()=>bridge.careerAction?.('ordinary_task',b.dataset.v112OrdinaryTask));
+    root.querySelectorAll?.('[data-v112-ordinary-incident]').forEach(b=>b.onclick=()=>bridge.careerAction?.('ordinary_incident',b.dataset.v112OrdinaryIncident));
     root.querySelectorAll?.('[data-v112-practice]').forEach(b=>b.onclick=()=>{practiceOpen=true;bridge.careerAction?.('practice',b.dataset.v112Practice)});
     root.querySelectorAll?.('.opl-skill-details').forEach(d=>d.ontoggle=()=>{practiceOpen=!!d.open});
     root.querySelectorAll?.('[data-v112-special]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special',b.dataset.v112Special));
