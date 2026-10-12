@@ -331,6 +331,17 @@ function createRuntime(bridge){
       const ids=['manual:promotion','manual:career_bonus','manual:career_initiative',
         'manual:career_support','manual:mission','manual:expedition_coordinate'];
       const actions=ids.map(id=>build().find(x=>x.id===id)).filter(Boolean);
+      const sectorTasks=(market.ordinaryTasks||[]).map(task=>{
+        const gate=task.status||{};
+        return '<article class="opl-sector-task"><div><strong>'+escapeHtml(task.label)+'</strong>'+
+          '<p>'+escapeHtml(task.description)+'</p>'+
+          '<small>'+gate.remaining+'/'+gate.limit+' disponibles cette année • '+task.cost+' énergie'+
+          (gate.available?' • '+Math.round(gate.chance*100)+' % de réussite':'')+'</small></div>'+
+          '<button type="button" data-v112-ordinary-task="'+escapeHtml(task.id)+'" '+(gate.available?'':'disabled')+'>'+
+          (gate.available?'Réaliser ›':'Indisponible')+'</button>'+
+          (!gate.available?'<small class="opl-sector-locked">'+escapeHtml(gate.reason||'Action indisponible')+'</small>':'')+
+          '</article>';
+      }).join('');
       const workplace='<section class="opl-job-workplace"><h3>Actions professionnelles</h3>'+
         '<div class="opl-job-work-actions">'+actions.map(x=>
           '<button type="button" data-v112-direct="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
@@ -342,7 +353,10 @@ function createRuntime(bridge){
         (bridge.getGame()?.player?.faction==='Pirates'?
           '<button type="button" class="opl-job-more" data-v112-crew>Gérer mon équipage pirate ›</button>':'')+
         '</section>';
-      return '<section class="opl-job-market" aria-label="Ma carrière actuelle">'+current+workplace+'</section>';
+      const sector='<section class="opl-sector-tasks" aria-label="Tâches propres au secteur">'+
+        '<div class="opl-job-header"><strong>Mon métier au quotidien</strong><small>'+
+        escapeHtml(active.sector||'Emploi ordinaire')+'</small></div>'+sectorTasks+'</section>';
+      return '<section class="opl-job-market" aria-label="Ma carrière actuelle">'+current+sector+workplace+'</section>';
     }
     const tabs='<div class="opl-job-tabs" role="group" aria-label="Choisir son parcours">'+
       '<button type="button" data-v112-view="ordinary" aria-pressed="'+(type==='ordinary')+'" class="'+(type==='ordinary'?'selected':'')+'">Métiers ordinaires</button>'+
@@ -528,6 +542,7 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-apply]').forEach(b=>b.onclick=()=>bridge.careerAction?.('apply',b.dataset.v112Apply));
     root.querySelectorAll?.('[data-v112-quit]').forEach(b=>b.onclick=()=>bridge.careerAction?.('quit'));
     root.querySelectorAll?.('[data-v112-raise]').forEach(b=>b.onclick=()=>bridge.careerAction?.('raise'));
+    root.querySelectorAll?.('[data-v112-ordinary-task]').forEach(b=>b.onclick=()=>bridge.careerAction?.('ordinary_task',b.dataset.v112OrdinaryTask));
     root.querySelectorAll?.('[data-v112-special]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special',b.dataset.v112Special));
     root.querySelectorAll?.('[data-v112-answer]').forEach(b=>b.onclick=()=>bridge.careerAction?.('answer',b.dataset.v112Answer));
     root.querySelectorAll?.('[data-v112-cancel]').forEach(b=>b.onclick=()=>bridge.careerAction?.('cancel'));
