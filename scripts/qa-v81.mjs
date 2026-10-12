@@ -111,9 +111,10 @@ for(const fn of ['function v81Module','function v81Context','function v81Ensure'
 assert(html.includes("kind:'faction'"),'Faction pressure is not connected to V8.0 interruption arbitration');
 assert(html.includes("else if(c.kind==='faction')queued=v81QueueFaction(c.payload)"),'Faction decision queue missing');
 assert(html.includes("if(parts[0]==='v81faction')v81ResolveDecision(parts)"),'Faction decision resolver missing');
-assert(html.includes("v79ApplyCareerPreparation(job.kind==='ordinary'?'civil':job.id)")&&
-  html.includes("v81OnFactionChange(oldFaction,p.faction);refreshMissionBoard();"),
-  'V12 employment must update faction identity only after successful recruitment');
+assert(html.includes("const youth=v79Ensure();if(youth)youth.careerPreparationApplied=true")&&
+  html.includes("v81OnFactionChange(oldFaction,p.faction);refreshMissionBoard();")&&
+  !html.includes("v79ApplyCareerPreparation(job.kind==='ordinary'?'civil':job.id)"),
+  'V12 employment must update faction identity after recruitment without academic bonuses');
 assert(html.includes("v73RecordMissionOutcome(m,'success',approach.id);v81RecordMissionOutcome(m,'success');"),'Mission success identity hook missing');
 assert(html.includes("v73RecordMissionOutcome(m,'partial',approach.id);v81RecordMissionOutcome(m,'partial');"),'Mission partial identity hook missing');
 assert(html.includes("v81RecordMissionOutcome(m,retreated?'retreat':'failure');"),'Mission failure identity hook missing');
