@@ -21,6 +21,9 @@ function normalize(raw={},year=0){
   lastSpecialPromotionYear:Number.isFinite(Number(r.lastSpecialPromotionYear))?Math.floor(Number(r.lastSpecialPromotionYear)):-1,
   lastIncidentYear:Number.isFinite(Number(r.lastIncidentYear))?Math.floor(Number(r.lastIncidentYear)):-1,
   lastIncidentId:String(r.lastIncidentId||'').slice(0,80),
+  lastCivilIncidentYear:Number.isFinite(Number(r.lastCivilIncidentYear))?Math.floor(Number(r.lastCivilIncidentYear)):-1,
+  lastCivilIncidentId:String(r.lastCivilIncidentId||'').slice(0,80),
+  lastCivilIncidentJobId:String(r.lastCivilIncidentJobId||'').slice(0,60),
   jobHunt:!!r.jobHunt,
   lastPromotionYear:Number.isFinite(Number(r.lastPromotionYear))?Math.floor(Number(r.lastPromotionYear)):-1,
   lastRaiseYear:Number.isFinite(Number(r.lastRaiseYear))?Math.floor(Number(r.lastRaiseYear)):-1,
@@ -554,6 +557,50 @@ function ordinaryTaskPerform(raw,id,ctx={},roll=.5){
   cost:task.cost,chance:gate.chance};
 }
 
+
+/** Civilian situations are exclusive to ordinary professions, and every annual outcome
+ * is chosen explicitly rather than earned during passive aging. */
+function ordinaryIncidentStatus(raw,ctx={}){
+ const s=normalize(raw,ctx.year),job=byId(s.current?.id);
+ if(job?.kind!=='ordinary'||s.current?.kind!=='ordinary')return null;
+ const pool=data.ordinaryIncidents?.[job.sector]||[];
+ if(!pool.length)return null;
+ const year=Math.floor(Number(ctx.year)||0),incident=pool[(year+stringHash(job.id))%pool.length];
+ let reason='';
+ if(!ctx.alive)reason='Cette vie est terminée.';
+ else if(ctx.pending)reason='Résous la décision en attente.';
+ else if(ctx.annual)reason='Termine d’abord l’année en cours.';
+ else if(ctx.travel)reason='Reviens à terre pour cette situation.';
+ else if(s.lastCivilIncidentYear===year)reason='Tu as déjà pris une décision professionnelle cette année.';
+ const choices=incident.choices.map(choice=>{
+   const score=skillValue({skill:choice.skill},ctx);
+   const chance=clamp(choice.chance+(score-50)*.003,.15,.94);
+   const blocked=reason||((Number(ctx.energy)||0)<choice.cost?'Il faut '+choice.cost+' énergie.':'');
+   return {...choice,chance,available:!blocked,reason:blocked};
+ });
+ return {id:incident.id,title:incident.title,description:incident.description,sector:job.sector,
+   jobId:job.id,year,resolved:s.lastCivilIncidentYear===year,
+   available:choices.some(x=>x.available),reason,choices};
+}
+function resolveOrdinaryIncident(raw,choiceId,ctx={},roll=.5){
+ const s=normalize(raw,ctx.year),incident=ordinaryIncidentStatus(s,ctx);
+ if(!incident)return {ok:false,state:s,reason:'Cet événement appartient uniquement aux métiers ordinaires.'};
+ const choice=incident.choices.find(x=>x.id===choiceId);
+ if(!choice)return {ok:false,state:s,reason:'Cette réponse ne fait pas partie des options proposées.'};
+ if(!choice.available)return {ok:false,state:s,reason:choice.reason||incident.reason};
+ const success=clamp(roll,0,1)<choice.chance,effects=success?choice.win||{}:choice.fail||{};
+ const year=Math.floor(Number(ctx.year)||0);
+ const state={...s,lastCivilIncidentYear:year,lastCivilIncidentId:incident.id,
+   lastCivilIncidentJobId:incident.jobId,
+   history:[...s.history,{kind:success?'civil_incident_success':'civil_incident_failure',
+     title:incident.title+' : '+choice.label,year}].slice(-25)};
+ return {ok:true,state,incident,choice,success,chance:choice.chance,energyCost:choice.cost,
+   moneyDelta:Math.floor(clamp(effects.money||0,-1e9,1e9)),
+   healthDelta:Math.floor(clamp(effects.health||0,-100,100)),
+   performanceDelta:clamp(effects.performance||0,-100,100),
+   trustDelta:clamp(effects.trust||0,-100,100),
+   xp:Math.floor(clamp(effects.xp||0,0,1000))};
+}
 // One voluntary narrative choice per year in a special career, entirely separate from
 // the civilian market. A scenario is stable throughout the year, even after reload.
 function specialIncidentStatus(raw,ctx={}){
@@ -612,7 +659,7 @@ function resolveSpecialIncident(raw,choiceId,ctx={},roll=.5){
 r.register('careerMarketEngineV112',{
  version:'12.0.0',normalize,byId,legacyStatus,adoptLegacy,exitLegacy,crewOffers,chooseCrew,skillValue,status,practiceStatus,practiceChoices,practice,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
  specialPathOptions,specialPathStatus,chooseSpecialPath,specialPromotionStatus,specialPromotion,
- civilPromotionStatus,civilPromotion,ordinaryTaskStatus,ordinaryTasks,ordinaryTaskPerform,preparationStatus,specialStatus,specialOperations,specialPerform,
+ civilPromotionStatus,civilPromotion,ordinaryTaskStatus,ordinaryTasks,ordinaryTaskPerform,ordinaryIncidentStatus,resolveOrdinaryIncident,preparationStatus,specialStatus,specialOperations,specialPerform,
  specialIncidentStatus,resolveSpecialIncident
 });
 })(window);
