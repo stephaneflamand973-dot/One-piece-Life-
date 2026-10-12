@@ -86,5 +86,42 @@ const ordinaryTasks=[
  ['protect_client','Sécurité civile','Assurer une mission de protection','Protéger un client et préserver ta réputation.',16,'Combat',0,.62,.28,15,10]
 ].map(([id,sector,label,description,cost,skill,skillMin,chance,bonusRate,xp,injury])=>
  ({id,sector,label,description,cost,skill,skillMin,chance,bonusRate,xp,injury,limit:2}));
-r.register('careerMarketDataV112',{version:'11.2.5',ordinary,special,specialOperations,ordinaryTasks,maxOrdinaryApplications:3,maxSpecialApplications:2});
+// V12: five genuinely distinct career dossiers, never mixed with civilian work.
+const specialRanks={
+ Pirates:['Mousse','Membre','Combattant','Officier','Bras droit','Capitaine'],
+ Marine:['Recrue','Matelot','Caporal','Sergent','Adjudant','Lieutenant','Commandant','Capitaine de vaisseau','Commodore','Contre-Amiral','Vice-Amiral'],
+ Gouvernement:['Recrue','Agent','Agent confirmé','Agent spécial','Cipher Pol'],
+ 'Chasseurs de primes':['Débutant','Chasseur confirmé','Pisteur réputé','Chasseur d’élite'],
+ Révolutionnaires:['Sympathisant','Agent de cellule','Opérateur','Cadre régional','Commandant']
+};
+const specialPaths={
+ Pirates:[
+  {id:'boarding',label:'Abordage',skill:'Combat',description:'Les raids et affrontements donnent de meilleures chances de réussite.'},
+  {id:'crew',label:'Vie d’équipage',skill:'Discipline',description:'Tu progresses plus efficacement en gagnant la confiance des compagnons.'},
+  {id:'command',label:'Commandement pirate',skill:'Commandement',description:'Privilégie les opérations de leadership et les responsabilités de capitaine.'}],
+ Marine:[
+  {id:'patrol',label:'Patrouille',skill:'Discipline',description:'Spécialise-toi dans le maintien de l’ordre et les patrouilles.'},
+  {id:'justice',label:'Arrestations',skill:'Combat',description:'Renforce tes interventions et les captures de criminels.'},
+  {id:'reports',label:'État-major',skill:'Intelligence',description:'Développe ton dossier grâce aux enquêtes et aux rapports.'}],
+ Gouvernement:[
+  {id:'intelligence',label:'Renseignement',skill:'Intelligence',description:'Fais progresser ton réseau d’informations confidentielles.'},
+  {id:'covert',label:'Infiltration',skill:'Discrétion',description:'Augmente les chances de réussite des opérations clandestines.'},
+  {id:'cipher',label:'Service spécial',skill:'Combat',description:'Prépare une carrière de terrain vers le Cipher Pol.'}],
+ 'Chasseurs de primes':[
+  {id:'tracking',label:'Pistage',skill:'Intelligence',description:'Améliore les investigations et la recherche de cibles.'},
+  {id:'capture',label:'Capture',skill:'Combat',description:'Optimise les captures difficiles et les gros contrats.'},
+  {id:'hunter_network',label:'Réseau d’informateurs',skill:'Charisme',description:'Mise sur la réputation et les renseignements du milieu.'}],
+ Révolutionnaires:[
+  {id:'network',label:'Réseau clandestin',skill:'Charisme',description:'Consolide le soutien populaire et le recrutement.'},
+  {id:'rescue',label:'Sauvetage',skill:'Discrétion',description:'Prépare les extractions de prisonniers et les actions discrètes.'},
+  {id:'direct',label:'Action directe',skill:'Combat',description:'Développe ton efficacité lors des sabotages et affrontements.'}]
+};
+const specialProgression={
+ Pirates:{meritStep:17,successStep:1,trust:22,baseChance:.38,promotion:'Reconnaissance de l’équipage'},
+ Marine:{meritStep:16,successStep:1,trust:28,baseChance:.43,promotion:'Examen du commandement'},
+ Gouvernement:{meritStep:22,successStep:1,trust:40,baseChance:.34,promotion:'Validation de la hiérarchie'},
+ 'Chasseurs de primes':{meritStep:15,successStep:1,trust:0,baseChance:.52,promotion:'Reconnaissance des contrats'},
+ Révolutionnaires:{meritStep:19,successStep:1,trust:30,baseChance:.39,promotion:'Vote de la cellule'}
+};
+r.register('careerMarketDataV112',{version:'12.0.0',ordinary,special,specialOperations,ordinaryTasks,specialRanks,specialPaths,specialProgression,maxOrdinaryApplications:3,maxSpecialApplications:2});
 })(window);
