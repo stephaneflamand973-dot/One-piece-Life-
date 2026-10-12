@@ -53,5 +53,24 @@ const special=[
 {id:'hunter',label:'Devenir chasseur de primes',faction:'Chasseurs de primes',career:'Chasseur de primes',rank:'Débutant',minAge:17,skill:'Combat',skillMin:10,description:'Traque des cibles, contrats dangereux et réputation indépendante.'},
 {id:'revolution',label:'Intégrer les Révolutionnaires',faction:'Révolutionnaires',career:'Révolutionnaire',rank:'Sympathisant',minAge:17,skill:'Discrétion',skillMin:10,description:'Cellules clandestines, opérations secrètes et ascension dans le réseau.'}
 ].map(x=>({...x,kind:'special'}));
-r.register('careerMarketDataV112',{version:'11.2.0',ordinary,special,maxOrdinaryApplications:3,maxSpecialApplications:2});
+// Distinct special careers. These are operations, not civilian jobs.
+const specialOperations=[
+ ['pirate_raid','Pirates','Attaquer un navire marchand','Butin, prime et blessures possibles.',18,'Combat',12,0.54,1300,18,900,12,2],
+ ['pirate_loyalty','Pirates','Faire mes preuves auprès du capitaine','Gagner sa confiance avant de prétendre commander.',10,'Discipline',0,0.84,0,12,0,0,2,'subordinate'],
+ ['pirate_recruit','Pirates','Recruter pour mon équipage','Agrandir son équipage et sa réputation de capitaine.',12,'Charisme',10,0.68,0,13,260,5,1,'captain'],
+ ['marine_patrol','Marine','Effectuer une patrouille','Protéger les civils, obtenir une citation de service.',11,'Discipline',0,0.80,190,10,0,3,2],
+ ['marine_arrest','Marine','Arrêter un criminel','Mener une intervention dangereuse, récompensée au mérite.',17,'Combat',16,0.51,510,20,0,13,1],
+ ['marine_report','Marine','Rédiger un rapport au commandement','Accumuler des preuves pour les promotions.',9,'Intelligence',0,0.79,0,13,0,0,2],
+ ['government_intel','Gouvernement','Recueillir du renseignement','Développer un réseau de sources et des dossiers secrets.',12,'Intelligence',12,0.70,250,14,0,4,2],
+ ['government_infiltrate','Gouvernement','Infiltrer un réseau hostile','Mission confidentielle avec risque de découverte.',19,'Discrétion',18,0.47,680,22,0,16,1],
+ ['government_cipher','Gouvernement','Opération Cipher Pol','Affaire classifiée réservée aux agents de haut rang.',20,'Combat',25,0.51,1100,26,0,19,1,'elite'],
+ ['hunter_track','Chasseurs de primes','Enquêter sur une cible','Identifier une prime exploitable et préparer une capture.',9,'Intelligence',0,0.86,0,10,0,0,2],
+ ['hunter_capture','Chasseurs de primes','Capturer une cible recherchée','Gagner des Berry en livrant une cible à la justice.',18,'Combat',13,0.57,1450,20,0,16,2],
+ ['hunter_elite','Chasseurs de primes','Traquer une prime majeure','Affronter une cible de premier plan pour une grosse récompense.',25,'Combat',35,0.43,3600,32,0,26,1],
+ ['revolution_network','Révolutionnaires','Développer mon réseau clandestin','Obtenir le soutien des habitants et renforcer la cellule.',11,'Charisme',0,0.79,0,13,0,3,2],
+ ['revolution_rescue','Révolutionnaires','Libérer des prisonniers','Organiser un sauvetage risqué contre le pouvoir en place.',20,'Discrétion',15,0.52,250,24,380,17,1],
+ ['revolution_sabotage','Révolutionnaires','Saboter une installation militaire','Affaiblir le Gouvernement sans exposer toute la cellule.',22,'Combat',25,0.45,450,27,900,22,1]
+].map(([id,faction,label,description,cost,skill,skillMin,chance,pay,xp,bounty,injury,limit,role])=>
+ ({id,faction,label,description,cost,skill,skillMin,chance,pay,xp,bounty,injury,limit,role:role||null}));
+r.register('careerMarketDataV112',{version:'11.2.3',ordinary,special,specialOperations,maxOrdinaryApplications:3,maxSpecialApplications:2});
 })(window);
