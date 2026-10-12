@@ -66,3 +66,17 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 @media(min-width:670px){.bottom-nav{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
 @media(max-width:360px){.page-content{padding-inline:14px}.brand{font-size:10px}.nav-button{font-size:9px}.nav-home-icon{height:58px;width:58px}.restart-button{font-size:10px;padding:9px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Décisions V0.3 : une seule carte active, aucun sous-menu supplémentaire. */
+.life-qualities{display:flex;flex-wrap:wrap;gap:7px;padding:13px 0 3px}
+.quality-pill{display:inline-flex;align-items:center;gap:7px;background:#eaf3f4;color:#21586b;border:1px solid #d5e5e9;border-radius:30px;padding:7px 11px;font-size:11px;font-weight:650}
+.quality-pill strong{font-size:12px}
+.decision-panel{margin:18px 0 7px;background:#f0f6f7;border:1px solid #cfe1e6;border-radius:15px;padding:20px 16px;scroll-margin-top:76px}
+.decision-eyebrow{color:#397389;font-size:10px;font-weight:850;letter-spacing:1.4px;margin:0 0 8px}
+.decision-panel h2{font-size:19px;line-height:1.25;letter-spacing:-.3px;margin:0 0 9px}
+.decision-description{font-size:13px;line-height:1.65;color:#4f6871;margin:0 0 17px}
+.decision-buttons{display:grid;gap:9px}
+.decision-choice{min-height:50px;width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;gap:12px;background:white;color:var(--ocean);border:1px solid #cbdfe7;border-radius:10px;padding:11px 13px;font-weight:750;font-size:12px}
+.decision-choice span{font-size:21px}
+.decision-choice:active{background:#e0f1f5}
+.story-choice{border-left:3px solid var(--green)}
