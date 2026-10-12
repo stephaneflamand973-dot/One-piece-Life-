@@ -1,4 +1,4 @@
-name: V11.0.1 QA
+name: V12.0.0 QA
 on:
   push:
     branches: [main, v10-manual-life-actions, v10.0.1-manual-life-hotfix]
