@@ -19,6 +19,8 @@ function normalize(raw={},year=0){
   specialPath:String(r.specialPath||'').slice(0,36),
   lastSpecialPathYear:Number.isFinite(Number(r.lastSpecialPathYear))?Math.floor(Number(r.lastSpecialPathYear)):-1,
   lastSpecialPromotionYear:Number.isFinite(Number(r.lastSpecialPromotionYear))?Math.floor(Number(r.lastSpecialPromotionYear)):-1,
+  lastIncidentYear:Number.isFinite(Number(r.lastIncidentYear))?Math.floor(Number(r.lastIncidentYear)):-1,
+  lastIncidentId:String(r.lastIncidentId||'').slice(0,80),
   jobHunt:!!r.jobHunt,
   lastPromotionYear:Number.isFinite(Number(r.lastPromotionYear))?Math.floor(Number(r.lastPromotionYear)):-1,
   lastRaiseYear:Number.isFinite(Number(r.lastRaiseYear))?Math.floor(Number(r.lastRaiseYear)):-1,
@@ -208,6 +210,7 @@ function apply(raw,id,ctx={},roll=.5,answer=null){
     specialPath:accepted?'':state.specialPath,
     lastSpecialPathYear:accepted?-1:state.lastSpecialPathYear,
     lastSpecialPromotionYear:accepted?-1:state.lastSpecialPromotionYear,
+    lastIncidentYear:accepted?-1:state.lastIncidentYear,lastIncidentId:accepted?'':state.lastIncidentId,
     operations:accepted?[]:state.operations,tasks:accepted?[]:state.tasks,
     current:accepted?{kind:job.kind,id:job.id,startYear:Math.floor(Number(ctx.year)||0)}:state.current}};
 }
@@ -220,6 +223,7 @@ function resign(raw,ctx={}){
  return {ok:true,job,
   state:{...state,current:null,jobHunt:false,raisePct:0,lastRaiseYear:-1,lastPromotionYear:-1,
     specialMerit:0,specialPreparation:0,specialPath:'',lastSpecialPathYear:-1,lastSpecialPromotionYear:-1,
+    lastIncidentYear:-1,lastIncidentId:'',
     history:[...state.history,{kind:'resigned',title,year:Math.floor(Number(ctx.year)||0)}].slice(-25)}};
 }
 function stringHash(str){let h=2166136261;for(const ch of String(str)){h=Math.imul(h^ch.charCodeAt(0),16777619)}return h>>>0}
@@ -503,9 +507,66 @@ function ordinaryTaskPerform(raw,id,ctx={},roll=.5){
  return {ok:true,state:next,task,success,xp,bonus,healthLoss,performanceDelta,trustDelta,
   cost:task.cost,chance:gate.chance};
 }
+
+// One voluntary narrative choice per year in a special career, entirely separate from
+// the civilian market. A scenario is stable throughout the year, even after reload.
+function specialIncidentStatus(raw,ctx={}){
+ const s=normalize(raw,ctx.year),career=byId(s.current?.id);
+ if(career?.kind!=='special')return null;
+ const pool=data.specialIncidents?.[career.faction]||[];
+ if(!pool.length)return null;
+ const year=Math.floor(Number(ctx.year)||0);
+ const incident=pool[((year+crewHash(career.faction)%pool.length)%pool.length)];
+ let reason='';
+ if(!ctx.alive)reason='Cette vie est terminée.';
+ else if(ctx.pending)reason='Résous la décision en attente.';
+ else if(ctx.annual)reason='Termine d’abord l’année en cours.';
+ else if(ctx.travel)reason='Reviens à terre pour répondre à cette situation.';
+ else if(s.lastIncidentYear===year)reason='Situation professionnelle déjà résolue cette année.';
+ const path=(data.specialPaths?.[career.faction]||[]).find(x=>x.id===s.specialPath);
+ const choices=incident.choices.map(c=>{
+   const skill=skillValue({skill:c.skill},ctx);
+   const chance=clamp(c.chance+(skill-50)*.003+(path?.skill===c.skill?.055:0),.15,.96);
+   const blocked=reason||(Number(ctx.energy)||0)<c.cost?
+     (reason||'Il faut '+c.cost+' points d’énergie.'):'';
+   return {...c,chance,available:!blocked,reason:blocked};
+ });
+ return {id:incident.id,title:incident.title,description:incident.description,
+   faction:career.faction,year,resolved:s.lastIncidentYear===year,
+   available:choices.some(x=>x.available),reason,choices};
+}
+function resolveSpecialIncident(raw,choiceId,ctx={},roll=.5){
+ const s=normalize(raw,ctx.year),incident=specialIncidentStatus(s,ctx);
+ if(!incident)return {ok:false,state:s,reason:'Les métiers ordinaires ne déclenchent pas de dilemme de faction.'};
+ const choice=incident.choices.find(x=>x.id===choiceId);
+ if(!choice)return {ok:false,state:s,reason:'Choisis une réponse proposée par cette organisation.'};
+ if(!choice.available)return {ok:false,state:s,reason:choice.reason||incident.reason};
+ const success=clamp(roll,0,1)<choice.chance;
+ const delta=success?choice.win||{}:choice.fail||{};
+ const career=byId(s.current.id);
+ const capacity=data.specialPreparation?.[career.faction]?.capacity||6;
+ const merit=Math.floor(clamp(delta.merit||0,-9999,9999));
+ const preparation=Math.floor(clamp(delta.prep||0,-6,6));
+ const xp=Math.floor(clamp(delta.xp||0,0,1000));
+ const year=Math.floor(Number(ctx.year)||0);
+ const next={...s,lastIncidentYear:year,lastIncidentId:incident.id,
+   specialMerit:Math.floor(clamp(s.specialMerit+merit,0,9999)),
+   specialPreparation:Math.floor(clamp(s.specialPreparation+preparation,0,capacity)),
+   history:[...s.history,{kind:success?'special_incident_success':'special_incident_failure',
+     title:incident.title+' : '+choice.label,year}].slice(-25)};
+ return {ok:true,state:next,incident,choice,success,chance:choice.chance,
+   energyCost:choice.cost,meritGain:next.specialMerit-s.specialMerit,
+   preparationDelta:next.specialPreparation-s.specialPreparation,
+   moneyDelta:Math.floor(clamp(delta.money||0,-1e9,1e9)),
+   healthDelta:Math.floor(clamp(delta.health||0,-100,100)),
+   moraleDelta:Math.floor(clamp(delta.morale||0,-100,100)),
+   standingDelta:clamp(delta.standing||0,-100,100),
+   trustDelta:clamp(delta.trust||0,-100,100),xp};
+}
 r.register('careerMarketEngineV112',{
  version:'12.0.0',normalize,byId,crewOffers,chooseCrew,skillValue,status,practiceStatus,practiceChoices,practice,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
  specialPathOptions,specialPathStatus,chooseSpecialPath,specialPromotionStatus,specialPromotion,
- civilPromotionStatus,civilPromotion,ordinaryTaskStatus,ordinaryTasks,ordinaryTaskPerform,preparationStatus,specialStatus,specialOperations,specialPerform
+ civilPromotionStatus,civilPromotion,ordinaryTaskStatus,ordinaryTasks,ordinaryTaskPerform,preparationStatus,specialStatus,specialOperations,specialPerform,
+ specialIncidentStatus,resolveSpecialIncident
 });
 })(window);
