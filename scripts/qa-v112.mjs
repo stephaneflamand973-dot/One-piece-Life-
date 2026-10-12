@@ -53,6 +53,9 @@ assert(!m.startInterview(state,'hunter',valid).ok,'Independent bounty hunting sh
 assert(!m.status(m.byId('government'),state,{...valid,bounty:1000}).available,'Wanted characters cannot join the government');
 assert(!m.status(m.byId('pirate_found'),state,{...valid,money:100}).available,'Founding a crew must require funds');
 assert(m.apply(state,'pirate_found',valid,0).accepted,'An adult with leadership and funds may found their own crew');
+assert(m.apply(state,'pirate_found',valid,1).accepted,'Founding a qualified pirate crew must be guaranteed even at a maximal random roll');
+assert(m.apply(state,'hunter',valid,1).accepted,'Independent bounty hunters must not fail an imaginary recruiter interview');
+assert(!m.normalize(interview.state,22).interview,'Abandoned interviews must expire when the year changes');
 assert(m.apply(state,'pirate_join',{...valid,age:16,year:16},0).accepted,'Younger pirates can join an existing crew');
 assert(!m.status(m.byId('marine'),state,{...valid,travel:true}).available,'Applications must not work during a crossing');
 assert(!m.status(m.byId('marine'),state,{...valid,pending:true}).available,'Story decisions must take priority');
