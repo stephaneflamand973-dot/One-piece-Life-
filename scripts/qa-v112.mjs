@@ -40,7 +40,23 @@ const hired=m.apply(interview.state,first.id,valid,0,'skills');
 assert(hired.ok&&hired.accepted&&hired.state.current?.id===first.id,'Qualified interviews must permit recruitment');
 assert(!hired.state.interview,'Resolved interviews must close');
 assert(hired.energyCost===3,'Applications must consume the advertised amount of energy');
-assert(!m.status(second,hired.state,valid).available,'Already-employed characters must resign before applying elsewhere');
+assert(m.status(second,hired.state,valid).available,'Civilian employees must be able to seek better employment before resigning');
+assert(!m.status(first,hired.state,valid).available,'Players cannot reapply to their own current occupation');
+assert(!m.status(m.byId('marine'),hired.state,valid).available,'Special career enrollment must remain separate from ordinary employment');
+assert(!m.apply(hired.state,second.id,valid,0).ok,'Civilian candidates may not bypass mandatory interviews');
+const hunt=m.startInterview({...hired.state,jobHunt:true},second.id,valid);
+assert(hunt.ok,'Job search must permit interviewing while still employed');
+const huntRefused=m.apply(hunt.state,second.id,valid,1,'team');
+assert(huntRefused.ok&&!huntRefused.accepted&&huntRefused.state.current?.id===first.id&&huntRefused.state.jobHunt,
+  'Rejected job switches must preserve the previous job, salary and job search');
+const nextInterview=m.startInterview(huntRefused.state,third.id,valid);
+assert(nextInterview.ok,'A different vacancy must remain accessible after a rejection');
+const switched=m.apply(nextInterview.state,third.id,valid,0,'skills');
+assert(switched.accepted&&switched.switched&&switched.previous.id===first.id&&switched.state.current.id===third.id,
+  'Accepted job switch must replace the old job and report its identity');
+assert(switched.state.raisePct===0&&!switched.state.jobHunt&&switched.state.lastPromotionYear===-1,
+  'Moving employer must reset negotiated wage, promotion cooldown and job search');
+assert(!m.status(m.byId('hunter'),switched.state,valid).available,'Switching between civilian jobs must never leak into bounty hunter careers');
 const salaryContext={...valid,performance:76,trust:62,workSessions:4,energy:95};
 assert(!m.raiseStatus(hired.state,{...salaryContext,workSessions:1}).available,'Ordinary raises require actual employment history');
 assert(!m.raiseStatus(hired.state,{...salaryContext,performance:30}).available,'Salary negotiation must depend on professional performance');
@@ -59,13 +75,40 @@ assert(refusedRaise.ok&&!refusedRaise.accepted&&refusedRaise.raisePct===0,
 
 const pay1=m.estimatedPay(hired.state,{rank:'Apprenti'}),pay2=m.estimatedPay(hired.state,{rank:'Expert'});
 assert(pay2.perAction>pay1.perAction&&pay1.annualMax===pay1.perAction*4,'Civilian salaries must grow with promotions but remain action-based');
-assert(!m.apply(hired.state,second.id,valid,0).ok,'Applications must not replace an active job silently');
+const promotionContext={...salaryContext,rank:'Apprenti',careerXP:35,workSessions:5,performance:74,trust:67};
+const promoted=m.civilPromotion(hired.state,promotionContext,0);
+assert(promoted.ok&&promoted.accepted&&promoted.rank==='Professionnel'&&promoted.cost===6,
+  'Eligible civil employees can request an explicit promotion with a real energy cost');
+assert(!m.civilPromotionStatus(promoted.state,promotionContext).available,'Only one civilian promotion review is allowed per year');
+assert(m.estimatedPay(promoted.state,{rank:promoted.rank}).perAction>m.estimatedPay(hired.state,{rank:'Apprenti'}).perAction,
+  'Civil promotions must increase the salary of deliberate work actions');
+const promotionNext=m.normalize(promoted.state,22);
+assert(m.civilPromotionStatus(promotionNext,{...promotionContext,year:22,rank:'Apprenti'}).available,
+  'Civil promotion eligibility resets with the next year');
+const promotionDenied=m.civilPromotion(hired.state,promotionContext,1);
+assert(promotionDenied.ok&&!promotionDenied.accepted&&promotionDenied.rank==='Apprenti',
+  'Promotions must be refusible with no phantom change of grade');
+assert(!m.civilPromotionStatus(hired.state,{...promotionContext,careerXP:3}).available,
+  'Too little professional XP must block a civilian promotion');
+assert(!m.civilPromotionStatus(hired.state,{...promotionContext,performance:20}).available,
+  'Low professional performance must block a civilian promotion');
+assert(!m.civilPromotionStatus(hired.state,{...promotionContext,workSessions:1}).available,
+  'No promotion without real work sessions');
+assert(!m.civilPromotionStatus(hired.state,{...promotionContext,rank:'Maître'}).available,
+  'The maximum civilian rank must be respected');
+assert(!m.civilPromotionStatus(m.normalize({current:{kind:'special',id:'marine',startYear:20}},21),
+  {...promotionContext,faction:'Marine',rank:'Recrue'}).available,
+  'Faction members must never use the ordinary employee promotion system');
 const retired=m.resign(hired.state,valid);
 assert(retired.ok&&!retired.state.current,'Resigning must free the current occupation');
-const rejected=m.apply(retired.state,second.id,valid,1);
+const secondInterview=m.startInterview(retired.state,second.id,valid);
+assert(secondInterview.ok,'Resigned candidates still need an interview');
+const rejected=m.apply(secondInterview.state,second.id,valid,1,'team');
 assert(rejected.ok&&!rejected.accepted,'Interviews must also allow refusals');
-assert(!m.apply(rejected.state,second.id,valid,0).ok,'One vacancy cannot be spammed during a year');
-const thirdTry=m.apply(rejected.state,third.id,valid,1);
+assert(!m.startInterview(rejected.state,second.id,valid).ok,'One vacancy cannot be spammed during a year');
+const thirdInterview=m.startInterview(rejected.state,third.id,valid);
+assert(thirdInterview.ok,'Another interview can start after a rejected candidacy');
+const thirdTry=m.apply(thirdInterview.state,third.id,valid,1,'ambition');
 assert(thirdTry.ok&&!thirdTry.accepted,'The third application should remain possible');
 assert(!m.status(fourth,thirdTry.state,valid).available,'Annual application quota must work');
 const future={...valid,year:22};
@@ -209,6 +252,14 @@ assert(html.includes("if(action==='raise')")&&html.includes('engine.negotiateRai
   'Real career screen must apply contract raises to player and save');
 assert(hub.includes('data-v112-raise')&&hub.includes("bridge.careerAction?.('raise')"),
   'Civilian workplace must let the player negotiate salary');
+assert(hub.includes('data-v112-civil-promotion')&&hub.includes("bridge.careerAction?.('civil_promotion')"),
+  'Civilian promotions must be playable without passing through special faction grade buttons');
+assert(html.includes("if(action==='civil_promotion')")&&html.includes('engine.civilPromotion(state,ctx'),
+  'Promotion success or failure must update the actual character state');
+assert(hub.includes('data-v112-view="switch"')&&html.includes("if(type==='switch')"),
+  'Players must be able to view other vacancies without resigning their current civilian job');
+assert(html.includes("if(route?.kind==='ordinary'&&id==='promotion')"),
+  'The legacy faction promotion button must be disabled in ordinary employment');
 assert(html.includes("if(special&&['work','career_support','career_initiative','career_bonus'].includes(id))"),
   'Special careers must not inherit the ordinary work buttons');
 assert(html.includes("if(result.success){\n        const formerCaptain=p.crew.captain?.name"),
