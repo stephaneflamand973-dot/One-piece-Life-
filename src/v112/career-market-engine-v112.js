@@ -14,6 +14,8 @@ function normalize(raw={},year=0){
   raisePct:Math.floor(clamp(r.raisePct,0,40)),
   // V12 special-career record: wholly distinct from ordinary employee tenure.
   specialMerit:Math.floor(clamp(r.specialMerit,0,9999)),
+  // Preparation belongs exclusively to the current special organization.
+  specialPreparation:Math.floor(clamp(r.specialPreparation,0,6)),
   specialPath:String(r.specialPath||'').slice(0,36),
   lastSpecialPathYear:Number.isFinite(Number(r.lastSpecialPathYear))?Math.floor(Number(r.lastSpecialPathYear)):-1,
   lastSpecialPromotionYear:Number.isFinite(Number(r.lastSpecialPromotionYear))?Math.floor(Number(r.lastSpecialPromotionYear)):-1,
@@ -167,7 +169,8 @@ function apply(raw,id,ctx={},roll=.5,answer=null){
   state:{...state,interview:null,crewChoice:accepted?null:state.crewChoice,applications,history,
     raisePct:accepted?0:state.raisePct,lastRaiseYear:accepted?-1:state.lastRaiseYear,
     lastPromotionYear:accepted?-1:state.lastPromotionYear,jobHunt:accepted?false:state.jobHunt,
-    specialMerit:accepted?0:state.specialMerit,specialPath:accepted?'':state.specialPath,
+    specialMerit:accepted?0:state.specialMerit,specialPreparation:accepted?0:state.specialPreparation,
+    specialPath:accepted?'':state.specialPath,
     lastSpecialPathYear:accepted?-1:state.lastSpecialPathYear,
     lastSpecialPromotionYear:accepted?-1:state.lastSpecialPromotionYear,
     operations:accepted?[]:state.operations,tasks:accepted?[]:state.tasks,
@@ -181,7 +184,7 @@ function resign(raw,ctx={}){
  const title=job?.label||ctx.career||'Carrière précédente';
  return {ok:true,job,
   state:{...state,current:null,jobHunt:false,raisePct:0,lastRaiseYear:-1,lastPromotionYear:-1,
-    specialMerit:0,specialPath:'',lastSpecialPathYear:-1,lastSpecialPromotionYear:-1,
+    specialMerit:0,specialPreparation:0,specialPath:'',lastSpecialPathYear:-1,lastSpecialPromotionYear:-1,
     history:[...state.history,{kind:'resigned',title,year:Math.floor(Number(ctx.year)||0)}].slice(-25)}};
 }
 function stringHash(str){let h=2166136261;for(const ch of String(str)){h=Math.imul(h^ch.charCodeAt(0),16777619)}return h>>>0}
@@ -342,11 +345,23 @@ function specialPromotion(raw,ctx={},roll=.5){
     history:[...s.history,{kind:accepted?'special_promoted':'special_promotion_refused',
       title:gate.next,year}].slice(-25)}};
 }
+function preparationStatus(raw,ctx={}){
+ const state=normalize(raw,ctx.year),job=byId(state.current?.id);
+ if(job?.kind!=='special')return null;
+ const config=data.specialPreparation?.[job.faction];
+ if(!config)return null;
+ return {label:config.label,plural:config.plural,hint:config.hint,
+   amount:state.specialPreparation,capacity:config.capacity||6};
+}
 function specialStatus(op,raw,ctx={}){
  const state=normalize(raw,ctx.year),career=state.current;
  if(!op||!data.specialOperations.some(x=>x.id===op.id))return {available:false,reason:'Opération inconnue.'};
  const route=byId(career?.id);
  const faction=route?.faction||(career?.kind==='special'?ctx.faction:null);
+ const prepInfo=data.specialPreparation?.[faction]||null;
+ const prepSpec=data.operationPreparation?.[op.id]||{};
+ const prepCost=Math.max(0,Math.floor(Number(prepSpec.cost)||0));
+ const prepGain=Math.max(0,Math.floor(Number(prepSpec.gain)||0));
  let reason='';
  if(!career||career.kind!=='special'||faction!==op.faction)reason='Cette opération appartient à une autre carrière spéciale.';
  else if(!ctx.alive)reason='Cette vie est terminée.';
@@ -361,6 +376,8 @@ function specialStatus(op,raw,ctx={}){
  else if(op.role==='heir'&&clamp(ctx.trust,0,100)<55)reason='La confiance dans ton équipage doit atteindre 55/100.';
  else if(op.role==='heir'&&!ctx.hasCrewCaptain)reason='Tu dois d’abord rejoindre un équipage commandé par un capitaine.';
  else if(op.role==='elite'&&!['Agent spécial','Cipher Pol'].includes(ctx.rank))reason='Réservé aux agents spéciaux et au Cipher Pol.';
+ else if(state.specialPreparation<prepCost)reason='Prépare cette opération : '+prepCost+' '+(prepInfo?.plural||'ressources')+
+   ' nécessaires ('+state.specialPreparation+' disponibles).';
  else if(skillValue(op,ctx)<op.skillMin)reason=op.skill+' requis : '+op.skillMin+'/100.';
  const year=Math.floor(Number(ctx.year)||0),used=state.operations.filter(x=>x.year===year&&x.id===op.id).length;
  const remaining=Math.max(0,Math.max(1,op.limit)-used);
@@ -373,7 +390,9 @@ function specialStatus(op,raw,ctx={}){
  const baseChance=clamp(op.chance+(skillValue(op,ctx)-op.skillMin)*.003+rankFactor+
   (op.role==='heir'?(clamp(ctx.trust,0,100)-55)*.005:0),0.18,0.90);
  const chance=clamp(baseChance+pathBonus,0.18,0.97);
- return {available:!reason,reason,remaining,limit:op.limit,cost:op.cost,chance};
+ return {available:!reason,reason,remaining,limit:op.limit,cost:op.cost,chance,
+  preparation:state.specialPreparation,preparationCost:prepCost,preparationGain:prepGain,
+  preparationLabel:prepInfo?.plural||'ressources'};
 }
 function specialOperations(raw,ctx={}){
  return (data.specialOperations||[]).filter(op=>op.faction===(
@@ -394,9 +413,14 @@ function specialPerform(raw,id,ctx={},roll=.5){
  const healthLoss=success?0:Math.round(op.injury*(.65+clamp(roll,0,1)*.35));
  const year=Math.floor(Number(ctx.year)||0);
  const meritGain=Math.max(1,success?(9+Math.round(xp/5)+(bonus?3:0)):2);
- const next={...state,specialMerit:Math.min(9999,state.specialMerit+meritGain),
+ const consumed=gate.preparationCost||0,earned=success?(gate.preparationGain||0):0;
+ const capacity=data.specialPreparation?.[faction]?.capacity||6;
+ const specialPreparation=Math.min(capacity,Math.max(0,state.specialPreparation-consumed+earned));
+ const next={...state,specialMerit:Math.min(9999,state.specialMerit+meritGain),specialPreparation,
    operations:[...state.operations,{id:op.id,year,success}].slice(-45)};
  return {ok:true,op,state:next,success,xp,pay,bounty,healthLoss,energyCost:op.cost,successChance:gate.chance,
+  preparationSpent:consumed,preparationEarned:earned,preparationBalance:specialPreparation,
+  preparationLabel:gate.preparationLabel,
   standing:success?3.8:-0.5,trust:op.role==='heir'?(success?8:-14):(success?2.2:-0.9),meritGain};
 }
 // Sector-specific everyday employment is separate from faction operations.
@@ -447,6 +471,6 @@ function ordinaryTaskPerform(raw,id,ctx={},roll=.5){
 r.register('careerMarketEngineV112',{
  version:'12.0.0',normalize,byId,crewOffers,chooseCrew,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
  specialPathOptions,specialPathStatus,chooseSpecialPath,specialPromotionStatus,specialPromotion,
- civilPromotionStatus,civilPromotion,ordinaryTaskStatus,ordinaryTasks,ordinaryTaskPerform,specialStatus,specialOperations,specialPerform
+ civilPromotionStatus,civilPromotion,ordinaryTaskStatus,ordinaryTasks,ordinaryTaskPerform,preparationStatus,specialStatus,specialOperations,specialPerform
 });
 })(window);
