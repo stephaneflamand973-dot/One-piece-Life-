@@ -168,7 +168,7 @@ assert(m.specialStatus(ops.find(x=>x.id==='pirate_recruit'),pirateCareer,{...val
 assert(!m.specialStatus(ops.find(x=>x.id==='pirate_recruit'),pirateCareer,{...valid,faction:'Pirates',isCaptain:false}).available,'Only captains may recruit crew members');
 assert(!m.specialStatus(ops.find(x=>x.id==='pirate_loyalty'),pirateCareer,{...valid,faction:'Pirates',isCaptain:true}).available,'Captains cannot earn their own captain loyalty');
 assert(!m.raiseStatus(pirateCareer,salaryContext).available,'Special careers cannot negotiate civilian salary raises');
-const pirateCrewMember=m.normalize({current:{id:'pirate_join',kind:'special',startYear:18}},21);
+const pirateCrewMember=m.normalize({current:{id:'pirate_join',kind:'special',startYear:18},specialPreparation:2},21);
 const command={...valid,faction:'Pirates',rank:'Bras droit',isCaptain:false,hasCrewCaptain:true,trust:70,energy:90};
 const duel=ops.find(x=>x.id==='pirate_challenge');
 assert(duel?.role==='heir','Pirate leadership must be an independent operation');
@@ -178,6 +178,8 @@ assert(!m.specialStatus(duel,pirateCrewMember,{...command,trust:30}).available,
   'A challenge requires real crew trust');
 assert(!m.specialStatus(duel,pirateCrewMember,{...command,hasCrewCaptain:false}).available,
   'The takeover requires an existing captain, not an imaginary opponent');
+assert(!m.specialStatus(duel,m.normalize({current:{id:'pirate_join',kind:'special',startYear:18}},21),command).available,
+ 'A captaincy challenge needs the support and coordination of the crew before risking mutiny');
 const captainGate=m.specialStatus(duel,pirateCrewMember,command);
 assert(captainGate.available&&captainGate.chance>0&&captainGate.chance<1,
   'Qualified player must have a real chance to claim leadership');
