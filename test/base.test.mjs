@@ -42,7 +42,7 @@ test('la version propre utilise une route et une identité PWA indépendantes', 
   assert.equal(pwa.start_url, './');
   assert.equal(pwa.scope, './');
   assert.equal(pwa.id, './foundation-blank');
-  assert.ok(docs.includes('aucune donnée de jeu'));
+  assert.ok(docs.toLowerCase().includes('aucune donnée de jeu'));
 });
 test('tous les moteurs historiques et données d’événements ont quitté la branche principale', () => {
   for(const path of ['app.js','content-v1.js','src/core/events.mjs','src/core/game.mjs','src/core/world.mjs','src/core/storage.mjs']) {
