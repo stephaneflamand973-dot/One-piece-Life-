@@ -399,11 +399,16 @@ youth.pendingDecision=null;
 assert(youthHub.build().find(x=>x.id==='education:focus:practice')?.available,'School choices did not renew on age-up');
 console.log('V12.0.0 INTEGRATED YOUTH DIRECT ACTION QA OK');
 
-/* V11.0.1 : full menu deletion using the real save functions and simulated storage. */
+/* V12: old slot keys cannot be loaded into the new career simulation. */
+store.set('opl-slot-1',JSON.stringify({player:{name:'Ancienne vie'}}));
 q.setGame(null);q.setStorageBackend(null,true);
-const slotA={player:{name:'Sauvegarde A',faction:'Marine',island:'Loguetown'},ageMonths:24*12,version:'11.0.0',seed:111};
-const slotB={player:{name:'Sauvegarde B',faction:'Pirates',island:'Water 7'},ageMonths:25*12,version:'11.0.0',seed:222};
-store.set('opl-slot-1',JSON.stringify(slotA));store.set('opl-slot-2',JSON.stringify(slotB));
+assert((await q.loadSlot(1))===null,'Legacy save keys must be ignored by V12 career simulations');
+store.delete('opl-slot-1');
+/* V12: full menu deletion using the new independent V12 saves. */
+q.setGame(null);q.setStorageBackend(null,true);
+const slotA={player:{name:'Sauvegarde A',faction:'Marine',island:'Loguetown'},ageMonths:24*12,version:'12.0.0',seed:111};
+const slotB={player:{name:'Sauvegarde B',faction:'Pirates',island:'Water 7'},ageMonths:25*12,version:'12.0.0',seed:222};
+store.set('opl-v12-slot-1',JSON.stringify(slotA));store.set('opl-v12-slot-2',JSON.stringify(slotB));
 await q.renderSlots();
 assert(await q.openSaveManager(),'Main home save manager failed to open');
 assert(el('#saveManagerList').innerHTML.includes('Sauvegarde A')&&el('#saveManagerList').innerHTML.includes('Sauvegarde B'),'Main manager must show saved characters');
@@ -415,33 +420,33 @@ assert(!q.requestDeleteSlot(3,null),'Empty slot must not open confirmation');
 assert(q.requestDeleteSlot(1,slotA),'First save cannot request deletion');
 assert(el('#deleteSaveDescription').textContent.includes('Sauvegarde A')&&el('#deleteSaveDescription').textContent.includes('emplacement 1'),'Confirmation does not identify save');
 assert(q.cancelDeleteSlot(),'Cancellation failed');
-assert(store.has('opl-slot-1')&&store.has('opl-slot-2'),'Cancellation modified save data');
+assert(store.has('opl-v12-slot-1')&&store.has('opl-v12-slot-2'),'Cancellation modified save data');
 assert(q.requestDeleteSlot(1,slotA),'Confirmation cannot reopen');
 assert(await q.confirmDeleteSlot(),'Local delete was not confirmed');
-assert(!store.has('opl-slot-1')&&store.has('opl-slot-2'),'Deletion damaged other slots or failed');
+assert(!store.has('opl-v12-slot-1')&&store.has('opl-v12-slot-2'),'Deletion damaged other slots or failed');
 assert(el('#saveSlots').innerHTML.includes('Nouvelle vie')&&el('#saveSlots').innerHTML.includes('Sauvegarde B'),'Home slots were not refreshed');
 assert(!await q.deleteSlot(0)&&!await q.deleteSlot(4),'Invalid save slot allowed');
 await q.renderSlots();
 assert(el('#saveSlots').innerHTML.includes('data-delete-slot="1" disabled'),'Deleted slot must show a disabled delete button after refresh');
 assert(q.requestDeleteSlot(2,slotB),'Other save not individually deletable');
-assert(await q.confirmDeleteSlot()&&!store.has('opl-slot-2'),'Other save could not be deleted independently');
+assert(await q.confirmDeleteSlot()&&!store.has('opl-v12-slot-2'),'Other save could not be deleted independently');
 const indexed=new Map([['slot-3',{id:'slot-3',game:slotA,updatedAt:1}]]);
 const fakeDb={transaction(_name,_mode){const tx={oncomplete:null,onerror:null,onabort:null,
  objectStore(){return{delete(id){queueMicrotask(()=>{indexed.delete(id);tx.oncomplete?.()})},
  get(id){const req={result:null,onsuccess:null,onerror:null};
  queueMicrotask(()=>{req.result=indexed.get(id)||null;req.onsuccess?.()});return req}}}};return tx}};
-store.set('opl-slot-3',JSON.stringify(slotB));
+store.set('opl-v12-slot-3',JSON.stringify(slotB));
 q.setStorageBackend(fakeDb,false);
 await q.renderSlots();
 assert(el('#saveSlots').innerHTML.includes('Sauvegarde A'),'IndexedDB save not shown');
 assert(q.requestDeleteSlot(3,slotA),'IndexedDB save cannot request deletion');
 assert(await q.confirmDeleteSlot(),'IndexedDB delete did not confirm');
-assert(!indexed.has('slot-3')&&!store.has('opl-slot-3'),'IndexedDB/local fallback not both deleted');
+assert(!indexed.has('slot-3')&&!store.has('opl-v12-slot-3'),'IndexedDB/local fallback not both deleted');
 assert(await q.loadSlot(3)===null,'Deleted IndexedDB save can still be loaded');
 assert(el('#saveSlots').innerHTML.includes('data-delete-slot="3" disabled'),'Deleted IndexedDB slot must show disabled delete button');
 q.setStorageBackend({transaction(){throw Error('IndexedDB unavailable')}},false);
-store.set('opl-slot-1',JSON.stringify(slotB));
+store.set('opl-v12-slot-1',JSON.stringify(slotB));
 assert(!await q.deleteSlot(1),'Database failure falsely reported success');
-assert(store.has('opl-slot-1'),'Failed IndexedDB transaction erased the last local copy');
+assert(store.has('opl-v12-slot-1'),'Failed IndexedDB transaction erased the last local copy');
 q.setStorageBackend(null,true);
 console.log('V12.0.0 INTEGRATED HOME SAVE DELETION QA OK');
