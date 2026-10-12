@@ -1,3 +1,19 @@
+# ONE PIECE LIFE — Refonte des carrières (12 octobre 2026)
+
+Le **marché de l'emploi V11.2** est maintenant jouable sur la version V11.0.1 du simulateur.
+
+- **42 métiers ordinaires** répartis dans la mer, l'artisanat, le commerce, l'hôtellerie, l'agriculture, la santé, l'éducation, les arts et la sécurité. Ils ont des conditions d'âge, de qualification, des offres locales renouvelées et une rémunération propre à chaque métier.
+- **6 voies spéciales** : rejoindre un équipage pirate, fonder son propre équipage, Marine, Gouvernement Mondial, chasse aux primes et Révolutionnaires. Ces voies conservent leurs missions, grades et mécanismes du monde existant.
+- **Candidatures et entretiens** : postuler, présenter ses compétences, rassurer l'employeur, afficher son ambition, être accepté ou refusé. Les candidatures sont plafonnées par an et les offres ordinaires varient selon l'île et l'année.
+- **Carrière active** : travailler volontairement pour recevoir des Berry et de l'expérience, choisir sa méthode de travail, demander promotion ou prime, aider son équipe, accomplir des missions et démissionner. Le salaire civil est calculé d'après le métier, le rang et le rendement réel.
+- **Piraterie** : deux débuts distincts. Rejoindre un équipage crée un capitaine PNJ ; fonder le sien place le joueur au commandement, exige du capital et permet de choisir le nom du pavillon.
+- **Sauvegardes** : les anciennes carrières restent reconnues, avec une démission possible pour accéder au nouveau marché ; l'ancienne décision de carrière forcée à quinze ans a été remplacée par une invitation à postuler librement.
+- **Qualité** : tests du moteur de recrutement, des entretiens, des limites annuelles et d'une séquence intégrée du vrai jeu (postuler → entretien → travailler → démissionner) : `scripts/qa-v112.mjs` et `scripts/qa-v95-runtime.mjs`.
+
+La progression d'âge, la formation, les relations et la vie familiale utilisent les mécaniques existantes, sans gains automatiques de salaire, de grade ou d'XP lors du seul passage d'une année.
+
+---
+
 # ONE PIECE LIFE — Gameplay épuré et décisions prioritaires (11 octobre 2026)
 
 Le parcours principal se limite à **Vie → Activités → résultat → Avancer d'un an**.
