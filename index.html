@@ -3613,7 +3613,15 @@ function v103RenderCareer(){
   if(!box||!badge)return;
   const p=game.player,m=v103Module(),data=v103Data(),state=v103Ensure();
   if(!m||!data||!state){box.innerHTML='<p>Le tableau professionnel est indisponible.</p>';return}
-  if(p.career==='Aucune'){badge.textContent='EN ATTENTE';box.innerHTML='<p>Choisis une carrière pour accéder aux missions internes, modes de travail et négociations.</p>';return}
+  if(p.career==='Aucune'){badge.textContent='EN ATTENTE';box.innerHTML='<p>Choisis un métier ordinaire ou une carrière spéciale dans Activités → Carrière.</p>';return}
+  if(v112Ensure()?.current?.kind==='special'){
+    badge.textContent='PARCOURS SPÉCIAL';
+    box.innerHTML='<p class="v103-subtitle"><b>'+esc(p.faction)+'</b> • '+esc(p.rank)+'</p>'+
+      '<p class="v103-hint">Cette carrière possède ses propres opérations, spécialisations et promotions. Les horaires, primes et méthodes de travail d’un emploi ordinaire ne s’appliquent pas.</p>'+
+      '<button type="button" class="v103-career-action" id="v112OpenSpecialFromProfile">Voir mon dossier de carrière spéciale ›</button>';
+    const open=$('#v112OpenSpecialFromProfile');if(open)open.onclick=()=>v95Ensure()?.goCategory('career');
+    return;
+  }
   const org=v73Ensure(),branch=v73Module()?.branchById(p.faction,org?.branch),profile=m.profile(p.faction);
   badge.textContent=Math.round(state.performance)+'/100';
   const selector='<label class="v103-mode-label" for="v103WorkMode">Méthode de travail<select id="v103WorkMode">'+
@@ -6182,7 +6190,52 @@ function careerProgressInfo(p=game.player){
   return {active:true,ranks,index,next,atMax,xpNeed,scoreNeed,xpNow,xpMet,skillScore,scoreMet,metrics,pirateCaptain,commandNow,pirateRep,captainCommandMet,captainRepMet,captainEligible,prestige,orgReview}
 }
 function renderCareerProgress(){
-  const box=$('#careerProgressCard');if(!box)return;const p=game.player,c=careerProgressInfo(p);
+  const box=$('#careerProgressCard');if(!box)return;const p=game.player;
+  const route=v112Ensure()?.current,marketEngine=v112Engine(),marketContext=route? v112Context():null;
+  const recognized=route&&marketEngine?.byId(route.id);
+  if(recognized?.kind==='special'){
+    const gate=marketEngine.specialPromotionStatus(v112Ensure(),marketContext);
+    const requirements=gate?.next?[
+      ['Mérite',gate.merit,gate.meritRequired],
+      ['Expérience',gate.xp,gate.xpRequired],
+      ['Opérations réussies',gate.successes,gate.successesRequired],
+      ['Confiance',gate.trust,gate.trustRequired]
+    ]:[];
+    box.innerHTML='<div class="career-progress-head"><div><div class="career-progress-route">'+esc(p.faction)+' • '+esc(p.rank)+
+      (gate?.next?' <span>→ '+esc(gate.next)+'</span>':'')+'</div>'+
+      '<div class="career-progress-sub">Carrière spéciale : grades gagnés via les opérations, le mérite et une demande volontaire. Aucun avancement automatique.</div></div>'+
+      '<span class="badge">SPÉCIAL</span></div>'+
+      (requirements.length?'<div class="requirement-list">'+requirements.map(([label,now,needed])=>
+        '<div class="requirement-row '+(Number(now)>=Number(needed)?'met':'blocked')+'"><span>'+
+        (Number(now)>=Number(needed)?'✓ ':'✕ ')+esc(label)+'</span><strong>'+
+        Math.floor(Number(now)||0)+' / '+Math.floor(Number(needed)||0)+'</strong></div>').join('')+'</div>':'')+
+      '<div class="career-hint">'+esc(gate?.reason||'Conditions réunies : présente ton dossier depuis Carrière.')+'</div>'+
+      '<button type="button" class="mini-action" id="v112SpecialProfileToCareer">Voir mes opérations et mon évolution ›</button>';
+    const open=$('#v112SpecialProfileToCareer');if(open)open.onclick=()=>v95Ensure()?.goCategory('career');
+    return;
+  }
+  if(recognized?.kind==='ordinary'){
+    const gate=marketEngine.civilPromotionStatus(v112Ensure(),marketContext);
+    const req=gate?.next?[
+      ['Expérience',gate.xp,gate.xpRequired],
+      ['Séances de travail',gate.sessions,gate.sessionsRequired],
+      ['Performance',gate.performance,gate.performanceRequired],
+      ['Confiance',gate.trust,25]
+    ]:[];
+    box.innerHTML='<div class="career-progress-head"><div><div class="career-progress-route">'+esc(p.career)+
+      ' • '+esc(p.rank)+(gate?.next?' <span>→ '+esc(gate.next)+'</span>':'')+'</div>'+
+      '<div class="career-progress-sub">Emploi ordinaire : travaille, accumule de l’expérience puis demande une promotion. Les grades de faction ne s’appliquent pas.</div></div>'+
+      '<span class="badge">MÉTIER</span></div>'+
+      (req.length?'<div class="requirement-list">'+req.map(([label,now,needed])=>
+        '<div class="requirement-row '+(Number(now)>=Number(needed)?'met':'blocked')+'"><span>'+
+        (Number(now)>=Number(needed)?'✓ ':'✕ ')+esc(label)+'</span><strong>'+
+        Math.floor(Number(now)||0)+' / '+Math.floor(Number(needed)||0)+'</strong></div>').join('')+'</div>':'')+
+      '<div class="career-hint">'+esc(gate?.reason||'Dossier recevable : demande une promotion depuis ton poste.')+'</div>'+
+      '<button type="button" class="mini-action" id="v112OrdinaryProfileToCareer">Accéder à mon emploi ›</button>';
+    const open=$('#v112OrdinaryProfileToCareer');if(open)open.onclick=()=>v95Ensure()?.goCategory('career');
+    return;
+  }
+  const c=careerProgressInfo(p);
   if(!c.active){box.innerHTML='<div class="career-hint">Choisis d’abord une carrière. La progression de rang apparaîtra ici avec ses critères exacts.</div>';return}
   if(c.atMax){const pr=c.prestige||v63PrestigeInfo(p),pct=pr.max?100:clamp(c.xpNow/Math.max(1,pr.threshold)*100,0,100);box.innerHTML='<div class="career-progress-head"><div><div class="career-progress-route">'+esc(p.rank)+' <span>• '+(pr.level?esc(pr.title):'rang maximal')+'</span></div><div class="career-progress-sub">Le grade est au maximum, mais la carrière continue par prestige, autorité et influence interne.</div></div><span class="badge">'+(pr.max?'LÉGENDE':'PRESTIGE '+pr.level+'/5')+'</span></div>'+(pr.max?'':'<div><div class="progress-line"><strong>'+esc(pr.nextTitle)+'</strong><small>'+Math.floor(c.xpNow)+' / '+pr.threshold+' XP • score '+Math.floor(pr.score)+' / '+pr.scoreNeed+'</small></div><div class="progress-meter"><span style="width:'+pct+'%"></span></div></div>')+'<div class="prestige-line">Le prestige ne remplace pas la puissance : il mesure la reconnaissance durable de ta carrière.</div>';return}
   const ordinaryBlocked=p.faction==='Pirates'&&c.next==='Capitaine',r=c.orgReview;
