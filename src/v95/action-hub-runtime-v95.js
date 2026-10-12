@@ -239,6 +239,11 @@ function createRuntime(bridge){
     const market=bridge.careerMarket?.();
     if(!market)return '';
     const active=market.active;
+    const cfg=active?bridge.careerConfig?.():null;
+    const modes=cfg?.options?.length?'<label class="opl-training-focus" for="oplCareerMode">Méthode de travail'+
+      '<select id="oplCareerMode" '+(cfg.editable?'':'disabled')+'>'+
+      cfg.options.map(o=>'<option value="'+escapeHtml(o.id)+'" '+(cfg.current===o.id?'selected':'')+'>'+escapeHtml(o.label)+'</option>').join('')+
+      '</select></label><small>'+escapeHtml(cfg.options.find(o=>o.id===cfg.current)?.description||'')+'</small>':'';
     const type=market.selected,remaining=type==='special'?market.remainingSpecial:market.remainingOrdinary;
     const current=active?'<section class="opl-job-current"><div class="opl-job-top"><span class="eyebrow">Poste actuel</span>'+
       '<span class="opl-job-type">'+(active.kind==='ordinary'?'Emploi ordinaire':'Carrière spéciale')+'</span></div>'+
@@ -247,7 +252,7 @@ function createRuntime(bridge){
       ' • Performance : '+Math.round(Number(market.performance)||0)+'/100</p>'+
       (market.income?'<p>Revenu estimé : <strong>'+market.income.perAction.toLocaleString('fr-FR')+
       ' B par travail</strong> • jusqu’à '+market.income.annualMax.toLocaleString('fr-FR')+' B si tu travailles quatre fois.</p>':'')+
-      '<div class="opl-job-current-actions">'+
+      modes+'<div class="opl-job-current-actions">'+
       '<button type="button" data-v95-run="manual:work" '+(bridge.manualStatus?.('work')?.available?'':'disabled')+'>Travailler maintenant ›</button>'+
       '<button type="button" class="opl-job-resign" data-v112-quit>Quitter mon poste</button>'+
       '</div></section>':
@@ -424,6 +429,7 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-view]').forEach(b=>b.onclick=()=>bridge.careerView?.(b.dataset.v112View));
     root.querySelectorAll?.('[data-v112-apply]').forEach(b=>b.onclick=()=>bridge.careerAction?.('apply',b.dataset.v112Apply));
     root.querySelectorAll?.('[data-v112-quit]').forEach(b=>b.onclick=()=>bridge.careerAction?.('quit'));
+    root.querySelectorAll?.('.opl-job-current [data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
     root.querySelectorAll?.('.opl-domain-cta [data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
     const more=node('oplHubMore');
     if(more)more.onclick=()=>{showAll=!showAll;if(!showAll)query='';const shell=node('oplSearchShell');if(shell)shell.classList.toggle('hidden',!showAll);if(search)search.value=query;renderResults()};
