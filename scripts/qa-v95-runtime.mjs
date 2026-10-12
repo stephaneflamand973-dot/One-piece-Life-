@@ -104,6 +104,9 @@ hub.renderHub();assert(el('#v95Hub').innerHTML.includes('data-v112-answer'),'A r
 assert(q.careerDo('answer','skills'),'The real interview response must resolve');
 assert(c.player.career===job.label,'A qualified applicant with a favorable outcome must get the job');
 assert(q.careerMarket().active?.id===job.id,'Job identity must persist after hiring');
+hub.renderHub();
+assert(el('#v95Hub').innerHTML.includes('Actions professionnelles'),'Employed characters need their own workplace menu');
+assert(!el('#v95Hub').innerHTML.includes('data-v112-apply='),'Employed characters must not see irrelevant job applications');
 assert(c.player.money===beforeCash,'Being hired must not create passive salary');
 assert(hub.execute('manual:work'),'A newly hired ordinary worker must be able to work manually');
 assert(c.player.money>beforeCash,'The chosen ordinary profession must pay only after work');
