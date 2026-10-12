@@ -1,8 +1,8 @@
 import fs from 'node:fs';import assert from 'node:assert/strict';
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes("<title>ONE PIECE LIFE — V11.0.1</title>"));
-assert(html.includes("const GAME_VERSION = '11.0.1'"));
+assert(html.includes("<title>ONE PIECE LIFE — V12.0.0</title>"));
+assert(html.includes("const GAME_VERSION = '12.0.0'"));
 assert(html.includes('id="deleteSaveModal"')&&html.includes('id="deleteSaveCancel"')&&html.includes('id="deleteSaveConfirm"'));
 assert(html.includes('aria-labelledby="deleteSaveTitle"')&&html.includes('aria-describedby="deleteSaveDescription"'));
 assert(html.includes('data-delete-slot=')&&html.includes('class="save-slot-delete"'),'Missing per-slot delete action');
@@ -15,12 +15,12 @@ const deletion=html.slice(html.indexOf('async function deleteSlot(slot){'),html.
 assert(deletion.includes('if(!indexedDeleted)return false'),'Failed IndexedDB transactions must not discard local copies');
 assert(deletion.indexOf("tx.objectStore(STORE).delete")<deletion.indexOf('localStorage.removeItem(localKey(slot))'),'IndexedDB deletion must commit before local deletion');
 assert(html.indexOf('id="saveSlots"')<html.indexOf('class="hero-card paper-card"'),'Saved game controls must appear before hero on home');
-assert(html.includes('ONE PIECE LIFE • V11.0.1')&&!html.includes('V8.7 • Islands & Settlements 4.0'),'Home hero must match V11.0.1');
+assert(html.includes('ONE PIECE LIFE • V12.0.0')&&!html.includes('V8.7 • Islands & Settlements 4.0'),'Home hero must match V12.0.0');
 for(let n=1;n<=3;n++)assert(html.includes('data-delete-slot="'+n+'" disabled'),'Empty slot must show disabled delete affordance '+n);
 assert(html.includes('Aucune sauvegarde à supprimer'),'Empty slot label missing');
 assert(html.includes("updateViaCache:'none'")&&html.includes("controllerchange"),'Installed iPhone app must detect updates');
 assert(sw.includes("event.request.mode==='navigate'")&&sw.includes("cache:'no-store'"),'Navigation must bypass stale PWA shell');
-assert(sw.includes('one-piece-life-v11-0-1-v12-carrieres2'),'The V12 career rebuild cache must be active');
+assert(sw.includes('one-piece-life-v12-0-0-carrieres3'),'The V12 career rebuild cache must be active');
 
 assert(html.includes('function requestDeleteSlot(')&&html.includes('async function confirmDeleteSlot(')&&html.includes('function cancelDeleteSlot('));
 assert(html.includes('async function deleteSlot(slot)')&&html.includes('localStorage.removeItem(localKey(slot))'));
@@ -29,7 +29,7 @@ assert(html.includes('if(removed)removed=(await loadSlot(slot))===null'),'Deleti
 assert(html.includes('let pendingDeleteSlot=null,deleteBusy=false,slotRenderEpoch=0'),'Concurrent operation guard missing');
 assert(html.includes("$('#deleteSaveConfirm').onclick=confirmDeleteSlot"));
 assert(html.includes("$('#deleteSaveCancel').onclick=cancelDeleteSlot"));
-assert(sw.includes('one-piece-life-v11-0-1'),'PWA cache not bumped');
-assert(manifest.description.includes('V11.0.1'),'Installable game version missing');
+assert(sw.includes('one-piece-life-v12-0-0'),'PWA cache not bumped');
+assert(manifest.description.includes('V12.0.0'),'Installable game version missing');
 new Function(html.split('<script>')[1]?.split('</script>')[0]||'');
-console.log('V11.0.1 HOME DELETE STATIC QA OK');
+console.log('V12.0.0 HOME DELETE STATIC QA OK');
