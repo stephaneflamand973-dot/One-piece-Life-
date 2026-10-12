@@ -362,6 +362,26 @@ function createRuntime(bridge){
           '</strong><small>'+escapeHtml(x.description||'')+'</small></button>').join('')+'</div>'+
         '<button type="button" class="opl-job-more" data-v112-cancel>Annuler cet entretien</button></section>';
     }
+    const legacy=market.legacy;
+    if(legacy?.exists){
+      const canImport=!!legacy.available;
+      return '<section class="opl-job-market opl-legacy-career" aria-label="Ancienne carrière à régulariser">'+
+        '<div class="opl-job-intro"><span class="eyebrow">Ancienne sauvegarde</span>'+
+        '<h3>Reprendre ton parcours</h3><p>Tu exerces déjà '+escapeHtml(legacy.title)+
+        '. Le nouveau système sépare les emplois classiques des carrières spéciales. Ta sauvegarde ne sera pas modifiée sans ton choix.</p></div>'+
+        (legacy.job?'<article class="opl-job-card"><span class="opl-job-sector">'+
+          escapeHtml(legacy.job.kind==='special'?'Carrière spéciale':'Métier ordinaire')+'</span>'+
+          '<strong>'+escapeHtml(legacy.job.label)+'</strong>'+
+          '<p>'+(legacy.rankPreserved?'Ton grade '+escapeHtml(legacy.rank)+' peut être conservé.':
+            'Le nouveau parcours reprendra au grade '+escapeHtml(legacy.rank)+'.')+'</p>'+
+          '<button type="button" data-v112-legacy-import '+(canImport?'':'disabled')+
+          '>Reprendre ma carrière dans le nouveau système ›</button></article>':
+          '<p class="opl-job-block-reason">Ce métier ancien ne correspond à aucune offre du nouveau catalogue. Tu peux repartir sur le marché du travail.</p>')+
+        (legacy.reason?'<p class="opl-job-block-reason">'+escapeHtml(legacy.reason)+'</p>':'')+
+        '<button type="button" class="opl-job-more opl-job-resign" data-v112-legacy-exit '+
+        ((!bridge.getGame()?.alive||bridge.getGame()?.pendingDecision||bridge.getGame()?.player?.travel)?'disabled':'')+
+        '>Quitter mon ancien parcours et chercher un nouveau métier</button></section>';
+    }
     const active=market.active;
     if(active?.kind==='special')return renderSpecialCareerBoard(market)+renderSkillPractice(market);
     const cfg=active?bridge.careerConfig?.():null;
@@ -622,6 +642,8 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-crew-select]').forEach(b=>b.onclick=()=>bridge.careerAction?.('crew_select',b.dataset.v112CrewSelect));
     root.querySelectorAll?.('[data-v112-apply]').forEach(b=>b.onclick=()=>bridge.careerAction?.('apply',b.dataset.v112Apply));
     root.querySelectorAll?.('[data-v112-quit]').forEach(b=>b.onclick=()=>bridge.careerAction?.('quit'));
+    root.querySelectorAll?.('[data-v112-legacy-import]').forEach(b=>b.onclick=()=>bridge.careerAction?.('legacy_import'));
+    root.querySelectorAll?.('[data-v112-legacy-exit]').forEach(b=>b.onclick=()=>bridge.careerAction?.('legacy_exit'));
     root.querySelectorAll?.('[data-v112-raise]').forEach(b=>b.onclick=()=>bridge.careerAction?.('raise'));
     root.querySelectorAll?.('[data-v112-civil-promotion]').forEach(b=>b.onclick=()=>bridge.careerAction?.('civil_promotion'));
     root.querySelectorAll?.('[data-v112-ordinary-task]').forEach(b=>b.onclick=()=>bridge.careerAction?.('ordinary_task',b.dataset.v112OrdinaryTask));
