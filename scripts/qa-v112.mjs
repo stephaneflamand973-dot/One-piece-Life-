@@ -11,7 +11,7 @@ assert(data.ordinary.length>=40,'There must be a broad catalogue of jobs');
 assert(data.special.length>=6,'Pirates, marines, government, hunters and revolutionaries are required');
 assert(data.special.some(x=>x.id==='pirate_join')&&data.special.some(x=>x.id==='pirate_found'),'Joining or founding a pirate crew must be distinct');
 const valid={age:21,year:21,island:'Shells Town',career:'Aucune',rank:'Sans emploi',faction:'Civil',energy:95,money:5000,bounty:0,
- skills:{Combat:45,Commandement:60,Navigation:65,Discrétion:40},stats:{Discipline:60,Intelligence:75,Force:75,Endurance:75,Charisme:60},schoolBonus:12,alive:true,pending:false,travel:false};
+ skills:{Combat:45,Commandement:60,Navigation:65,Discrétion:40,Médecine:75,Science:75,Artisanat:65,Cuisine:40,Commerce:60,Survie:70,Arts:50},stats:{Discipline:60,Intelligence:75,Force:75,Endurance:75,Charisme:60},alive:true,pending:false,travel:false};
 const state=m.normalize({},21);
 valid.region='East Blue';
 const worldCrew={id:'east-vipers',name:'Équipage des Vipères',power:68,captainPower:76,region:'East Blue',status:'active'};
@@ -31,7 +31,26 @@ const [first,second,third,fourth]=vacancies;
 const child={...valid,age:12,year:12};
 assert(!m.status(first,state,child).available,'Children must not join full-time jobs');
 assert(m.status(first,state,valid).available,'An unemployed adult must be allowed to apply to local vacancies');
-assert(!m.status(m.byId('doctor'),state,{...valid,stats:{Intelligence:5}}).available,'Specialized jobs need prerequisites');
+assert(!m.status(m.byId('doctor'),state,{...valid,skills:{...valid.skills,Médecine:5}}).available,'Specialized jobs need actual vocational mastery, not school credentials');
+assert(m.status(m.byId('doctor'),state,{...valid,stats:{Intelligence:5}}).reason!=='Niveau requis en Médecine : 65/100 (actuel 5).',
+  'A school subject must not masquerade as real medical skill');
+const marineSchool0=m.status(m.byId('marine'),state,{...valid,schoolBonus:0});
+const marineSchool20=m.status(m.byId('marine'),state,{...valid,schoolBonus:20});
+assert(marineSchool0.available===marineSchool20.available&&marineSchool0.chance===marineSchool20.chance,
+  'Diplomas and classroom knowledge cannot alter recruitment chances');
+assert(data.ordinary.every(job=>data.careerSkills.some(skill=>skill.id===job.skill)),
+  'All civilian jobs must use trainable real One Piece skills');
+const practices=m.practiceChoices(state,valid);
+assert(practices.length>=12&&practices.some(x=>x.id==='Cuisine'),'Hands-on vocational skills must be directly trainable');
+let trained=state;
+for(let i=0;i<4;i++){
+ const practice=m.practice(trained,'Médecine',valid);
+ assert(practice.ok&&practice.gain>0&&practice.cost===9,'Hands-on training must award positive skill growth at an energy cost');
+ trained=practice.state;
+}
+assert(!m.practiceStatus(trained,'Médecine',valid).available,'Practice must respect the annual quota');
+assert(m.practiceStatus(m.normalize(trained,22),'Médecine',{...valid,year:22}).available,'The following year must renew practice');
+assert(!m.practice(state,'Diplôme de médecine',valid).ok,'Nonexistent credentials are not trainable skills');
 const interview=m.startInterview(state,first.id,valid);
 assert(interview.ok&&interview.state.interview.id===first.id,'An application should open an interview');
 assert(!m.startInterview(interview.state,second.id,valid).ok,'No second interview may start while another is unresolved');
