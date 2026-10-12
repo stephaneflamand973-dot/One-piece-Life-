@@ -235,6 +235,51 @@ function createRuntime(bridge){
       '<button type="button" data-v95-run="'+relevant+'" '+(available?'':'disabled')+'>'+
       (category==='career'?'Travailler →':'S’entraîner →')+'</button></div></section>';
   }
+  function renderCareerBoard(){
+    const market=bridge.careerMarket?.();
+    if(!market)return '';
+    const active=market.active;
+    const type=market.selected,remaining=type==='special'?market.remainingSpecial:market.remainingOrdinary;
+    const current=active?'<section class="opl-job-current"><div class="opl-job-top"><span class="eyebrow">Poste actuel</span>'+
+      '<span class="opl-job-type">'+(active.kind==='ordinary'?'Emploi ordinaire':'Carrière spéciale')+'</span></div>'+
+      '<h3>'+escapeHtml(active.label)+'</h3>'+
+      '<p>Grade : '+escapeHtml(market.rank)+' • Expérience : '+Math.round(Number(market.careerXP)||0)+
+      ' • Performance : '+Math.round(Number(market.performance)||0)+'/100</p>'+
+      (market.income?'<p>Revenu estimé : <strong>'+market.income.perAction.toLocaleString('fr-FR')+
+      ' B par travail</strong> • jusqu’à '+market.income.annualMax.toLocaleString('fr-FR')+' B si tu travailles quatre fois.</p>':'')+
+      '<div class="opl-job-current-actions">'+
+      '<button type="button" data-v95-run="manual:work" '+(bridge.manualStatus?.('work')?.available?'':'disabled')+'>Travailler maintenant ›</button>'+
+      '<button type="button" class="opl-job-resign" data-v112-quit>Quitter mon poste</button>'+
+      '</div></section>':
+      '<div class="opl-job-intro"><strong>Ton avenir se décide ici.</strong>'+
+      '<p>Consulte les offres, postule et passe un recrutement. Un refus est possible, et ta progression dépend ensuite de tes actions.</p></div>';
+    const tabs='<div class="opl-job-tabs" role="group" aria-label="Choisir son parcours">'+
+      '<button type="button" data-v112-view="ordinary" aria-pressed="'+(type==='ordinary')+'" class="'+(type==='ordinary'?'selected':'')+'">Métiers ordinaires</button>'+
+      '<button type="button" data-v112-view="special" aria-pressed="'+(type==='special')+'" class="'+(type==='special'?'selected':'')+'">Carrières spéciales</button></div>';
+    const heading='<div class="opl-job-header"><strong>'+(type==='ordinary'?'Offres d’emploi':'Recrutements spéciaux')+'</strong>'+
+      '<small>'+remaining+' candidature'+(remaining>1?'s':'')+' restante'+(remaining>1?'s':'')+' cette année</small></div>';
+    const cards=market.entries.map(job=>{
+      const st=job.status||{},available=!!st.available;
+      return '<article class="opl-job-card '+(available?'':'opl-job-disabled')+'">'+
+        '<div class="opl-job-top"><div><span class="opl-job-sector">'+escapeHtml(job.sector||job.faction)+'</span>'+
+        '<h4>'+escapeHtml(job.label)+'</h4></div>'+
+        (job.kind==='ordinary'?'<strong class="opl-job-salary">'+Number(job.pay||0).toLocaleString('fr-FR')+' B</strong>':'')+'</div>'+
+        '<p>'+escapeHtml(job.description||'Niveau conseillé : '+job.skill+' '+job.skillMin+'/100')+'</p>'+
+        '<div class="opl-job-requirements"><span>Âge : '+job.minAge+' ans</span>'+
+        '<span>'+escapeHtml(job.skill||'')+' '+(job.skillMin||0)+'/100</span>'+
+        (job.money?'<span>Coût : '+job.money.toLocaleString('fr-FR')+' B</span>':'')+
+        (available?'<span>Probabilité estimée : '+Math.round(st.chance*100)+' %</span>':'')+'</div>'+
+        (available?'<button type="button" data-v112-apply="'+escapeHtml(job.id)+'">Postuler ›</button>':
+          '<small class="opl-job-block-reason">'+escapeHtml(st.reason||'Conditions non réunies')+'</small>')+'</article>';
+    }).join('');
+    const more=type==='ordinary'&&!market.allOffers?'<button type="button" class="opl-job-more" data-v112-view="all">Voir tous les métiers disponibles dans le monde ›</button>':
+      type==='ordinary'?'<button type="button" class="opl-job-more" data-v112-view="all">Voir les offres de cette année</button>':'';
+    const history=market.history?.length?'<div class="opl-job-history"><strong>Mes candidatures récentes</strong>'+
+      market.history.map(h=>'<p>'+escapeHtml(h.title)+' • '+(h.kind==='hired'?'Acceptée':h.kind==='rejected'?'Refusée':'Démission')+
+      ' • '+h.year+' ans</p>').join('')+'</div>':'';
+    return '<section class="opl-job-market" aria-label="Marché de l’emploi et carrières spéciales">'+current+tabs+heading+
+      '<div class="opl-job-list">'+cards+'</div>'+more+history+'</section>';
+  }
   function renderRelationCards(selected){
     const game=bridge.getGame(),state=getState();
     const people=(game?.relations||[]).filter(p=>p?.id&&p.status!=='left').map((person,index)=>{
@@ -357,7 +402,7 @@ function createRuntime(bridge){
       '<button type="button" id="oplHubBack" class="opl-hub-back '+(state.category==='all'?'hidden':'')+'">'+(person?'‹ Toutes les relations':'‹ Tous les domaines')+'</button>'+
       '<div class="opl-hub-categories-heading"><strong>Choisir un domaine</strong><small>Travail, combat, relations, voyages…</small></div>'+
       '<div id="v95HubCategories" class="v95-categories" role="group" aria-label="Catégories d’actions">'+data.categories.map(x=>'<button type="button" data-v95-category="'+x.id+'" class="v95-category '+(x.id===state.category?'selected':'')+'" aria-pressed="'+(x.id===state.category?'true':'false')+'"><span class="v95-category-name">'+x.icon+' '+escapeHtml(x.label)+'</span><small class="v95-category-count" aria-label="'+categoryCount(x.id)+' actions disponibles">'+categoryCount(x.id)+'</small></button>').join('')+'</div>'+
-      renderDomainSpotlight(state.category,allActions)+
+      (state.category==='career'?renderCareerBoard():renderDomainSpotlight(state.category,allActions))+
       '<div class="v95-section-title"><strong>'+(person?'Interactions avec '+escapeHtml(person.name):state.category==='all'?'Actions à faire maintenant':escapeHtml(chosen?.label||'Activités'))+'</strong><small id="v95HubCount"></small></div>'+
       '<div id="v95HubResults" class="v95-results"></div>'+
       '<button id="oplHubMore" type="button" class="opl-hub-more" aria-expanded="'+String(showAll)+'">Voir toutes les possibilités</button>'+
@@ -376,6 +421,9 @@ function createRuntime(bridge){
     if(focus)focus.onchange=()=>bridge.setTrainingFocus?.(focus.value);
     const mode=node('oplCareerMode');
     if(mode)mode.onchange=()=>bridge.setCareerMode?.(mode.value);
+    root.querySelectorAll?.('[data-v112-view]').forEach(b=>b.onclick=()=>bridge.careerView?.(b.dataset.v112View));
+    root.querySelectorAll?.('[data-v112-apply]').forEach(b=>b.onclick=()=>bridge.careerAction?.('apply',b.dataset.v112Apply));
+    root.querySelectorAll?.('[data-v112-quit]').forEach(b=>b.onclick=()=>bridge.careerAction?.('quit'));
     root.querySelectorAll?.('.opl-domain-cta [data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
     const more=node('oplHubMore');
     if(more)more.onclick=()=>{showAll=!showAll;if(!showAll)query='';const shell=node('oplSearchShell');if(shell)shell.classList.toggle('hidden',!showAll);if(search)search.value=query;renderResults()};
