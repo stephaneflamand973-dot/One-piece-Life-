@@ -61,6 +61,8 @@ assert(hub.includes("data-v95-shortcut=\"career\"")&&hub.includes('function goCa
 assert(html.includes('setCareerMode:id=>v103SetMode(id)'),'The canonical profession work modes must remain available');
 assert(hub.includes('function renderCareerBoard()')&&hub.includes('data-v112-apply=')&&hub.includes('data-v112-quit'),'The new BitLife employment marketplace must replace legacy career-only actions');
 assert(html.includes('careerMarket:()=>v112Market()'),'Career board must connect to the authoritative recruitment engine');
+assert(hub.includes('data-v112-crew-select')&&hub.includes('opl-crew-picker'),'Pirate crew selection must be a visible interactive choice');
+assert(html.includes('const joined=out.joinCrew')&&html.includes('crewOptions:v112Engine()?.crewOffers'),'Pirate recruitment must preserve the selected captain and use living-world options');
 assert(hubCss.includes('.opl-life-entry::before')&&hubCss.includes('#relationsPanel > section.paper-card:not(.v95-relations-quick)'),'Journal and relationship simplification must have mobile CSS');
 assert(hub.includes("const listed=!showAll&&!query.trim()&&spotlightId?selected.filter(x=>x.id!==spotlightId):selected;"),'Spotlight actions must not be duplicated in the compact list');
 assert(hub.includes("const actions=selected.filter(x=>x.id.startsWith(prefix)&&x.kind!=='open');"),'Social cards must use all engine-provided interactions, including romance and rivalry');
@@ -71,7 +73,7 @@ assert(hubCss.includes('.opl-person-open:focus-visible'),'Person detail menu mus
 assert(hub.includes('const eligible=scoped.filter(x=>x.available).length;'),'Person interaction counts must apply to the selected person');
 assert(html.includes('setTrainingFocus:id=>v102SetTrainingFocus(id)')&&hub.includes('focus.onchange=()=>bridge.setTrainingFocus?.(focus.value)'),'Training focus must call the existing saved training engine');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Invalid single-element query loop');
-assert(sw.includes('one-piece-life-v11-0-1-carrieres13'),'Offline update not invalidated');
+assert(sw.includes('one-piece-life-v11-0-1-carrieres14'),'Offline update not invalidated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 new Function('window',hub);
 console.log('ONE PIECE LIFE : GAMEPLAY PURIFIÉ STATIC QA OK');
