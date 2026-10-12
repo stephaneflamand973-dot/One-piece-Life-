@@ -1,10 +1,10 @@
 {
-  "name": "one-piece-life-rebirth",
+  "name": "one-piece-life-foundation",
+  "version": "0.0.0",
   "private": true,
-  "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "test": "node --check src/ui/app.mjs && node --check src/core/game.mjs && node --test test/*.test.mjs"
+    "test": "node --check foundation/src/ui/app.mjs && node --check foundation/src/core/engine.mjs && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=20"

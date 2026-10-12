@@ -1,13 +1,13 @@
 {
-  "name": "One Piece Life",
+  "name": "One Piece Life • Fondation",
   "short_name": "OP Life",
-  "description": "Simulateur de vie dans l’univers de One Piece",
-  "id": "./",
+  "description": "Base vierge One Piece Life",
+  "id": "./foundation-blank",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f8f7f3",
-  "theme_color": "#f8f7f3",
+  "background_color": "#f9f8f5",
+  "theme_color": "#f9f8f5",
   "lang": "fr",
   "orientation": "portrait-primary",
   "icons": [
