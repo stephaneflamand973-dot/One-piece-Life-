@@ -1,13 +1,13 @@
 {
-  "name": "One Piece Life : Rebirth",
+  "name": "One Piece Life",
   "short_name": "OP Life",
-  "description": "Simulation de vie dans l’univers One Piece. Base Rebirth.",
-  "id": "./rebirth",
+  "description": "Simulateur de vie dans l’univers de One Piece",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f1e8",
-  "theme_color": "#f5f1e8",
+  "background_color": "#f8f7f3",
+  "theme_color": "#f8f7f3",
   "lang": "fr",
   "orientation": "portrait-primary",
   "icons": [

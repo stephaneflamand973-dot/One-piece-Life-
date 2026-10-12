@@ -1,159 +1,170 @@
 import { createGame, advanceYear, STAT_KEYS } from '../core/game.mjs';
 import { SEAS } from '../core/world.mjs';
-import { saveGame, loadGame, deleteGame } from '../core/storage.mjs';
+import { loadGame, saveGame, deleteGame } from '../core/storage.mjs';
 
 const root = document.querySelector('#app');
-const TABS = [
-  ['life', 'Vie', '⌂'],
-  ['activities', 'Activités', '✦'],
-  ['relationships', 'Relations', '♡'],
-  ['career', 'Carrière', '▣'],
-  ['assets', 'Biens', '◇']
-];
-const STAT_LABELS = { sante: 'Santé', bonheur: 'Bonheur', intelligence: 'Intelligence', apparence: 'Apparence' };
+const LABELS = { sante: 'Santé', bonheur: 'Bonheur', intelligence: 'Intelligence', apparence: 'Apparence' };
 let game = loadGame();
-let tab = 'life';
-let draftSea = 'random';
-let error = '';
+let selectedSea = 'random';
+let menuOpen = false;
+let notice = '';
 
-const esc = value => String(value ?? '').replace(/[&<>"']/g, c =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const fmt = n => new Intl.NumberFormat('fr-FR').format(n);
-function option(value, label, selected) {
-  return `<option value="${esc(value)}" ${selected === value ? 'selected' : ''}>${esc(label)}</option>`;
+function escapeHtml(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
-function seaOptions(selected) {
-  return option('random', 'Aléatoire', selected) + SEAS.map(s => option(s.id, s.name, selected)).join('');
+function makeOption(value, label, current) {
+  return `<option value="${escapeHtml(value)}" ${value === current ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+}
+function seaOptions() {
+  return makeOption('random', 'Aléatoire', selectedSea) +
+    SEAS.map(sea => makeOption(sea.id, sea.name, selectedSea)).join('');
 }
 function placeOptions() {
-  if (draftSea === 'random') return option('random', 'Aléatoire', 'random');
-  const sea = SEAS.find(s => s.id === draftSea);
-  return option('random', 'Aléatoire', 'random') + sea.places.map(p => option(p, p, 'random')).join('');
+  const sea = SEAS.find(s => s.id === selectedSea);
+  return makeOption('random', 'Aléatoire', 'random') +
+    (sea ? sea.places.map(place => makeOption(place, place, 'random')).join('') : '');
 }
-function createScreen() {
+function renderCreation() {
   root.innerHTML = `
-  <div class="create-wrap">
-    <div class="create-header">
-      <span class="brand-mark">OP</span>
-      <p class="eyebrow">ONE PIECE LIFE · REBIRTH 0.1</p>
-      <h1>Une nouvelle vie<br>commence ici.</h1>
-      <p>Un personnage. Une histoire. Une année à la fois.</p>
-    </div>
-    <form id="create-form" class="create-card">
-      <h2>Créer votre personnage</h2>
-      <label>Prénom <small>(facultatif)</small><input name="firstName" placeholder="Aléatoire" maxlength="32" autocomplete="off"></label>
-      <label>Nom <small>(facultatif)</small><input name="lastName" placeholder="Aléatoire" maxlength="32" autocomplete="off"></label>
-      <label>Genre<select name="gender">${option('random','Aléatoire','random')}${option('M','Masculin','random')}${option('F','Féminin','random')}</select></label>
-      <label>Mer de naissance<select name="sea" id="sea-select">${seaOptions(draftSea)}</select></label>
-      <label>Lieu de naissance<select name="place" id="place-select">${placeOptions()}</select></label>
-      <button class="primary-button" type="submit">Commencer ma vie <span>→</span></button>
-    </form>
-    <p class="small-note">Cette version démarre avec une sauvegarde vierge, indépendante de l'ancien jeu.</p>
-    ${error ? `<p role="alert" class="error">${esc(error)}</p>` : ''}
-  </div>`;
+    <div class="start-screen">
+      <header class="start-header">
+        <div class="logo logo-large" aria-hidden="true">OP</div>
+        <p class="overline">ONE PIECE LIFE</p>
+        <h1>Une vie à écrire.</h1>
+        <p class="start-lead">Votre histoire commence ici.</p>
+      </header>
+      <form id="new-character" class="creation-form">
+        <h2>Nouvelle vie</h2>
+        <div class="field"><label for="first-name">Prénom</label><input id="first-name" name="firstName" type="text" placeholder="Aléatoire" maxlength="32" autocomplete="off"></div>
+        <div class="field"><label for="last-name">Nom</label><input id="last-name" name="lastName" type="text" placeholder="Aléatoire" maxlength="32" autocomplete="off"></div>
+        <div class="field"><label for="gender">Genre</label><select id="gender" name="gender">
+          ${makeOption('random', 'Aléatoire', 'random')}
+          ${makeOption('M', 'Masculin', 'random')}
+          ${makeOption('F', 'Féminin', 'random')}
+        </select></div>
+        <div class="field"><label for="sea-select">Mer de naissance</label><select id="sea-select" name="sea">${seaOptions()}</select></div>
+        <div class="field"><label for="place-select">Lieu de naissance</label><select id="place-select" name="place">${placeOptions()}</select></div>
+        <button type="submit" class="create-button">Commencer ma vie <span aria-hidden="true">→</span></button>
+      </form>
+      ${notice ? `<p role="alert" class="notice">${escapeHtml(notice)}</p>` : ''}
+    </div>`;
 }
-function stats() {
+function renderStats() {
   return STAT_KEYS.map(key => {
-    const value = game.character.stats[key];
-    return `<div class="stat"><div class="stat-label"><span>${STAT_LABELS[key]}</span><strong>${value}%</strong></div><div class="track"><div class="fill ${key}" style="width:${value}%"></div></div></div>`;
+    const number = game.character.stats[key];
+    return `<div class="stat">
+      <div class="stat-top"><span>${LABELS[key]}</span><strong>${number}%</strong></div>
+      <div class="stat-track" role="progressbar" aria-label="${LABELS[key]}" aria-valuenow="${number}" aria-valuemin="0" aria-valuemax="100">
+        <div class="stat-progress stat-${key}" style="width:${number}%"></div>
+      </div>
+    </div>`;
   }).join('');
 }
-function history() {
-  const recent = game.history.slice(-25);
-  return `<div class="timeline">${recent.map((e, i) =>
-    `<article class="entry ${esc(e.type)}"><div class="entry-age">${e.age === 0 ? 'Naissance' : e.age + ' ans'}</div><p>${esc(e.text)}</p></article>`
-  ).join('')}</div>`;
+function renderHistory() {
+  return game.history.map(event => `
+    <article class="story-item ${event.type === 'death' ? 'story-end' : ''}">
+      <div class="story-age">${event.age === 0 ? 'Naissance' : event.age + ' ans'}</div>
+      <p>${escapeHtml(event.text)}</p>
+    </article>`).join('');
 }
-function emptyPanel(symbol, title, description, blocks = '') {
-  return `<section class="module"><span class="module-symbol">${symbol}</span><h2>${title}</h2><p>${description}</p>${blocks}</section>`;
-}
-function panel() {
-  switch(tab) {
-    case 'life':
-      return `<section class="timeline-head"><h2>Votre histoire</h2><span>${game.character.age} ans</span></section>${history()}`;
-    case 'activities':
-      return emptyPanel('✦', 'Activités', 'Les actions du quotidien seront intégrées ici progressivement. Chaque action aura un effet mesurable sur votre vie.');
-    case 'relationships':
-      return emptyPanel('♡', 'Relations', 'Famille, amis et rencontres disposeront d’un système de relations dédié, sans surcharger l’écran Vie.');
-    case 'career':
-      return emptyPanel('▣', 'Carrière', 'Deux voies réellement distinctes, avec leurs propres mécaniques.',
-        '<div class="stub-item"><strong>Métiers ordinaires</strong><span>Emplois, salaires, promotions</span></div><div class="stub-item"><strong>Carrières spéciales</strong><span>Pirate, Marine, Gouvernement, chasseur de primes…</span></div>');
-    case 'assets':
-      return emptyPanel('◇', 'Biens', 'Argent, propriétés, bateaux et possessions auront ici leur place. Aucun système économique artificiel n’est activé.');
-    default: return '';
-  }
-}
-function appScreen() {
+function renderLife() {
   const c = game.character;
+  const sea = SEAS.find(s => s.id === c.sea);
   root.innerHTML = `
-  <div class="game-shell">
-    <header class="topbar"><div class="brand"><span class="brand-mark">OP</span><span>ONE PIECE LIFE</span></div><button class="text-button" data-action="new" aria-label="Commencer une nouvelle vie">Nouvelle vie</button></header>
-    <section class="profile"><p class="eyebrow">VOTRE PERSONNAGE</p><h1>${esc(c.firstName)} ${esc(c.lastName)}</h1><div class="profile-sub"><span>${c.age} ans</span><span aria-hidden="true">·</span><span>${esc(SEAS.find(s => s.id === c.sea)?.name)}</span></div><div class="profile-place">${esc(c.place)}</div><div class="stat-grid">${stats()}</div><div class="wallet">Patrimoine actuel <strong>${fmt(c.money)} B</strong></div></section>
-    <main class="content" id="main-content" tabindex="-1">${panel()}</main>
-    <footer class="bottom-area">
-      ${tab === 'life' ? `<button class="age-button" data-action="age" ${!c.alive ? 'disabled' : ''}>${c.alive ? '+ ÂGE <span>Une année de plus</span>' : 'FIN DE VIE <span>Commencez une nouvelle histoire</span>'}</button>` : ''}
-      <nav class="tabbar" aria-label="Navigation principale">${TABS.map(([key,label,symbol]) =>
-        `<button data-tab="${key}" class="tab ${tab===key?'selected':''}" aria-current="${tab===key?'page':'false'}"><span aria-hidden="true" class="tab-icon">${symbol}</span><span>${label}</span></button>`
-      ).join('')}</nav>
-    </footer>
-    ${error ? `<p role="alert" class="toast">${esc(error)}</p>` : ''}
-  </div>`;
+    <div class="shell">
+      <header class="header">
+        <div class="brand"><span class="logo" aria-hidden="true">OP</span><strong>ONE PIECE LIFE</strong></div>
+        <div class="settings-holder">
+          <button class="settings-button" type="button" data-action="menu" aria-label="Options" aria-expanded="${menuOpen}" aria-controls="settings-menu">⋯</button>
+          ${menuOpen ? `<div id="settings-menu" class="settings-menu"><button type="button" data-action="restart">Nouvelle vie</button></div>` : ''}
+        </div>
+      </header>
+      <section class="identity" aria-label="Votre personnage">
+        <div class="identity-main">
+          <div class="avatar" aria-hidden="true">${escapeHtml(c.firstName.slice(0,1).toUpperCase())}</div>
+          <div class="identity-details">
+            <h1>${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}</h1>
+            <p><strong>${c.age} ans</strong><span class="separator">·</span>${escapeHtml(c.place)}<span class="separator">·</span>${escapeHtml(sea?.name)}</p>
+          </div>
+        </div>
+        <div class="stats" aria-label="Caractéristiques du personnage">${renderStats()}</div>
+      </section>
+      <main class="main" id="main">
+        <div class="story-title"><h2>Ma vie</h2><span>${c.age === 0 ? 'Naissance' : c.age + ' ans'}</span></div>
+        <div class="story-list">${renderHistory()}</div>
+      </main>
+      <div class="action-area">
+        <button type="button" class="age-button" data-action="age" ${!c.alive ? 'disabled' : ''}>
+          <span class="age-symbol" aria-hidden="true">${c.alive ? '+' : '×'}</span>
+          <span>${c.alive ? 'Âge' : 'Vie terminée'}</span>
+        </button>
+        <p>${c.alive ? 'Avancer d’un an' : 'Votre histoire est achevée'}</p>
+      </div>
+      ${notice ? `<div class="notice floating-notice" role="alert">${escapeHtml(notice)}</div>` : ''}
+    </div>`;
 }
 function render() {
-  document.title = game ? `${game.character.firstName} · One Piece Life` : 'One Piece Life | Rebirth';
-  if (!game) createScreen(); else appScreen();
+  document.title = game ? `${game.character.firstName} | One Piece Life` : 'One Piece Life';
+  if (game) renderLife();
+  else renderCreation();
 }
 root.addEventListener('change', e => {
-  if (e.target.id === 'sea-select') {
-    draftSea = e.target.value;
-    document.querySelector('#place-select').innerHTML = placeOptions();
-  }
+  if (e.target.id !== 'sea-select') return;
+  selectedSea = e.target.value;
+  const place = document.querySelector('#place-select');
+  if (place) place.innerHTML = placeOptions();
 });
 root.addEventListener('submit', e => {
-  if (e.target.id !== 'create-form') return;
+  if (e.target.id !== 'new-character') return;
   e.preventDefault();
-  const data = new FormData(e.target);
-  const candidate = createGame({
-    firstName: data.get('firstName'), lastName: data.get('lastName'),
-    gender: data.get('gender'), sea: data.get('sea'), place: data.get('place'),
-    seed: Date.now() >>> 0
+  const f = new FormData(e.target);
+  const next = createGame({
+    firstName: f.get('firstName'), lastName: f.get('lastName'), gender: f.get('gender'),
+    sea: f.get('sea'), place: f.get('place'), seed: Date.now() >>> 0
   });
-  if (!saveGame(candidate)) {
-    error = 'Le navigateur bloque la sauvegarde locale. Activez le stockage pour jouer sans perdre votre progression.';
-  } else { error = ''; game = candidate; tab = 'life'; }
+  if (!saveGame(next)) {
+    notice = 'Le stockage local n’est pas disponible. Impossible de commencer une partie sauvegardée.';
+  } else {
+    game = next;
+    menuOpen = false;
+    notice = '';
+  }
   render();
 });
 root.addEventListener('click', e => {
-  const button = e.target.closest('button');
-  if (!button || button.disabled) return;
-  if (button.dataset.tab) {
-    tab = button.dataset.tab;
-    error = ''; render();
-    document.querySelector('#main-content')?.focus({ preventScroll: true });
+  const btn = e.target.closest('button');
+  if (!btn || btn.disabled) {
+    if (menuOpen && !e.target.closest('.settings-holder')) { menuOpen = false; render(); }
     return;
   }
-  if (button.dataset.action === 'age' && game?.character.alive) {
+  const action = btn.dataset.action;
+  if (action === 'menu') { menuOpen = !menuOpen; render(); return; }
+  if (action === 'restart' && game) {
+    if (!window.confirm('Commencer une nouvelle vie ? Votre partie actuelle sera effacée.')) return;
+    if (!deleteGame()) { notice = 'Impossible de supprimer la sauvegarde.'; render(); return; }
+    game = null; menuOpen = false; selectedSea = 'random'; notice = '';
+    render(); window.scrollTo(0, 0); return;
+  }
+  if (action === 'age' && game?.character.alive) {
     const next = advanceYear(game);
-    if (!saveGame(next)) {
-      error = 'Impossible d’enregistrer cette année : progression non appliquée.';
-    } else { game = next; error = ''; }
+    if (saveGame(next)) { game = next; notice = ''; } else notice = 'Enregistrement impossible : l’année n’a pas été appliquée.';
     render();
-    document.querySelector('.entry:last-child')?.scrollIntoView({ block: 'end', behavior: 'auto' });
+    if (!notice) {
+      const last = root.querySelector('.story-item:last-child');
+      last?.scrollIntoView({ behavior: 'instant', block: 'end' });
+    }
+    return;
   }
-  if (button.dataset.action === 'new' && game) {
-    if (!window.confirm('Commencer une nouvelle vie ? Cette action efface uniquement la sauvegarde Rebirth actuelle.')) return;
-    if (deleteGame()) { game = null; tab = 'life'; draftSea = 'random'; error = ''; }
-    else { error = 'Impossible de supprimer la sauvegarde.'; }
-    render();
-  }
+  if (menuOpen && !e.target.closest('.settings-holder')) { menuOpen = false; render(); }
 });
-// On sort de l'ancien service worker pour éviter de garder en cache l'ancienne interface.
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && menuOpen) { menuOpen = false; render(); }
+});
+// Désactivation des anciennes versions installées : aucune sauvegarde historique n’est effacée.
 if ('serviceWorker' in navigator) {
-  const currentScope = new URL('./', document.baseURI).href;
-  navigator.serviceWorker.getRegistrations()
-    .then(registrations => Promise.all(
-      registrations.filter(reg => reg.scope === currentScope).map(reg => reg.unregister())
-    ))
-    .catch(() => {});
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    const scope = new URL('./', document.baseURI).href;
+    return Promise.all(registrations.filter(r => r.scope === scope).map(r => r.unregister()));
+  }).catch(() => {});
 }
 render();
