@@ -43,9 +43,13 @@ const game={meta:{},ageMonths:240,alive:true,pendingDecision:null,agency:{annual
   relations:[{id:'friend',name:'Mira',status:'active',trust:75,familiarity:75}],
   flags:{relationInteractionYear:{}},activeMission:null,history:[]
 };
-let saves=0,last=null,view='';
+let saves=0,last=null,view='',careerMode=null;
 const runtime=api.createRuntime({
  getGame:()=>game,
+ careerConfig:()=>({current:'steady',performance:64,editable:true,options:[
+  {id:'steady',label:'Travail régulier',description:'Progression stable'},
+  {id:'intensive',label:'Travail intensif',description:'Plus de travail'}]}),
+ setCareerMode:id=>{careerMode=id;return true},
  presets:()=>({balanced:{label:'Équilibré',desc:'Stable'},recovery:{label:'Repos',desc:'Soin'}}),
  recommendedPreset:()=> 'balanced',
  planGroups:()=>({career:{label:'Carrière',options:{steady:{label:'Normal',desc:'Régulier'}}},
@@ -68,6 +72,9 @@ assert(runtime.ensure().recent.includes('mission:mission_one')&&saves>0,'Execute
 runtime.star('mission:mission_one');assert(runtime.ensure().favorites.includes('mission:mission_one'),'Persistent favorites missing');
 runtime.renderHub();runtime.renderLife();
 assert(document.getElementById('v95Hub').innerHTML.includes('Que veux-tu faire ?'),'Action hub UI not rendered');
+assert(document.getElementById('v95LifeQuick').innerHTML.includes('opl-vitals'),'Life must expose authentic condition bars');
+assert(document.getElementById('v95LifeQuick').innerHTML.includes('Mon histoire'),'Life feed must appear on its home screen');
+assert(document.getElementById('v95LifeQuick').innerHTML.includes('data-v95-shortcut="career"'),'Direct career shortcut missing');
 assert(document.getElementById('v95HubResults').innerHTML.includes('Accepter : Escorte'),'Action hub mission label missing');
 assert(document.getElementById('v95LifeQuick').innerHTML.includes('Toutes les actions'),'Life shortcut missing');
 assert(game.meta.actionFeedbackV111?.summary.includes('Berry +250'),'Immediate action result not saved');
@@ -82,11 +89,21 @@ assert(game.meta.actionFeedbackV111?.actionId==='service:inn','A later action mu
 assert(game.meta.actionFeedbackV111?.summary==='Aucun changement immédiat mesurable.','Do not pretend an unchanged action changed stats');
 runtime.renderHub();
 assert(document.getElementById('v95Hub').innerHTML.includes('Retour à ma vie'),'Activity result must offer one-tap return to life');
+game.player.career='Marine';game.player.rank='Recrue';
 game.meta.actionHubV95.category='career';runtime.renderHub();
 assert(document.getElementById('v95Hub').innerHTML.includes('oplHubBack'),'Activity subcategory must have a visible return link');
+assert(document.getElementById('v95Hub').innerHTML.includes('oplCareerMode'),'Career method selector must be shown in career overview');
+document.getElementById('oplCareerMode').value='intensive';
+document.getElementById('oplCareerMode').onchange();
+assert(careerMode==='intensive','Career method selector must use the real career engine bridge');
 game.meta.actionHubV95.category='relations';runtime.renderHub();
 assert(document.getElementById('v95HubResults').innerHTML.includes('data-v95-person="friend"'),'People list must offer a dedicated interaction screen');
+runtime.renderRelations();
+assert(document.getElementById('v95RelationsQuick').innerHTML.includes('Toutes les interactions avec Mira'),'Relations tab must show people before legacy details');
 assert(runtime.focusPerson('friend'),'Choosing a known relationship must open its actions');
+runtime.renderRelations();
+assert(document.getElementById('v95RelationsQuick').innerHTML.includes('Passer du temps avec Mira'),'Dedicated relations tab must show all interactions for the selected person');
+assert(document.getElementById('v95RelationsQuick').innerHTML.includes('oplRelationsBack'),'Dedicated relations tab needs a one-tap back button');
 assert(document.getElementById('v95Hub').innerHTML.includes('Interagir avec Mira'),'Relationship page should name the selected person');
 assert(document.getElementById('v95HubResults').innerHTML.includes('Passer du temps avec Mira'),'Person-specific available actions must be visible');
 assert(!document.getElementById('v95HubResults').innerHTML.includes('Accepter : Escorte'),'Person-specific actions must not mix career choices');
@@ -107,6 +124,8 @@ assert(document.getElementById('v95LifeQuick').innerHTML.includes('oplLifeDecisi
 assert(document.getElementById('v95Hub').innerHTML.includes('oplHubDecisionBtn'),'Activities must spotlight the waiting story choice');
 assert(!document.getElementById('v95Hub').innerHTML.includes('data-v95-quick='),'Pending choice must replace distracting activity suggestions');
 assert(!document.getElementById('v95LifeQuick').innerHTML.includes('data-v95-life='),'Pending choice must replace unusable life actions');
+runtime.renderRelations();
+assert(document.getElementById('v95RelationsQuick').innerHTML.includes('oplRelationsDecisionBtn'),'Pending choice must replace relationships on social tab');
 assert(typeof document.getElementById('oplLifeDecisionBtn').onclick==='function','Life decision call-to-action not wired');
 assert(typeof document.getElementById('oplHubDecisionBtn').onclick==='function','Activity decision call-to-action not wired');
 document.getElementById('oplLifeDecisionBtn').onclick();
