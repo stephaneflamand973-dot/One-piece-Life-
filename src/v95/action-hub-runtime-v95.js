@@ -177,7 +177,7 @@ function createRuntime(bridge){
       }
       bridge.save();
       if(game?.meta&&a.kind!=='open'&&!['decision','advance'].includes(id)){
-        renderLife();
+        renderLife();renderRelations();
         // The game may have switched screens or opened a narrative decision.
         if(!game.pendingDecision){
           renderHub();
@@ -209,8 +209,16 @@ function createRuntime(bridge){
     let extra='';
     if(category==='career'){
       const rank=p.rank||'Non défini',career=p.career||'Aucune';
+      const cfg=bridge.careerConfig?.();
       extra='<p class="opl-domain-caption">'+escapeHtml(career)+' • '+escapeHtml(rank)+'</p>'+
-        '<small>Expérience professionnelle : '+Math.round(Number(p.careerXP)||0).toLocaleString('fr-FR')+'</small>';
+        '<small>Expérience professionnelle : '+Math.round(Number(p.careerXP)||0).toLocaleString('fr-FR')+
+        (cfg?' • Performance '+Math.round(Number(cfg.performance)||0)+'/100':'')+'</small>';
+      if(cfg?.options?.length&&career!=='Aucune'){
+        extra+='<label class="opl-training-focus" for="oplCareerMode">Méthode de travail'+
+          '<select id="oplCareerMode" '+(cfg.editable?'':'disabled')+'>'+
+          cfg.options.map(o=>'<option value="'+escapeHtml(o.id)+'" '+(cfg.current===o.id?'selected':'')+'>'+escapeHtml(o.label)+'</option>').join('')+
+          '</select></label><small>'+(cfg.options.find(o=>o.id===cfg.current)?.description||'')+'</small>';
+      }
     }else{
       const focus=bridge.trainingConfig?.();
       if(focus?.options?.length){
@@ -304,7 +312,7 @@ function createRuntime(bridge){
   function decisionFocus(screen='actions'){
     const decision=bridge.getGame()?.pendingDecision;
     if(!decision)return '';
-    const id=screen==='life'?'oplLifeDecisionBtn':'oplHubDecisionBtn';
+    const id=screen==='life'?'oplLifeDecisionBtn':screen==='relations'?'oplRelationsDecisionBtn':'oplHubDecisionBtn';
     return '<section class="opl-decision-focus" role="status" aria-label="Décision en attente">'+
       '<span class="eyebrow">Ton histoire attend un choix</span>'+
       '<h3>'+escapeHtml(decision.title||'Décision importante')+'</h3>'+
@@ -318,7 +326,7 @@ function createRuntime(bridge){
     if(!person)return false;
     personFocus=id;showAll=false;query='';
     const state=getState();state.category='relations';game.meta.actionHubV95=state;
-    renderHub();bridge.save();
+    renderHub();renderRelations();bridge.save();
     return true;
   }
   function renderHub(){
@@ -364,6 +372,8 @@ function createRuntime(bridge){
     if(search)search.oninput=e=>{query=e.target.value;showAll=true;renderResults()};
     const focus=node('oplTrainingFocus');
     if(focus)focus.onchange=()=>bridge.setTrainingFocus?.(focus.value);
+    const mode=node('oplCareerMode');
+    if(mode)mode.onchange=()=>bridge.setCareerMode?.(mode.value);
     root.querySelectorAll?.('.opl-domain-cta [data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
     const more=node('oplHubMore');
     if(more)more.onclick=()=>{showAll=!showAll;if(!showAll)query='';const shell=node('oplSearchShell');if(shell)shell.classList.toggle('hidden',!showAll);if(search)search.value=query;renderResults()};
@@ -378,6 +388,13 @@ function createRuntime(bridge){
     });
     renderResults();
   }
+  function goCategory(category){
+    const state=getState();if(!state)return;
+    state.category=category;personFocus=null;query='';showAll=false;
+    bridge.getGame().meta.actionHubV95=state;
+    bridge.openTab(category==='relations'?'relations':'actions');
+    renderHub();renderRelations();bridge.save();
+  }
   function renderLife(){
     const root=node('v95LifeQuick'),state=getState();if(!root||!state)return;
     if(bridge.getGame()?.pendingDecision){
@@ -387,14 +404,64 @@ function createRuntime(bridge){
       return;
     }
     const top=engine.featured(build().filter(x=>x.available&&x.kind!=='open'&&x.id!=='advance'&&x.id!=='decision'),state,2);
-    root.innerHTML=actionFeedback()+'<div class="v95-breadcrumb"><div><span class="eyebrow">Cette année</span><h3>À toi de jouer</h3></div><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
+    const game=bridge.getGame(),p=game.player,year=Math.floor((game.ageMonths||0)/12);
+    const vital=(label,value)=>'<div class="opl-vital"><div><span>'+label+'</span><strong>'+Math.round(Math.max(0,Math.min(100,Number(value)||0)))+'%</strong></div>'+
+      '<div class="opl-vital-track" role="progressbar" aria-label="'+label+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.round(Math.max(0,Math.min(100,Number(value)||0)))+'"><span style="width:'+Math.round(Math.max(0,Math.min(100,Number(value)||0)))+'%"></span></div></div>';
+    const history=(game.history||[]).filter(x=>x&&x.title).slice(0,4);
+    const story='<section class="opl-life-story" aria-label="Journal de vie"><div class="opl-life-story-head"><strong>Mon histoire</strong><small>'+year+' ans</small></div>'+
+      (history.length?'<div class="opl-life-entries">'+history.map(h=>'<article class="opl-life-entry"><span>'+
+      (Number.isFinite(Number(h.ageMonths))?Math.floor(Number(h.ageMonths)/12)+' ans':year+' ans')+'</span>'+
+      '<div><strong>'+escapeHtml(h.title)+'</strong>'+(h.desc?'<p>'+escapeHtml(h.desc)+'</p>':'')+'</div></article>').join('')+'</div>':
+      '<p>Ton histoire commence. Choisis une activité pour écrire la suite.</p>')+'</section>';
+    root.innerHTML=actionFeedback()+
+      '<section class="opl-vitals" aria-label="État de ton personnage">'+vital('Santé',p.health)+vital('Énergie',p.energy)+'</section>'+
+      '<div class="v95-breadcrumb"><div><span class="eyebrow">Cette année</span><h3>À toi de jouer</h3></div><button type="button" id="v95AllActionsBtn">Toutes les actions ›</button></div>'+
       (top.length?'<div class="v95-quick">'+top.map(x=>'<button type="button" data-v95-life="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Action disponible</span></button>').join('')+'</div>':
-        '<p class="v95-empty">Aucune activité immédiate disponible. Avance d’un an pour renouveler tes possibilités.</p>');
+        '<p class="v95-empty">Aucune activité immédiate disponible. Avance d’un an pour renouveler tes possibilités.</p>')+
+      '<div class="opl-life-shortcuts" aria-label="Domaines principaux">'+
+        '<button type="button" data-v95-shortcut="career">Métier ›</button>'+
+        '<button type="button" data-v95-shortcut="training">Entraînement ›</button>'+
+        '<button type="button" data-v95-shortcut="relations">Relations ›</button></div>'+story;
     bindFeedback(root);
     const all=node('v95AllActionsBtn');if(all)all.onclick=()=>bridge.openTab('actions');
     root.querySelectorAll?.('[data-v95-life]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Life));
+    root.querySelectorAll?.('[data-v95-shortcut]').forEach(b=>b.onclick=()=>goCategory(b.dataset.v95Shortcut));
   }
-  return {ensure:getState,build,execute,star,focusPerson,renderHub,renderLife,renderResults,version:'9.5.0'}
+  function renderRelations(){
+    const root=node('v95RelationsQuick'),game=bridge.getGame();if(!root||!game)return;
+    const state=getState();
+    if(game.pendingDecision){
+      root.innerHTML=decisionFocus('relations');
+      const decide=node('oplRelationsDecisionBtn');
+      if(decide)decide.onclick=()=>execute('decision');
+      return;
+    }
+    const all=build().filter(x=>x.category==='relations');
+    const selected=engine.select(all,{...state,category:'relations'},'');
+    const person=(game.relations||[]).find(p=>p?.id!=null&&String(p.id)===String(personFocus)&&p.status!=='left');
+    if(personFocus&&!person)personFocus=null;
+    if(person){
+      const prefix='relation:'+encodeURIComponent(person.id)+':';
+      const actions=selected.filter(x=>x.id.startsWith(prefix));
+      const score=Math.max(0,Math.min(100,Math.round(Number(person.trust)||0)));
+      root.innerHTML=actionFeedback()+
+        '<button type="button" class="opl-hub-back" id="oplRelationsBack">‹ Toutes les relations</button>'+
+        '<div class="opl-person-summary"><span class="eyebrow">Relation</span><h2>'+escapeHtml(person.name)+'</h2>'+
+        '<div class="opl-vital"><div><span>Confiance</span><strong>'+score+'%</strong></div>'+
+        '<div class="opl-vital-track" role="progressbar" aria-label="Confiance" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+score+'"><span style="width:'+score+'%"></span></div></div>'+
+        '</div><div class="opl-person-actions opl-person-actions-expanded">'+actions.map(x=>
+          '<button type="button" data-v95-run="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
+          '<strong>'+escapeHtml(x.title)+'</strong><small>'+escapeHtml(x.available?x.detail:x.reason||'Indisponible')+'</small></button>').join('')+'</div>';
+      const back=node('oplRelationsBack');if(back)back.onclick=()=>{personFocus=null;renderRelations();renderHub()};
+    }else{
+      root.innerHTML='<div class="opl-relations-intro"><span class="eyebrow">Relations</span><h2>Mes proches et mes rivaux</h2>'+
+        '<p>Sélectionne une personne pour choisir ce que tu veux faire avec elle.</p></div>'+renderRelationCards(selected);
+      root.querySelectorAll?.('[data-v95-person]').forEach(b=>b.onclick=()=>focusPerson(b.dataset.v95Person));
+    }
+    root.querySelectorAll?.('[data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
+    bindFeedback(root);
+  }
+  return {ensure:getState,build,execute,star,focusPerson,goCategory,renderHub,renderLife,renderRelations,renderResults,version:'9.5.0'}
 }
 registry.register('actionHubRuntimeV95',{version:'9.5.0',createRuntime});
 })(window);
