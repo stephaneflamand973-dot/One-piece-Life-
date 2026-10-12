@@ -95,7 +95,7 @@ assert(hub.includes('data-v112-answer=')&&hub.includes('data-v112-cancel'),'Appl
 assert(hub.includes('data-v112-crew-select')&&hub.includes('opl-crew-picker')&&hub.includes('Sélectionne d’abord un équipage'),
  'Pirate recruitment must require player-driven target selection');
 assert(html.includes("if(action==='crew_select')")&&html.includes('const joined=out.joinCrew')&&html.includes("v112Engine()?.crewOffers"),
- 'Chosen crew must flow all the way to the canonical player's ship without rerolling');
+ "Chosen crew must flow all the way to the canonical player ship without rerolling");
 assert(html.includes("if(action==='answer')")||html.includes("action==='answer'?state.interview?.id:id"),'Interview answers must reach the real recruitment engine');
 assert(html.includes("v112Engine()?.estimatedPay(employment,{rank:p.rank})"),'Civilian wages must replace generic salaries');
 console.log('V11.2 CAREER MARKET QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
