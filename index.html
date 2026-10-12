@@ -467,6 +467,8 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 <script src="src/v102/action-engine-v102.js"></script>
 <script src="src/data/career-v103.js"></script>
 <script src="src/v103/career-engine-v103.js"></script>
+<script src="src/data/career-market-v112.js"></script>
+<script src="src/v112/career-market-engine-v112.js"></script>
 <script src="src/data/social-v104.js"></script>
 <script src="src/v104/social-engine-v104.js"></script>
 <script src="src/data/economy-v105.js"></script>
@@ -3276,6 +3278,9 @@ function v95Ensure(){
         options:Object.entries(data.modes).map(([id,m])=>({id,label:m.label,description:m.description}))};
     },
     setCareerMode:id=>v103SetMode(id),
+    careerMarket:()=>v112Market(),
+    careerView:type=>v112View(type),
+    careerAction:(type,id)=>v112Do(type,id),
     economyTarget:(kind,id)=>v105SelectTarget(kind,id),
     socialStatus:(id,action)=>v104Status(id,action),
     presets:()=>v90Data()?.presets||{},
@@ -3931,6 +3936,12 @@ function v100Act(id){
         if(!engine||!careerState)return false;
         const result=engine.workSession(careerState,{identity:v103Identity(),faction:p.faction,career:p.career,
           year,rankIndex:Math.max(0,ranks.indexOf(p.rank)),trust:org?.trust||50,efficiency:factor,roll:random('v103Work')});
+        // Ordinary jobs have their own wage scale. Four voluntary sessions are available per year.
+        const employment=v112Ensure(),pay=v112Engine()?.estimatedPay(employment,{rank:p.rank});
+        if(employment?.current?.kind==='ordinary'&&pay){
+          const modeRate=Number(v103Data()?.modes?.[careerState.mode]?.pay)||1;
+          result.pay=Math.max(1,Math.round(pay.perAction*factor*modeRate));
+        }
         p.energy=clamp(p.energy-result.cost,0,100);p.money+=result.pay;p.careerXP+=result.xp;
         p.careerV103=result.state;
         if(v73Module()&&org)p.careerV73=v73Module().applyDelta(org,result.delta,p.faction);
@@ -5510,7 +5521,10 @@ function lifecycleTransitions(){
   }
   if(age>=10&&p.situation==='Enfance'){p.situation='Formation';p.rank='Jeune en formation';p.activity='Apprentissage local';p.activityType='study';addHistory('L’enfance change de rythme','Tu entres dans une période où tes activités commencent à façonner réellement tes compétences.','major')}
   if(age>=13&&!game.flags.ambitionOffered&&!game.pendingDecision){game.flags.ambitionOffered=true;game.pendingDecision=ambitionDecision()}
-  if(age>=15&&p.career==='Aucune'&&!game.flags.careerOffered&&!game.pendingDecision){game.pendingDecision=careerDecision();game.flags.careerOffered=true}
+  if(age>=15&&p.career==='Aucune'&&!game.flags.careerOffered&&!game.pendingDecision){
+    game.flags.careerOffered=true;
+    addHistory('À la recherche d’un emploi','Tu peux maintenant postuler à des métiers ordinaires ou tenter une voie spéciale dans Activités > Carrière.','major');
+  }
   if(age>=18&&p.career!=='Aucune'&&!p.specialization&&!game.flags.specializationOffered&&p.careerXP>16&&!game.pendingDecision){game.flags.specializationOffered=true;game.pendingDecision=specializationDecision()}
 }
 function ambitionDecision(){return {id:'ambition',title:'Une ambition prend forme',text:'Tu commences à avoir une idée plus claire de ce que tu veux faire de ta vie. Ce n’est pas une prophétie, seulement une direction.',choices:AMBITIONS.map(([label,hint,type])=>({label,hint,action:`ambition:${type}`}))}}
