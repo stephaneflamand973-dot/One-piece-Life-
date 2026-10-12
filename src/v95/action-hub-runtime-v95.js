@@ -260,6 +260,13 @@ function createRuntime(bridge){
         '<input type="text" id="oplCrewName" maxlength="42" value="'+escapeHtml(crew?.name||'')+'"/></label>'+
         '<button type="button" class="opl-job-more" data-v112-crew-save>Renommer mon équipage</button>':'')+
       '</section>';
+    const preparation=market.specialPreparation;
+    const preparationCard=preparation?'<section class="opl-special-preparation" aria-label="Préparation des opérations">'+
+      '<div class="opl-job-header"><strong>'+escapeHtml(preparation.label)+'</strong>'+
+      '<small>'+preparation.amount+' / '+preparation.capacity+'</small></div>'+
+      '<div class="opl-special-preparation-track" role="progressbar" aria-label="'+escapeHtml(preparation.label)+'" aria-valuemin="0" aria-valuemax="'+preparation.capacity+
+      '" aria-valuenow="'+preparation.amount+'"><span style="width:'+Math.round(100*preparation.amount/Math.max(1,preparation.capacity))+'%"></span></div>'+
+      '<p>'+escapeHtml(preparation.hint)+'</p></section>':'';
     const promotion=market.specialPromotion||{};
     const progress='<section class="opl-special-progress" aria-label="Progression propre à la faction">'+
       '<div class="opl-job-header"><strong>Dossier de '+escapeHtml(faction)+'</strong>'+
@@ -293,6 +300,8 @@ function createRuntime(bridge){
       return '<article class="opl-special-operation'+(blocked?' locked':'')+'">'+
         '<div><strong>'+escapeHtml(op.label)+'</strong><p>'+escapeHtml(op.description)+'</p>'+
         '<small>'+gate.remaining+'/'+gate.limit+' cette année • '+op.cost+' énergie'+
+        (gate.preparationCost?' • Utilise '+gate.preparationCost+' '+escapeHtml(gate.preparationLabel):'')+
+        (gate.preparationGain?' • Réussite : +'+gate.preparationGain+' '+escapeHtml(gate.preparationLabel):'')+
         (gate.available?' • Réussite '+Math.round(gate.chance*100)+' %':'')+'</small></div>'+
         '<button type="button" data-v112-special="'+escapeHtml(op.id)+'" '+(blocked?'disabled':'')+'>'+
         (gate.available?'Agir ›':'Indisponible')+'</button>'+
@@ -307,7 +316,7 @@ function createRuntime(bridge){
       (isPirate?'<button type="button" class="opl-job-more" data-v112-crew>Consulter mon équipage et mon navire ›</button>':'')+
       '<button type="button" class="opl-job-more opl-job-resign" data-v112-quit>Quitter cette carrière spéciale</button></section>';
     return '<section class="opl-job-market opl-special-career" aria-label="Parcours de faction indépendant">'+
-      overview+paths+'<section class="opl-special-operations"><div class="opl-job-header"><strong>Mes opérations '+escapeHtml(faction)+'</strong>'+
+      overview+preparationCard+paths+'<section class="opl-special-operations"><div class="opl-job-header"><strong>Mes opérations '+escapeHtml(faction)+'</strong>'+
       '<small>Actions propres à cette carrière</small></div>'+operations+'</section>'+progress+extras+'</section>';
   }
   function renderCareerBoard(){
