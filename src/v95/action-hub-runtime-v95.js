@@ -260,6 +260,34 @@ function createRuntime(bridge){
         '<input type="text" id="oplCrewName" maxlength="42" value="'+escapeHtml(crew?.name||'')+'"/></label>'+
         '<button type="button" class="opl-job-more" data-v112-crew-save>Renommer mon équipage</button>':'')+
       '</section>';
+    const promotion=market.specialPromotion||{};
+    const progress='<section class="opl-special-progress" aria-label="Progression propre à la faction">'+
+      '<div class="opl-job-header"><strong>Dossier de '+escapeHtml(faction)+'</strong>'+
+      '<small>Mérite '+Math.round(Number(market.specialMerit)||0)+' points</small></div>'+
+      '<p>'+(promotion.next?'Prochain grade : <strong>'+escapeHtml(promotion.next)+'</strong>':
+        'Tu as atteint le dernier grade ou ta progression dépend d’un défi spécial.')+'</p>'+
+      '<div class="opl-special-progress-grid">'+
+      [['Mérite',promotion.merit,promotion.meritRequired],
+       ['Expérience',promotion.xp,promotion.xpRequired],
+       ['Opérations réussies',promotion.successes,promotion.successesRequired],
+       ['Confiance',promotion.trust,promotion.trustRequired]].map(([label,value,required])=>
+       '<div><small>'+label+'</small><strong>'+Math.floor(Number(value)||0)+' / '+Math.floor(Number(required)||0)+'</strong></div>').join('')+'</div>'+
+      '<button type="button" class="opl-special-promote" data-v112-special-promotion '+(promotion.available?'':'disabled')+'>'+
+      '<strong>'+escapeHtml(promotion.label||'Examen de grade')+' ›</strong>'+
+      '<small>'+escapeHtml(promotion.available?
+        'Réussite '+Math.round(promotion.chance*100)+' % • '+promotion.cost+' énergie':
+        promotion.reason||'Progression indisponible')+'</small></button></section>';
+    const paths='<section class="opl-special-paths" aria-label="Spécialisations de cette carrière">'+
+      '<div class="opl-job-header"><strong>Ma spécialisation</strong><small>Une modification par an</small></div>'+
+      '<p>Choisis une voie propre à ta faction. Les missions adaptées améliorent tes chances, ton expérience et ton mérite.</p>'+
+      '<div class="opl-special-path-grid">'+(market.specialPaths||[]).map(path=>{
+        const st=path.status||{};
+        return '<button type="button" data-v112-special-path="'+escapeHtml(path.id)+'" '+
+          (st.available?'':'disabled')+' class="'+(st.current?'selected':'')+'">'+
+          '<strong>'+escapeHtml(path.label)+(st.current?' ✓':'')+'</strong>'+
+          '<small>'+escapeHtml(path.description)+'</small>'+
+          '<span>'+escapeHtml(st.current?'Spécialisation active':st.available?'Choisir • 5 énergie':st.reason||'Inaccessible')+'</span></button>';
+      }).join('')+'</div></section>';
     const operations=(market.operations||[]).map(op=>{
       const gate=op.status||{},blocked=!gate.available;
       return '<article class="opl-special-operation'+(blocked?' locked':'')+'">'+
@@ -271,7 +299,7 @@ function createRuntime(bridge){
         (blocked?'<small class="opl-special-block">'+escapeHtml(gate.reason||'Conditions non réunies')+'</small>':'')+
         '</article>';
     }).join('');
-    const manual= (['manual:promotion','manual:mission','manual:expedition_coordinate'].map(id=>
+    const manual= (['manual:mission','manual:expedition_coordinate'].map(id=>
       build().find(x=>x.id===id)).filter(Boolean));
     const extras='<section class="opl-special-secondary"><h3>Grades et responsabilités</h3>'+
       '<div class="opl-job-work-actions">'+manual.map(x=>'<button type="button" data-v112-direct="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
@@ -279,8 +307,8 @@ function createRuntime(bridge){
       (isPirate?'<button type="button" class="opl-job-more" data-v112-crew>Consulter mon équipage et mon navire ›</button>':'')+
       '<button type="button" class="opl-job-more opl-job-resign" data-v112-quit>Quitter cette carrière spéciale</button></section>';
     return '<section class="opl-job-market opl-special-career" aria-label="Parcours de faction indépendant">'+
-      overview+'<section class="opl-special-operations"><div class="opl-job-header"><strong>Mes opérations '+escapeHtml(faction)+'</strong>'+
-      '<small>Actions propres à cette carrière</small></div>'+operations+'</section>'+extras+'</section>';
+      overview+paths+'<section class="opl-special-operations"><div class="opl-job-header"><strong>Mes opérations '+escapeHtml(faction)+'</strong>'+
+      '<small>Actions propres à cette carrière</small></div>'+operations+'</section>'+progress+extras+'</section>';
   }
   function renderCareerBoard(){
     const market=bridge.careerMarket?.();
@@ -528,6 +556,7 @@ function createRuntime(bridge){
     const person=state.category==='relations'?(bridge.getGame()?.relations||[]).find(p=>p?.id!=null&&String(p.id)===String(personFocus)&&p.status!=='left'):null;
     if(personFocus&&!person)personFocus=null;
     root.classList?.toggle('opl-hub-drilldown',state.category!=='all');
+    root.classList?.toggle('opl-hub-career',state.category==='career');
     root.innerHTML=actionFeedback(true)+'<div class="v95-hub-head"><span class="eyebrow">Activités</span><h2>'+(person?'Interagir avec '+escapeHtml(person.name):'Que veux-tu faire ?')+'</h2>'+
       '<p>'+(person?'Choisis directement une interaction. Les actions impossibles sont disponibles dans les détails.':'Choisis un domaine, puis touche une action. Les possibilités indisponibles restent rangées dans « Voir toutes les possibilités ».')+'</p></div>'+
       '<div class="v95-quick">'+recommended.map(x=>'<button type="button" data-v95-quick="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.title)+'</strong><span>Recommandé pour toi</span></button>').join('')+'</div>'+
@@ -561,6 +590,8 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-civil-promotion]').forEach(b=>b.onclick=()=>bridge.careerAction?.('civil_promotion'));
     root.querySelectorAll?.('[data-v112-ordinary-task]').forEach(b=>b.onclick=()=>bridge.careerAction?.('ordinary_task',b.dataset.v112OrdinaryTask));
     root.querySelectorAll?.('[data-v112-special]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special',b.dataset.v112Special));
+    root.querySelectorAll?.('[data-v112-special-path]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special_path',b.dataset.v112SpecialPath));
+    root.querySelectorAll?.('[data-v112-special-promotion]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special_promotion'));
     root.querySelectorAll?.('[data-v112-answer]').forEach(b=>b.onclick=()=>bridge.careerAction?.('answer',b.dataset.v112Answer));
     root.querySelectorAll?.('[data-v112-cancel]').forEach(b=>b.onclick=()=>bridge.careerAction?.('cancel'));
     root.querySelectorAll?.('[data-v112-crew-save]').forEach(b=>b.onclick=()=>bridge.careerAction?.('crew_name',node('oplCrewName')?.value||''));
