@@ -73,5 +73,18 @@ const specialOperations=[
  ['revolution_sabotage','Révolutionnaires','Saboter une installation militaire','Affaiblir le Gouvernement sans exposer toute la cellule.',22,'Combat',25,0.45,450,27,900,22,1]
 ].map(([id,faction,label,description,cost,skill,skillMin,chance,pay,xp,bounty,injury,limit,role])=>
  ({id,faction,label,description,cost,skill,skillMin,chance,pay,xp,bounty,injury,limit,role:role||null}));
-r.register('careerMarketDataV112',{version:'11.2.4',ordinary,special,specialOperations,maxOrdinaryApplications:3,maxSpecialApplications:2});
+// Civilian workplace tasks depend on the employed sector and never appear in special careers.
+const ordinaryTasks=[
+ ['sea_delivery','Mer et transport','Assurer une livraison maritime','Une traversée professionnelle exige précision et sang-froid.',12,'Navigation',0,.72,.22,12,7],
+ ['craft_order','Artisanat','Honorer une commande exigeante','Confectionner une pièce de qualité pour un client.',12,'Artisanat',0,.73,.19,12,2],
+ ['service_guest','Hôtellerie et services','Satisfaire une clientèle exigeante','Transformer une journée difficile en excellente réputation.',10,'Charisme',0,.76,.16,10,1],
+ ['trade_deal','Commerce','Conclure une vente importante','Négocier un contrat et gagner la confiance des clients.',11,'Charisme',0,.66,.27,13,1],
+ ['harvest_work','Nature et ressources','Organiser une récolte difficile','Gérer la production malgré les contraintes du terrain.',13,'Endurance',0,.72,.20,12,5],
+ ['medical_case','Santé et sciences','Résoudre un dossier complexe','Mobiliser ton savoir-faire sur une affaire délicate.',15,'Intelligence',10,.64,.22,15,0],
+ ['school_project','Éducation et administration','Mener un projet collectif','Faire aboutir une initiative utile à la communauté.',12,'Intelligence',0,.78,.14,12,0],
+ ['art_show','Arts et spectacles','Préparer une grande représentation','Faire briller ton talent devant un public exigeant.',12,'Charisme',0,.67,.24,11,1],
+ ['protect_client','Sécurité civile','Assurer une mission de protection','Protéger un client et préserver ta réputation.',16,'Combat',0,.62,.28,15,10]
+].map(([id,sector,label,description,cost,skill,skillMin,chance,bonusRate,xp,injury])=>
+ ({id,sector,label,description,cost,skill,skillMin,chance,bonusRate,xp,injury,limit:2}));
+r.register('careerMarketDataV112',{version:'11.2.5',ordinary,special,specialOperations,ordinaryTasks,maxOrdinaryApplications:3,maxSpecialApplications:2});
 })(window);
