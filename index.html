@@ -3199,8 +3199,10 @@ function v112Market(){
   const ctx=v112Context(),active=state.current,known=active?engine.byId(active.id):null;
   const job=active?(known||{label:game.player.career,kind:active.kind}):null;
   const selectedCrew=ctx.crewOptions.find(c=>c.id===state.crewChoice?.id)||null;
-  const entries=(state.selected==='special'?data.special:engine.offers(state,ctx)).map(x=>({...x,status:engine.status(x,state,ctx)}));
-  return {selected:state.selected,allOffers:state.allOffers,active:job,
+  const entries=(state.jobHunt||state.selected==='ordinary'?engine.offers(state,ctx):data.special)
+    .map(x=>({...x,status:engine.status(x,state,ctx)}));
+  return {selected:state.selected,allOffers:state.allOffers,jobHunt:!!state.jobHunt,active:job,
+    promotion:active?.kind==='ordinary'?engine.civilPromotionStatus(state,ctx):null,
     crews:ctx.crewOptions,selectedCrew,
     interview:state.interview?{...state.interview,job:engine.byId(state.interview.id),
       questions:engine.interviewQuestions(state.interview.id)}:null,
@@ -3219,8 +3221,13 @@ function v112Market(){
 }
 function v112View(type){
   const state=v112Ensure();if(!state)return false;
-  if(type==='ordinary'||type==='special')state.selected=type;
-  else if(type==='all')state.allOffers=!state.allOffers;
+  if(type==='switch'){
+    if(state.current?.kind!=='ordinary')return false;
+    state.jobHunt=!state.jobHunt;state.selected='ordinary';
+  }else if(type==='ordinary'||type==='special'){
+    if(state.current)return false;
+    state.selected=type;
+  }else if(type==='all')state.allOffers=!state.allOffers;
   else return false;
   game.meta.careerMarketV112=state;saveGame();v95Ensure()?.renderHub();return true;
 }
@@ -3228,6 +3235,23 @@ function v112Do(action,id){
   if(!game||!game.alive||game.pendingDecision)return false;
   const engine=v112Engine(),state=v112Ensure(),ctx=v112Context();if(!engine||!state)return false;
   const oldFaction=game.player.faction,p=game.player;
+  if(action==='civil_promotion'){
+    const out=engine.civilPromotion(state,ctx,random('v112CivilPromotion:'+ctx.year));
+    if(!out.ok){toast(out.reason||'Promotion inaccessible.');return false}
+    game.meta.careerMarketV112=out.state;
+    p.energy=clamp(p.energy-out.cost,0,100);
+    if(out.accepted){
+      p.rank=out.rank;
+      const org=v73Ensure(),orgEngine=v73Module();
+      if(org&&orgEngine)p.careerV73=orgEngine.applyDelta(org,{standing:4,trust:2},p.faction);
+      addHistory('Promotion professionnelle','Tu deviens '+out.rank+' dans ton métier de '+p.career+
+        '. Tu gagneras davantage lors de tes prochaines séances de travail.','major','Nouveau grade : '+out.rank);
+    }else{
+      addHistory('Promotion refusée','Ton supérieur estime que tu dois encore faire tes preuves. Tu pourras redemander une promotion l’année prochaine.','normal');
+    }
+    toast(out.accepted?'Promotion accordée':'Promotion refusée');
+    saveGame();render();return true;
+  }
   if(action==='ordinary_task'){
     const out=engine.ordinaryTaskPerform(state,id,ctx,random('v112CivilTask:'+id+':'+ctx.year));
     if(!out.ok){toast(out.reason||'Tâche professionnelle indisponible.');return false}
@@ -3377,6 +3401,7 @@ function v112Do(action,id){
     p.career=job.kind==='ordinary'?job.label:job.career;
     p.rank=job.kind==='ordinary'?'Apprenti':job.rank;
     p.careerXP=0;p.careerV103=null;p.careerPrestige=null;p.specialization=null;
+    if(out.switched)p.careerV73=null;
     p.situation=job.kind==='ordinary'?'Emploi : '+job.label:'Nouvelle carrière : '+job.career;
     p.activity='Travailler : '+p.career;p.activityType=job.kind==='ordinary'?'work':
       job.faction==='Pirates'?'crew':job.faction==='Marine'?'marine':
@@ -3401,7 +3426,10 @@ function v112Do(action,id){
     if(job.kind==='special')codexAdd('factions',job.faction==='Gouvernement'?'Gouvernement Mondial':job.faction);
     v79ApplyCareerPreparation(job.kind==='ordinary'?'civil':job.id);
     v81OnFactionChange(oldFaction,p.faction);refreshMissionBoard();
-    addHistory('Candidature acceptée','Tu es recruté comme '+p.career+'. Aucun revenu ni grade n’est attribué sans action de travail.','major',
+    addHistory(out.switched?'Changement d’emploi':'Candidature acceptée',
+      out.switched?'Tu quittes ton poste de '+out.previous.label+' pour devenir '+p.career+
+        '. Ton expérience de poste et les augmentations négociées repartent de zéro.':
+        'Tu es recruté comme '+p.career+'. Aucun revenu ni grade n’est attribué sans action de travail.','major',
       out.fee?'-'+out.fee.toLocaleString('fr-FR')+' B':'');
   }else addHistory('Candidature refusée','Ta candidature pour '+job.label+' est refusée. Tu peux postuler ailleurs ou retenter l’année prochaine.','normal');
   saveGame();render();return true
@@ -4043,7 +4071,10 @@ function v100Status(id){
   const mod=v102Module(),state=v102Ensure();
   if(!mod||!state||!game?.player)return {available:false,remaining:0,reason:'Moteur d’actions indisponible.'};
   const status=mod.status(state,id,Math.floor(game.ageMonths/12),v102Context(id));
-  const special=v112Ensure()?.current?.kind==='special';
+  const route=v112Ensure()?.current;
+  const special=route?.kind==='special';
+  if(route?.kind==='ordinary'&&id==='promotion')
+    return {...status,available:false,reason:'Demande la promotion depuis ton poste civil. Ses critères sont distincts des grades des factions.'};
   if(special&&['work','career_support','career_initiative','career_bonus'].includes(id))
     return {...status,available:false,reason:'Cette carrière spéciale progresse par ses opérations propres, pas par les actions d’un emploi civil.'};
   if(status.available&&v106Data()?.actions?.[id]){
