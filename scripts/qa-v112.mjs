@@ -80,6 +80,33 @@ assert(!m.status(m.byId('marine'),state,{...valid,travel:true}).available,'Appli
 assert(!m.status(m.byId('marine'),state,{...valid,pending:true}).available,'Story decisions must take priority');
 const migrated=m.normalize({current:{id:'legacy',kind:'ordinary',startYear:18}},21);
 assert(m.resign(migrated,{...valid,career:'Marchand'}).ok,'Old careers must be terminable without deleting the save');
+// Distinct special-career engines and independently renewable operations.
+const ops=data.specialOperations;
+assert(ops.length>=15,'Special careers need faction-specific operations');
+for(const faction of [...new Set(data.special.map(x=>x.faction))])
+ assert(ops.filter(x=>x.faction===faction).length>=2,'No specific operations for '+faction);
+const activeMarine=m.normalize({current:{id:'marine',kind:'special',startYear:19}},21);
+const marineActions=m.specialOperations(activeMarine,{...valid,faction:'Marine',rank:'Recrue'});
+assert(marineActions.some(x=>x.id==='marine_patrol')&&marineActions.every(x=>x.faction==='Marine'),'Marines only receive Marine operations');
+const patrol=m.specialPerform(activeMarine,'marine_patrol',{...valid,faction:'Marine',rank:'Recrue'},0);
+assert(patrol.ok&&patrol.success&&patrol.xp>0&&patrol.energyCost>0,'Operations must produce actual costs and XP');
+assert(patrol.state.operations.some(x=>x.id==='marine_patrol'&&x.success),'Results must persist across render and save');
+const failed=m.specialPerform(activeMarine,'marine_arrest',{...valid,faction:'Marine',rank:'Recrue'},1);
+assert(failed.ok&&!failed.success&&failed.healthLoss>0,'Risky careers must include genuine failures and injuries');
+assert(!m.specialPerform(activeMarine,'pirate_raid',{...valid,faction:'Marine'},0).ok,'Marines may not raid as pirates');
+assert(!m.specialPerform(state,'marine_patrol',{...valid,faction:'Marine'},0).ok,'Unemployed characters may not perform special missions');
+let quota=activeMarine;
+for(let i=0;i<2;i++){const result=m.specialPerform(quota,'marine_patrol',{...valid,faction:'Marine',rank:'Recrue'},0);assert(result.ok);quota=result.state}
+assert(!m.specialStatus(ops.find(x=>x.id==='marine_patrol'),quota,{...valid,faction:'Marine'}).available,'Per-operation annual limit must be enforced');
+assert(m.specialStatus(ops.find(x=>x.id==='marine_patrol'),m.normalize(quota,22),{...valid,year:22,faction:'Marine'}).available,'Special missions renew each year');
+const pirateCareer=m.normalize({current:{id:'pirate_found',kind:'special',startYear:18}},21);
+assert(m.specialStatus(ops.find(x=>x.id==='pirate_recruit'),pirateCareer,{...valid,faction:'Pirates',isCaptain:true}).available,'Captains may recruit their crew');
+assert(!m.specialStatus(ops.find(x=>x.id==='pirate_recruit'),pirateCareer,{...valid,faction:'Pirates',isCaptain:false}).available,'Only captains may recruit crew members');
+assert(!m.specialStatus(ops.find(x=>x.id==='pirate_loyalty'),pirateCareer,{...valid,faction:'Pirates',isCaptain:true}).available,'Captains cannot earn their own captain loyalty');
+const govt=m.normalize({current:{id:'government',kind:'special',startYear:18}},21);
+assert(!m.specialStatus(ops.find(x=>x.id==='government_cipher'),govt,{...valid,faction:'Gouvernement',rank:'Recrue'}).available,'Cipher Pol operations require career progression');
+assert(m.specialStatus(ops.find(x=>x.id==='government_cipher'),govt,{...valid,faction:'Gouvernement',rank:'Agent spécial'}).available,'Advanced agents unlock Cipher Pol');
+assert(!m.specialStatus(ops.find(x=>x.id==='government_intel'),govt,{...valid,faction:'Gouvernement',travel:true}).available,'No clandestine operation during a crossing');
 const html=fs.readFileSync('index.html','utf8'),hub=fs.readFileSync('src/v95/action-hub-runtime-v95.js','utf8'),sw=fs.readFileSync('sw.js','utf8');
 for(const path of [...files.slice(1),'src/v112/career-market-v112.css']){
  assert(html.includes(path),'Missing marketplace asset '+path);
@@ -91,6 +118,8 @@ for(const fragment of ['function v112Ensure()','function v112Market()','function
 }
 assert(html.includes("if(age>=15&&p.career==='Aucune'")&&html.includes("À la recherche d’un emploi"),'Career enrollment should be voluntary');
 assert(hub.includes('function renderCareerBoard()')&&hub.includes('data-v112-apply=')&&hub.includes('data-v112-quit'),'Career cards must be actionable');
+assert(hub.includes('function renderSpecialCareerBoard(market)')&&hub.includes('data-v112-special=')&&hub.includes("active?.kind==='special'"),'Special careers need their own UI, separate from employment');
+assert(html.includes("if(action==='special')")&&html.includes('engine.specialPerform(state,id,ctx'),'Special operations must reach the actual stats engine');
 assert(hub.includes('data-v112-answer=')&&hub.includes('data-v112-cancel'),'Applications must display a playable interview with cancellation');
 assert(hub.includes('data-v112-crew-select')&&hub.includes('opl-crew-picker')&&hub.includes('Sélectionne d’abord un équipage'),
  'Pirate recruitment must require player-driven target selection');
@@ -98,4 +127,4 @@ assert(html.includes("if(action==='crew_select')")&&html.includes('const joined=
  "Chosen crew must flow all the way to the canonical player ship without rerolling");
 assert(html.includes("if(action==='answer')")||html.includes("action==='answer'?state.interview?.id:id"),'Interview answers must reach the real recruitment engine');
 assert(html.includes("v112Engine()?.estimatedPay(employment,{rank:p.rank})"),'Civilian wages must replace generic salaries');
-console.log('V11.2 CAREER MARKET QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
+console.log('V11.2 CAREER MARKET QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,operations:ops.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
