@@ -327,6 +327,8 @@ function createRuntime(bridge){
     personFocus=id;showAll=false;query='';
     const state=getState();state.category='relations';game.meta.actionHubV95=state;
     renderHub();renderRelations();bridge.save();
+    const panel=bridge.activeTab?.()==='relations'?'v95RelationsQuick':'v95Hub';
+    node(panel)?.scrollIntoView?.({block:'start',behavior:'smooth'});
     return true;
   }
   function renderHub(){
@@ -394,6 +396,8 @@ function createRuntime(bridge){
     bridge.getGame().meta.actionHubV95=state;
     bridge.openTab(category==='relations'?'relations':'actions');
     renderHub();renderRelations();bridge.save();
+    // Override the previously saved position for intentional shortcuts.
+    global.requestAnimationFrame?.(()=>node(category==='relations'?'v95RelationsQuick':'v95Hub')?.scrollIntoView?.({block:'start',behavior:'auto'}));
   }
   function renderLife(){
     const root=node('v95LifeQuick'),state=getState();if(!root||!state)return;
@@ -452,7 +456,7 @@ function createRuntime(bridge){
         '</div><div class="opl-person-actions opl-person-actions-expanded">'+actions.map(x=>
           '<button type="button" data-v95-run="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
           '<strong>'+escapeHtml(x.title)+'</strong><small>'+escapeHtml(x.available?x.detail:x.reason||'Indisponible')+'</small></button>').join('')+'</div>';
-      const back=node('oplRelationsBack');if(back)back.onclick=()=>{personFocus=null;renderRelations();renderHub()};
+      const back=node('oplRelationsBack');if(back)back.onclick=()=>{personFocus=null;renderRelations();renderHub();root.scrollIntoView?.({block:'start',behavior:'auto'})};
     }else{
       root.innerHTML='<div class="opl-relations-intro"><span class="eyebrow">Relations</span><h2>Mes proches et mes rivaux</h2>'+
         '<p>Sélectionne une personne pour choisir ce que tu veux faire avec elle.</p></div>'+renderRelationCards(selected);
