@@ -191,6 +191,7 @@ test('affichage accessible des décisions sans injection HTML',()=>{
   const six=advanceOneYear(playUntil(beginLife(createEmptyState(),{...options,firstName:'<script>X</script>'}),5));
   const html=renderLife(six);
   assert.ok(html.includes('decision-panel'));
+  assert.equal((html.match(/Près du port, un enfant a perdu son petit bateau en bois/g) ?? []).length, 1);
   assert.ok(html.includes('data-choice="aider"'));
   assert.ok(html.includes('&lt;script&gt;'));
   assert.ok(!html.includes('<script>'));
