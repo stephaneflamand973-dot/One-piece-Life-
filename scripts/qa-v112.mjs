@@ -145,7 +145,47 @@ const govt=m.normalize({current:{id:'government',kind:'special',startYear:18}},2
 assert(!m.specialStatus(ops.find(x=>x.id==='government_cipher'),govt,{...valid,faction:'Gouvernement',rank:'Recrue'}).available,'Cipher Pol operations require career progression');
 assert(m.specialStatus(ops.find(x=>x.id==='government_cipher'),govt,{...valid,faction:'Gouvernement',rank:'Agent spécial'}).available,'Advanced agents unlock Cipher Pol');
 assert(!m.specialStatus(ops.find(x=>x.id==='government_intel'),govt,{...valid,faction:'Gouvernement',travel:true}).available,'No clandestine operation during a crossing');
+// Every civilian job sector has an independent, playable task and persistent outcomes.
+assert(data.ordinaryTasks.length>=9,'All civilian job sectors need dedicated activities');
+const sectors=[...new Set(data.ordinary.map(x=>x.sector))];
+assert(sectors.length===9,'Expected the nine ordinary work sectors');
+for(const sector of sectors){
+ const jobs=data.ordinary.filter(j=>j.sector===sector),task=data.ordinaryTasks.find(x=>x.sector===sector);
+ assert(task,'Missing sector-specific activity: '+sector);
+ const job=jobs[0],worked=m.normalize({current:{id:job.id,kind:'ordinary',startYear:19}},21);
+ const ctx={...valid,skills:{...valid.skills,Navigation:70,Artisanat:70,Charisme:75,Endurance:75,Intelligence:75,Combat:75},
+  performance:65};
+ const gate=m.ordinaryTaskStatus(task,worked,ctx);
+ assert(gate.available,'Qualified worker must be able to act in '+sector+': '+gate.reason);
+ const outcome=m.ordinaryTaskPerform(worked,task.id,ctx,0);
+ assert(outcome.ok&&outcome.success&&outcome.bonus>0&&outcome.xp>0&&outcome.cost>0,'Work projects must award earned progress and cost energy');
+ assert(outcome.state.tasks.some(x=>x.id===task.id&&x.jobId===job.id),'Task history must persist with exact job id');
+ const again=m.ordinaryTaskPerform(outcome.state,task.id,ctx,0);
+ assert(again.ok,'Second annual attempt should remain available');
+ assert(!m.ordinaryTaskPerform(again.state,task.id,ctx,0).ok,'Work tasks must respect their own annual quota');
+ assert(m.ordinaryTaskStatus(task,m.normalize(again.state,22),{...ctx,year:22}).available,'Task quota should renew next year');
+ const failed=m.ordinaryTaskPerform(worked,task.id,ctx,1);
+ assert(failed.ok&&!failed.success&&failed.bonus===0&&failed.performanceDelta<0,
+   'Work tasks should have credible failure consequences without phantom pay');
+ assert(!m.ordinaryTaskPerform(worked,data.ordinaryTasks.find(x=>x.sector!==sector).id,ctx,0).ok,
+   'A worker must not use another profession\'s activities');
+ const restored=m.normalize(JSON.parse(JSON.stringify(outcome.state)),21);
+ assert(restored.tasks[0].jobId===job.id,'Work history must survive serialization and save migration');
+}
+assert(!m.ordinaryTaskPerform(activeMarine,data.ordinaryTasks[0].id,{...valid,faction:'Marine'},0).ok,
+  'Special careers must never receive ordinary sector tasks');
+assert(!m.ordinaryTaskPerform(state,data.ordinaryTasks[0].id,valid,0).ok,
+  'Unemployed characters must not access workplace projects');
+assert(m.ordinaryTasks(activeMarine,{...valid,faction:'Marine'}).length===0,
+  'Marine and other special careers must have a completely separate menu');
 const html=fs.readFileSync('index.html','utf8'),hub=fs.readFileSync('src/v95/action-hub-runtime-v95.js','utf8'),sw=fs.readFileSync('sw.js','utf8');
+assert(html.includes('ordinaryTasks:active?.kind===\'ordinary\'?engine.ordinaryTasks(state,ctx):[]'),
+  'Only actual ordinary careers should expose civilian sector tasks');
+assert(html.includes("if(action==='ordinary_task')")&&html.includes('engine.ordinaryTaskPerform(state,id,ctx'),
+  'Civilian tasks must change the real saved player');
+assert(hub.includes('data-v112-ordinary-task')&&hub.includes("bridge.careerAction?.('ordinary_task'"),
+  'Civilian task button must connect to the live engine');
+
 for(const path of [...files.slice(1),'src/v112/career-market-v112.css']){
  assert(html.includes(path),'Missing marketplace asset '+path);
  assert(sw.includes(path),'PWA offline cache missing career market '+path);
