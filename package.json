@@ -1,10 +1,10 @@
 {
   "name": "one-piece-life-foundation",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --check foundation/src/ui/app.mjs && node --check foundation/src/core/navigation.mjs && node --test test/*.test.mjs"
+    "test": "node --check foundation/src/ui/app.mjs && node --check foundation/src/ui/life-view.mjs && node --check foundation/src/core/life.mjs && node --check foundation/src/core/state.mjs && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=20"

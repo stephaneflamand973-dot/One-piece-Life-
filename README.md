@@ -1,58 +1,46 @@
-# One Piece Life · Fondation navigation 0.1
+# ONE PIECE LIFE · Fondation V0.2
 
-Cette étape installe **uniquement la navigation de l'application**, inspirée de l'ergonomie des simulateurs de vie de type BitLife, sans copier leurs graphismes ou leur code.
+La base vierge accueille **une première mécanique réelle**, isolée de la navigation.
 
-## Déjà opérationnel
+## Ce qui est jouable
+- Créer une vie à **0 an**, avec prénom, nom, genre, mer et lieu de naissance, au choix ou aléatoires.
+- Choisir un lieu parmi un petit catalogue de départ ; le catalogue est dans `src/core/places.mjs`, prêt à être étendu.
+- Faire progresser le personnage d’**exactement une année par pression** sur le bouton central « + Âge ».
+- Afficher l'historique chronologique des années et conserver la partie automatiquement en local.
+- Reprendre sa partie après fermeture/rechargement.
+- Recommencer une vie avec confirmation. **Les sauvegardes de l'ancien jeu restent intactes.**
+- Parcourir les cinq rubriques stables ; seul le domaine `Vie` a un véritable module.
+- Sur un autre onglet, le bouton central retourne à la rubrique Vie **sans faire vieillir**.
 
-- Interface mobile-first et barre inférieure toujours accessible.
-- Navigation en cinq destinations permanentes (de gauche à droite) :
-  **Carrière · Biens · Vie · Relations · Activités**.
-- Bouton central **Vie** pour revenir au journal central. Il est volontairement réservé à la navigation, **il ne fait pas vieillir** tant que le moteur de vie n'est pas intégré.
-- Retour contextuel (flèche en haut) vers Vie ; pour les futures sous-pages, retour vers la catégorie.
-- Adresses partageables (`#/life`, `#/career`, etc.) et navigation native retour/précédent.
-- Le registre `src/core/modules.mjs` accepte des domaines et des sous-pages autonomes, mais **ne charge aucun module de contenu par défaut**.
-- Les rubriques sont de simples contenants vides. Aucun personnage, jauge, événement, monnaie, relation, carrière ni autre mécanique n'est généré.
-- Sauvegardes historiques non lues et non supprimées.
-- Tests de cohérence de navigation, routing profond, retour et fondation vierge.
+## Ce qui n'est pas encore présent
+Aucun événement aléatoire de scénario, relation, statistiques, carrière, monnaie, inventaire, combat ou progression du monde. Les autres rubriques restent vides intentionnellement.
 
 ## Architecture
 
-```text
-foundation/
-  index.html
-  styles.css
-  src/
-    ui/
-      app.mjs          # écran, navigation, retour, état vide
-    core/
-      navigation.mjs   # cinq routes, liens, sous-pages, validation
-      modules.mjs      # registre de modules métier installables
-      engine.mjs       # conteneur sans gameplay
-      state.mjs        # état vierge
-test/
-  base.test.mjs
-  navigation.test.mjs
+```
+foundation/src/core/
+  engine.mjs       contrôleur et transitions avec sauvegarde atomique
+  state.mjs        état sérialisable, création et âge
+  life.mjs         règles pures de naissance et vieillissement
+  places.mjs       catalogue autonome des lieux de départ
+  storage.mjs      persistance versionnée sous clé distincte
+  modules.mjs      registre de modules
+  navigation.mjs   routes et retour
+foundation/src/ui/
+  app.mjs          navigation, délégation des événements
+  life-view.mjs    écran de création et journal de vie
 ```
 
-## Principes impératifs
+La première sauvegarde porte la clé `opl:foundation:life-v02`. Aucun import des sauvegardes historiques ; aucun effacement des anciennes clés.
 
-1. Les routes et la navigation sont indépendantes de la simulation.
-2. Un nouveau domaine doit s'intégrer via le registre, sans modifier cinq écrans à la fois.
-3. Le moteur n'invente aucune donnée ; chaque système doit être développé ensuite.
-4. Aucune liste d'actions, sous-page ou catégorie fictive ne doit apparaître avant intégration.
-5. Le retour arrière ne doit pas faire perdre l'état du joueur (quand celui-ci existera).
-6. Toute prochaine fonctionnalité doit être testée sur téléphone avant d'être considérée comme terminée.
-
-## Tester
-
+## Test
 ```sh
 npm test
 python3 -m http.server 8000
 ```
+Puis ouvrir `http://localhost:8000/foundation/`.
 
-Ouvrir `http://localhost:8000/foundation/`.
-Publication : https://stephaneflamand973-dot.github.io/One-piece-Life-/foundation/
+Tests couverts : démarrage à zéro, un an par pression, progression à 120 ans, arrêt après fin de vie, reprise locale, refus des sauvegardes invalides, échec de stockage sans perte silencieuse, routes et modules.
 
-## Suivant
-
-**Première mécanique de vie (à construire séparément) :** démarrage d'une nouvelle vie, génération du personnage, puis activation du bouton + Âge. Pas de mécaniques cachées dans la navigation.
+## Suite
+Ajouter les interactions et événements annuels depuis un moteur d'événements **indépendant**, puis les relations.
