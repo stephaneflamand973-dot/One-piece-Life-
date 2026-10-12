@@ -3208,6 +3208,7 @@ function v112Market(){
     specialPaths:active?.kind==='special'?engine.specialPathOptions(state,ctx):[],
     specialPromotion:active?.kind==='special'?engine.specialPromotionStatus(state,ctx):null,
     specialMerit:active?.kind==='special'?state.specialMerit:0,
+    specialIncident:active?.kind==='special'?engine.specialIncidentStatus(state,ctx):null,
     ordinaryTasks:active?.kind==='ordinary'?engine.ordinaryTasks(state,ctx):[],
     skillPractices:engine.practiceChoices(state,ctx),
     rank:game.player.rank,careerXP:game.player.careerXP,
@@ -3245,6 +3246,35 @@ function v112Do(action,id){
       ' grâce à un entraînement concret, sans diplôme ni école obligatoire.','normal',
       out.skill+' +'+gained.toFixed(1));
     toast(out.skill+' +'+gained.toFixed(1));
+    saveGame();render();return true;
+  }
+  if(action==='special_incident'){
+    const out=engine.resolveSpecialIncident(state,id,ctx,random('v112Incident:'+p.faction+':'+ctx.year+':'+id));
+    if(!out.ok){toast(out.reason||'Situation professionnelle indisponible.');return false}
+    game.meta.careerMarketV112=out.state;
+    p.energy=clamp(p.energy-out.energyCost,0,100);
+    p.money=Math.max(0,(Number(p.money)||0)+out.moneyDelta);
+    p.health=Math.max(1,clamp((Number(p.health)||0)+out.healthDelta,0,100));
+    p.careerXP=Math.max(0,(Number(p.careerXP)||0)+out.xp);
+    if(p.faction==='Pirates'&&p.crew&&out.moraleDelta)
+      p.crew.morale=clamp((Number(p.crew.morale)||50)+out.moraleDelta,0,100);
+    const org=v73Ensure(),orgEngine=v73Module();
+    if(org&&orgEngine&&(out.standingDelta||out.trustDelta)){
+      p.careerV73=orgEngine.applyDelta(org,{standing:out.standingDelta,trust:out.trustDelta},p.faction);
+      v73RefreshResponsibility(true);
+    }
+    const impacts=[
+      out.moneyDelta?('Berry '+(out.moneyDelta>0?'+':'')+out.moneyDelta.toLocaleString('fr-FR')):'',
+      out.xp?('XP +'+out.xp):'',
+      out.meritGain?('Mérite '+(out.meritGain>0?'+':'')+out.meritGain):'',
+      out.preparationDelta?('Préparation '+(out.preparationDelta>0?'+':'')+out.preparationDelta):'',
+      out.healthDelta?('Santé '+out.healthDelta):'',
+      out.trustDelta?('Confiance '+(out.trustDelta>0?'+':'')+out.trustDelta):''
+    ].filter(Boolean).join(' • ');
+    addHistory(out.incident.title, 'Tu choisis : '+out.choice.label+'. '+
+      (out.success?'Ton plan fonctionne. ':'Ton choix entraîne des difficultés. ')+
+      out.choice.detail, out.success?'major':'danger', impacts);
+    toast(out.success?'Décision réussie':'Décision risquée : conséquences subies');
     saveGame();render();return true;
   }
   if(action==='special_path'){
