@@ -146,6 +146,8 @@ function apply(raw,id,ctx={},roll=.5,answer=null){
  const state=normalize(raw,ctx.year),job=byId(id),gate=status(job,state,ctx);
  if(!gate.available)return {ok:false,reason:gate.reason,state};
  if(state.interview&&state.interview.id!==id)return {ok:false,reason:'Un autre entretien est en cours.',state};
+ if(job?.id!=='pirate_found'&&job?.id!=='hunter'&&!state.interview)
+   return {ok:false,reason:'Passe d’abord ton entretien de recrutement.',state};
  if(state.interview&&!['skills','team','ambition'].includes(answer))return {ok:false,reason:'Choisis une réponse à l’entretien.',state};
  const joinCrew=job?.id==='pirate_join'?(ctx.crewOptions||[]).find(c=>c.id===state.crewChoice?.id):null;
  if(job?.id==='pirate_join'&&!joinCrew)return {ok:false,reason:'Sélectionne un équipage disponible avant de postuler.',state};
