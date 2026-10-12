@@ -400,6 +400,7 @@ assert(youthHub.build().find(x=>x.id==='education:focus:practice')?.available,'S
 console.log('V12.0.0 INTEGRATED YOUTH DIRECT ACTION QA OK');
 
 /* V12: old slot keys cannot be loaded into the new career simulation. */
+store.delete('opl-v12-slot-1');
 store.set('opl-slot-1',JSON.stringify({player:{name:'Ancienne vie'}}));
 q.setGame(null);q.setStorageBackend(null,true);
 assert((await q.loadSlot(1))===null,'Legacy save keys must be ignored by V12 career simulations');
