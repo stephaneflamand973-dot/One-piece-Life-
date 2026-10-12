@@ -96,3 +96,15 @@
 .opl-special-secondary .opl-job-resign{color:#874a37;border-color:#d6b7a1}
 .opl-special-operation button:focus-visible{outline:3px solid #b58c42;outline-offset:3px}
 @media(max-width:360px){.opl-special-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.opl-special-operation{grid-template-columns:minmax(0,1fr) 88px}}
+
+/* Everyday occupation: actions linked to the actual job sector rather than faction battles. */
+.opl-sector-tasks{display:grid;gap:9px;padding:11px;border:1px solid #c6d6cb;border-radius:12px;background:#f4f8ef}
+.opl-sector-task{display:grid;grid-template-columns:minmax(0,1fr) 97px;gap:9px;align-items:center;border:1px solid #d3dcd0;background:#fffdf7;border-radius:10px;padding:11px}
+.opl-sector-task strong{color:#204f55;font-size:13px;line-height:1.4}
+.opl-sector-task p{color:#60736a;margin:4px 0;font-size:11px;line-height:1.45}
+.opl-sector-task small{color:#697c71;font-size:10px;line-height:1.5}
+.opl-sector-task>button{border:0;border-radius:9px;background:#225c55;color:white;min-height:45px;font-size:11px;font-weight:850;padding:7px}
+.opl-sector-task>button:disabled{background:#d9dfd9;color:#68796d}
+.opl-sector-task .opl-sector-locked{grid-column:1/-1;color:#965842}
+.opl-sector-task>button:focus-visible{outline:3px solid #b48b41;outline-offset:3px}
+@media(max-width:360px){.opl-sector-task{grid-template-columns:minmax(0,1fr) 85px}}
