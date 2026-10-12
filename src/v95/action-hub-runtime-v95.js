@@ -235,6 +235,53 @@ function createRuntime(bridge){
       '<button type="button" data-v95-run="'+relevant+'" '+(available?'':'disabled')+'>'+
       (category==='career'?'Travailler →':'S’entraîner →')+'</button></div></section>';
   }
+  function renderSpecialCareerBoard(market){
+    const current=market.active,crew=market.crew;
+    const faction=current.faction||bridge.getGame()?.player?.faction||'Organisation';
+    const isPirate=faction==='Pirates';
+    const captain=isPirate&&market.rank==='Capitaine';
+    const intro={
+      Pirates:'Pavillon, équipage et butin. Chaque expédition peut augmenter ta prime.',
+      Marine:'Patrouilles, arrestations et rapports officiels pour gravir les grades.',
+      Gouvernement:'Renseignement, infiltration et opérations confidentielles.',
+      'Chasseurs de primes':'Enquêtes et captures indépendantes, avec des récompenses risquées.',
+      Révolutionnaires:'Soutien populaire, réseau clandestin et opérations de résistance.'
+    }[faction]||'Missions et progression propres à cette organisation.';
+    const overview='<section class="opl-job-current opl-special-current">'+
+      '<div class="opl-job-top"><span class="eyebrow">Carrière spéciale</span><span class="opl-job-type">'+escapeHtml(faction)+'</span></div>'+
+      '<h3>'+escapeHtml(current.career||current.label)+'</h3><p>'+escapeHtml(intro)+'</p>'+
+      '<div class="opl-special-metrics"><div><small>Grade actuel</small><strong>'+escapeHtml(market.rank||'Recrue')+'</strong></div>'+
+      '<div><small>Expérience</small><strong>'+Math.round(Number(market.careerXP)||0)+' XP</strong></div>'+
+      '<div><small>Performance</small><strong>'+Math.round(Number(market.performance)||0)+'/100</strong></div></div>'+
+      (isPirate&&crew?'<div class="opl-special-crew"><strong>'+escapeHtml(crew.name||'Équipage')+'</strong>'+
+        '<span>'+escapeHtml(captain?'Tu commandes cet équipage':('Capitaine : '+(crew.captain?.name||'Inconnu')))+
+        ' • '+(crew.members?.length||0)+' compagnons</span></div>':'')+
+      (captain?'<label class="opl-training-focus" for="oplCrewName">Nom du pavillon'+
+        '<input type="text" id="oplCrewName" maxlength="42" value="'+escapeHtml(crew?.name||'')+'"/></label>'+
+        '<button type="button" class="opl-job-more" data-v112-crew-save>Renommer mon équipage</button>':'')+
+      '</section>';
+    const operations=(market.operations||[]).map(op=>{
+      const gate=op.status||{},blocked=!gate.available;
+      return '<article class="opl-special-operation'+(blocked?' locked':'')+'">'+
+        '<div><strong>'+escapeHtml(op.label)+'</strong><p>'+escapeHtml(op.description)+'</p>'+
+        '<small>'+gate.remaining+'/'+gate.limit+' cette année • '+op.cost+' énergie'+
+        (gate.available?' • Réussite '+Math.round(gate.chance*100)+' %':'')+'</small></div>'+
+        '<button type="button" data-v112-special="'+escapeHtml(op.id)+'" '+(blocked?'disabled':'')+'>'+
+        (gate.available?'Agir ›':'Indisponible')+'</button>'+
+        (blocked?'<small class="opl-special-block">'+escapeHtml(gate.reason||'Conditions non réunies')+'</small>':'')+
+        '</article>';
+    }).join('');
+    const manual= (['manual:promotion','manual:mission','manual:expedition_coordinate'].map(id=>
+      build().find(x=>x.id===id)).filter(Boolean));
+    const extras='<section class="opl-special-secondary"><h3>Grades et responsabilités</h3>'+
+      '<div class="opl-job-work-actions">'+manual.map(x=>'<button type="button" data-v112-direct="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
+      '<strong>'+escapeHtml(x.title)+'</strong><small>'+escapeHtml(x.available?x.detail:x.reason||'Indisponible')+'</small></button>').join('')+'</div>'+
+      (isPirate?'<button type="button" class="opl-job-more" data-v112-crew>Consulter mon équipage et mon navire ›</button>':'')+
+      '<button type="button" class="opl-job-more opl-job-resign" data-v112-quit>Quitter cette carrière spéciale</button></section>';
+    return '<section class="opl-job-market opl-special-career" aria-label="Parcours de faction indépendant">'+
+      overview+'<section class="opl-special-operations"><div class="opl-job-header"><strong>Mes opérations '+escapeHtml(faction)+'</strong>'+
+      '<small>Actions propres à cette carrière</small></div>'+operations+'</section>'+extras+'</section>';
+  }
   function renderCareerBoard(){
     const market=bridge.careerMarket?.();
     if(!market)return '';
@@ -252,6 +299,7 @@ function createRuntime(bridge){
         '<button type="button" class="opl-job-more" data-v112-cancel>Annuler cet entretien</button></section>';
     }
     const active=market.active;
+    if(active?.kind==='special')return renderSpecialCareerBoard(market);
     const cfg=active?bridge.careerConfig?.():null;
     const modes=cfg?.options?.length?'<label class="opl-training-focus" for="oplCareerMode">Méthode de travail'+
       '<select id="oplCareerMode" '+(cfg.editable?'':'disabled')+'>'+
@@ -473,6 +521,7 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-crew-select]').forEach(b=>b.onclick=()=>bridge.careerAction?.('crew_select',b.dataset.v112CrewSelect));
     root.querySelectorAll?.('[data-v112-apply]').forEach(b=>b.onclick=()=>bridge.careerAction?.('apply',b.dataset.v112Apply));
     root.querySelectorAll?.('[data-v112-quit]').forEach(b=>b.onclick=()=>bridge.careerAction?.('quit'));
+    root.querySelectorAll?.('[data-v112-special]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special',b.dataset.v112Special));
     root.querySelectorAll?.('[data-v112-answer]').forEach(b=>b.onclick=()=>bridge.careerAction?.('answer',b.dataset.v112Answer));
     root.querySelectorAll?.('[data-v112-cancel]').forEach(b=>b.onclick=()=>bridge.careerAction?.('cancel'));
     root.querySelectorAll?.('[data-v112-crew-save]').forEach(b=>b.onclick=()=>bridge.careerAction?.('crew_name',node('oplCrewName')?.value||''));
