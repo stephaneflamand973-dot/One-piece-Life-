@@ -118,3 +118,27 @@
 .opl-job-work-actions .opl-civil-promote strong{color:#246345}
 .opl-job-work-actions .opl-civil-promote:disabled{opacity:.72}
 .opl-job-tabs button{min-height:43px}
+
+/* V12: special occupations are standalone careers, never a renamed civilian workplace. */
+.opl-special-paths,.opl-special-progress{display:grid;gap:11px;border:1px solid #ccd8ca;background:#f2f7f1;border-radius:14px;padding:13px}
+.opl-special-paths>p,.opl-special-progress>p{font-size:12px;line-height:1.45;color:#506b61;margin:0}
+.opl-special-progress p strong{color:#173f4e}
+.opl-special-path-grid{display:grid;gap:8px}
+.opl-special-path-grid button{display:grid;gap:5px;min-height:76px;padding:12px;text-align:left;border:1px solid #c9d4c6;background:#fffef9;color:#214b54;border-radius:12px}
+.opl-special-path-grid button.selected{border-color:#377d70;background:#e0f0e5}
+.opl-special-path-grid button strong{font-size:13px}
+.opl-special-path-grid button small{color:#54736a;font-size:11px;line-height:1.45}
+.opl-special-path-grid button span{font-size:11px;color:#296f64;font-weight:800}
+.opl-special-path-grid button:disabled:not(.selected){opacity:.64}
+.opl-special-progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.opl-special-progress-grid>div{display:grid;gap:5px;padding:10px;background:#fffdf7;border:1px solid #e2e4d6;border-radius:10px}
+.opl-special-progress-grid small{font-size:10px;color:#6b776f}
+.opl-special-progress-grid strong{font-size:13px;color:#164655}
+.opl-special-promote{display:grid;gap:5px;text-align:left;background:#17485a;color:white;border:0;padding:13px;border-radius:12px;min-height:54px}
+.opl-special-promote strong{font-size:12px;color:inherit}
+.opl-special-promote small{color:inherit;opacity:.85;font-size:11px;line-height:1.4}
+.opl-special-promote:disabled{background:#e1e6df;color:#51645a;border:1px solid #cdd5cb;cursor:not-allowed}
+.opl-hub-career>.v95-quick,.opl-hub-career>.v95-section-title,.opl-hub-career>#v95HubResults,
+.opl-hub-career>#oplHubMore,.opl-hub-career>#oplSearchShell{display:none!important}
+@media(min-width:600px){.opl-special-path-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.opl-special-path-grid button{scroll-behavior:auto}}
