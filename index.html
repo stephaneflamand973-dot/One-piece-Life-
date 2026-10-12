@@ -307,7 +307,7 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
         <button type="button" class="opl-panel-more" data-opl-toggle-details aria-expanded="false">Afficher tous les détails du profil ›</button>
         <div class="v95-focus-nav"><button class="selected" type="button" id="v95ProfileToStats">Identité & carrière</button><button type="button" id="v95ProfileToAbilities">Capacités & Haki ›</button></div>
         <section class="paper-card"><span class="eyebrow">Personnage</span><h2>Identité & carrière</h2><div id="identityGrid" class="info-grid"></div></section>
-        <section class="paper-card v79-education-card"><div class="section-heading compact"><div><span class="eyebrow">V7.9 • Formation</span><h3>Éducation & jeunesse</h3></div><span id="v79EducationBadge" class="badge"></span></div><div id="v79EducationCard"></div><div id="v79EducationActions" class="v79-education-actions"></div><div id="v79TrackActions" class="v79-track-actions"></div></section>
+        <section class="paper-card v79-education-card"><div class="section-heading compact"><div><span class="eyebrow">Jeunesse</span><h3>Apprentissage & compétences</h3></div><span id="v79EducationBadge" class="badge"></span></div><div id="v79EducationCard"></div><div id="v79EducationActions" class="v79-education-actions"></div><div id="v79TrackActions" class="v79-track-actions"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Carrière</span><h3>Situation professionnelle</h3></div><span class="badge">Action annuelle</span></div><div id="careerCard" class="career-card"></div><div id="careerAnnualActions" class="mission-approach-row"></div></section>
         <section class="paper-card"><div class="section-heading compact"><div><span class="eyebrow">Progression</span><h3>Vers le rang supérieur</h3></div><span class="badge">V7.3</span></div><div id="careerProgressCard" class="career-progress-shell"></div></section>
         <section class="paper-card v103-career-panel" id="v103CareerSection"><div class="section-heading compact"><div><span class="eyebrow">V10.3 • Carrière active</span><h3>Travail, performance et rémunération</h3></div><span id="v103CareerBadge" class="badge">ACTIF</span></div><div id="v103CareerCard"></div></section>
@@ -1213,7 +1213,7 @@ const RACES = [
 const TALENT_LABELS = ['Faible','Ordinaire','Correct','Prometteur','Remarquable','Exceptionnel','Prodigieux'];
 const TALENT_MOD = {Faible:.72,Ordinaire:.9,Correct:1,Prometteur:1.1,Remarquable:1.22,Exceptionnel:1.36,Prodigieux:1.55};
 const STAT_KEYS = ['Force','Vitesse','Agilité','Endurance','Résistance','Réflexes','Discipline','Volonté'];
-const SKILL_KEYS = ['Combat','Sabre','Tir','Navigation','Médecine','Commandement','Discrétion','Science'];
+const SKILL_KEYS = ['Combat','Sabre','Tir','Navigation','Médecine','Commandement','Discrétion','Science','Artisanat','Cuisine','Commerce','Survie','Arts'];
 const AMBITIONS = [
   ['Survivre','Privilégier la prudence et la stabilité.','survive'],
   ['Devenir puissant','Favorise les occasions d’entraînement et de combat.','power'],
@@ -2317,7 +2317,7 @@ function v79LegacyEducationState(){
   if(!adult)return {version:1,track,focus:'balanced',knowledge:age>=5?8:0,practical:age>=5?7:0,discipline:age>=5?45:35,confidence:age>=5?42:35,network:5,mentor:false,sponsor:false,stage:'early',exams:[],credentials:[],trackHistory:[],monthsTrained:0,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,careerPreparationApplied:false};
   const skillAvg=Object.values(p.skills||{}).reduce((a,b)=>a+(Number(b)||0),0)/Math.max(1,Object.keys(p.skills||{}).length),discipline=Number(p.stats?.Discipline)||45,will=Number(p.stats?.Volonté)||45;
   const base=clamp(38+skillAvg*.45+discipline*.18,38,78);
-  return {version:1,track,focus:'balanced',knowledge:base,practical:clamp(base+skillAvg*.25,38,82),discipline:clamp(discipline,35,88),confidence:clamp(42+will*.28,40,78),network:clamp((Number(p.reputation?.local)||0)*.25+12,8,55),mentor:!!p.mentor,sponsor:false,stage:'adult',exams:[{id:'legacy_transition',age:15,label:'Formation antérieure',score:base,chance:1,result:'pass',credential:'Formation antérieure'}],credentials:['Formation antérieure'],trackHistory:[],monthsTrained:72,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,careerPreparationApplied:p.career!=='Aucune'}
+  return {version:1,track,focus:'balanced',knowledge:base,practical:clamp(base+skillAvg*.25,38,82),discipline:clamp(discipline,35,88),confidence:clamp(42+will*.28,40,78),network:clamp((Number(p.reputation?.local)||0)*.25+12,8,55),mentor:!!p.mentor,sponsor:false,stage:'adult',exams:[],credentials:[],trackHistory:[],monthsTrained:72,lastActionYear:-99,lastEventYear:-99,lastEventCheckYear:-99,careerPreparationApplied:p.career!=='Aucune'}
 }
 function v79Context(){
   const p=game.player,house=v78Ensure?.()||p.personalV78||{},focus=v62PlanSource?.()?.training||'steady';
@@ -3178,7 +3178,7 @@ function v112Ensure(){
   return game.meta.careerMarketV112;
 }
 function v112Context(){
-  const p=game.player,education=v79Ensure();
+  const p=game.player;
   return {age:Math.floor(game.ageMonths/12),year:Math.floor(game.ageMonths/12),island:p.island,region:p.region,
     crewOptions:v112Engine()?.crewOffers({year:Math.floor(game.ageMonths/12),island:p.island,region:p.region},game.world?.emergentCrews)||[],
     career:p.career,rank:p.rank,faction:p.faction,careerXP:p.careerXP,energy:p.energy,money:p.money,bounty:p.bounty,
@@ -3188,7 +3188,7 @@ function v112Context(){
     trust:Number(v73Ensure()?.trust)||0,
     performance:Number(v103Ensure()?.performance)||0,
     workSessions:Number(v103Ensure()?.workSessions)||0,
-    skills:p.skills,stats:p.stats,schoolBonus:Math.min(20,Math.floor((Number(education?.knowledge)||0)/5)),
+    skills:p.skills,stats:p.stats,
     alive:game.alive,pending:!!game.pendingDecision,annual:!!game.agency?.annualTurn?.active,travel:!!p.travel};
 }
 function v112Market(){
@@ -3211,6 +3211,7 @@ function v112Market(){
     specialPromotion:active?.kind==='special'?engine.specialPromotionStatus(state,ctx):null,
     specialMerit:active?.kind==='special'?state.specialMerit:0,
     ordinaryTasks:active?.kind==='ordinary'?engine.ordinaryTasks(state,ctx):[],
+    skillPractices:engine.practiceChoices(state,ctx),
     rank:game.player.rank,careerXP:game.player.careerXP,
     performance:Math.round(Number(v103Ensure()?.performance)||0),
     income:engine.estimatedPay(state,ctx),
@@ -3236,6 +3237,18 @@ function v112Do(action,id){
   if(!game||!game.alive||game.pendingDecision)return false;
   const engine=v112Engine(),state=v112Ensure(),ctx=v112Context();if(!engine||!state)return false;
   const oldFaction=game.player.faction,p=game.player;
+  if(action==='practice'){
+    const out=engine.practice(state,id,ctx);
+    if(!out.ok){toast(out.reason||'Entraînement impossible.');return false}
+    game.meta.careerMarketV112=out.state;
+    p.energy=clamp(p.energy-out.cost,0,100);
+    const gained=v671Gain('skills',out.skill,out.gain,{mastery:false});
+    addHistory('Apprentissage pratique','Tu travailles '+out.skill+
+      ' grâce à un entraînement concret, sans diplôme ni école obligatoire.','normal',
+      out.skill+' +'+gained.toFixed(1));
+    toast(out.skill+' +'+gained.toFixed(1));
+    saveGame();render();return true;
+  }
   if(action==='special_path'){
     const result=engine.chooseSpecialPath(state,id,ctx);
     if(!result.ok){toast(result.reason||'Spécialisation inaccessible.');return false}
@@ -3287,6 +3300,7 @@ function v112Do(action,id){
     p.health=Math.max(1,clamp(p.health-out.healthLoss,0,100));
     p.money=Math.max(0,p.money+out.bonus);
     p.careerXP=Math.max(0,(Number(p.careerXP)||0)+out.xp);
+    v671Gain('skills',out.task.skill,out.success?1.5:.4);
     const career=v103Ensure(),careerEngine=v103Module();
     if(career&&careerEngine){
       p.careerV103={...career,performance:clamp(career.performance+out.performanceDelta,0,100),
@@ -3456,7 +3470,8 @@ function v112Do(action,id){
       addHistory('Nouveau pavillon',p.name+' prend le commandement de son propre équipage pirate.','major');
     }else p.crew=null;
     if(job.kind==='special')codexAdd('factions',job.faction==='Gouvernement'?'Gouvernement Mondial':job.faction);
-    v79ApplyCareerPreparation(job.kind==='ordinary'?'civil':job.id);
+    // V12 skill-only career: upbringing grants no fictitious diploma, hiring XP or seniority.
+    const youth=v79Ensure();if(youth)youth.careerPreparationApplied=true;
     v81OnFactionChange(oldFaction,p.faction);refreshMissionBoard();
     addHistory(out.switched?'Changement d’emploi':'Candidature acceptée',
       out.switched?'Tu quittes ton poste de '+out.previous.label+' pour devenir '+p.career+
@@ -4175,6 +4190,8 @@ function v100Act(id){
           }
         }
         p.energy=clamp(p.energy-result.cost,0,100);p.money+=result.pay;p.careerXP+=result.xp;
+        const vocational=employment?.current?.kind==='ordinary'?v112Engine()?.byId(employment.current.id)?.skill:null;
+        if(vocational)v671Gain('skills',vocational,Math.max(.3,.9*factor));
         p.careerV103=result.state;
         if(v73Module()&&org)p.careerV73=v73Module().applyDelta(org,result.delta,p.faction);
         const rep=reputationKey(p.faction);p.reputation[rep]=(Number(p.reputation[rep])||0)+1;
