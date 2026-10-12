@@ -2400,19 +2400,15 @@ function v79ResolveEvent(parts){
 function v79CareerHint(careerId,base){
   const mod=v79Module(),state=v79Ensure();if(!mod||!state)return base;
   const r=mod.careerReadiness(state,careerId,v79Context());
-  return base+' • Préparation '+Math.round(r.score)+'/100 ('+r.label.toLowerCase()+').'
+  return base+' • Affinité '+Math.round(r.score)+'/100 ('+r.label.toLowerCase()+', aucun diplôme requis).'
 }
 function v79ApplyCareerPreparation(careerId){
-  const mod=v79Module(),state=v79Ensure();if(!mod||!state||state.careerPreparationApplied)return null;
-  const bonus=mod.careerBonus(state,careerId,v79Context()),p=game.player;state.careerPreparationApplied=true;
-  p.careerXP=Math.max(0,p.careerXP+bonus.xp);
-  if(bonus.standing&&p.careerV73)p.careerV73.standing=clamp((p.careerV73.standing||30)+bonus.standing,0,100);
-  const repKey=careerId==='marine'?'marine':careerId==='pirate'?'pirate':careerId==='revolution'?'revolution':careerId==='government'?'government':'local';
-  p.reputation[repKey]=clamp((p.reputation[repKey]||0)+bonus.rep,-100,200);
-  if(bonus.topSkill&&bonus.skillGain)v671Gain('skills',bonus.topSkill,bonus.skillGain);
-  if(bonus.topStat&&bonus.statGain)v671Gain('stats',bonus.topStat,bonus.statGain);
-  addHistory('Formation mise à profit','Ton parcours « '+(v79Data()?.tracks?.[state.track]?.label||state.track)+' » te donne un départ '+bonus.readiness.label.toLowerCase()+' dans cette voie.','major','Préparation '+Math.round(bonus.readiness.score)+'/100 • XP +'+bonus.xp);
-  return bonus
+  // Compatibility shim for old event callers: real skills are already earned
+  // by training and trials. No academic qualification, XP, reputation or rank bonus.
+  const state=v79Ensure();
+  if(!state||state.careerPreparationApplied)return null;
+  state.careerPreparationApplied=true;
+  return {careerId,bonusXP:0,reason:'Compétences réellement acquises'};
 }
 function v79ResolveDecision(parts){
   if(parts[0]==='v79track')return v79SetTrack(parts[1],true);
