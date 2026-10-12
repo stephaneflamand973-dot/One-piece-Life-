@@ -28,7 +28,7 @@ const malformed=mod.normalize({year:20,spent:{work:999,training:-45,evil:34},tot
 assert(malformed.spent.work===1&&malformed.spent.training===0&&malformed.spent.evil===undefined,'Save migration must bound per-action limits');
 for(const p of ['src/data/manual-life-v100.js','src/v100/manual-life-engine-v100.js','src/v100/manual-life-v100.css'])assert(html.includes(p)&&sw.includes(p),'V10 asset missing '+p);
 assert(html.includes('ONE PIECE LIFE — V12.0.0'),'V10 title missing');
-assert(/const GAME_VERSION\s*=\s*'11\.0\.1';/.test(html),'GAME_VERSION missing');
+assert(/const GAME_VERSION\s*=\s*'12\.0\.0';/.test(html),'GAME_VERSION missing');
 assert(/const SAVE_VERSION\s*=\s*1200;/.test(html),'SAVE_VERSION missing');
 assert(sw.includes('one-piece-life-v12-0-0'),'V10 cache missing');
 assert(html.includes('function advance(){return v100AdvanceYear()}'),'Age button must call new manual progression handler');
