@@ -11,6 +11,8 @@ function normalize(raw={},year=0){
    kind:r.current.kind==='special'?'special':'ordinary',id:String(r.current.id||'').slice(0,60),
    startYear:Math.floor(clamp(r.current.startYear,0,9999))
   }:null,
+  operations:Array.isArray(r.operations)?r.operations.slice(-45).filter(x=>x&&typeof x==='object').map(x=>({
+   id:String(x.id||'').slice(0,72),year:Math.floor(clamp(x.year,0,9999)),success:!!x.success})):[],
   applications:Array.isArray(r.applications)?r.applications.slice(-24).filter(x=>x&&typeof x==='object').map(x=>({
    id:String(x.id||'').slice(0,60),year:Math.floor(clamp(x.year,0,9999)),
    accepted:!!x.accepted,kind:x.kind==='special'?'special':'ordinary',
@@ -175,7 +177,51 @@ function estimatedPay(state,ctx={}){
  const grade=Math.max(0,grades.indexOf(ctx.rank));
  return {perAction:Math.round(job.pay*(1+grade*.18)),annualMax:Math.round(job.pay*(1+grade*.18)*4)};
 }
+// Each special career owns its own missions, cooldowns and rewards.
+function specialStatus(op,raw,ctx={}){
+ const state=normalize(raw,ctx.year),career=state.current;
+ if(!op||!data.specialOperations.some(x=>x.id===op.id))return {available:false,reason:'Opération inconnue.'};
+ const route=byId(career?.id);
+ const faction=route?.faction||(career?.kind==='special'?ctx.faction:null);
+ let reason='';
+ if(!career||career.kind!=='special'||faction!==op.faction)reason='Cette opération appartient à une autre carrière spéciale.';
+ else if(!ctx.alive)reason='Cette vie est terminée.';
+ else if(ctx.pending)reason='Résous d’abord la décision en attente.';
+ else if(ctx.annual)reason='Termine l’année en cours.';
+ else if(ctx.travel)reason='Termine la traversée avant cette opération.';
+ else if((Number(ctx.energy)||0)<op.cost)reason='Énergie insuffisante : '+op.cost+' nécessaires.';
+ else if(op.role==='captain'&&!ctx.isCaptain)reason='Réservé au capitaine de l’équipage.';
+ else if(op.role==='subordinate'&&ctx.isCaptain)reason='Un capitaine dirige ses propres opérations.';
+ else if(op.role==='elite'&&!['Agent spécial','Cipher Pol'].includes(ctx.rank))reason='Réservé aux agents spéciaux et au Cipher Pol.';
+ else if(skillValue(op,ctx)<op.skillMin)reason=op.skill+' requis : '+op.skillMin+'/100.';
+ const year=Math.floor(Number(ctx.year)||0),used=state.operations.filter(x=>x.year===year&&x.id===op.id).length;
+ const remaining=Math.max(0,Math.max(1,op.limit)-used);
+ if(!reason&&remaining===0)reason='Toutes les tentatives ont été utilisées cette année.';
+ const rankFactor=Math.min(0.08,Math.max(0,Number(ctx.rankIndex)||0)*.012);
+ const chance=clamp(op.chance+(skillValue(op,ctx)-op.skillMin)*.003+rankFactor,0.18,0.93);
+ return {available:!reason,reason,remaining,limit:op.limit,cost:op.cost,chance};
+}
+function specialOperations(raw,ctx={}){
+ return (data.specialOperations||[]).filter(op=>op.faction===(
+   byId(raw?.current?.id)?.faction||(raw?.current?.kind==='special'?ctx.faction:null)
+ )).map(op=>({...op,status:specialStatus(op,raw,ctx)}));
+}
+function specialPerform(raw,id,ctx={},roll=.5){
+ const state=normalize(raw,ctx.year),op=(data.specialOperations||[]).find(x=>x.id===id),gate=specialStatus(op,state,ctx);
+ if(!gate.available)return {ok:false,reason:gate.reason,state};
+ const success=clamp(roll,0,1)<gate.chance;
+ const factor=success?1:0.22;
+ const xp=Math.max(1,Math.round(op.xp*factor));
+ const pay=success?Math.round(op.pay*(0.85+(1-clamp(roll,0,1))*.3)):0;
+ const bounty=success?op.bounty:Math.round(op.bounty*.22);
+ const healthLoss=success?0:Math.round(op.injury*(.65+clamp(roll,0,1)*.35));
+ const year=Math.floor(Number(ctx.year)||0);
+ const next={...state,operations:[...state.operations,{id:op.id,year,success}].slice(-45)};
+ return {ok:true,op,state:next,success,xp,pay,bounty,healthLoss,energyCost:op.cost,successChance:gate.chance,
+  standing:success?3.8:-0.5,trust:success?2.2:-0.9};
+}
 r.register('careerMarketEngineV112',{
- version:'11.2.2',normalize,byId,crewOffers,chooseCrew,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay
+ version:'11.2.3',normalize,byId,crewOffers,chooseCrew,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,
+ specialStatus,specialOperations,specialPerform
 });
 })(window);
