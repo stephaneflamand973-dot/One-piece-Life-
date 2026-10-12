@@ -327,4 +327,18 @@ assert(html.includes("if(special&&id==='promotion')"),
 assert(fs.readFileSync('src/v112/career-market-v112.css','utf8').includes('.opl-special-progress-grid'),
  'Special-career progress and conditions need visible mobile cards');
 
+assert(html.includes("if(v112Ensure()?.current?.kind==='special')")&&
+  html.includes('v112OpenSpecialFromProfile')&&html.includes('Les horaires, primes et méthodes de travail'),
+  'Profile must not show civilian work and salary mechanics during a special career');
+assert(html.includes("if(recognized?.kind==='special')")&&
+  html.includes('marketEngine.specialPromotionStatus(v112Ensure(),marketContext)')&&
+  html.includes('v112SpecialProfileToCareer'),
+  'Special profile progression must display authoritative merit, operations and voluntary promotion gates');
+assert(html.includes("if(recognized?.kind==='ordinary')")&&
+  html.includes('marketEngine.civilPromotionStatus(v112Ensure(),marketContext)')&&
+  html.includes('v112OrdinaryProfileToCareer'),
+  'Civilian profile progression must display only the ordinary employer promotion rules');
+assert(html.includes("const c=careerProgressInfo(p);")&&html.includes("if(!c.active)"),
+  'Existing legacy saves without a recognized career must retain a non-destructive fallback');
+
 console.log('V12 CAREER REBUILD QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,operations:ops.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
