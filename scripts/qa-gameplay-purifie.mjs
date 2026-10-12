@@ -53,6 +53,12 @@ assert(html.includes('v111DecisionOutcome(v111BeforeDecision);'),'All decision r
 assert(html.includes('if(!before||!game?.meta||!game.alive||game.pendingDecision)return;'),'Do not interrupt ongoing multi-step events');
 
 assert(hub.includes('function renderDomainSpotlight(category,actions)')&&hub.includes("category==='career'?'manual:work':'manual:training'"),'Career and training must each have a one-tap action');
+assert(html.includes('id="v95RelationsQuick"')&&html.includes('v95Ensure()?.renderRelations()'),'Relationship tab must use person-first actions, not legacy labyrinth');
+assert(hub.includes('function renderRelations()')&&hub.includes('oplRelationsBack')&&hub.includes('oplRelationsDecisionBtn'),'Relationship tab must have back navigation and honor pending narrative choices');
+assert(hub.includes('opl-life-entries')&&hub.includes('game.history||[]')&&hub.includes('opl-vitals'),'Life tab must have a journal of real events and actual player status');
+assert(hub.includes("data-v95-shortcut=\"career\"")&&hub.includes('function goCategory(category)'),'Life must link straight to essential activity domains');
+assert(html.includes('setCareerMode:id=>v103SetMode(id)')&&hub.includes('oplCareerMode'),'Career selector must update the authentic profession engine');
+assert(hubCss.includes('.opl-life-entry::before')&&hubCss.includes('#relationsPanel > section.paper-card:not(.v95-relations-quick)'),'Journal and relationship simplification must have mobile CSS');
 assert(hub.includes("const listed=!showAll&&!query.trim()&&spotlightId?selected.filter(x=>x.id!==spotlightId):selected;"),'Spotlight actions must not be duplicated in the compact list');
 assert(hub.includes("const actions=selected.filter(x=>x.id.startsWith(prefix)&&x.kind!=='open');"),'Social cards must use all engine-provided interactions, including romance and rivalry');
 assert(hub.includes("root.querySelectorAll?.('[data-v95-person]')")&&hub.includes("function focusPerson(id)")&&hub.includes("String(p.id)===String(id)"),'Relationship cards must open each person\'s full interaction menu');
