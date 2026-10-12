@@ -73,7 +73,10 @@ assert(hubCss.includes('.opl-person-open:focus-visible'),'Person detail menu mus
 assert(hub.includes('const eligible=scoped.filter(x=>x.available).length;'),'Person interaction counts must apply to the selected person');
 assert(html.includes('setTrainingFocus:id=>v102SetTrainingFocus(id)')&&hub.includes('focus.onchange=()=>bridge.setTrainingFocus?.(focus.value)'),'Training focus must call the existing saved training engine');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Invalid single-element query loop');
-assert(sw.includes('one-piece-life-v11-0-1-carrieres15'),'Offline update not invalidated');
+assert(hub.includes('data-v112-raise')&&html.includes("if(action==='raise')"),'Civilian salary negotiation should remain part of workplace gameplay');
+assert(html.includes("if(special&&['work','career_support','career_initiative','career_bonus'].includes(id))"),'Special careers must never inherit ordinary work');
+assert(hub.includes('data-v112-special=')&&html.includes("if(action==='special')"),'Faction-specific operations must remain actionable');
+assert(sw.includes('one-piece-life-v11-0-1-carrieres16'),'Offline update not invalidated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 new Function('window',hub);
 console.log('ONE PIECE LIFE : GAMEPLAY PURIFIÉ STATIC QA OK');
