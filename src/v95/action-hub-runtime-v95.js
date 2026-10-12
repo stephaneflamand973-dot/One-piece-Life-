@@ -239,6 +239,16 @@ function createRuntime(bridge){
     const market=bridge.careerMarket?.();
     if(!market)return '';
     const active=market.active;
+    if(market.interview){
+      const job=market.interview.job||{};
+      return '<section class="opl-job-market opl-job-interview" aria-label="Entretien de recrutement">'+
+        '<div class="opl-job-intro"><span class="eyebrow">Entretien d’embauche</span><h3>'+escapeHtml(job.label||'Recrutement')+'</h3>'+
+        '<p>Ton interlocuteur attend une réponse. Elle influence réellement tes chances d’être recruté.</p></div>'+
+        '<div class="opl-job-list">'+(market.interview.questions||[]).map(q=>
+        '<button type="button" class="opl-interview-choice" data-v112-answer="'+escapeHtml(q.id)+'">'+
+        '<strong>'+escapeHtml(q.label)+'</strong><span>'+escapeHtml(q.description)+'</span></button>').join('')+'</div>'+
+        '<button type="button" class="opl-job-more" data-v112-cancel>Annuler cet entretien</button></section>';
+    }
     const cfg=active?bridge.careerConfig?.():null;
     const modes=cfg?.options?.length?'<label class="opl-training-focus" for="oplCareerMode">Méthode de travail'+
       '<select id="oplCareerMode" '+(cfg.editable?'':'disabled')+'>'+
@@ -258,6 +268,9 @@ function createRuntime(bridge){
       '</div></section>':
       '<div class="opl-job-intro"><strong>Ton avenir se décide ici.</strong>'+
       '<p>Consulte les offres, postule et passe un recrutement. Un refus est possible, et ta progression dépend ensuite de tes actions.</p></div>';
+    const crew=market.captainCrew?'<div class="opl-job-crew"><label for="oplCrewName">Nom de ton équipage</label>'+
+      '<input type="text" id="oplCrewName" maxlength="42" value="'+escapeHtml(market.captainCrew)+'">'+
+      '<button type="button" data-v112-rename>Renommer mon équipage</button></div>':'';
     const tabs='<div class="opl-job-tabs" role="group" aria-label="Choisir son parcours">'+
       '<button type="button" data-v112-view="ordinary" aria-pressed="'+(type==='ordinary')+'" class="'+(type==='ordinary'?'selected':'')+'">Métiers ordinaires</button>'+
       '<button type="button" data-v112-view="special" aria-pressed="'+(type==='special')+'" class="'+(type==='special'?'selected':'')+'">Carrières spéciales</button></div>';
@@ -273,16 +286,16 @@ function createRuntime(bridge){
         '<div class="opl-job-requirements"><span>Âge : '+job.minAge+' ans</span>'+
         '<span>'+escapeHtml(job.skill||'')+' '+(job.skillMin||0)+'/100</span>'+
         (job.money?'<span>Coût : '+job.money.toLocaleString('fr-FR')+' B</span>':'')+
-        (available?'<span>Probabilité estimée : '+Math.round(st.chance*100)+' %</span>':'')+'</div>'+
+        (available?'<span>'+(st.chance>=1?'Accès garanti':'Chance d’embauche : '+Math.round(st.chance*100)+' %')+'</span>':'')+'</div>'+
         (available?'<button type="button" data-v112-apply="'+escapeHtml(job.id)+'">Postuler ›</button>':
           '<small class="opl-job-block-reason">'+escapeHtml(st.reason||'Conditions non réunies')+'</small>')+'</article>';
     }).join('');
-    const more=type==='ordinary'&&!market.allOffers?'<button type="button" class="opl-job-more" data-v112-view="all">Voir tous les métiers disponibles dans le monde ›</button>':
+    const more=type==='ordinary'&&!market.allOffers?'<button type="button" class="opl-job-more" data-v112-view="all">Consulter tous les métiers (même sans poste vacant) ›</button>':
       type==='ordinary'?'<button type="button" class="opl-job-more" data-v112-view="all">Voir les offres de cette année</button>':'';
     const history=market.history?.length?'<div class="opl-job-history"><strong>Mes candidatures récentes</strong>'+
       market.history.map(h=>'<p>'+escapeHtml(h.title)+' • '+(h.kind==='hired'?'Acceptée':h.kind==='rejected'?'Refusée':'Démission')+
       ' • '+h.year+' ans</p>').join('')+'</div>':'';
-    return '<section class="opl-job-market" aria-label="Marché de l’emploi et carrières spéciales">'+current+tabs+heading+
+    return '<section class="opl-job-market" aria-label="Marché de l’emploi et carrières spéciales">'+current+crew+tabs+heading+
       '<div class="opl-job-list">'+cards+'</div>'+more+history+'</section>';
   }
   function renderRelationCards(selected){
@@ -429,6 +442,9 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-view]').forEach(b=>b.onclick=()=>bridge.careerView?.(b.dataset.v112View));
     root.querySelectorAll?.('[data-v112-apply]').forEach(b=>b.onclick=()=>bridge.careerAction?.('apply',b.dataset.v112Apply));
     root.querySelectorAll?.('[data-v112-quit]').forEach(b=>b.onclick=()=>bridge.careerAction?.('quit'));
+    root.querySelectorAll?.('[data-v112-answer]').forEach(b=>b.onclick=()=>bridge.careerAction?.('answer',b.dataset.v112Answer));
+    root.querySelectorAll?.('[data-v112-cancel]').forEach(b=>b.onclick=()=>bridge.careerAction?.('cancel'));
+    root.querySelectorAll?.('[data-v112-rename]').forEach(b=>b.onclick=()=>bridge.careerAction?.('crew_name',node('oplCrewName')?.value));
     root.querySelectorAll?.('.opl-job-current [data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
     root.querySelectorAll?.('.opl-domain-cta [data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
     const more=node('oplHubMore');
