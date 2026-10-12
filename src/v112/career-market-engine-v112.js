@@ -20,12 +20,44 @@ function normalize(raw={},year=0){
    year:Math.floor(clamp(x.year,0,9999))})):[],
   selected:r.selected==='special'?'special':'ordinary',
   allOffers:!!r.allOffers,
+  crewChoice:r.crewChoice&&typeof r.crewChoice==='object'&&Number(r.crewChoice.year)===Number(year)?
+    {id:String(r.crewChoice.id||'').slice(0,90),year:Math.floor(Number(year)||0)}:null,
   interview:r.interview&&typeof r.interview==='object'&&Math.floor(Number(r.interview.year)||0)===Math.floor(Number(year)||0)&&byIdSafe(r.interview.id)?
     {id:String(r.interview.id),year:Math.floor(Number(r.interview.year)||0)}:null};
 }
 const all=()=>[...data.ordinary,...data.special];
 const byIdSafe=id=>all().some(x=>x.id===id);
 const byId=id=>all().find(x=>x.id===id)||null;
+function crewHash(str){let h=2166136261;for(const ch of String(str))h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0}
+function crewOffers(ctx={},worldCrews=[]){
+ const year=Math.floor(Number(ctx.year)||0),location=String(ctx.island||'Port inconnu'),region=String(ctx.region||'');
+ const live=(Array.isArray(worldCrews)?worldCrews:[]).filter(c=>c&&c.status==='active'&&c.id&&c.name&&(!region||c.region===region))
+   .sort((a,b)=>(Number(b.power)||0)-(Number(a.power)||0)).slice(0,2).map(c=>({
+     id:'world:'+String(c.id).slice(0,72),name:String(c.name).slice(0,70),
+     captain:'Capitaine de '+String(c.name).slice(0,54),power:Math.round(clamp(c.captainPower??c.power,15,100)),
+     region:String(c.region||region),origin:'Équipage du monde vivant'
+   }));
+ const names=['Équipage de la Brume Pourpre','Équipage des Trois Voiles','Équipage du Corail Noir',
+   'Équipage du Requin d’Argent','Équipage du Vent Écarlate','Équipage des Étoiles Salées'];
+ const captains=['Mara Voss','Rook Dalen','Sena Morin','Kael Vane','Neris Flint','Aren Sol'];
+ const order=names.map((name,i)=>({name,i,hash:crewHash(location+'|'+year+'|'+i)})).sort((a,b)=>a.hash-b.hash).slice(0,3);
+ const local=order.map(({name,i},k)=>({
+   id:'port:'+year+':'+crewHash(location)+':'+i,
+   name,captain:captains[(i+year+k)%captains.length],
+   power:26+(crewHash(name+'|'+location+'|'+year)%49),
+   region,origin:'Recrute à '+location
+ }));
+ return [...live,...local].slice(0,5);
+}
+function chooseCrew(raw,id,ctx={}){
+ const state=normalize(raw,ctx.year);
+ const crew=(ctx.crewOptions||[]).find(c=>c.id===id);
+ const gate=status(byId('pirate_join'),state,ctx);
+ if(!gate.available)return {ok:false,reason:gate.reason,state};
+ if(state.interview)return {ok:false,reason:'Termine d’abord l’entretien en cours.',state};
+ if(!crew)return {ok:false,reason:'Cet équipage n’est plus disponible sur cette île.',state};
+ return {ok:true,crew,state:{...state,crewChoice:{id:crew.id,year:Math.floor(Number(ctx.year)||0)}}};
+}
 function skillValue(job,ctx={}){
  const stats=ctx.stats||{},skills=ctx.skills||{};
  const key=job.skill;
@@ -89,6 +121,8 @@ function startInterview(raw,id,ctx={}){
  if(!gate.available)return {ok:false,reason:gate.reason,state};
  if(state.interview)return {ok:false,reason:'Termine ton entretien en cours.',state};
  if(job.id==='pirate_found'||job.id==='hunter')return {ok:false,reason:'Cette activité indépendante ne nécessite pas d’entretien.',independent:true,state};
+ if(job.id==='pirate_join'&&!(ctx.crewOptions||[]).some(c=>c.id===state.crewChoice?.id))
+   return {ok:false,reason:'Choisis d’abord un équipage dans les recrutements spéciaux.',state};
  return {ok:true,job,state:{...state,interview:{id,year:Math.floor(Number(ctx.year)||0)}}};
 }
 function cancelInterview(raw,year=0){
@@ -100,12 +134,15 @@ function apply(raw,id,ctx={},roll=.5,answer=null){
  if(!gate.available)return {ok:false,reason:gate.reason,state};
  if(state.interview&&state.interview.id!==id)return {ok:false,reason:'Un autre entretien est en cours.',state};
  if(state.interview&&!['skills','team','ambition'].includes(answer))return {ok:false,reason:'Choisis une réponse à l’entretien.',state};
- const chance=clamp(gate.chance+(state.interview?interviewBonus(job,answer,ctx):0),0,1);
+ const joinCrew=job?.id==='pirate_join'?(ctx.crewOptions||[]).find(c=>c.id===state.crewChoice?.id):null;
+ if(job?.id==='pirate_join'&&!joinCrew)return {ok:false,reason:'Sélectionne un équipage disponible avant de postuler.',state};
+ const crewDifficulty=joinCrew?clamp((Number(joinCrew.power)-38)*.003,-.07,.18):0;
+ const chance=clamp(gate.chance+(state.interview?interviewBonus(job,answer,ctx):0)-crewDifficulty,0,1);
  const accepted=job.id==='pirate_found'||job.id==='hunter'||clamp(roll,0,1)<chance;
  const applications=[...state.applications,{id,year:Math.floor(Number(ctx.year)||0),accepted,kind:job.kind,chance}].slice(-24);
  const history=[...state.history,{kind:accepted?'hired':'rejected',title:job.label,year:Math.floor(Number(ctx.year)||0)}].slice(-25);
- return {ok:true,accepted,job,chance,energyCost:3,fee:accepted?(job.money||0):0,
-  state:{...state,interview:null,applications,history,current:accepted?{kind:job.kind,id:job.id,startYear:Math.floor(Number(ctx.year)||0)}:null}};
+ return {ok:true,accepted,job,joinCrew:accepted?joinCrew:null,chance,energyCost:3,fee:accepted?(job.money||0):0,
+  state:{...state,interview:null,crewChoice:accepted?null:state.crewChoice,applications,history,current:accepted?{kind:job.kind,id:job.id,startYear:Math.floor(Number(ctx.year)||0)}:null}};
 }
 function resign(raw,ctx={}){
  const state=normalize(raw,ctx.year),job=byId(state.current?.id);
@@ -139,6 +176,6 @@ function estimatedPay(state,ctx={}){
  return {perAction:Math.round(job.pay*(1+grade*.18)),annualMax:Math.round(job.pay*(1+grade*.18)*4)};
 }
 r.register('careerMarketEngineV112',{
- version:'11.2.1',normalize,byId,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay
+ version:'11.2.2',normalize,byId,crewOffers,chooseCrew,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay
 });
 })(window);
