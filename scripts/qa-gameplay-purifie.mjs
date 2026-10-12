@@ -109,7 +109,10 @@ const careerTick=html.slice(html.indexOf('function careerTick(months){'),html.in
 assert(careerTick.includes('v73AnnualPulse();')&&!careerTick.includes('p.careerXP')&&
   !careerTick.includes('p.money')&&!careerTick.includes('rankUpCheck()'),
   'Aging must not grant automatic career salary, career experience or ranks');
-assert(sw.includes('one-piece-life-v12-0-0-carrieres-final2'),'Offline update not invalidated');
+assert(hub.includes('opl-civil-incident')&&hub.includes('data-v112-ordinary-incident'),'Civilian careers must expose distinct annual work decisions');
+assert(html.includes("ordinaryIncident:active?.kind==='ordinary'?engine.ordinaryIncidentStatus(state,ctx):null")&&
+  html.includes("if(action==='ordinary_incident')"),'Civilian incidents must be handled by the real game engine');
+assert(sw.includes('one-piece-life-v12-0-0-carrieres-final3-civil'),'Offline update not invalidated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 new Function('window',hub);
 console.log('ONE PIECE LIFE : GAMEPLAY PURIFIÉ STATIC QA OK');
