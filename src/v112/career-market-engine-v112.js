@@ -27,6 +27,9 @@ function normalize(raw={},year=0){
   tasks:Array.isArray(r.tasks)?r.tasks.slice(-60).filter(x=>x&&typeof x==='object').map(x=>({
    id:String(x.id||'').slice(0,72),jobId:String(x.jobId||'').slice(0,60),
    year:Math.floor(clamp(x.year,0,9999)),success:!!x.success})):[],
+  // Hands-on practice is independent of an employer, faction, school, or diploma.
+  practices:Array.isArray(r.practices)?r.practices.slice(-60).filter(x=>x&&typeof x==='object').map(x=>({
+   skill:String(x.skill||'').slice(0,40),year:Math.floor(clamp(x.year,0,9999))})):[],
   applications:Array.isArray(r.applications)?r.applications.slice(-24).filter(x=>x&&typeof x==='object').map(x=>({
    id:String(x.id||'').slice(0,60),year:Math.floor(clamp(x.year,0,9999)),
    accepted:!!x.accepted,kind:x.kind==='special'?'special':'ordinary',
@@ -114,12 +117,44 @@ function lockedReason(job,ctx={},state){
 }
 function status(job,state,ctx={}){
  const reason=lockedReason(job,ctx,state);
- const skill=skillValue(job,ctx),need=job?.skillMin||0,school=clamp(ctx.schoolBonus||0,0,20);
+ const skill=skillValue(job,ctx),need=job?.skillMin||0;
  const independent=job?.id==='pirate_found'||job?.id==='hunter';
- const chance=independent?1:job?clamp(.44+(skill-need)*.007+school*.006+
+ // Hiring depends on demonstrated mastery; academic records have zero effect.
+ const chance=independent?1:job?clamp(.44+(skill-need)*.007+
     Math.min(8,Math.max(0,ageOf(ctx)-(job.minAge||15)))*.009-
     (job.kind==='special'?.09:0),.12,.94):0;
  return {available:!reason,reason,chance,skill,required:need};
+}
+
+const MAX_PRACTICES_PER_YEAR=4;
+function practiceStatus(raw,skillId,ctx={}){
+ const state=normalize(raw,ctx.year),skill=(data.careerSkills||[]).find(x=>x.id===skillId);
+ const level=skillValue({skill:skillId},ctx);
+ const used=state.practices.filter(x=>x.year===Math.floor(Number(ctx.year)||0)).length;
+ let reason='';
+ if(!skill)reason='Compétence inconnue.';
+ else if(!ctx.alive)reason='Cette vie est terminée.';
+ else if(ctx.pending)reason='Résous la décision en attente.';
+ else if(ctx.annual)reason='Termine l’année en cours.';
+ else if(ctx.travel)reason='Reviens à terre pour t’entraîner.';
+ else if(ageOf(ctx)<5)reason='Tu peux commencer à pratiquer à partir de cinq ans.';
+ else if((Number(ctx.energy)||0)<9)reason='9 points d’énergie nécessaires.';
+ else if(level>=99.9)reason='Maîtrise maximale atteinte.';
+ else if(used>=MAX_PRACTICES_PER_YEAR)reason='Quatre sessions pratiques maximum par an.';
+ const gain=Math.round((2.4+(100-level)*.02)*100)/100;
+ return {available:!reason,reason,skill:skillId,label:skill?.label||skillId,level:Math.round(level*10)/10,
+  cost:9,gain,remaining:Math.max(0,MAX_PRACTICES_PER_YEAR-used),limit:MAX_PRACTICES_PER_YEAR};
+}
+function practiceChoices(raw,ctx={}){
+ return (data.careerSkills||[]).map(x=>({...x,status:practiceStatus(raw,x.id,ctx)}));
+}
+function practice(raw,skillId,ctx={}){
+ const state=normalize(raw,ctx.year),gate=practiceStatus(state,skillId,ctx);
+ if(!gate.available)return {ok:false,state,reason:gate.reason};
+ const year=Math.floor(Number(ctx.year)||0);
+ return {ok:true,cost:gate.cost,skill:skillId,gain:gate.gain,state:{
+  ...state,practices:[...state.practices,{skill:skillId,year}].slice(-60),
+  history:[...state.history,{kind:'practice',title:gate.label,year}].slice(-25)}};
 }
 function interviewQuestions(id){
  const job=byId(id);if(!job)return [];
@@ -469,7 +504,7 @@ function ordinaryTaskPerform(raw,id,ctx={},roll=.5){
   cost:task.cost,chance:gate.chance};
 }
 r.register('careerMarketEngineV112',{
- version:'12.0.0',normalize,byId,crewOffers,chooseCrew,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
+ version:'12.0.0',normalize,byId,crewOffers,chooseCrew,skillValue,status,practiceStatus,practiceChoices,practice,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
  specialPathOptions,specialPathStatus,chooseSpecialPath,specialPromotionStatus,specialPromotion,
  civilPromotionStatus,civilPromotion,ordinaryTaskStatus,ordinaryTasks,ordinaryTaskPerform,preparationStatus,specialStatus,specialOperations,specialPerform
 });
