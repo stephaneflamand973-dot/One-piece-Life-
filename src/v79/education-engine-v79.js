@@ -35,7 +35,8 @@
       sponsor:!!state.sponsor,
       stage:st.id,
       exams:Array.isArray(state.exams)?state.exams.slice(0,12):[],
-      credentials:Array.isArray(state.credentials)?[...new Set(state.credentials)].slice(0,12):[],
+      // Legacy save compatibility only: V12 awards no credentials or school qualifications.
+      credentials:[],
       trackHistory:Array.isArray(state.trackHistory)?state.trackHistory.slice(0,12):[],
       monthsTrained:Math.max(0,Math.floor(num(state.monthsTrained))),
       lastActionYear:Number.isFinite(Number(state.lastActionYear))?Number(state.lastActionYear):-99,
@@ -133,9 +134,12 @@
       const margin=score-m.difficulty;
       result=margin>=24&&Number(roll)<chance*.72?'distinction':margin>=4?'pass':'partial'
     }else if(score>=m.difficulty-8)result='partial';
-    const credential=result==='distinction'?m.label+' • distinction':result==='pass'?m.label:result==='partial'?m.label+' • validation partielle':null;
-    const exam={id:milestoneId,age:m.age,label:m.label,score,chance,result,credential};
-    s.exams.push(exam);if(credential)s.credentials.push(credential);
+    // A youth milestone is now a practical trial, not a certificate or admission requirement.
+    const track=data.tracks[s.track]||data.tracks.general;
+    const skill=Object.entries(track.skills||{}).sort((a,b)=>b[1]-a[1])[0]?.[0]||null;
+    const skillGain=result==='distinction'?3.2:result==='pass'?2.1:result==='partial'?1.1:.3;
+    const exam={id:milestoneId,age:m.age,label:m.label,score,chance,result,credential:null,skill,skillGain};
+    s.exams.push(exam);
     if(result==='distinction'){s.confidence=clamp(s.confidence+5,0,100);s.discipline=clamp(s.discipline+2,0,100)}
     if(result==='pass'){s.confidence=clamp(s.confidence+3,0,100)}
     if(result==='partial'){s.confidence=clamp(s.confidence+1,0,100)}
@@ -152,11 +156,9 @@
     const s=normalizeState(state,ctx),track=data.tracks[s.track]||data.tracks.general;
     const affinity=num(track.careers[careerId]??.4);
     const exams=s.exams||[];
-    const passed=exams.filter(x=>['distinction','pass'].includes(x.result)).length;
-    const partial=exams.filter(x=>x.result==='partial').length;
-    const distinction=exams.filter(x=>x.result==='distinction').length;
+    // Milestone results and any certificates do not add professional eligibility.
     const competence=s.knowledge*.22+s.practical*.28+s.discipline*.23+s.confidence*.12+s.network*.05;
-    const score=clamp(competence+affinity*24+passed*3.4+partial*1.4+distinction*2.2+(s.mentor?2:0),0,100);
+    const score=clamp(competence+affinity*24+(s.mentor?2:0),0,100);
     const label=score>=78?'Très préparé':score>=64?'Bien préparé':score>=50?'Préparation correcte':score>=36?'Peu préparé':'Voie très éloignée';
     return {score:+score.toFixed(1),label,affinity:+affinity.toFixed(2),track:s.track}
   }
