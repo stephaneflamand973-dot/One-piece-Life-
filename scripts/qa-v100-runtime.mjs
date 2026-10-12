@@ -51,7 +51,8 @@ new Function('window','document','localStorage','navigator','location','indexedD
 );
 const q=w.__qa95;assert(q,'Integrated test bridge unavailable');
 const g=q.initialGame();q.setGame(g);g.ageMonths=21*12;g.clock.year=21;g.clock.month=0;
-Object.assign(g.player,{faction:'Marine',career:'Marine',rank:'Recrue',health:90,energy:86,situation:'Service actif',activity:'Patrouille',activityType:'marine'});
+// Civilian fixture: ordinary work and salaries are not available to special-faction careers.
+Object.assign(g.player,{faction:'Civil',career:'Docker',rank:'Apprenti',health:90,energy:86,situation:'Emploi : Docker',activity:'Travail au port',activityType:'work'});
 g.flags.ambitionOffered=true;g.flags.careerOffered=true;g.flags.specializationOffered=true;
 g.player.specialization='combat';
 g.missionBoard=[{id:'v95_escort_qa',title:'Escorte de QA',desc:'Protéger un convoi',reward:1500,duration:3,danger:'low',power:20,type:'escort'}];
@@ -162,7 +163,7 @@ assert(Array.isArray(g.agency.lastAnnualReport.highlights),'Manual yearly events
 assert(g.agency.lastAnnualReport.director&&typeof g.agency.lastAnnualReport.director.theme==='string','Life Director no longer receives annual events');
 
 /* V10.3: active career gameplay across multiple actions, with contextual costs. */
-g.player.energy=100;g.player.health=90;g.player.career='Marine';g.player.faction='Marine';g.pendingDecision=null;g.player.travel=null;
+g.player.energy=100;g.player.health=90;g.player.career='Docker';g.player.faction='Civil';g.pendingDecision=null;g.player.travel=null;
 assert(q.careerMode('intensive')===true,'V10.3 intensive mode cannot be selected');
 assert(g.player.careerV103.mode==='intensive','Work mode not saved');
 assert(q.manualStatus('work').cost===18,'Dynamic intensive work energy cost not displayed');
