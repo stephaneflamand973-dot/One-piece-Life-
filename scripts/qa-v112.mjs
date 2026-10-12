@@ -265,4 +265,66 @@ assert(html.includes("if(special&&['work','career_support','career_initiative','
 assert(html.includes("if(result.success){\n        const formerCaptain=p.crew.captain?.name"),
   'A pirate leadership victory must actually change the captain in the live save');
 
-console.log('V11.2 CAREER MARKET QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,operations:ops.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
+// V12: separate career paths, faction merit, merit reviews and saved gameplay effects.
+assert(data.specialRanks&&Object.keys(data.specialRanks).length===5,'V12 must define five independent rank ladders');
+for(const faction of Object.keys(data.specialRanks)){
+ assert(data.specialPaths[faction].length>=3,'Each special organization needs three playable specializations: '+faction);
+ assert(data.specialProgression[faction].meritStep>0,'Special rank criteria must be faction-specific: '+faction);
+}
+const pathChosen=m.chooseSpecialPath(activeMarine,'patrol',{...valid,faction:'Marine',rank:'Recrue'});
+assert(pathChosen.ok&&pathChosen.state.specialPath==='patrol'&&pathChosen.cost===5,
+ 'A Marine must select a path with a real energy cost');
+assert(!m.chooseSpecialPath(pathChosen.state,'justice',{...valid,faction:'Marine'}).ok,
+ 'The annual path change quota must be enforced');
+assert(!m.chooseSpecialPath(activeMarine,'boarding',{...valid,faction:'Marine'}).ok,
+ 'Marine branches must not allow pirate specializations');
+const patrolOp=ops.find(x=>x.id==='marine_patrol');
+const plainChance=m.specialStatus(patrolOp,activeMarine,{...valid,faction:'Marine',rank:'Recrue'}).chance;
+const focusedChance=m.specialStatus(patrolOp,pathChosen.state,{...valid,faction:'Marine',rank:'Recrue'}).chance;
+assert(focusedChance>plainChance,'A chosen specialization must improve matching mission chances');
+const focusedOutcome=m.specialPerform(pathChosen.state,'marine_patrol',{...valid,faction:'Marine',rank:'Recrue'},0);
+const baselineOutcome=m.specialPerform(activeMarine,'marine_patrol',{...valid,faction:'Marine',rank:'Recrue'},0);
+assert(focusedOutcome.ok&&focusedOutcome.xp>baselineOutcome.xp&&
+ focusedOutcome.meritGain>baselineOutcome.meritGain&&focusedOutcome.state.specialMerit>0,
+ 'A special path must produce real XP, merit and mission benefits');
+assert(m.normalize(JSON.parse(JSON.stringify(focusedOutcome.state)),22).specialMerit===focusedOutcome.state.specialMerit,
+ 'Special merits must persist after save serialization and year progression');
+assert(m.specialPathStatus(m.normalize(pathChosen.state,22),'justice',{...valid,year:22,faction:'Marine'}).available,
+ 'Next year must allow a fresh specialization choice');
+const marineQualified=m.normalize({
+ current:{id:'marine',kind:'special',startYear:18},specialMerit:48,
+ operations:[{id:'marine_patrol',year:20,success:true}]},21);
+const officerCtx={...valid,faction:'Marine',rank:'Recrue',careerXP:100,trust:75};
+const officerGate=m.specialPromotionStatus(marineQualified,officerCtx);
+assert(officerGate.available&&officerGate.next==='Matelot','Marine first grade should have a faction-only promotion dossier');
+const officerAccepted=m.specialPromotion(marineQualified,officerCtx,0);
+assert(officerAccepted.ok&&officerAccepted.accepted&&officerAccepted.rank==='Matelot'&&
+ officerAccepted.state.specialMerit<marineQualified.specialMerit,
+ 'Special promotion consumes a real faction merit decision and awards an explicit rank');
+assert(!m.specialPromotionStatus(officerAccepted.state,officerCtx).available,
+ 'A faction cannot demand promotions indefinitely during one year');
+assert(!m.specialPromotion(marineQualified,officerCtx,1).accepted,
+ 'Special rank reviews must have a failure outcome');
+assert(!m.specialPromotionStatus(activeMarine,{...officerCtx,careerXP:0}).available,
+ 'Special promotion cannot ignore operation experience requirements');
+const pirateHeir=m.normalize({current:{id:'pirate_join',kind:'special',startYear:18},specialMerit:999,
+ operations:[{id:'pirate_raid',year:20,success:true}]},21);
+assert(!m.specialPromotionStatus(pirateHeir,{...valid,faction:'Pirates',rank:'Bras droit',
+ careerXP:500,trust:100}).available,
+ 'Pirates must win or found captaincy; administrative promotion can never make a captain');
+assert(!m.specialPromotionStatus(hired.state,{...officerCtx,faction:'Civil'}).available,
+ 'An ordinary job must never be allowed into special faction promotion rules');
+assert(!m.specialPathOptions(hired.state,{...valid,faction:'Civil'}).length,
+ 'Ordinary professions cannot use special-career paths');
+const legacyDropped=m.resign(focusedOutcome.state,{...valid,faction:'Marine'});
+assert(legacyDropped.ok&&legacyDropped.state.specialMerit===0&&legacyDropped.state.specialPath==='',
+ 'Special career resignation must erase faction perks');
+assert(hub.includes('data-v112-special-path')&&hub.includes('data-v112-special-promotion')&&
+ html.includes("if(action==='special_path')")&&html.includes("if(action==='special_promotion')"),
+ 'V12 faction-only actions must be reachable and mutate the live character');
+assert(html.includes("if(special&&id==='promotion')"),
+ 'Generic faction promotions must no longer bypass V12 special-career merits');
+assert(fs.readFileSync('src/v112/career-market-v112.css','utf8').includes('.opl-special-progress-grid'),
+ 'Special-career progress and conditions need visible mobile cards');
+
+console.log('V12 CAREER REBUILD QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,operations:ops.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
