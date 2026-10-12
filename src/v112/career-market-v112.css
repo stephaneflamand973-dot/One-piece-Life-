@@ -169,3 +169,19 @@
 .opl-skill-grid button:disabled{opacity:.68;background:#f4f3ee}
 .opl-skill-grid button:focus-visible,.opl-skill-details summary:focus-visible{outline:3px solid #bc964f;outline-offset:2px}
 @media(max-width:340px){.opl-skill-grid{grid-template-columns:1fr}}
+
+/* BitLife-like decisions: one grounded narrative dilemma per special-career year.
+   These controls never appear in the civilian employee job market. */
+.opl-special-incident{display:grid;gap:11px;padding:15px;border:1px solid #c9c7aa;border-radius:14px;background:#fcf8ea}
+.opl-special-incident .opl-job-header{margin:0}
+.opl-special-incident h3{margin:1px 0 0;color:#244655;font-size:16px;line-height:1.35}
+.opl-special-incident>p{margin:0;color:#5e6c62;font-size:12px;line-height:1.55}
+.opl-incident-options{display:grid;gap:8px}
+.opl-incident-options>button{border:1px solid #d5d0b8;border-radius:11px;background:#fffdfa;color:#1c4853;padding:12px;display:grid;gap:5px;text-align:left;min-height:75px}
+.opl-incident-options strong{font-size:13px;line-height:1.4}
+.opl-incident-options span{color:#65766c;font-size:11px;line-height:1.5}
+.opl-incident-options small{font-size:10px;font-weight:750;color:#2c725f}
+.opl-incident-options>button:disabled{background:#f1f0e7;color:#798077;opacity:.83}
+.opl-incident-options>button:disabled small{color:#8b6953}
+.opl-incident-options>button:focus-visible{outline:3px solid #b58b41;outline-offset:3px}
+.opl-incident-done{padding:11px;border-radius:9px;border:1px solid #cbd9ca;background:#f3f8f1;color:#366654;font-size:12px;line-height:1.5}
