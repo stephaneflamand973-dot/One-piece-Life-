@@ -107,7 +107,12 @@ assert(html.includes('v85Ensure();v86Ensure()'),'Old-save V8.6 migration hook mi
 for(const fn of ['function v86Module','function v86Ensure','function v86ActivitySnapshot','function v86ProgressMultiplier','function v86CareerMultiplier','function v86MonthlyTick','function v86OpportunityPreview','function v86ResolveOpportunity','function v86DismissOpportunity','function renderV86Daily']){
   assert(html.includes(fn),'Missing live V8.6 bridge '+fn);
 }
-assert(html.includes('careerMult=v61AnnualMultiplier(\'career\')*v86CareerMultiplier(p.activityType)'),'Career routine integration missing');
+// V12 removes passive career income and rank-ups; daily routines still affect
+// voluntary choices through their dedicated activity engines.
+const careerTick=html.slice(html.indexOf('function careerTick(months){'),html.indexOf('function createCrewName()'));
+assert(careerTick.includes('v73AnnualPulse();')&&
+ !careerTick.includes('p.money')&&!careerTick.includes('p.careerXP')&&!careerTick.includes('rankUpCheck()'),
+ 'Career routine must no longer grant passive wages, experience or ranks');
 assert(html.includes("v67RivalMultiplier('stats',k)*v86ProgressMultiplier(activity)"),'Stat routine progression hook missing');
 assert(html.includes("v67RivalMultiplier('skills',k)*v86ProgressMultiplier(activity)"),'Skill routine progression hook missing');
 assert(html.includes('careerTick(1);v86MonthlyTick();'),'Monthly daily-life tick missing');
