@@ -15,6 +15,9 @@ function normalize(raw={},year=0){
   lastRaiseYear:Number.isFinite(Number(r.lastRaiseYear))?Math.floor(Number(r.lastRaiseYear)):-1,
   operations:Array.isArray(r.operations)?r.operations.slice(-45).filter(x=>x&&typeof x==='object').map(x=>({
    id:String(x.id||'').slice(0,72),year:Math.floor(clamp(x.year,0,9999)),success:!!x.success})):[],
+  tasks:Array.isArray(r.tasks)?r.tasks.slice(-60).filter(x=>x&&typeof x==='object').map(x=>({
+   id:String(x.id||'').slice(0,72),jobId:String(x.jobId||'').slice(0,60),
+   year:Math.floor(clamp(x.year,0,9999)),success:!!x.success})):[],
   applications:Array.isArray(r.applications)?r.applications.slice(-24).filter(x=>x&&typeof x==='object').map(x=>({
    id:String(x.id||'').slice(0,60),year:Math.floor(clamp(x.year,0,9999)),
    accepted:!!x.accepted,kind:x.kind==='special'?'special':'ordinary',
@@ -257,8 +260,53 @@ function specialPerform(raw,id,ctx={},roll=.5){
  return {ok:true,op,state:next,success,xp,pay,bounty,healthLoss,energyCost:op.cost,successChance:gate.chance,
   standing:success?3.8:-0.5,trust:op.role==='heir'?(success?8:-14):(success?2.2:-0.9)};
 }
+// Sector-specific everyday employment is separate from faction operations.
+// Every project requires a deliberate player action; no passive money or XP.
+function ordinaryTaskStatus(task,raw,ctx={}){
+ const state=normalize(raw,ctx.year),current=byId(state.current?.id);
+ let reason='';
+ if(!task||!data.ordinaryTasks.some(x=>x.id===task.id))reason='Activité professionnelle inconnue.';
+ else if(state.current?.kind!=='ordinary'||!current||current.kind!=='ordinary')reason='Il faut occuper un métier ordinaire.';
+ else if(current.sector!==task.sector)reason='Cette tâche appartient à un autre secteur professionnel.';
+ else if(!ctx.alive)reason='Cette vie est terminée.';
+ else if(ctx.pending)reason='Résous d’abord la décision en attente.';
+ else if(ctx.annual)reason='Termine d’abord l’année en cours.';
+ else if(ctx.travel)reason='Reviens à terre pour effectuer cette tâche.';
+ else if(clamp(ctx.energy,0,100)<task.cost)reason='Il faut '+task.cost+' énergie.';
+ else if(skillValue(task,ctx)<task.skillMin)reason=task.skill+' requis : '+task.skillMin+'/100.';
+ const year=Math.floor(Number(ctx.year)||0);
+ const used=state.tasks.filter(x=>x.year===year&&x.jobId===current?.id&&x.id===task?.id).length;
+ const remaining=Math.max(0,(task?.limit||1)-used);
+ if(!reason&&!remaining)reason='Cette tâche a déjà été réalisée deux fois cette année.';
+ const chance=clamp((task?.chance||.5)+(skillValue(task||{},ctx)-(task?.skillMin||0))*.0025+
+   clamp(ctx.performance,0,100)*.0009,.25,.92);
+ return {available:!reason,reason,remaining,limit:task?.limit||1,cost:task?.cost||0,chance};
+}
+function ordinaryTasks(raw,ctx={}){
+ const state=normalize(raw,ctx.year),job=byId(state.current?.id);
+ if(!job||job.kind!=='ordinary')return [];
+ return (data.ordinaryTasks||[]).filter(x=>x.sector===job.sector)
+   .map(x=>({...x,status:ordinaryTaskStatus(x,state,ctx)}));
+}
+function ordinaryTaskPerform(raw,id,ctx={},roll=.5){
+ const state=normalize(raw,ctx.year),task=(data.ordinaryTasks||[]).find(x=>x.id===id);
+ const gate=ordinaryTaskStatus(task,state,ctx);
+ if(!gate.available)return {ok:false,state,reason:gate.reason};
+ const success=clamp(roll,0,1)<gate.chance;
+ const current=byId(state.current.id);
+ const xp=Math.max(1,Math.round(task.xp*(success?1:.35)));
+ const bonus=success?Math.max(1,Math.round(current.pay*task.bonusRate)):0;
+ const healthLoss=success?0:Math.round(task.injury*.75);
+ const performanceDelta=success?6:-4;
+ const trustDelta=success?2.5:-1.5;
+ const year=Math.floor(Number(ctx.year)||0);
+ const next={...state,tasks:[...state.tasks,{id,jobId:current.id,year,success}].slice(-60),
+  history:[...state.history,{kind:success?'work_project':'project_failed',title:task.label,year}].slice(-25)};
+ return {ok:true,state:next,task,success,xp,bonus,healthLoss,performanceDelta,trustDelta,
+  cost:task.cost,chance:gate.chance};
+}
 r.register('careerMarketEngineV112',{
- version:'11.2.4',normalize,byId,crewOffers,chooseCrew,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
- specialStatus,specialOperations,specialPerform
+ version:'11.2.5',normalize,byId,crewOffers,chooseCrew,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
+ ordinaryTaskStatus,ordinaryTasks,ordinaryTaskPerform,specialStatus,specialOperations,specialPerform
 });
 })(window);
