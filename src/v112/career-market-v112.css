@@ -35,3 +35,15 @@
 .opl-job-more{width:100%;border:1px solid #9cb7ac;border-radius:11px;padding:12px;color:#205464;background:#fff;min-height:44px;font-size:12px;font-weight:850}
 .opl-job-market button:focus-visible{outline:3px solid #c9a361;outline-offset:2px}
 @media(max-width:355px){.opl-job-current-actions{grid-template-columns:1fr}.opl-job-top{flex-wrap:wrap}.opl-job-salary{white-space:normal}}
+
+/* Interactive recruitment. Big, finger-friendly answers with clear consequences. */
+.opl-job-interview .opl-job-intro h3{margin:2px 0 4px;font-family:Georgia,serif;font-size:22px;color:#173f4e}
+.opl-interview-choice{width:100%;min-height:72px;display:grid;text-align:left;gap:7px;padding:13px 15px;border-radius:12px;border:1px solid #b1c9bc;background:#fbfdf6;color:#214b52}
+.opl-interview-choice strong{font-size:13px}
+.opl-interview-choice span{font-size:11px;color:#63786a;line-height:1.45}
+.opl-interview-choice:active{background:#e6f0e7}
+.opl-job-crew{display:grid;gap:8px;padding:12px;border:1px solid #c5d1c4;border-radius:12px;background:#f7faf3}
+.opl-job-crew label{font-size:12px;font-weight:800;color:#1c4853}
+.opl-job-crew input{font-size:14px;width:100%;min-height:44px;border:1px solid #aec4b5;border-radius:10px;background:#fff;padding:10px 12px;color:#173f4e}
+.opl-job-crew button{min-height:44px;padding:10px;border-radius:10px;border:0;background:#184658;color:#fff;font-size:12px;font-weight:850}
+.opl-job-interview button:focus-visible,.opl-job-crew input:focus-visible,.opl-job-crew button:focus-visible{outline:3px solid #c9a361;outline-offset:2px}
