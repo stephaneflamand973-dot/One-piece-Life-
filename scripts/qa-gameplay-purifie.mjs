@@ -76,7 +76,7 @@ assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Invalid single-element query 
 assert(hub.includes('data-v112-raise')&&html.includes("if(action==='raise')"),'Civilian salary negotiation should remain part of workplace gameplay');
 assert(html.includes("if(special&&['work','career_support','career_initiative','career_bonus'].includes(id))"),'Special careers must never inherit ordinary work');
 assert(hub.includes('data-v112-special=')&&html.includes("if(action==='special')"),'Faction-specific operations must remain actionable');
-assert(sw.includes('one-piece-life-v11-0-1-carrieres16'),'Offline update not invalidated');
+assert(sw.includes('one-piece-life-v11-0-1-carrieres17'),'Offline update not invalidated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 new Function('window',hub);
 console.log('ONE PIECE LIFE : GAMEPLAY PURIFIÉ STATIC QA OK');
