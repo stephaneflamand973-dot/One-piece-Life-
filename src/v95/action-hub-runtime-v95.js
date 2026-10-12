@@ -286,6 +286,21 @@ function createRuntime(bridge){
     const crew=market.captainCrew?'<div class="opl-job-crew"><label for="oplCrewName">Nom de ton équipage</label>'+
       '<input type="text" id="oplCrewName" maxlength="42" value="'+escapeHtml(market.captainCrew)+'">'+
       '<button type="button" data-v112-rename>Renommer mon équipage</button></div>':'';
+    // BitLife-style occupation: once hired, show workplace actions instead
+    // of a long wall of vacancies that cannot be applied to.
+    if(active){
+      const ids=['manual:promotion','manual:career_bonus','manual:career_initiative',
+        'manual:career_support','manual:mission','manual:expedition_coordinate'];
+      const actions=ids.map(id=>build().find(x=>x.id===id)).filter(Boolean);
+      const workplace='<section class="opl-job-workplace"><h3>Actions professionnelles</h3>'+
+        '<div class="opl-job-work-actions">'+actions.map(x=>
+          '<button type="button" data-v112-direct="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
+          '<strong>'+escapeHtml(x.title)+'</strong><small>'+escapeHtml(x.available?x.detail:x.reason||'Indisponible')+'</small></button>').join('')+'</div>'+
+        (bridge.getGame()?.player?.faction==='Pirates'?
+          '<button type="button" class="opl-job-more" data-v112-crew>Gérer mon équipage pirate ›</button>':'')+
+        '</section>';
+      return '<section class="opl-job-market" aria-label="Ma carrière actuelle">'+current+workplace+'</section>';
+    }
     const tabs='<div class="opl-job-tabs" role="group" aria-label="Choisir son parcours">'+
       '<button type="button" data-v112-view="ordinary" aria-pressed="'+(type==='ordinary')+'" class="'+(type==='ordinary'?'selected':'')+'">Métiers ordinaires</button>'+
       '<button type="button" data-v112-view="special" aria-pressed="'+(type==='special')+'" class="'+(type==='special'?'selected':'')+'">Carrières spéciales</button></div>';
@@ -464,6 +479,8 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-cancel]').forEach(b=>b.onclick=()=>bridge.careerAction?.('cancel'));
     root.querySelectorAll?.('[data-v112-rename]').forEach(b=>b.onclick=()=>bridge.careerAction?.('crew_name',node('oplCrewName')?.value));
     root.querySelectorAll?.('.opl-job-current [data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
+    root.querySelectorAll?.('[data-v112-direct]').forEach(b=>b.onclick=()=>execute(b.dataset.v112Direct));
+    root.querySelectorAll?.('[data-v112-crew]').forEach(b=>b.onclick=()=>bridge.execute?.('open:character:crewSection'));
     root.querySelectorAll?.('.opl-domain-cta [data-v95-run]').forEach(b=>b.onclick=()=>execute(b.dataset.v95Run));
     const more=node('oplHubMore');
     if(more)more.onclick=()=>{showAll=!showAll;if(!showAll)query='';const shell=node('oplSearchShell');if(shell)shell.classList.toggle('hidden',!showAll);if(search)search.value=query;renderResults()};
