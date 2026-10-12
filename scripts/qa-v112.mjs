@@ -339,6 +339,22 @@ assert(html.includes("if(recognized?.kind==='ordinary')")&&
   html.includes('v112OrdinaryProfileToCareer'),
   'Civilian profile progression must display only the ordinary employer promotion rules');
 assert(html.includes("const c=careerProgressInfo(p);")&&html.includes("if(!c.active)"),
-  'Existing legacy saves without a recognized career must retain a non-destructive fallback');
+  'The profile retains a safe no-career fallback');
+assert(html.includes("career:p.career,rank:p.rank,faction:p.faction,careerXP:p.careerXP,"),
+  'Live player career XP must flow into V12 civil and special promotion requirements');
+assert(html.includes("const DB_NAME = 'one-piece-life-careers-v12'")&&
+  html.includes("const SAVE_VERSION = 1200")&&html.includes("opl-v12-slot-"),
+  'The incompatible V12 career schema must have an isolated storage namespace');
+assert(html.includes('await retirePreviousCareerSaves()')&&html.includes("indexedDB.deleteDatabase('one-piece-life')")&&
+  html.includes("localStorage.removeItem('opl-slot-'+slot)"),
+  'Startup must retire old career saves explicitly, as authorized by the player');
+assert(html.includes("careerMarketV112:{version:2,current:null")&&
+  !html.includes("id:exact?.id||'legacy'"),
+  'Newborn career must start without inferred legacy employment');
+assert(!html.includes("if(parts[1]==='marine'){p.faction='Marine'")&&
+  !html.includes("if(parts[1]==='civil'){p.faction='Civil'"),
+  'Old career event branches must not bypass V12 recruitment');
+assert(!html.includes("game.pendingDecision=specializationDecision()"),
+  'Old forced specialization events must not compete with special-career choices');
 
 console.log('V12 CAREER REBUILD QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,operations:ops.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
