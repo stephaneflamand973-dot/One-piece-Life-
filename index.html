@@ -6232,15 +6232,20 @@ function rankUpCheck(){
   }
 }
 function careerTick(months){
-  const p=game.player;if(p.career==='Aucune')return;v69Ensure();const careerMult=v61AnnualMultiplier('career')*v86CareerMultiplier(p.activityType),resourceMult=v61AnnualMultiplier('resources'),authorityMult=1+v69CareerTier(p).tier*.04;
-  p.careerXP+=months*(.7+random('career')*.7)*careerMult;
-  if(p.faction==='Marine'){p.money+=Math.round(months*(850+Math.max(0,CAREER_RANKS.Marine.indexOf(p.rank))*180)*resourceMult*authorityMult);p.reputation.marine+=months*.25*careerMult}
-  else if(p.faction==='Pirates'){if(p.crew){p.crew.morale=clamp(p.crew.morale+randInt(-3,4,'career'),0,100);p.money+=Math.round(months*randInt(350,1500,'career')*resourceMult*authorityMult);simulateCrew(months)}p.reputation.pirate+=months*.18*careerMult}
-  else if(p.faction==='Chasseurs de primes'){p.money+=Math.round(months*randInt(450,1250,'career')*resourceMult*authorityMult);p.reputation.local+=months*.18*careerMult}
-  else if(p.faction==='Révolutionnaires'){p.money+=Math.round(months*randInt(280,780,'career')*resourceMult*authorityMult);p.reputation.revolution+=months*.25*careerMult;v671Gain('skills','Discrétion',months*.08*careerMult)}
-  else if(p.faction==='Gouvernement'){p.money+=Math.round(months*(950+Math.max(0,CAREER_RANKS.Gouvernement.indexOf(p.rank))*210)*resourceMult*authorityMult);p.reputation.government+=months*.25*careerMult;v671Gain('stats','Discipline',months*.05*careerMult)}
-  else{p.money+=Math.round(months*randInt(650,1350,'career')*resourceMult*authorityMult);p.reputation.local+=months*.18*careerMult}
-  v73RefreshResponsibility();rankUpCheck();if(game.clock.month<1){v73AnnualPulse();if(chance(clamp(.55*careerMult,.25,.88),'missionBoard'))refreshMissionBoard()}
+  // V12: passage du temps = évolution du monde, jamais une paie, de l'XP ou un grade.
+  // Les revenus civils sont gagnés en travaillant volontairement, et les carrières
+  // spéciales progressent via leurs propres opérations et demandes de promotion.
+  const p=game.player;if(p.career==='Aucune')return;
+  v69Ensure();
+  if(p.faction==='Pirates'&&p.crew){
+    p.crew.morale=clamp((Number(p.crew.morale)||50)+randInt(-3,4,'career'),0,100);
+    simulateCrew(months);
+  }
+  v73RefreshResponsibility();
+  if(game.clock.month<1){
+    v73AnnualPulse();
+    if(chance(.55,'missionBoard'))refreshMissionBoard();
+  }
 }
 function createCrewName(){return pick(['Équipage du Goéland Noir','Équipage des Crocs d’Écume','Équipage du Vent Cassé','Équipage de l’Aube Salée','Équipage du Requin Blanc'],'career')}
 function generateCrewMember(role){const names=['Mira','Dalen','Rook','Sena','Toma','Neris','Aren','Kiro','Veya','Milo','Iria','Bren'];return {name:pick(names,'crew'),role,power:randInt(10,32,'crew'),loyalty:randInt(35,78,'crew'),status:'active'}}
