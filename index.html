@@ -490,10 +490,10 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const DB_NAME = 'one-piece-life';
+const DB_NAME = 'one-piece-life-careers-v12';
 const STORE = 'saves';
-const SAVE_VERSION = 1000;
-const GAME_VERSION = '11.0.1';
+const SAVE_VERSION = 1200;
+const GAME_VERSION = '12.0.0';
 const V61_ANNUAL_FOCUS={
   balanced:{icon:'⚖',label:'Équilibré',desc:'Aucun domaine sacrifié.',training:1,career:1,relations:1,resources:1,adventure:1},
   training:{icon:'🥊',label:'Progression',desc:'+35% progression • carrière -16% • revenus -18%.',training:1.35,career:.84,relations:.86,resources:.82,adventure:.90},
@@ -3171,20 +3171,17 @@ function v112Data(){return window.OPL_MODULES?.get('careerMarketDataV112')||null
 function v112Engine(){return window.OPL_MODULES?.get('careerMarketEngineV112')||null}
 function v112Ensure(){
   if(!game?.meta||!v112Engine())return null;
-  if(!game.meta.careerMarketV112){
-    const p=game.player,hasJob=p.career&&p.career!=='Aucune';
-    const exact=[...(v112Data()?.ordinary||[]),...(v112Data()?.special||[])].find(x=>x.label===p.career||(x.career===p.career&&x.faction===p.faction));
-    game.meta.careerMarketV112={current:hasJob?{id:exact?.id||'legacy',kind:exact?.kind||(p.faction==='Civil'?'ordinary':'special'),startYear:Math.floor(game.ageMonths/12)}:null};
-  }
+  // V12 is a clean rebuild. No attempts to infer a profession from legacy faction fields.
+  // A character joins a career only through the ordinary or special recruitment engines.
   const year=Math.floor(game.ageMonths/12);
-  game.meta.careerMarketV112=v112Engine().normalize(game.meta.careerMarketV112,year);
+  game.meta.careerMarketV112=v112Engine().normalize(game.meta.careerMarketV112||{},year);
   return game.meta.careerMarketV112;
 }
 function v112Context(){
   const p=game.player,education=v79Ensure();
   return {age:Math.floor(game.ageMonths/12),year:Math.floor(game.ageMonths/12),island:p.island,region:p.region,
     crewOptions:v112Engine()?.crewOffers({year:Math.floor(game.ageMonths/12),island:p.island,region:p.region},game.world?.emergentCrews)||[],
-    career:p.career,rank:p.rank,faction:p.faction,energy:p.energy,money:p.money,bounty:p.bounty,
+    career:p.career,rank:p.rank,faction:p.faction,careerXP:p.careerXP,energy:p.energy,money:p.money,bounty:p.bounty,
     isCaptain:p.faction==='Pirates'&&p.rank==='Capitaine',
     hasCrewCaptain:!!p.crew?.captain?.name&&p.crew.captain.name!==p.name,
     rankIndex:Math.max(0,(CAREER_RANKS[p.faction]||[]).indexOf(p.rank)),
@@ -5373,6 +5370,20 @@ function weighted(items,s='core'){const total=items.reduce((x,i)=>x+Math.max(0,i
 const slug=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
 const esc=s=>String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 
+async function retirePreviousCareerSaves(){
+  // V12 intentionally starts from zero. Remove only this game's old save slots;
+  // never touch other websites' localStorage or databases.
+  try{for(let slot=1;slot<=3;slot++)localStorage.removeItem('opl-slot-'+slot)}catch(e){}
+  if(!('indexedDB'in window))return;
+  await new Promise(resolve=>{
+    let settled=false;const finish=()=>{if(settled)return;settled=true;clearTimeout(timer);resolve()};
+    const timer=setTimeout(finish,900);
+    try{
+      const old=indexedDB.deleteDatabase('one-piece-life');
+      old.onsuccess=finish;old.onerror=finish;old.onblocked=finish;
+    }catch(e){finish()}
+  });
+}
 async function openDb(){
   if(!('indexedDB' in window)){storageFallback=true;return Promise.resolve(false)}
   return new Promise(res=>{
@@ -5387,7 +5398,7 @@ async function openDb(){
     }catch(e){finish(false)}
   });
 }
-function localKey(slot){return `opl-slot-${slot}`}
+function localKey(slot){return `opl-v12-slot-${slot}`}
 function canUseLocalStorage(){try{const k='__opl_test__';localStorage.setItem(k,'1');localStorage.removeItem(k);return true}catch(e){return false}}
 function localLoadSlot(slot){try{return JSON.parse(localStorage.getItem(localKey(slot))||'null')}catch(e){return null}}
 function localSaveCurrent(){if(!game||!canUseLocalStorage())return false;try{localStorage.setItem(localKey(activeSlot),JSON.stringify(game));return true}catch(e){return false}}
@@ -5482,7 +5493,7 @@ function initialGame(){
   const difficulty=$('#difficultyInput').value;
   game={
     version:GAME_VERSION,saveVersion:SAVE_VERSION,seed,rngCounters:{},
-    meta:{slot:activeSlot,createdAt:Date.now(),updatedAt:Date.now(),mode:creationMode,difficulty,uiV76:{version:1,density:'focus',activeTab:'life',collapsed:{},scroll:{},reducedMotion:false,lastViewedYear:-99},flowV90:{version:1,annualPreset:'balanced',customPlan:false,lastDigestYear:-99,digestSeenYear:-99,lastPriorityKey:'',detailOpen:false,totalYearsViewed:0}},
+    meta:{slot:activeSlot,createdAt:Date.now(),updatedAt:Date.now(),mode:creationMode,difficulty,careerMarketV112:{version:2,current:null,selected:'ordinary',applications:[],operations:[],tasks:[],history:[]},uiV76:{version:1,density:'focus',activeTab:'life',collapsed:{},scroll:{},reducedMotion:false,lastViewedYear:-99},flowV90:{version:1,annualPreset:'balanced',customPlan:false,lastDigestYear:-99,digestSeenYear:-99,lastPriorityKey:'',detailOpen:false,totalYearsViewed:0}},
     clock:{year:0,month:0,day:1},ageMonths:0,alive:true,death:null,
     player:{},world:{},relations:[],history:[],news:[],
     codex:{people:[],places:[],factions:['Civil'],fruits:[],events:['Exécution de Gol D. Roger']},
@@ -5754,7 +5765,7 @@ function lifecycleTransitions(){
     game.flags.careerOffered=true;
     addHistory('À la recherche d’un emploi','Tu peux maintenant postuler à des métiers ordinaires ou tenter une voie spéciale dans Activités > Carrière.','major');
   }
-  if(age>=18&&p.career!=='Aucune'&&!p.specialization&&!game.flags.specializationOffered&&p.careerXP>16&&!game.pendingDecision){game.flags.specializationOffered=true;game.pendingDecision=specializationDecision()}
+  // V12 specialization is voluntary within a special career, never a legacy age-up popup.
 }
 function ambitionDecision(){return {id:'ambition',title:'Une ambition prend forme',text:'Tu commences à avoir une idée plus claire de ce que tu veux faire de ta vie. Ce n’est pas une prophétie, seulement une direction.',choices:AMBITIONS.map(([label,hint,type])=>({label,hint,action:`ambition:${type}`}))}}
 function careerDecision(){return {id:'career_start',title:'Choisir une première voie',text:'Tu es désormais assez âgé pour quitter l’enfance. Aucune voie ne garantit la gloire, et certaines raccourcissent franchement l’espérance de vie.',choices:[{label:'Tenter d’intégrer la Marine',hint:v79CareerHint('marine','Structure, salaire, missions et hiérarchie.'),action:'career:marine'},{label:'Prendre la mer avec des pirates locaux',hint:v79CareerHint('pirate','Liberté, équipage, prime et danger.'),action:'career:pirate'},{label:'Apprendre un métier civil',hint:v79CareerHint('civil','Carrière plus stable, mais le monde peut te rattraper.'),action:'career:civil'},{label:'Devenir chasseur de primes',hint:v79CareerHint('hunter','Indépendance, revenus irréguliers et combats.'),action:'career:hunter'},{label:'Rejoindre les Révolutionnaires',hint:v79CareerHint('revolution','Clandestinité, réseau et opposition au Gouvernement.'),action:'career:revolution'},{label:'Servir le Gouvernement',hint:v79CareerHint('government','Discipline, renseignements et accès possible au Cipher Pol.'),action:'career:government'}]}}
@@ -6503,15 +6514,9 @@ function resolveDecision(action){
   try{
   const p=game.player;if(!game.pendingDecision)return;const oldFaction=p.faction,decisionEcho=game.pendingDecision,parts=action.split(':');
   if(parts[0]==='ambition'){const item=AMBITIONS.find(x=>x[2]===parts[1]);if(item){p.ambition=item[0];p.ambitionType=item[2];v91OnAmbitionChange(true);addHistory('Ambition',`Tu décides de poursuivre avant tout un objectif : ${item[0].toLowerCase()}.`,'major')}}
-  if(parts[0]==='career'){
-    if(parts[1]==='marine'){p.faction='Marine';p.career='Marine';p.rank='Recrue';p.situation='Formation militaire';p.activity='Formation / entraînement';p.activityType='marine';p.money+=1500;p.reputation.marine+=3;codexAdd('factions','Marine');addHistory('Engagement dans la Marine','Tu signes comme recrue. Les règles deviennent plus strictes, mais les opportunités aussi.','major')}
-    if(parts[1]==='pirate'){p.faction='Pirates';p.career='Pirate';p.rank='Mousse';p.situation='En mer';p.activity='Vie d’équipage';p.activityType='crew';p.reputation.pirate+=4;codexAdd('factions','Pirates');createPirateCrewIfNeeded()}
-    if(parts[1]==='civil'){p.faction='Civil';p.career=pick(['Navigateur','Médecin apprenti','Marchand','Artisan','Assistant scientifique'],'career');p.rank='Apprenti';p.situation='Apprentissage';p.activity=`Se former : ${p.career}`;p.activityType='study';addHistory('Choix de carrière',`Tu choisis une voie civile : ${p.career.toLowerCase()}.`,'major')}
-    if(parts[1]==='hunter'){p.faction='Chasseurs de primes';p.career='Chasseur de primes';p.rank='Débutant';p.situation='Indépendant';p.activity='Traquer des cibles';p.activityType='patrol';codexAdd('factions','Chasseurs de primes');addHistory('Chasseur de primes','Tu choisis de vivre des récompenses placées sur la tête des autres.','major')}
-    if(parts[1]==='revolution'){p.faction='Révolutionnaires';p.career='Révolutionnaire';p.rank='Sympathisant';p.situation='Réseau clandestin';p.activity='Opérations clandestines';p.activityType='covert';p.reputation.revolution+=3;codexAdd('factions','Révolutionnaires');addHistory('Réseau révolutionnaire','Tu rejoins une organisation clandestine qui cherche à modifier l’ordre politique du monde.','major')}
-    if(parts[1]==='government'){p.faction='Gouvernement';p.career='Agent du Gouvernement';p.rank='Recrue';p.situation='Formation d’agent';p.activity='Formation d’agent';p.activityType='government';p.money+=1800;p.reputation.government+=4;codexAdd('factions','Gouvernement Mondial');addHistory('Service du Gouvernement','Tu entres au service d’une institution immense, hiérarchisée et souvent opaque.','major')}
-    v79ApplyCareerPreparation(parts[1]);v81OnFactionChange(oldFaction,p.faction);refreshMissionBoard();
-  }
+  // Career enrollment is never resolved by an old free faction-choice event.
+  // Only v112Do ('apply' / 'answer') can create a new position or faction.
+  if(parts[0]==='career')addHistory('Carrière','Ouvre Activités > Carrière pour postuler à un emploi ou rejoindre une faction.','normal');
   if(parts[0]==='specialize'){p.specialization=parts[1];addHistory('Spécialisation',`Tu orientes désormais ta carrière vers : ${parts.slice(2).join(':')}.`,'major')}
   if(parts[0]==='fruit'){const id=parts[2],f=game.world.fruits.find(x=>x.id===id);if(f){if(parts[1]==='eat'){p.devilFruit={id:f.id,name:f.name,type:f.type,mastery:1};f.status='consumed';f.holder='player';p.equipment=p.equipment.filter(x=>x!==f.name);addHistory('Fruit consommé',`Tu manges ${f.name}. La mer devient désormais ton ennemie permanente.`,'major')}if(parts[1]==='keep'){if(!p.equipment.includes(f.name))p.equipment.push(f.name);f.status='held';f.holder='player_inventory';addHistory('Fruit conservé',`Tu gardes ${f.name} sans le consommer.`)}if(parts[1]==='sell'){const gain=randInt(150000,800000,'fruit');p.money+=gain;f.status='world';f.holder=null;f.region=p.region;addHistory('Vente exceptionnelle',`Tu vends ${f.name}. Quelqu’un d’autre l’a désormais dans ce monde.`,'major',`+${gain.toLocaleString('fr-FR')} B`)}}}
   if(parts[0]==='travel'&&parts[1]!=='cancel')beginTravel(decodeURIComponent(parts.slice(1).join(':')));if(parts[0]==='v85travel')v85ResolveTravelDecision(parts);if(parts[0]==='v64adv')v64ResolveAdventureChoice(parts);
@@ -7255,7 +7260,7 @@ function bindUi(){
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&game)saveGame()});
   window.addEventListener('pagehide',()=>{if(game)saveGame()});
 }
-async function init(){bindUi();renderSlots();const pf=platformInfo();const warn=$('#localFileWarning');if(warn&&location.protocol!=='file:')warn.classList.add('hidden');if(pf.ios&&!pf.standalone&&pf.secure)$('#iosInstallCard')?.classList.remove('hidden');try{await openDb()}catch(e){storageFallback=true}await renderSlots();if('serviceWorker'in navigator&&pf.secure&&location.protocol!=='file:'){let reloadOnce=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!game&&!reloadOnce&&document.visibilityState!=='hidden'){reloadOnce=true;location.reload?.()}});navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{})}try{if(navigator.storage?.persist)navigator.storage.persist()}catch(e){}}
+async function init(){bindUi();await retirePreviousCareerSaves();renderSlots();const pf=platformInfo();const warn=$('#localFileWarning');if(warn&&location.protocol!=='file:')warn.classList.add('hidden');if(pf.ios&&!pf.standalone&&pf.secure)$('#iosInstallCard')?.classList.remove('hidden');try{await openDb()}catch(e){storageFallback=true}await renderSlots();if('serviceWorker'in navigator&&pf.secure&&location.protocol!=='file:'){let reloadOnce=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!game&&!reloadOnce&&document.visibilityState!=='hidden'){reloadOnce=true;location.reload?.()}});navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{})}try{if(navigator.storage?.persist)navigator.storage.persist()}catch(e){}}
 window.addEventListener('error',()=>{if(!game)startupMessage('Le moteur a rencontré une erreur au démarrage. Recharge la page ; les sauvegardes locales ne sont pas supprimées.','warn')});
 init().catch(()=>{storageFallback=true;renderSlots();startupMessage('Démarrage en mode de secours local.','warn')});
 })();
