@@ -3186,7 +3186,11 @@ function v112Context(){
     crewOptions:v112Engine()?.crewOffers({year:Math.floor(game.ageMonths/12),island:p.island,region:p.region},game.world?.emergentCrews)||[],
     career:p.career,rank:p.rank,faction:p.faction,energy:p.energy,money:p.money,bounty:p.bounty,
     isCaptain:p.faction==='Pirates'&&p.rank==='Capitaine',
+    hasCrewCaptain:!!p.crew?.captain?.name&&p.crew.captain.name!==p.name,
     rankIndex:Math.max(0,(CAREER_RANKS[p.faction]||[]).indexOf(p.rank)),
+    trust:Number(v73Ensure()?.trust)||0,
+    performance:Number(v103Ensure()?.performance)||0,
+    workSessions:Number(v103Ensure()?.workSessions)||0,
     skills:p.skills,stats:p.stats,schoolBonus:Math.min(20,Math.floor((Number(education?.knowledge)||0)/5)),
     alive:game.alive,pending:!!game.pendingDecision,annual:!!game.agency?.annualTurn?.active,travel:!!p.travel};
 }
@@ -3205,7 +3209,8 @@ function v112Market(){
     operations:active?.kind==='special'?engine.specialOperations(state,ctx):[],
     rank:game.player.rank,careerXP:game.player.careerXP,
     performance:Math.round(Number(v103Ensure()?.performance)||0),
-    income:engine.estimatedPay(state,ctx),entries,
+    income:engine.estimatedPay(state,ctx),
+    raise:active?.kind==='ordinary'?engine.raiseStatus(state,ctx):null,entries,
     maxOrdinaryApplications:data.maxOrdinaryApplications,maxSpecialApplications:data.maxSpecialApplications,
     remainingOrdinary:Math.max(0,data.maxOrdinaryApplications-state.applications.filter(x=>x.kind==='ordinary'&&x.year===ctx.year).length),
     remainingSpecial:Math.max(0,data.maxSpecialApplications-state.applications.filter(x=>x.kind==='special'&&x.year===ctx.year).length),
@@ -3222,6 +3227,18 @@ function v112Do(action,id){
   if(!game||!game.alive||game.pendingDecision)return false;
   const engine=v112Engine(),state=v112Ensure(),ctx=v112Context();if(!engine||!state)return false;
   const oldFaction=game.player.faction,p=game.player;
+  if(action==='raise'){
+    const out=engine.negotiateRaise(state,ctx,random('v112SalaryReview:'+ctx.year));
+    if(!out.ok){toast(out.reason||'Augmentation inaccessible.');return false}
+    game.meta.careerMarketV112=out.state;
+    p.energy=clamp(p.energy-out.cost,0,100);
+    const extra=out.accepted?'Le salaire de tes prochaines séances augmente de 8 %, soit +'+out.raisePct+' % au total.':
+      'Ta demande est refusée. Tu pourras retenter une négociation l’année prochaine.';
+    addHistory(out.accepted?'Augmentation obtenue':'Augmentation refusée',extra,'normal',
+      out.accepted?'Salaire négocié : +'+out.raisePct+' %':'');
+    toast(out.accepted?'Augmentation accordée':'Négociation refusée');
+    saveGame();render();return true;
+  }
   if(action==='special'){
     const result=engine.specialPerform(state,id,ctx,random('v112Special:'+id+':'+ctx.year));
     if(!result.ok){toast(result.reason||'Opération indisponible.');return false}
@@ -3236,6 +3253,19 @@ function v112Do(action,id){
     p.reputation[rep]=Math.max(0,(Number(p.reputation[rep])||0)+(result.success?4:1));
     if(result.bounty){p.bounty=Math.max(0,(Number(p.bounty)||0)+result.bounty);
       p.highestBounty=Math.max(Number(p.highestBounty)||0,p.bounty)}
+    if(p.faction==='Pirates'&&p.crew&&result.op.role==='heir'){
+      if(result.success){
+        const formerCaptain=p.crew.captain?.name||'Ancien capitaine';
+        p.rank='Capitaine';
+        p.crew.captain={name:p.name,power:Math.round(overallPower(p))};
+        p.crew.morale=clamp((Number(p.crew.morale)||50)+8,0,100);
+        addHistory('Nouveau capitaine','Tu prends le commandement de '+p.crew.name+
+          ' à la place de '+formerCaptain+'. Le navire et les compagnons restent dans ton équipage.','major');
+      }else{
+        p.crew.morale=clamp((Number(p.crew.morale)||50)-10,0,100);
+        addHistory('Défi au capitaine perdu','Ton défi échoue. La méfiance grandit dans '+p.crew.name+'.','danger');
+      }
+    }
     if(p.faction==='Pirates'&&p.crew&&result.success){
       if(id==='pirate_recruit'){
         p.crew.members=Array.isArray(p.crew.members)?p.crew.members:[];
@@ -3253,7 +3283,10 @@ function v112Do(action,id){
       p.careerV73=orgEngine.applyDelta(org,{standing:result.standing,trust:result.trust},p.faction);
       v73RefreshResponsibility(true);
     }
-    const description=result.success?
+    const description=result.op.role==='heir'?
+      (result.success?'Défi gagné : tu deviens capitaine et prends le commandement de ton équipage.':
+        'Défi perdu : confiance et moral de l’équipage diminuent.'):
+      result.success?
       'Réussite ! '+result.xp+' XP, '+result.pay.toLocaleString('fr-FR')+' B'+
       (result.bounty?' et +'+result.bounty.toLocaleString('fr-FR')+' B de prime.':'.'):
       'Échec de l’opération. +'+result.xp+' XP d’expérience du terrain'+
@@ -3980,6 +4013,9 @@ function v100Status(id){
   const mod=v102Module(),state=v102Ensure();
   if(!mod||!state||!game?.player)return {available:false,remaining:0,reason:'Moteur d’actions indisponible.'};
   const status=mod.status(state,id,Math.floor(game.ageMonths/12),v102Context(id));
+  const special=v112Ensure()?.current?.kind==='special';
+  if(special&&['work','career_support','career_initiative','career_bonus'].includes(id))
+    return {...status,available:false,reason:'Cette carrière spéciale progresse par ses opérations propres, pas par les actions d’un emploi civil.'};
   if(status.available&&v106Data()?.actions?.[id]){
     const adventure=v106Status(id);
     if(!adventure.available)return {...status,available:false,reason:adventure.reason};
