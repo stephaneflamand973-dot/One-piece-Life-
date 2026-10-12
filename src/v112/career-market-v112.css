@@ -58,3 +58,17 @@
 .opl-job-work-actions button:disabled{background:#f5f2eb;border-color:#e0ded7;color:#91918b}
 .opl-job-work-actions button:disabled small{color:#897b6e}
 @media(max-width:365px){.opl-job-work-actions{grid-template-columns:1fr}.opl-job-work-actions button{min-height:58px}}
+
+/* V11.2.2: actual crew choice before applying. */
+.opl-crew-picker{border:1px solid #bbd2c3;border-radius:12px;padding:11px;margin:0;min-width:0;background:#f1f7ef}
+.opl-crew-picker legend{padding:0 4px;font-size:12px;font-weight:850;color:#234d52}
+.opl-crew-picker>p{font-size:11px;color:#60736b;margin:0 0 9px;line-height:1.5}
+.opl-crew-offers{display:grid;gap:7px}
+.opl-crew-offers button{width:100%;min-height:59px;border:1px solid #c9d6ce;border-radius:10px;background:#fffdf7;
+  color:#264f59;text-align:left;display:grid;align-content:center;gap:4px;padding:10px 12px}
+.opl-crew-offers button strong{font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+.opl-crew-offers button small{font-size:10px;color:#66796e;line-height:1.45}
+.opl-crew-offers button.selected{border:2px solid #2a806e;background:#e1f2e7}
+.opl-crew-picker button:focus-visible{outline:3px solid #c9a361;outline-offset:2px}
+.opl-job-list button[data-v112-apply]:disabled{background:#d8e0d7;color:#5f7167;cursor:not-allowed}
+.opl-crew-interview-target{padding:9px 11px;border-radius:9px;background:#e8f2e9;color:#255851;font-size:12px;line-height:1.5;margin:5px 0}
