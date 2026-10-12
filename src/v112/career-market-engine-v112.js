@@ -6,12 +6,17 @@ const clamp=(n,min,max)=>Math.min(max,Math.max(min,Number.isFinite(Number(n))?Nu
 const ageOf=c=>Math.max(0,Math.floor(Number(c.age)||0));
 function normalize(raw={},year=0){
  const r=raw&&typeof raw==='object'?raw:{};
- return {version:1,year:Math.max(0,Math.floor(Number(year)||0)),
+ return {version:2,year:Math.max(0,Math.floor(Number(year)||0)),
   current:r.current&&typeof r.current==='object'?{
    kind:r.current.kind==='special'?'special':'ordinary',id:String(r.current.id||'').slice(0,60),
    startYear:Math.floor(clamp(r.current.startYear,0,9999))
   }:null,
   raisePct:Math.floor(clamp(r.raisePct,0,40)),
+  // V12 special-career record: wholly distinct from ordinary employee tenure.
+  specialMerit:Math.floor(clamp(r.specialMerit,0,9999)),
+  specialPath:String(r.specialPath||'').slice(0,36),
+  lastSpecialPathYear:Number.isFinite(Number(r.lastSpecialPathYear))?Math.floor(Number(r.lastSpecialPathYear)):-1,
+  lastSpecialPromotionYear:Number.isFinite(Number(r.lastSpecialPromotionYear))?Math.floor(Number(r.lastSpecialPromotionYear)):-1,
   jobHunt:!!r.jobHunt,
   lastPromotionYear:Number.isFinite(Number(r.lastPromotionYear))?Math.floor(Number(r.lastPromotionYear)):-1,
   lastRaiseYear:Number.isFinite(Number(r.lastRaiseYear))?Math.floor(Number(r.lastRaiseYear)):-1,
@@ -162,6 +167,10 @@ function apply(raw,id,ctx={},roll=.5,answer=null){
   state:{...state,interview:null,crewChoice:accepted?null:state.crewChoice,applications,history,
     raisePct:accepted?0:state.raisePct,lastRaiseYear:accepted?-1:state.lastRaiseYear,
     lastPromotionYear:accepted?-1:state.lastPromotionYear,jobHunt:accepted?false:state.jobHunt,
+    specialMerit:accepted?0:state.specialMerit,specialPath:accepted?'':state.specialPath,
+    lastSpecialPathYear:accepted?-1:state.lastSpecialPathYear,
+    lastSpecialPromotionYear:accepted?-1:state.lastSpecialPromotionYear,
+    operations:accepted?[]:state.operations,tasks:accepted?[]:state.tasks,
     current:accepted?{kind:job.kind,id:job.id,startYear:Math.floor(Number(ctx.year)||0)}:state.current}};
 }
 function resign(raw,ctx={}){
@@ -172,6 +181,7 @@ function resign(raw,ctx={}){
  const title=job?.label||ctx.career||'Carrière précédente';
  return {ok:true,job,
   state:{...state,current:null,jobHunt:false,raisePct:0,lastRaiseYear:-1,lastPromotionYear:-1,
+    specialMerit:0,specialPath:'',lastSpecialPathYear:-1,lastSpecialPromotionYear:-1,
     history:[...state.history,{kind:'resigned',title,year:Math.floor(Number(ctx.year)||0)}].slice(-25)}};
 }
 function stringHash(str){let h=2166136261;for(const ch of String(str)){h=Math.imul(h^ch.charCodeAt(0),16777619)}return h>>>0}
@@ -265,6 +275,73 @@ function negotiateRaise(raw,ctx={},roll=.5){
  return {ok:true,state:next,accepted,raisePct,cost:gate.cost,chance:gate.chance};
 }
 // Each special career owns its own missions, cooldowns and rewards.
+// Each faction defines its own specialization and merit-based promotions.
+function specialPathOptions(raw,ctx={}){
+ const state=normalize(raw,ctx.year),job=byId(state.current?.id);
+ const faction=job?.kind==='special'?job.faction:null;
+ return (data.specialPaths?.[faction]||[]).map(path=>({
+   ...path,status:specialPathStatus(state,path.id,ctx)
+ }));
+}
+function specialPathStatus(raw,id,ctx={}){
+ const s=normalize(raw,ctx.year),job=byId(s.current?.id);
+ const faction=job?.kind==='special'?job.faction:null;
+ const path=(data.specialPaths?.[faction]||[]).find(x=>x.id===id);
+ let reason='';
+ if(!path)reason='Cette spécialisation ne correspond pas à ta carrière.';
+ else if(!ctx.alive||ctx.pending||ctx.annual)reason='Termine la décision ou l’année en cours.';
+ else if(ctx.travel)reason='Reviens à terre pour choisir une spécialisation.';
+ else if(s.specialPath===id)reason='Cette spécialisation est déjà active.';
+ else if(s.lastSpecialPathYear===Math.floor(Number(ctx.year)||0))reason='Tu as déjà changé de spécialisation cette année.';
+ else if((Number(ctx.energy)||0)<5)reason='Il faut 5 énergie.';
+ return {available:!reason,reason,cost:5,current:s.specialPath===id};
+}
+function chooseSpecialPath(raw,id,ctx={}){
+ const s=normalize(raw,ctx.year),gate=specialPathStatus(s,id,ctx);
+ if(!gate.available)return {ok:false,state:s,reason:gate.reason};
+ const job=byId(s.current.id),path=data.specialPaths[job.faction].find(p=>p.id===id),year=Math.floor(Number(ctx.year)||0);
+ return {ok:true,path,cost:gate.cost,state:{...s,specialPath:id,lastSpecialPathYear:year,
+   history:[...s.history,{kind:'special_path',title:path.label,year}].slice(-25)}};
+}
+function specialPromotionStatus(raw,ctx={}){
+ const s=normalize(raw,ctx.year),job=byId(s.current?.id);
+ const faction=job?.kind==='special'?job.faction:null;
+ const config=data.specialProgression?.[faction];
+ const ranks=data.specialRanks?.[faction]||[];
+ const index=ranks.indexOf(ctx.rank),next=index>=0?ranks[index+1]:null;
+ const successes=s.operations.filter(op=>op.success).length;
+ const meritRequired=(config?.meritStep||18)*(index+1);
+ const xpRequired=18+(index+1)*Math.round((index+3)*9);
+ const successesRequired=(config?.successStep||1)+Math.floor(index/2);
+ const merit=Math.floor(s.specialMerit),xp=Math.floor(Math.max(0,Number(ctx.careerXP)||0));
+ const trust=clamp(ctx.trust,0,100);
+ let reason='';
+ if(!config)reason='Choisis une carrière spéciale pour progresser dans une faction.';
+ else if(index<0)reason='Grade non reconnu dans cette organisation.';
+ else if(!next)reason='Grade maximal atteint.';
+ else if(faction==='Pirates'&&next==='Capitaine')reason='Le capitanat doit se gagner en créant un équipage ou en défiant le capitaine.';
+ else if(!ctx.alive||ctx.pending||ctx.annual||ctx.travel)reason='Cette promotion nécessite une situation stable à terre.';
+ else if(s.lastSpecialPromotionYear===Math.floor(Number(ctx.year)||0))reason='Dossier déjà examiné cette année.';
+ else if((Number(ctx.energy)||0)<8)reason='Il faut 8 énergie pour présenter ton dossier.';
+ else if(merit<meritRequired)reason='Mérite insuffisant : '+merit+' / '+meritRequired+'.';
+ else if(xp<xpRequired)reason='Expérience insuffisante : '+xp+' / '+xpRequired+' XP.';
+ else if(successes<successesRequired)reason='Réussis '+successesRequired+' opération(s) au sein de la faction ('+successes+' validées).';
+ else if(trust<(config?.trust||0))reason='Confiance insuffisante : '+Math.round(trust)+' / '+config.trust+'.';
+ const chance=clamp((config?.baseChance||.4)+Math.min(120,Math.max(0,merit-meritRequired))*.001+
+   (trust-35)*.002+Math.min(200,xp)*.0005,.17,.89);
+ return {available:!reason,reason,label:config?.promotion||'Examen de grade',faction,next,
+  merit,meritRequired,xp,xpRequired,successes,successesRequired,trust,trustRequired:config?.trust||0,
+  chance,cost:8,rank:ctx.rank};
+}
+function specialPromotion(raw,ctx={},roll=.5){
+ const s=normalize(raw,ctx.year),gate=specialPromotionStatus(s,ctx);
+ if(!gate.available)return {ok:false,state:s,reason:gate.reason};
+ const accepted=clamp(roll,0,1)<gate.chance,year=Math.floor(Number(ctx.year)||0);
+ return {ok:true,accepted,rank:accepted?gate.next:ctx.rank,cost:gate.cost,chance:gate.chance,
+  state:{...s,lastSpecialPromotionYear:year,specialMerit:accepted?Math.max(0,s.specialMerit-6):s.specialMerit,
+    history:[...s.history,{kind:accepted?'special_promoted':'special_promotion_refused',
+      title:gate.next,year}].slice(-25)}};
+}
 function specialStatus(op,raw,ctx={}){
  const state=normalize(raw,ctx.year),career=state.current;
  if(!op||!data.specialOperations.some(x=>x.id===op.id))return {available:false,reason:'Opération inconnue.'};
@@ -289,7 +366,9 @@ function specialStatus(op,raw,ctx={}){
  const remaining=Math.max(0,Math.max(1,op.limit)-used);
  if(!reason&&remaining===0)reason='Toutes les tentatives ont été utilisées cette année.';
  const rankFactor=Math.min(0.08,Math.max(0,Number(ctx.rankIndex)||0)*.012);
- const chance=clamp(op.chance+(skillValue(op,ctx)-op.skillMin)*.003+rankFactor+
+ const path=(data.specialPaths?.[faction]||[]).find(x=>x.id===state.specialPath);
+ const pathBonus=path?.skill===op.skill?.07:0;
+ const chance=clamp(op.chance+(skillValue(op,ctx)-op.skillMin)*.003+rankFactor+pathBonus+
   (op.role==='heir'?(clamp(ctx.trust,0,100)-55)*.005:0),0.18,0.93);
  return {available:!reason,reason,remaining,limit:op.limit,cost:op.cost,chance};
 }
@@ -303,14 +382,19 @@ function specialPerform(raw,id,ctx={},roll=.5){
  if(!gate.available)return {ok:false,reason:gate.reason,state};
  const success=clamp(roll,0,1)<gate.chance;
  const factor=success?1:0.22;
- const xp=Math.max(1,Math.round(op.xp*factor));
+ const faction=byId(state.current?.id)?.faction||ctx.faction;
+ const path=(data.specialPaths?.[faction]||[]).find(x=>x.id===state.specialPath);
+ const bonus=path?.skill===op.skill;
+ const xp=Math.max(1,Math.round(op.xp*factor*(bonus?1.18:1)));
  const pay=success?Math.round(op.pay*(0.85+(1-clamp(roll,0,1))*.3)):0;
  const bounty=success?op.bounty:Math.round(op.bounty*.22);
  const healthLoss=success?0:Math.round(op.injury*(.65+clamp(roll,0,1)*.35));
  const year=Math.floor(Number(ctx.year)||0);
- const next={...state,operations:[...state.operations,{id:op.id,year,success}].slice(-45)};
+ const meritGain=Math.max(1,success?(9+Math.round(xp/5)+(bonus?3:0)):2);
+ const next={...state,specialMerit:Math.min(9999,state.specialMerit+meritGain),
+   operations:[...state.operations,{id:op.id,year,success}].slice(-45)};
  return {ok:true,op,state:next,success,xp,pay,bounty,healthLoss,energyCost:op.cost,successChance:gate.chance,
-  standing:success?3.8:-0.5,trust:op.role==='heir'?(success?8:-14):(success?2.2:-0.9)};
+  standing:success?3.8:-0.5,trust:op.role==='heir'?(success?8:-14):(success?2.2:-0.9),meritGain};
 }
 // Sector-specific everyday employment is separate from faction operations.
 // Every project requires a deliberate player action; no passive money or XP.
@@ -358,7 +442,8 @@ function ordinaryTaskPerform(raw,id,ctx={},roll=.5){
   cost:task.cost,chance:gate.chance};
 }
 r.register('careerMarketEngineV112',{
- version:'11.2.6',normalize,byId,crewOffers,chooseCrew,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
+ version:'12.0.0',normalize,byId,crewOffers,chooseCrew,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
+ specialPathOptions,specialPathStatus,chooseSpecialPath,specialPromotionStatus,specialPromotion,
  civilPromotionStatus,civilPromotion,ordinaryTaskStatus,ordinaryTasks,ordinaryTaskPerform,specialStatus,specialOperations,specialPerform
 });
 })(window);
