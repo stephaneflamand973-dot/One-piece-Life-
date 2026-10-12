@@ -5,7 +5,7 @@
   const tracks={
     general:{
       label:'Formation générale',icon:'◈',desc:'Bases polyvalentes, discipline, lecture du monde et autonomie.',
-      skills:{Navigation:.22,Commandement:.18,Médecine:.12,Science:.18,Discrétion:.08},
+      skills:{Navigation:.22,Commandement:.18,Médecine:.12,Science:.18,Discrétion:.08,Arts:.08,Commerce:.10},
       stats:{Discipline:.36,Volonté:.22,Réflexes:.10},
       careers:{civil:.82,marine:.66,government:.58,revolution:.54,hunter:.44,pirate:.42}
     },
@@ -35,13 +35,13 @@
     },
     craft:{
       label:'Artisanat & commerce',icon:'⚒',desc:'Travail pratique, négociation, ressources et savoir-faire local.',
-      skills:{Commandement:.30,Navigation:.20,Science:.16,Discrétion:.08},
+      skills:{Artisanat:.40,Commerce:.27,Cuisine:.24,Commandement:.15,Navigation:.12,Science:.10},
       stats:{Discipline:.34,Endurance:.18,Volonté:.16},
       careers:{civil:.90,pirate:.58,hunter:.52,marine:.45,revolution:.48,government:.42}
     },
     survival:{
       label:'Survie & exploration',icon:'◇',desc:'Terrain, discrétion, orientation, résistance et initiative.',
-      skills:{Discrétion:.38,Navigation:.32,Combat:.14},
+      skills:{Survie:.44,Discrétion:.33,Navigation:.25,Combat:.14},
       stats:{Réflexes:.26,Endurance:.24,Résistance:.18,Volonté:.14},
       careers:{hunter:.82,pirate:.78,revolution:.70,marine:.58,civil:.52,government:.40}
     },
@@ -55,7 +55,7 @@
 
   const focuses={
     balanced:{label:'Équilibrer',desc:'Progression régulière en théorie et pratique.',knowledge:1,practical:1,discipline:.6,confidence:.4,energy:0},
-    theory:{label:'Étudier sérieusement',desc:'Favorise connaissances et examens.',knowledge:1.55,practical:.55,discipline:.9,confidence:.1,energy:4},
+    theory:{label:'Étudier sérieusement',desc:'Favorise observation, compréhension et raisonnement.',knowledge:1.55,practical:.55,discipline:.9,confidence:.1,energy:4},
     practice:{label:'Pratiquer sur le terrain',desc:'Favorise savoir-faire et compétences.',knowledge:.55,practical:1.6,discipline:.35,confidence:.5,energy:6},
     social:{label:'Apprendre avec les autres',desc:'Réseau, assurance et commandement.',knowledge:.7,practical:.75,discipline:.25,confidence:1.5,energy:3},
     recover:{label:'Lever le pied',desc:'Moins de progression, meilleure récupération.',knowledge:.45,practical:.45,discipline:.15,confidence:.25,energy:-7}
