@@ -3212,6 +3212,7 @@ function v112Market(){
     specialMerit:active?.kind==='special'?state.specialMerit:0,
     specialIncident:active?.kind==='special'?engine.specialIncidentStatus(state,ctx):null,
     ordinaryTasks:active?.kind==='ordinary'?engine.ordinaryTasks(state,ctx):[],
+    ordinaryIncident:active?.kind==='ordinary'?engine.ordinaryIncidentStatus(state,ctx):null,
     skillPractices:engine.practiceChoices(state,ctx),
     rank:game.player.rank,careerXP:game.player.careerXP,
     performance:Math.round(Number(v103Ensure()?.performance)||0),
@@ -3349,6 +3350,38 @@ function v112Do(action,id){
       addHistory('Promotion refusée','Ton supérieur estime que tu dois encore faire tes preuves. Tu pourras redemander une promotion l’année prochaine.','normal');
     }
     toast(out.accepted?'Promotion accordée':'Promotion refusée');
+    saveGame();render();return true;
+  }
+  if(action==='ordinary_incident'){
+    const out=engine.resolveOrdinaryIncident(state,id,ctx,random('v12CivilDilemma:'+state.current?.id+':'+ctx.year+':'+id));
+    if(!out.ok){toast(out.reason||'Décision professionnelle indisponible.');return false}
+    game.meta.careerMarketV112=out.state;
+    p.energy=clamp(p.energy-out.energyCost,0,100);
+    p.money=Math.max(0,(Number(p.money)||0)+out.moneyDelta);
+    p.health=Math.max(1,clamp((Number(p.health)||0)+out.healthDelta,0,100));
+    p.careerXP=Math.max(0,(Number(p.careerXP)||0)+out.xp);
+    const career=v103Ensure();
+    if(career){
+      p.careerV103={...career,performance:clamp((Number(career.performance)||0)+out.performanceDelta,0,100),
+        xpEarned:Math.max(0,(Number(career.xpEarned)||0)+out.xp),
+        earned:Math.max(0,(Number(career.earned)||0)+out.moneyDelta)};
+    }
+    const org=v73Ensure(),orgEngine=v73Module();
+    if(org&&orgEngine&&out.trustDelta){
+      p.careerV73=orgEngine.applyDelta(org,{trust:out.trustDelta,standing:out.success?1:-1},p.faction);
+      v73RefreshResponsibility(true);
+    }
+    const impacts=[
+      out.moneyDelta?'Berry '+(out.moneyDelta>0?'+':'')+out.moneyDelta.toLocaleString('fr-FR'):'',
+      out.xp?'XP +'+out.xp:'',
+      out.performanceDelta?'Performance '+(out.performanceDelta>0?'+':'')+out.performanceDelta:'',
+      out.trustDelta?'Confiance '+(out.trustDelta>0?'+':'')+out.trustDelta:'',
+      out.healthDelta?'Santé '+out.healthDelta:''
+    ].filter(Boolean).join(' • ');
+    addHistory(out.incident.title,'Tu choisis : '+out.choice.label+'. '+
+      (out.success?'La situation évolue en ta faveur. ':'Ton choix a des conséquences difficiles. ')+
+      out.choice.detail,out.success?'normal':'danger',impacts);
+    toast(out.success?'Décision professionnelle réussie':'Décision professionnelle : échec');
     saveGame();render();return true;
   }
   if(action==='ordinary_task'){
