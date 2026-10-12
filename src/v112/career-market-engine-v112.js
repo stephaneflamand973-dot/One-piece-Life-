@@ -368,8 +368,11 @@ function specialStatus(op,raw,ctx={}){
  const rankFactor=Math.min(0.08,Math.max(0,Number(ctx.rankIndex)||0)*.012);
  const path=(data.specialPaths?.[faction]||[]).find(x=>x.id===state.specialPath);
  const pathBonus=path?.skill===op.skill?.07:0;
- const chance=clamp(op.chance+(skillValue(op,ctx)-op.skillMin)*.003+rankFactor+pathBonus+
-  (op.role==='heir'?(clamp(ctx.trust,0,100)-55)*.005:0),0.18,0.93);
+ // Base expertise and chosen specialization have distinct ceilings:
+ // specializing must still matter even for an already very capable character.
+ const baseChance=clamp(op.chance+(skillValue(op,ctx)-op.skillMin)*.003+rankFactor+
+  (op.role==='heir'?(clamp(ctx.trust,0,100)-55)*.005:0),0.18,0.90);
+ const chance=clamp(baseChance+pathBonus,0.18,0.97);
  return {available:!reason,reason,remaining,limit:op.limit,cost:op.cost,chance};
 }
 function specialOperations(raw,ctx={}){
