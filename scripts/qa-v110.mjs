@@ -87,11 +87,11 @@ const next=quota.nextYear(ledger,25);assert(next.spent.saga_chapter===0,'Next ye
 assert(next.total===ledger.total,'Annual transition granted extra completed actions');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
-assert(html.includes("const GAME_VERSION = '11.0.1'"),'Game version missing');
+assert(html.includes("const GAME_VERSION = '12.0.0'"),'Game version missing');
 assert(html.includes('function v110ResolveChoice(parts)')&&html.includes("if(id==='saga_chapter')"),'V11 actual game route missing');
 assert(html.includes('v110RenderSagas();')&&html.includes('id="v110SagaCard"'),'Saga screen missing');
 assert(html.includes("if(parts[0]==='v110saga'){v110ResolveChoice(parts);return}"),'Saga modal handler missing');
-assert(sw.includes('one-piece-life-v11-0-1')&&sw.includes('src/v110/saga-engine-v110.js'),'PWA cache incomplete');
-assert(manifest.description.includes('V11.0.1'),'Manifest stale');
+assert(sw.includes('one-piece-life-v12-0-0')&&sw.includes('src/v110/saga-engine-v110.js'),'PWA cache incomplete');
+assert(manifest.description.includes('V12.0.0'),'Manifest stale');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 console.log('V11.0 PERSONAL SAGAS QA OK',JSON.stringify({chapters:3,totalReward:sum,failed:state.lost,annualActions:3}));
