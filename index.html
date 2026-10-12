@@ -3185,6 +3185,8 @@ function v112Context(){
   return {age:Math.floor(game.ageMonths/12),year:Math.floor(game.ageMonths/12),island:p.island,region:p.region,
     crewOptions:v112Engine()?.crewOffers({year:Math.floor(game.ageMonths/12),island:p.island,region:p.region},game.world?.emergentCrews)||[],
     career:p.career,rank:p.rank,faction:p.faction,energy:p.energy,money:p.money,bounty:p.bounty,
+    isCaptain:p.faction==='Pirates'&&p.rank==='Capitaine',
+    rankIndex:Math.max(0,(CAREER_RANKS[p.faction]||[]).indexOf(p.rank)),
     skills:p.skills,stats:p.stats,schoolBonus:Math.min(20,Math.floor((Number(education?.knowledge)||0)/5)),
     alive:game.alive,pending:!!game.pendingDecision,annual:!!game.agency?.annualTurn?.active,travel:!!p.travel};
 }
@@ -3199,6 +3201,8 @@ function v112Market(){
     interview:state.interview?{...state.interview,job:engine.byId(state.interview.id),
       questions:engine.interviewQuestions(state.interview.id)}:null,
     captainCrew:game.player.faction==='Pirates'&&game.player.rank==='Capitaine'?game.player.crew?.name:null,
+    crew:game.player.faction==='Pirates'?game.player.crew:null,
+    operations:active?.kind==='special'?engine.specialOperations(state,ctx):[],
     rank:game.player.rank,careerXP:game.player.careerXP,
     performance:Math.round(Number(v103Ensure()?.performance)||0),
     income:engine.estimatedPay(state,ctx),entries,
@@ -3218,6 +3222,47 @@ function v112Do(action,id){
   if(!game||!game.alive||game.pendingDecision)return false;
   const engine=v112Engine(),state=v112Ensure(),ctx=v112Context();if(!engine||!state)return false;
   const oldFaction=game.player.faction,p=game.player;
+  if(action==='special'){
+    const result=engine.specialPerform(state,id,ctx,random('v112Special:'+id+':'+ctx.year));
+    if(!result.ok){toast(result.reason||'Opération indisponible.');return false}
+    game.meta.careerMarketV112=result.state;
+    p.energy=clamp(p.energy-result.energyCost,0,100);
+    p.health=Math.max(1,clamp(p.health-result.healthLoss,0,100));
+    p.money=Math.max(0,p.money+result.pay);
+    p.careerXP=Math.max(0,(Number(p.careerXP)||0)+result.xp);
+    p.reputation=p.reputation||{};
+    const rep={Pirates:'pirate',Marine:'marine',Gouvernement:'government',
+      'Chasseurs de primes':'local',Révolutionnaires:'revolution'}[p.faction]||'local';
+    p.reputation[rep]=Math.max(0,(Number(p.reputation[rep])||0)+(result.success?4:1));
+    if(result.bounty){p.bounty=Math.max(0,(Number(p.bounty)||0)+result.bounty);
+      p.highestBounty=Math.max(Number(p.highestBounty)||0,p.bounty)}
+    if(p.faction==='Pirates'&&p.crew&&result.success){
+      if(id==='pirate_recruit'){
+        p.crew.members=Array.isArray(p.crew.members)?p.crew.members:[];
+        p.crew.members.push(generateCrewMember('Combattant'));
+      }
+      p.crew.morale=clamp((Number(p.crew.morale)||50)+3,0,100);
+      if(id==='pirate_raid')p.crew.treasury=Math.max(0,(Number(p.crew.treasury)||0)+Math.round(result.pay*.3));
+    }
+    const profile=v103Ensure(),careerEngine=v103Module();
+    if(profile&&careerEngine&&result.success){
+      p.careerV103={...profile,performance:clamp(profile.performance+4,0,100)};
+    }
+    const org=v73Ensure(),orgEngine=v73Module();
+    if(org&&orgEngine){
+      p.careerV73=orgEngine.applyDelta(org,{standing:result.standing,trust:result.trust},p.faction);
+      v73RefreshResponsibility(true);
+    }
+    const description=result.success?
+      'Réussite ! '+result.xp+' XP, '+result.pay.toLocaleString('fr-FR')+' B'+
+      (result.bounty?' et +'+result.bounty.toLocaleString('fr-FR')+' B de prime.':'.'):
+      'Échec de l’opération. +'+result.xp+' XP d’expérience du terrain'+
+      (result.healthLoss?', santé -'+result.healthLoss:'')+'.';
+    addHistory(result.op.label,description,result.success?'major':'danger',
+      (result.pay?('+'+result.pay.toLocaleString('fr-FR')+' B • '):'')+'+'+result.xp+' XP');
+    toast(result.success?'Opération réussie':'Opération échouée');
+    saveGame();render();return true;
+  }
   if(action==='crew_select'){
     const result=engine.chooseCrew(state,id,ctx);
     if(!result.ok){toast(result.reason);return false}
