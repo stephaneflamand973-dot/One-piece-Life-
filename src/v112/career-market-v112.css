@@ -142,3 +142,13 @@
 .opl-hub-career>#oplHubMore,.opl-hub-career>#oplSearchShell{display:none!important}
 @media(min-width:600px){.opl-special-path-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.opl-special-path-grid button{scroll-behavior:auto}}
+
+/* Each special career has a stock earned through its own faction activities.
+   The bar tracks actual saved mission preparation, never generic employee progress. */
+.opl-special-preparation{display:grid;gap:9px;padding:14px;background:#f3f7f3;border:1px solid #b2c9ba;border-radius:14px}
+.opl-special-preparation .opl-job-header{margin:0}
+.opl-special-preparation .opl-job-header strong{font-size:14px}
+.opl-special-preparation-track{height:11px;background:#d6e4d8;border-radius:99px;overflow:hidden}
+.opl-special-preparation-track span{display:block;height:100%;border-radius:inherit;background:#3b8a6c;transition:width .2s}
+.opl-special-preparation p{margin:0;font-size:12px;line-height:1.48;color:#47665a}
+@media(prefers-reduced-motion:reduce){.opl-special-preparation-track span{transition:none}}
