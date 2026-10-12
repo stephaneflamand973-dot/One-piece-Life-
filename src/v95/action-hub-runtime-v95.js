@@ -319,6 +319,22 @@ function createRuntime(bridge){
       overview+preparationCard+paths+'<section class="opl-special-operations"><div class="opl-job-header"><strong>Mes opérations '+escapeHtml(faction)+'</strong>'+
       '<small>Actions propres à cette carrière</small></div>'+operations+'</section>'+progress+extras+'</section>';
   }
+  function renderSkillPractice(market){
+    const list=market.skillPractices||[];
+    if(!list.length)return '';
+    const available=list[0].status?.remaining??0;
+    return '<section class="opl-skill-practice" aria-label="Entraînement pratique des compétences">'+
+      '<div class="opl-job-header"><strong>Mes compétences</strong><small>'+available+
+      ' session'+(available>1?'s':'')+' disponible'+(available>1?'s':'')+' cette année</small></div>'+
+      '<p>Pas de diplômes : améliore tes aptitudes par la pratique, puis postule aux métiers qui les demandent.</p>'+
+      '<details class="opl-skill-details"><summary>S’entraîner à une compétence ›</summary>'+
+      '<div class="opl-skill-grid">'+list.map(x=>{
+        const st=x.status||{},blocked=!st.available;
+        return '<button type="button" data-v112-practice="'+escapeHtml(x.id)+'" '+(blocked?'disabled':'')+'>'+
+          '<strong>'+escapeHtml(x.label)+'</strong><span>Niveau '+Math.floor(Number(st.level)||0)+'/100</span>'+
+          '<small>'+escapeHtml(blocked?st.reason||'Indisponible':'+'+st.gain+' points • 9 énergie')+'</small></button>';
+      }).join('')+'</div></details></section>';
+  }
   function renderCareerBoard(){
     const market=bridge.careerMarket?.();
     if(!market)return '';
@@ -336,7 +352,7 @@ function createRuntime(bridge){
         '<button type="button" class="opl-job-more" data-v112-cancel>Annuler cet entretien</button></section>';
     }
     const active=market.active;
-    if(active?.kind==='special')return renderSpecialCareerBoard(market);
+    if(active?.kind==='special')return renderSpecialCareerBoard(market)+renderSkillPractice(market);
     const cfg=active?bridge.careerConfig?.():null;
     const modes=cfg?.options?.length?'<label class="opl-training-focus" for="oplCareerMode">Méthode de travail'+
       '<select id="oplCareerMode" '+(cfg.editable?'':'disabled')+'>'+
@@ -363,7 +379,7 @@ function createRuntime(bridge){
       '<button type="button" class="opl-job-resign" data-v112-quit>Quitter mon poste</button>'+
       '</div></section>':
       '<div class="opl-job-intro"><strong>Ton avenir se décide ici.</strong>'+
-      '<p>Consulte les offres, postule et passe un recrutement. Un refus est possible, et ta progression dépend ensuite de tes actions.</p></div>';
+      '<p>Consulte les offres, postule et passe un recrutement. Aucun diplôme : seules tes compétences acquises dans ce monde font la différence.</p></div>';
     // BitLife-style occupation: once hired, show workplace actions instead
     // of a long wall of vacancies that cannot be applied to.
     if(active&&!market.jobHunt){
@@ -407,7 +423,7 @@ function createRuntime(bridge){
       const sector='<section class="opl-sector-tasks" aria-label="Tâches propres au secteur">'+
         '<div class="opl-job-header"><strong>Mon métier au quotidien</strong><small>'+
         escapeHtml(active.sector||'Emploi ordinaire')+'</small></div>'+sectorTasks+'</section>';
-      return '<section class="opl-job-market" aria-label="Ma carrière actuelle">'+current+sector+workplace+'</section>';
+      return '<section class="opl-job-market" aria-label="Ma carrière actuelle">'+current+sector+workplace+renderSkillPractice(market)+'</section>';
     }
     const tabs=market.jobHunt?
       '<div class="opl-job-tabs"><button type="button" data-v112-view="switch">‹ Retour à mon métier actuel</button></div>':
@@ -433,7 +449,7 @@ function createRuntime(bridge){
         (job.kind==='ordinary'?'<strong class="opl-job-salary">'+Number(job.pay||0).toLocaleString('fr-FR')+' B</strong>':'')+'</div>'+
         '<p>'+escapeHtml(job.description||'Niveau conseillé : '+job.skill+' '+job.skillMin+'/100')+'</p>'+
         '<div class="opl-job-requirements"><span>Âge : '+job.minAge+' ans</span>'+
-        '<span>'+escapeHtml(job.skill||'')+' '+(job.skillMin||0)+'/100</span>'+
+        '<span>'+escapeHtml(job.skill||'')+' : '+Math.floor(Number(st.skill)||0)+' / '+(job.skillMin||0)+' requis</span>'+
         (job.money?'<span>Coût : '+job.money.toLocaleString('fr-FR')+' B</span>':'')+
         (available?'<span>'+(st.chance>=1?'Accès garanti':'Chance d’embauche : '+Math.round(st.chance*100)+' %')+'</span>':'')+'</div>'+
         crews+
@@ -446,7 +462,7 @@ function createRuntime(bridge){
     const history=market.history?.length?'<div class="opl-job-history"><strong>Mon parcours professionnel</strong>'+
       market.history.map(h=>'<p>'+escapeHtml(h.title)+' • '+({hired:'Recruté',switched:'Nouvel emploi',rejected:'Refus',resigned:'Démission',promoted:'Promotion',promotion_refused:'Promotion refusée',raise:'Augmentation',raise_refused:'Augmentation refusée'}[h.kind]||'Activité')+
       ' • '+h.year+' ans</p>').join('')+'</div>':'';
-    return '<section class="opl-job-market" aria-label="Marché de l’emploi et carrières spéciales">'+current+tabs+heading+
+    return '<section class="opl-job-market" aria-label="Marché de l’emploi et carrières spéciales">'+current+renderSkillPractice(market)+tabs+heading+
       '<div class="opl-job-list">'+cards+'</div>'+more+history+'</section>';
   }
   function renderRelationCards(selected){
@@ -598,6 +614,7 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-raise]').forEach(b=>b.onclick=()=>bridge.careerAction?.('raise'));
     root.querySelectorAll?.('[data-v112-civil-promotion]').forEach(b=>b.onclick=()=>bridge.careerAction?.('civil_promotion'));
     root.querySelectorAll?.('[data-v112-ordinary-task]').forEach(b=>b.onclick=()=>bridge.careerAction?.('ordinary_task',b.dataset.v112OrdinaryTask));
+    root.querySelectorAll?.('[data-v112-practice]').forEach(b=>b.onclick=()=>bridge.careerAction?.('practice',b.dataset.v112Practice));
     root.querySelectorAll?.('[data-v112-special]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special',b.dataset.v112Special));
     root.querySelectorAll?.('[data-v112-special-path]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special_path',b.dataset.v112SpecialPath));
     root.querySelectorAll?.('[data-v112-special-promotion]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special_promotion'));
