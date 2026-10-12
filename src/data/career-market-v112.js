@@ -58,6 +58,7 @@ const specialOperations=[
  ['pirate_raid','Pirates','Attaquer un navire marchand','Butin, prime et blessures possibles.',18,'Combat',12,0.54,1300,18,900,12,2],
  ['pirate_loyalty','Pirates','Faire mes preuves auprès du capitaine','Gagner sa confiance avant de prétendre commander.',10,'Discipline',0,0.84,0,12,0,0,2,'subordinate'],
  ['pirate_recruit','Pirates','Recruter pour mon équipage','Agrandir son équipage et sa réputation de capitaine.',12,'Charisme',10,0.68,0,13,260,5,1,'captain'],
+ ['pirate_challenge','Pirates','Revendiquer le capitanat','Si tu es bras droit, tente de prendre la tête de ton équipage. Une défaite abîme fortement la confiance.',24,'Commandement',28,0.34,0,28,340,16,1,'heir'],
  ['marine_patrol','Marine','Effectuer une patrouille','Protéger les civils, obtenir une citation de service.',11,'Discipline',0,0.80,190,10,0,3,2],
  ['marine_arrest','Marine','Arrêter un criminel','Mener une intervention dangereuse, récompensée au mérite.',17,'Combat',16,0.51,510,20,0,13,1],
  ['marine_report','Marine','Rédiger un rapport au commandement','Accumuler des preuves pour les promotions.',9,'Intelligence',0,0.79,0,13,0,0,2],
@@ -72,5 +73,5 @@ const specialOperations=[
  ['revolution_sabotage','Révolutionnaires','Saboter une installation militaire','Affaiblir le Gouvernement sans exposer toute la cellule.',22,'Combat',25,0.45,450,27,900,22,1]
 ].map(([id,faction,label,description,cost,skill,skillMin,chance,pay,xp,bounty,injury,limit,role])=>
  ({id,faction,label,description,cost,skill,skillMin,chance,pay,xp,bounty,injury,limit,role:role||null}));
-r.register('careerMarketDataV112',{version:'11.2.3',ordinary,special,specialOperations,maxOrdinaryApplications:3,maxSpecialApplications:2});
+r.register('careerMarketDataV112',{version:'11.2.4',ordinary,special,specialOperations,maxOrdinaryApplications:3,maxSpecialApplications:2});
 })(window);
