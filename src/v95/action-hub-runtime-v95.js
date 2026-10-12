@@ -284,6 +284,17 @@ function createRuntime(bridge){
       '<small>'+escapeHtml(promotion.available?
         'Réussite '+Math.round(promotion.chance*100)+' % • '+promotion.cost+' énergie':
         promotion.reason||'Progression indisponible')+'</small></button></section>';
+    const incident=market.specialIncident;
+    const choices=incident?'<section class="opl-special-incident" aria-label="Événement de carrière spéciale">'+
+      '<div class="opl-job-header"><strong>Un choix dans ta carrière</strong><small>Une situation par an</small></div>'+
+      '<h3>'+escapeHtml(incident.title)+'</h3><p>'+escapeHtml(incident.description)+'</p>'+
+      (incident.resolved?'<div class="opl-incident-done">Cette situation est résolue. Une autre peut survenir l’année prochaine.</div>':
+        '<div class="opl-incident-options">'+incident.choices.map(option=>
+          '<button type="button" data-v112-special-incident="'+escapeHtml(option.id)+'" '+(option.available?'':'disabled')+'>'+
+          '<strong>'+escapeHtml(option.label)+'</strong><span>'+escapeHtml(option.detail)+'</span>'+
+          '<small>'+escapeHtml(option.available?'Chance '+Math.round(option.chance*100)+' % • '+option.cost+' énergie':
+            option.reason||'Indisponible')+'</small></button>').join('')+'</div>')+
+      '</section>':'';
     const paths='<section class="opl-special-paths" aria-label="Spécialisations de cette carrière">'+
       '<div class="opl-job-header"><strong>Ma spécialisation</strong><small>Une modification par an</small></div>'+
       '<p>Choisis une voie propre à ta faction. Les missions adaptées améliorent tes chances, ton expérience et ton mérite.</p>'+
@@ -316,7 +327,7 @@ function createRuntime(bridge){
       (isPirate?'<button type="button" class="opl-job-more" data-v112-crew>Consulter mon équipage et mon navire ›</button>':'')+
       '<button type="button" class="opl-job-more opl-job-resign" data-v112-quit>Quitter cette carrière spéciale</button></section>';
     return '<section class="opl-job-market opl-special-career" aria-label="Parcours de faction indépendant">'+
-      overview+preparationCard+paths+'<section class="opl-special-operations"><div class="opl-job-header"><strong>Mes opérations '+escapeHtml(faction)+'</strong>'+
+      overview+choices+preparationCard+paths+'<section class="opl-special-operations"><div class="opl-job-header"><strong>Mes opérations '+escapeHtml(faction)+'</strong>'+
       '<small>Actions propres à cette carrière</small></div>'+operations+'</section>'+progress+extras+'</section>';
   }
   function renderSkillPractice(market){
@@ -617,6 +628,7 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-practice]').forEach(b=>b.onclick=()=>{practiceOpen=true;bridge.careerAction?.('practice',b.dataset.v112Practice)});
     root.querySelectorAll?.('.opl-skill-details').forEach(d=>d.ontoggle=()=>{practiceOpen=!!d.open});
     root.querySelectorAll?.('[data-v112-special]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special',b.dataset.v112Special));
+    root.querySelectorAll?.('[data-v112-special-incident]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special_incident',b.dataset.v112SpecialIncident));
     root.querySelectorAll?.('[data-v112-special-path]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special_path',b.dataset.v112SpecialPath));
     root.querySelectorAll?.('[data-v112-special-promotion]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special_promotion'));
     root.querySelectorAll?.('[data-v112-answer]').forEach(b=>b.onclick=()=>bridge.careerAction?.('answer',b.dataset.v112Answer));
