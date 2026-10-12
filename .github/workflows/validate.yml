@@ -285,3 +285,5 @@ jobs:
 
       - name: Verify simplified BitLife-style gameplay
         run: node scripts/qa-gameplay-purifie.mjs
+      - name: Verify BitLife-style ordinary and special careers
+        run: node scripts/qa-v112.mjs
