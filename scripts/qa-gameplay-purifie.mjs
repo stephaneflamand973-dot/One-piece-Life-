@@ -95,13 +95,17 @@ assert(hub.includes('function renderSpecialCareerBoard(market)')&&
   'V12 faction actions and real rank milestones must be visible in their own screen');
 assert(html.includes("if(action==='special_path')")&&html.includes("if(action==='special_promotion')"),
   'V12 special-career choices must use the authoritative player state');
+assert(html.includes("if(v112Ensure()?.current?.kind==='special')")&&
+  html.includes('v112OpenSpecialFromProfile')&&html.includes('marketEngine.specialPromotionStatus(v112Ensure(),marketContext)')&&
+  html.includes('marketEngine.civilPromotionStatus(v112Ensure(),marketContext)'),
+  'Profile and career screens must use the distinct V12 special and ordinary promotion systems');
 assert(html.includes("if(special&&id==='promotion')"),
   'V12 special ranks must not inherit legacy promotion actions');
 const careerTick=html.slice(html.indexOf('function careerTick(months){'),html.indexOf('function createCrewName()'));
 assert(careerTick.includes('v73AnnualPulse();')&&!careerTick.includes('p.careerXP')&&
   !careerTick.includes('p.money')&&!careerTick.includes('rankUpCheck()'),
   'Aging must not grant automatic career salary, career experience or ranks');
-assert(sw.includes('one-piece-life-v11-0-1-v12-carrieres1'),'Offline update not invalidated');
+assert(sw.includes('one-piece-life-v11-0-1-v12-carrieres2'),'Offline update not invalidated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 new Function('window',hub);
 console.log('ONE PIECE LIFE : GAMEPLAY PURIFIÉ STATIC QA OK');
