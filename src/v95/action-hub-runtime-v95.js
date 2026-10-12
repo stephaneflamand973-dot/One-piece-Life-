@@ -325,7 +325,7 @@ function createRuntime(bridge){
     const history=market.history?.length?'<div class="opl-job-history"><strong>Mes candidatures récentes</strong>'+
       market.history.map(h=>'<p>'+escapeHtml(h.title)+' • '+(h.kind==='hired'?'Acceptée':h.kind==='rejected'?'Refusée':'Démission')+
       ' • '+h.year+' ans</p>').join('')+'</div>':'';
-    return '<section class="opl-job-market" aria-label="Marché de l’emploi et carrières spéciales">'+current+crew+tabs+heading+
+    return '<section class="opl-job-market" aria-label="Marché de l’emploi et carrières spéciales">'+current+tabs+heading+
       '<div class="opl-job-list">'+cards+'</div>'+more+history+'</section>';
   }
   function renderRelationCards(selected){
