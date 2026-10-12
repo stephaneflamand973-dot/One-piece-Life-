@@ -49,6 +49,52 @@ function normalize(raw={},year=0){
 const all=()=>[...data.ordinary,...data.special];
 const byIdSafe=id=>all().some(x=>x.id===id);
 const byId=id=>all().find(x=>x.id===id)||null;
+
+/** V12 migration is opt-in: never infer or overwrite an old career while reading a save.
+ * A legacy employee can adopt a supported occupation, or explicitly leave it.
+ * Existing money, skills, relatives and world history remain untouched. */
+function legacyStatus(raw,ctx={}){
+ const state=normalize(raw,ctx.year);
+ if(state.current||!ctx.career||ctx.career==='Aucune')return {exists:false,available:false,job:null};
+ const knownFaction=['Pirates','Marine','Gouvernement','Chasseurs de primes','Révolutionnaires'];
+ let job=null;
+ if(ctx.faction==='Civil')job=data.ordinary.find(x=>x.label===ctx.career)||null;
+ else if(knownFaction.includes(ctx.faction)){
+  const id=ctx.faction==='Pirates'?(ctx.hasCrew?(ctx.isCaptain?'pirate_found':'pirate_join'):null):
+    ({Marine:'marine',Gouvernement:'government','Chasseurs de primes':'hunter',Révolutionnaires:'revolution'})[ctx.faction];
+  if(id)job=byId(id);
+ }
+ const validRanks=job?.kind==='ordinary'?['Apprenti','Professionnel','Expert','Maître']:
+   data.specialRanks?.[job?.faction]||[];
+ const kept=!!job&&validRanks.includes(ctx.rank);
+ const rank=job?(kept?ctx.rank:(job.kind==='ordinary'?'Apprenti':job.rank)):null;
+ const reason=!ctx.alive?'Cette vie est terminée.':
+   ctx.pending?'Résous la décision en cours.':
+   ctx.annual?'Termine cette année.':
+   ctx.travel?'Reviens à terre avant de régulariser ton métier.':
+   !job?'Ancien métier sans correspondance directe dans le nouveau système.':'';
+ return {exists:true,available:!!job&&!reason,reason,job,rank,rankPreserved:kept,
+   title:String(ctx.career||'Profession').slice(0,100)};
+}
+function adoptLegacy(raw,ctx={}){
+ const state=normalize(raw,ctx.year),gate=legacyStatus(state,ctx);
+ if(!gate.available)return {ok:false,state,reason:gate.reason||'Carrière déjà synchronisée.',status:gate};
+ const year=Math.floor(Number(ctx.year)||0),job=gate.job;
+ return {ok:true,job,rank:gate.rank,rankPreserved:gate.rankPreserved,
+   state:{...state,current:{kind:job.kind,id:job.id,startYear:year},
+     selected:job.kind,jobHunt:false,interview:null,crewChoice:null,raisePct:0,
+     specialMerit:0,specialPreparation:0,specialPath:'',
+     lastSpecialPathYear:-1,lastSpecialPromotionYear:-1,lastIncidentYear:-1,lastIncidentId:'',
+     history:[...state.history,{kind:'migrated',title:job.label,year}].slice(-25)}};
+}
+function exitLegacy(raw,ctx={}){
+ const state=normalize(raw,ctx.year),gate=legacyStatus(state,ctx);
+ if(!gate.exists)return {ok:false,state,reason:'Aucune ancienne carrière à quitter.'};
+ if(!ctx.alive||ctx.pending||ctx.annual||ctx.travel)
+  return {ok:false,state,reason:'Quitte ton ancien emploi une fois libre de tes obligations, à terre.'};
+ return {ok:true,state:{...state,interview:null,crewChoice:null,jobHunt:false,selected:'ordinary',
+    history:[...state.history,{kind:'resigned',title:gate.title,year:Math.floor(Number(ctx.year)||0)}].slice(-25)}};
+}
 function crewHash(str){let h=2166136261;for(const ch of String(str))h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0}
 function crewOffers(ctx={},worldCrews=[]){
  const year=Math.floor(Number(ctx.year)||0),location=String(ctx.island||'Port inconnu'),region=String(ctx.region||'');
@@ -564,7 +610,7 @@ function resolveSpecialIncident(raw,choiceId,ctx={},roll=.5){
    trustDelta:clamp(delta.trust||0,-100,100),xp};
 }
 r.register('careerMarketEngineV112',{
- version:'12.0.0',normalize,byId,crewOffers,chooseCrew,skillValue,status,practiceStatus,practiceChoices,practice,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
+ version:'12.0.0',normalize,byId,legacyStatus,adoptLegacy,exitLegacy,crewOffers,chooseCrew,skillValue,status,practiceStatus,practiceChoices,practice,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
  specialPathOptions,specialPathStatus,chooseSpecialPath,specialPromotionStatus,specialPromotion,
  civilPromotionStatus,civilPromotion,ordinaryTaskStatus,ordinaryTasks,ordinaryTaskPerform,preparationStatus,specialStatus,specialOperations,specialPerform,
  specialIncidentStatus,resolveSpecialIncident
