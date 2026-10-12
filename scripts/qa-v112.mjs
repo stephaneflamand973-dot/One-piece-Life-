@@ -41,6 +41,22 @@ assert(hired.ok&&hired.accepted&&hired.state.current?.id===first.id,'Qualified i
 assert(!hired.state.interview,'Resolved interviews must close');
 assert(hired.energyCost===3,'Applications must consume the advertised amount of energy');
 assert(!m.status(second,hired.state,valid).available,'Already-employed characters must resign before applying elsewhere');
+const salaryContext={...valid,performance:76,trust:62,workSessions:4,energy:95};
+assert(!m.raiseStatus(hired.state,{...salaryContext,workSessions:1}).available,'Ordinary raises require actual employment history');
+assert(!m.raiseStatus(hired.state,{...salaryContext,performance:30}).available,'Salary negotiation must depend on professional performance');
+const wageBefore=m.estimatedPay(hired.state,{rank:'Apprenti'});
+const negotiated=m.negotiateRaise(hired.state,salaryContext,0);
+assert(negotiated.ok&&negotiated.accepted&&negotiated.raisePct===8,'Successful negotiation grants an 8% raise');
+const wageAfter=m.estimatedPay(negotiated.state,{rank:'Apprenti'});
+assert(wageAfter.perAction>wageBefore.perAction&&wageAfter.annualMax===wageAfter.perAction*4,
+  'Wage increase must affect real voluntary work payments');
+assert(!m.raiseStatus(negotiated.state,salaryContext).available,'Raises must be capped to one request per year');
+assert(m.raiseStatus(m.normalize(negotiated.state,22),{...salaryContext,year:22}).available,
+  'Salary negotiation should renew in the next life year');
+const refusedRaise=m.negotiateRaise(hired.state,salaryContext,1);
+assert(refusedRaise.ok&&!refusedRaise.accepted&&refusedRaise.raisePct===0,
+  'Employers can refuse a demand; failure must not award phantom salary');
+
 const pay1=m.estimatedPay(hired.state,{rank:'Apprenti'}),pay2=m.estimatedPay(hired.state,{rank:'Expert'});
 assert(pay2.perAction>pay1.perAction&&pay1.annualMax===pay1.perAction*4,'Civilian salaries must grow with promotions but remain action-based');
 assert(!m.apply(hired.state,second.id,valid,0).ok,'Applications must not replace an active job silently');
@@ -103,6 +119,28 @@ const pirateCareer=m.normalize({current:{id:'pirate_found',kind:'special',startY
 assert(m.specialStatus(ops.find(x=>x.id==='pirate_recruit'),pirateCareer,{...valid,faction:'Pirates',isCaptain:true}).available,'Captains may recruit their crew');
 assert(!m.specialStatus(ops.find(x=>x.id==='pirate_recruit'),pirateCareer,{...valid,faction:'Pirates',isCaptain:false}).available,'Only captains may recruit crew members');
 assert(!m.specialStatus(ops.find(x=>x.id==='pirate_loyalty'),pirateCareer,{...valid,faction:'Pirates',isCaptain:true}).available,'Captains cannot earn their own captain loyalty');
+assert(!m.raiseStatus(pirateCareer,salaryContext).available,'Special careers cannot negotiate civilian salary raises');
+const pirateCrewMember=m.normalize({current:{id:'pirate_join',kind:'special',startYear:18}},21);
+const command={...valid,faction:'Pirates',rank:'Bras droit',isCaptain:false,hasCrewCaptain:true,trust:70,energy:90};
+const duel=ops.find(x=>x.id==='pirate_challenge');
+assert(duel?.role==='heir','Pirate leadership must be an independent operation');
+assert(!m.specialStatus(duel,pirateCrewMember,{...command,rank:'Combattant'}).available,
+  'Only the right-hand crew member may challenge the captain');
+assert(!m.specialStatus(duel,pirateCrewMember,{...command,trust:30}).available,
+  'A challenge requires real crew trust');
+assert(!m.specialStatus(duel,pirateCrewMember,{...command,hasCrewCaptain:false}).available,
+  'The takeover requires an existing captain, not an imaginary opponent');
+const captainGate=m.specialStatus(duel,pirateCrewMember,command);
+assert(captainGate.available&&captainGate.chance>0&&captainGate.chance<1,
+  'Qualified player must have a real chance to claim leadership');
+const wonDuel=m.specialPerform(pirateCrewMember,'pirate_challenge',command,0);
+assert(wonDuel.ok&&wonDuel.success&&wonDuel.trust>0,'Captainship should be achieved by success');
+const lostDuel=m.specialPerform(pirateCrewMember,'pirate_challenge',command,1);
+assert(lostDuel.ok&&!lostDuel.success&&lostDuel.trust<=-10,
+  'Failed mutiny should negatively affect the relationship with the crew');
+assert(!m.specialStatus(duel,pirateCrewMember,{...command,isCaptain:true}).available,
+  'Captains cannot challenge themselves');
+
 const govt=m.normalize({current:{id:'government',kind:'special',startYear:18}},21);
 assert(!m.specialStatus(ops.find(x=>x.id==='government_cipher'),govt,{...valid,faction:'Gouvernement',rank:'Recrue'}).available,'Cipher Pol operations require career progression');
 assert(m.specialStatus(ops.find(x=>x.id==='government_cipher'),govt,{...valid,faction:'Gouvernement',rank:'Agent spécial'}).available,'Advanced agents unlock Cipher Pol');
@@ -127,4 +165,13 @@ assert(html.includes("if(action==='crew_select')")&&html.includes('const joined=
  "Chosen crew must flow all the way to the canonical player ship without rerolling");
 assert(html.includes("if(action==='answer')")||html.includes("action==='answer'?state.interview?.id:id"),'Interview answers must reach the real recruitment engine');
 assert(html.includes("v112Engine()?.estimatedPay(employment,{rank:p.rank})"),'Civilian wages must replace generic salaries');
+assert(html.includes("if(action==='raise')")&&html.includes('engine.negotiateRaise(state,ctx'),
+  'Real career screen must apply contract raises to player and save');
+assert(hub.includes('data-v112-raise')&&hub.includes("bridge.careerAction?.('raise')"),
+  'Civilian workplace must let the player negotiate salary');
+assert(html.includes("if(special&&['work','career_support','career_initiative','career_bonus'].includes(id))"),
+  'Special careers must not inherit the ordinary work buttons');
+assert(html.includes("if(result.success){\n        const formerCaptain=p.crew.captain?.name"),
+  'A pirate leadership victory must actually change the captain in the live save');
+
 console.log('V11.2 CAREER MARKET QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,operations:ops.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
