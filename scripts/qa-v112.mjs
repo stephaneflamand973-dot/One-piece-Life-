@@ -438,4 +438,56 @@ assert(!html.includes("if(parts[1]==='marine'){p.faction='Marine'")&&
 assert(!html.includes("game.pendingDecision=specializationDecision()"),
   'Old forced specialization events must not compete with special-career choices');
 
+
+// Special-career dilemmas are voluntary once-year choices with persistent consequences,
+// independently accessible from each faction, never from an ordinary occupation.
+for(const faction of ['Pirates','Marine','Gouvernement','Chasseurs de primes','Révolutionnaires']){
+ const events=data.specialIncidents?.[faction]||[];
+ assert(events.length>=2&&events.every(e=>e.choices.length>=2),'Each special faction requires multiple distinct events and player decisions: '+faction);
+ assert(events.every(e=>e.choices.every(o=>o.skill&&o.cost>0&&o.win&&o.fail)),
+  'Special career outcomes must be defined and skill-dependent: '+faction);
+}
+const incidentCareer=m.normalize({current:{kind:'special',id:'marine',startYear:19}},21);
+const incidentCtx={...valid,faction:'Marine',rank:'Recrue',year:21,energy:100};
+const availableIncident=m.specialIncidentStatus(incidentCareer,incidentCtx);
+assert(availableIncident&&availableIncident.available&&availableIncident.choices.length>=2,
+ 'The active special career must present narrative options, not a passive yearly stat gain');
+assert.equal(m.specialIncidentStatus(incidentCareer,incidentCtx).id,availableIncident.id,
+ 'Annual dilemmas must be deterministic across re-renders and app restarts');
+const chosenIncident=availableIncident.choices[0];
+const completedIncident=m.resolveSpecialIncident(incidentCareer,chosenIncident.id,incidentCtx,0);
+assert(completedIncident.ok&&completedIncident.success&&completedIncident.meritGain>0&&
+ completedIncident.state.lastIncidentYear===21&&completedIncident.state.history.some(x=>x.kind==='special_incident_success'),
+ 'A selected successful narrative outcome should award saved faction merit and a career record');
+assert(!m.specialIncidentStatus(completedIncident.state,incidentCtx).available&&
+ !m.resolveSpecialIncident(completedIncident.state,chosenIncident.id,incidentCtx,0).ok,
+ 'The same situation cannot be farmed repeatedly during one year');
+const recordedIncident=m.normalize(JSON.parse(JSON.stringify(completedIncident.state)),21);
+assert(recordedIncident.lastIncidentYear===21&&recordedIncident.lastIncidentId===availableIncident.id,
+ 'Career choices must persist across save serialization');
+const nextIncident=m.specialIncidentStatus(m.normalize(recordedIncident,22),{...incidentCtx,year:22});
+assert(nextIncident.available&&nextIncident.id!==availableIncident.id,
+ 'The next year should unlock a different faction event');
+const failedIncident=m.resolveSpecialIncident(incidentCareer,chosenIncident.id,incidentCtx,1);
+assert(failedIncident.ok&&!failedIncident.success&&
+ failedIncident.state.history.some(x=>x.kind==='special_incident_failure'),
+ 'Risky narrative choices must have a real failure outcome instead of always granting rewards');
+assert(!m.resolveSpecialIncident(incidentCareer,'fake_choice',incidentCtx,0).ok,
+ 'A forged response must not mutate saved career progress');
+assert(!m.specialIncidentStatus(hired.state,incidentCtx),
+ 'Civilian employees must never receive special-faction workplace dilemmas');
+assert(!m.specialIncidentStatus(incidentCareer,{...incidentCtx,pending:true}).available,
+ 'Pending story decisions must block extra faction choices');
+const exhausted=m.resign(completedIncident.state,incidentCtx);
+assert(exhausted.ok&&exhausted.state.lastIncidentYear===-1,
+ 'Resigning must reset the special career incident record');
+assert(html.includes("specialIncident:active?.kind==='special'?engine.specialIncidentStatus(state,ctx):null")&&
+ html.includes("if(action==='special_incident')")&&html.includes('engine.resolveSpecialIncident(state,id,ctx,'),
+ 'Special career events must be wired to the real player and saved state');
+assert(hub.includes('data-v112-special-incident')&&hub.includes("bridge.careerAction?.('special_incident'")&&
+ hub.includes("const choices=incident?")&&hub.includes('opl-incident-options'),
+ 'Special career events must offer direct choices in their dedicated UI');
+assert(fs.readFileSync('src/v112/career-market-v112.css','utf8').includes('.opl-special-incident'),
+ 'Faction choice cards must have responsive mobile styling');
+
 console.log('V12 CAREER REBUILD QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,operations:ops.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
