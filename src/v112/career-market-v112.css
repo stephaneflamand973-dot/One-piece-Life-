@@ -47,3 +47,14 @@
 .opl-job-crew input{font-size:14px;width:100%;min-height:44px;border:1px solid #aec4b5;border-radius:10px;background:#fff;padding:10px 12px;color:#173f4e}
 .opl-job-crew button{min-height:44px;padding:10px;border-radius:10px;border:0;background:#184658;color:#fff;font-size:12px;font-weight:850}
 .opl-job-interview button:focus-visible,.opl-job-crew input:focus-visible,.opl-job-crew button:focus-visible{outline:3px solid #c9a361;outline-offset:2px}
+
+/* Once employed, the work screen favors promotions, raises and missions, not vacant jobs. */
+.opl-job-workplace{display:grid;gap:10px}
+.opl-job-workplace h3{font-size:15px;font-weight:850;color:#1d4652;margin:0}
+.opl-job-work-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.opl-job-work-actions button{min-height:68px;display:grid;align-content:center;gap:6px;text-align:left;border:1px solid #b9cbc1;border-radius:11px;padding:11px;background:#f5faf5;color:#254f59}
+.opl-job-work-actions button strong{font-size:12px;line-height:1.25}
+.opl-job-work-actions button small{font-size:10px;line-height:1.35;color:#66796b}
+.opl-job-work-actions button:disabled{background:#f5f2eb;border-color:#e0ded7;color:#91918b}
+.opl-job-work-actions button:disabled small{color:#897b6e}
+@media(max-width:365px){.opl-job-work-actions{grid-template-columns:1fr}.opl-job-work-actions button{min-height:58px}}
