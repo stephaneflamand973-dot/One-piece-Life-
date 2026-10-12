@@ -28,7 +28,7 @@ test('modules autonomes : seules les rubriques installées ont du contenu',()=>{
 test('écran de vie activé sans importer les anciennes mécaniques',()=>{
   assert.ok(app.includes("engine.modules.register({ id: 'life'"));
   assert.ok(app.includes('data-age'));
-  assert.ok(app.includes('data-create-life')===false); // form markup in its own module
+  assert.ok(app.includes("engine.startLife(options)")); // submission delegates to the life engine
   assert.ok(page.includes('app.mjs?v=life-002'));
   assert.ok(!app.includes('STAT_KEYS'));
 });
