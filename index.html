@@ -3193,6 +3193,9 @@ function v112Market(){
   const job=active?(known||{label:game.player.career,kind:active.kind}):null;
   const entries=(state.selected==='special'?data.special:engine.offers(state,ctx)).map(x=>({...x,status:engine.status(x,state,ctx)}));
   return {selected:state.selected,allOffers:state.allOffers,active:job,
+    interview:state.interview?{...state.interview,job:engine.byId(state.interview.id),
+      questions:engine.interviewQuestions(state.interview.id)}:null,
+    captainCrew:game.player.faction==='Pirates'&&game.player.rank==='Capitaine'?game.player.crew?.name:null,
     rank:game.player.rank,careerXP:game.player.careerXP,
     performance:Math.round(Number(v103Ensure()?.performance)||0),
     income:engine.estimatedPay(state,ctx),entries,
@@ -3212,6 +3215,17 @@ function v112Do(action,id){
   if(!game||!game.alive||game.pendingDecision)return false;
   const engine=v112Engine(),state=v112Ensure(),ctx=v112Context();if(!engine||!state)return false;
   const oldFaction=game.player.faction,p=game.player;
+  if(action==='cancel'){
+    game.meta.careerMarketV112=engine.cancelInterview(state,ctx.year);
+    saveGame();v95Ensure()?.renderHub();return true;
+  }
+  if(action==='crew_name'){
+    if(p.faction!=='Pirates'||p.rank!=='Capitaine'||!p.crew)return false;
+    const name=String(id||'').trim().replace(/\s+/g,' ');
+    if(name.length<3||name.length>42){toast('Choisis un nom de 3 à 42 caractères.');return false}
+    p.crew.name=name;addHistory('Nom du pavillon','Ton équipage porte désormais le nom « '+name+' ».','normal');
+    saveGame();render();return true;
+  }
   if(action==='quit'){
     const out=engine.resign(state,ctx);
     if(!out.ok){toast(out.reason);return false}
@@ -3224,8 +3238,18 @@ function v112Do(action,id){
     addHistory('Démission','Tu quittes ton poste précédent et peux consulter de nouvelles offres.','major');
     saveGame();render();return true;
   }
-  if(action!=='apply')return false;
-  const out=engine.apply(state,id,ctx,random('v112Application:'+id+':'+ctx.year));
+  if(action==='apply'){
+    const job=engine.byId(id);
+    if(job?.id!=='pirate_found'&&job?.id!=='hunter'){
+      const start=engine.startInterview(state,id,ctx);
+      if(!start.ok){toast(start.reason);return false}
+      game.meta.careerMarketV112=start.state;
+      saveGame();v95Ensure()?.renderHub();return true;
+    }
+  }else if(action!=='answer')return false;
+  const candidate=action==='answer'?state.interview?.id:id;
+  if(!candidate)return false;
+  const out=engine.apply(state,candidate,ctx,random('v112Application:'+candidate+':'+ctx.year),action==='answer'?id:null);
   if(!out.ok){toast(out.reason);return false}
   game.meta.careerMarketV112=out.state;
   p.energy=clamp(p.energy-out.energyCost,0,100);
@@ -3941,7 +3965,13 @@ function v100Act(id){
         const employment=v112Ensure(),pay=v112Engine()?.estimatedPay(employment,{rank:p.rank});
         if(employment?.current?.kind==='ordinary'&&pay){
           const modeRate=Number(v103Data()?.modes?.[careerState.mode]?.pay)||1;
-          result.pay=Math.max(1,Math.round(pay.perAction*factor*modeRate));
+          const civilPay=Math.max(1,Math.round(pay.perAction*factor*modeRate));
+          const difference=civilPay-result.pay;
+          result.pay=civilPay;
+          result.state.earned=Math.max(0,result.state.earned+difference);
+          if(result.state.history?.length){
+            result.state.history[result.state.history.length-1].money=civilPay;
+          }
         }
         p.energy=clamp(p.energy-result.cost,0,100);p.money+=result.pay;p.careerXP+=result.xp;
         p.careerV103=result.state;
