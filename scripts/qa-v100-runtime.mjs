@@ -58,7 +58,7 @@ g.player.specialization='combat';
 g.missionBoard=[{id:'v95_escort_qa',title:'Escorte de QA',desc:'Protéger un convoi',reward:1500,duration:3,danger:'low',power:20,type:'escort'}];
 g.relations.push({id:'v95_friend',name:'Nami QA',role:'Ami',affection:60,respect:67,trust:69,loyalty:60,familiarity:67,rivalry:1,status:'active',ambition:'Loyauté',temperament:'Curieux'});
 q.ensure();
-assert(q.gameVersion==='11.0.1'&&q.saveVersion===1000,'Version mismatch');
+assert(q.gameVersion==='12.0.0'&&q.saveVersion===1200,'Version mismatch');
 const hub=q.hub();assert(hub&&hub.version==='9.5.0','Live Action Hub failed to initialize');
 let actions=hub.build();
 assert(actions.some(x=>x.id==='mission:v95_escort_qa'&&x.available),'Live mission action missing');
@@ -397,7 +397,7 @@ assert(youth.ageMonths===13*12,'School aging did not advance precisely one year'
 // A randomized school encounter can legitimately interrupt the next available action.
 youth.pendingDecision=null;
 assert(youthHub.build().find(x=>x.id==='education:focus:practice')?.available,'School choices did not renew on age-up');
-console.log('V11.0.1 INTEGRATED YOUTH DIRECT ACTION QA OK');
+console.log('V12.0.0 INTEGRATED YOUTH DIRECT ACTION QA OK');
 
 /* V11.0.1 : full menu deletion using the real save functions and simulated storage. */
 q.setGame(null);q.setStorageBackend(null,true);
@@ -444,4 +444,4 @@ store.set('opl-slot-1',JSON.stringify(slotB));
 assert(!await q.deleteSlot(1),'Database failure falsely reported success');
 assert(store.has('opl-slot-1'),'Failed IndexedDB transaction erased the last local copy');
 q.setStorageBackend(null,true);
-console.log('V11.0.1 INTEGRATED HOME SAVE DELETION QA OK');
+console.log('V12.0.0 INTEGRATED HOME SAVE DELETION QA OK');
