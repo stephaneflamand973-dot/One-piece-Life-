@@ -11,6 +11,8 @@ function normalize(raw={},year=0){
    kind:r.current.kind==='special'?'special':'ordinary',id:String(r.current.id||'').slice(0,60),
    startYear:Math.floor(clamp(r.current.startYear,0,9999))
   }:null,
+  raisePct:Math.floor(clamp(r.raisePct,0,40)),
+  lastRaiseYear:Number.isFinite(Number(r.lastRaiseYear))?Math.floor(Number(r.lastRaiseYear)):-1,
   operations:Array.isArray(r.operations)?r.operations.slice(-45).filter(x=>x&&typeof x==='object').map(x=>({
    id:String(x.id||'').slice(0,72),year:Math.floor(clamp(x.year,0,9999)),success:!!x.success})):[],
   applications:Array.isArray(r.applications)?r.applications.slice(-24).filter(x=>x&&typeof x==='object').map(x=>({
@@ -144,7 +146,9 @@ function apply(raw,id,ctx={},roll=.5,answer=null){
  const applications=[...state.applications,{id,year:Math.floor(Number(ctx.year)||0),accepted,kind:job.kind,chance}].slice(-24);
  const history=[...state.history,{kind:accepted?'hired':'rejected',title:job.label,year:Math.floor(Number(ctx.year)||0)}].slice(-25);
  return {ok:true,accepted,job,joinCrew:accepted?joinCrew:null,chance,energyCost:3,fee:accepted?(job.money||0):0,
-  state:{...state,interview:null,crewChoice:accepted?null:state.crewChoice,applications,history,current:accepted?{kind:job.kind,id:job.id,startYear:Math.floor(Number(ctx.year)||0)}:null}};
+  state:{...state,interview:null,crewChoice:accepted?null:state.crewChoice,applications,history,
+    raisePct:accepted?0:state.raisePct,lastRaiseYear:accepted?-1:state.lastRaiseYear,
+    current:accepted?{kind:job.kind,id:job.id,startYear:Math.floor(Number(ctx.year)||0)}:null}};
 }
 function resign(raw,ctx={}){
  const state=normalize(raw,ctx.year),job=byId(state.current?.id);
@@ -153,7 +157,8 @@ function resign(raw,ctx={}){
  if(ctx.travel)return {ok:false,state,reason:'Attends d’arriver à terre pour quitter ton organisation.'};
  const title=job?.label||ctx.career||'Carrière précédente';
  return {ok:true,job,
-  state:{...state,current:null,history:[...state.history,{kind:'resigned',title,year:Math.floor(Number(ctx.year)||0)}].slice(-25)}};
+  state:{...state,current:null,raisePct:0,lastRaiseYear:-1,
+    history:[...state.history,{kind:'resigned',title,year:Math.floor(Number(ctx.year)||0)}].slice(-25)}};
 }
 function stringHash(str){let h=2166136261;for(const ch of String(str)){h=Math.imul(h^ch.charCodeAt(0),16777619)}return h>>>0}
 function localOffers(ctx={}){
@@ -175,7 +180,34 @@ function estimatedPay(state,ctx={}){
  if(!job||job.kind!=='ordinary')return null;
  const grades=['Apprenti','Professionnel','Expert','Maître'];
  const grade=Math.max(0,grades.indexOf(ctx.rank));
- return {perAction:Math.round(job.pay*(1+grade*.18)),annualMax:Math.round(job.pay*(1+grade*.18)*4)};
+ const perAction=Math.round(job.pay*(1+grade*.18)*(1+clamp(state.raisePct,0,40)/100));
+ return {perAction,annualMax:perAction*4,raisePct:Math.floor(clamp(state.raisePct,0,40))};
+}
+// Ordinary employees have their own salary negotiation. Special careers never use this mechanic.
+function raiseStatus(raw,ctx={}){
+ const s=normalize(raw,ctx.year),current=byId(s.current?.id),ordinary=s.current?.kind==='ordinary';
+ const performance=clamp(ctx.performance,0,100),trust=clamp(ctx.trust,0,100),sessions=Math.max(0,Number(ctx.workSessions)||0);
+ let reason='';
+ if(!ordinary||current?.kind!=='ordinary')reason='Les augmentations sont réservées aux métiers ordinaires.';
+ else if(!ctx.alive||ctx.pending||ctx.annual||ctx.travel)reason='Négociation impossible pendant cette situation.';
+ else if(clamp(ctx.energy,0,100)<4)reason='Il faut 4 énergie pour négocier.';
+ else if(s.lastRaiseYear===Math.floor(Number(ctx.year)||0))reason='Une négociation a déjà eu lieu cette année.';
+ else if(sessions<2)reason='Travaille au moins deux fois avant de négocier.';
+ else if(performance<52)reason='Il faut au moins 52/100 en performance.';
+ else if(trust<24)reason='La confiance du supérieur doit atteindre 24/100.';
+ else if(s.raisePct>=40)reason='Le plafond de rémunération négociée est atteint.';
+ const chance=clamp(.28+performance*.0045+trust*.0022-s.raisePct*.005,.18,.86);
+ return {available:!reason,reason,chance,cost:4,raisePct:s.raisePct,bonus:8};
+}
+function negotiateRaise(raw,ctx={},roll=.5){
+ const state=normalize(raw,ctx.year),gate=raiseStatus(state,ctx);
+ if(!gate.available)return {ok:false,reason:gate.reason,state};
+ const accepted=clamp(roll,0,1)<gate.chance;
+ const raisePct=accepted?Math.min(40,state.raisePct+gate.bonus):state.raisePct;
+ const next={...state,raisePct,lastRaiseYear:Math.floor(Number(ctx.year)||0),
+  history:[...state.history,{kind:accepted?'raise':'raise_refused',
+   title:accepted?'Augmentation obtenue':'Augmentation refusée',year:Math.floor(Number(ctx.year)||0)}].slice(-25)};
+ return {ok:true,state:next,accepted,raisePct,cost:gate.cost,chance:gate.chance};
 }
 // Each special career owns its own missions, cooldowns and rewards.
 function specialStatus(op,raw,ctx={}){
@@ -192,13 +224,18 @@ function specialStatus(op,raw,ctx={}){
  else if((Number(ctx.energy)||0)<op.cost)reason='Énergie insuffisante : '+op.cost+' nécessaires.';
  else if(op.role==='captain'&&!ctx.isCaptain)reason='Réservé au capitaine de l’équipage.';
  else if(op.role==='subordinate'&&ctx.isCaptain)reason='Un capitaine dirige ses propres opérations.';
+ else if(op.role==='heir'&&ctx.isCaptain)reason='Tu es déjà capitaine.';
+ else if(op.role==='heir'&&ctx.rank!=='Bras droit')reason='Il faut devenir bras droit avant de revendiquer le capitanat.';
+ else if(op.role==='heir'&&clamp(ctx.trust,0,100)<55)reason='La confiance dans ton équipage doit atteindre 55/100.';
+ else if(op.role==='heir'&&!ctx.hasCrewCaptain)reason='Tu dois d’abord rejoindre un équipage commandé par un capitaine.';
  else if(op.role==='elite'&&!['Agent spécial','Cipher Pol'].includes(ctx.rank))reason='Réservé aux agents spéciaux et au Cipher Pol.';
  else if(skillValue(op,ctx)<op.skillMin)reason=op.skill+' requis : '+op.skillMin+'/100.';
  const year=Math.floor(Number(ctx.year)||0),used=state.operations.filter(x=>x.year===year&&x.id===op.id).length;
  const remaining=Math.max(0,Math.max(1,op.limit)-used);
  if(!reason&&remaining===0)reason='Toutes les tentatives ont été utilisées cette année.';
  const rankFactor=Math.min(0.08,Math.max(0,Number(ctx.rankIndex)||0)*.012);
- const chance=clamp(op.chance+(skillValue(op,ctx)-op.skillMin)*.003+rankFactor,0.18,0.93);
+ const chance=clamp(op.chance+(skillValue(op,ctx)-op.skillMin)*.003+rankFactor+
+  (op.role==='heir'?(clamp(ctx.trust,0,100)-55)*.005:0),0.18,0.93);
  return {available:!reason,reason,remaining,limit:op.limit,cost:op.cost,chance};
 }
 function specialOperations(raw,ctx={}){
@@ -218,10 +255,10 @@ function specialPerform(raw,id,ctx={},roll=.5){
  const year=Math.floor(Number(ctx.year)||0);
  const next={...state,operations:[...state.operations,{id:op.id,year,success}].slice(-45)};
  return {ok:true,op,state:next,success,xp,pay,bounty,healthLoss,energyCost:op.cost,successChance:gate.chance,
-  standing:success?3.8:-0.5,trust:success?2.2:-0.9};
+  standing:success?3.8:-0.5,trust:op.role==='heir'?(success?8:-14):(success?2.2:-0.9)};
 }
 r.register('careerMarketEngineV112',{
- version:'11.2.3',normalize,byId,crewOffers,chooseCrew,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,
+ version:'11.2.4',normalize,byId,crewOffers,chooseCrew,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay,raiseStatus,negotiateRaise,
  specialStatus,specialOperations,specialPerform
 });
 })(window);
