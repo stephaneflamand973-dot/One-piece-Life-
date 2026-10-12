@@ -3207,6 +3207,7 @@ function v112Market(){
     captainCrew:game.player.faction==='Pirates'&&game.player.rank==='Capitaine'?game.player.crew?.name:null,
     crew:game.player.faction==='Pirates'?game.player.crew:null,
     operations:active?.kind==='special'?engine.specialOperations(state,ctx):[],
+    ordinaryTasks:active?.kind==='ordinary'?engine.ordinaryTasks(state,ctx):[],
     rank:game.player.rank,careerXP:game.player.careerXP,
     performance:Math.round(Number(v103Ensure()?.performance)||0),
     income:engine.estimatedPay(state,ctx),
@@ -3227,6 +3228,35 @@ function v112Do(action,id){
   if(!game||!game.alive||game.pendingDecision)return false;
   const engine=v112Engine(),state=v112Ensure(),ctx=v112Context();if(!engine||!state)return false;
   const oldFaction=game.player.faction,p=game.player;
+  if(action==='ordinary_task'){
+    const out=engine.ordinaryTaskPerform(state,id,ctx,random('v112CivilTask:'+id+':'+ctx.year));
+    if(!out.ok){toast(out.reason||'Tâche professionnelle indisponible.');return false}
+    game.meta.careerMarketV112=out.state;
+    p.energy=clamp(p.energy-out.cost,0,100);
+    p.health=Math.max(1,clamp(p.health-out.healthLoss,0,100));
+    p.money=Math.max(0,p.money+out.bonus);
+    p.careerXP=Math.max(0,(Number(p.careerXP)||0)+out.xp);
+    const career=v103Ensure(),careerEngine=v103Module();
+    if(career&&careerEngine){
+      p.careerV103={...career,performance:clamp(career.performance+out.performanceDelta,0,100),
+        xpEarned:Math.max(0,(Number(career.xpEarned)||0)+out.xp),
+        earned:Math.max(0,(Number(career.earned)||0)+out.bonus)};
+    }
+    const org=v73Ensure(),orgEngine=v73Module();
+    if(org&&orgEngine){
+      p.careerV73=orgEngine.applyDelta(org,{trust:out.trustDelta,standing:out.success?2:-1},p.faction);
+      v73RefreshResponsibility(true);
+    }
+    const desc=out.success?
+      'Projet réussi. Ton travail rapporte '+out.bonus.toLocaleString('fr-FR')+' B, '+out.xp+
+      ' XP et améliore ta performance de '+out.performanceDelta+' points.':
+      'Projet raté. Tu apprends de cet échec (+'+out.xp+' XP), mais ta performance baisse'+
+      (out.healthLoss?' et tu perds '+out.healthLoss+' points de santé.':'.');
+    addHistory(out.task.label,desc,out.success?'normal':'danger',
+      (out.bonus?'+'+out.bonus.toLocaleString('fr-FR')+' B • ':'')+'+'+out.xp+' XP');
+    toast(out.success?'Tâche réussie':'Tâche échouée');
+    saveGame();render();return true;
+  }
   if(action==='raise'){
     const out=engine.negotiateRaise(state,ctx,random('v112SalaryReview:'+ctx.year));
     if(!out.ok){toast(out.reason||'Augmentation inaccessible.');return false}
