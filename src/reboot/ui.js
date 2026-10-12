@@ -79,7 +79,7 @@ function special(){
  '<p>Grade / niveau '+c.rank+' · Réputation '+c.reputation+'/100 · '+c.xp+'/55 XP</p>'+
  (c.id==='pirate'?'<p>Effectif : '+c.crew+' membre(s)</p>':'')+
  '<div class="action-stack">'+current.actions.map(a=>{const gate=actionStatus(state,'special')||(state.player.health<a.cost?'Santé insuffisante.':'');
- return button(escapeHtml(a.label)+' · Santé -'+a.cost,'special-action',a.id,gate);}).join('')+
+ return button(escapeHtml(a.label)+' · Santé minimale '+a.cost,'special-action',a.id,gate);}).join('')+
  button('Quitter cette voie','special-leave')+'</div>','special-current');
  }
  return card('Carrières spéciales','<p class="muted">Des parcours indépendants des métiers ordinaires. Chacun possède ses propres actions et sa progression.</p>'+
