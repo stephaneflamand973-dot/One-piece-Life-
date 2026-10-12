@@ -238,6 +238,17 @@ function createRuntime(bridge){
   function renderCareerBoard(){
     const market=bridge.careerMarket?.();
     if(!market)return '';
+    // Resolve interviews on their own screen: beginning an application must never strand the player.
+    if(market.interview){
+      const q=market.interview,job=q.job||{label:'Recrutement'};
+      return '<section class="opl-job-interview" aria-label="Entretien de recrutement">'+
+        '<span class="eyebrow">Entretien d’embauche</span><h3>'+escapeHtml(job.label)+'</h3>'+
+        '<p>Le recruteur veut comprendre pourquoi il devrait te choisir. Comment lui réponds-tu ?</p>'+
+        '<div class="opl-job-interview-choices">'+(q.questions||[]).map(x=>
+          '<button type="button" data-v112-answer="'+escapeHtml(x.id)+'"><strong>'+escapeHtml(x.label)+
+          '</strong><small>'+escapeHtml(x.description||'')+'</small></button>').join('')+'</div>'+
+        '<button type="button" class="opl-job-more" data-v112-cancel>Annuler cet entretien</button></section>';
+    }
     const active=market.active;
     if(market.interview){
       const job=market.interview.job||{};
@@ -262,7 +273,11 @@ function createRuntime(bridge){
       ' • Performance : '+Math.round(Number(market.performance)||0)+'/100</p>'+
       (market.income?'<p>Revenu estimé : <strong>'+market.income.perAction.toLocaleString('fr-FR')+
       ' B par travail</strong> • jusqu’à '+market.income.annualMax.toLocaleString('fr-FR')+' B si tu travailles quatre fois.</p>':'')+
-      modes+'<div class="opl-job-current-actions">'+
+      modes+
+      (market.captainCrew?'<label class="opl-training-focus" for="oplCrewName">Nom de ton équipage'+
+        '<input type="text" id="oplCrewName" maxlength="42" value="'+escapeHtml(market.captainCrew)+'" /></label>'+
+        '<button type="button" class="opl-job-more" data-v112-crew-save>Enregistrer le nom du pavillon</button>':'')+
+      '<div class="opl-job-current-actions">'+
       '<button type="button" data-v95-run="manual:work" '+(bridge.manualStatus?.('work')?.available?'':'disabled')+'>Travailler maintenant ›</button>'+
       '<button type="button" class="opl-job-resign" data-v112-quit>Quitter mon poste</button>'+
       '</div></section>':
@@ -442,6 +457,9 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-view]').forEach(b=>b.onclick=()=>bridge.careerView?.(b.dataset.v112View));
     root.querySelectorAll?.('[data-v112-apply]').forEach(b=>b.onclick=()=>bridge.careerAction?.('apply',b.dataset.v112Apply));
     root.querySelectorAll?.('[data-v112-quit]').forEach(b=>b.onclick=()=>bridge.careerAction?.('quit'));
+    root.querySelectorAll?.('[data-v112-answer]').forEach(b=>b.onclick=()=>bridge.careerAction?.('answer',b.dataset.v112Answer));
+    root.querySelectorAll?.('[data-v112-cancel]').forEach(b=>b.onclick=()=>bridge.careerAction?.('cancel'));
+    root.querySelectorAll?.('[data-v112-crew-save]').forEach(b=>b.onclick=()=>bridge.careerAction?.('crew_name',node('oplCrewName')?.value||''));
     root.querySelectorAll?.('[data-v112-answer]').forEach(b=>b.onclick=()=>bridge.careerAction?.('answer',b.dataset.v112Answer));
     root.querySelectorAll?.('[data-v112-cancel]').forEach(b=>b.onclick=()=>bridge.careerAction?.('cancel'));
     root.querySelectorAll?.('[data-v112-rename]').forEach(b=>b.onclick=()=>bridge.careerAction?.('crew_name',node('oplCrewName')?.value));
