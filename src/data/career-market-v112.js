@@ -148,5 +148,56 @@ const specialProgression={
  'Chasseurs de primes':{meritStep:15,successStep:1,trust:0,baseChance:.52,promotion:'Reconnaissance des contrats'},
  Révolutionnaires:{meritStep:19,successStep:1,trust:30,baseChance:.39,promotion:'Vote de la cellule'}
 };
-r.register('careerMarketDataV112',{version:'12.0.0',ordinary,special,specialOperations,ordinaryTasks,careerSkills,specialRanks,specialPaths,specialProgression,specialPreparation,operationPreparation,maxOrdinaryApplications:3,maxSpecialApplications:2});
+
+// BitLife-like choices in each SPECIAL career: voluntary events, never civilian tasks.
+// Deltas affect real faction merit, investigation reserves, trust, injuries and Berry.
+// No diploma, school rank or automatic yearly reward is involved.
+const specialIncidents={
+ Pirates:[
+  {id:'spoils',title:'Dispute autour du butin',description:'Deux compagnons contestent la répartition du dernier butin.',choices:[
+   {id:'share',label:'Négocier un partage',detail:'Apaise les tensions et renforce la cohésion.',skill:'Charisme',chance:.75,cost:5,win:{trust:7,prep:1,merit:4,xp:3,morale:7},fail:{trust:-5,merit:1,morale:-5}},
+   {id:'command',label:'Imposer mon autorité',detail:'Plus de mérite en cas de réussite, mais une mutinerie menace.',skill:'Commandement',chance:.58,cost:8,win:{merit:12,trust:-2,xp:7,morale:-2},fail:{health:-9,trust:-12,morale:-12}},
+   {id:'trade',label:'Faire commerce du butin',detail:'Gagne des Berry, au risque de mécontenter l’équipage.',skill:'Commerce',chance:.63,cost:6,win:{money:620,merit:3,trust:-2},fail:{money:-130,trust:-7,morale:-6}}]},
+  {id:'storm',title:'Tempête et navire endommagé',description:'Le navire prend l’eau. Ton équipage attend tes instructions.',choices:[
+   {id:'repair',label:'Diriger les réparations',detail:'La survie et la cohésion passent avant le butin.',skill:'Artisanat',chance:.72,cost:9,win:{prep:2,merit:7,trust:5,morale:5},fail:{health:-8,trust:-3,morale:-5}},
+   {id:'steer',label:'Prendre la barre',detail:'Une manœuvre décisive qui peut sauver la traversée.',skill:'Navigation',chance:.59,cost:8,win:{merit:11,prep:1,xp:8},fail:{health:-11,trust:-6,morale:-7}}]}
+ ],
+ Marine:[
+  {id:'civilians',title:'Un ordre face à des civils en danger',description:'Tes supérieurs veulent poursuivre un fugitif, tandis que des civils demandent secours.',choices:[
+   {id:'rescue',label:'Porter secours aux civils',detail:'Prioriser la population, quitte à ralentir l’enquête.',skill:'Endurance',chance:.73,cost:9,win:{trust:7,merit:7,xp:6},fail:{health:-7,merit:2,standing:-2}},
+   {id:'pursuit',label:'Poursuivre le fugitif',detail:'Satisfaire la hiérarchie, mais prendre des risques.',skill:'Combat',chance:.57,cost:9,win:{merit:12,prep:1,standing:5,xp:8},fail:{health:-10,trust:-5,standing:-4}},
+   {id:'coordinate',label:'Coordonner les deux groupes',detail:'Une opération difficile qui demande du commandement.',skill:'Commandement',chance:.49,cost:12,win:{merit:14,trust:7,prep:2,xp:10},fail:{health:-5,standing:-6,trust:-4}}]},
+  {id:'corruption',title:'Soupçons dans la garnison',description:'Tu découvres des irrégularités dans les rapports de ton supérieur.',choices:[
+   {id:'investigate',label:'Réunir des preuves',detail:'Construire un dossier avant de dénoncer.',skill:'Intelligence',chance:.68,cost:7,win:{prep:2,merit:9,standing:3},fail:{trust:-4,merit:1}},
+   {id:'report',label:'Alerter l’état-major',detail:'Faire appliquer la discipline au risque de représailles.',skill:'Discipline',chance:.54,cost:6,win:{merit:12,trust:4,xp:6},fail:{trust:-9,standing:-5}}]}
+ ],
+ Gouvernement:[
+  {id:'leak',title:'Fuite de renseignements',description:'Un document secret a disparu. Chaque décision risque de dévoiler ton réseau.',choices:[
+   {id:'trace',label:'Remonter la filière',detail:'Accumuler des preuves discrètement.',skill:'Discrétion',chance:.68,cost:8,win:{prep:2,merit:9,trust:5,xp:5},fail:{trust:-8,standing:-4}},
+   {id:'interrogate',label:'Interroger les suspects',detail:'Obtenir une réponse rapide, mais risquée.',skill:'Charisme',chance:.56,cost:7,win:{merit:11,standing:4},fail:{trust:-7,health:-5}},
+   {id:'conceal',label:'Étouffer provisoirement l’affaire',detail:'Protéger une source, mais sacrifier ta réputation interne.',skill:'Intelligence',chance:.79,cost:5,win:{prep:1,trust:-3,merit:3},fail:{standing:-8,merit:0}}]},
+  {id:'cipher',title:'Dossier confidentiel',description:'On te confie un dossier potentiellement compromettant pour l’organisation.',choices:[
+   {id:'verify',label:'Vérifier chaque détail',detail:'Une enquête longue mais plus sûre.',skill:'Intelligence',chance:.76,cost:8,win:{prep:2,merit:8,xp:6},fail:{trust:-3}},
+   {id:'infiltrate',label:'Infiltrer les commanditaires',detail:'Tenter une opération audacieuse.',skill:'Discrétion',chance:.51,cost:12,win:{merit:16,trust:7,xp:11},fail:{health:-12,standing:-9}}]}
+ ],
+ 'Chasseurs de primes':[
+  {id:'rival',title:'Un rival convoite ta cible',description:'Un autre chasseur prétend avoir repéré la même prime que toi.',choices:[
+   {id:'partner',label:'Proposer une capture à deux',detail:'Moins de Berry, mais un risque mieux partagé.',skill:'Charisme',chance:.80,cost:7,win:{money:420,prep:1,merit:5,xp:4},fail:{money:-80,merit:1}},
+   {id:'ambush',label:'Capturer la cible en premier',detail:'Tenter seul une grosse récompense.',skill:'Combat',chance:.51,cost:12,win:{money:1150,merit:13,xp:10},fail:{health:-12,prep:-1}},
+   {id:'investigate',label:'Enquêter avant de chasser',detail:'Assurer une meilleure piste pour plus tard.',skill:'Intelligence',chance:.78,cost:6,win:{prep:2,merit:5},fail:{prep:0,merit:1}}]},
+  {id:'wanted',title:'Prime sous un faux nom',description:'Une piste mène à un criminel dont l’identité semble falsifiée.',choices:[
+   {id:'verify',label:'Vérifier l’identité',detail:'Protéger ta réputation et préparer une vraie capture.',skill:'Intelligence',chance:.74,cost:7,win:{prep:2,merit:7,xp:4},fail:{money:-100}},
+   {id:'capture',label:'Tenter la capture immédiate',detail:'Un gros gain possible, mais une erreur coûte cher.',skill:'Combat',chance:.48,cost:13,win:{money:1430,merit:14,xp:9},fail:{health:-14,merit:0}}]}
+ ],
+ Révolutionnaires:[
+  {id:'informant',title:'Une cellule a été dénoncée',description:'Un informateur a peut-être livré la position de tes alliés.',choices:[
+   {id:'evacuate',label:'Évacuer la cellule',detail:'Protéger tes compagnons avant toute contre-attaque.',skill:'Discrétion',chance:.72,cost:10,win:{prep:2,trust:7,merit:7,xp:6},fail:{health:-6,trust:-5}},
+   {id:'counter',label:'Tendre un piège aux agents',detail:'Frapper les poursuivants au risque d’exposer davantage la cellule.',skill:'Combat',chance:.51,cost:13,win:{merit:15,standing:6,xp:11},fail:{health:-13,trust:-9,prep:-1}},
+   {id:'recruit',label:'Mobiliser des soutiens',detail:'Renforcer le réseau sans affrontement direct.',skill:'Charisme',chance:.76,cost:6,win:{prep:2,trust:5,merit:5},fail:{trust:-3}}]},
+  {id:'supply',title:'Pénurie dans un village allié',description:'Une communauté qui soutient la Révolution manque de vivres.',choices:[
+   {id:'supply',label:'Organiser le ravitaillement',detail:'Soutenir la population en coordonnant les ressources.',skill:'Survie',chance:.74,cost:9,win:{prep:2,trust:7,merit:8},fail:{trust:-4}},
+   {id:'raid',label:'Intercepter un convoi ennemi',detail:'Approvisionnement rapide mais risque de blessure.',skill:'Combat',chance:.51,cost:12,win:{prep:3,merit:13,xp:8},fail:{health:-10,standing:-4}}]}
+ ]
+};
+r.register('careerMarketDataV112',{version:'12.0.0',ordinary,special,specialOperations,ordinaryTasks,careerSkills,specialRanks,specialPaths,specialProgression,specialPreparation,operationPreparation,specialIncidents,maxOrdinaryApplications:3,maxSpecialApplications:2});
 })(window);
