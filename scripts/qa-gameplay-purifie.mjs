@@ -55,6 +55,7 @@ assert(html.includes('if(!before||!game?.meta||!game.alive||game.pendingDecision
 assert(hub.includes('function renderDomainSpotlight(category,actions)')&&hub.includes("category==='career'?'manual:work':'manual:training'"),'Career and training must each have a one-tap action');
 assert(html.includes('id="v95RelationsQuick"')&&html.includes('v95Ensure()?.renderRelations()'),'Relationship tab must use person-first actions, not legacy labyrinth');
 assert(hub.includes('function renderRelations()')&&hub.includes('oplRelationsBack')&&hub.includes('oplRelationsDecisionBtn'),'Relationship tab must have back navigation and honor pending narrative choices');
+assert(hub.includes("node(panel)?.scrollIntoView?.({block:'start',behavior:'smooth'})")&&hub.includes('Override the previously saved position for intentional shortcuts'),'Relationship navigation must not strand players at stale scroll positions');
 assert(hub.includes('opl-life-entries')&&hub.includes('game.history||[]')&&hub.includes('opl-vitals'),'Life tab must have a journal of real events and actual player status');
 assert(hub.includes("data-v95-shortcut=\"career\"")&&hub.includes('function goCategory(category)'),'Life must link straight to essential activity domains');
 assert(html.includes('setCareerMode:id=>v103SetMode(id)')&&hub.includes('oplCareerMode'),'Career selector must update the authentic profession engine');
@@ -68,7 +69,7 @@ assert(hubCss.includes('.opl-person-open:focus-visible'),'Person detail menu mus
 assert(hub.includes('const eligible=scoped.filter(x=>x.available).length;'),'Person interaction counts must apply to the selected person');
 assert(html.includes('setTrainingFocus:id=>v102SetTrainingFocus(id)')&&hub.includes('focus.onchange=()=>bridge.setTrainingFocus?.(focus.value)'),'Training focus must call the existing saved training engine');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Invalid single-element query loop');
-assert(sw.includes('one-piece-life-v11-0-1-gameplay-purifie10'),'Offline update not invalidated');
+assert(sw.includes('one-piece-life-v11-0-1-gameplay-purifie11'),'Offline update not invalidated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 new Function('window',hub);
 console.log('ONE PIECE LIFE : GAMEPLAY PURIFIÉ STATIC QA OK');
