@@ -136,7 +136,11 @@ for(const fn of ['function v79Ensure','function v79EducationMonth','function v79
 assert(html.includes('v79MilestoneTick();'),'Lifecycle milestone hook missing');
 assert(html.includes('trainProgress(1);v79EducationMonth(1);'),'Monthly education hook missing');
 assert(html.includes('if(!game.pendingDecision)v79MaybeEvent()')||(html.includes('function v80CollectInterruptionCandidates')&&html.includes("kind:'education'")),'Youth event arbitration missing');
-assert(html.includes("v79ApplyCareerPreparation(job.kind==='ordinary'?'civil':job.id)"),'V12 recruitment must apply education preparation when a real job is accepted');
+assert(!html.includes("v79ApplyCareerPreparation(job.kind==='ordinary'?'civil':job.id)"),'V12 must not award a school-based career head start');
+assert(!html.includes('schoolBonus:'),'The real career context must never forward classroom bonuses');
+assert(html.includes("const youth=v79Ensure();if(youth)youth.careerPreparationApplied=true"),'V12 employment must recognize childhood without adding unearned XP');
+assert(passed.exam.credential===null&&passed.exam.skill&&passed.exam.skillGain>0,'Youth milestones should reward skill rather than a qualification');
+assert(engine.normalizeState({credentials:['Diplôme']},{age:18}).credentials.length===0,'Even legacy school records must never award diplomas');
 assert(html.includes("if(parts[0]==='v79track'||parts[0]==='v79event')v79ResolveDecision(parts)"),'Education decision routing missing');
 assert(html.includes("v79CareerHint('marine'"),'Career decision readiness hints missing');
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Mono-element $() selector followed by forEach regression');
