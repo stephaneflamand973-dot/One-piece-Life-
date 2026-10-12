@@ -490,4 +490,49 @@ assert(hub.includes('data-v112-special-incident')&&hub.includes("bridge.careerAc
 assert(fs.readFileSync('src/v112/career-market-v112.css','utf8').includes('.opl-special-incident'),
  'Faction choice cards must have responsive mobile styling');
 
+
+// Legacy career saves must never be stranded when the player enters the V12 employment hub.
+const oldSailor={...valid,career:'Cuisinier',faction:'Civil',rank:'Professionnel'};
+const legacyCivil=m.legacyStatus(state,oldSailor);
+assert(legacyCivil.exists&&legacyCivil.available&&legacyCivil.job.id==='cook'&&legacyCivil.rankPreserved,
+  'A civilian save with a known profession should offer explicit continuation at the same grade');
+assert(!state.current,'Merely inspecting the legacy career must not mutate the saved employment state');
+const importedCook=m.adoptLegacy(state,oldSailor);
+assert(importedCook.ok&&importedCook.state.current.id==='cook'&&importedCook.rank==='Professionnel'&&
+  importedCook.state.history.some(x=>x.kind==='migrated'),
+  'Opt-in civilian migration must create a canonical job with its original rank and saved history');
+assert(!m.adoptLegacy(importedCook.state,oldSailor).ok,
+  'A completed migration cannot be repeated or replace an ongoing job');
+assert(!m.status(m.byId('marine'),importedCook.state,oldSailor).available,
+  'Imported civilian workers still cannot join special careers without leaving');
+const oldMarine={...valid,faction:'Marine',career:'Soldat',rank:'Sergent'};
+const marineMigration=m.adoptLegacy(state,oldMarine);
+assert(marineMigration.ok&&marineMigration.job.id==='marine'&&marineMigration.rank==='Sergent'&&
+  marineMigration.state.current.kind==='special',
+  'An old Marine should be able to continue in a dedicated special career without losing a recognized grade');
+assert(m.specialOperations(marineMigration.state,oldMarine).every(x=>x.faction==='Marine'),
+  'Imported faction members must see only their own operations');
+const oldPirate={...valid,faction:'Pirates',career:'Pirate',rank:'Capitaine',isCaptain:true,hasCrew:true};
+assert(m.adoptLegacy(state,oldPirate).job.id==='pirate_found',
+  'Existing pirate captains with a ship must resume as independent crew founders');
+assert(!m.legacyStatus(state,{...oldPirate,hasCrew:false}).available,
+  'A missing old pirate crew must not be silently fabricated during migration');
+const unsupported={...valid,career:'Fabricant de dirigeables',faction:'Civil',rank:'Sénior'};
+assert(m.legacyStatus(state,unsupported).exists&&!m.legacyStatus(state,unsupported).available,
+  'Unknown old occupations must have an explicit exit instead of a fictitious migration');
+const exitOld=m.exitLegacy(state,unsupported);
+assert(exitOld.ok&&!exitOld.state.current&&exitOld.state.history.some(x=>x.kind==='resigned'),
+  'A legacy player must be able to leave an unsupported old profession and unlock the new market');
+assert(!m.exitLegacy(importedCook.state,oldSailor).ok,
+  'The legacy exit must never delete an already adopted canonical job');
+assert(!m.adoptLegacy(state,{...oldMarine,pending:true}).ok&&
+ !m.exitLegacy(state,{...oldMarine,travel:true}).ok,
+ 'Life decisions and crossings must be protected during an old career transition');
+assert(html.includes("if(action==='legacy_import')")&&html.includes("if(action==='legacy_exit')")&&
+ html.includes('legacy:engine.legacyStatus(state,ctx)'),
+ 'The game must wire optional legacy career choices to persistent player state');
+assert(hub.includes('data-v112-legacy-import')&&hub.includes('data-v112-legacy-exit')&&
+ hub.includes('class="opl-job-market opl-legacy-career"'),
+ 'The old career transition must be possible through actual visible mobile controls');
+
 console.log('V12 CAREER REBUILD QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,operations:ops.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
