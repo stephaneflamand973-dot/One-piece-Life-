@@ -101,7 +101,7 @@ function apply(raw,id,ctx={},roll=.5,answer=null){
  if(state.interview&&state.interview.id!==id)return {ok:false,reason:'Un autre entretien est en cours.',state};
  if(state.interview&&!['skills','team','ambition'].includes(answer))return {ok:false,reason:'Choisis une réponse à l’entretien.',state};
  const chance=clamp(gate.chance+(state.interview?interviewBonus(job,answer,ctx):0),0,1);
- const accepted=clamp(roll,0,1)<chance;
+ const accepted=job.id==='pirate_found'||job.id==='hunter'||clamp(roll,0,1)<chance;
  const applications=[...state.applications,{id,year:Math.floor(Number(ctx.year)||0),accepted,kind:job.kind,chance}].slice(-24);
  const history=[...state.history,{kind:accepted?'hired':'rejected',title:job.label,year:Math.floor(Number(ctx.year)||0)}].slice(-25);
  return {ok:true,accepted,job,chance,energyCost:3,fee:accepted?(job.money||0):0,
