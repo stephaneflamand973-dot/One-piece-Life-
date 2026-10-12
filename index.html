@@ -335,6 +335,7 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent}.icon-btn{min-hei
       </section>
 
       <section id="relationsPanel" class="tab-panel" data-panel="relations">
+        <section id="v95RelationsQuick" class="paper-card v95-relations-quick" aria-label="Relations et interactions directes"></section>
         <button type="button" class="opl-panel-more" data-opl-toggle-details aria-expanded="false">Afficher toutes les relations ›</button>
         <section class="paper-card v104-social"><div class="section-heading compact"><div><span class="eyebrow">V10.4 • Relations vivantes</span><h3>Actions et souvenirs</h3></div><span id="v104SocialBadge" class="badge">SOCIAL</span></div><div id="v104SocialOverview"></div></section>
         <section class="paper-card v78-household-card"><div class="section-heading compact"><div><span class="eyebrow">V7.8 • Vie personnelle</span><h2>Foyer & famille</h2></div><span id="v78HouseholdBadge" class="badge"></span></div><div id="v78HouseholdCard"></div><div id="v78HouseholdActions" class="v78-household-actions"></div><div id="v78HomeActions" class="v78-home-actions"></div></section>
@@ -3175,6 +3176,14 @@ function v95Ensure(){
       return {current:state.trainingFocus,options:Object.entries(data.trainingFocus).map(([id,option])=>({id,label:option.label}))};
     },
     setTrainingFocus:id=>v102SetTrainingFocus(id),
+    careerConfig:()=>{
+      const data=v103Data(),state=v103Ensure();
+      if(!data||!state)return null;
+      return {current:state.mode,performance:state.performance,
+        editable:game.alive&&!game.pendingDecision&&game.player.career!=='Aucune'&&!game.player.travel,
+        options:Object.entries(data.modes).map(([id,m])=>({id,label:m.label,description:m.description}))};
+    },
+    setCareerMode:id=>v103SetMode(id),
     economyTarget:(kind,id)=>v105SelectTarget(kind,id),
     socialStatus:(id,action)=>v104Status(id,action),
     presets:()=>v90Data()?.presets||{},
@@ -6731,6 +6740,7 @@ function renderAbilities(){
   v62RenderDomainInline('trainingAnnualActions','training')
 }
 function renderRelations(){
+  v95Ensure()?.renderRelations();
   v67Ensure();v74EnsureGlobal();renderV74Network();renderV78PersonalLife();renderV92Lives();renderV93Relationships();v104RenderOverview();const list=game.relations.filter(r=>r.status!=='left'),mod=v74Module();
   $('#relationsList').innerHTML=list.length?list.map(r=>{
     const mentor=game.player.socialV67?.mentorId===r.id,snap=v74RelationSnapshot(r),state=snap?.state||{label:'Relation',strength:v67RelationStrength(r)},social=snap?.social||{},compat=snap?.compat||{score:50,matches:[],conflicts:[]};
