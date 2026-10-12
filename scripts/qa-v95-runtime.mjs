@@ -4,7 +4,7 @@ const html=fs.readFileSync('index.html','utf8');
 let source=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 const init="init().catch(()=>{storageFallback=true;renderSlots();startupMessage('Démarrage en mode de secours local.','warn')});";
 assert(source&&source.includes(init),'Game runtime entrypoint missing');
-source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
+source=source.replace(init,"window.__qa95={initialGame,setGame(v){game=v},getGame(){return game},ensure:ensureV6,render,openTab:(tab)=>v76OpenTab(tab,true),uiState:()=>v76Ensure(),hub:()=>v95Ensure(),careerMarket:()=>v112Market(),careerDo:(kind,id)=>v112Do(kind,id),advance,resolveDecision,saveVersion:SAVE_VERSION,gameVersion:GAME_VERSION};");
 const elements=new Map();
 function el(sel){
  if(!elements.has(sel)){
@@ -84,3 +84,30 @@ g.pendingDecision=null;
 assert(JSON.stringify(g.meta.actionHubV95).length<2200,'Action Hub metadata grows too large');
 console.log('V9.5 INTEGRATED RUNTIME QA OK',JSON.stringify({tabs:['life','actions','character','relations','world'],actions:actions.length,
  favorites:g.meta.actionHubV95.favorites.length,lastAction:g.meta.actionHubV95.recent[0],saveVersion:q.saveVersion}));
+
+/* V11.2: real-game application -> interview -> employment -> manual work -> resignation. */
+const c=q.initialGame();q.setGame(c);c.ageMonths=21*12;c.clock.year=21;c.clock.month=0;
+c.player.faction='Civil';c.player.career='Aucune';c.player.rank='Sans emploi';
+c.player.energy=100;c.player.travel=null;c.player.bounty=0;c.pendingDecision=null;
+for(const k of ['Navigation','Charisme','Cuisine','Artisanat','Combat','Tir','Commandement','Discrétion','Endurance','Physique','Intelligence','Discipline'])c.player.skills[k]=100;
+for(const k of Object.keys(c.player.stats||{}))c.player.stats[k]=100;
+c.agency.annualTurn=null;
+q.openTab('actions');hub.ensure().category='career';hub.renderHub();
+assert(el('#v95Hub').innerHTML.includes('Métiers ordinaires'),'The real career market must be rendered in the Activities tab');
+const vacancies=q.careerMarket().entries.filter(j=>j.kind==='ordinary'&&j.status.available);
+assert(vacancies.length>0,'Real-game employment offers must be available to qualified adults');
+const job=vacancies[0];
+const beforeCash=c.player.money;
+assert(q.careerDo('apply',job.id),'Applying to a local ordinary job should open an interview');
+assert(q.careerMarket().interview?.id===job.id,'Job interview must be saved before the player answers');
+hub.renderHub();assert(el('#v95Hub').innerHTML.includes('data-v112-answer'),'A real in-game interview must show response choices');
+assert(q.careerDo('answer','skills'),'The real interview response must resolve');
+assert(c.player.career===job.label,'A qualified applicant with a favorable outcome must get the job');
+assert(q.careerMarket().active?.id===job.id,'Job identity must persist after hiring');
+assert(c.player.money===beforeCash,'Being hired must not create passive salary');
+assert(hub.execute('manual:work'),'A newly hired ordinary worker must be able to work manually');
+assert(c.player.money>beforeCash,'The chosen ordinary profession must pay only after work');
+assert(c.player.careerXP>0,'Work must produce actual career experience');
+assert(q.careerDo('quit'),'The worker must be able to resign');
+assert(c.player.career==='Aucune'&&!q.careerMarket().active,'Resigning must return to unemployment without corrupting saved state');
+console.log('V11.2 INTEGRATED CAREER MARKET QA OK',JSON.stringify({job:job.label,interview:true,paidOnAction:true,resignation:true}));
