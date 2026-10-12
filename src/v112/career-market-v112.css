@@ -108,3 +108,13 @@
 .opl-sector-task .opl-sector-locked{grid-column:1/-1;color:#965842}
 .opl-sector-task>button:focus-visible{outline:3px solid #b48b41;outline-offset:3px}
 @media(max-width:360px){.opl-sector-task{grid-template-columns:minmax(0,1fr) 85px}}
+
+/* Voluntary employment changes and promotions, separately from special ranks */
+.opl-job-current-actions .opl-job-more{flex:1 1 170px;border:1px solid #abc8bd;background:#eff8f1;color:#20584c}
+.opl-civil-progress{border-radius:12px;padding:12px;background:#f5f3e8;border:1px solid #e2d6be;display:flex;gap:6px;flex-direction:column;margin-bottom:12px}
+.opl-civil-progress strong{font-size:12px;color:#204d57}
+.opl-civil-progress small{font-size:11px;color:#5b736b;line-height:1.5}
+.opl-job-work-actions .opl-civil-promote:not(:disabled){background:#edf7ee;border-color:#8bbca0}
+.opl-job-work-actions .opl-civil-promote strong{color:#246345}
+.opl-job-work-actions .opl-civil-promote:disabled{opacity:.72}
+.opl-job-tabs button{min-height:43px}
