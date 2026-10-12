@@ -86,6 +86,22 @@ const ordinaryTasks=[
  ['protect_client','Sécurité civile','Assurer une mission de protection','Protéger un client et préserver ta réputation.',16,'Combat',0,.62,.28,15,10]
 ].map(([id,sector,label,description,cost,skill,skillMin,chance,bonusRate,xp,injury])=>
  ({id,sector,label,description,cost,skill,skillMin,chance,bonusRate,xp,injury,limit:2}));
+// Every faction has a resource earned by its own preparatory activities.
+// Unlike civilian jobs, high-risk special operations need a built-up case, crew or network.
+const specialPreparation={
+ Pirates:{label:'Cohésion d’équipage',plural:'points de cohésion',hint:'Gagne des points en aidant le capitaine ou en recrutant. Prépare ensuite les raids et les prises de commandement.',capacity:6},
+ Marine:{label:'Dossiers d’intervention',plural:'dossiers',hint:'Effectue une patrouille ou rédige un rapport pour préparer les arrestations.',capacity:6},
+ Gouvernement:{label:'Renseignement exploitable',plural:'renseignements',hint:'Recueille des informations avant d’infiltrer un réseau ou de lancer une opération Cipher Pol.',capacity:6},
+ 'Chasseurs de primes':{label:'Pistes confirmées',plural:'pistes',hint:'Enquête sur des cibles avant de les capturer. Les grandes primes exigent plusieurs pistes.',capacity:6},
+ Révolutionnaires:{label:'Soutiens clandestins',plural:'soutiens',hint:'Consolide ton réseau avant les sauvetages et les sabotages.',capacity:6}
+};
+const operationPreparation={
+ pirate_loyalty:{gain:1},pirate_recruit:{gain:1},pirate_raid:{cost:1},pirate_challenge:{cost:2},
+ marine_patrol:{gain:1},marine_report:{gain:1},marine_arrest:{cost:1},
+ government_intel:{gain:1},government_infiltrate:{cost:1},government_cipher:{cost:2},
+ hunter_track:{gain:1},hunter_capture:{cost:1},hunter_elite:{cost:2},
+ revolution_network:{gain:1},revolution_rescue:{cost:1},revolution_sabotage:{cost:2}
+};
 // V12: five genuinely distinct career dossiers, never mixed with civilian work.
 const specialRanks={
  Pirates:['Mousse','Membre','Combattant','Officier','Bras droit','Capitaine'],
@@ -123,5 +139,5 @@ const specialProgression={
  'Chasseurs de primes':{meritStep:15,successStep:1,trust:0,baseChance:.52,promotion:'Reconnaissance des contrats'},
  Révolutionnaires:{meritStep:19,successStep:1,trust:30,baseChance:.39,promotion:'Vote de la cellule'}
 };
-r.register('careerMarketDataV112',{version:'12.0.0',ordinary,special,specialOperations,ordinaryTasks,specialRanks,specialPaths,specialProgression,maxOrdinaryApplications:3,maxSpecialApplications:2});
+r.register('careerMarketDataV112',{version:'12.0.0',ordinary,special,specialOperations,ordinaryTasks,specialRanks,specialPaths,specialProgression,specialPreparation,operationPreparation,maxOrdinaryApplications:3,maxSpecialApplications:2});
 })(window);
