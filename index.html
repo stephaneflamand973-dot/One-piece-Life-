@@ -3209,6 +3209,9 @@ function v112Market(){
     captainCrew:game.player.faction==='Pirates'&&game.player.rank==='Capitaine'?game.player.crew?.name:null,
     crew:game.player.faction==='Pirates'?game.player.crew:null,
     operations:active?.kind==='special'?engine.specialOperations(state,ctx):[],
+    specialPaths:active?.kind==='special'?engine.specialPathOptions(state,ctx):[],
+    specialPromotion:active?.kind==='special'?engine.specialPromotionStatus(state,ctx):null,
+    specialMerit:active?.kind==='special'?state.specialMerit:0,
     ordinaryTasks:active?.kind==='ordinary'?engine.ordinaryTasks(state,ctx):[],
     rank:game.player.rank,careerXP:game.player.careerXP,
     performance:Math.round(Number(v103Ensure()?.performance)||0),
@@ -3235,6 +3238,32 @@ function v112Do(action,id){
   if(!game||!game.alive||game.pendingDecision)return false;
   const engine=v112Engine(),state=v112Ensure(),ctx=v112Context();if(!engine||!state)return false;
   const oldFaction=game.player.faction,p=game.player;
+  if(action==='special_path'){
+    const result=engine.chooseSpecialPath(state,id,ctx);
+    if(!result.ok){toast(result.reason||'Spécialisation inaccessible.');return false}
+    game.meta.careerMarketV112=result.state;
+    p.energy=clamp(p.energy-result.cost,0,100);
+    addHistory('Spécialisation de '+p.faction,'Tu choisis '+result.path.label+'. '+result.path.description,'normal');
+    toast('Spécialisation choisie');saveGame();render();return true;
+  }
+  if(action==='special_promotion'){
+    const result=engine.specialPromotion(state,ctx,random('v12Promotion:'+p.faction+':'+ctx.year));
+    if(!result.ok){toast(result.reason||'Dossier de promotion inaccessible.');return false}
+    game.meta.careerMarketV112=result.state;
+    p.energy=clamp(p.energy-result.cost,0,100);
+    if(result.accepted){
+      const before=p.rank;p.rank=result.rank;
+      const org=v73Ensure(),orgEngine=v73Module();
+      if(org&&orgEngine)p.careerV73=orgEngine.applyDelta(org,{standing:5,trust:2.5},p.faction);
+      addHistory('Promotion dans la '+p.faction,'Après '+before+', tu obtiens le grade '+p.rank+
+        ' grâce à tes opérations et à ton mérite.','major','Grade : '+p.rank);
+    }else{
+      addHistory('Promotion spéciale refusée','Ton dossier a été étudié, mais '+p.faction+
+        ' demande de nouvelles preuves sur le terrain.','normal');
+    }
+    toast(result.accepted?'Nouveau grade : '+p.rank:'Promotion refusée');
+    saveGame();render();return true;
+  }
   if(action==='civil_promotion'){
     const out=engine.civilPromotion(state,ctx,random('v112CivilPromotion:'+ctx.year));
     if(!out.ok){toast(out.reason||'Promotion inaccessible.');return false}
@@ -4075,6 +4104,8 @@ function v100Status(id){
   const special=route?.kind==='special';
   if(route?.kind==='ordinary'&&id==='promotion')
     return {...status,available:false,reason:'Demande la promotion depuis ton poste civil. Ses critères sont distincts des grades des factions.'};
+  if(special&&id==='promotion')
+    return {...status,available:false,reason:'La promotion spéciale dépend du mérite et des opérations de ta faction. Consulte ton dossier spécial.'};
   if(special&&['work','career_support','career_initiative','career_bonus'].includes(id))
     return {...status,available:false,reason:'Cette carrière spéciale progresse par ses opérations propres, pas par les actions d’un emploi civil.'};
   if(status.available&&v106Data()?.actions?.[id]){
