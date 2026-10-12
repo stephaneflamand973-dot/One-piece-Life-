@@ -3181,6 +3181,7 @@ function v112Context(){
     crewOptions:v112Engine()?.crewOffers({year:Math.floor(game.ageMonths/12),island:p.island,region:p.region},game.world?.emergentCrews)||[],
     career:p.career,rank:p.rank,faction:p.faction,careerXP:p.careerXP,energy:p.energy,money:p.money,bounty:p.bounty,
     isCaptain:p.faction==='Pirates'&&p.rank==='Capitaine',
+    hasCrew:!!p.crew?.name,
     hasCrewCaptain:!!p.crew?.captain?.name&&p.crew.captain.name!==p.name,
     rankIndex:Math.max(0,(CAREER_RANKS[p.faction]||[]).indexOf(p.rank)),
     trust:Number(v73Ensure()?.trust)||0,
@@ -3197,6 +3198,7 @@ function v112Market(){
   const entries=(state.jobHunt||state.selected==='ordinary'?engine.offers(state,ctx):data.special)
     .map(x=>({...x,status:engine.status(x,state,ctx)}));
   return {selected:state.selected,allOffers:state.allOffers,jobHunt:!!state.jobHunt,active:job,
+    legacy:engine.legacyStatus(state,ctx),
     promotion:active?.kind==='ordinary'?engine.civilPromotionStatus(state,ctx):null,
     crews:ctx.crewOptions,selectedCrew,
     interview:state.interview?{...state.interview,job:engine.byId(state.interview.id),
@@ -3236,6 +3238,35 @@ function v112Do(action,id){
   if(!game||!game.alive||game.pendingDecision)return false;
   const engine=v112Engine(),state=v112Ensure(),ctx=v112Context();if(!engine||!state)return false;
   const oldFaction=game.player.faction,p=game.player;
+  if(action==='legacy_import'){
+    const out=engine.adoptLegacy(state,ctx);
+    if(!out.ok){toast(out.reason||'Reprise de carrière indisponible.');return false}
+    game.meta.careerMarketV112=out.state;
+    p.rank=out.rank;
+    p.career=out.job.kind==='ordinary'?out.job.label:out.job.career;
+    p.situation='Carrière : '+p.career;
+    addHistory('Carrière reprise','Ton ancien parcours est maintenant rattaché au système '+ 
+      (out.job.kind==='ordinary'?'des métiers ordinaires.':'des carrières spéciales.')+
+      (out.rankPreserved?' Ton grade est conservé.':' Les nouveaux grades commencent à '+out.rank+'.'),
+      'major');
+    toast('Ancienne carrière reprise : '+p.career);
+    saveGame();render();return true;
+  }
+  if(action==='legacy_exit'){
+    const out=engine.exitLegacy(state,ctx);
+    if(!out.ok){toast(out.reason||'Transition impossible.');return false}
+    if(typeof window.confirm==='function'&&!window.confirm(
+      'Quitter ton ancienne carrière et repartir sur le nouveau marché ? Ton poste et tes grades seront abandonnés, mais tu gardes tes Berry, tes compétences et ton histoire.'))return false;
+    game.meta.careerMarketV112=out.state;
+    p.faction='Civil';p.career='Aucune';p.rank='Sans emploi';
+    p.specialization=null;p.situation='Sans emploi';p.activity='Chercher du travail';p.activityType='general';
+    if(oldFaction==='Pirates')p.crew=null;
+    p.careerV103=null;p.careerXP=0;p.careerPrestige=null;
+    v81OnFactionChange(oldFaction,p.faction);refreshMissionBoard();
+    addHistory('Reconversion','Tu quittes ton ancien parcours. Le nouveau marché de l’emploi et les recrutements spéciaux sont disponibles.','major');
+    toast('Nouveau marché de l’emploi débloqué');
+    saveGame();render();return true;
+  }
   if(action==='practice'){
     const out=engine.practice(state,id,ctx);
     if(!out.ok){toast(out.reason||'Entraînement impossible.');return false}
