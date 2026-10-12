@@ -79,6 +79,10 @@ assert(html.includes('setTrainingFocus:id=>v102SetTrainingFocus(id)')&&hub.inclu
 assert(!/(?<!\$)\$\([^)]*\)\.forEach/g.test(html),'Invalid single-element query loop');
 assert(hub.includes('data-v112-raise')&&html.includes("if(action==='raise')"),'Civilian salary negotiation should remain part of workplace gameplay');
 assert(html.includes("if(special&&['work','career_support','career_initiative','career_bonus'].includes(id))"),'Special careers must never inherit ordinary work');
+assert(html.includes('legacy:engine.legacyStatus(state,ctx)')&&html.includes("if(action==='legacy_import')")&&html.includes("if(action==='legacy_exit')"),
+  'Saves started in previous career versions must be able to explicitly resume or exit their legacy jobs');
+assert(hub.includes('data-v112-legacy-import')&&hub.includes('data-v112-legacy-exit'),
+  'Legacy occupation migration controls must remain playable in the mobile career board');
 assert(hub.includes('data-v112-special=')&&html.includes("if(action==='special')"),'Faction-specific operations must remain actionable');
 assert(hub.includes('data-v112-view="switch"')&&hub.includes('data-v112-civil-promotion'),
   'Ordinary employees must be able to seek a new job and request their own merit promotion');
@@ -105,7 +109,7 @@ const careerTick=html.slice(html.indexOf('function careerTick(months){'),html.in
 assert(careerTick.includes('v73AnnualPulse();')&&!careerTick.includes('p.careerXP')&&
   !careerTick.includes('p.money')&&!careerTick.includes('rankUpCheck()'),
   'Aging must not grant automatic career salary, career experience or ranks');
-assert(sw.includes('one-piece-life-v12-0-0-carrieres-choix1'),'Offline update not invalidated');
+assert(sw.includes('one-piece-life-v12-0-0-carrieres-final2'),'Offline update not invalidated');
 new Function(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 new Function('window',hub);
 console.log('ONE PIECE LIFE : GAMEPLAY PURIFIÉ STATIC QA OK');
