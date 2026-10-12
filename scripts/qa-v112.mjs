@@ -535,4 +535,70 @@ assert(hub.includes('data-v112-legacy-import')&&hub.includes('data-v112-legacy-e
  hub.includes('class="opl-job-market opl-legacy-career"'),
  'The old career transition must be possible through actual visible mobile controls');
 
+
+// V12 civilian career life: every sector gets a real skill-driven narrative decision.
+// Special careers cannot receive workplace dilemmas, and job-switching cannot farm
+// a fresh dilemma during the same year.
+const civilSectors=[...new Set(data.ordinary.map(x=>x.sector))];
+assert(civilSectors.length===9&&Object.keys(data.ordinaryIncidents||{}).length===9,
+  'All nine ordinary sectors must have an independent workplace-event catalog');
+for(const sector of civilSectors){
+ const events=data.ordinaryIncidents[sector]||[];
+ assert(events.length>=2&&events.every(x=>x.choices.length>=2&&x.choices.every(c=>
+   c.skill&&c.cost>0&&c.win&&c.fail&&typeof c.chance==='number')),
+   'Civilian sector must offer distinct situations, skill chances and outcomes: '+sector);
+ const job=data.ordinary.find(x=>x.sector===sector);
+ const employed=m.normalize({current:{id:job.id,kind:'ordinary',startYear:19}},21);
+ const workplaceCtx={...valid,year:21,energy:95,performance:60,trust:55,
+   skills:{...valid.skills,Science:72,Combat:70,Survie:70,Commerce:70,Navigation:70,
+     Artisanat:70,Médecine:70,Arts:70,Commandement:65}};
+ const incident=m.ordinaryIncidentStatus(employed,workplaceCtx);
+ assert(incident&&incident.sector===sector&&incident.jobId===job.id&&incident.choices.length>=2,
+   'Employed sector must provide its own decision: '+sector);
+ assert.equal(m.ordinaryIncidentStatus(employed,workplaceCtx).id,incident.id,
+   'An annual job event must remain stable across renders');
+ const choice=incident.choices[0];
+ const completed=m.resolveOrdinaryIncident(employed,choice.id,workplaceCtx,0);
+ assert(completed.ok&&completed.success&&completed.energyCost>0&&
+   completed.state.lastCivilIncidentYear===21&&completed.state.lastCivilIncidentJobId===job.id&&
+   completed.state.history.some(x=>x.kind==='civil_incident_success'),
+   'A successful ordinary job decision must save its specific job and outcome: '+sector);
+ assert(!m.resolveOrdinaryIncident(completed.state,choice.id,workplaceCtx,0).ok&&
+   !m.ordinaryIncidentStatus(completed.state,workplaceCtx).available,
+   'The same annual job choice cannot be repeated: '+sector);
+ const restored=m.normalize(JSON.parse(JSON.stringify(completed.state)),21);
+ assert(restored.lastCivilIncidentId===incident.id&&restored.lastCivilIncidentYear===21,
+   'Civilian work decisions must survive save serialization: '+sector);
+ const next=m.ordinaryIncidentStatus(restored,{...workplaceCtx,year:22});
+ assert(next.available&&next.id!==incident.id,'New year must offer a different sector event: '+sector);
+ const failure=m.resolveOrdinaryIncident(employed,choice.id,workplaceCtx,1);
+ assert(failure.ok&&!failure.success&&failure.state.history.some(x=>x.kind==='civil_incident_failure'),
+   'Failed workplace choices must have a distinct saved outcome: '+sector);
+ assert(!m.resolveOrdinaryIncident(employed,'fabricated_choice',workplaceCtx,0).ok,
+   'Forged civilian choice IDs must be rejected: '+sector);
+ assert(!m.ordinaryIncidentStatus(employed,{...workplaceCtx,pending:true}).available&&
+   !m.ordinaryIncidentStatus(employed,{...workplaceCtx,travel:true}).available&&
+   !m.ordinaryIncidentStatus(employed,{...workplaceCtx,annual:true}).available,
+   'Pending decisions, annual play and travel must lock civilian dilemmas: '+sector);
+ assert(!m.resolveOrdinaryIncident(employed,choice.id,{...workplaceCtx,energy:0},0).ok,
+   'Civilian decisions must require enough energy: '+sector);
+ const switched=m.normalize({...completed.state,current:{kind:'ordinary',id:'fisher',startYear:21}},21);
+ assert(!m.ordinaryIncidentStatus(switched,workplaceCtx).available,
+   'Changing profession must never renew the annual civilian dilemma quota');
+}
+assert(m.ordinaryIncidentStatus(incidentCareer,{...valid,faction:'Marine'})===null&&
+ !m.resolveOrdinaryIncident(incidentCareer,'audit',{...valid,faction:'Marine'},0).ok,
+ 'Marine and all special faction careers must not receive civilian work incidents');
+assert(m.ordinaryIncidentStatus(state,valid)===null,
+ 'Unemployed lives must not have an employer dilemma');
+assert(html.includes("ordinaryIncident:active?.kind==='ordinary'?engine.ordinaryIncidentStatus(state,ctx):null")&&
+ html.includes("if(action==='ordinary_incident')")&&
+ html.includes('engine.resolveOrdinaryIncident(state,id,ctx,'),
+ 'Real player engine must expose and execute the civilian career dilemmas');
+assert(hub.includes('class="opl-civil-incident"')&&hub.includes('data-v112-ordinary-incident')&&
+ hub.includes("careerAction?.('ordinary_incident',b.dataset.v112OrdinaryIncident)"),
+ 'Ordinary career UI must show direct choices and wire each button');
+assert(!hub.includes('renderSpecialCareerBoard(market)+incidentCard'),
+ 'Civilian decisions must stay out of the independent special faction screen');
+
 console.log('V12 CAREER REBUILD QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,operations:ops.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
