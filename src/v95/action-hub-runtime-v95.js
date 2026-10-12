@@ -312,7 +312,9 @@ function createRuntime(bridge){
       '<p>Grade : '+escapeHtml(market.rank)+' • Expérience : '+Math.round(Number(market.careerXP)||0)+
       ' • Performance : '+Math.round(Number(market.performance)||0)+'/100</p>'+
       (market.income?'<p>Revenu estimé : <strong>'+market.income.perAction.toLocaleString('fr-FR')+
-      ' B par travail</strong> • jusqu’à '+market.income.annualMax.toLocaleString('fr-FR')+' B si tu travailles quatre fois.</p>':'')+
+      ' B par travail</strong> • jusqu’à '+market.income.annualMax.toLocaleString('fr-FR')+
+      ' B si tu travailles quatre fois.'+(market.income.raisePct?
+        ' • Augmentations obtenues : +'+market.income.raisePct+' %.':'')+'</p>':'')+
       modes+
       (market.captainCrew?'<label class="opl-training-focus" for="oplCrewName">Nom de ton équipage'+
         '<input type="text" id="oplCrewName" maxlength="42" value="'+escapeHtml(market.captainCrew)+'" /></label>'+
@@ -332,7 +334,11 @@ function createRuntime(bridge){
       const workplace='<section class="opl-job-workplace"><h3>Actions professionnelles</h3>'+
         '<div class="opl-job-work-actions">'+actions.map(x=>
           '<button type="button" data-v112-direct="'+escapeHtml(x.id)+'" '+(x.available?'':'disabled')+'>'+
-          '<strong>'+escapeHtml(x.title)+'</strong><small>'+escapeHtml(x.available?x.detail:x.reason||'Indisponible')+'</small></button>').join('')+'</div>'+
+          '<strong>'+escapeHtml(x.title)+'</strong><small>'+escapeHtml(x.available?x.detail:x.reason||'Indisponible')+'</small></button>').join('')+
+        (market.raise?'<button type="button" data-v112-raise '+(market.raise.available?'':'disabled')+'>'+
+          '<strong>Demander une augmentation</strong><small>'+escapeHtml(market.raise.available?
+          'Négocier +8 % de salaire • '+Math.round(market.raise.chance*100)+' % de réussite • 4 énergie':
+          market.raise.reason||'Négociation inaccessible')+'</small></button>':'')+'</div>'+
         (bridge.getGame()?.player?.faction==='Pirates'?
           '<button type="button" class="opl-job-more" data-v112-crew>Gérer mon équipage pirate ›</button>':'')+
         '</section>';
@@ -521,6 +527,7 @@ function createRuntime(bridge){
     root.querySelectorAll?.('[data-v112-crew-select]').forEach(b=>b.onclick=()=>bridge.careerAction?.('crew_select',b.dataset.v112CrewSelect));
     root.querySelectorAll?.('[data-v112-apply]').forEach(b=>b.onclick=()=>bridge.careerAction?.('apply',b.dataset.v112Apply));
     root.querySelectorAll?.('[data-v112-quit]').forEach(b=>b.onclick=()=>bridge.careerAction?.('quit'));
+    root.querySelectorAll?.('[data-v112-raise]').forEach(b=>b.onclick=()=>bridge.careerAction?.('raise'));
     root.querySelectorAll?.('[data-v112-special]').forEach(b=>b.onclick=()=>bridge.careerAction?.('special',b.dataset.v112Special));
     root.querySelectorAll?.('[data-v112-answer]').forEach(b=>b.onclick=()=>bridge.careerAction?.('answer',b.dataset.v112Answer));
     root.querySelectorAll?.('[data-v112-cancel]').forEach(b=>b.onclick=()=>bridge.careerAction?.('cancel'));
