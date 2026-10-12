@@ -1,21 +1,14 @@
 {
-  "name": "ONE PIECE LIFE",
-  "short_name": "OP LIFE",
-  "description": "ONE PIECE LIFE V12.0.0 — Carrières reconstruites : emplois civils, recrutements et parcours spéciaux indépendants",
-  "id": "./",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#f4ecd8",
-  "theme_color": "#173f4e",
-  "lang": "fr",
-  "orientation": "portrait-primary",
-  "icons": [
-    {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
+  "name":"ONE PIECE LIFE REBOOT",
+  "short_name":"OP LIFE",
+  "description":"Simulation de vie One Piece, fondations modulaires V13",
+  "id":"./",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#f6f7f5",
+  "theme_color":"#173f4e",
+  "lang":"fr",
+  "orientation":"portrait-primary",
+  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }

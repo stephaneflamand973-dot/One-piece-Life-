@@ -1,49 +1,6 @@
-name: V10.0 Live Audit
+name: Legacy V10 Manual Audit
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'index.html'
-      - 'src/**'
-      - 'scripts/qa-v64.mjs'
-      - 'scripts/qa-v65.mjs'
-      - 'scripts/qa-v66.mjs'
-      - 'scripts/qa-v67.mjs'
-      - 'scripts/qa-v671.mjs'
-      - 'scripts/qa-v68.mjs'
-      - 'scripts/qa-v69.mjs'
-      - 'scripts/qa-v70.mjs'
-      - 'scripts/qa-v71.mjs'
-      - 'scripts/qa-v72.mjs'
-      - 'scripts/qa-v73.mjs'
-      - 'scripts/qa-v74.mjs'
-      - 'scripts/qa-v75.mjs'
-      - 'scripts/qa-v76.mjs'
-      - 'scripts/qa-v77.mjs'
-      - 'scripts/qa-v78.mjs'
-      - 'scripts/qa-v79.mjs'
-      - 'scripts/qa-v80.mjs'
-      - 'scripts/qa-v81.mjs'
-      - 'scripts/qa-v82.mjs'
-      - 'scripts/qa-v83.mjs'
-      - 'scripts/qa-v84.mjs'
-      - 'scripts/qa-v85.mjs'
-      - 'scripts/qa-v86.mjs'
-      - 'scripts/qa-v87.mjs'
-      - 'scripts/qa-v88.mjs'
-      - 'scripts/qa-v89.mjs'
-      - 'scripts/qa-v90.mjs'
-      - 'scripts/qa-v91.mjs'
-      - 'scripts/qa-v91-runtime.mjs'
-      - 'scripts/qa-v92.mjs'
-      - 'scripts/qa-v92-runtime.mjs'
-      - 'scripts/qa-v93.mjs'
-      - 'scripts/qa-v93-runtime.mjs'
-      - 'app.js'
-      - 'content-v1.js'
-      - 'scripts/audit-v32.mjs'
-      - '.github/workflows/audit-v32.yml'
 permissions:
   contents: read
 concurrency:
