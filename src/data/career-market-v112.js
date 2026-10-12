@@ -199,5 +199,83 @@ const specialIncidents={
    {id:'raid',label:'Intercepter un convoi ennemi',detail:'Approvisionnement rapide mais risque de blessure.',skill:'Combat',chance:.51,cost:12,win:{prep:3,merit:13,xp:8},fail:{health:-10,standing:-4}}]}
  ]
 };
-r.register('careerMarketDataV112',{version:'12.0.0',ordinary,special,specialOperations,ordinaryTasks,careerSkills,specialRanks,specialPaths,specialProgression,specialPreparation,operationPreparation,specialIncidents,maxOrdinaryApplications:3,maxSpecialApplications:2});
+
+// Ordinary work also has a life beyond pressing "Work": one grounded workplace dilemma
+// per year, with two distinct stories per sector. These NEVER occur in special careers.
+// Outcomes are earned only after an explicit decision; no passive annual salary or XP.
+const ordinaryIncidents={
+ 'Mer et transport':[
+  {id:'storm',title:'Une tempête menace la cargaison',description:'Le capitaine marchand hésite entre retarder la livraison et tenter la traversée.',choices:[
+    {id:'shelter',label:'Mettre le navire à l’abri',detail:'Préserver les biens et la confiance, au prix d’un retard.',skill:'Navigation',chance:.78,cost:8,win:{trust:5,performance:4,xp:7},fail:{trust:-3,performance:-3}},
+    {id:'sail',label:'Maintenir la traversée',detail:'Un gros bonus en cas de réussite, mais un risque physique.',skill:'Navigation',chance:.51,cost:13,win:{money:470,performance:8,xp:11},fail:{health:-12,trust:-5,performance:-7}}]},
+  {id:'lost_manifest',title:'Le manifeste de bord ne correspond pas',description:'Un client réclame plusieurs caisses qui ne figurent plus à l’inventaire.',choices:[
+    {id:'audit',label:'Vérifier chaque cargaison',detail:'Enquêter avant de signer la livraison.',skill:'Commerce',chance:.72,cost:9,win:{trust:6,xp:8,performance:4},fail:{performance:-3}},
+    {id:'deliver',label:'Livrer sans vérifier',detail:'Gagner du temps en acceptant un risque commercial.',skill:'Navigation',chance:.56,cost:6,win:{money:280,performance:6},fail:{money:-230,trust:-7}}]}
+ ],
+ 'Artisanat':[
+  {id:'urgent_order',title:'Une commande urgente et prestigieuse',description:'Un client important souhaite récupérer une pièce complexe dès demain.',choices:[
+    {id:'care',label:'Soigner les finitions',detail:'Miser sur la qualité et la réputation.',skill:'Artisanat',chance:.76,cost:10,win:{trust:5,performance:6,xp:9},fail:{performance:-4}},
+    {id:'rush',label:'Livrer au plus vite',detail:'Tenter de décrocher une prime immédiate.',skill:'Artisanat',chance:.52,cost:12,win:{money:410,performance:7},fail:{money:-150,trust:-6,performance:-5}}]},
+  {id:'broken_tool',title:'Un outil essentiel s’est brisé',description:'L’atelier ne peut plus respecter les délais sans solution.',choices:[
+    {id:'repair',label:'Réparer l’outil',detail:'Faire preuve de débrouillardise.',skill:'Artisanat',chance:.73,cost:8,win:{trust:5,xp:8,performance:4},fail:{money:-100,performance:-2}},
+    {id:'outsource',label:'Confier la commande à un confrère',detail:'Partager les recettes pour préserver la clientèle.',skill:'Commerce',chance:.78,cost:6,win:{trust:7,performance:2},fail:{money:-180,trust:-2}}]}
+ ],
+ 'Hôtellerie et services':[
+  {id:'difficult_guest',title:'Un client exigeant menace de partir',description:'Une erreur de service menace la réputation de l’établissement.',choices:[
+    {id:'listen',label:'Écouter et trouver une solution',detail:'Miser sur le service plutôt que sur une dispute.',skill:'Commerce',chance:.79,cost:7,win:{trust:6,performance:5,xp:5},fail:{trust:-4}},
+    {id:'upsell',label:'Proposer une prestation premium',detail:'Convaincre le client de payer davantage.',skill:'Commerce',chance:.49,cost:9,win:{money:290,performance:7},fail:{trust:-6,performance:-5}}]},
+  {id:'overbooked',title:'L’auberge affiche complet',description:'Deux familles ont été promises à la même chambre.',choices:[
+    {id:'compensate',label:'Négocier une solution équitable',detail:'Dépenser du temps pour préserver la réputation.',skill:'Commerce',chance:.74,cost:8,win:{trust:7,performance:5},fail:{money:-90,trust:-3}},
+    {id:'prioritize',label:'Servir d’abord le client le plus riche',detail:'Une récompense possible, au risque de froisser les autres.',skill:'Commerce',chance:.45,cost:6,win:{money:330,performance:5},fail:{trust:-8,performance:-6}}]}
+ ],
+ 'Commerce':[
+  {id:'rival_offer',title:'Un concurrent casse les prix',description:'Les habitués commencent à regarder l’étal voisin.',choices:[
+    {id:'loyalty',label:'Fidéliser mes clients',detail:'Cultiver la confiance et les relations à long terme.',skill:'Commerce',chance:.75,cost:9,win:{trust:7,performance:5,xp:6},fail:{money:-100}},
+    {id:'discount',label:'Lancer une vente agressive',detail:'Écouler rapidement le stock avec moins de marge.',skill:'Commerce',chance:.57,cost:8,win:{money:460,performance:6},fail:{money:-210,performance:-5}}]},
+  {id:'fake_berry',title:'Des Berry suspects dans la caisse',description:'Un paiement important semble avoir été falsifié.',choices:[
+    {id:'verify',label:'Vérifier les pièces et le client',detail:'Éviter une escroquerie sans provoquer de conflit.',skill:'Commerce',chance:.79,cost:7,win:{trust:6,performance:4,xp:5},fail:{performance:-2}},
+    {id:'accept',label:'Accepter le paiement',detail:'Faire confiance au client et conclure immédiatement.',skill:'Commerce',chance:.43,cost:4,win:{money:520,performance:6},fail:{money:-350,trust:-5}}]}
+ ],
+ 'Nature et ressources':[
+  {id:'damaged_harvest',title:'Une partie de la récolte est perdue',description:'Des intempéries menacent la production et les revenus du village.',choices:[
+    {id:'save',label:'Sauver les parcelles restantes',detail:'Organiser une récolte prudente et méthodique.',skill:'Survie',chance:.76,cost:11,win:{trust:5,performance:5,xp:8},fail:{health:-5,performance:-3}},
+    {id:'rush',label:'Récolter tout en urgence',detail:'Tenter un effort intense et risqué.',skill:'Survie',chance:.54,cost:14,win:{money:400,performance:7},fail:{health:-11,performance:-6}}]},
+  {id:'resource_conflict',title:'Un autre groupe revendique les terres',description:'La communauté hésite entre négocier et forcer l’exploitation.',choices:[
+    {id:'mediate',label:'Trouver un accord local',detail:'Privilégier une solution durable.',skill:'Commerce',chance:.72,cost:7,win:{trust:7,performance:4},fail:{trust:-3}},
+    {id:'exploit',label:'Continuer la production',detail:'Assurer un rendement rapide au risque du conflit.',skill:'Survie',chance:.51,cost:12,win:{money:360,performance:6},fail:{health:-9,trust:-7}}]}
+ ],
+ 'Santé et sciences':[
+  {id:'emergency',title:'Une urgence bouleverse le service',description:'Une personne arrive blessée au moment où les ressources manquent.',choices:[
+    {id:'stabilize',label:'Stabiliser le patient',detail:'Utiliser des soins méthodiques et limiter les risques.',skill:'Médecine',chance:.76,cost:12,win:{trust:8,performance:6,xp:9},fail:{trust:-6,performance:-4}},
+    {id:'improvise',label:'Tenter une intervention audacieuse',detail:'Sauver du temps avec un protocole expérimental.',skill:'Médecine',chance:.49,cost:15,win:{money:520,trust:9,xp:12},fail:{trust:-9,performance:-8}}]},
+  {id:'contaminated_batch',title:'Un produit de laboratoire est contaminé',description:'La pression monte pour publier les résultats malgré le doute.',choices:[
+    {id:'retest',label:'Réaliser de nouveaux tests',detail:'Mettre la rigueur scientifique avant la rapidité.',skill:'Science',chance:.77,cost:11,win:{trust:8,performance:6,xp:8},fail:{performance:-2}},
+    {id:'publish',label:'Publier les données disponibles',detail:'Tenter de devancer les autres laboratoires.',skill:'Science',chance:.45,cost:7,win:{money:420,performance:6},fail:{trust:-10,performance:-9}}]}
+ ],
+ 'Éducation et administration':[
+  {id:'missing_records',title:'Des archives cruciales ont disparu',description:'Une décision publique dépend de documents introuvables.',choices:[
+    {id:'search',label:'Reconstituer les dossiers',detail:'Prendre le temps de vérifier les faits.',skill:'Science',chance:.75,cost:9,win:{trust:6,performance:5,xp:7},fail:{performance:-4}},
+    {id:'shortcut',label:'Rédiger une synthèse sans preuves',detail:'Aller vite mais risquer une erreur officielle.',skill:'Commerce',chance:.48,cost:5,win:{money:320,performance:6},fail:{trust:-8,performance:-7}}]},
+  {id:'dispute',title:'Deux collègues se disputent un projet',description:'L’équipe se divise et le travail est paralysé.',choices:[
+    {id:'coordinate',label:'Répartir clairement les tâches',detail:'Mener le groupe sans prendre parti.',skill:'Commandement',chance:.74,cost:8,win:{trust:7,performance:5,xp:6},fail:{trust:-4}},
+    {id:'solo',label:'Terminer le dossier seul',detail:'Gagner en visibilité au prix d’une lourde charge.',skill:'Science',chance:.54,cost:12,win:{money:330,performance:7},fail:{performance:-6,trust:-5}}]}
+ ],
+ 'Arts et spectacles':[
+  {id:'stage_fright',title:'La vedette est absente du spectacle',description:'L’équipe doit improviser une représentation devant une salle comble.',choices:[
+    {id:'rehearse',label:'Réorganiser la troupe',detail:'Assurer un spectacle collectif.',skill:'Arts',chance:.76,cost:9,win:{trust:6,performance:5,xp:7},fail:{performance:-4}},
+    {id:'headline',label:'Prendre la tête du spectacle',detail:'Une occasion de briller avec un vrai risque de scandale.',skill:'Arts',chance:.51,cost:12,win:{money:540,performance:9},fail:{trust:-8,performance:-6}}]},
+  {id:'bad_review',title:'Un critique publie une mauvaise chronique',description:'La prochaine représentation risque de se jouer devant une salle vide.',choices:[
+    {id:'improve',label:'Retravailler ma performance',detail:'Transformer la critique en apprentissage.',skill:'Arts',chance:.79,cost:10,win:{trust:5,performance:5,xp:9},fail:{performance:-3}},
+    {id:'publicity',label:'Organiser une grande opération publicitaire',detail:'Faire parler de la troupe à tout prix.',skill:'Commerce',chance:.48,cost:8,win:{money:440,performance:7},fail:{money:-190,trust:-7}}]}
+ ],
+ 'Sécurité civile':[
+  {id:'threat',title:'Une menace vise un client',description:'Des individus suspects tournent autour du lieu que tu protèges.',choices:[
+    {id:'escort',label:'Mettre le client en sécurité',detail:'Prioriser la prévention et la protection.',skill:'Combat',chance:.75,cost:11,win:{trust:8,performance:5,xp:7},fail:{health:-5,trust:-5}},
+    {id:'pursue',label:'Poursuivre les suspects',detail:'Tenter une arrestation risquée et spectaculaire.',skill:'Combat',chance:.49,cost:16,win:{money:510,performance:8,xp:10},fail:{health:-16,trust:-8}}]},
+  {id:'missing_guard',title:'Un collègue abandonne sa ronde',description:'La surveillance est incomplète au pire moment.',choices:[
+    {id:'cover',label:'Assurer sa ronde en plus',detail:'Protéger les lieux malgré la fatigue.',skill:'Survie',chance:.76,cost:12,win:{trust:7,performance:5,xp:8},fail:{health:-6,performance:-4}},
+    {id:'report',label:'Signaler immédiatement l’absence',detail:'Éviter de masquer le problème auprès du supérieur.',skill:'Combat',chance:.74,cost:6,win:{trust:6,performance:3},fail:{trust:-3}}]}
+ ]
+};
+r.register('careerMarketDataV112',{version:'12.0.0',ordinary,special,specialOperations,ordinaryTasks,ordinaryIncidents,careerSkills,specialRanks,specialPaths,specialProgression,specialPreparation,operationPreparation,specialIncidents,maxOrdinaryApplications:3,maxSpecialApplications:2});
 })(window);
