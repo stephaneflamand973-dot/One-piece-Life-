@@ -13,6 +13,14 @@ assert(data.special.some(x=>x.id==='pirate_join')&&data.special.some(x=>x.id==='
 const valid={age:21,year:21,island:'Shells Town',career:'Aucune',rank:'Sans emploi',faction:'Civil',energy:95,money:5000,bounty:0,
  skills:{Combat:45,Commandement:60,Navigation:65,Discrétion:40},stats:{Discipline:60,Intelligence:75,Force:75,Endurance:75,Charisme:60},schoolBonus:12,alive:true,pending:false,travel:false};
 const state=m.normalize({},21);
+valid.region='East Blue';
+const worldCrew={id:'east-vipers',name:'Équipage des Vipères',power:68,captainPower:76,region:'East Blue',status:'active'};
+const localCrews=m.crewOffers(valid,[worldCrew]);
+assert(localCrews.some(c=>c.id==='world:east-vipers'&&c.name===worldCrew.name),'A living world pirate crew must be available in its actual region');
+assert(localCrews.length>=3,'The pirate recruiter must show several distinct captains');
+assert.deepEqual(localCrews,m.crewOffers(valid,[worldCrew]),'Recruiting pirate crews must be stable during the same year');
+assert(!m.crewOffers({...valid,region:'North Blue'},[worldCrew]).some(c=>c.id==='world:east-vipers'),'World crews must not appear in unrelated seas');
+valid.crewOptions=localCrews;
 const shown=m.offers(state,valid).map(x=>x.id);
 assert(shown.length>=10,'The market should display numerous vacancies');
 assert.deepEqual(shown,m.offers(state,valid).map(x=>x.id),'Offers should remain stable inside a year');
@@ -56,7 +64,18 @@ assert(m.apply(state,'pirate_found',valid,0).accepted,'An adult with leadership 
 assert(m.apply(state,'pirate_found',valid,1).accepted,'Founding a qualified pirate crew must be guaranteed even at a maximal random roll');
 assert(m.apply(state,'hunter',valid,1).accepted,'Independent bounty hunters must not fail an imaginary recruiter interview');
 assert(!m.normalize(interview.state,22).interview,'Abandoned interviews must expire when the year changes');
-assert(m.apply(state,'pirate_join',{...valid,age:16,year:16},0).accepted,'Younger pirates can join an existing crew');
+const youngContext={...valid,age:16,year:16,crewOptions:m.crewOffers({...valid,age:16,year:16},[worldCrew])};
+assert(!m.startInterview(state,'pirate_join',youngContext).ok,'Pirate enlistment must require choosing an existing crew');
+const choice=m.chooseCrew(state,'world:east-vipers',youngContext);
+assert(choice.ok&&choice.state.crewChoice.id==='world:east-vipers','Player must be able to choose which crew to join');
+assert(!m.chooseCrew(state,'fictional-crew',youngContext).ok,'Invented or missing pirate crews may not be selected');
+const pirateInterview=m.startInterview(choice.state,'pirate_join',youngContext);
+assert(pirateInterview.ok,'Choosing a crew should unlock the playable pirate recruitment interview');
+const joined=m.apply(pirateInterview.state,'pirate_join',youngContext,0,'ambition');
+assert(joined.accepted&&joined.joinCrew.name===worldCrew.name&&joined.joinCrew.captain.includes(worldCrew.name),
+  'Joining pirates must preserve the exact selected ship and captain');
+assert(!m.normalize(choice.state,17).crewChoice,'Crew selection expires when available crews refresh next year');
+assert(m.chooseCrew(state,localCrews[0].id,valid).ok,'Another pirate crew may be selected without consuming an application');
 assert(!m.status(m.byId('marine'),state,{...valid,travel:true}).available,'Applications must not work during a crossing');
 assert(!m.status(m.byId('marine'),state,{...valid,pending:true}).available,'Story decisions must take priority');
 const migrated=m.normalize({current:{id:'legacy',kind:'ordinary',startYear:18}},21);
@@ -73,6 +92,10 @@ for(const fragment of ['function v112Ensure()','function v112Market()','function
 assert(html.includes("if(age>=15&&p.career==='Aucune'")&&html.includes("À la recherche d’un emploi"),'Career enrollment should be voluntary');
 assert(hub.includes('function renderCareerBoard()')&&hub.includes('data-v112-apply=')&&hub.includes('data-v112-quit'),'Career cards must be actionable');
 assert(hub.includes('data-v112-answer=')&&hub.includes('data-v112-cancel'),'Applications must display a playable interview with cancellation');
+assert(hub.includes('data-v112-crew-select')&&hub.includes('opl-crew-picker')&&hub.includes('Sélectionne d’abord un équipage'),
+ 'Pirate recruitment must require player-driven target selection');
+assert(html.includes("if(action==='crew_select')")&&html.includes('const joined=out.joinCrew')&&html.includes("v112Engine()?.crewOffers"),
+ 'Chosen crew must flow all the way to the canonical player's ship without rerolling');
 assert(html.includes("if(action==='answer')")||html.includes("action==='answer'?state.interview?.id:id"),'Interview answers must reach the real recruitment engine');
 assert(html.includes("v112Engine()?.estimatedPay(employment,{rank:p.rank})"),'Civilian wages must replace generic salaries');
 console.log('V11.2 CAREER MARKET QA OK',JSON.stringify({ordinary:data.ordinary.length,special:data.special.length,offers:shown.length,applyLimit:data.maxOrdinaryApplications}));
