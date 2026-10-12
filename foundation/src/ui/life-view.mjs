@@ -58,7 +58,7 @@ export function renderLife(state) {
   if (!person) return renderCreation();
   const story = state.domainData.story;
   const seaLabel = seaById(person.origin.sea)?.label ?? '';
-  const timeline = state.history.map(event => `<article class="story-event ${event.type === 'end' ? 'story-end' : ''} ${event.type === 'decision' ? 'story-choice' : ''}">
+  const timeline = state.history.filter(event => event.type !== 'event').map(event => `<article class="story-event ${event.type === 'end' ? 'story-end' : ''} ${event.type === 'decision' ? 'story-choice' : ''}">
     <div class="story-age">${event.age === 0 ? 'Naissance' : event.age + ' an' + (event.age > 1 ? 's' : '')}</div>
     <p>${escapeHtml(event.text)}</p>
   </article>`).join('');
