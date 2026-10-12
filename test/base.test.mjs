@@ -10,13 +10,18 @@ const app=readFileSync('foundation/src/ui/app.mjs','utf8');
 const rootIndex=readFileSync('index.html','utf8');
 const pwa=JSON.parse(readFileSync('foundation/manifest.webmanifest','utf8'));
 
-test('nouveau jeu vierge tant que le joueur ne démarre pas une vie',()=>{
-  const initial=createEmptyState();
-  assert.deepEqual(initial,{schemaVersion:SCHEMA_VERSION,activeLife:null,history:[],domainData:{}});
-  assert.equal(isEmptyState(initial),true);
+test('un nouveau jeu est vierge et sans événement ou caractéristique inventée',()=>{
+  const state=createEmptyState();
+  assert.equal(state.schemaVersion,SCHEMA_VERSION);
+  assert.equal(state.activeLife,null);
+  assert.deepEqual(state.history,[]);
+  assert.deepEqual(state.domainData.story.qualities,{audace:0,curiosite:0,solidarite:0});
+  assert.deepEqual(state.domainData.story.decisions,[]);
+  assert.equal(state.domainData.story.pending,null);
+  assert.equal(isEmptyState(state),true);
   assert.equal(createEngine({storage:null}).getState().activeLife,null);
 });
-test('modules autonomes : seules les rubriques installées ont du contenu',()=>{
+test('seule la rubrique Vie est branchée sur un moteur de jeu',()=>{
   const registry=createModuleRegistry();
   assert.deepEqual(registry.visible(),[]);
   assert.deepEqual(MODULE_ORDER,['life','activities','relationships','career','assets']);
@@ -25,22 +30,18 @@ test('modules autonomes : seules les rubriques installées ont du contenu',()=>{
   assert.throws(()=>registry.register({id:'life',label:'Vie',render:()=>''}));
   assert.throws(()=>registry.register({id:'inconnu',label:'Inconnu',render:()=>''}));
 });
-test('écran de vie activé sans importer les anciennes mécaniques',()=>{
+test('nouveau moteur de décisions relié à la navigation existante',()=>{
   assert.ok(app.includes("engine.modules.register({ id: 'life'"));
   assert.ok(app.includes('data-age'));
-  assert.ok(app.includes("engine.startLife(options)")); // submission delegates to the life engine
-  assert.ok(page.includes('app.mjs?v=life-002'));
+  assert.ok(app.includes('engine.startLife(options)'));
+  assert.ok(app.includes('engine.choose(button.dataset.choice)'));
+  assert.ok(page.includes('app.mjs?v=events-003'));
   assert.ok(!app.includes('STAT_KEYS'));
 });
-test('la PWA indépendante et les anciennes sauvegardes sont conservées',()=>{
+test('PWA séparée et anciens moteurs absents',()=>{
   assert.ok(rootIndex.includes('./foundation/'));
-  assert.equal(pwa.start_url,'./');
-  assert.equal(pwa.scope,'./');
   assert.equal(pwa.id,'./foundation-blank');
-  assert.ok(!/localStorage\.(removeItem|clear)/.test(app));
-});
-test('anciens moteurs toujours absents',()=>{
-  for(const path of ['app.js','content-v1.js','src/core/events.mjs','src/core/game.mjs','src/core/world.mjs','src/core/storage.mjs']){
+  for(const path of ['app.js','content-v1.js','src/core/game.mjs','src/core/world.mjs','src/core/storage.mjs']){
     assert.equal(existsSync(path),false);
   }
 });

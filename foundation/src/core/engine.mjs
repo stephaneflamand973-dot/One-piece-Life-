@@ -1,9 +1,8 @@
-import { createEmptyState, beginLife, advanceOneYear } from './state.mjs';
+import { createEmptyState, beginLife, advanceOneYear, resolveDecision } from './state.mjs';
 import { loadState, saveState, eraseState } from './storage.mjs';
 import { createModuleRegistry } from './modules.mjs';
 
-// Le moteur gère les mutations et la persistance ; il ne touche pas à l'interface.
-// Une transition n'est acceptée que lorsque la sauvegarde a effectivement réussi.
+// Chaque action enregistre un état VALIDE avant de changer l'état visible.
 export function createEngine({ storage, random = Math.random } = {}) {
   let state = loadState(storage) ?? createEmptyState();
   const registry = createModuleRegistry();
@@ -20,6 +19,7 @@ export function createEngine({ storage, random = Math.random } = {}) {
       return commit(beginLife(state, options, random));
     },
     age() { return commit(advanceOneYear(state)); },
+    choose(optionId) { return commit(resolveDecision(state, optionId)); },
     restart() {
       if (!eraseState(storage)) return false;
       state = createEmptyState();

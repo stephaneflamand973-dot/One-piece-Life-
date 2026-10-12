@@ -21,7 +21,7 @@ let lastScreen = null;
 let notice = '';
 
 function ageIsAvailable() {
-  return isHome(route) && Boolean(engine.getState().activeLife?.alive);
+  return isHome(route) && Boolean(engine.getState().activeLife?.alive) && !engine.getState().domainData.story.pending;
 }
 function navButtons() {
   return NAV_ITEMS.map(({ id, label, icon: iconName }) => {
@@ -30,11 +30,12 @@ function navButtons() {
     const aria = active ? 'aria-current="page"' : '';
     if (id === HOME) {
       const ageing = ageIsAvailable();
+      const pending = isHome(route) && Boolean(engine.getState().domainData.story.pending);
       const ended = isHome(route) && engine.getState().activeLife?.alive === false;
       const action = ageing ? 'data-age' : 'data-nav="life"';
-      const text = ageing ? '+ Âge' : ended ? 'Fin' : 'Vie';
-      const disabled = ended ? 'disabled' : '';
-      const title = ageing ? 'Avancer d’un an' : 'Retour à Vie';
+      const text = ageing ? '+ Âge' : pending ? 'Choisir' : ended ? 'Fin' : 'Vie';
+      const disabled = ended || pending ? 'disabled' : '';
+      const title = ageing ? 'Avancer d’un an' : pending ? 'Répondez à la décision en cours' : 'Retour à Vie';
       return `<button type="button" ${action} class="nav-button nav-home ${selected}"
         aria-label="${title}" ${aria} ${disabled}>
         <span class="nav-home-icon">${icon(iconName)}</span><span class="nav-label">${text}</span>
@@ -131,8 +132,20 @@ root.addEventListener('click', event => {
     }
     notice = '';
     render();
-    const last = root.querySelector('.story-event:last-child');
-    last?.scrollIntoView({ block: 'end', behavior: 'instant' });
+    const decision = root.querySelector('.decision-panel');
+    if (decision) decision.scrollIntoView({ block: 'start', behavior: 'instant' });
+    else root.querySelector('.story-event:last-child')?.scrollIntoView({ block: 'end', behavior: 'instant' });
+    return;
+  }
+  if (button.hasAttribute('data-choice')) {
+    if (route.section !== 'life' || !engine.getState().domainData.story.pending) return;
+    if (!engine.choose(button.dataset.choice)) {
+      notice = 'Impossible d’enregistrer votre décision.';
+      render(); return;
+    }
+    notice = '';
+    render();
+    root.querySelector('.story-event:last-child')?.scrollIntoView({ block: 'end', behavior: 'instant' });
     return;
   }
   if (button.hasAttribute('data-restart')) {
