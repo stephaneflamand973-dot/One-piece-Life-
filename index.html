@@ -3163,6 +3163,98 @@ function v94RenderIntel(){
 
 
 let v95LiveRuntime=null;
+// V11.2: a player-driven employment market, compatible with earlier careers and saves.
+function v112Data(){return window.OPL_MODULES?.get('careerMarketDataV112')||null}
+function v112Engine(){return window.OPL_MODULES?.get('careerMarketEngineV112')||null}
+function v112Ensure(){
+  if(!game?.meta||!v112Engine())return null;
+  if(!game.meta.careerMarketV112){
+    const p=game.player,hasJob=p.career&&p.career!=='Aucune';
+    const exact=[...(v112Data()?.ordinary||[]),...(v112Data()?.special||[])].find(x=>x.label===p.career||(x.career===p.career&&x.faction===p.faction));
+    game.meta.careerMarketV112={current:hasJob?{id:exact?.id||'legacy',kind:exact?.kind||(p.faction==='Civil'?'ordinary':'special'),startYear:Math.floor(game.ageMonths/12)}:null};
+  }
+  const year=Math.floor(game.ageMonths/12);
+  game.meta.careerMarketV112=v112Engine().normalize(game.meta.careerMarketV112,year);
+  return game.meta.careerMarketV112;
+}
+function v112Context(){
+  const p=game.player,education=v79Ensure();
+  return {age:Math.floor(game.ageMonths/12),year:Math.floor(game.ageMonths/12),island:p.island,
+    career:p.career,rank:p.rank,faction:p.faction,energy:p.energy,money:p.money,bounty:p.bounty,
+    skills:p.skills,stats:p.stats,schoolBonus:Math.min(20,Math.floor((Number(education?.knowledge)||0)/5)),
+    alive:game.alive,pending:!!game.pendingDecision,annual:!!game.agency?.annualTurn?.active,travel:!!p.travel};
+}
+function v112Market(){
+  const engine=v112Engine(),data=v112Data(),state=v112Ensure();if(!engine||!data||!state)return null;
+  const ctx=v112Context(),active=state.current,known=active?engine.byId(active.id):null;
+  const job=active?(known||{label:game.player.career,kind:active.kind}):null;
+  const entries=(state.selected==='special'?data.special:engine.offers(state,ctx)).map(x=>({...x,status:engine.status(x,state,ctx)}));
+  return {selected:state.selected,allOffers:state.allOffers,active:job,
+    rank:game.player.rank,careerXP:game.player.careerXP,
+    performance:Math.round(Number(v103Ensure()?.performance)||0),
+    income:engine.estimatedPay(state,ctx),entries,
+    maxOrdinaryApplications:data.maxOrdinaryApplications,maxSpecialApplications:data.maxSpecialApplications,
+    remainingOrdinary:Math.max(0,data.maxOrdinaryApplications-state.applications.filter(x=>x.kind==='ordinary'&&x.year===ctx.year).length),
+    remainingSpecial:Math.max(0,data.maxSpecialApplications-state.applications.filter(x=>x.kind==='special'&&x.year===ctx.year).length),
+    history:state.history.slice(-3).reverse()};
+}
+function v112View(type){
+  const state=v112Ensure();if(!state)return false;
+  if(type==='ordinary'||type==='special')state.selected=type;
+  else if(type==='all')state.allOffers=!state.allOffers;
+  else return false;
+  game.meta.careerMarketV112=state;saveGame();v95Ensure()?.renderHub();return true;
+}
+function v112Do(action,id){
+  if(!game||!game.alive||game.pendingDecision)return false;
+  const engine=v112Engine(),state=v112Ensure(),ctx=v112Context();if(!engine||!state)return false;
+  const oldFaction=game.player.faction,p=game.player;
+  if(action==='quit'){
+    const out=engine.resign(state,ctx);
+    if(!out.ok){toast(out.reason);return false}
+    if(typeof window.confirm==='function'&&!window.confirm('Quitter ton emploi actuel ? Tu perdras ton poste et devras candidater à nouveau.'))return false;
+    game.meta.careerMarketV112=out.state;
+    p.faction='Civil';p.career='Aucune';p.rank='Sans emploi';p.specialization=null;p.situation='Sans emploi';p.activity='Chercher du travail';p.activityType='general';
+    if(oldFaction==='Pirates')p.crew=null;
+    p.careerV103=null;p.careerXP=0;p.careerPrestige=null;
+    v81OnFactionChange(oldFaction,p.faction);refreshMissionBoard();
+    addHistory('Démission','Tu quittes ton poste précédent et peux consulter de nouvelles offres.','major');
+    saveGame();render();return true;
+  }
+  if(action!=='apply')return false;
+  const out=engine.apply(state,id,ctx,random('v112Application:'+id+':'+ctx.year));
+  if(!out.ok){toast(out.reason);return false}
+  game.meta.careerMarketV112=out.state;
+  p.energy=clamp(p.energy-out.energyCost,0,100);
+  const job=out.job;
+  if(out.accepted){
+    p.money=Math.max(0,p.money-out.fee);
+    p.faction=job.kind==='ordinary'?'Civil':job.faction;
+    p.career=job.kind==='ordinary'?job.label:job.career;
+    p.rank=job.kind==='ordinary'?'Apprenti':job.rank;
+    p.careerXP=0;p.careerV103=null;p.careerPrestige=null;p.specialization=null;
+    p.situation=job.kind==='ordinary'?'Emploi : '+job.label:'Nouvelle carrière : '+job.career;
+    p.activity='Travailler : '+p.career;p.activityType=job.kind==='ordinary'?'work':
+      job.faction==='Pirates'?'crew':job.faction==='Marine'?'marine':
+      job.faction==='Gouvernement'?'government':job.faction==='Révolutionnaires'?'covert':'patrol';
+    if(job.id==='pirate_join'){p.crew=null;createPirateCrewIfNeeded()}
+    else if(job.id==='pirate_found'){
+      p.crew={name:'Équipage de '+p.name,morale:67,members:[],
+        ship:{name:'Sloop de '+p.name,condition:87,tier:1},
+        captain:{name:p.name,power:Math.round(overallPower(p))},
+        treasury:350};
+      v84Ensure();
+      addHistory('Nouveau pavillon',p.name+' prend le commandement de son propre équipage pirate.','major');
+    }else p.crew=null;
+    if(job.kind==='special')codexAdd('factions',job.faction==='Gouvernement'?'Gouvernement Mondial':job.faction);
+    v79ApplyCareerPreparation(job.kind==='ordinary'?'civil':job.id);
+    v81OnFactionChange(oldFaction,p.faction);refreshMissionBoard();
+    addHistory('Candidature acceptée','Tu es recruté comme '+p.career+'. Aucun revenu ni grade n’est attribué sans action de travail.','major',
+      out.fee?'-'+out.fee.toLocaleString('fr-FR')+' B':'');
+  }else addHistory('Candidature refusée','Ta candidature pour '+job.label+' est refusée. Tu peux postuler ailleurs ou retenter l’année prochaine.','normal');
+  saveGame();render();return true
+}
+
 function v95Ensure(){
   if(!game?.meta)return null;
   if(v95LiveRuntime)return v95LiveRuntime;
