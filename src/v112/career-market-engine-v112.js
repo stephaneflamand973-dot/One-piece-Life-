@@ -19,9 +19,12 @@ function normalize(raw={},year=0){
    kind:String(x.kind||'').slice(0,25),title:String(x.title||'').slice(0,100),
    year:Math.floor(clamp(x.year,0,9999))})):[],
   selected:r.selected==='special'?'special':'ordinary',
-  allOffers:!!r.allOffers};
+  allOffers:!!r.allOffers,
+  interview:r.interview&&typeof r.interview==='object'&&Math.floor(Number(r.interview.year)||0)===Math.floor(Number(year)||0)&&byIdSafe(r.interview.id)?
+    {id:String(r.interview.id),year:Math.floor(Number(r.interview.year)||0)}:null};
 }
 const all=()=>[...data.ordinary,...data.special];
+const byIdSafe=id=>all().some(x=>x.id===id);
 const byId=id=>all().find(x=>x.id===id)||null;
 function skillValue(job,ctx={}){
  const stats=ctx.stats||{},skills=ctx.skills||{};
@@ -42,6 +45,7 @@ function lockedReason(job,ctx={},state){
  if(ctx.travel)return 'Il faut être à terre pour postuler.';
  if(ageOf(ctx)<job.minAge)return 'Disponible à '+job.minAge+' ans.';
  if(state?.current||ctx.career&&ctx.career!=='Aucune')return 'Démissionne de ton poste actuel avant de changer de carrière.';
+ if(state?.interview&&state.interview.id!==job.id)return 'Termine d’abord ton entretien en cours.';
  if(clamp(ctx.energy,0,100)<3)return 'Énergie insuffisante : 3 nécessaires.';
  if(job.money&&clamp(ctx.money,0,1e12)<job.money)return 'Il faut '+job.money.toLocaleString('fr-FR')+' B pour créer ton équipage.';
  if(job.kind==='special'&&['Marine','Gouvernement'].includes(job.faction)&&clamp(ctx.bounty,0,1e12)>0)
@@ -53,24 +57,55 @@ function lockedReason(job,ctx={},state){
  const max=special?data.maxSpecialApplications:data.maxOrdinaryApplications;
  if(used.filter(x=>x.kind===job.kind).length>=max)return 'Limite annuelle de candidatures atteinte ('+max+').';
  if(used.some(x=>x.id===job.id))return 'Candidature déjà envoyée cette année.';
+ if(job.kind==='ordinary'&&!isOffered(job,ctx))return 'Pas de poste vacant sur cette île cette année. Consulte les nouvelles annonces l’an prochain.';
  return '';
 }
 function status(job,state,ctx={}){
  const reason=lockedReason(job,ctx,state);
  const skill=skillValue(job,ctx),need=job?.skillMin||0,school=clamp(ctx.schoolBonus||0,0,20);
- const chance=job?clamp(.44+(skill-need)*.007+school*.006+
+ const independent=job?.id==='pirate_found'||job?.id==='hunter';
+ const chance=independent?1:job?clamp(.44+(skill-need)*.007+school*.006+
     Math.min(8,Math.max(0,ageOf(ctx)-(job.minAge||15)))*.009-
     (job.kind==='special'?.09:0),.12,.94):0;
  return {available:!reason,reason,chance,skill,required:need};
 }
-function apply(raw,id,ctx={},roll=.5){
+function interviewQuestions(id){
+ const job=byId(id);if(!job)return [];
+ return [
+  {id:'skills',label:'Présenter mes compétences',description:'Mettre en avant ce que tu sais faire.'},
+  {id:'team',label:'Montrer mon esprit d’équipe',description:'Insister sur ton sérieux et ta fiabilité.'},
+  {id:'ambition',label:'Exprimer mon ambition',description:'Promettre une progression rapide.'}
+ ];
+}
+function interviewBonus(job,answer,ctx={}){
+ const skill=skillValue(job,ctx),need=Number(job.skillMin)||0;
+ if(answer==='skills')return skill>=need+18?.17:skill>=need?.10:.02;
+ if(answer==='team')return .09;
+ if(answer==='ambition')return job.kind==='special'?.12:.05;
+ return 0;
+}
+function startInterview(raw,id,ctx={}){
  const state=normalize(raw,ctx.year),job=byId(id),gate=status(job,state,ctx);
  if(!gate.available)return {ok:false,reason:gate.reason,state};
- const accepted=clamp(roll,0,1)<gate.chance;
- const applications=[...state.applications,{id,year:Math.floor(Number(ctx.year)||0),accepted,kind:job.kind,chance:gate.chance}].slice(-24);
+ if(state.interview)return {ok:false,reason:'Termine ton entretien en cours.',state};
+ if(job.id==='pirate_found'||job.id==='hunter')return {ok:false,reason:'Cette activité indépendante ne nécessite pas d’entretien.',independent:true,state};
+ return {ok:true,job,state:{...state,interview:{id,year:Math.floor(Number(ctx.year)||0)}}};
+}
+function cancelInterview(raw,year=0){
+ const state=normalize(raw,year);
+ return {...state,interview:null};
+}
+function apply(raw,id,ctx={},roll=.5,answer=null){
+ const state=normalize(raw,ctx.year),job=byId(id),gate=status(job,state,ctx);
+ if(!gate.available)return {ok:false,reason:gate.reason,state};
+ if(state.interview&&state.interview.id!==id)return {ok:false,reason:'Un autre entretien est en cours.',state};
+ if(state.interview&&!['skills','team','ambition'].includes(answer))return {ok:false,reason:'Choisis une réponse à l’entretien.',state};
+ const chance=clamp(gate.chance+(state.interview?interviewBonus(job,answer,ctx):0),0,1);
+ const accepted=clamp(roll,0,1)<chance;
+ const applications=[...state.applications,{id,year:Math.floor(Number(ctx.year)||0),accepted,kind:job.kind,chance}].slice(-24);
  const history=[...state.history,{kind:accepted?'hired':'rejected',title:job.label,year:Math.floor(Number(ctx.year)||0)}].slice(-25);
- return {ok:true,accepted,job,chance:gate.chance,energyCost:3,fee:accepted?(job.money||0):0,
-  state:{...state,applications,history,current:accepted?{kind:job.kind,id:job.id,startYear:Math.floor(Number(ctx.year)||0)}:null}};
+ return {ok:true,accepted,job,chance,energyCost:3,fee:accepted?(job.money||0):0,
+  state:{...state,interview:null,applications,history,current:accepted?{kind:job.kind,id:job.id,startYear:Math.floor(Number(ctx.year)||0)}:null}};
 }
 function resign(raw,ctx={}){
  const state=normalize(raw,ctx.year),job=byId(state.current?.id);
@@ -82,16 +117,19 @@ function resign(raw,ctx={}){
   state:{...state,current:null,history:[...state.history,{kind:'resigned',title,year:Math.floor(Number(ctx.year)||0)}].slice(-25)}};
 }
 function stringHash(str){let h=2166136261;for(const ch of String(str)){h=Math.imul(h^ch.charCodeAt(0),16777619)}return h>>>0}
-function offers(raw,ctx={}){
- const state=normalize(raw,ctx.year),year=Math.floor(Number(ctx.year)||0);
- const pool=[...data.ordinary].sort((a,b)=>{
-  const a0=stringHash([a.id,year,ctx.island||''].join('|'));
-  const b0=stringHash([b.id,year,ctx.island||''].join('|'));
-  return a0-b0
- });
+function localOffers(ctx={}){
+ const year=Math.floor(Number(ctx.year)||0);
+ const pool=[...data.ordinary].sort((a,b)=>
+  stringHash([a.id,year,ctx.island||''].join('|'))-stringHash([b.id,year,ctx.island||''].join('|')));
  const accessible=pool.filter(x=>x.minAge<=ageOf(ctx));
- const selected=[...accessible.slice(0,10),...pool.filter(x=>x.minAge>ageOf(ctx)).slice(0,2)];
- return state.allOffers?data.ordinary:selected;
+ return [...accessible.slice(0,10),...pool.filter(x=>x.minAge>ageOf(ctx)).slice(0,2)];
+}
+function isOffered(job,ctx={}){
+ return job?.kind!=='ordinary'||localOffers(ctx).some(x=>x.id===job.id);
+}
+function offers(raw,ctx={}){
+ const state=normalize(raw,ctx.year);
+ return state.allOffers?data.ordinary:localOffers(ctx);
 }
 function estimatedPay(state,ctx={}){
  const job=byId(state?.current?.id);
@@ -101,6 +139,6 @@ function estimatedPay(state,ctx={}){
  return {perAction:Math.round(job.pay*(1+grade*.18)),annualMax:Math.round(job.pay*(1+grade*.18)*4)};
 }
 r.register('careerMarketEngineV112',{
- version:'11.2.0',normalize,byId,skillValue,status,apply,resign,offers,estimatedPay
+ version:'11.2.1',normalize,byId,skillValue,status,startInterview,cancelInterview,interviewQuestions,interviewBonus,apply,resign,offers,isOffered,estimatedPay
 });
 })(window);
