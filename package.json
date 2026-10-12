@@ -1,0 +1,12 @@
+{
+  "name": "one-piece-life-rebirth",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --check src/ui/app.mjs && node --check src/core/game.mjs && node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
