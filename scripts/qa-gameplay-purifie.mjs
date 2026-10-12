@@ -62,7 +62,7 @@ assert(html.includes('setCareerMode:id=>v103SetMode(id)'),'The canonical profess
 assert(hub.includes('function renderCareerBoard()')&&hub.includes('data-v112-apply=')&&hub.includes('data-v112-quit'),'The new BitLife employment marketplace must replace legacy career-only actions');
 assert(html.includes("if(action==='ordinary_task')")&&html.includes('ordinaryTasks:active?.kind==='),'Civilian sector tasks must use the live game engine');
 assert(hub.includes('opl-sector-tasks')&&hub.includes('data-v112-ordinary-task'),'Civilian jobs need their own playable sector-specific workplace');
-assert(hubCss.includes('.opl-sector-task>button:disabled'),'Unavailable workplace actions must display correctly on mobile');
+assert(fs.readFileSync('src/v112/career-market-v112.css','utf8').includes('.opl-sector-task>button:disabled'),'Unavailable workplace actions must display correctly on mobile');
 
 assert(html.includes('careerMarket:()=>v112Market()'),'Career board must connect to the authoritative recruitment engine');
 assert(hub.includes('data-v112-crew-select')&&hub.includes('opl-crew-picker'),'Pirate crew selection must be a visible interactive choice');
