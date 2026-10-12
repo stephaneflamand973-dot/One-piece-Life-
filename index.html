@@ -2346,8 +2346,10 @@ function v79MilestoneTick(){
   while(m&&ctx.age>=m.age){
     const result=mod.resolveMilestone(game.player.educationV79,m.id,ctx,random('v79Exam'));if(result.error)break;
     game.player.educationV79=result.state;did=true;
-    const e=result.exam,label=e.result==='distinction'?'Distinction':e.result==='pass'?'Validé':e.result==='partial'?'Partiel':'Échec';
-    addHistory(e.label,'Résultat : '+label+'. Ton dossier de formation conserve cette étape.','major','Score '+Math.round(e.score)+'/120 • chance '+Math.round(e.chance*100)+'%');
+    const e=result.exam,label=e.result==='distinction'?'Maîtrise remarquable':e.result==='pass'?'Défi relevé':e.result==='partial'?'Progrès partiel':'À retravailler';
+    const gained=e.skill?v671Gain('skills',e.skill,e.skillGain,{mastery:false}):0;
+    addHistory(e.label,label+' : cette épreuve de terrain développe ton savoir-faire, sans diplôme ni certificat.','major',
+      e.skill?e.skill+' +'+gained.toFixed(1):'Expérience de terrain');
     m=mod.nextMilestone(game.player.educationV79,ctx.age)
   }
   if(ctx.age>=10&&!game.flags.v79TrackOffered&&!game.pendingDecision){
@@ -2423,7 +2425,7 @@ function renderV79Education(){
   badge.textContent=sum.stage;
   const top=sum.career.slice(0,3),exams=(state.exams||[]).slice(-4);
   box.classList.toggle('v79-education-complete',!active);
-  box.innerHTML='<div class="v79-education-grid"><div class="v79-edu-stat"><span>Connaissances</span><strong>'+sum.knowledge+'/100</strong></div><div class="v79-edu-stat"><span>Pratique</span><strong>'+sum.practical+'/100</strong></div><div class="v79-edu-stat"><span>Discipline</span><strong>'+sum.discipline+'/100</strong></div><div class="v79-edu-stat"><span>Assurance</span><strong>'+sum.confidence+'/100</strong></div></div><p class="v79-education-meta"><strong>'+esc(sum.track)+'</strong> • rythme '+esc(sum.focus.toLowerCase())+' • '+(sum.mentor?'mentor actif • ':'')+(sum.sponsor?'soutien externe • ':'')+sum.credentials+' validation'+(sum.credentials>1?'s':'')+'.</p><div class="v79-career-readiness">'+top.map((c,i)=>'<span class="v79-readiness-chip '+(i===0?'top':'')+'">'+esc(c.label)+' '+Math.round(c.score)+'/100</span>').join('')+'</div>'+(exams.length?'<div class="v79-exam-list">'+exams.map(e=>'<span class="v79-exam '+esc(e.result)+'">'+esc(e.label)+' • '+esc(e.result==='distinction'?'distinction':e.result==='pass'?'validé':e.result==='partial'?'partiel':'échec')+'</span>').join('')+'</div>':'');
+  box.innerHTML='<div class="v79-education-grid"><div class="v79-edu-stat"><span>Connaissances</span><strong>'+sum.knowledge+'/100</strong></div><div class="v79-edu-stat"><span>Pratique</span><strong>'+sum.practical+'/100</strong></div><div class="v79-edu-stat"><span>Discipline</span><strong>'+sum.discipline+'/100</strong></div><div class="v79-edu-stat"><span>Assurance</span><strong>'+sum.confidence+'/100</strong></div></div><p class="v79-education-meta"><strong>'+esc(sum.track)+'</strong> • rythme '+esc(sum.focus.toLowerCase())+' • '+(sum.mentor?'mentor actif • ':'')+(sum.sponsor?'soutien externe • ':'')+'apprentissage libre, sans diplôme.</p><div class="v79-career-readiness">'+top.map((c,i)=>'<span class="v79-readiness-chip '+(i===0?'top':'')+'">'+esc(c.label)+' '+Math.round(c.score)+'/100</span>').join('')+'</div>'+(exams.length?'<div class="v79-exam-list">'+exams.map(e=>'<span class="v79-exam '+esc(e.result)+'">'+esc(e.label)+' • '+esc(e.result==='distinction'?'maîtrise remarquable':e.result==='pass'?'réussi':e.result==='partial'?'progrès partiel':'à retravailler')+'</span>').join('')+'</div>':'');
   if(!active){actions.innerHTML='';tracks.innerHTML='';return}
   actions.innerHTML=Object.entries(data.focuses).map(([id,a])=>'<button class="action-card" data-v79-focus="'+id+'" '+(used||state.focus===id?'disabled':'')+'><strong>'+esc(a.label)+'</strong><small>'+esc(a.desc)+'</small></button>').join('');
   tracks.innerHTML=ctx.age>=10?Object.entries(data.tracks).map(([id,t])=>'<button class="action-card" data-v79-track="'+id+'" '+(used||state.track===id?'disabled':'')+'><strong>'+esc(t.label)+'</strong><small>'+esc(t.desc)+'</small></button>').join(''):'';
