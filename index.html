@@ -3206,6 +3206,7 @@ function v112Market(){
     captainCrew:game.player.faction==='Pirates'&&game.player.rank==='Capitaine'?game.player.crew?.name:null,
     crew:game.player.faction==='Pirates'?game.player.crew:null,
     operations:active?.kind==='special'?engine.specialOperations(state,ctx):[],
+    specialPreparation:active?.kind==='special'?engine.preparationStatus(state,ctx):null,
     specialPaths:active?.kind==='special'?engine.specialPathOptions(state,ctx):[],
     specialPromotion:active?.kind==='special'?engine.specialPromotionStatus(state,ctx):null,
     specialMerit:active?.kind==='special'?state.specialMerit:0,
@@ -3371,8 +3372,13 @@ function v112Do(action,id){
       (result.bounty?' et +'+result.bounty.toLocaleString('fr-FR')+' B de prime.':'.'):
       'Échec de l’opération. +'+result.xp+' XP d’expérience du terrain'+
       (result.healthLoss?', santé -'+result.healthLoss:'')+'.';
-    addHistory(result.op.label,description,result.success?'major':'danger',
-      (result.pay?('+'+result.pay.toLocaleString('fr-FR')+' B • '):'')+'+'+result.xp+' XP');
+    const preparationDelta=result.preparationEarned-result.preparationSpent;
+    const preparedText=preparationDelta?
+      ' • '+result.preparationLabel+' '+(preparationDelta>0?'+':'')+preparationDelta+
+      ' (réserve '+result.preparationBalance+').':'';
+    addHistory(result.op.label,description+preparedText,result.success?'major':'danger',
+      (result.pay?('+'+result.pay.toLocaleString('fr-FR')+' B • '):'')+'+'+result.xp+' XP'+
+      (preparationDelta?' • Préparation '+(preparationDelta>0?'+':'')+preparationDelta:''));
     toast(result.success?'Opération réussie':'Opération échouée');
     saveGame();render();return true;
   }
