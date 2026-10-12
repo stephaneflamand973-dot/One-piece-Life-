@@ -50,7 +50,7 @@ const runtime=api.createRuntime({
   {id:'steady',label:'Travail régulier',description:'Progression stable'},
   {id:'intensive',label:'Travail intensif',description:'Plus de travail'}]}),
  setCareerMode:id=>{careerMode=id;return true},
- careerMarket:()=>({selected:'ordinary',active:game.player.career==='Marine'?{id:'marine',label:'Marine',kind:'special'}:null,
+ careerMarket:()=>({selected:'ordinary',active:game.player.career==='Docker'?{id:'docker',label:'Docker',kind:'ordinary'}:null,
     rank:game.player.rank||'Sans emploi',careerXP:0,performance:64,income:null,
     remainingOrdinary:3,remainingSpecial:2,allOffers:false,history:[],
     entries:[{id:'docker',label:'Docker',sector:'Mer et transport',kind:'ordinary',minAge:15,
@@ -95,7 +95,7 @@ assert(game.meta.actionFeedbackV111?.actionId==='service:inn','A later action mu
 assert(game.meta.actionFeedbackV111?.summary==='Aucun changement immédiat mesurable.','Do not pretend an unchanged action changed stats');
 runtime.renderHub();
 assert(document.getElementById('v95Hub').innerHTML.includes('Retour à ma vie'),'Activity result must offer one-tap return to life');
-game.player.career='Marine';game.player.rank='Recrue';
+game.player.career='Docker';game.player.rank='Apprenti';
 game.meta.actionHubV95.category='career';runtime.renderHub();
 assert(document.getElementById('v95Hub').innerHTML.includes('oplHubBack'),'Activity subcategory must have a visible return link');
 assert(document.getElementById('v95Hub').innerHTML.includes('oplCareerMode'),'Career method selector must be shown in career overview');
