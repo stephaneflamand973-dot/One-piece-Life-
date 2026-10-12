@@ -150,8 +150,13 @@ assert(marineActions.some(x=>x.id==='marine_patrol')&&marineActions.every(x=>x.f
 const patrol=m.specialPerform(activeMarine,'marine_patrol',{...valid,faction:'Marine',rank:'Recrue'},0);
 assert(patrol.ok&&patrol.success&&patrol.xp>0&&patrol.energyCost>0,'Operations must produce actual costs and XP');
 assert(patrol.state.operations.some(x=>x.id==='marine_patrol'&&x.success),'Results must persist across render and save');
-const failed=m.specialPerform(activeMarine,'marine_arrest',{...valid,faction:'Marine',rank:'Recrue'},1);
-assert(failed.ok&&!failed.success&&failed.healthLoss>0,'Risky careers must include genuine failures and injuries');
+assert(!m.specialStatus(ops.find(x=>x.id==='marine_arrest'),activeMarine,
+ {...valid,faction:'Marine',rank:'Recrue'}).available,
+ 'Arresting suspects must require a prepared case first');
+assert(patrol.state.specialPreparation===1,'Successful patrols must create a genuine intervention dossier');
+const failed=m.specialPerform(patrol.state,'marine_arrest',{...valid,faction:'Marine',rank:'Recrue'},1);
+assert(failed.ok&&!failed.success&&failed.healthLoss>0&&failed.state.specialPreparation===0,
+ 'Risky arrests must spend their prepared case even on failure, with a real injury');
 assert(!m.specialPerform(activeMarine,'pirate_raid',{...valid,faction:'Marine'},0).ok,'Marines may not raid as pirates');
 assert(!m.specialPerform(state,'marine_patrol',{...valid,faction:'Marine'},0).ok,'Unemployed characters may not perform special missions');
 let quota=activeMarine;
@@ -186,8 +191,57 @@ assert(!m.specialStatus(duel,pirateCrewMember,{...command,isCaptain:true}).avail
 
 const govt=m.normalize({current:{id:'government',kind:'special',startYear:18}},21);
 assert(!m.specialStatus(ops.find(x=>x.id==='government_cipher'),govt,{...valid,faction:'Gouvernement',rank:'Recrue'}).available,'Cipher Pol operations require career progression');
-assert(m.specialStatus(ops.find(x=>x.id==='government_cipher'),govt,{...valid,faction:'Gouvernement',rank:'Agent spécial'}).available,'Advanced agents unlock Cipher Pol');
+assert(!m.specialStatus(ops.find(x=>x.id==='government_cipher'),govt,
+ {...valid,faction:'Gouvernement',rank:'Agent spécial'}).available,
+ 'Cipher Pol eligibility requires gathered intelligence as well as rank');
+const governmentCtx={...valid,faction:'Gouvernement',rank:'Agent spécial'};
+const dossier1=m.specialPerform(govt,'government_intel',governmentCtx,0);
+const dossier2=m.specialPerform(dossier1.state,'government_intel',governmentCtx,0);
+assert(dossier1.ok&&dossier2.ok&&dossier2.state.specialPreparation===2,
+ 'Government agents must be able to collect two separate dossiers');
+assert(m.specialStatus(ops.find(x=>x.id==='government_cipher'),dossier2.state,governmentCtx).available,
+ 'Advanced agents can launch Cipher Pol missions only after two real intelligence reports');
+const cipher=m.specialPerform(dossier2.state,'government_cipher',governmentCtx,0);
+assert(cipher.ok&&cipher.preparationSpent===2&&cipher.state.specialPreparation===0,
+ 'Cipher Pol operations must consume both classified dossiers');
 assert(!m.specialStatus(ops.find(x=>x.id==='government_intel'),govt,{...valid,faction:'Gouvernement',travel:true}).available,'No clandestine operation during a crossing');
+// The five special careers have DIFFERENT operational prerequisites and budgets.
+assert(Object.keys(data.specialPreparation).length===5,'Every independent special career needs its own preparation economy');
+assert(!m.preparationStatus(hired.state,valid),'Civilian jobs must never inherit faction mission stock');
+for(const [faction,jobId,prepId,missionId,baseCtx] of [
+ ['Pirates','pirate_join','pirate_loyalty','pirate_raid',{...valid,faction:'Pirates',rank:'Mousse',isCaptain:false}],
+ ['Marine','marine','marine_patrol','marine_arrest',{...valid,faction:'Marine',rank:'Recrue'}],
+ ['Gouvernement','government','government_intel','government_infiltrate',{...valid,faction:'Gouvernement',rank:'Agent'}],
+ ['Chasseurs de primes','hunter','hunter_track','hunter_capture',{...valid,faction:'Chasseurs de primes',rank:'Débutant'}],
+ ['Révolutionnaires','revolution','revolution_network','revolution_rescue',{...valid,faction:'Révolutionnaires',rank:'Sympathisant'}]
+]){
+ const empty=m.normalize({current:{id:jobId,kind:'special',startYear:18}},21);
+ const mission=data.specialOperations.find(x=>x.id===missionId);
+ assert(!m.specialStatus(mission,empty,baseCtx).available,
+   faction+': risky operations must not start before faction-specific groundwork');
+ const prepared=m.specialPerform(empty,prepId,baseCtx,0);
+ assert(prepared.ok&&prepared.success&&prepared.preparationEarned===1,
+   faction+': groundwork must yield an actual career-specific resource');
+ assert(m.specialStatus(mission,prepared.state,baseCtx).available,
+   faction+': a successful groundwork action should unlock the next action');
+ const outcome=m.specialPerform(prepared.state,missionId,baseCtx,0);
+ assert(outcome.ok&&outcome.preparationSpent===1&&outcome.state.specialPreparation===0,
+   faction+': a mission must consume its preparation transactionally');
+ const restored=m.normalize(JSON.parse(JSON.stringify(prepared.state)),22);
+ assert(restored.specialPreparation===1,
+   faction+': preparation must survive save serialization and a year change');
+ const resignation=m.resign(prepared.state,baseCtx);
+ assert(resignation.ok&&resignation.state.specialPreparation===0,
+   faction+': faction reserves must disappear when resigning');
+}
+const bountyBoard=m.normalize({current:{id:'hunter',kind:'special',startYear:18},specialPreparation:1},21);
+assert(!m.specialStatus(data.specialOperations.find(x=>x.id==='hunter_elite'),bountyBoard,
+ {...valid,faction:'Chasseurs de primes',rank:'Débutant'}).available,
+ 'Elite bounty hunting needs at least two independently gathered leads');
+assert(m.preparationStatus(bountyBoard,{...valid,faction:'Chasseurs de primes'}).label==='Pistes confirmées',
+ 'Hunter career dashboard must name its own resource');
+const capped=m.normalize({current:{id:'marine',kind:'special',startYear:19},specialPreparation:500},21);
+assert(capped.specialPreparation===6,'Mission preparation must have a bounded persisted capacity');
 // Every civilian job sector has an independent, playable task and persistent outcomes.
 assert(data.ordinaryTasks.length>=9,'All civilian job sectors need dedicated activities');
 const sectors=[...new Set(data.ordinary.map(x=>x.sector))];
@@ -242,6 +296,12 @@ assert(hub.includes('function renderCareerBoard()')&&hub.includes('data-v112-app
 assert(hub.includes('function renderSpecialCareerBoard(market)')&&hub.includes('data-v112-special=')&&hub.includes("active?.kind==='special'"),'Special careers need their own UI, separate from employment');
 assert(html.includes("if(action==='special')")&&html.includes('engine.specialPerform(state,id,ctx'),'Special operations must reach the actual stats engine');
 assert(hub.includes('data-v112-answer=')&&hub.includes('data-v112-cancel'),'Applications must display a playable interview with cancellation');
+assert(html.includes("specialPreparation:active?.kind==='special'?engine.preparationStatus(state,ctx):null")&&
+ hub.includes('opl-special-preparation')&&hub.includes('gate.preparationCost')&&
+ fs.readFileSync('src/v112/career-market-v112.css','utf8').includes('.opl-special-preparation-track'),
+ 'All independent special dossiers must render persisted prep levels and mission costs');
+assert(html.includes('const preparationDelta=result.preparationEarned-result.preparationSpent'),
+ 'Earning or spending mission preparation must appear in the live story history');
 assert(hub.includes('data-v112-crew-select')&&hub.includes('opl-crew-picker')&&hub.includes('Sélectionne d’abord un équipage'),
  'Pirate recruitment must require player-driven target selection');
 assert(html.includes("if(action==='crew_select')")&&html.includes('const joined=out.joinCrew')&&html.includes("v112Engine()?.crewOffers"),
