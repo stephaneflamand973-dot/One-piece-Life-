@@ -2,7 +2,7 @@
 'use strict';
 const r=global.OPL_MODULES;if(!r)throw Error('OPL registry unavailable');
 const ordinary=[
-['docker','Docker','Mer et transport',15,680,'Physique',0],
+['docker','Docker','Mer et transport',15,680,'Survie',0],
 ['fisher','Pêcheur','Mer et transport',15,720,'Navigation',0],
 ['sailor','Matelot marchand','Mer et transport',16,960,'Navigation',0],
 ['navigator','Navigateur marchand','Mer et transport',18,1680,'Navigation',26],
@@ -14,36 +14,36 @@ const ordinary=[
 ['tailor','Tailleur','Artisanat',15,930,'Artisanat',0],
 ['jeweler','Joaillier','Artisanat',19,2000,'Artisanat',35],
 ['cook','Cuisinier','Hôtellerie et services',15,960,'Cuisine',0],
-['server','Serveur','Hôtellerie et services',15,730,'Charisme',0],
-['innkeeper','Aubergiste','Hôtellerie et services',18,1600,'Charisme',18],
-['bartender','Barman','Hôtellerie et services',18,1130,'Charisme',12],
-['housekeeper','Employé d’entretien','Hôtellerie et services',15,660,'Discipline',0],
-['merchantAid','Vendeur de marché','Commerce',15,860,'Charisme',0],
-['merchant','Marchand','Commerce',17,1430,'Charisme',18],
-['trader','Négociant maritime','Commerce',19,2360,'Charisme',34],
-['accountant','Comptable','Commerce',18,1760,'Intelligence',30],
-['broker','Courtier commercial','Commerce',21,2600,'Charisme',44],
-['farmhand','Ouvrier agricole','Nature et ressources',15,680,'Physique',0],
-['farmer','Agriculteur','Nature et ressources',17,1100,'Endurance',10],
-['herbalist','Herboriste','Nature et ressources',17,1490,'Intelligence',22],
-['miner','Mineur','Nature et ressources',16,1250,'Physique',14],
-['logger','Bûcheron','Nature et ressources',16,1130,'Endurance',8],
-['nurseAid','Aide-soignant','Santé et sciences',17,1150,'Intelligence',12],
-['nurse','Infirmier','Santé et sciences',19,1980,'Intelligence',36],
-['doctor','Médecin','Santé et sciences',23,3650,'Intelligence',65],
-['labAid','Assistant de laboratoire','Santé et sciences',17,1350,'Intelligence',22],
-['scientist','Chercheur scientifique','Santé et sciences',23,3380,'Intelligence',65],
-['archivist','Archiviste','Éducation et administration',16,1130,'Intelligence',10],
-['teacherAid','Assistant d’enseignement','Éducation et administration',17,1260,'Intelligence',20],
-['teacher','Enseignant','Éducation et administration',21,2210,'Intelligence',48],
+['server','Serveur','Hôtellerie et services',15,730,'Commerce',0],
+['innkeeper','Aubergiste','Hôtellerie et services',18,1600,'Commerce',18],
+['bartender','Barman','Hôtellerie et services',18,1130,'Commerce',12],
+['housekeeper','Employé d’entretien','Hôtellerie et services',15,660,'Artisanat',0],
+['merchantAid','Vendeur de marché','Commerce',15,860,'Commerce',0],
+['merchant','Marchand','Commerce',17,1430,'Commerce',18],
+['trader','Négociant maritime','Commerce',19,2360,'Commerce',34],
+['accountant','Comptable','Commerce',18,1760,'Commerce',30],
+['broker','Courtier commercial','Commerce',21,2600,'Commerce',44],
+['farmhand','Ouvrier agricole','Nature et ressources',15,680,'Survie',0],
+['farmer','Agriculteur','Nature et ressources',17,1100,'Survie',10],
+['herbalist','Herboriste','Nature et ressources',17,1490,'Médecine',22],
+['miner','Mineur','Nature et ressources',16,1250,'Survie',14],
+['logger','Bûcheron','Nature et ressources',16,1130,'Survie',8],
+['nurseAid','Aide-soignant','Santé et sciences',17,1150,'Médecine',12],
+['nurse','Infirmier','Santé et sciences',19,1980,'Médecine',36],
+['doctor','Médecin','Santé et sciences',23,3650,'Médecine',65],
+['labAid','Assistant de laboratoire','Santé et sciences',17,1350,'Science',22],
+['scientist','Chercheur scientifique','Santé et sciences',23,3380,'Science',65],
+['archivist','Archiviste','Éducation et administration',16,1130,'Science',10],
+['teacherAid','Assistant d’enseignement','Éducation et administration',17,1260,'Commandement',20],
+['teacher','Enseignant','Éducation et administration',21,2210,'Commandement',48],
 ['cartographer','Cartographe','Éducation et administration',19,1880,'Navigation',30],
-['postman','Facteur','Éducation et administration',16,970,'Endurance',0],
-['journalist','Journaliste','Éducation et administration',18,1750,'Charisme',28],
-['musician','Musicien','Arts et spectacles',15,890,'Charisme',0],
-['performer','Artiste de scène','Arts et spectacles',16,1290,'Charisme',18],
-['photographer','Photographe','Arts et spectacles',17,1300,'Intelligence',15],
+['postman','Facteur','Éducation et administration',16,970,'Survie',0],
+['journalist','Journaliste','Éducation et administration',18,1750,'Commerce',28],
+['musician','Musicien','Arts et spectacles',15,890,'Arts',0],
+['performer','Artiste de scène','Arts et spectacles',16,1290,'Arts',18],
+['photographer','Photographe','Arts et spectacles',17,1300,'Arts',15],
 ['bodyguard','Garde du corps','Sécurité civile',18,1720,'Combat',28],
-['guard','Agent de sécurité','Sécurité civile',17,1320,'Combat',14]
+['guard','Agent de sécurité','Sécurité civile',17,1320,'Combat',14],
 ].map(([id,label,sector,minAge,pay,skill,skillMin])=>({id,label,sector,minAge,pay,skill,skillMin,kind:'ordinary'}));
 const special=[
 {id:'pirate_join',label:'Rejoindre un équipage pirate',faction:'Pirates',career:'Pirate',rank:'Mousse',minAge:15,skill:'Combat',skillMin:0,description:'Embarque avec un capitaine existant. Fais tes preuves et construis des liens.'},
@@ -77,12 +77,12 @@ const specialOperations=[
 const ordinaryTasks=[
  ['sea_delivery','Mer et transport','Assurer une livraison maritime','Une traversée professionnelle exige précision et sang-froid.',12,'Navigation',0,.72,.22,12,7],
  ['craft_order','Artisanat','Honorer une commande exigeante','Confectionner une pièce de qualité pour un client.',12,'Artisanat',0,.73,.19,12,2],
- ['service_guest','Hôtellerie et services','Satisfaire une clientèle exigeante','Transformer une journée difficile en excellente réputation.',10,'Charisme',0,.76,.16,10,1],
- ['trade_deal','Commerce','Conclure une vente importante','Négocier un contrat et gagner la confiance des clients.',11,'Charisme',0,.66,.27,13,1],
- ['harvest_work','Nature et ressources','Organiser une récolte difficile','Gérer la production malgré les contraintes du terrain.',13,'Endurance',0,.72,.20,12,5],
- ['medical_case','Santé et sciences','Résoudre un dossier complexe','Mobiliser ton savoir-faire sur une affaire délicate.',15,'Intelligence',10,.64,.22,15,0],
- ['school_project','Éducation et administration','Mener un projet collectif','Faire aboutir une initiative utile à la communauté.',12,'Intelligence',0,.78,.14,12,0],
- ['art_show','Arts et spectacles','Préparer une grande représentation','Faire briller ton talent devant un public exigeant.',12,'Charisme',0,.67,.24,11,1],
+ ['service_guest','Hôtellerie et services','Satisfaire une clientèle exigeante','Transformer une journée difficile en excellente réputation.',10,'Commerce',0,.76,.16,10,1],
+ ['trade_deal','Commerce','Conclure une vente importante','Négocier un contrat et gagner la confiance des clients.',11,'Commerce',0,.66,.27,13,1],
+ ['harvest_work','Nature et ressources','Organiser une récolte difficile','Gérer la production malgré les contraintes du terrain.',13,'Survie',0,.72,.20,12,5],
+ ['medical_case','Santé et sciences','Résoudre un dossier complexe','Mobiliser ton savoir-faire sur une affaire délicate.',15,'Médecine',10,.64,.22,15,0],
+ ['school_project','Éducation et administration','Mener un projet collectif','Faire aboutir une initiative utile à la communauté.',12,'Science',0,.78,.14,12,0],
+ ['art_show','Arts et spectacles','Préparer une grande représentation','Faire briller ton talent devant un public exigeant.',12,'Arts',0,.67,.24,11,1],
  ['protect_client','Sécurité civile','Assurer une mission de protection','Protéger un client et préserver ta réputation.',16,'Combat',0,.62,.28,15,10]
 ].map(([id,sector,label,description,cost,skill,skillMin,chance,bonusRate,xp,injury])=>
  ({id,sector,label,description,cost,skill,skillMin,chance,bonusRate,xp,injury,limit:2}));
@@ -102,6 +102,15 @@ const operationPreparation={
  hunter_track:{gain:1},hunter_capture:{cost:1},hunter_elite:{cost:2},
  revolution_network:{gain:1},revolution_rescue:{cost:1},revolution_sabotage:{cost:2}
 };
+// Practical skills are the only qualifying attributes for a profession. No certificates or degrees.
+const careerSkills=[
+ {id:'Combat',label:'Combat'},{id:'Sabre',label:'Sabre'},{id:'Tir',label:'Tir'},
+ {id:'Navigation',label:'Navigation'},{id:'Médecine',label:'Médecine'},
+ {id:'Commandement',label:'Commandement'},{id:'Discrétion',label:'Discrétion'},
+ {id:'Science',label:'Sciences'},{id:'Artisanat',label:'Artisanat'},
+ {id:'Cuisine',label:'Cuisine'},{id:'Commerce',label:'Commerce'},
+ {id:'Survie',label:'Survie'},{id:'Arts',label:'Arts et spectacles'}
+];
 // V12: five genuinely distinct career dossiers, never mixed with civilian work.
 const specialRanks={
  Pirates:['Mousse','Membre','Combattant','Officier','Bras droit','Capitaine'],
@@ -139,5 +148,5 @@ const specialProgression={
  'Chasseurs de primes':{meritStep:15,successStep:1,trust:0,baseChance:.52,promotion:'Reconnaissance des contrats'},
  Révolutionnaires:{meritStep:19,successStep:1,trust:30,baseChance:.39,promotion:'Vote de la cellule'}
 };
-r.register('careerMarketDataV112',{version:'12.0.0',ordinary,special,specialOperations,ordinaryTasks,specialRanks,specialPaths,specialProgression,specialPreparation,operationPreparation,maxOrdinaryApplications:3,maxSpecialApplications:2});
+r.register('careerMarketDataV112',{version:'12.0.0',ordinary,special,specialOperations,ordinaryTasks,careerSkills,specialRanks,specialPaths,specialProgression,specialPreparation,operationPreparation,maxOrdinaryApplications:3,maxSpecialApplications:2});
 })(window);
