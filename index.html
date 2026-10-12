@@ -3182,7 +3182,8 @@ function v112Ensure(){
 }
 function v112Context(){
   const p=game.player,education=v79Ensure();
-  return {age:Math.floor(game.ageMonths/12),year:Math.floor(game.ageMonths/12),island:p.island,
+  return {age:Math.floor(game.ageMonths/12),year:Math.floor(game.ageMonths/12),island:p.island,region:p.region,
+    crewOptions:v112Engine()?.crewOffers({year:Math.floor(game.ageMonths/12),island:p.island,region:p.region},game.world?.emergentCrews)||[],
     career:p.career,rank:p.rank,faction:p.faction,energy:p.energy,money:p.money,bounty:p.bounty,
     skills:p.skills,stats:p.stats,schoolBonus:Math.min(20,Math.floor((Number(education?.knowledge)||0)/5)),
     alive:game.alive,pending:!!game.pendingDecision,annual:!!game.agency?.annualTurn?.active,travel:!!p.travel};
@@ -3191,8 +3192,10 @@ function v112Market(){
   const engine=v112Engine(),data=v112Data(),state=v112Ensure();if(!engine||!data||!state)return null;
   const ctx=v112Context(),active=state.current,known=active?engine.byId(active.id):null;
   const job=active?(known||{label:game.player.career,kind:active.kind}):null;
+  const selectedCrew=ctx.crewOptions.find(c=>c.id===state.crewChoice?.id)||null;
   const entries=(state.selected==='special'?data.special:engine.offers(state,ctx)).map(x=>({...x,status:engine.status(x,state,ctx)}));
   return {selected:state.selected,allOffers:state.allOffers,active:job,
+    crews:ctx.crewOptions,selectedCrew,
     interview:state.interview?{...state.interview,job:engine.byId(state.interview.id),
       questions:engine.interviewQuestions(state.interview.id)}:null,
     captainCrew:game.player.faction==='Pirates'&&game.player.rank==='Capitaine'?game.player.crew?.name:null,
@@ -3215,6 +3218,12 @@ function v112Do(action,id){
   if(!game||!game.alive||game.pendingDecision)return false;
   const engine=v112Engine(),state=v112Ensure(),ctx=v112Context();if(!engine||!state)return false;
   const oldFaction=game.player.faction,p=game.player;
+  if(action==='crew_select'){
+    const result=engine.chooseCrew(state,id,ctx);
+    if(!result.ok){toast(result.reason);return false}
+    game.meta.careerMarketV112=result.state;
+    saveGame();v95Ensure()?.renderHub();return true;
+  }
   if(action==='cancel'){
     game.meta.careerMarketV112=engine.cancelInterview(state,ctx.year);
     saveGame();v95Ensure()?.renderHub();return true;
@@ -3264,8 +3273,16 @@ function v112Do(action,id){
     p.activity='Travailler : '+p.career;p.activityType=job.kind==='ordinary'?'work':
       job.faction==='Pirates'?'crew':job.faction==='Marine'?'marine':
       job.faction==='Gouvernement'?'government':job.faction==='Révolutionnaires'?'covert':'patrol';
-    if(job.id==='pirate_join'){p.crew=null;createPirateCrewIfNeeded()}
-    else if(job.id==='pirate_found'){
+    if(job.id==='pirate_join'){
+      const joined=out.joinCrew;
+      p.crew={name:joined.name,morale:Math.max(45,Math.min(85,61+Math.round((joined.power-50)/9))),
+        members:[generateCrewMember('Combattant'),generateCrewMember('Navigateur'),generateCrewMember('Cuisinier')],
+        ship:{name:'Navire de '+joined.name,condition:75,tier:1},
+        captain:{name:joined.captain,power:joined.power},treasury:Math.max(500,Math.round(joined.power*90))};
+      v84Ensure();
+      addHistory('Nouvel équipage','Tu embarques avec '+joined.name+' sous les ordres de '+joined.captain+
+        '. Ta place devra se gagner par tes actions.','major');
+    }else if(job.id==='pirate_found'){
       p.crew={name:'Équipage de '+p.name,morale:67,members:[],
         ship:{name:'Sloop de '+p.name,condition:87,tier:1},
         captain:{name:p.name,power:Math.round(overallPower(p))},
