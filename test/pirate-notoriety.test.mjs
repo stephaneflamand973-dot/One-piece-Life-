@@ -153,7 +153,7 @@ test('migration 0.5.2 conservatrice : missions, Berrys, relations, talents',()=>
   domainData:{...game.domainData,career:oldCareer}};
  map.clear();map.set(V12_SAVE_KEY,JSON.stringify(original));
  const restored=createEngine({storage}).getState();
- assert.equal(restored.schemaVersion,14);
+ assert.equal(restored.schemaVersion,15);
  assert.deepEqual(restored.history,original.history);
  assert.deepEqual(restored.domainData.story,original.domainData.story);
  assert.deepEqual(restored.domainData.relationships,original.domainData.relationships);
