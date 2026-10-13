@@ -1,5 +1,6 @@
 
 import { SPECIALTIES } from './pirate-career.mjs';
+import { crewEffects } from './pirate-crew-life.mjs';
 export const MISSIONS=Object.freeze({
   escort:{label:'Escorter une cargaison',risk:'Faible',difficulty:24,reward:18000,skills:['navigation','endurance'],rank:0},
   explore:{label:'Explorer une île',risk:'Modéré',difficulty:36,reward:38000,skills:['navigation','vitesse'],rank:0},
@@ -49,7 +50,9 @@ export function missionAvailability(career,a,rel,life,id){
  const crewBonus=own?(own.members.length*1.5+
    own.members.reduce((total,item)=>total+item.skill,0)/Math.max(1,own.members.length)*.08+
    (own.hull-60)*.13):0;
+ const roleImpact=crewEffects(own,id);
  const chance=cap(74-data.difficulty*.66+aptitude*.38+p.performance*.14+crewBonus+
+   roleImpact.chance+
    (lead-50)*.09+((ally?.bond??25)-50)*.06+
    (rel.world.loyalty-50)*.05-a.fatigue*.22-(a.injury.level===1?10:0));
  return {enabled:true,chance:Math.max(8,Math.min(92,chance))};
@@ -64,8 +67,10 @@ export function performMission(career,a,rel,life,id,random=Math.random){
  const outcome=roll<available.chance/100?'success':
    roll<Math.min(.98,(available.chance+22)/100)?'partial':'failure';
  const reward=outcome==='success'?data.reward:outcome==='partial'?Math.round(data.reward*.35):0;
- const risk=outcome==='failure'?(data.difficulty>=60?.30:.14):
+ const baseRisk=outcome==='failure'?(data.difficulty>=60?.30:.14):
    outcome==='partial'?(data.difficulty>=60?.09:.035):.008;
+ const roleImpact=crewEffects(career.command,id);
+ const risk=baseRisk*roleImpact.injuryMultiplier;
  const injured=secondary>1-risk?(data.difficulty>=60&&secondary>1-risk*.25?2:1):0;
  const level=Math.max(a.injury.level,injured);
  const injury=injured?{level,recoverAtAge:Math.max(a.injury.recoverAtAge??0,life.age+level)}:a.injury;
@@ -81,13 +86,18 @@ export function performMission(career,a,rel,life,id,random=Math.random){
    failed:old.failed+(outcome==='failure'?1:0),
    log:[...old.log,entry].slice(-20)};
  const command=career.command?{...career.command,
-   hull:cap(career.command.hull-(outcome==='failure'?13:
-     outcome==='partial'?7:3)),
+   hull:cap(career.command.hull-Math.max(1,(outcome==='failure'?13:
+     outcome==='partial'?7:3)-roleImpact.hullReduction)),
    morale:cap(career.command.morale+(outcome==='success'?5:
-     outcome==='partial'?1:-8)),
+     outcome==='partial'?1:-8)+roleImpact.heal),
+   cohesion:cap(career.command.cohesion+(outcome==='success'?3:
+     outcome==='failure'?-6:-1)),
    members:career.command.members.map(member=>({...member,
      loyalty:cap(member.loyalty+(outcome==='success'?2:
-       outcome==='failure'?-3:0))}))}:null;
+       outcome==='failure'?-3:0)),
+     bond:cap(member.bond+(outcome==='success'?2:
+       outcome==='failure'?-3:0)),
+     rivalry:cap(member.rivalry+(outcome==='failure'?3:-1))}))}:null;
  const updatedCareer={...career,missions,command,pirate:{...career.pirate,
    performance:cap(career.pirate.performance+performanceDelta)}};
  const world=rel.world;
