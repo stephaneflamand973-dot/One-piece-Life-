@@ -453,3 +453,15 @@ export function explorePirateIsland(state,random=Math.random){
   state.domainData.abilities,random);
  return career?careerChangeState(state,career):null;
 }
+
+/** Une rencontre demande un choix explicite, sans consommer une année. */
+export function answerNavalEncounter(state,choice,random=Math.random){
+ if(!isValidState(state)||!state.activeLife?.alive||
+  state.domainData.story.pending||state.domainData.relationships.pending||
+  state.domainData.career.command?.pending)return null;
+ const result=resolveEncounter(state.domainData.career,state.activeLife,
+  state.domainData.abilities,choice,random);
+ if(!result)return null;
+ const changed=careerChangeState(state,result.career);
+ return {...changed,domainData:{...changed.domainData,abilities:result.abilities}};
+}
