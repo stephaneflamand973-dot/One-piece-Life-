@@ -1,31 +1,36 @@
-# One Piece Life V0.4.2 · Les proches prennent l'initiative
+# One Piece Life V0.4.3 · Famille évolutive et groupes sociaux
 
-## Fonctionnalités
-- Des parents ou amis peuvent **spontanément** solliciter le joueur pendant la progression annuelle.
-- Quatre types : demander de l'aide, proposer une sortie, se confier, déclencher un conflit.
-- Probabilités de déclenchement liées à la sociabilité et aux affinités ; le type de demande est influencé par les traits et la rivalité.
-- Deux réponses possibles, avec conséquences distinctes sur l'affinité, la confiance, le respect et la rivalité.
-- Les demandes en attente sont persistantes et restent identiques après rechargement ; la progression par + Âge attend la décision.
-- Aucun nouveau sous-menu : la demande apparaît au sommet du fil Vie, dans la carte de décision.
-- Pas de superposition avec les décisions principales aux âges 6, 12, 16, 18, 25, 35, 50 et 70 ans.
-- Les actions de l'onglet Relations sont temporairement bloquées jusqu'à résolution.
-- **Une pression sur + Âge = un an et une entrée de journal**, même en cas de décision d'un PNJ.
-- Apparitions modérées à certaines étapes (9, 14, 23, 31, 42, 58 et 74 ans) et non systématiques, afin de ne pas saturer le joueur.
+La structure mobile reste inspirée de BitLife : un seul onglet Relations, une fiche par proche, et un fil Vie inversé limité à huit entrées.
+
+## Famille
+- La famille peut accueillir de nouveaux frères ou sœurs pendant l'enfance (4, 8 et 12 ans, sous conditions d'âge parental et de probabilité).
+- Maximum **trois frères et sœurs**, incluant ceux déjà présents à la naissance.
+- Les nouveaux membres ont leur propre âge, personnalité, confiance et affinité.
+- Les nourrissons ne peuvent pas être sollicités tant qu'ils n'ont pas trois ans.
+- L'arrivée dans la famille apparaît dans le fil annuel et le registre d'interactions, sans créer d'année supplémentaire.
+- Les proches vieillissent et peuvent décéder comme auparavant.
+
+## Amitiés et groupes
+- À partir de deux amis, un **Cercle du port** est formé automatiquement.
+- Le groupe possède une liste de membres persistante, une cohésion sur 100 et une activité collective « Organiser une sortie » dès huit ans.
+- Une sortie coûte **une des trois actions sociales annuelles**, et peut améliorer ou dégrader les liens du groupe selon une probabilité dynamique.
+- La cohésion s'érode légèrement avec le temps en l'absence de sortie.
+- Une amitié atteignant 80 d'affinité et 65 de confiance donne un souvenir persistant « Amitié marquante ».
+- Le groupe reste dans l'onglet Relations existant. Aucun nouvel onglet ni faux équipement.
 
 ## Compatibilité
-Sauvegarde V0.4.2 sous `opl:foundation:life-v042`. Migration automatique depuis V0.4.1, V0.4, V0.3 ou V0.2 sans effacer les versions antérieures. Le redémarrage sauvegarde une nouvelle vie vide pour éviter toute réapparition de parties plus anciennes.
+- `SCHEMA_VERSION=7`, sauvegarde `opl:foundation:life-v043`.
+- Migration depuis V0.4.2, V0.4.1, V0.4, V0.3 et V0.2 sans effacer les données originales.
+- Les PNJ, leurs affinités, âges, personnalités, interactions, décisions et histoires existantes sont conservés.
+- Le bouton Nouvelle vie n'importe pas une ancienne partie après réinitialisation.
 
-## Structure
-- `foundation/src/core/initiatives.mjs` : moteur pur d'initiatives, choix et conséquences.
-- `foundation/src/core/relationships.mjs` : profil relationnel, carnet d'initiatives et validation.
-- `foundation/src/core/state.mjs` : transitions d'âge et blocage d'un seul choix en attente.
-- `foundation/src/ui/life-view.mjs` : carte d'initiative non dupliquée dans le fil.
-- `test/initiatives.test.mjs` : âge, sauvegarde, conséquences, migrations, anti-duplication.
-- `test/browser/mobile.mjs` : navigation, décisions PNJ et persistance Chromium mobile + WebKit.
+## Architecture
+- `foundation/src/core/social-evolution.mjs` : naissances, groupes, sorties et amitiés marquantes.
+- `foundation/src/core/relationships.mjs` : validation des contacts et continuité annuelle.
+- `foundation/src/core/state.mjs` : une action sociale ne fait jamais avancer le temps, un clic + Âge = une année.
+- `foundation/src/ui/relations-view.mjs` : fiche et groupe dans la même rubrique.
+- `test/social-evolution.test.mjs` : probabilités, décès, liens, groupes, limites, migration et persistance.
+- `test/browser/mobile.mjs` : quatre parcours mobiles Chromium et WebKit avec création de cercle, activité et rechargement.
 
-## Vérifier
-```sh
-npm test
-python3 -m http.server 8000
-```
-Ouvrir `http://localhost:8000/foundation/`.
+## Après V0.4.3
+La romance, les conjoints, le mariage et les enfants du joueur sont volontairement réservés à V0.4.4.

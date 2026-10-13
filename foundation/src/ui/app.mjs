@@ -159,6 +159,14 @@ root.addEventListener('click', event => {
     render();
     return;
   }
+  if (button.hasAttribute('data-gather')) {
+    if(route.section!=='relationships')return;
+    if(!engine.gather()){
+      notice='Impossible d’organiser cette sortie.';
+    } else notice='';
+    render();
+    return;
+  }
   if (button.hasAttribute('data-meet')) {
     if(route.section!=='relationships')return;
     if(!engine.meet()){

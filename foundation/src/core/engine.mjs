@@ -1,4 +1,4 @@
-import { createEmptyState, beginLife, advanceOneYear, resolveDecision, socialize, makeFriend, answerInitiative } from './state.mjs';
+import { createEmptyState, beginLife, advanceOneYear, resolveDecision, socialize, makeFriend, answerInitiative, socializeGroup } from './state.mjs';
 import { loadState, saveState, eraseState } from './storage.mjs';
 import { createModuleRegistry } from './modules.mjs';
 
@@ -23,6 +23,7 @@ export function createEngine({ storage, random = Math.random } = {}) {
     answerNpc(optionId) { return commit(answerInitiative(state,optionId)); },
     interact(personId,action) { return commit(socialize(state,personId,action,random)); },
     meet() { return commit(makeFriend(state,random)); },
+    gather() { return commit(socializeGroup(state,random)); },
     restart() {
       if (!eraseState(storage)) return false;
       state = createEmptyState();

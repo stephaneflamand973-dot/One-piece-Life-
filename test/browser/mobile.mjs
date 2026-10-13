@@ -121,6 +121,32 @@ async function journey(browser,label,contextOptions){
         }
         await page.locator('button[data-npc-choice]').first().click();
       }
+      if(age===7){
+        // Un deuxième ami forme un véritable cercle social.
+        await page.locator('button[data-nav=relationships]').click();
+        await page.locator('.relation-card[data-person=mother]').waitFor();
+        await page.locator('button[data-meet]').click();
+        assert.equal(await page.locator('.relation-card[data-person=friend-2]').count(),1);
+        assert.equal(await page.locator('.social-circle').count(),1);
+        await checkGeometry(page,label,'social-circle');
+        await page.locator('.bottom-nav button[data-nav=life]').click();
+        await page.locator('[data-age]').waitFor();
+      }
+      if(age===8){
+        await page.locator('button[data-nav=relationships]').click();
+        const beforeCohesion=Number(await page.locator('.social-circle [aria-label="Cohésion du groupe"]')
+          .getAttribute('aria-valuenow'));
+        await page.locator('button[data-gather]').click();
+        const afterCohesion=Number(await page.locator('.social-circle [aria-label="Cohésion du groupe"]')
+          .getAttribute('aria-valuenow'));
+        assert.notEqual(beforeCohesion,afterCohesion);
+        await page.screenshot({path:picture(label,'social-group')});
+        await page.reload({waitUntil:'networkidle'});
+        assert.equal(Number(await page.locator('.social-circle [aria-label="Cohésion du groupe"]')
+          .getAttribute('aria-valuenow')),afterCohesion);
+        await page.locator('.bottom-nav button[data-nav=life]').click();
+        await page.locator('[data-age]').waitFor();
+      }
     }
     assert.equal(await page.locator('.story-latest').getAttribute('data-history-age'),'20');
     assert.equal(await page.locator('.story-event').count(),8);
