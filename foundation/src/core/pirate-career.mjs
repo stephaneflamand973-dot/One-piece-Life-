@@ -59,7 +59,7 @@ export function isValidCareer(career,life,relationships,abilities){
     !Number.isInteger(p.rank)||p.rank<0||p.rank>=RANKS.length||
     !Number.isInteger(p.askedAtAge)||p.askedAtAge< -1||
     p.askedAtAge>life.age||
-    !Number.isInteger(p.workUsed)||p.workUsed<0||p.workUsed>1||
+    !Number.isSafeInteger(p.workUsed)||p.workUsed<0||
     !relationships||relationships.world.faction!=='pirate'||
     (p.crewId!=='own'&&(relationships.world.unit??CREWS.alizes.label)!==CREWS[p.crewId].label)||
     (p.crewId==='own'&&relationships.world.unit!==career.command?.name)||
@@ -73,8 +73,6 @@ export function hiringAvailability(career,relations,abilities,life,crewId,specia
   if(!life?.alive||life.age<16||life.age>65)
     return {enabled:false,reason:'Recrutement disponible entre 16 et 65 ans.'};
   if(career.pirate)return {enabled:false,reason:'Vous appartenez déjà à un équipage.'};
-  if(career.appliedAtAge===life.age)
-    return {enabled:false,reason:'Vous avez déjà postulé cette année.'};
   if(!Object.hasOwn(CREWS,crewId)||crewId==='own'||!Object.hasOwn(SPECIALTIES,specialty))
     return {enabled:false,reason:'Poste ou équipage inconnu.'};
   if(!['independent','pirate'].includes(relations.world.faction))
@@ -119,8 +117,8 @@ export function applyForCrew(career,relations,abilities,life,crewId,specialty,ra
 }
 export function workHard(career,life,abilities){
   const pirate=career.pirate;
-  if(!life?.alive||!pirate||pirate.workUsed>=1||abilities.injury.level===2||abilities.fatigue>=90)return null;
-  const updated={...pirate,workUsed:1,
+  if(!life?.alive||!pirate||abilities.injury.level===2||abilities.fatigue>=90)return null;
+  const updated={...pirate,workUsed:pirate.workUsed+1,
     performance:cap(pirate.performance+5)};
   return stamp({...career,pirate:updated},life.age,'work',
     'Vous redoublez d’efforts au sein de votre équipage.');
@@ -129,8 +127,6 @@ export function promotionAvailability(career,relations,abilities,life){
   const p=career.pirate;
   if(!life?.alive||!p||p.rank>=RANKS.length-2)
     return {enabled:false,reason:'Aucun grade supérieur disponible.'};
-  if(p.askedAtAge===life.age)
-    return {enabled:false,reason:'Demande déjà effectuée cette année.'};
   const leader=relations.people.find(person=>person.id==='world-leader'&&!person.deceased);
   if(!leader)return {enabled:false,reason:'Votre capitaine n’est plus disponible.'};
   const tenureMin=p.rank===0?2:4;

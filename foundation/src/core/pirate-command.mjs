@@ -1,11 +1,11 @@
-/** V0.5.4 : commandement personnel, recrutement et décisions annuelles. */
+/** V0.5.5 : commandement libre, sans quotas annuels d'ordres ni de candidatures. */
 export const SHIP_COST=50000;
 export const RECRUIT_COST=5000;
 export const REPAIR_COST=8000;
 export const SHARE_COST=5000;
 export const MAX_CREW_MEMBERS=4;
 export const ORDERS=Object.freeze({
- train:{label:'Entraîner les membres',description:'Améliorer cohésion et performances'},
+ train:{label:'Entraîner les membres',description:'Améliore les talents, au prix d’un effort collectif'},
  repair:{label:'Réparer le navire',description:'Consommer des Berrys pour restaurer la coque'},
  share:{label:'Partager le butin',description:'Renforcer la loyauté de l’équipage'}
 });
@@ -87,8 +87,6 @@ export function recruitingAvailability(career,life){
  if(!life?.alive||!command)return {enabled:false,reason:'Réservé aux capitaines.'};
  if(command.members.length>=MAX_CREW_MEMBERS)
   return {enabled:false,reason:'Équipage complet (4 membres).'};
- if(command.recruitedAtAge===life.age)
-  return {enabled:false,reason:'Une tentative de recrutement par an.'};
  if(career.missions.berys<RECRUIT_COST)
   return {enabled:false,reason:'Recrutement : '+RECRUIT_COST+' Berrys nécessaires.'};
  return {enabled:true,reason:''};
@@ -123,7 +121,6 @@ export function orderAvailability(career,life,order){
  const cmd=career.command;
  if(!life?.alive||!cmd||!Object.hasOwn(ORDERS,order))
   return {enabled:false,reason:'Réservé aux capitaines.'};
- if(cmd.orderAtAge===life.age)return {enabled:false,reason:'Ordre déjà donné cette année.'};
  if(order==='repair'&&cmd.hull===100)return {enabled:false,reason:'Navire déjà en parfait état.'};
  if(order==='repair'&&career.missions.berys<REPAIR_COST)
   return {enabled:false,reason:'Réparations : '+REPAIR_COST+' Berrys nécessaires.'};
@@ -138,9 +135,13 @@ export function giveOrder(career,life,order){
  const cmd=career.command;
  let morale=cmd.morale,hull=cmd.hull,members=cmd.members,berys=career.missions.berys,text;
  if(order==='train'){
-  morale=cap(morale+4);
-  members=members.map(m=>({...m,skill:cap(m.skill+4),loyalty:cap(m.loyalty+1)}));
-  text='Vous entraînez votre équipage et améliorez sa cohésion.';
+  // Pas de plafond de séances : la fatigue morale et la maîtrise ralentissent les gains.
+  const effort=morale>=60?4:morale>=30?2:1;
+  members=members.map(m=>({...m,
+   skill:cap(m.skill+Math.min(effort,Math.max(1,Math.ceil((100-m.skill)/25)))),
+   loyalty:cap(m.loyalty+(morale>=25?1:-1))}));
+  morale=cap(morale-3);
+  text='Vous entraînez votre équipage. Le moral baisse légèrement après ces efforts.';
  }else if(order==='repair'){
   berys-=REPAIR_COST;hull=cap(hull+24);morale=cap(morale+3);
   text='Votre équipage répare le navire.';

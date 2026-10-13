@@ -76,7 +76,7 @@ test('recruter crée un PNJ persistant avec spécialité, talent et loyauté',()
  assert.ok(isValidState(engine.getState()));
  assert.deepEqual(createEngine({storage}).getState(),engine.getState());
 });
-test('un recrutement peut être refusé et consomme la tentative annuelle',()=>{
+test('un refus de recrutement permet de recommencer la même année',()=>{
  const {engine}=pirateWithMoney();
  engine.foundCrew();
  const old=engine.getState();
@@ -86,7 +86,7 @@ test('un recrutement peut être refusé et consomme la tentative annuelle',()=>{
  assert.equal(refused.career.command.members.length,0);
  assert.equal(refused.career.missions.berys,old.domainData.career.missions.berys);
  assert.equal(refused.career.command.recruitedAtAge,16);
- assert.equal(recruitingAvailability(refused.career,old.activeLife).enabled,false);
+ assert.equal(recruitingAvailability(refused.career,old.activeLife).enabled,true);
 });
 test('les ordres améliorent les membres, le navire ou la loyauté avec coûts réels',()=>{
  const {engine}=pirateWithMoney();
@@ -96,18 +96,45 @@ test('les ordres améliorent les membres, le navire ou la loyauté avec coûts r
  assert.ok(engine.commandCrew('train'));
  const trained=engine.getState().domainData.career;
  assert.ok(trained.command.members[0].skill>before.command.members[0].skill);
- assert.ok(trained.command.morale>before.command.morale);
- assert.equal(engine.commandCrew('repair'),false);
+ assert.ok(trained.command.morale<before.command.morale,'L’entraînement a un coût en moral');
+ assert.equal(engine.commandCrew('repair'),false,'Manque de Berrys, pas quota annuel');
  assert.equal(orderAvailability(trained,engine.getState().activeLife,'share').enabled,false);
  const mock={...trained,missions:{...trained.missions,berys:30000},
-   command:{...trained.command,orderAtAge:-1,hull:30}};
+   command:{...trained.command,hull:30}};
  const life=engine.getState().activeLife;
  const repaired=giveOrder(mock,life,'repair');
  assert.equal(repaired.missions.berys,22000);
  assert.equal(repaired.command.hull,54);
- const shared=giveOrder({...mock,command:{...mock.command,orderAtAge:-1}},life,'share');
- assert.equal(shared.missions.berys,25000);
+ const shared=giveOrder(repaired,life,'share');
+ assert.equal(shared.missions.berys,17000);
  assert.ok(shared.command.members[0].loyalty>mock.command.members[0].loyalty);
+ assert.equal(shared.command.orderAtAge,life.age);
+ assert.equal(orderAvailability(shared,life,'train').enabled,true);
+ const secondTraining=giveOrder(shared,life,'train');
+ assert.ok(secondTraining.command.members[0].skill>shared.command.members[0].skill);
+});
+test('un capitaine effectue les trois ordres dans la même année sans vieillir',()=>{
+ const {engine,storage,map}=pirateWithMoney();
+ engine.foundCrew();engine.recruitCrew('navigateur');
+ const saved=engine.getState();
+ const funded={...saved,domainData:{...saved.domainData,
+   career:{...saved.domainData.career,
+     missions:{...saved.domainData.career.missions,berys:50000}}}};
+ assert.ok(isValidState(funded));
+ map.set(SAVE_KEY,JSON.stringify(funded));
+ const captain=createEngine({storage});
+ const age=captain.getState().activeLife.age;
+ assert.ok(captain.commandCrew('train'));
+ assert.ok(captain.commandCrew('repair'));
+ assert.ok(captain.commandCrew('share'));
+ assert.ok(captain.commandCrew('train'));
+ const after=captain.getState();
+ assert.equal(after.activeLife.age,age);
+ assert.equal(after.history.length,age+1);
+ assert.equal(after.domainData.career.missions.berys,50000-8000-5000);
+ assert.equal(after.domainData.career.command.orderAtAge,age);
+ assert.ok(isValidState(after));
+ assert.deepEqual(createEngine({storage}).getState(),after);
 });
 test('les missions du capitaine dépendent du navire et des compagnons',()=>{
  const {engine}=pirateWithMoney();

@@ -76,7 +76,8 @@ test('postuler à 16 ans avec compétences réelles, embauche non automatique',(
   assert.ok(engine.applyPirate('alizes','combattant'),'candidature enregistrée');
   assert.equal(engine.getState().domainData.career.pirate,null);
   assert.match(engine.getState().domainData.career.lastNotice,/refusée/);
-  assert.equal(engine.applyPirate('alizes','combattant'),false);
+  assert.ok(engine.applyPirate('alizes','combattant'),'nouvelle tentative dans la même année');
+  assert.equal(engine.getState().domainData.career.pirate,null);
   aging(engine,17);
   assert.equal(engine.getState().domainData.career.appliedAtAge,16);
 });
@@ -107,7 +108,8 @@ test('travailler davantage améliore la performance et la confiance du capitaine
   assert.ok(after.domainData.career.pirate.performance>before.domainData.career.pirate.performance);
   assert.equal(after.domainData.relationships.people.find(p=>p.id==='world-leader').trust,
     Math.min(100,captain.trust+2));
-  assert.equal(engine.workPirate(),false);
+  assert.ok(engine.workPirate(),'plusieurs efforts possibles la même année');
+  assert.equal(engine.getState().domainData.career.pirate.workUsed,2);
   assert.equal(after.history.length,17);
   assert.ok(isValidState(after));
   aging(engine,17);

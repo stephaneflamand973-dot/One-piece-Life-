@@ -1,7 +1,7 @@
 import { escapeHtml } from './life-view.mjs';
 import { CREWS, SPECIALTIES, RANKS, promotionAvailability } from '../core/pirate-career.mjs';
 import { SKILLS, MAX_TRAININGS } from '../core/abilities.mjs';
-import { MISSIONS, MAX_MISSIONS, missionAvailability } from '../core/pirate-missions.mjs';
+import { MISSIONS, missionAvailability } from '../core/pirate-missions.mjs';
 import { wantedLevel, pursuitChance, hideAvailability } from '../core/pirate-notoriety.mjs';
 import { SHIP_COST, RECRUIT_COST, MAX_CREW_MEMBERS, RECRUIT_SPECIALTIES, ORDERS,
   foundAvailability, recruitingAvailability, orderAvailability } from '../core/pirate-command.mjs';
@@ -37,7 +37,7 @@ export function renderCareer(state){
       ${latest?`<p class="career-notice" role="status">${escapeHtml(latest.text)}</p>`:''}
       <div class="career-panel">
         <h2>Offres de recrutement</h2>
-        <p class="career-muted">Un équipage peut refuser votre candidature. Une seule demande par année.</p>
+        <p class="career-muted">Un équipage peut refuser votre candidature. Les demandes ne sont pas limitées par année.</p>
         <form data-career-apply class="career-form">
           <label for="crew-offer">Équipage</label>
           <select id="crew-offer" name="crew" ${!canApply?'disabled':''}>
@@ -49,7 +49,7 @@ export function renderCareer(state){
               ${escapeHtml(item.label)} · ${escapeHtml(SKILLS[item.skill].label)} ${item.min?item.min+' min.':''}
             </option>`).join('')}
           </select>
-          <button type="submit" class="career-primary" ${!canApply||career.appliedAtAge===life.age?'disabled':''}>Postuler</button>
+          <button type="submit" class="career-primary" ${!canApply?'disabled':''}>Postuler</button>
         </form>
         ${life.age<16?'<p class="career-hint">Le recrutement commence à 16 ans.</p>':''}
         ${life.age>65?'<p class="career-hint">Le recrutement n’est plus proposé après 65 ans.</p>':''}
@@ -94,7 +94,7 @@ export function renderCareer(state){
         ${bar(abilities.skills[role.skill],SKILLS[role.skill].label)}</div>
     </div>
     <div class="career-buttons">
-      <button type="button" data-work-pirate ${blocked||pirate.workUsed>=1||
+      <button type="button" data-work-pirate ${blocked||
         abilities.injury.level===2||abilities.fatigue>=90?'disabled':''}>
         Travailler davantage <span>+ performance</span>
       </button>
@@ -137,6 +137,7 @@ export function renderCareer(state){
           </button>
         </form>
         <h3>Décisions du capitaine</h3>
+        <p class="career-hint">Entraîner, réparer et partager le butin autant de fois que souhaité, même pendant la même année. Les coûts restent réels.</p>
         <div class="captain-order-actions">
           ${Object.entries(ORDERS).map(([id,order])=>{
             const access=orderAvailability(career,life,id);
@@ -175,12 +176,12 @@ export function renderCareer(state){
       <button type="button" class="career-secondary wanted-hide" data-hide-pirate
         ${blocked||!hiding.enabled?'disabled':''} title="${escapeHtml(hiding.reason)}">
         Se faire discret
-        <span>${wanted.hideAtAge===life.age?'Déjà tenté cette année':'Réduire la pression (-22) · Performance -2'}</span>
+        <span>Réduire la pression (-22) · Performance -2</span>
       </button>
     </section>
     <section class="career-panel pirate-mission-panel" aria-label="Missions pirates">
       <div class="career-mission-top">
-        <h2>Missions pirates</h2><span>${missions.used}/${MAX_MISSIONS} cette année</span>
+        <h2>Missions pirates</h2><span>${missions.used} cette année</span>
       </div>
       <div class="career-mission-wallet">
         <div><small>Butin personnel cumulé</small><strong>${missions.berys.toLocaleString('fr-FR')} Berrys</strong></div>

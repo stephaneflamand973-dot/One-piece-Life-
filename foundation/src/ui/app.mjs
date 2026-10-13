@@ -204,13 +204,13 @@ root.addEventListener('click', event => {
   }
   if(button.hasAttribute('data-hide-pirate')){
     if(route.section!=='career')return;
-    notice=engine.hidePirate()?'':'Discrétion indisponible pour cette année.';
+    notice=engine.hidePirate()?'':'Discrétion impossible : pression ou prime insuffisante.';
     render();return;
   }
   if(button.hasAttribute('data-pirate-mission')){
     if(route.section!=='career')return;
     notice=engine.mission(button.dataset.pirateMission)?'':
-      'Mission indisponible : vérifiez le rang, la fatigue et les limites annuelles.';
+      'Mission indisponible : vérifiez le rang, les blessures et la fatigue.';
     render();return;
   }
   if(button.hasAttribute('data-ask-promotion')){
@@ -220,7 +220,7 @@ root.addEventListener('click', event => {
   }
   if(button.hasAttribute('data-work-pirate')){
     if(route.section!=='career')return;
-    notice=engine.workPirate()?'':'Vous avez déjà travaillé davantage cette année.';
+    notice=engine.workPirate()?'':'Impossible de travailler : vérifiez votre état ou la décision en cours.';
     render();return;
   }
   if (button.hasAttribute('data-person')) {
