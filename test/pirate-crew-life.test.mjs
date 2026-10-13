@@ -134,7 +134,7 @@ test('migration 14 -> 15 conserve identité, richesse, spécialités, historique
  assert.equal(map.get(V14_SAVE_KEY),JSON.stringify(previous));
  assert.ok(map.has(SAVE_KEY));
  assert.deepEqual(upgradeCommand(legacyCmd),
-  (({ship,...old})=>old)(restored.domainData.career.command));
+  (({ship,navigation,...old})=>old)(restored.domainData.career.command));
 });
 test('chargement impossible si rôle, cohésion ou événement de bord sont corrompus',()=>{
  const {engine,storage}=captain();
