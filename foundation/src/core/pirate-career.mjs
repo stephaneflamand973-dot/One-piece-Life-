@@ -5,9 +5,11 @@
 import { joinFaction } from './world-relations.mjs';
 import { emptyMissions, validMissions, ageMissions } from './pirate-missions.mjs';
 import { emptyWanted, validWanted } from './pirate-notoriety.mjs';
+import { validCommand, ageCommand } from './pirate-command.mjs';
 export const CREWS=Object.freeze({
   alizes:{label:'Équipage des Alizés',baseChance:82},
-  aurore:{label:"Équipage de l'Aurore",baseChance:67}
+  aurore:{label:"Équipage de l'Aurore",baseChance:67},
+  own:{label:'Votre équipage',baseChance:0}
 });
 export const SPECIALTIES=Object.freeze({
   combattant:{label:'Combattant',skill:'technique',min:0},
@@ -18,7 +20,7 @@ export const SPECIALTIES=Object.freeze({
   cuisinier:{label:'Cuisinier',skill:'cuisine',min:18},
   charpentier:{label:'Charpentier',skill:'charpenterie',min:18}
 });
-export const RANKS=Object.freeze(['Recrue','Membre confirmé','Officier']);
+export const RANKS=Object.freeze(['Recrue','Membre confirmé','Officier','Capitaine']);
 const cap=value=>Math.min(100,Math.max(0,Math.round(value)));
 const stamp=(career,age,type,text)=>{
   const all=[...career.notices,{age,type,text}];
@@ -27,7 +29,7 @@ const stamp=(career,age,type,text)=>{
   return {...career,notices,lastNotice:text};
 };
 export function emptyCareer(){
-  return {pirate:null,appliedAtAge:-1,notices:[],lastNotice:'',missions:emptyMissions(),wanted:emptyWanted()};
+  return {pirate:null,appliedAtAge:-1,notices:[],lastNotice:'',missions:emptyMissions(),wanted:emptyWanted(),command:null};
 }
 export function isValidCareer(career,life,relationships,abilities){
   if(!career||typeof career!=='object'||Array.isArray(career)||
@@ -36,11 +38,12 @@ export function isValidCareer(career,life,relationships,abilities){
     !Array.isArray(career.notices)||career.notices.length>25||
     typeof career.lastNotice!=='string'||career.lastNotice.length>180||
     !validMissions(career.missions,life?.age??null,career)||
-    !validWanted(career.wanted,life,career))
+    !validWanted(career.wanted,life,career)||
+    !validCommand(career.command,life,career))
     return false;
   for(const item of career.notices){
     if(!item||!Number.isInteger(item.age)||item.age<16||item.age>(life?.age??0)||
-      !['application','hire','work','promotion','rejection','sanction'].includes(item.type)||
+      !['application','hire','work','promotion','rejection','sanction','found','leave','recruit','order'].includes(item.type)||
       typeof item.text!=='string'||!item.text.trim()||item.text.length>180)
       return false;
   }
@@ -58,9 +61,11 @@ export function isValidCareer(career,life,relationships,abilities){
     p.askedAtAge>life.age||
     !Number.isInteger(p.workUsed)||p.workUsed<0||p.workUsed>1||
     !relationships||relationships.world.faction!=='pirate'||
-    (relationships.world.unit??CREWS.alizes.label)!==CREWS[p.crewId].label||
+    (p.crewId!=='own'&&(relationships.world.unit??CREWS.alizes.label)!==CREWS[p.crewId].label)||
+    (p.crewId==='own'&&relationships.world.unit!==career.command?.name)||
     !abilities||abilities.skills[SPECIALTIES[p.specialty].skill]<0)return false;
-  if((p.rank===1&&p.tenure<2)||(p.rank===2&&p.tenure<4))return false;
+  if((p.rank===1&&p.tenure<2)||(p.rank===2&&p.tenure<4)||
+    (p.rank===3&&p.crewId!=='own')||(p.crewId==='own'&&p.rank!==3))return false;
   // Un très ancien recrutement peut avoir quitté le journal tronqué des V0.5.0.
   return true;
 }
@@ -70,13 +75,13 @@ export function hiringAvailability(career,relations,abilities,life,crewId,specia
   if(career.pirate)return {enabled:false,reason:'Vous appartenez déjà à un équipage.'};
   if(career.appliedAtAge===life.age)
     return {enabled:false,reason:'Vous avez déjà postulé cette année.'};
-  if(!Object.hasOwn(CREWS,crewId)||!Object.hasOwn(SPECIALTIES,specialty))
+  if(!Object.hasOwn(CREWS,crewId)||crewId==='own'||!Object.hasOwn(SPECIALTIES,specialty))
     return {enabled:false,reason:'Poste ou équipage inconnu.'};
   if(!['independent','pirate'].includes(relations.world.faction))
     return {enabled:false,reason:'Vous êtes engagé dans une autre faction.'};
-  if(relations.world.faction==='pirate'&&
-    (relations.world.unit??CREWS.alizes.label)!==CREWS[crewId].label)
-    return {enabled:false,reason:'Votre affiliation actuelle correspond à un autre équipage.'};
+  // Une ancienne affiliation pirate ne bloque pas la mobilité professionnelle.
+  // Les contacts de l'ancien équipage restent dans Relations.
+  
   if(relations.world.faction==='independent'&&relations.actionsUsed>=3)
     return {enabled:false,reason:'Plus d’actions sociales cette année.'};
   if(abilities.skills[SPECIALTIES[specialty].skill]<SPECIALTIES[specialty].min)
@@ -108,6 +113,7 @@ export function applyForCrew(career,relations,abilities,life,crewId,specialty,ra
     rank:0,performance:starting,workUsed:0,askedAtAge:-1};
   const text='Vous rejoignez '+CREWS[crewId].label+
     ' comme '+SPECIALTIES[specialty].label+'.';
+  nextRel={...nextRel,world:{...nextRel.world,unit:CREWS[crewId].label}};
   return {career:stamp({...career,pirate,appliedAtAge:age},age,'hire',text),
     relationships:nextRel,accepted:true};
 }
@@ -121,7 +127,7 @@ export function workHard(career,life,abilities){
 }
 export function promotionAvailability(career,relations,abilities,life){
   const p=career.pirate;
-  if(!life?.alive||!p||p.rank>=RANKS.length-1)
+  if(!life?.alive||!p||p.rank>=RANKS.length-2)
     return {enabled:false,reason:'Aucun grade supérieur disponible.'};
   if(p.askedAtAge===life.age)
     return {enabled:false,reason:'Demande déjà effectuée cette année.'};
@@ -159,7 +165,7 @@ export function requestPromotion(career,relations,abilities,life,random=Math.ran
 }
 export function ageCareer(career,abilities,life,relations=null,random=null){
   const p=career.pirate;
-  if(!p)return {career,note:''};
+  if(!p)return {career:ageMissions(career),note:''};
   const skill=abilities.skills[SPECIALTIES[p.specialty].skill];
   const fatiguePenalty=abilities.fatigue>=70?3:abilities.fatigue>=40?1:0;
   const injuryPenalty=abilities.injury.level===2?7:
@@ -170,7 +176,7 @@ export function ageCareer(career,abilities,life,relations=null,random=null){
   let next={...p,tenure,workUsed:0,performance};
   let result={...career,pirate:next},note='';
   // Possibilité de sanction pour performances faibles et loyauté dégradée.
-  if(relations && random && performance<=28 && tenure>=2){
+  if(!career.command && relations && random && performance<=28 && tenure>=2){
     if(random()<Math.min(.65,(35-performance)/70+
       (relations.world.loyalty<30?.15:0))){
       next={...next,performance:cap(performance-4)};
@@ -181,7 +187,7 @@ export function ageCareer(career,abilities,life,relations=null,random=null){
   // Promotion annuelle possible, jamais garantie; la demande manuelle reste distincte.
   if(relations && !note && random){
     const leader=relations.people.find(person=>person.id==='world-leader'&&!person.deceased);
-    const eligible=next.rank<RANKS.length-1 &&
+    const eligible=next.rank<RANKS.length-2 &&
       next.tenure>=(next.rank===0?2:4) &&
       next.performance>=(next.rank===0?52:68) &&
       abilities.injury.level!==2 && leader;
@@ -196,5 +202,6 @@ export function ageCareer(career,abilities,life,relations=null,random=null){
       }
     }
   }
-  return {career:ageMissions(result),note};
+  const managed=ageCommand(ageMissions(result),life.age,random??Math.random);
+  return {career:managed.career,note:[note,managed.note].filter(Boolean).join(' ')};
 }

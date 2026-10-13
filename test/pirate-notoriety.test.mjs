@@ -148,12 +148,12 @@ test('migration 0.5.2 conservatrice : missions, Berrys, relations, talents',()=>
  engine.applyPirate('alizes','combattant');
  engine.mission('escort');
  const game=engine.getState();
- const {wanted,...oldCareer}=game.domainData.career;
+ const {wanted,command,...oldCareer}=game.domainData.career;
  const original={...game,schemaVersion:12,
   domainData:{...game.domainData,career:oldCareer}};
  map.clear();map.set(V12_SAVE_KEY,JSON.stringify(original));
  const restored=createEngine({storage}).getState();
- assert.equal(restored.schemaVersion,13);
+ assert.equal(restored.schemaVersion,14);
  assert.deepEqual(restored.history,original.history);
  assert.deepEqual(restored.domainData.story,original.domainData.story);
  assert.deepEqual(restored.domainData.relationships,original.domainData.relationships);

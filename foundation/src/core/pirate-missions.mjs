@@ -16,8 +16,10 @@ export function validMissions(m,age,career){
    !Number.isInteger(m.berys)||m.berys<0||m.berys>999999999||
    !['completed','partial','failed'].every(k=>Number.isInteger(m[k])&&m[k]>=0&&m[k]<=500)||
    !Array.isArray(m.log)||m.log.length>20||
-   m.used>(career.pirate?MAX_MISSIONS:0))return false;
- if(!career.pirate&&(m.berys||m.completed||m.partial||m.failed||m.log.length))return false;
+   m.used>MAX_MISSIONS)return false;
+ // Le trésor et le journal appartiennent au personnage, pas à son employeur.
+ // Un ancien pirate peut avoir rempli son quota avant de démissionner.
+
  if(age===null)return m.used===0&&m.log.length===0&&m.berys===0;
  if(m.log.filter(e=>e.age===age).length!==m.used)return false;
  if(m.log.length>m.completed+m.partial+m.failed)return false;
@@ -38,11 +40,17 @@ export function missionAvailability(career,a,rel,life,id){
  if(a.injury.level===2)return {enabled:false,reason:'Blessure sérieuse : récupération nécessaire.'};
  if(a.fatigue>=85)return {enabled:false,reason:'Fatigue excessive : reposez-vous.'};
  const captain=rel.people.find(x=>x.id==='world-leader'&&!x.deceased);
+ const own=career.command;
  const ally=rel.people.find(x=>x.id==='world-ally'&&!x.deceased);
- const lead=captain?(captain.trust+captain.respect)/2:35;
+ const lead=own?own.morale:(captain?(captain.trust+captain.respect)/2:35);
  const aptitude=a.skills[data.skills[0]]*.42+a.skills[data.skills[1]]*.28+
    a.skills[SPECIALTIES[p.specialty].skill]*.30;
- const chance=cap(74-data.difficulty*.66+aptitude*.38+p.performance*.14+
+ if(own&&((id==='raid'||id==='marine')&&own.members.length<2))
+   return {enabled:false,reason:'Deux compagnons requis pour cette mission.'};
+ const crewBonus=own?(own.members.length*1.5+
+   own.members.reduce((total,item)=>total+item.skill,0)/Math.max(1,own.members.length)*.08+
+   (own.hull-60)*.13):0;
+ const chance=cap(74-data.difficulty*.66+aptitude*.38+p.performance*.14+crewBonus+
    (lead-50)*.09+((ally?.bond??25)-50)*.06+
    (rel.world.loyalty-50)*.05-a.fatigue*.22-(a.injury.level===1?10:0));
  return {enabled:true,chance:Math.max(8,Math.min(92,chance))};
@@ -73,7 +81,15 @@ export function performMission(career,a,rel,life,id,random=Math.random){
    partial:old.partial+(outcome==='partial'?1:0),
    failed:old.failed+(outcome==='failure'?1:0),
    log:[...old.log,entry].slice(-20)};
- const updatedCareer={...career,missions,pirate:{...career.pirate,
+ const command=career.command?{...career.command,
+   hull:cap(career.command.hull-(outcome==='failure'?13:
+     outcome==='partial'?7:3)),
+   morale:cap(career.command.morale+(outcome==='success'?5:
+     outcome==='partial'?1:-8)),
+   members:career.command.members.map(member=>({...member,
+     loyalty:cap(member.loyalty+(outcome==='success'?2:
+       outcome==='failure'?-3:0))}))}:null;
+ const updatedCareer={...career,missions,command,pirate:{...career.pirate,
    performance:cap(career.pirate.performance+performanceDelta)}};
  const world=rel.world;
  const updatedWorld={...world,reputation:cap(world.reputation+repDelta),
@@ -81,7 +97,7 @@ export function performMission(career,a,rel,life,id,random=Math.random){
    standings:{...world.standings,pirate:cap(world.standings.pirate+
      (outcome==='success'?2:outcome==='failure'?-2:0))}};
  const captain=rel.people.find(p=>p.id==='world-leader'&&!p.deceased);
- const people=captain?rel.people.map(p=>p.id===captain.id?
+ const people=career.command?rel.people:captain?rel.people.map(p=>p.id===captain.id?
    {...p,trust:cap(p.trust+(outcome==='success'?3:outcome==='partial'?1:-4))}:p):rel.people;
  return {career:updatedCareer,
    abilities:{...a,fatigue:cap(a.fatigue+(data.difficulty>=60?28:data.difficulty>=40?22:15)),injury},

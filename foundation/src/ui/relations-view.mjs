@@ -15,7 +15,7 @@ const labels={sociability:'Sociable',empathy:'Empathique',pride:'Fier',
 const romanceName=p=>({
   dating:'En couple',married:'Marié(e)',separated:'Séparé(e)',widowed:'Partenaire décédé(e)'
 })[p.status]??'';
-function card(person,age,selected,close=false){
+function card(person,age,selected,close=false,oldCaptain=false){
   const displayAge=age+person.ageOffset;
   const active=person.id===selected;
   return `<button type="button" class="relation-card ${active?'is-selected':''}"
@@ -23,7 +23,7 @@ function card(person,age,selected,close=false){
     <span class="relation-avatar" aria-hidden="true">${escapeHtml(person.firstName.slice(0,1))}</span>
     <span class="relation-info">
       <strong>${escapeHtml(person.firstName)} ${escapeHtml(person.lastName)}</strong>
-      <small>${roleLabel(person.role)}${person.role==='partner'?' · '+romanceName(person):''}${WORLD_ROLES.includes(person.role)?' · '+worldRoleLabel(person.role,person.worldFaction):''} · ${person.deceased?'Décédé(e)':displayAge+' ans'}</small>
+      <small>${roleLabel(person.role)}${person.role==='partner'?' · '+romanceName(person):''}${WORLD_ROLES.includes(person.role)?' · '+(person.role==='leader'&&oldCaptain?'Ancien capitaine':worldRoleLabel(person.role,person.worldFaction)):''} · ${person.deceased?'Décédé(e)':displayAge+' ans'}</small>
       ${close?'<small class="friend-memory">Amitié marquante</small>':''}
       <span class="relation-progress" role="meter" aria-label="Lien avec ${escapeHtml(person.firstName)}"
         aria-valuemin="0" aria-valuemax="100" aria-valuenow="${person.bond}">
@@ -177,7 +177,7 @@ export function renderRelationships(state,{selectedId=null}={}){
           <div class="world-standings">${Object.entries(FACTIONS).map(([id,info])=>
             `<span>${escapeHtml(info.label)} : ${world.standings[id]}/100</span>`).join('')}</div>
         </div>
-        <div class="relation-list">${worldPeople.map(p=>card(p,age,selectedId)+
+        <div class="relation-list">${worldPeople.map(p=>card(p,age,selectedId,false,Boolean(state.domainData.career.command))+
           (selectedId===p.id?detail(p,state,blocked):'')).join('')}</div>
         <div class="relation-actions world-actions">${Object.entries(WORLD_ACTIONS).map(([id,action])=>{
           const enabled=id==='mission'&&state.domainData.career.pirate?

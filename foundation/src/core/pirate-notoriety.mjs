@@ -21,8 +21,7 @@ export function validWanted(w,life,career){
       e.age<=(life?.age??0)&&['bounty','pursuit','hide'].includes(e.type)&&
       typeof e.text==='string'&&e.text.length>0&&e.text.length<=160))
       return false;
-  if(!career.pirate)return w.bounty===0&&w.notoriety===0&&w.heat===0&&
-    w.incidents===0&&w.hideAtAge===-1&&w.lastPursuitAge===-1&&w.events.length===0;
+  // Une prime publique ne disparaît pas lorsqu'on démissionne.
   return true;
 }
 const event=(w,age,type,text)=>({...w,events:
@@ -92,8 +91,10 @@ export function annualPursuit(career,abilities,relations,life,random=Math.random
     abilities.skills.vitesse*.30+abilities.skills.technique*.30;
   if(!chance||random()*100>=chance)
     return {career:{...career,wanted},abilities,note:''};
-  const captain=relations.people.find(p=>p.id==='world-leader'&&!p.deceased);
+  const captain=career.command?null:relations.people.find(p=>p.id==='world-leader'&&!p.deceased);
+  const crewSupport=career.command?(career.command.morale+career.command.hull)/2:0;
   const escapeChance=Math.min(89,Math.max(12,Math.round(34+primary*.43+
+    crewSupport*.10+
     (captain?.trust??40)*.12+career.pirate.performance*.11-
     wanted.heat*.25-abilities.fatigue*.13)));
   const escaped=random()*100<escapeChance;

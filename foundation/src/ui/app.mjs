@@ -130,6 +130,14 @@ root.addEventListener('change', event => {
   if (select) select.innerHTML = placeOptions(event.target.value);
 });
 root.addEventListener('submit', event => {
+  if(event.target.matches('[data-crew-recruit]')){
+    event.preventDefault();
+    if(route.section!=='career')return;
+    const form=new FormData(event.target);
+    notice=engine.recruitCrew(form.get('specialty'))?'':
+      'Recrutement indisponible cette année.';
+    render();return;
+  }
   if(event.target.matches('[data-career-apply]')){
     event.preventDefault();
     if(route.section!=='career')return;
@@ -176,6 +184,22 @@ root.addEventListener('click', event => {
   if(button.hasAttribute('data-rest')){
     if(route.section!=='activities')return;
     notice=engine.rest()?'':'Repos déjà effectué ou décision en cours.';
+    render();return;
+  }
+  if(button.hasAttribute('data-found-crew')){
+    if(route.section!=='career')return;
+    notice=engine.foundCrew()?'':'Navire indisponible : ressources ou affiliation insuffisantes.';
+    render();return;
+  }
+  if(button.hasAttribute('data-resign-pirate')){
+    if(route.section!=='career')return;
+    notice=engine.resignPirate()?'':'Impossible de quitter cet équipage actuellement.';
+    render();return;
+  }
+  if(button.hasAttribute('data-crew-order')){
+    if(route.section!=='career')return;
+    notice=engine.commandCrew(button.dataset.crewOrder)?'':
+      'Ordre indisponible : consultez le moral, les ressources et la limite annuelle.';
     render();return;
   }
   if(button.hasAttribute('data-hide-pirate')){
