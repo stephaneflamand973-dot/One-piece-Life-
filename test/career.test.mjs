@@ -151,7 +151,7 @@ test('migration V0.4.5 intacte, même si une faction pirate a déjà été rejoi
     story:now.domainData.story,relationships:now.domainData.relationships}};
   map.clear();map.set(V09_SAVE_KEY,JSON.stringify(old));
   const newer=createEngine({storage}).getState();
-  assert.equal(newer.schemaVersion,15);
+  assert.equal(newer.schemaVersion,16);
   assert.deepEqual(newer.history,old.history);
   assert.deepEqual(newer.domainData.relationships,old.domainData.relationships);
   assert.equal(newer.domainData.career.pirate,null);
