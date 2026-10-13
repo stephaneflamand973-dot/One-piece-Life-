@@ -450,3 +450,39 @@ button:not(:disabled):active{transform:scale(.985)}
  .sea-chart-position strong{font-size:18px}
  .sea-chart-compass{font-size:25px}
 }
+
+
+/* Fiches sociales et entraînement : données existantes, zéro mécanique ajoutée. */
+.premium-eyebrow{
+  font-size:9px!important;line-height:1.45;letter-spacing:.17em;
+  font-weight:850;color:#f0cc89!important;margin:0 0 8px!important;
+}
+.relation-hero-counters,.training-hero-counters{
+  display:grid;gap:7px;margin-top:15px;padding-top:12px;
+  border-top:1px solid #f4d6a343;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.training-hero-counters{grid-template-columns:repeat(2,minmax(0,1fr))}
+.relation-hero-counters>span,.training-hero-counters>span{
+  display:grid;gap:4px;min-width:0;padding:9px 8px;
+  border-radius:9px;border:1px solid #eed8ac38;
+  background:#ffffff0e;align-items:center;text-align:center;
+}
+.relation-hero-counters strong,.training-hero-counters strong{
+  color:#f3d59a;font:700 19px/1.1 Georgia,serif;
+}
+.relation-hero-counters small,.training-hero-counters small{
+  color:#d2dfdf;font-size:9px;line-height:1.4;
+}
+@media(max-width:340px){
+  .relation-hero-counters{gap:5px}
+  .relation-hero-counters>span,.training-hero-counters>span{padding:8px 5px}
+}
+/* La lecture et les gestes gardent priorité sur le décor. */
+@media(hover:hover) and (pointer:fine){
+  .relation-card:not(:disabled):hover{border-color:#c69d60;box-shadow:0 4px 12px #b9914c2a}
+  .nav-button:not(:disabled):hover{background:#ffffff10}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important}
+}
