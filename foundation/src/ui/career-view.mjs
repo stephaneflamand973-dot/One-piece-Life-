@@ -3,8 +3,9 @@ import { CREWS, SPECIALTIES, RANKS, promotionAvailability } from '../core/pirate
 import { SKILLS, MAX_TRAININGS } from '../core/abilities.mjs';
 import { MISSIONS, missionAvailability } from '../core/pirate-missions.mjs';
 import { wantedLevel, pursuitChance, hideAvailability } from '../core/pirate-notoriety.mjs';
-import { SHIP_COST, RECRUIT_COST, MAX_CREW_MEMBERS, RECRUIT_SPECIALTIES, ORDERS,
+import { SHIP_COST, RECRUIT_COST, RECRUIT_SPECIALTIES, ORDERS,
   foundAvailability, recruitingAvailability, orderAvailability } from '../core/pirate-command.mjs';
+import {SHIP_MODELS,SHIP_PARTS,shipStats,crewCapacity,shipActionAvailability,SHIP_MAINTENANCE_COST,PART_REPAIR_COST,MAX_SHIP_UPGRADE} from '../core/pirate-ships.mjs';
 import { CREW_ROLES, TEMPERAMENT_LABELS, CREW_BONUS_COST,
   roleAvailability,crewActionAvailability } from '../core/pirate-crew-life.mjs';
 const bar=(value,label)=>`<span class="career-meter" role="meter" aria-label="${escapeHtml(label)}"
@@ -111,12 +112,63 @@ export function renderCareer(state){
       </button>
     </div>
     ${command?`
+      <details class="career-panel ship-panel">
+        <summary><strong>Mon navire : ${escapeHtml(SHIP_MODELS[command.ship.model].label)}</strong>
+          · Coque ${command.hull}/100 · État ${shipStats(command).condition}/100</summary>
+        <p class="career-muted">${escapeHtml(command.ship.name)} · ${crewCapacity(command)} places · ${command.ship.voyages} traversées</p>
+        <div class="captain-metrics">
+          <div><span>Vitesse</span><strong>${shipStats(command).speed}/100</strong></div>
+          <div><span>Armure</span><strong>${shipStats(command).armor}/100</strong></div>
+          <div><span>Puissance</span><strong>${shipStats(command).firepower}/100</strong></div>
+          <div><span>Entretien</span><strong>${command.ship.maintenance}/100</strong></div>
+        </div>
+        <h3>État des pièces</h3>
+        <div class="captain-metrics">${Object.entries(SHIP_PARTS).map(([id,label])=>`<div>
+          <span>${escapeHtml(label)}</span><strong>${id==='hull'?command.hull:command.ship.parts[id]}/100</strong>
+        </div>`).join('')}</div>
+        <button type="button" class="career-secondary" data-ship-action="maintain"
+          ${blocked||!shipActionAvailability(career,life,'maintain').enabled?'disabled':''}>
+          Entretenir (${SHIP_MAINTENANCE_COST.toLocaleString('fr-FR')} Berrys)
+        </button>
+        <h3>Réparer</h3>
+        <div class="captain-order-actions">
+          ${Object.entries(SHIP_PARTS).filter(([id])=>id!=='hull').map(([id,label])=>`<button
+            type="button" data-ship-action="repair" data-ship-value="${id}"
+            ${blocked||!shipActionAvailability(career,life,'repair',id).enabled?'disabled':''}>
+            ${escapeHtml(label)} <small>${PART_REPAIR_COST.toLocaleString('fr-FR')} Berrys</small>
+          </button>`).join('')}
+        </div>
+        <p class="career-hint">Pour la coque, utilisez « Réparer le navire » dans Décisions du capitaine.</p>
+        <h3>Améliorations permanentes</h3>
+        <div class="captain-order-actions">
+          ${Object.entries(SHIP_PARTS).map(([id,label])=>{
+            const level=command.ship.upgrades[id],access=shipActionAvailability(career,life,'upgrade',id);
+            return `<button type="button" data-ship-action="upgrade" data-ship-value="${id}"
+              ${blocked||!access.enabled?'disabled':''} title="${escapeHtml(access.reason??'')}">
+              ${escapeHtml(label)} ${level}/${MAX_SHIP_UPGRADE}
+              <small>${level===MAX_SHIP_UPGRADE?'Maximum':(access.cost??0).toLocaleString('fr-FR')+' Berrys'}</small>
+            </button>`;
+          }).join('')}
+        </div>
+        <h3>Changer de navire</h3>
+        <p class="career-hint">Reprise à 30 % du prix neuf. Vous conservez l'équipage, mais pas les anciennes améliorations.</p>
+        <div class="captain-order-actions">
+          ${Object.entries(SHIP_MODELS).map(([id,item])=>{
+            const access=shipActionAvailability(career,life,'purchase',id);
+            return `<button type="button" data-ship-action="purchase" data-ship-value="${id}"
+              ${blocked||!access.enabled?'disabled':''} title="${escapeHtml(access.reason??'')}">
+              ${escapeHtml(item.label)} · ${item.capacity} places
+              <small>${id===command.ship.model?'Actuel':(access.cost??0).toLocaleString('fr-FR')+' Berrys (reprise)'}</small>
+            </button>`;
+          }).join('')}
+        </div>
+      </details>
       <section class="career-panel captain-panel" aria-label="Commandement de mon équipage">
         <h2>Mon équipage</h2>
         <div class="captain-metrics">
           <div><span>Moral</span><strong>${command.morale}/100</strong></div>
           <div><span>Navire</span><strong>${command.hull}/100</strong></div>
-          <div><span>Membres</span><strong>${command.members.length}/${MAX_CREW_MEMBERS}</strong></div>
+          <div><span>Membres</span><strong>${command.members.length}/${crewCapacity(command)}</strong></div>
           <div><span>Cohésion</span><strong>${command.cohesion}/100</strong></div>
         </div>
         <p class="career-hint">Votre navire s'use avec les années et les missions.
