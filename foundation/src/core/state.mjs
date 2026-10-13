@@ -11,12 +11,12 @@ import {
 import { initiativeForAge, resolveInitiative, INITIATIVE_AGES } from './initiatives.mjs';
 import { familyBirth, gatherCircle, recordFriendshipMilestones } from './social-evolution.mjs';
 import { meetPartner, actRomance } from './romance.mjs';
-import { joinFaction, takeWorldAction, advanceWorld } from './world-relations.mjs';
-import { emptyAbilities, createAbilities, validAbilities, trainSkill, ageAbilities } from './abilities.mjs';
-import { emptyCareer, isValidCareer, applyForCrew, workHard, ageCareer } from './pirate-career.mjs';
+import { joinFaction, takeWorldAction, advanceWorld, worldActionAvailability } from './world-relations.mjs';
+import { emptyAbilities, createAbilities, validAbilities, trainSkill, ageAbilities, restAbilities, trainingAvailability } from './abilities.mjs';
+import { emptyCareer, isValidCareer, applyForCrew, workHard, ageCareer, requestPromotion, SPECIALTIES } from './pirate-career.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
@@ -116,10 +116,11 @@ export function advanceOneYear(state,random=null) {
        state.domainData.relationships.pending !== null)) return null;
   const life = advanceLife(state.activeLife);
   if (!life) return null;
-  const abilities=ageAbilities(state.domainData.abilities);
-  const careerUpdate=ageCareer(state.domainData.career,abilities,life);
-  const career=careerUpdate.career;
+  const abilities=ageAbilities(state.domainData.abilities,life.age);
   const update = advanceRelations(state.domainData.relationships,life.age);
+  const careerUpdate=ageCareer(state.domainData.career,abilities,life,
+    update.relations,random);
+  const career=careerUpdate.career;
   const birth=familyBirth(update.relations,life.age,life,random);
   const worldChange=advanceWorld(birth.relations,life.age,random);
   let relations = worldChange.relations;
@@ -248,10 +249,52 @@ export function chooseFaction(state,faction,random=Math.random){
   return next?romanceUpdate(state,next,true):null;
 }
 export function actInFaction(state,action,random=Math.random){
+  if(action==='train'){
+    const p=state?.domainData?.career?.pirate;
+    const skill=p?SPECIALTIES[p.specialty].skill:'technique';
+    return practiceWithMentor(state,skill,random);
+  }
   if(!isValidState(state)||!state.activeLife?.alive||
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
   const next=takeWorldAction(state.domainData.relationships,action,state.activeLife.age,random);
   return next?{...state,domainData:{...state.domainData,relationships:next}}:null;
+}
+
+/** Le mentor est un vrai PNJ partagé avec Relations. La séance utilise le même quota
+ * d'entraînement et une action sociale, sans créer une année supplémentaire. */
+export function practiceWithMentor(state,skill,random=Math.random){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const rel=state.domainData.relationships;
+  const access=worldActionAvailability(rel,'train',state.activeLife.age);
+  if(!access.enabled||!trainingAvailability(state.domainData.abilities,
+    state.activeLife,skill).enabled)return null;
+  const mentorBonus=access.target.trust>=65&&access.target.respect>=55?2:1;
+  const abilities=trainSkill(state.domainData.abilities,state.activeLife,
+    skill,random,mentorBonus);
+  if(!abilities)return null;
+  const relationships=takeWorldAction(rel,'train',state.activeLife.age,random);
+  if(!relationships)return null;
+  return {...state,domainData:{...state.domainData,abilities,relationships}};
+}
+export function recoverFromTraining(state){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const abilities=restAbilities(state.domainData.abilities,state.activeLife);
+  return abilities?{...state,domainData:{...state.domainData,abilities}}:null;
+}
+export function askPiratePromotion(state,random=Math.random){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const outcome=requestPromotion(state.domainData.career,
+    state.domainData.relationships,state.domainData.abilities,state.activeLife,random);
+  if(!outcome)return null;
+  const rel=state.domainData.relationships;
+  const trustDelta=outcome.success?3:-2;
+  const relationships={...rel,people:rel.people.map(p=>p.id==='world-leader'?
+    {...p,trust:Math.min(100,Math.max(0,p.trust+trustDelta))}:p)};
+  return {...state,domainData:{...state.domainData,
+    career:outcome.career,relationships}};
 }
 
 /** S'entraîner appartient à la vie du personnage, y compris hors d'un emploi. */
@@ -279,11 +322,13 @@ export function applyPirate(state,crewId,specialty,random=Math.random){
 export function workPirate(state){
   if(!isValidState(state)||!state.activeLife?.alive||
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
-  const career=workHard(state.domainData.career,state.activeLife);
+  const career=workHard(state.domainData.career,state.activeLife,state.domainData.abilities);
   if(!career)return null;
   const captain=state.domainData.relationships.people.find(p=>p.id==='world-leader'&&!p.deceased);
   const rel=state.domainData.relationships;
   const relationships=captain?{...rel,people:rel.people.map(p=>
     p.id===captain.id?{...p,trust:Math.min(100,p.trust+2)}:p)}:rel;
-  return {...state,domainData:{...state.domainData,career,relationships}};
+  const abilities={...state.domainData.abilities,
+    fatigue:Math.min(100,state.domainData.abilities.fatigue+10)};
+  return {...state,domainData:{...state.domainData,career,relationships,abilities}};
 }

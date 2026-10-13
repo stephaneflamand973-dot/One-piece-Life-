@@ -290,3 +290,24 @@ body { overflow-x:clip; }
 @media(max-width:340px){.career-panel{padding:12px}
   .training-skill{grid-template-columns:minmax(0,1fr) 92px;gap:7px}
   .career-buttons{gap:6px}.career-buttons button{padding:8px}}
+
+/* V0.5.1 : fatigue, blessures, mentors et promotion sans menus supplémentaires */
+.training-injury{background:#fff2e8;border:1px solid #efd8c0;color:#8c5531;
+  border-radius:9px;padding:11px 12px;font-size:12px;line-height:1.45}
+.training-rest{width:100%;border:1px solid #b6c9ca;background:#f1f7f6;
+  color:var(--ocean);border-radius:10px;padding:11px;min-height:49px;
+  margin-bottom:7px;font-weight:760;font-size:12px;display:flex;align-items:center;
+  justify-content:space-between;gap:9px;flex-wrap:wrap}
+.training-rest small{font-size:10px;color:var(--muted);font-weight:500}
+.training-rest:disabled{opacity:.46}
+.training-skill-info span small{display:block;margin-top:4px;color:var(--muted);
+  font-size:10px;font-weight:500}
+.training-skill-actions{grid-column:2;grid-row:1/span 2;display:grid;gap:4px}
+.training-skill-actions button{grid-column:auto;grid-row:auto;width:100%;min-width:0;min-height:34px;border:1px solid #b4d1dc;
+  border-radius:8px;background:#edf6f8;color:var(--ocean);font-size:10px;
+  font-weight:770;padding:5px;overflow-wrap:anywhere}
+.training-skill-actions button[data-mentor-train]{background:#e8f2ed;border-color:#b7d6c2}
+.training-skill-actions button:disabled{opacity:.4}
+.career-buttons .career-promotion{grid-column:1 / -1;min-height:54px;
+  background:#e6f5ee;border-color:#b5d8c7}
+@media(max-width:340px){.training-skill-actions button{font-size:9px}}

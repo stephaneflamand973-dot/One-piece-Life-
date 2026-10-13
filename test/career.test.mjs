@@ -127,7 +127,7 @@ test('rang et ancienneté évoluent avec les années et la compétence pertinent
     if(engine.getState().activeLife.alive&&engine.getState().domainData.career.pirate.rank===0)
       engine.workPirate();
   }
-  assert.equal(engine.getState().domainData.career.pirate.rank,1);
+  assert.ok(engine.getState().domainData.career.pirate.rank>=1);
   assert.ok(engine.getState().domainData.career.notices.some(n=>n.type==='promotion'));
   assert.ok(isValidState(engine.getState()));
 });
@@ -149,7 +149,7 @@ test('migration V0.4.5 intacte, même si une faction pirate a déjà été rejoi
     story:now.domainData.story,relationships:now.domainData.relationships}};
   map.clear();map.set(V09_SAVE_KEY,JSON.stringify(old));
   const newer=createEngine({storage}).getState();
-  assert.equal(newer.schemaVersion,10);
+  assert.equal(newer.schemaVersion,11);
   assert.deepEqual(newer.history,old.history);
   assert.deepEqual(newer.domainData.relationships,old.domainData.relationships);
   assert.equal(newer.domainData.career.pirate,null);

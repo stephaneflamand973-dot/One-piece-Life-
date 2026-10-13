@@ -6,7 +6,8 @@ import { emptyWorld } from './world-relations.mjs';
 import { createAbilities, emptyAbilities } from './abilities.mjs';
 import { emptyCareer } from './pirate-career.mjs';
 
-export const SAVE_KEY='opl:foundation:life-v050';
+export const SAVE_KEY='opl:foundation:life-v051';
+export const V10_SAVE_KEY='opl:foundation:life-v050';
 export const V09_SAVE_KEY='opl:foundation:life-v045';
 export const V08_SAVE_KEY='opl:foundation:life-v044';
 export const V07_SAVE_KEY='opl:foundation:life-v043';
@@ -27,6 +28,24 @@ function seededCharacterRandom(person){
   return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 }
 // Upgrade sans relancer le personnage ni changer ses relations et interactions existantes.
+/** V0.5.0 -> V0.5.1 : ajouter blessures, repos et demandes de promotion, sans
+ * recalculer les talents ni modifier une seule relation ou année. */
+export function migrateV10(data){
+  if(!data||data.schemaVersion!==10||!Array.isArray(data.history)||
+    !data.domainData||Object.keys(data.domainData).length!==4||
+    !['story','relationships','abilities','career'].every(k=>
+      Object.hasOwn(data.domainData,k)))return null;
+  const a=data.domainData.abilities,c=data.domainData.career;
+  if(!a||!Array.isArray(a.log)||Object.hasOwn(a,'injury')||
+    Object.hasOwn(a,'restUsed')||!c||!Object.hasOwn(c,'pirate')||
+    (c.pirate!==null&&(!c.pirate||Object.hasOwn(c.pirate,'askedAtAge'))))return null;
+  const abilities={...a,injury:{level:0,recoverAtAge:null},restUsed:0};
+  const career={...c,pirate:c.pirate?{...c.pirate,askedAtAge:-1}:null};
+  const candidate={...data,schemaVersion:SCHEMA_VERSION,domainData:{
+    ...data.domainData,abilities,career
+  }};
+  return isValidState(candidate)?candidate:null;
+}
 /** V0.4.5 -> V0.5.0. La progression et tous les contacts restent identiques. */
 export function migrateV09(data){
   if(!data||data.schemaVersion!==9||!Array.isArray(data.history)||
@@ -36,11 +55,12 @@ export function migrateV09(data){
   if(data.activeLife && (!data.activeLife.origin ||
     typeof data.activeLife.origin.sea!=='string' ||
     typeof data.activeLife.origin.place!=='string'))return null;
-  const abilities=data.activeLife?createAbilities(data.activeLife):emptyAbilities();
-  const candidate={...data,schemaVersion:SCHEMA_VERSION,
-    domainData:{story:data.domainData.story,relationships:data.domainData.relationships,
-      abilities,career:emptyCareer()}};
-  return isValidState(candidate)?candidate:null;
+  const modern=data.activeLife?createAbilities(data.activeLife):emptyAbilities();
+  const {injury,restUsed,...abilities}=modern;
+  return migrateV10({...data,schemaVersion:10,domainData:{
+    story:data.domainData.story,relationships:data.domainData.relationships,
+    abilities,career:emptyCareer()
+  }});
 }
 /** V0.4.4 -> V0.4.5 : aucune personne ni progression n'est régénérée. */
 export function migrateV08(data){
@@ -157,6 +177,7 @@ export function loadState(storage){
       return isValidState(candidate)?candidate:null;
     }
     const versions=[
+      [V10_SAVE_KEY,migrateV10],
       [V09_SAVE_KEY,migrateV09],
       [V08_SAVE_KEY,migrateV08],
       [V07_SAVE_KEY,migrateV07],

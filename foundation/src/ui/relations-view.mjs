@@ -3,6 +3,7 @@ import {
   ACTIONS, MAX_ACTIONS_PER_YEAR, MAX_FRIENDS, roleLabel
 } from '../core/relationships.mjs';
 import { availability, TRAIT_LABELS } from '../core/personality.mjs';
+import { trainingAvailability } from '../core/abilities.mjs';
 import { activePartner, romanceAvailability, MAX_PARTNERS, MAX_CHILDREN } from '../core/romance.mjs';
 import { FACTIONS, WORLD_ROLES, WORLD_ACTIONS,
   worldActionAvailability,worldRoleLabel } from '../core/world-relations.mjs';
@@ -179,8 +180,13 @@ export function renderRelationships(state,{selectedId=null}={}){
           (selectedId===p.id?detail(p,state,blocked):'')).join('')}</div>
         <div class="relation-actions world-actions">${Object.entries(WORLD_ACTIONS).map(([id,action])=>{
           const enabled=worldActionAvailability(rel,id,age);
+          const skill=state.domainData.career.pirate?.specialty;
+          const primary=skill?({combattant:'technique',sabreur:'armes',navigateur:'navigation',
+            tireur:'precision',medecin:'medecine',cuisinier:'cuisine',charpentier:'charpenterie'}[skill]):'technique';
+          const mentorReady=id!=='train'||trainingAvailability(
+            state.domainData.abilities,state.activeLife,primary).enabled;
           return `<button type="button" data-world-action="${id}"
-            ${!blocked&&state.activeLife.alive&&enabled.enabled?'':'disabled'}
+            ${!blocked&&state.activeLife.alive&&enabled.enabled&&mentorReady?'':'disabled'}
             title="${escapeHtml(enabled.reason??'')}" aria-label="${escapeHtml(action.label)}">
             <span>${escapeHtml(action.label)}</span>
             <small>${enabled.enabled?'Chance '+enabled.chance+'%':enabled.reason}</small>

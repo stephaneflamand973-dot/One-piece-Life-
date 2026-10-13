@@ -205,6 +205,32 @@ async function journey(browser,label,contextOptions){
         await page.locator('[data-age]').waitFor();
       }
     }
+    // V0.5.1 : entraînement encadré avec le même mentor que Relations.
+    await page.locator('button[data-nav=activities]').click();
+    await page.locator('[data-mentor-train=technique]').waitFor();
+    assert.equal(await page.locator('[data-mentor-train=technique]').isEnabled(),true);
+    const beforeMentor=Number(await page.locator('.training-skill [aria-label="Technique de combat"]')
+      .getAttribute('aria-valuenow'));
+    await page.locator('[data-mentor-train=technique]').click();
+    const afterMentor=Number(await page.locator('.training-skill [aria-label="Technique de combat"]')
+      .getAttribute('aria-valuenow'));
+    assert.ok(afterMentor>beforeMentor);
+    assert.match(await page.locator('.career-notice').innerText(),/Mentor/);
+    const fatigueBeforeRest=Number((await page.locator('.training-summary').innerText()).match(/Fatigue : (\d+)/)?.[1]);
+    await page.locator('[data-rest]').click();
+    const fatigueAfterRest=Number((await page.locator('.training-summary').innerText()).match(/Fatigue : (\d+)/)?.[1]);
+    assert.ok(fatigueAfterRest<fatigueBeforeRest);
+    assert.equal(await page.locator('[data-rest]').isEnabled(),false);
+    await checkGeometry(page,label,'mentor-rest');
+    await page.screenshot({path:picture(label,'mentor-rest')});
+    await page.reload({waitUntil:'networkidle'});
+    assert.equal(Number(await page.locator('.training-skill [aria-label="Technique de combat"]')
+      .getAttribute('aria-valuenow')),afterMentor);
+    await page.locator('button[data-nav=career]').click();
+    await page.locator('[data-ask-promotion]').waitFor();
+    await checkGeometry(page,label,'career-promotion');
+    await page.locator('.bottom-nav button[data-nav=life]').click();
+    await page.locator('[data-age]').waitFor();
     // V0.4.4 : rencontre, rendez-vous, puis sauvegarde du couple.
     await page.locator('button[data-nav=relationships]').click();
     await page.locator('[data-romance-meet]').click();

@@ -167,6 +167,22 @@ root.addEventListener('click', event => {
       'Entraînement impossible : séance épuisée, fatigue ou décision en cours.';
     render();return;
   }
+  if(button.hasAttribute('data-mentor-train')){
+    if(route.section!=='activities')return;
+    notice=engine.mentorTrain(button.dataset.mentorTrain)?'':
+      'Le mentor n’est pas disponible ou vos séances sont épuisées.';
+    render();return;
+  }
+  if(button.hasAttribute('data-rest')){
+    if(route.section!=='activities')return;
+    notice=engine.rest()?'':'Repos déjà effectué ou décision en cours.';
+    render();return;
+  }
+  if(button.hasAttribute('data-ask-promotion')){
+    if(route.section!=='career')return;
+    notice=engine.askPromotion()?'':'Promotion non disponible pour le moment.';
+    render();return;
+  }
   if(button.hasAttribute('data-work-pirate')){
     if(route.section!=='career')return;
     notice=engine.workPirate()?'':'Vous avez déjà travaillé davantage cette année.';
