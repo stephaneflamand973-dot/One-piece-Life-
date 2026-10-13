@@ -139,18 +139,18 @@ test('migration V15 vers V16 conserve l’intégralité de l’histoire, l’arg
  const {engine,map,storage}=setup();
  assert.ok(engine.recruitCrew('navigateur'));
  const now=engine.getState(),cmd=now.domainData.career.command;
- const {ship,...legacyCommand}=cmd;
+ const {ship,navigation,...legacyCommand}=cmd;
  const original={...now,schemaVersion:15,domainData:{...now.domainData,
   career:{...now.domainData.career,command:legacyCommand}}};
  map.clear();map.set(V15_SAVE_KEY,JSON.stringify(original));
  const migrated=migrateV15(original);
  assert.ok(migrated);
- assert.equal(migrated.schemaVersion,16);
+ assert.equal(migrated.schemaVersion,17);
  assert.deepEqual(migrated.domainData.career.command.members,cmd.members);
  assert.deepEqual(migrated.history,now.history);
  assert.deepEqual(migrated.domainData.relationships,now.domainData.relationships);
  assert.equal(migrated.domainData.career.missions.berys,now.domainData.career.missions.berys);
- assert.deepEqual(migrated.domainData.career.command,upgradeShipSave(legacyCommand));
+ assert.deepEqual((( {navigation,...old} )=>old)(migrated.domainData.career.command),upgradeShipSave(legacyCommand));
  assert.deepEqual(createEngine({storage}).getState(),migrated);
  assert.equal(map.get(V15_SAVE_KEY),JSON.stringify(original));
  assert.ok(map.has(SAVE_KEY));
