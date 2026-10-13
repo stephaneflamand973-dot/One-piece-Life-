@@ -2,6 +2,7 @@ import { escapeHtml } from './life-view.mjs';
 import { CREWS, SPECIALTIES, RANKS, promotionAvailability } from '../core/pirate-career.mjs';
 import { SKILLS, MAX_TRAININGS } from '../core/abilities.mjs';
 import { MISSIONS, MAX_MISSIONS, missionAvailability } from '../core/pirate-missions.mjs';
+import { wantedLevel, pursuitChance, hideAvailability } from '../core/pirate-notoriety.mjs';
 const bar=(value,label)=>`<span class="career-meter" role="meter" aria-label="${escapeHtml(label)}"
   aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}">
   <span style="width:${value}%"></span></span>`;
@@ -18,6 +19,9 @@ export function renderCareer(state){
   const promotion=pirate?promotionAvailability(career,relationships,abilities,life):null;
   const missions=career.missions;
   const lastMission=missions.log.at(-1);
+  const wanted=career.wanted;
+  const hiding=hideAvailability(career,life);
+  const latestWorldEvent=wanted.events.at(-1);
   if(!pirate){
     const canApply=life.age>=16&&life.age<=65&&!blocked&&
       ['independent','pirate'].includes(relationships.world.faction);
@@ -88,6 +92,26 @@ export function renderCareer(state){
         <span>${promotion?.enabled?'Chance : '+promotion.chance+'%':escapeHtml(promotion?.reason??'')}</span>
       </button>
     </div>
+    <section class="career-panel wanted-panel" aria-label="Prime et recherche">
+      <div class="career-mission-top"><h2>Avis de recherche</h2>
+        <span>${escapeHtml(wantedLevel(wanted))}</span></div>
+      <div class="wanted-bounty">
+        <span>PRIME SUR VOTRE TÊTE</span>
+        <strong>${wanted.bounty.toLocaleString('fr-FR')} <small>Berrys</small></strong>
+        <p>Cette somme est offerte à vos poursuivants, elle ne fait pas partie de votre fortune.</p>
+      </div>
+      <div class="wanted-metrics">
+        <div><span>Notoriété mondiale</span><strong>${wanted.notoriety}/100</strong></div>
+        <div><span>Pression de la Marine</span><strong>${wanted.heat}/100</strong></div>
+        <div><span>Risque de poursuite annuel</span><strong>${pursuitChance(wanted)} %</strong></div>
+      </div>
+      ${latestWorldEvent?`<p class="career-hint wanted-last">${escapeHtml(latestWorldEvent.text)}</p>`:''}
+      <button type="button" class="career-secondary wanted-hide" data-hide-pirate
+        ${blocked||!hiding.enabled?'disabled':''} title="${escapeHtml(hiding.reason)}">
+        Se faire discret
+        <span>${wanted.hideAtAge===life.age?'Déjà tenté cette année':'Réduire la pression (-22) · Performance -2'}</span>
+      </button>
+    </section>
     <section class="career-panel pirate-mission-panel" aria-label="Missions pirates">
       <div class="career-mission-top">
         <h2>Missions pirates</h2><span>${missions.used}/${MAX_MISSIONS} cette année</span>
