@@ -1,23 +1,31 @@
-# ONE PIECE LIFE · V0.4.1 — Relations vivantes
+# One Piece Life V0.4.2 · Les proches prennent l'initiative
 
-## Réactions et personnalité
-- Chaque proche possède cinq traits persistants : sociabilité, empathie, fierté, tempérament et loyauté.
-- Chaque relation conserve son affinité initiale (0–100) et trois indicateurs complémentaires : confiance, respect et rivalité.
-- Sept actions : discuter, passer du temps, aider, se confier, faire un cadeau symbolique, s'excuser ou se disputer.
-- Réactions dynamiques : les probabilités (12–95 %) dépendent des traits, du lien et de la confiance. Une action peut réussir ou mal tourner ; les conflits peuvent s'aggraver ou s'apaiser.
-- L'écran Relations reste compact : jauge d'affinité dans la liste, deux traits dominants et indicateurs dans la fiche détaillée, chance affichée sur chaque action.
-- Les actions avancées sont conditionnées par l'âge, la confiance ou l'existence d'un conflit.
-- Trois interactions sociales par année au total, dont une seule avec la même personne, avec fatigue sociale et amélioration des amitiés entretenues.
+## Fonctionnalités
+- Des parents ou amis peuvent **spontanément** solliciter le joueur pendant la progression annuelle.
+- Quatre types : demander de l'aide, proposer une sortie, se confier, déclencher un conflit.
+- Probabilités de déclenchement liées à la sociabilité et aux affinités ; le type de demande est influencé par les traits et la rivalité.
+- Deux réponses possibles, avec conséquences distinctes sur l'affinité, la confiance, le respect et la rivalité.
+- Les demandes en attente sont persistantes et restent identiques après rechargement ; la progression par + Âge attend la décision.
+- Aucun nouveau sous-menu : la demande apparaît au sommet du fil Vie, dans la carte de décision.
+- Pas de superposition avec les décisions principales aux âges 6, 12, 16, 18, 25, 35, 50 et 70 ans.
+- Les actions de l'onglet Relations sont temporairement bloquées jusqu'à résolution.
+- **Une pression sur + Âge = un an et une entrée de journal**, même en cas de décision d'un PNJ.
+- Apparitions modérées à certaines étapes (9, 14, 23, 31, 42, 58 et 74 ans) et non systématiques, afin de ne pas saturer le joueur.
 
-## Sauvegardes
-- Clé dédiée : `opl:foundation:life-v041`. Import automatique de V0.4, V0.3 et V0.2, avec conservation des anciennes clés.
-- Les proches existants gardent le même nom, âge, rôle, affinité, historique d'interactions et limites de l'année. Des traits persistants sont déterminés une fois pour toutes lors de la migration V0.4.
-- Le bouton Nouvelle vie conserve le comportement de reset sans faire réapparaître une ancienne partie.
+## Compatibilité
+Sauvegarde V0.4.2 sous `opl:foundation:life-v042`. Migration automatique depuis V0.4.1, V0.4, V0.3 ou V0.2 sans effacer les versions antérieures. Le redémarrage sauvegarde une nouvelle vie vide pour éviter toute réapparition de parties plus anciennes.
 
-## Portée
-Le moteur `personality.mjs` est indépendant de `relationships.mjs`, de la navigation et du DOM. Les règles d'âge, d'une année par pression sur + Âge, les événements V0.3 et le fil mobile ne changent pas.
+## Structure
+- `foundation/src/core/initiatives.mjs` : moteur pur d'initiatives, choix et conséquences.
+- `foundation/src/core/relationships.mjs` : profil relationnel, carnet d'initiatives et validation.
+- `foundation/src/core/state.mjs` : transitions d'âge et blocage d'un seul choix en attente.
+- `foundation/src/ui/life-view.mjs` : carte d'initiative non dupliquée dans le fil.
+- `test/initiatives.test.mjs` : âge, sauvegarde, conséquences, migrations, anti-duplication.
+- `test/browser/mobile.mjs` : navigation, décisions PNJ et persistance Chromium mobile + WebKit.
 
-Les PNJ n'agissent pas encore spontanément ; ce sera la V0.4.2. Romances, mariages et enfants restent ultérieurs.
-
-## Vérification
-`npm test` vérifie le moteur. Le workflow de QA mobile parcourt l'application en Chromium (320, 390 et 430 px) et WebKit iPhone simulé.
+## Vérifier
+```sh
+npm test
+python3 -m http.server 8000
+```
+Ouvrir `http://localhost:8000/foundation/`.

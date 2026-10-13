@@ -63,7 +63,7 @@ export function renderRelationships(state,{selectedId=null}={}){
   const rel=state.domainData.relationships;
   const family=rel.people.filter(p=>p.role!=='friend');
   const friends=rel.people.filter(p=>p.role==='friend');
-  const blocked=Boolean(state.domainData.story.pending);
+  const blocked=Boolean(state.domainData.story.pending || rel.pending);
   const canMeet=age>=6&&state.activeLife.alive&&!blocked&&
     friends.length<MAX_FRIENDS&&rel.actionsUsed<MAX_ACTIONS_PER_YEAR;
   const why=age<6?'Disponible à partir de 6 ans.':

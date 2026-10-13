@@ -27,8 +27,10 @@ function ageTo(age){
 function oldVersion(state){
   return {...state,schemaVersion:4,domainData:{
     ...state.domainData,
-    relationships:{...state.domainData.relationships,
-      people:state.domainData.relationships.people.map(({traits,trust,respect,rivalry,...old})=>old)}
+    relationships:Object.fromEntries(Object.entries({
+      ...state.domainData.relationships,
+      people:state.domainData.relationships.people.map(({traits,trust,respect,rivalry,...old})=>old)
+    }).filter(([key])=>key!=='pending'&&key!=='initiatives'))
   }};
 }
 

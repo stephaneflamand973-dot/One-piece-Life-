@@ -1,5 +1,6 @@
 import { SEAS, seaById } from '../core/places.mjs';
 import { sceneForAge, QUALITY_KEYS } from '../core/events.mjs';
+import { initiativeScene } from '../core/initiatives.mjs';
 
 export function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -53,6 +54,20 @@ function decisionPanel(story) {
     ).join('')}</div>
   </section>`;
 }
+function npcPanel(rel) {
+  if(!rel.pending) return '';
+  const scene=initiativeScene(rel,rel.pending);
+  if(!scene) return '';
+  return `<section class="decision-panel npc-panel" aria-labelledby="npc-decision-title">
+    <p class="decision-eyebrow">UN PROCHE PREND L'INITIATIVE</p>
+    <h2 id="npc-decision-title">${escapeHtml(scene.title)}</h2>
+    <p class="decision-description">${escapeHtml(scene.text)}</p>
+    <div class="decision-buttons">${scene.options.map(choice =>
+      `<button type="button" class="decision-choice" data-npc-choice="${choice.id}">
+        ${escapeHtml(choice.label)} <span aria-hidden="true">›</span>
+      </button>`).join('')}</div>
+  </section>`;
+}
 export function renderLife(state, { historyLimit = 8 } = {}) {
   const person = state.activeLife;
   if (!person) return renderCreation();
@@ -60,7 +75,7 @@ export function renderLife(state, { historyLimit = 8 } = {}) {
   const seaLabel = seaById(person.origin.sea)?.label ?? '';
   // Les sauvegardes restent strictement chronologiques. Seule la vue est inversée.
   // Le nombre de cartes DOM est borné ; le journal complet reste consultable.
-  const events = state.history.filter(event => event.type !== 'event').slice().reverse();
+  const events = state.history.filter(event => event.type !== 'event' && event.type !== 'npc-event').slice().reverse();
   const limit = Math.max(1, Number.isFinite(historyLimit) ? Math.floor(historyLimit) : 8);
   const timeline = events.slice(0, limit).map((event, index) => `<article data-history-age="${event.age}" class="story-event ${index === 0 ? 'story-latest' : ''} ${event.type === 'end' ? 'story-end' : ''} ${event.type === 'decision' ? 'story-choice' : ''}">
     <div class="story-age">${event.age === 0 ? 'Naissance' : event.age + ' an' + (event.age > 1 ? 's' : '')}</div>
@@ -80,6 +95,7 @@ export function renderLife(state, { historyLimit = 8 } = {}) {
     </div>
     ${qualitySummary(story)}
     ${decisionPanel(story)}
+    ${npcPanel(state.domainData.relationships)}
     <div class="story-title"><h2>Ma vie</h2><span>${person.age} an${person.age > 1 ? 's' : ''}</span></div>
     <div class="story-list" aria-label="Événements du plus récent au plus ancien">${timeline}${more}</div>
   </section>`;

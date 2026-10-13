@@ -36,6 +36,8 @@ async function checkGeometry(page,label,phase){
 async function journey(browser,label,contextOptions){
   const context=await browser.newContext(contextOptions);
   const page=await context.newPage();
+  // Tirages contrôlés pour une QA reproductible des initiatives des PNJ.
+  await page.addInitScript(() => { Math.random=()=>0; });
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   try {
@@ -107,6 +109,18 @@ async function journey(browser,label,contextOptions){
       await page.locator('[data-age]').click();
       const choices=page.locator('button[data-choice]');
       if(await choices.count()) await choices.first().click();
+      const npcChoices=page.locator('button[data-npc-choice]');
+      if(await npcChoices.count()){
+        if(age===9){
+          assert.equal(await npcChoices.count(),2);
+          await checkGeometry(page,label,'npc-pending');
+          await page.screenshot({path:picture(label,'npc-event')});
+          await page.reload({waitUntil:'networkidle'});
+          assert.equal(await page.locator('button[data-npc-choice]').count(),2,
+            label+' initiative perdue après rechargement');
+        }
+        await page.locator('button[data-npc-choice]').first().click();
+      }
     }
     assert.equal(await page.locator('.story-latest').getAttribute('data-history-age'),'20');
     assert.equal(await page.locator('.story-event').count(),8);

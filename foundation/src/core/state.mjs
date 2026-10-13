@@ -8,10 +8,11 @@ import {
   emptyRelations, createFamily, isValidRelations, advanceRelations,
   interact, meetFriend, socialAnnualNote
 } from './relationships.mjs';
+import { initiativeForAge, resolveInitiative, INITIATIVE_AGES } from './initiatives.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 5;
-const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end']);
+export const SCHEMA_VERSION = 6;
+const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
   return { schemaVersion: SCHEMA_VERSION, activeLife: null,
@@ -82,10 +83,13 @@ export function isValidState(state) {
         (i === MAX_AGE && item.type !== 'end') ||
         (i > 0 && i < MAX_AGE && (item.type === 'birth' || item.type === 'end')) ||
         (item.type === 'event' && i !== c.age) ||
-        (item.type === 'decision' && !sceneForAge(i))) return false;
+        (item.type === 'decision' && !sceneForAge(i)) ||
+        (item.type === 'npc-event' && i !== c.age) ||
+        (item.type === 'npc-decision' && !INITIATIVE_AGES.includes(i))) return false;
   }
   return validStory(state.domainData.story, state.history, c.age) &&
-    isValidRelations(state.domainData.relationships,c.age,true);
+    isValidRelations(state.domainData.relationships,c.age,true,state.history) &&
+    !(state.domainData.story.pending && state.domainData.relationships.pending);
 }
 export function beginLife(state, options = {}, random = Math.random) {
   if (!isEmptyState(state)) throw new Error('Partie non vierge ou invalide');
@@ -93,13 +97,14 @@ export function beginLife(state, options = {}, random = Math.random) {
   return { ...state, activeLife: life, history: [birthEntry(life)],
     domainData: {...state.domainData,relationships:createFamily(life,random)} };
 }
-export function advanceOneYear(state) {
+export function advanceOneYear(state,random=null) {
   if (!isValidState(state) || !state.activeLife ||
-      state.domainData.story.pending !== null) return null;
+      (state.domainData.story.pending !== null ||
+       state.domainData.relationships.pending !== null)) return null;
   const life = advanceLife(state.activeLife);
   if (!life) return null;
   const update = advanceRelations(state.domainData.relationships,life.age);
-  const relations = update.relations;
+  let relations = update.relations;
   if (!life.alive) {
     return { ...state, activeLife:life, history:[...state.history,ageEntry(life)],
       domainData:{...state.domainData,relationships:relations} };
@@ -109,7 +114,12 @@ export function advanceOneYear(state) {
   const socialNote = socialAnnualNote(relations,life.age);
   const addition = [...update.announcements,socialNote].filter(Boolean).join(' ');
   const intro = scene ? scene.text : annualNarrative(life,story);
-  const entry = { age:life.age,type:scene?'event':'year',
+  // Une initiative n'apparaît pas pendant un jalon narratif classique.
+  // Une année = un seul emplacement dans l'historique.
+  const npc=scene || typeof random!=='function' ? null :
+    initiativeForAge(relations,life.age,random);
+  if(npc)relations={...relations,pending:npc};
+  const entry = { age:life.age,type:scene?'event':npc?'npc-event':'year',
     text:(addition ? intro+' '+addition : intro).slice(0,300) };
   const nextStory = scene ? {...story,pending:{age:life.age,eventId:scene.id}} : story;
   return {...state,activeLife:life,history:[...state.history,entry],
@@ -144,15 +154,28 @@ export function resolveDecision(state, optionId) {
 /** Actions sociales : elles n'avancent pas le temps et ne créent pas d'année supplémentaire. */
 export function socialize(state,personId,action,random=Math.random){
   if(!isValidState(state) || !state.activeLife?.alive ||
-    state.domainData.story.pending) return null;
+    state.domainData.story.pending || state.domainData.relationships.pending) return null;
   const relations=interact(state.domainData.relationships,personId,action,
     state.activeLife.age,state.domainData.story.qualities.solidarite,random);
   return relations ? {...state,domainData:{...state.domainData,relationships:relations}} : null;
 }
 export function makeFriend(state,random=Math.random){
   if(!isValidState(state) || !state.activeLife?.alive ||
-    state.domainData.story.pending) return null;
+    state.domainData.story.pending || state.domainData.relationships.pending) return null;
   const relations=meetFriend(state.domainData.relationships,state.activeLife,
     state.activeLife.age,random);
   return relations ? {...state,domainData:{...state.domainData,relationships:relations}} : null;
+}
+
+/** Réponse à une initiative de PNJ, sans saut d'année supplémentaire. */
+export function answerInitiative(state,optionId){
+  if(!isValidState(state) || !state.activeLife?.alive ||
+    state.domainData.story.pending) return null;
+  const resolved=resolveInitiative(
+    state.domainData.relationships,optionId,state.activeLife.age);
+  if(!resolved)return null;
+  const {result,...relationships}=resolved;
+  const history=[...state.history];
+  history[history.length-1]={age:state.activeLife.age,type:'npc-decision',text:result};
+  return {...state,history,domainData:{...state.domainData,relationships}};
 }
