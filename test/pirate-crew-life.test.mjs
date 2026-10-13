@@ -148,3 +148,27 @@ test('chargement impossible si rôle, cohésion ou événement de bord sont corr
  assert.equal(locked.crewInteract(cmd.members[0].id,'talk'),false);
  assert.deepEqual(locked.getState(),old);
 });
+
+test('demande spontanée en vraie partie : + Âge attend le choix, puis débloque',()=>{
+ const {engine,storage}=captain();
+ assert.ok(engine.mission('treasure'));
+ assert.ok(engine.recruitCrew('combattant'));
+ toAge(engine,17);
+ assert.ok(engine.age());
+ const pendingState=engine.getState();
+ assert.equal(pendingState.activeLife.age,18);
+ assert.ok(pendingState.domainData.career.command.pending);
+ assert.equal(engine.age(),false);
+ if(pendingState.domainData.story.pending)
+  assert.ok(engine.choose(choices[pendingState.domainData.story.pending.eventId]));
+ if(engine.getState().domainData.relationships.pending)
+  assert.ok(engine.answerNpc('accept'));
+ assert.ok(engine.crewAnswer('refuse'));
+ const state=engine.getState();
+ assert.equal(state.domainData.career.command.pending,null);
+ assert.equal(state.activeLife.age,18);
+ assert.equal(state.history.length,19);
+ assert.ok(isValidState(state));
+ assert.deepEqual(createEngine({storage}).getState(),state);
+ assert.ok(engine.age());
+});
