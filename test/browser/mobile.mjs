@@ -99,7 +99,7 @@ async function journey(browser,label,contextOptions){
     assert.equal(await page.locator('.relation-card[data-person=friend-1]').count(),1);
     assert.equal(await page.locator('.relation-card[data-person=mother] .relation-score').innerText(),
       afterContact+'%');
-    await page.locator('button[data-nav=life]').click();
+    await page.locator('.bottom-nav button[data-nav=life]').click();
     await page.waitForURL('**/#/life');
     await page.locator('[data-age]').waitFor();
 
