@@ -1,4 +1,4 @@
-/** V0.5.4 : commandement personnel, recrutement et décisions annuelles. */
+/** V0.5.5 : commandement libre, sans quotas annuels d'ordres ni de candidatures. */
 export const SHIP_COST=50000;
 export const RECRUIT_COST=5000;
 export const REPAIR_COST=8000;
@@ -87,8 +87,6 @@ export function recruitingAvailability(career,life){
  if(!life?.alive||!command)return {enabled:false,reason:'Réservé aux capitaines.'};
  if(command.members.length>=MAX_CREW_MEMBERS)
   return {enabled:false,reason:'Équipage complet (4 membres).'};
- if(command.recruitedAtAge===life.age)
-  return {enabled:false,reason:'Une tentative de recrutement par an.'};
  if(career.missions.berys<RECRUIT_COST)
   return {enabled:false,reason:'Recrutement : '+RECRUIT_COST+' Berrys nécessaires.'};
  return {enabled:true,reason:''};
@@ -123,7 +121,6 @@ export function orderAvailability(career,life,order){
  const cmd=career.command;
  if(!life?.alive||!cmd||!Object.hasOwn(ORDERS,order))
   return {enabled:false,reason:'Réservé aux capitaines.'};
- if(cmd.orderAtAge===life.age)return {enabled:false,reason:'Ordre déjà donné cette année.'};
  if(order==='repair'&&cmd.hull===100)return {enabled:false,reason:'Navire déjà en parfait état.'};
  if(order==='repair'&&career.missions.berys<REPAIR_COST)
   return {enabled:false,reason:'Réparations : '+REPAIR_COST+' Berrys nécessaires.'};
