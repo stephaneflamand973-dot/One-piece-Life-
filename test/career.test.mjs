@@ -76,7 +76,8 @@ test('postuler à 16 ans avec compétences réelles, embauche non automatique',(
   assert.ok(engine.applyPirate('alizes','combattant'),'candidature enregistrée');
   assert.equal(engine.getState().domainData.career.pirate,null);
   assert.match(engine.getState().domainData.career.lastNotice,/refusée/);
-  assert.equal(engine.applyPirate('alizes','combattant'),false);
+  assert.ok(engine.applyPirate('alizes','combattant'),'nouvelle tentative dans la même année');
+  assert.equal(engine.getState().domainData.career.pirate,null);
   aging(engine,17);
   assert.equal(engine.getState().domainData.career.appliedAtAge,16);
 });
