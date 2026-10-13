@@ -130,12 +130,19 @@ root.addEventListener('change', event => {
   if (select) select.innerHTML = placeOptions(event.target.value);
 });
 root.addEventListener('submit', event => {
+  if(event.target.matches('[data-crew-role]')){
+    event.preventDefault();
+    if(route.section!=='career')return;
+    const form=new FormData(event.target);
+    notice=engine.setCrewRole(event.target.dataset.crewRole,form.get('role'))?'':'Poste indisponible ou inchangé.';
+    render();return;
+  }
   if(event.target.matches('[data-crew-recruit]')){
     event.preventDefault();
     if(route.section!=='career')return;
     const form=new FormData(event.target);
     notice=engine.recruitCrew(form.get('specialty'))?'':
-      'Recrutement indisponible cette année.';
+      'Recrutement indisponible : équipage complet, ressources ou décision en cours.';
     render();return;
   }
   if(event.target.matches('[data-career-apply]')){
@@ -196,10 +203,21 @@ root.addEventListener('click', event => {
     notice=engine.resignPirate()?'':'Impossible de quitter cet équipage actuellement.';
     render();return;
   }
+  if(button.hasAttribute('data-crew-answer')){
+    if(route.section!=='career')return;
+    notice=engine.crewAnswer(button.dataset.crewAnswer)?'':'Impossible de résoudre la demande.';
+    render();return;
+  }
+  if(button.hasAttribute('data-crew-member-action')){
+    if(route.section!=='career')return;
+    notice=engine.crewInteract(button.dataset.crewMemberId,button.dataset.crewMemberAction)?'':
+      'Action indisponible : vérifiez les ressources ou la décision en cours.';
+    render();return;
+  }
   if(button.hasAttribute('data-crew-order')){
     if(route.section!=='career')return;
     notice=engine.commandCrew(button.dataset.crewOrder)?'':
-      'Ordre indisponible : consultez le moral, les ressources et la limite annuelle.';
+      'Ordre indisponible : consultez le moral, les ressources et les décisions en cours.';
     render();return;
   }
   if(button.hasAttribute('data-hide-pirate')){
