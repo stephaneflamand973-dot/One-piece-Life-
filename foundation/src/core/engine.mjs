@@ -1,4 +1,4 @@
-import { createEmptyState, beginLife, advanceOneYear, resolveDecision, socialize, makeFriend, answerInitiative, socializeGroup, startRomance, doRomance, chooseFaction, actInFaction, practiceSkill, applyPirate, workPirate, practiceWithMentor, recoverFromTraining, askPiratePromotion, doPirateMission, hidePirate, resignPirate, foundPirateCrew, recruitPirateMember, orderPirateCrew, changeCrewRole, interactCrew, answerCrewEvent } from './state.mjs';
+import { createEmptyState, beginLife, advanceOneYear, resolveDecision, socialize, makeFriend, answerInitiative, socializeGroup, startRomance, doRomance, chooseFaction, actInFaction, practiceSkill, applyPirate, workPirate, practiceWithMentor, recoverFromTraining, askPiratePromotion, doPirateMission, hidePirate, resignPirate, foundPirateCrew, recruitPirateMember, orderPirateCrew, changeCrewRole, interactCrew, answerCrewEvent, managePirateShip } from './state.mjs';
 import { loadState, saveState, eraseState } from './storage.mjs';
 import { createModuleRegistry } from './modules.mjs';
 
@@ -43,6 +43,7 @@ export function createEngine({ storage, random = Math.random } = {}) {
     setCrewRole(id,role) { return commit(changeCrewRole(state,id,role)); },
     crewInteract(id,action) { return commit(interactCrew(state,id,action)); },
     crewAnswer(answer) { return commit(answerCrewEvent(state,answer)); },
+    shipAction(action,value) { return commit(managePirateShip(state,action,value)); },
     restart() {
       if (!eraseState(storage)) return false;
       state = createEmptyState();
