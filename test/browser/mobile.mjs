@@ -204,6 +204,12 @@ async function journey(browser,label,contextOptions){
         await page.locator('[data-found-crew]').click();
         assert.match(await page.locator('.career-heading h1').innerText(),/Capitaine/);
         assert.equal(await page.locator('.captain-panel').count(),1);
+        assert.equal(await page.locator('details.ship-panel').count(),1);
+        await page.locator('.ship-panel summary').click();
+        assert.equal(await page.locator('details.ship-panel').getAttribute('open'),'');
+        assert.match(await page.locator('.ship-panel').innerText(),/Voiles|Gouvernail/);
+        assert.equal(await page.locator('[data-ship-action=upgrade]').count(),4);
+
         await page.locator('#recruit-specialty').selectOption('navigateur');
         await page.locator('[data-crew-recruit]').evaluate(el=>el.requestSubmit());
         assert.equal(await page.locator('.captain-member').count(),1);
@@ -222,6 +228,7 @@ async function journey(browser,label,contextOptions){
         await page.reload({waitUntil:'networkidle'});
         assert.equal(await page.locator('.captain-member').count(),1);
         assert.equal(await page.locator('.captain-panel').innerText(),crewBefore);
+        assert.equal(await page.locator('details.ship-panel').count(),1);
         await page.locator('[data-go-training]').click();
         await page.waitForURL('**/#/activities');
         await page.locator('.training-skill').first().waitFor();
