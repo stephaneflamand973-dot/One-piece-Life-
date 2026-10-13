@@ -30,7 +30,7 @@ function oldVersion(state){
     relationships:Object.fromEntries(Object.entries({
       ...state.domainData.relationships,
       people:state.domainData.relationships.people.map(({traits,trust,respect,rivalry,...old})=>old)
-    }).filter(([key])=>key!=='pending'&&key!=='initiatives'&&key!=='groups'&&key!=='milestones'))
+    }).filter(([key])=>key!=='pending'&&key!=='initiatives'&&key!=='groups'&&key!=='milestones'&&key!=='world'))
   }};
 }
 

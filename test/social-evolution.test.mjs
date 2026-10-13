@@ -121,7 +121,7 @@ test('migration depuis V0.4.2 conserve événements, liens, décisions et groupe
   const previous={...original,schemaVersion:6,domainData:{
     ...original.domainData,
     relationships:Object.fromEntries(Object.entries(original.domainData.relationships)
-      .filter(([key])=>key!=='groups'&&key!=='milestones'))
+      .filter(([key])=>key!=='groups'&&key!=='milestones'&&key!=='world'))
   }};
   const expected=previous.domainData.relationships;
   data.clear();data.set(V06_SAVE_KEY,JSON.stringify(previous));

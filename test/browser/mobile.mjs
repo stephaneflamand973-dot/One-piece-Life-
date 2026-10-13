@@ -132,6 +132,31 @@ async function journey(browser,label,contextOptions){
         await page.locator('.bottom-nav button[data-nav=life]').click();
         await page.locator('[data-age]').waitFor();
       }
+      if(age===18){
+        await page.locator('button[data-nav=relationships]').click();
+        await page.locator('[data-join-faction=pirate]').click();
+        assert.equal(await page.locator('.world-section .relation-card').count(),4);
+        assert.match(await page.locator('.world-summary').innerText(),/Équipage des Alizés/);
+        await checkGeometry(page,label,'world-join');
+        await page.screenshot({path:picture(label,'pirate-crew')});
+        await page.reload({waitUntil:'networkidle'});
+        assert.equal(await page.locator('.world-section .relation-card').count(),4);
+        await page.locator('.bottom-nav button[data-nav=life]').click();
+        await page.locator('[data-age]').waitFor();
+      }
+      if(age===19){
+        await page.locator('button[data-nav=relationships]').click();
+        const before=Number(await page.locator('.world-score-grid b').first().innerText().then(x=>x.split('/')[0]));
+        await page.locator('[data-world-action=mission]').click();
+        const after=Number(await page.locator('.world-score-grid b').first().innerText().then(x=>x.split('/')[0]));
+        assert.ok(after>before,label+' : une mission réussie doit augmenter la réputation');
+        await checkGeometry(page,label,'world-mission');
+        await page.screenshot({path:picture(label,'world-mission')});
+        await page.reload({waitUntil:'networkidle'});
+        assert.equal(Number(await page.locator('.world-score-grid b').first().innerText().then(x=>x.split('/')[0])),after);
+        await page.locator('.bottom-nav button[data-nav=life]').click();
+        await page.locator('[data-age]').waitFor();
+      }
       if(age===8){
         await page.locator('button[data-nav=relationships]').click();
         const beforeCohesion=Number(await page.locator('.social-circle [aria-label="Cohésion du groupe"]')

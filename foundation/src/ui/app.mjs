@@ -159,6 +159,23 @@ root.addEventListener('click', event => {
     render();
     return;
   }
+  if (button.hasAttribute('data-join-faction')) {
+    if(route.section!=='relationships')return;
+    if(!engine.joinFaction(button.dataset.joinFaction)){
+      notice='Affiliation impossible pour cette année.';
+    } else {
+      notice='';
+      selectedPersonId=null;
+    }
+    render(); return;
+  }
+  if (button.hasAttribute('data-world-action')) {
+    if(route.section!=='relationships')return;
+    if(!engine.factionAction(button.dataset.worldAction)){
+      notice='Cette action de faction est indisponible.';
+    } else notice='';
+    render(); return;
+  }
   if (button.hasAttribute('data-romance-meet')) {
     if(route.section!=='relationships')return;
     if(!engine.meetPartner()){

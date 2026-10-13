@@ -4,6 +4,8 @@ import {
 } from '../core/relationships.mjs';
 import { availability, TRAIT_LABELS } from '../core/personality.mjs';
 import { activePartner, romanceAvailability, MAX_PARTNERS, MAX_CHILDREN } from '../core/romance.mjs';
+import { FACTIONS, WORLD_ROLES, WORLD_ACTIONS,
+  worldActionAvailability,worldRoleLabel } from '../core/world-relations.mjs';
 
 const degree=bond=>bond>=80?'Très proche':bond>=60?'Bon lien':bond>=35?'Lien fragile':'Relation distante';
 const labels={sociability:'Sociable',empathy:'Empathique',pride:'Fier',
@@ -19,7 +21,7 @@ function card(person,age,selected,close=false){
     <span class="relation-avatar" aria-hidden="true">${escapeHtml(person.firstName.slice(0,1))}</span>
     <span class="relation-info">
       <strong>${escapeHtml(person.firstName)} ${escapeHtml(person.lastName)}</strong>
-      <small>${roleLabel(person.role)}${person.role==='partner'?' · '+romanceName(person):''} · ${person.deceased?'Décédé(e)':displayAge+' ans'}</small>
+      <small>${roleLabel(person.role)}${person.role==='partner'?' · '+romanceName(person):''}${WORLD_ROLES.includes(person.role)?' · '+worldRoleLabel(person.role,person.worldFaction):''} · ${person.deceased?'Décédé(e)':displayAge+' ans'}</small>
       ${close?'<small class="friend-memory">Amitié marquante</small>':''}
       <span class="relation-progress" role="meter" aria-label="Lien avec ${escapeHtml(person.firstName)}"
         aria-valuemin="0" aria-valuemax="100" aria-valuenow="${person.bond}">
@@ -69,6 +71,11 @@ export function renderRelationships(state,{selectedId=null}={}){
   const age=state.activeLife.age;
   const rel=state.domainData.relationships;
   const family=rel.people.filter(p=>['mother','father','sibling'].includes(p.role));
+  const world=rel.world;
+  const worldPeople=rel.people.filter(p=>WORLD_ROLES.includes(p.role));
+  const canJoin=age>=16&&age<=65&&state.activeLife.alive&&
+    !state.domainData.story.pending&&!rel.pending&&
+    rel.actionsUsed<MAX_ACTIONS_PER_YEAR&&world.faction==='independent';
   const partners=rel.people.filter(p=>p.role==='partner');
   const children=rel.people.filter(p=>p.role==='child');
   const partner=activePartner(rel);
@@ -146,6 +153,40 @@ export function renderRelationships(state,{selectedId=null}={}){
       ${children.length?`<div class="relation-list">${children.map(p=>card(p,age,selectedId)+
         (p.id===selectedId?detail(p,state,blocked):'')).join('')}</div>`:
         '<p class="relation-empty">Vous n’avez pas encore d’enfants.</p>'}
+    </section>
+    <section class="world-section" aria-label="Factions de One Piece">
+      <div class="relation-section-title"><h2>Factions et équipages</h2>
+        <span>${world.faction==='independent'?'Sans affiliation':FACTIONS[world.faction].label}</span></div>
+      ${world.faction==='independent'?
+        `<p class="relation-empty">Pirates, Marine ou Révolutionnaires : votre choix influence votre réputation et vos relations.</p>
+          <div class="world-join-actions">
+          ${Object.entries(FACTIONS).map(([key,info])=>
+            `<button type="button" data-join-faction="${key}" ${canJoin?'':'disabled'}>
+              Rejoindre ${escapeHtml(info.label)}
+            </button>`).join('')}</div>
+          ${age<16?'<p class="relation-hint">Disponible dès 16 ans.</p>':''}`:
+        `<div class="world-summary">
+          <strong>${escapeHtml(FACTIONS[world.faction].unit)}</strong>
+          <div class="world-score-grid">
+            <span>Réputation <b>${world.reputation}/100</b></span>
+            <span>Loyauté <b>${world.loyalty}/100</b></span>
+            <span>Influence ${escapeHtml(FACTIONS[world.faction].label)} <b>${world.standings[world.faction]}/100</b></span>
+          </div>
+          <div class="world-standings">${Object.entries(FACTIONS).map(([id,info])=>
+            `<span>${escapeHtml(info.label)} : ${world.standings[id]}/100</span>`).join('')}</div>
+        </div>
+        <div class="relation-list">${worldPeople.map(p=>card(p,age,selectedId)+
+          (selectedId===p.id?detail(p,state,blocked):'')).join('')}</div>
+        <div class="relation-actions world-actions">${Object.entries(WORLD_ACTIONS).map(([id,action])=>{
+          const enabled=worldActionAvailability(rel,id,age);
+          return `<button type="button" data-world-action="${id}"
+            ${!blocked&&state.activeLife.alive&&enabled.enabled?'':'disabled'}
+            title="${escapeHtml(enabled.reason??'')}" aria-label="${escapeHtml(action.label)}">
+            <span>${escapeHtml(action.label)}</span>
+            <small>${enabled.enabled?'Chance '+enabled.chance+'%':enabled.reason}</small>
+          </button>`;
+        }).join('')}</div>
+        ${world.log.length?`<p class="relation-hint">Dernière activité : ${escapeHtml(world.log.at(-1).text)}</p>`:''}`}
     </section>
     ${rel.records.length?`<div class="relation-activity"><h2>Interactions récentes</h2>
       ${rel.records.slice(-3).reverse().map(item=>`<p><strong>${item.age} ans</strong> · ${escapeHtml(item.text)}</p>`).join('')}
