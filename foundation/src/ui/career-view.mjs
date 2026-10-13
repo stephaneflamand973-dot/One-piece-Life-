@@ -1,5 +1,5 @@
 import { escapeHtml } from './life-view.mjs';
-import { CREWS, SPECIALTIES, RANKS } from '../core/pirate-career.mjs';
+import { CREWS, SPECIALTIES, RANKS, promotionAvailability } from '../core/pirate-career.mjs';
 import { SKILLS, MAX_TRAININGS } from '../core/abilities.mjs';
 const bar=(value,label)=>`<span class="career-meter" role="meter" aria-label="${escapeHtml(label)}"
   aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}">
@@ -14,6 +14,7 @@ export function renderCareer(state){
   const role=pirate?SPECIALTIES[pirate.specialty]:null;
   const leader=relationships.people.find(p=>p.id==='world-leader');
   const latest=career.notices.at(-1);
+  const promotion=pirate?promotionAvailability(career,relationships,abilities,life):null;
   if(!pirate){
     const canApply=life.age>=16&&life.age<=65&&!blocked&&
       ['independent','pirate'].includes(relationships.world.faction);
@@ -59,6 +60,9 @@ export function renderCareer(state){
         <div><span>Rang</span><strong>${escapeHtml(RANKS[pirate.rank])}</strong></div>
         <div><span>Ancienneté</span><strong>${pirate.tenure} an${pirate.tenure>1?'s':''}</strong></div>
         <div><span>Capitaine</span><strong>${leader?escapeHtml(leader.firstName):'Inconnu'}</strong></div>
+        <div><span>Fatigue</span><strong>${abilities.fatigue}/100</strong></div>
+        <div><span>État</span><strong>${abilities.injury.level===2?'Blessure sérieuse':
+          abilities.injury.level===1?'Blessure légère':'Disponible'}</strong></div>
       </div>
       <div class="career-progress"><div class="career-progress-head"><span>Performance professionnelle</span>
         <strong>${pirate.performance}/100</strong></div>
@@ -68,13 +72,19 @@ export function renderCareer(state){
         ${bar(abilities.skills[role.skill],SKILLS[role.skill].label)}</div>
     </div>
     <div class="career-buttons">
-      <button type="button" data-work-pirate ${blocked||pirate.workUsed>=1?'disabled':''}>
+      <button type="button" data-work-pirate ${blocked||pirate.workUsed>=1||
+        abilities.injury.level===2||abilities.fatigue>=90?'disabled':''}>
         Travailler davantage <span>+ performance</span>
       </button>
       <button type="button" data-go-training ${!life.alive?'disabled':''}>
         S'entraîner <span>${MAX_TRAININGS-abilities.trainingUsed} séance${MAX_TRAININGS-abilities.trainingUsed>1?'s':''} disponible${MAX_TRAININGS-abilities.trainingUsed>1?'s':''}</span>
       </button>
+      <button type="button" class="career-promotion" data-ask-promotion
+        ${blocked||!promotion?.enabled?'disabled':''}>
+        Demander une promotion
+        <span>${promotion?.enabled?'Chance : '+promotion.chance+'%':escapeHtml(promotion?.reason??'')}</span>
+      </button>
     </div>
-    <p class="career-hint">Les compétences appartiennent au personnage, et non à cet emploi. Les missions et promotions avancées seront ajoutées progressivement.</p>
+    <p class="career-hint">Les compétences appartiennent au personnage, et non à cet emploi. Les promotions reposent sur la performance, la compétence, la confiance du capitaine et la loyauté. Les missions approfondies viendront ensuite.</p>
   </section>`;
 }

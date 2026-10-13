@@ -16,7 +16,7 @@ export const SPECIALTIES=Object.freeze({
   cuisinier:{label:'Cuisinier',skill:'cuisine',min:18},
   charpentier:{label:'Charpentier',skill:'charpenterie',min:18}
 });
-export const RANKS=Object.freeze(['Recrue','Membre confirmé']);
+export const RANKS=Object.freeze(['Recrue','Membre confirmé','Officier']);
 const cap=value=>Math.min(100,Math.max(0,Math.round(value)));
 const stamp=(career,age,type,text)=>({...career,
   notices:[...career.notices,{age,type,text}].slice(-25),lastNotice:text});
@@ -32,7 +32,7 @@ export function isValidCareer(career,life,relationships,abilities){
     return false;
   for(const item of career.notices){
     if(!item||!Number.isInteger(item.age)||item.age<16||item.age>(life?.age??0)||
-      !['application','hire','work','promotion'].includes(item.type)||
+      !['application','hire','work','promotion','rejection','sanction'].includes(item.type)||
       typeof item.text!=='string'||!item.text.trim()||item.text.length>180)
       return false;
   }
@@ -45,12 +45,14 @@ export function isValidCareer(career,life,relationships,abilities){
     !Number.isInteger(p.joinedAtAge)||p.joinedAtAge<16||p.joinedAtAge>life.age||
     !Number.isInteger(p.tenure)||p.tenure!==life.age-p.joinedAtAge||
     !Number.isInteger(p.performance)||p.performance<0||p.performance>100||
-    !Number.isInteger(p.rank)||p.rank<0||p.rank>1||
+    !Number.isInteger(p.rank)||p.rank<0||p.rank>=RANKS.length||
+    !Number.isInteger(p.askedAtAge)||p.askedAtAge< -1||
+    p.askedAtAge>life.age||
     !Number.isInteger(p.workUsed)||p.workUsed<0||p.workUsed>1||
     !relationships||relationships.world.faction!=='pirate'||
     (relationships.world.unit??CREWS.alizes.label)!==CREWS[p.crewId].label||
     !abilities||abilities.skills[SPECIALTIES[p.specialty].skill]<0)return false;
-  if(p.rank===1 && p.tenure<2)return false;
+  if((p.rank===1&&p.tenure<2)||(p.rank===2&&p.tenure<4))return false;
   return career.notices.some(n=>n.type==='hire'&&n.age===p.joinedAtAge);
 }
 export function hiringAvailability(career,relations,abilities,life,crewId,specialty){
@@ -94,32 +96,96 @@ export function applyForCrew(career,relations,abilities,life,crewId,specialty,ra
   }
   const starting=cap(37+Math.round(abilities.skills[SPECIALTIES[specialty].skill]/4));
   const pirate={crewId,specialty,joinedAtAge:age,tenure:0,
-    rank:0,performance:starting,workUsed:0};
+    rank:0,performance:starting,workUsed:0,askedAtAge:-1};
   const text='Vous rejoignez '+CREWS[crewId].label+
     ' comme '+SPECIALTIES[specialty].label+'.';
   return {career:stamp({...career,pirate,appliedAtAge:age},age,'hire',text),
     relationships:nextRel,accepted:true};
 }
-export function workHard(career,life){
+export function workHard(career,life,abilities){
   const pirate=career.pirate;
-  if(!life?.alive||!pirate||pirate.workUsed>=1)return null;
+  if(!life?.alive||!pirate||pirate.workUsed>=1||abilities.injury.level===2||abilities.fatigue>=90)return null;
   const updated={...pirate,workUsed:1,
     performance:cap(pirate.performance+5)};
   return stamp({...career,pirate:updated},life.age,'work',
     'Vous redoublez d’efforts au sein de votre équipage.');
 }
-export function ageCareer(career,abilities,life){
-  const pirate=career.pirate;
-  if(!pirate)return {career,note:''};
-  const skill=abilities.skills[SPECIALTIES[pirate.specialty].skill];
-  const delta=Math.round(skill/20)-2;
-  const performance=cap(pirate.performance+delta);
-  const tenure=life.age-pirate.joinedAtAge;
-  const promote=pirate.rank===0&&tenure>=2&&performance>=52;
-  const next={...pirate,tenure,workUsed:0,
-    performance:cap(performance+(promote?3:0)),
-    rank:promote?1:pirate.rank};
-  const note=promote?'Votre capitaine vous promeut membre confirmé.':'';
-  return {career:promote?stamp({...career,pirate:next},life.age,'promotion',note):
-    {...career,pirate:next},note};
+export function promotionAvailability(career,relations,abilities,life){
+  const p=career.pirate;
+  if(!life?.alive||!p||p.rank>=RANKS.length-1)
+    return {enabled:false,reason:'Aucun grade supérieur disponible.'};
+  if(p.askedAtAge===life.age)
+    return {enabled:false,reason:'Demande déjà effectuée cette année.'};
+  const leader=relations.people.find(person=>person.id==='world-leader'&&!person.deceased);
+  if(!leader)return {enabled:false,reason:'Votre capitaine n’est plus disponible.'};
+  const tenureMin=p.rank===0?2:4;
+  const perfMin=p.rank===0?52:68;
+  if(p.tenure<tenureMin)return {enabled:false,reason:'Ancienneté insuffisante.'};
+  if(p.performance<perfMin)return {enabled:false,reason:'Performance insuffisante.'};
+  if(abilities.injury.level===2)
+    return {enabled:false,reason:'Une blessure sérieuse empêche la promotion.'};
+  const skill=abilities.skills[SPECIALTIES[p.specialty].skill];
+  // Score dynamique : bon travail, compétence, confiance et loyauté.
+  const chance=Math.min(90,Math.max(8,Math.round(
+    12+(p.performance-50)*.85+skill*.22+
+    (leader.trust-45)*.42+(relations.world.loyalty-45)*.16+
+    (relations.world.reputation-10)*.09-
+    (p.rank===1?12:0)-(abilities.fatigue>65?10:0))));
+  return {enabled:true,chance,leader};
+}
+export function requestPromotion(career,relations,abilities,life,random=Math.random){
+  const access=promotionAvailability(career,relations,abilities,life);
+  if(!access.enabled)return null;
+  const roll=random();
+  if(!Number.isFinite(roll)||roll<0||roll>=1)throw new TypeError('Tirage invalide');
+  const success=roll<access.chance/100;
+  const p=career.pirate;
+  const rank=success?p.rank+1:p.rank;
+  const text=success?
+    'Votre capitaine vous nomme '+RANKS[rank]+'.':
+    'Votre capitaine refuse votre demande de promotion.';
+  return {career:stamp({...career,pirate:{...p,rank,askedAtAge:life.age,
+    performance:cap(p.performance+(success?2:-2))}},life.age,
+    success?'promotion':'rejection',text),success};
+}
+export function ageCareer(career,abilities,life,relations=null,random=null){
+  const p=career.pirate;
+  if(!p)return {career,note:''};
+  const skill=abilities.skills[SPECIALTIES[p.specialty].skill];
+  const fatiguePenalty=abilities.fatigue>=70?3:abilities.fatigue>=40?1:0;
+  const injuryPenalty=abilities.injury.level===2?7:
+    abilities.injury.level===1?3:0;
+  const delta=Math.round(skill/20)-2-fatiguePenalty-injuryPenalty;
+  const performance=cap(p.performance+delta);
+  const tenure=life.age-p.joinedAtAge;
+  let next={...p,tenure,workUsed:0,performance};
+  let result={...career,pirate:next},note='';
+  // Possibilité de sanction pour performances faibles et loyauté dégradée.
+  if(relations && random && performance<=28 && tenure>=2){
+    if(random()<Math.min(.65,(35-performance)/70+
+      (relations.world.loyalty<30?.15:0))){
+      next={...next,performance:cap(performance-4)};
+      note='Votre capitaine vous adresse un avertissement pour vos faibles performances.';
+      result=stamp({...career,pirate:next},life.age,'sanction',note);
+    }
+  }
+  // Promotion annuelle possible, jamais garantie; la demande manuelle reste distincte.
+  if(relations && !note && random){
+    const leader=relations.people.find(person=>person.id==='world-leader'&&!person.deceased);
+    const eligible=next.rank<RANKS.length-1 &&
+      next.tenure>=(next.rank===0?2:4) &&
+      next.performance>=(next.rank===0?52:68) &&
+      abilities.injury.level!==2 && leader;
+    if(eligible){
+      const chance=Math.max(.02,Math.min(.34,
+        .04+(next.performance-50)/300+
+        (leader.trust-50)/750+(skill-15)/800));
+      if(random()<chance){
+        next={...next,rank:next.rank+1,performance:cap(next.performance+2)};
+        note='Votre capitaine vous promeut '+RANKS[next.rank]+'.';
+        result=stamp({...career,pirate:next},life.age,'promotion',note);
+      }
+    }
+  }
+  return {career:result,note};
 }
