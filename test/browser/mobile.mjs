@@ -177,11 +177,13 @@ async function journey(browser,label,contextOptions){
         assert.ok(afterWork>performance);
         await page.locator('[data-go-training]').click();
         await page.waitForURL('**/#/activities');
+        await page.locator('.training-skill').first().waitFor();
         assert.equal(await page.locator('.training-skill').count(),11);
         await checkGeometry(page,label,'career-training');
         await page.screenshot({path:picture(label,'career')});
         await page.reload({waitUntil:'networkidle'});
         await page.locator('button[data-nav=career]').click();
+        await page.locator('[aria-label="Performance professionnelle"]').waitFor();
         assert.equal(Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow')),afterWork);
         await page.locator('.bottom-nav button[data-nav=life]').click();
