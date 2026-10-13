@@ -3,6 +3,7 @@
  * Logique pure, indépendante des écrans. Aucun lien fictif affiché avant la création.
  */
 import { ACTIONS, clamp, createProfile, isProfile, resolveReaction } from './personality.mjs';
+import { INITIATIVE_TYPES, INITIATIVE_AGES } from './initiatives.mjs';
 export { ACTIONS, TRAITS, TRAIT_LABELS, reactionChance, availability } from './personality.mjs';
 const FIRST = Object.freeze(['Sora','Mika','Nora','Kaito','Lina','Toma','Riku','Aya','Ren','Yuna','Kenji','Robin']);
 export const MAX_ACTIONS_PER_YEAR = 3;
@@ -15,7 +16,7 @@ function draw(random) {
 function take(list,random){return list[Math.floor(draw(random)*list.length)];}
 function offset(range,random){return range[0]+Math.floor(draw(random)*(range[1]-range[0]+1));}
 export function emptyRelations(){
-  return {people:[],actionsUsed:0,records:[],recent:''};
+  return {people:[],actionsUsed:0,records:[],recent:'',pending:null,initiatives:[]};
 }
 function person({id,role,firstName,lastName,ageOffset,bond,deathAge,createdAtAge=0,age=0},random){
   return createProfile({id,role,firstName,lastName,ageOffset,bond,deathAge,
@@ -36,16 +37,18 @@ export function createFamily(character,random=Math.random,currentAge=0){
   },random));
   return {...emptyRelations(),people:[mother,father,...siblings]};
 }
-export function isValidRelations(relations,age,started){
+export function isValidRelations(relations,age,started,history=null){
   if (!relations || typeof relations!=='object' || Array.isArray(relations) ||
       !Array.isArray(relations.people) || !Array.isArray(relations.records) ||
+      !Array.isArray(relations.initiatives) || relations.initiatives.length>INITIATIVE_AGES.length ||
       typeof relations.recent!=='string' || relations.recent.length>180 ||
       !Number.isInteger(relations.actionsUsed) || relations.actionsUsed<0 ||
       relations.actionsUsed>MAX_ACTIONS_PER_YEAR ||
       relations.records.length>30) return false;
   const people=relations.people;
   if (!started) return people.length===0 && relations.actionsUsed===0 &&
-    relations.records.length===0 && relations.recent==='';
+    relations.records.length===0 && relations.recent==='' &&
+    relations.pending===null && relations.initiatives.length===0;
   if (people.length<2 || people.length>2+2+MAX_FRIENDS) return false;
   const ids=new Set();
   let mother=0,father=0,sibling=0,friend=0;
@@ -72,13 +75,31 @@ export function isValidRelations(relations,age,started){
   if(age<3 && relations.actionsUsed>0) return false;
   for(const rec of relations.records){
     if(!rec||!Number.isInteger(rec.age)||rec.age<0||rec.age>age||
-      !ids.has(rec.personId)||!['talk','spend','argue','gift','help','confide','apologize','meet','loss'].includes(rec.action)||
+      !ids.has(rec.personId)||!['talk','spend','argue','gift','help','confide','apologize','meet','loss','initiative'].includes(rec.action)||
       typeof rec.text!=='string'||!rec.text.trim()||rec.text.length>180 ||
       (rec.outcome!==undefined &&
         (!['positive','negative'].includes(rec.outcome) ||
          !Number.isInteger(rec.chance)||rec.chance<0||rec.chance>100 ||
          !Number.isInteger(rec.delta)||rec.delta< -100||rec.delta>100))) return false;
   }
+  const observed=new Set();
+  for(const event of relations.initiatives){
+    if(!event || !Number.isInteger(event.age) || !INITIATIVE_AGES.includes(event.age) ||
+      event.age>age || observed.has(event.age) || !ids.has(event.personId) ||
+      !Object.hasOwn(INITIATIVE_TYPES,event.eventId) ||
+      !['accept','refuse'].includes(event.option) ||
+      (history && history[event.age]?.type!=='npc-decision')) return false;
+    observed.add(event.age);
+  }
+  const pending=relations.pending;
+  if(pending!==null){
+    if(!pending || !Number.isInteger(pending.age) || pending.age!==age ||
+      !INITIATIVE_AGES.includes(pending.age) || observed.has(pending.age) ||
+      !ids.has(pending.personId) || !Object.hasOwn(INITIATIVE_TYPES,pending.eventId) ||
+      (history && history[age]?.type!=='npc-event')) return false;
+  }
+  if(history && (history.filter(entry=>entry.type==='npc-decision').length!==relations.initiatives.length ||
+    history.filter(entry=>entry.type==='npc-event').length!==(pending?1:0)))return false;
   return true;
 }
 export function advanceRelations(relations,newAge){

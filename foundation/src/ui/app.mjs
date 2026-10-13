@@ -38,7 +38,7 @@ let lastScreen = null;
 let notice = '';
 
 function ageIsAvailable() {
-  return isHome(route) && Boolean(engine.getState().activeLife?.alive) && !engine.getState().domainData.story.pending;
+  return isHome(route) && Boolean(engine.getState().activeLife?.alive) && !engine.getState().domainData.story.pending && !engine.getState().domainData.relationships.pending;
 }
 function navButtons() {
   return NAV_ITEMS.map(({ id, label, icon: iconName }) => {
@@ -47,7 +47,7 @@ function navButtons() {
     const aria = active ? 'aria-current="page"' : '';
     if (id === HOME) {
       const ageing = ageIsAvailable();
-      const pending = isHome(route) && Boolean(engine.getState().domainData.story.pending);
+      const pending = isHome(route) && Boolean(engine.getState().domainData.story.pending || engine.getState().domainData.relationships.pending);
       const ended = isHome(route) && engine.getState().activeLife?.alive === false;
       const action = ageing ? 'data-age' : 'data-nav="life"';
       const text = ageing ? '+ Âge' : pending ? 'Choisir' : ended ? 'Fin' : 'Vie';
@@ -195,6 +195,18 @@ root.addEventListener('click', event => {
     }
     notice = '';
     visibleHistoryCount = HISTORY_PAGE_SIZE;
+    render();
+    focusPresent();
+    return;
+  }
+  if (button.hasAttribute('data-npc-choice')) {
+    if (route.section!=='life' || !engine.getState().domainData.relationships.pending) return;
+    if (!engine.answerNpc(button.dataset.npcChoice)) {
+      notice='Impossible d’enregistrer votre réponse.';
+      render(); return;
+    }
+    notice='';
+    visibleHistoryCount=HISTORY_PAGE_SIZE;
     render();
     focusPresent();
     return;
