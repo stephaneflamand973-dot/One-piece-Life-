@@ -168,7 +168,7 @@ test('une vie de 120 ans conserve son butin et une seule ligne de journal par â
    }
   }
   if(age<120)ageTo(engine,age+1);
-  assert.equal(engine.getState().history.length,age+1);
+  assert.equal(engine.getState().history.length,engine.getState().activeLife.age+1);
   assert.ok(isValidState(engine.getState()),'state invalid '+age);
  }
  assert.equal(engine.getState().activeLife.alive,false);

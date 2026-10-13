@@ -72,7 +72,7 @@ export function migrateV09(data){
   const {injury,restUsed,...abilities}=modern;
   return migrateV10({...data,schemaVersion:10,domainData:{
     story:data.domainData.story,relationships:data.domainData.relationships,
-    abilities,career:emptyCareer()
+    abilities,career:(()=>{const {missions,...legacy}=emptyCareer();return legacy;})()
   }});
 }
 /** V0.4.4 -> V0.4.5 : aucune personne ni progression n'est régénérée. */
