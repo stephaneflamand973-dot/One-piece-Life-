@@ -62,7 +62,7 @@ export function renderLife(state, { historyLimit = 8 } = {}) {
   // Le nombre de cartes DOM est borné ; le journal complet reste consultable.
   const events = state.history.filter(event => event.type !== 'event').slice().reverse();
   const limit = Math.max(1, Number.isFinite(historyLimit) ? Math.floor(historyLimit) : 8);
-  const timeline = events.slice(0, limit).map((event, index) => `<article data-history-age="${event.age}" class="story-event ${index === 0 ? 'story-latest' : ''} ${event.type === 'end' ? 'story-end' : ''} ${event.type === 'decision' ? 'story-choice' : ''}">`
+  const timeline = events.slice(0, limit).map((event, index) => `<article data-history-age="${event.age}" class="story-event ${index === 0 ? 'story-latest' : ''} ${event.type === 'end' ? 'story-end' : ''} ${event.type === 'decision' ? 'story-choice' : ''}">
     <div class="story-age">${event.age === 0 ? 'Naissance' : event.age + ' an' + (event.age > 1 ? 's' : '')}</div>
     <p>${escapeHtml(event.text)}</p>
   </article>`).join('');
