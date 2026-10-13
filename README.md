@@ -1,3 +1,27 @@
+# One Piece Life V0.5.10 · Grand Line Premium
+
+**Refonte strictement visuelle**, livrée après la V0.5.9. Aucun changement aux probabilités, décisions, âge, sauvegardes, carrière pirate ou relations. Schéma de sauvegarde inchangé (V18).
+
+## Nouvelle identité graphique
+
+- **Couleurs :** bleu océan profond, or marin, parchemin ivoire et vert lagon. Typographies natives, titres éditoriaux en serif, fonds/textures réalisés en CSS sans téléchargement externe.
+- **Vie :** carte du personnage, médaillon initial illustré, âge, statut, île actuelle, prime éventuelle, jauges réelles d'énergie, réputation, navigation et moral/volonté. Journal de bord chronologique lisible, événements récents immédiatement visibles et décisions contrastées.
+- **Carrière :** en-tête capitaine avec richesse et prime réelles ; cartes, monnaies, actions et progression harmonisées. Les panneaux existants restent repliables et fonctionnels.
+- **Navigation et navire :** bandeau cartographique décoratif situant le joueur et silhouette de navire. Aucune fausse donnée de géolocalisation et aucun impact sur les routes.
+- **Relations :** portraits monogrammes façon cartes de personnages, progression affinée, fiches et interactions plus contrastées.
+- **Activités :** panneaux d'entraînement, jauges et actions homogènes.
+- **Marque/PWA :** rose des vents dorée sur fond marine, en-tête et navigation basse premium, couleurs système cohérentes.
+
+Le thème vit dans `foundation/grand-line-premium.css`, chargé **après** `foundation/styles.css`. Cela permet de faire évoluer l'apparence sans toucher au moteur ni à l'architecture fonctionnelle.
+
+## Garanties
+
+Pas d'images distantes, pas de nouvelles dépendances, pas de modification des règles et aucune nouvelle clé de sauvegarde. Les interactions restent compatibles avec iPhone, Chromium, WebKit et les petits écrans. Les tests et vérifications visuelles sont inclus.
+
+---
+
+## Historique de la V0.5.9
+
 # One Piece Life V0.5.9 · Rencontres et combat naval
 
 Cette version ajoute un **moteur de confrontations en mer** dans la carrière pirate, au même endroit que la navigation et le commandement. Les déplacements, combats, négociations, réparations et explorations ne font jamais vieillir : seul **+ Âge** ajoute une année.

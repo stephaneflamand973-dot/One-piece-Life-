@@ -15,8 +15,15 @@ export function renderActivities(state){
   const injury=abilities.injury;
   const injuryName=injury.level===2?'Blessure sérieuse':injury.level===1?'Blessure légère':null;
   return `<section class="training-page" aria-label="Entraînement et capacités">
-    <div class="career-heading"><h1>Entraînement</h1>
-      <p>Développez vos capacités, même avant de commencer votre carrière.</p></div>
+    <div class="career-heading">
+      <p class="premium-eyebrow">DÉVELOPPEMENT DU PERSONNAGE</p>
+      <h1>Entraînement</h1>
+      <p>Développez vos capacités, même avant de commencer votre carrière.</p>
+      <div class="training-hero-counters" aria-label="État de l'entraînement">
+        <span><strong>${abilities.trainingUsed}/${MAX_TRAININGS}</strong><small>Séances utilisées</small></span>
+        <span><strong>${abilities.fatigue}/100</strong><small>Fatigue</small></span>
+      </div>
+    </div>
     <div class="training-summary"><span>Séances : <strong>${abilities.trainingUsed}/${MAX_TRAININGS}</strong></span>
       <span>Fatigue : <strong>${abilities.fatigue}/100</strong></span></div>
     ${injuryName?`<p class="training-injury" role="status">${injuryName} · récupération prévue à ${injury.recoverAtAge} ans.</p>`:''}

@@ -1,13 +1,13 @@
 {
-  "name": "One Piece Life • Fondation",
+  "name": "One Piece Life · Grand Line Premium",
   "short_name": "OP Life",
-  "description": "Base vierge One Piece Life",
+  "description": "Simulation de vie et de carrière pirate",
   "id": "./foundation-blank",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f9f8f5",
-  "theme_color": "#f9f8f5",
+  "background_color": "#112b42",
+  "theme_color": "#112b42",
   "lang": "fr",
   "orientation": "portrait-primary",
   "icons": [

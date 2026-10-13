@@ -56,6 +56,12 @@ async function journey(browser,label,contextOptions){
     await page.locator('#place-select').selectOption({label:'Village de Fuchsia'});
     await page.locator('[data-create-life] button[type=submit]').click();
     assert.match(await page.locator('.character-header h1').innerText(),/Lina Marin/);
+    assert.equal(await page.locator('.hero-meter').count(),4);
+    assert.match(await page.locator('.hero-eyebrow').innerText(),/AVENTURIER/);
+    const themeBackground=await page.locator('.topbar').evaluate(
+      el=>getComputedStyle(el).backgroundImage);
+    assert.match(themeBackground,/gradient/,'La barre premium doit être visible');
+    assert.equal(await page.locator('.brand-wordmark small').innerText(),'GRAND LINE PREMIUM');
     assert.equal(await page.locator('.story-event').count(),1);
     await checkGeometry(page,label,'born');
     await page.screenshot({path:picture(label,'birth')});
@@ -205,7 +211,9 @@ async function journey(browser,label,contextOptions){
         assert.match(await page.locator('.career-heading h1').innerText(),/Capitaine/);
         assert.equal(await page.locator('.captain-panel').count(),1);
         assert.equal(await page.locator('details.navigation-panel').count(),1);
+        assert.equal(await page.locator('.career-hero-finances>span').count(),2);
         await page.locator('.navigation-panel summary').click();
+        assert.equal(await page.locator('.sea-chart').isVisible(),true);
         assert.match(await page.locator('.navigation-panel').innerText(),/Village de Fuchsia/);
         assert.equal(await page.locator('[data-voyage=shells]').isEnabled(),true);
         // Traversée calme, patrouille Marine, interception : décision persistante.
@@ -236,6 +244,7 @@ async function journey(browser,label,contextOptions){
 
         assert.equal(await page.locator('details.ship-panel').count(),1);
         await page.locator('.ship-panel summary').click();
+        assert.equal(await page.locator('.ship-blueprint').isVisible(),true);
         assert.equal(await page.locator('details.ship-panel').getAttribute('open'),'');
         assert.match(await page.locator('.ship-panel').innerText(),/Voiles|Gouvernail/);
         assert.equal(await page.locator('[data-ship-action=upgrade]').count(),4);

@@ -30,10 +30,10 @@ function focusPresent() {
 
 const ICONS = Object.freeze({
   briefcase: '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2"/>',
-  wallet: '<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18M15 13h6v5h-6a2.5 2.5 0 0 0 0-5z"/>',
+  wallet: '<path d="M3 9h18v11H3zM6 9V5h12v4M10 14h4M12 12v4"/><path d="M3 9l3-3h12l3 3"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   users: '<path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3.2a4 4 0 0 1 0 7.6M22 20v-2a4 4 0 0 0-3-3.9"/>',
-  dots: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+  dots: '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2zM12 3v2M12 19v2M3 12h2M19 12h2"/>',
   back: '<path d="m15 18-6-6 6-6"/>'
 });
 const icon = name => `<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ''}</svg>`;
@@ -99,7 +99,8 @@ function render() {
     <header class="topbar">
       <div class="topbar-leading">${backButton}
         <button class="brand" data-nav="life" type="button" aria-label="Aller à la vie">
-          <span class="brand-mark" aria-hidden="true">OP</span><span>ONE PIECE LIFE</span>
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 36 36" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="11"/><path d="M18 3v30M3 18h30M7.4 7.4l21.2 21.2M28.6 7.4 7.4 28.6"/><circle cx="18" cy="18" r="3.6" fill="currentColor" stroke="none"/></svg></span>
+          <span class="brand-wordmark">ONE PIECE LIFE<small>GRAND LINE PREMIUM</small></span>
         </button>
       </div>${menu}
     </header>

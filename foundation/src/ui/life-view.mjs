@@ -1,4 +1,5 @@
 import { SEAS, seaById } from '../core/places.mjs';
+import {ISLANDS, SEA_LABELS} from '../core/pirate-navigation.mjs';
 import { sceneForAge, QUALITY_KEYS } from '../core/events.mjs';
 import { initiativeScene } from '../core/initiatives.mjs';
 
@@ -32,6 +33,17 @@ export function renderCreation() {
       <button class="start-button" type="submit">Commencer ma vie <span aria-hidden="true">→</span></button>
     </form>
   </section>`;
+}
+/** Les barres reflètent exclusivement des données déjà calculées par le moteur. */
+function heroMeter(label,value,variant){
+ const score=Math.max(0,Math.min(100,Math.round(value)));
+ return `<div class="hero-meter hero-meter-${variant}">
+   <div class="hero-meter-top"><span>${escapeHtml(label)}</span><strong>${score}%</strong></div>
+   <span class="hero-meter-track" role="meter" aria-label="${escapeHtml(label)}"
+     aria-valuemin="0" aria-valuemax="100" aria-valuenow="${score}">
+     <span style="width:${score}%"></span>
+   </span>
+ </div>`;
 }
 const QUALITY_LABELS = Object.freeze({ audace: 'Audace', curiosite: 'Curiosité', solidarite: 'Solidarité' });
 function qualitySummary(story) {
@@ -73,6 +85,14 @@ export function renderLife(state, { historyLimit = 8 } = {}) {
   if (!person) return renderCreation();
   const story = state.domainData.story;
   const seaLabel = seaById(person.origin.sea)?.label ?? '';
+  const {abilities,career,relationships}=state.domainData;
+  const ownShip=career.command;
+  const destination=ownShip?.navigation?.location;
+  const currentPlace=destination?ISLANDS[destination]?.name:person.origin.place;
+  const currentSea=destination?SEA_LABELS[ISLANDS[destination]?.sea]:seaLabel;
+  const vocation=ownShip?'CAPITAINE PIRATE':career.pirate?'PIRATE':'AVENTURIER';
+  const bounty=career.wanted?.bounty??0;
+  const mood=ownShip?ownShip.morale:abilities.skills.volonte;
   // Les sauvegardes restent strictement chronologiques. Seule la vue est inversée.
   // Le nombre de cartes DOM est borné ; le journal complet reste consultable.
   const events = state.history.filter(event => event.type !== 'event' && event.type !== 'npc-event').slice().reverse();
@@ -88,15 +108,31 @@ export function renderLife(state, { historyLimit = 8 } = {}) {
       </button>`
     : '';
   return `<section class="life-main" aria-label="Vie de votre personnage">
-    <div class="character-header">
-      <span class="character-initial" aria-hidden="true">${escapeHtml(person.firstName.slice(0, 1).toUpperCase())}</span>
-      <div><h1>${escapeHtml(person.firstName)} ${escapeHtml(person.lastName)}</h1>
-      <p>${person.age} an${person.age > 1 ? 's' : ''} · ${escapeHtml(person.origin.place)} · ${escapeHtml(seaLabel)}</p></div>
-    </div>
+    <header class="character-header">
+      <div class="hero-main">
+        <span class="hero-portrait" aria-hidden="true">
+          <span class="character-initial">${escapeHtml(person.firstName.slice(0, 1).toUpperCase())}</span>
+        </span>
+        <div class="hero-identity">
+          <span class="hero-eyebrow">${vocation} <span aria-hidden="true">✦</span> ${person.age} ANS</span>
+          <h1>${escapeHtml(person.firstName)} ${escapeHtml(person.lastName)}</h1>
+          <p>${escapeHtml(currentPlace??person.origin.place)} · ${escapeHtml(currentSea??seaLabel)}</p>
+        </div>
+      </div>
+      ${bounty>0?`<div class="hero-bounty"><span>AVIS DE RECHERCHE</span>
+        <strong>${bounty.toLocaleString('fr-FR')} Berrys</strong></div>`:''}
+      <div class="hero-stats" aria-label="État actuel du personnage">
+        ${heroMeter('Énergie',100-abilities.fatigue,'energy')}
+        ${heroMeter('Réputation',relationships.world.reputation,'reputation')}
+        ${heroMeter('Navigation',abilities.skills.navigation,'navigation')}
+        ${heroMeter(ownShip?'Moral':'Volonté',mood,'morale')}
+      </div>
+    </header>
     ${qualitySummary(story)}
     ${decisionPanel(story)}
     ${npcPanel(state.domainData.relationships)}
-    <div class="story-title"><h2>Ma vie</h2><span>${person.age} an${person.age > 1 ? 's' : ''}</span></div>
+    <div class="story-title"><div><span class="story-kicker">JOURNAL DE BORD</span>
+      <h2>Mon histoire</h2></div><span>${person.age} an${person.age > 1 ? 's' : ''}</span></div>
     <div class="story-list" aria-label="Événements du plus récent au plus ancien">${timeline}${more}</div>
   </section>`;
 }

@@ -1,1 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="44" fill="#176d55"/><text x="96" y="116" text-anchor="middle" font-family="Arial,sans-serif" font-size="72" font-weight="800" fill="white">OP</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="One Piece Life, rose des vents">
+ <defs>
+  <linearGradient id="ocean" x1="0" y1="0" x2="1" y2="1">
+   <stop stop-color="#26546c"/><stop offset="1" stop-color="#0b2238"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2=".8" y2="1">
+   <stop stop-color="#f5dca5"/><stop offset="1" stop-color="#c28c42"/>
+  </linearGradient>
+ </defs>
+ <rect width="192" height="192" rx="42" fill="url(#ocean)"/>
+ <rect x="9" y="9" width="174" height="174" rx="35" fill="none" stroke="#c99850" stroke-opacity=".75" stroke-width="3"/>
+ <circle cx="96" cy="93" r="59" fill="none" stroke="url(#gold)" stroke-width="5"/>
+ <circle cx="96" cy="93" r="45" fill="none" stroke="#e4c38c" stroke-width="1.5" stroke-opacity=".65"/>
+ <g stroke="url(#gold)" stroke-linecap="round" stroke-width="5">
+  <path d="M96 24V163M27 93H165M47 44L145 142M145 44L47 142"/>
+ </g>
+ <path d="M96 42L108 81 148 93 108 105 96 146 84 105 44 93 84 81Z" fill="url(#gold)" stroke="#f8e8c6" stroke-width="2"/>
+ <circle cx="96" cy="93" r="12" fill="#17384e" stroke="#f8dfad" stroke-width="3"/>
+ <path d="M36 161C56 151 76 151 96 161S136 171 156 161" stroke="#98bfc6" stroke-width="4" stroke-linecap="round" fill="none"/>
+</svg>
