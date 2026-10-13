@@ -62,9 +62,11 @@ async function journey(browser,label,contextOptions){
     assert.equal(await page.locator('.story-latest').getAttribute('data-history-age'),'1');
     await page.locator('button[data-nav=career]').click();
     await page.waitForURL('**/#/career');
+    await page.locator('button[data-back]').waitFor();
     assert.equal(await page.locator('[data-age]').count(),0);
     await page.locator('button[data-back]').click();
     await page.waitForURL('**/#/life');
+    await page.locator('.story-latest').waitFor();
     assert.equal(await page.locator('.story-latest').getAttribute('data-history-age'),'1');
 
     for(let age=2;age<=6;age++) await page.locator('[data-age]').click();
