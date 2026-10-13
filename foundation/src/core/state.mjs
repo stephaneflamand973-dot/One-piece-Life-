@@ -10,7 +10,7 @@ import {
 } from './relationships.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end']);
 
 export function createEmptyState() {
@@ -142,11 +142,11 @@ export function resolveDecision(state, optionId) {
 }
 
 /** Actions sociales : elles n'avancent pas le temps et ne créent pas d'année supplémentaire. */
-export function socialize(state,personId,action){
+export function socialize(state,personId,action,random=Math.random){
   if(!isValidState(state) || !state.activeLife?.alive ||
     state.domainData.story.pending) return null;
   const relations=interact(state.domainData.relationships,personId,action,
-    state.activeLife.age,state.domainData.story.qualities.solidarite);
+    state.activeLife.age,state.domainData.story.qualities.solidarite,random);
   return relations ? {...state,domainData:{...state.domainData,relationships:relations}} : null;
 }
 export function makeFriend(state,random=Math.random){

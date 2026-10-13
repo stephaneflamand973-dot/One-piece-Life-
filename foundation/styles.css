@@ -174,3 +174,23 @@ body { overflow-x:clip; }
   .relation-actions{gap:5px}
   .relation-actions button{font-size:10px}
 }
+
+/* V0.4.1 : personnalité et détails lisibles sur petits écrans */
+.relation-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
+.relation-tags span{border-radius:20px;background:#e8f3f5;color:#255c73;
+  padding:6px 10px;font-size:11px;font-weight:700}
+.relation-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;margin-bottom:16px}
+.relation-metrics div{display:flex;min-width:0;flex-direction:column;gap:4px;
+  align-items:center;padding:10px 5px;border-radius:9px;background:#eaf2f4}
+.relation-metrics span{font-size:10px;color:#51727f}
+.relation-metrics strong{font-size:12px;color:var(--ocean)}
+.relation-detail h4{font-size:12px;margin:8px 0 11px;color:#56707c}
+.relation-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.relation-actions button{min-height:54px;padding:8px;display:flex;
+  flex-direction:column;align-items:flex-start;justify-content:center;
+  gap:5px;text-align:left}
+.relation-actions button span{font-size:11px}
+.relation-actions button small{font-size:10px;font-weight:550;color:#74919d}
+.relation-actions button:disabled{opacity:.43}
+@media(max-width:340px){.relation-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}

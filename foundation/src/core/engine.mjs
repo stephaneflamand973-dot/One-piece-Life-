@@ -20,7 +20,7 @@ export function createEngine({ storage, random = Math.random } = {}) {
     },
     age() { return commit(advanceOneYear(state)); },
     choose(optionId) { return commit(resolveDecision(state, optionId)); },
-    interact(personId,action) { return commit(socialize(state,personId,action)); },
+    interact(personId,action) { return commit(socialize(state,personId,action,random)); },
     meet() { return commit(makeFriend(state,random)); },
     restart() {
       if (!eraseState(storage)) return false;
