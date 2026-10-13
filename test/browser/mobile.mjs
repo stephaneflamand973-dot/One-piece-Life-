@@ -188,6 +188,8 @@ async function journey(browser,label,contextOptions){
         const performanceAfterMissions=Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow'));
         const walletAfter=await page.locator('.career-mission-wallet strong').first().innerText();
+        // Deux missions ordinaires ne doivent pas créer une prime artificielle.
+        assert.match(await page.locator('.wanted-bounty strong').innerText(),/^0[\s\u00a0]*Berrys$/);
         const wantedBeforeReload=await page.locator('.wanted-metrics').innerText();
         assert.match(wantedBeforeReload,/Notoriété mondiale/);
         assert.equal(await page.locator('[data-hide-pirate]').isEnabled(),false);
