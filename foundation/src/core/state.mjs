@@ -20,9 +20,10 @@ import { foundOwnCrew, leaveOwnEmployer, recruitToCrew, giveOrder } from './pira
 import { assignCrewRole,actWithCrew,resolveCrewRequest } from './pirate-crew-life.mjs';
 import {manageShip} from './pirate-ships.mjs';
 import {sailToIsland,exploreIsland} from './pirate-navigation.mjs';
+import {resolveEncounter} from './pirate-encounters.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 17;
+export const SCHEMA_VERSION = 18;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
@@ -120,7 +121,8 @@ export function advanceOneYear(state,random=null) {
   if (!isValidState(state) || !state.activeLife ||
       (state.domainData.story.pending !== null ||
        state.domainData.relationships.pending !== null ||
-       state.domainData.career.command?.pending)) return null;
+       state.domainData.career.command?.pending||
+       state.domainData.career.command?.encounters.pending)) return null;
   const life = advanceLife(state.activeLife);
   if (!life) return null;
   let abilities=ageAbilities(state.domainData.abilities,life.age);
@@ -350,6 +352,7 @@ export function workPirate(state){
 export function doPirateMission(state,id,random=Math.random){
   if(!isValidState(state)||!state.activeLife?.alive||
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  if(state.domainData.career.command?.encounters.pending)return null;
   const outcome=performMission(state.domainData.career,state.domainData.abilities,
     state.domainData.relationships,state.activeLife,id,random);
   if(!outcome)return null;
@@ -386,7 +389,8 @@ function careerChangeState(state,career,relationships=state.domainData.relations
 function canManageCareer(state){
   return isValidState(state)&&state.activeLife?.alive&&
     !state.domainData.story.pending&&!state.domainData.relationships.pending&&
-    !state.domainData.career.command?.pending;
+    !state.domainData.career.command?.pending&&
+    !state.domainData.career.command?.encounters.pending;
 }
 export function resignPirate(state){
   if(!canManageCareer(state))return null;
