@@ -392,3 +392,12 @@ body { overflow-x:clip; }
 .navigation-log p{border-top:1px solid var(--line);padding-top:9px;margin:8px 0}
 @media(max-width:340px){.navigation-panel>summary{font-size:12px}
  .navigation-routes{grid-template-columns:1fr}}
+
+/* V0.5.9 : rencontre visible avant la navigation, choix compacts sur téléphone. */
+.encounter-panel{border-color:var(--ocean);background:#f7fbfd}
+.encounter-panel .career-mission-top{flex-wrap:wrap;align-items:center;gap:6px}
+.encounter-panel .career-mission-top h2{margin:0}
+.encounter-panel .captain-order-actions{margin-top:12px}
+.encounter-panel .captain-order-actions button{text-align:left;min-height:70px}
+.encounter-panel .captain-order-actions button small{display:block;line-height:1.4}
+@media(max-width:340px){.encounter-panel .captain-order-actions{grid-template-columns:1fr}}
