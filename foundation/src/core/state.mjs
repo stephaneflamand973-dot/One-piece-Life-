@@ -4,14 +4,18 @@ import {
   QUALITY_KEYS, emptyStory, sceneForAge, optionFor,
   annualNarrative, qualityAfterChoice
 } from './events.mjs';
+import {
+  emptyRelations, createFamily, isValidRelations, advanceRelations,
+  interact, meetFriend, socialAnnualNote
+} from './relationships.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end']);
 
 export function createEmptyState() {
   return { schemaVersion: SCHEMA_VERSION, activeLife: null,
-    history: [], domainData: { story: emptyStory() } };
+    history: [], domainData: { story: emptyStory(), relationships: emptyRelations() } };
 }
 export function isEmptyState(state) {
   return isValidState(state) && state.activeLife === null;
@@ -50,14 +54,16 @@ export function isValidState(state) {
   if (!state || typeof state !== 'object' || state.schemaVersion !== SCHEMA_VERSION ||
       !Array.isArray(state.history) || !state.domainData ||
       typeof state.domainData !== 'object' || Array.isArray(state.domainData) ||
-      Object.keys(state.domainData).length !== 1 ||
-      !Object.prototype.hasOwnProperty.call(state.domainData, 'story')) return false;
+      Object.keys(state.domainData).length !== 2 ||
+      !Object.prototype.hasOwnProperty.call(state.domainData, 'story') ||
+      !Object.prototype.hasOwnProperty.call(state.domainData, 'relationships')) return false;
 
   if (state.activeLife === null)
     return state.history.length === 0 &&
       validStory(state.domainData.story, state.history, 0) &&
       state.domainData.story.pending === null &&
-      state.domainData.story.decisions.length === 0;
+      state.domainData.story.decisions.length === 0 &&
+      isValidRelations(state.domainData.relationships,0,false);
   const c = state.activeLife;
   if (!c || typeof c !== 'object' || Array.isArray(c) ||
       typeof c.firstName !== 'string' || !c.firstName.trim() || c.firstName.length > 32 ||
@@ -78,29 +84,36 @@ export function isValidState(state) {
         (item.type === 'event' && i !== c.age) ||
         (item.type === 'decision' && !sceneForAge(i))) return false;
   }
-  return validStory(state.domainData.story, state.history, c.age);
+  return validStory(state.domainData.story, state.history, c.age) &&
+    isValidRelations(state.domainData.relationships,c.age,true);
 }
 export function beginLife(state, options = {}, random = Math.random) {
   if (!isEmptyState(state)) throw new Error('Partie non vierge ou invalide');
   const life = createCharacter(options, random);
-  return { ...state, activeLife: life, history: [birthEntry(life)] };
+  return { ...state, activeLife: life, history: [birthEntry(life)],
+    domainData: {...state.domainData,relationships:createFamily(life,random)} };
 }
 export function advanceOneYear(state) {
   if (!isValidState(state) || !state.activeLife ||
       state.domainData.story.pending !== null) return null;
   const life = advanceLife(state.activeLife);
   if (!life) return null;
+  const update = advanceRelations(state.domainData.relationships,life.age);
+  const relations = update.relations;
   if (!life.alive) {
-    return { ...state, activeLife: life, history: [...state.history, ageEntry(life)] };
+    return { ...state, activeLife:life, history:[...state.history,ageEntry(life)],
+      domainData:{...state.domainData,relationships:relations} };
   }
   const scene = sceneForAge(life.age);
   const story = state.domainData.story;
-  const entry = scene
-    ? { age: life.age, type: 'event', text: scene.text }
-    : { age: life.age, type: 'year', text: annualNarrative(life, story) };
-  const nextStory = scene ? { ...story, pending: { age: life.age, eventId: scene.id } } : story;
-  return { ...state, activeLife: life, history: [...state.history, entry],
-    domainData: { story: nextStory } };
+  const socialNote = socialAnnualNote(relations,life.age);
+  const addition = [...update.announcements,socialNote].filter(Boolean).join(' ');
+  const intro = scene ? scene.text : annualNarrative(life,story);
+  const entry = { age:life.age,type:scene?'event':'year',
+    text:(addition ? intro+' '+addition : intro).slice(0,300) };
+  const nextStory = scene ? {...story,pending:{age:life.age,eventId:scene.id}} : story;
+  return {...state,activeLife:life,history:[...state.history,entry],
+    domainData:{story:nextStory,relationships:relations} };
 }
 export function resolveDecision(state, optionId) {
   if (!isValidState(state) || !state.activeLife) return null;
@@ -116,5 +129,30 @@ export function resolveDecision(state, optionId) {
   };
   const newHistory = [...state.history];
   newHistory[newHistory.length - 1] = { age: scene.age, type: 'decision', text: option.result };
-  return { ...state, domainData: { story: newStory }, history: newHistory };
+  const relations = state.domainData.relationships;
+  // Une attitude solidaire renforce aussi le lien avec l'entourage familial.
+  const relative = relations.people.find(p=>p.role==='mother'&&!p.deceased) ??
+    relations.people.find(p=>p.role==='father'&&!p.deceased);
+  const updatedRelations = option.quality==='solidarite' && relative
+    ? {...relations,people:relations.people.map(p=>p.id===relative.id
+      ? {...p,bond:Math.min(100,p.bond+3)}:p)}
+    : relations;
+  return {...state,domainData:{story:newStory,relationships:updatedRelations},
+    history:newHistory};
+}
+
+/** Actions sociales : elles n'avancent pas le temps et ne créent pas d'année supplémentaire. */
+export function socialize(state,personId,action){
+  if(!isValidState(state) || !state.activeLife?.alive ||
+    state.domainData.story.pending) return null;
+  const relations=interact(state.domainData.relationships,personId,action,
+    state.activeLife.age,state.domainData.story.qualities.solidarite);
+  return relations ? {...state,domainData:{...state.domainData,relationships:relations}} : null;
+}
+export function makeFriend(state,random=Math.random){
+  if(!isValidState(state) || !state.activeLife?.alive ||
+    state.domainData.story.pending) return null;
+  const relations=meetFriend(state.domainData.relationships,state.activeLife,
+    state.activeLife.age,random);
+  return relations ? {...state,domainData:{...state.domainData,relationships:relations}} : null;
 }
