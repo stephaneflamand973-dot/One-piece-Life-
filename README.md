@@ -1,58 +1,29 @@
-# ONE PIECE LIFE · Fondation V0.3.2
+# ONE PIECE LIFE · V0.4 — Famille et relations
 
-Un moteur d'événements annuel minimal, autonome et **lié à des choix dont les conséquences sont conservées**.
+## Jouable
+- **Famille générée à la naissance** : père, mère et éventuellement jusqu'à deux frères ou sœurs, avec âges et affinités propres.
+- **Amis** : à partir de six ans, possibilité de rencontrer jusqu'à quatre personnages différents.
+- **Interactions** : discuter, passer du temps, se disputer. Chaque choix influence concrètement la force du lien (0 à 100).
+- **Limites équilibrées** : deux actions sociales par année, au maximum une interaction avec la même personne par an, interactions possibles à partir de trois ans.
+- **Évolution annuelle** : affinités amicales et fraternelles qui s'érodent légèrement sans contact, âges qui progressent, décès selon un âge de fin de vie propre à chaque personne.
+- **Conséquences narratives** : certains jalons de solidarité renforcent les liens familiaux, et les amitiés durables ou fragiles peuvent être mentionnées dans le fil de vie.
+- **Premier onglet Relations réellement actif** : famille, amis, niveau de relation, fiche de chaque personne, actions et dernières interactions. Aucun nouveau sous-menu parasite.
+- **Sauvegardes** : V0.4 utilise une nouvelle clé, importe les parties V0.3 et V0.2 sans effacer les originales. Le reset V0.4 bloque la résurrection d'anciennes parties.
+- La règle fondamentale est conservée : **un clic + Âge = une année et une seule entrée dans le fil**.
 
-## Correctifs V0.3.2 · stabilité mobile
+## Mécaniques volontairement absentes
+Rencontres amoureuses, enfants, mariage, divorces, PNJ canons, professions et factions feront l'objet de modules ultérieurs. Il n'existe aucun bouton inutilisable pour les simuler.
 
-- Accès continu au bouton « + Âge » et à la barre de navigation sur écrans étroits et écrans à encoche (zones de sécurité iOS).
-- Le bouton « Voir les années précédentes » garde le défilement et le focus après extension ; aucun saut vers la naissance.
-- Défilement de retour au présent compatible Safari, sans animation ou risque de méthode non prise en charge.
-- Lorsqu'un champ de création est actif, la barre inférieure se cache (navigateurs compatibles `:has`) pour éviter le recouvrement par le clavier virtuel.
-- Gestion du débordement des textes longs et du rétrécissement à 320 pixels.
-- Parcours de bout en bout automatisés en navigateur mobile Chromium et WebKit dans GitHub Actions.
-- **Moteur, événements, décisions, sauvegardes et histoire restent inchangés.**
-
-## Amélioration V0.3.1 : fil de vie façon BitLife
-
-- **Dernière année en premier** : le journal affiche d'abord le présent puis les années précédentes.
-- **Huit entrées par lot**, avec « Voir les années précédentes » pour remonter dans toute sa vie. Aucun événement ni choix n'est supprimé.
-- **Fiche personnage compacte et épinglée** sous la barre supérieure pendant le défilement.
-- **+ Âge** reste fixé en bas ; chaque année et chaque décision ramène au présent (haut de la page), jamais à la fin.
-- Une décision active reste sous la fiche, au-dessus du journal. Elle ne se retrouve pas répétée dans le fil.
-- Le moteur, les données, l'ordre chronologique de sauvegarde et la migration V0.2 restent inchangés.
-- Les tests vérifient l'affichage inversé, la pagination, la mémoire des décisions et la stabilité des sauvegardes.
-
-## Fonctionnel
-
-- Personnage créé à 0 an, nom/genre/mer et lieu facultatifs.
-- À chaque pression sur **+ Âge**, exactement une année de progression et une entrée dans le journal.
-- Les années ordinaires génèrent un court événement contextuel selon la tranche d'âge.
-- **8 décisions jalons** : 6, 12, 16, 18, 25, 35, 50 et 70 ans.
-- Lors d'une décision, le moteur stoppe la progression en attendant la réponse, y compris après rechargement.
-- Les choix influencent trois qualités discrètes, **Audace, Curiosité, Solidarité**, plafonnées à 5, et produisent des suites narratives différentes l'année suivante.
-- Les qualités apparaissent dans la fiche seulement après qu'elles ont été développées.
-- Les décisions sont enregistrées dans le journal, sans ajouter de page.
-- Reprise automatique des parties V0.2 (clé `opl:foundation:life-v02`) dans V0.3 (clé `opl:foundation:life-v03`), sans effacer l'original.
-- Le bouton **Nouvelle vie** stocke un état vide en V0.3 et empêche la résurrection d'anciennes parties V0.2.
-- Les autres rubriques sont toujours des contenants vides.
-
-## Structure
-
-- `foundation/src/core/events.mjs` : scènes jalons, choix, conséquences et événements annuels par âge.
-- `foundation/src/core/state.mjs` : transitions pures, validation de l'historique, choix en attente.
-- `foundation/src/core/engine.mjs` : transitions commitées uniquement après sauvegarde réussie.
-- `foundation/src/core/storage.mjs` : sauvegarde V0.3, migration stricte et conservatrice V0.2.
-- `foundation/src/ui/life-view.mjs` : un panneau de décision contextuel, aucun écran superflu.
-- `foundation/src/ui/app.mjs` : événements UI, navigation stable V0.1.
-
-## Limites volontaires
-
-Il n'y a pas encore de missions, de combats, de faction, d'argent, de statistiques de santé, de PNJ ou de relations. Les événements n'en prétendent pas le contraire. Les qualités constituent des traces narratives simples, pas un système de progression complet.
+## Architecture
+`foundation/src/core/relationships.mjs` calcule des liens persistants et toutes les actions.
+`foundation/src/ui/relations-view.mjs` affiche les liens sans enregistrer de données.
+`foundation/src/core/state.mjs` assure les validations et l'intégration à la simulation annuelle.
+`foundation/src/core/storage.mjs` gère l'import conservateur V0.2 / V0.3 vers V0.4.
 
 ## Tester
-
 ```sh
 npm test
 python3 -m http.server 8000
 ```
-Ouvrir `http://localhost:8000/foundation/`. Tester les décisions en attente après rechargement et l'affichage mobile avant de considérer l'ergonomie définitivement validée.
+Ouvrir `http://localhost:8000/foundation/`.
+La QA automatisée couvre Chromium mobile (320/390/430 px) et WebKit iPhone simulé.

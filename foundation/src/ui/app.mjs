@@ -1,16 +1,22 @@
 import { createEngine } from '../core/engine.mjs';
 import { NAV_ITEMS, SECTIONS, HOME, isHome, resolveHash, makeHash, parentHash } from '../core/navigation.mjs';
 import { renderLife, placeOptions, escapeHtml } from './life-view.mjs';
+import { renderRelationships } from './relations-view.mjs';
 
 const root = document.getElementById('app');
 if (!root) throw new Error('Point de montage absent.');
 const engine = createEngine();
 const HISTORY_PAGE_SIZE = 8;
 let visibleHistoryCount = HISTORY_PAGE_SIZE;
+let selectedPersonId = null;
 engine.modules.register({
   id: 'life',
   label: 'Vie',
   render: state => renderLife(state, { historyLimit: visibleHistoryCount })
+});
+engine.modules.register({
+  id:'relationships',label:'Relations',
+  render:state=>renderRelationships(state,{selectedId:selectedPersonId})
 });
 function focusPresent() {
   // Pas de scrollIntoView vers la fin du journal : le présent est en tête.
@@ -130,6 +136,7 @@ root.addEventListener('submit', event => {
     notice = '';
   }
   visibleHistoryCount = HISTORY_PAGE_SIZE;
+  selectedPersonId = null;
   render();
   if (!notice) focusPresent();
 });
@@ -137,6 +144,32 @@ root.addEventListener('click', event => {
   const button = event.target.closest('button');
   if (!button || !root.contains(button) || button.disabled) return;
   if (button.hasAttribute('data-back')) { back(); return; }
+  if (button.hasAttribute('data-person')) {
+    selectedPersonId=button.dataset.person===selectedPersonId ? null : button.dataset.person;
+    notice='';
+    render();
+    root.querySelector('.relation-card.is-selected')?.focus({preventScroll:true});
+    return;
+  }
+  if (button.hasAttribute('data-interact')) {
+    if(route.section!=='relationships')return;
+    if(!engine.interact(button.dataset.personId,button.dataset.interact)){
+      notice='Interaction impossible pour cette année.';
+    } else notice='';
+    render();
+    return;
+  }
+  if (button.hasAttribute('data-meet')) {
+    if(route.section!=='relationships')return;
+    if(!engine.meet()){
+      notice='Rencontre impossible pour cette année.';
+    } else {
+      notice='';
+      selectedPersonId=engine.getState().domainData.relationships.people.at(-1)?.id??null;
+    }
+    render();
+    return;
+  }
   if (button.hasAttribute('data-show-older')) {
     // Conserver le point de lecture, ainsi que le focus clavier.
     const previousScrollY = window.scrollY;
@@ -185,6 +218,7 @@ root.addEventListener('click', event => {
     }
     notice = '';
     visibleHistoryCount = HISTORY_PAGE_SIZE;
+    selectedPersonId = null;
     if (route.section === 'life') render();
     else go('life');
     focusPresent();

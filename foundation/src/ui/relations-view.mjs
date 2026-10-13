@@ -47,7 +47,7 @@ export function renderRelationships(state,{selectedId=null}={}){
   const rel=state.domainData.relationships;
   const family=rel.people.filter(p=>p.role!=='friend');
   const friends=rel.people.filter(p=>p.role==='friend');
-  const selected=rel.people.find(p=>p.id===selectedId);
+  
   const blocked=Boolean(state.domainData.story.pending);
   const canMeet=age>=6 && state.activeLife.alive && !blocked &&
     friends.length<MAX_FRIENDS && rel.actionsUsed<MAX_ACTIONS_PER_YEAR;
@@ -61,15 +61,14 @@ export function renderRelationships(state,{selectedId=null}={}){
       <p>${age} an${age>1?'s':''} · ${MAX_ACTIONS_PER_YEAR-rel.actionsUsed} interaction${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} disponible${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} cette année</p></div>
     ${rel.recent?`<p class="relation-news" role="status">${escapeHtml(rel.recent)}</p>`:''}
     <div class="relation-section-title"><h2>Famille</h2><span>${family.length}</span></div>
-    <div class="relation-list">${family.map(p=>card(p,age,selectedId)).join('')}</div>
+    <div class="relation-list">${family.map(p=>card(p,age,selectedId)+(p.id===selectedId?detail(p,state,blocked):'')).join('')}</div>
     <div class="relation-section-title"><h2>Amis</h2><span>${friends.length}</span></div>
-    ${friends.length?`<div class="relation-list">${friends.map(p=>card(p,age,selectedId)).join('')}</div>`:
+    ${friends.length?`<div class="relation-list">${friends.map(p=>card(p,age,selectedId)+(p.id===selectedId?detail(p,state,blocked):'')).join('')}</div>`:
       `<p class="relation-empty">Vous n'avez pas encore d'amis.</p>`}
     <button type="button" class="relation-meet" data-meet ${canMeet?'':'disabled'}>
       Faire une rencontre <span aria-hidden="true">+</span>
     </button>
     ${why?`<p class="relation-hint">${escapeHtml(why)}</p>`:''}
-    ${selected?detail(selected,state,blocked):''}
     ${rel.records.length?`<div class="relation-activity"><h2>Interactions récentes</h2>
       ${rel.records.slice(-3).reverse().map(item=>`<p><strong>${item.age} ans</strong> · ${escapeHtml(item.text)}</p>`).join('')}
       </div>`:''}

@@ -21,7 +21,7 @@ test('un nouveau jeu est vierge et sans événement ou caractéristique inventé
   assert.equal(isEmptyState(state),true);
   assert.equal(createEngine({storage:null}).getState().activeLife,null);
 });
-test('seule la rubrique Vie est branchée sur un moteur de jeu',()=>{
+test('le registre permet Vie et Relations indépendamment du moteur',()=>{
   const registry=createModuleRegistry();
   assert.deepEqual(registry.visible(),[]);
   assert.deepEqual(MODULE_ORDER,['life','activities','relationships','career','assets']);
@@ -35,7 +35,7 @@ test('nouveau moteur de décisions relié à la navigation existante',()=>{
   assert.ok(app.includes('data-age'));
   assert.ok(app.includes('engine.startLife(options)'));
   assert.ok(app.includes('engine.choose(button.dataset.choice)'));
-  assert.ok(page.includes('app.mjs?v=mobile-032'));
+  assert.ok(page.includes('app.mjs?v=relations-040'));
   assert.ok(!app.includes('STAT_KEYS'));
 });
 test('PWA séparée et anciens moteurs absents',()=>{

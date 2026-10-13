@@ -80,6 +80,29 @@ async function journey(browser,label,contextOptions){
     assert.equal(await page.locator('.story-latest').getAttribute('data-history-age'),'6');
     assert.equal(await page.locator('.decision-panel').count(),0);
 
+    // Relations réelles : famille, affinité, rencontre, sauvegarde et reprise.
+    await page.locator('button[data-nav=relationships]').click();
+    await page.locator('.relation-card[data-person=mother]').waitFor();
+    assert.equal(await page.locator('.relation-card[data-person=father]').count(),1);
+    const parentBond=Number(await page.locator('.relation-card[data-person=mother] .relation-score')
+      .innerText().then(text=>text.replace('%','')));
+    await page.locator('.relation-card[data-person=mother]').click();
+    await page.locator('button[data-interact=talk]').click();
+    const afterContact=Number(await page.locator('.relation-card[data-person=mother] .relation-score')
+      .innerText().then(text=>text.replace('%','')));
+    assert.ok(afterContact>parentBond,label+' l’interaction n’a pas modifié le lien');
+    await page.locator('button[data-meet]').click();
+    assert.equal(await page.locator('.relation-card[data-person=friend-1]').count(),1);
+    await checkGeometry(page,label,'relationships');
+    await page.screenshot({path:picture(label,'relations')});
+    await page.reload({waitUntil:'networkidle'});
+    assert.equal(await page.locator('.relation-card[data-person=friend-1]').count(),1);
+    assert.equal(await page.locator('.relation-card[data-person=mother] .relation-score').innerText(),
+      afterContact+'%');
+    await page.locator('button[data-nav=life]').click();
+    await page.waitForURL('**/#/life');
+    await page.locator('[data-age]').waitFor();
+
     for(let age=7;age<=20;age++){
       await page.locator('[data-age]').click();
       const choices=page.locator('button[data-choice]');
