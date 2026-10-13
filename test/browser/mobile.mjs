@@ -183,7 +183,7 @@ async function journey(browser,label,contextOptions){
         assert.equal(await page.locator('.wanted-panel').count(),1);
         assert.match(await page.locator('.wanted-bounty strong').innerText(),/Berrys/);
         await page.locator('[data-pirate-mission=explore]').click();
-        assert.match(await page.locator('.career-mission-top').innerText(),/2\/2/);
+        assert.match(await page.locator('.pirate-mission-panel .career-mission-top').innerText(),/2\/2/);
         assert.equal(await page.locator('[data-pirate-mission=treasure]').isEnabled(),false);
         const performanceAfterMissions=Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow'));
