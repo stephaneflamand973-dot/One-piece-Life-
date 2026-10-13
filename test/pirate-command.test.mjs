@@ -200,7 +200,7 @@ test('migration V0.5.3 laisse tous les champs existants strictement identiques',
    domainData:{...s.domainData,career:oldCareer}};
  map.clear();map.set(V13_SAVE_KEY,JSON.stringify(legacy));
  const imported=createEngine({storage}).getState();
- assert.equal(imported.schemaVersion,14);
+ assert.equal(imported.schemaVersion,15);
  const {command:newCommand,...other}=imported.domainData.career;
  assert.equal(newCommand,null);
  assert.deepEqual(other,oldCareer);
