@@ -303,7 +303,7 @@ body { overflow-x:clip; }
 .training-skill-info span small{display:block;margin-top:4px;color:var(--muted);
   font-size:10px;font-weight:500}
 .training-skill-actions{grid-column:2;grid-row:1/span 2;display:grid;gap:4px}
-.training-skill-actions button{min-height:34px;border:1px solid #b4d1dc;
+.training-skill-actions button{grid-column:auto;grid-row:auto;width:100%;min-width:0;min-height:34px;border:1px solid #b4d1dc;
   border-radius:8px;background:#edf6f8;color:var(--ocean);font-size:10px;
   font-weight:770;padding:5px;overflow-wrap:anywhere}
 .training-skill-actions button[data-mentor-train]{background:#e8f2ed;border-color:#b7d6c2}
