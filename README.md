@@ -1,30 +1,31 @@
-# One Piece Life V0.5.8 · Navigation et exploration
+# One Piece Life V0.5.9 · Rencontres et combat naval
 
-La carrière pirate propose un **journal de bord repliable** directement dans **Carrière**. Les actions de navigation et d'exploration sont libres : elles ne consomment aucune année, ne possèdent aucun quota annuel et ne changent pas d'onglet.
+Cette version ajoute un **moteur de confrontations en mer** dans la carrière pirate, au même endroit que la navigation et le commandement. Les déplacements, combats, négociations, réparations et explorations ne font jamais vieillir : seul **+ Âge** ajoute une année.
 
-## Un monde connecté, pas un catalogue de boutons
+## Des rencontres qui imposent une vraie décision
 
-21 destinations inspirées de *One Piece*, réparties dans les trois mers :
-- **East Blue** : Village de Fuchsia, Shells Town, Orange Town, Village de Sirop, Baratie, Village de Cocoyasi et Loguetown ;
-- **Grand Line** : Whiskey Peak, Little Garden, Drum, Alabasta, Jaya, Skypiea, Water Seven et Sabaody ;
-- **Nouveau Monde** : Île des Hommes-Poissons, Punk Hazard, Dressrosa, Zou, Pays des Wa et Egghead.
+Pendant un trajet entre îles, une interception aléatoire peut survenir, selon le danger local, la Marine et la chaleur de la prime. Les rencontres possibles sont :
+- **Pirates rivaux** : duel naval et abordage à haut risque.
+- **Marine** : patrouille et risque de voir sa prime monter après une attaque.
+- **Marchands** : rencontres de commerce, confrontation ou négociation.
+- **Révolutionnaires** : contacts et confrontations possibles.
 
-Chaque lieu possède un risque et une description. Le joueur ne peut voyager que vers les îles reliées à son port actuel, puis rebrousser chemin. **Grand Line** exige au moins un compagnon, un niveau de navigation 20 et une coque 35. **Le Nouveau Monde** exige deux compagnons, un brick ou une frégate, navigation 45 et coque 60. **Skypiea** demande navigation 35 et coque 50. Le navigateur de l'équipage peut satisfaire les prérequis de navigation.
+Chaque rencontre propose quatre réponses visibles dans Carrière : **Combattre, Aborder, Fuir, Négocier**. Les probabilités sont calculées à la demande en fonction de la menace, des talents, des canons, de la vitesse, du nombre et du niveau des marins, du médecin et des conditions du navire. Aborder demande au moins un compagnon. Les trois autres actions permettent de sortir d'une rencontre, y compris quand la coque est endommagée.
 
-## Conséquences persistantes
+## Conséquences dynamiques
 
-- **Voyages** : 1 000 Berrys en East Blue, 2 500 en Grand Line, 4 000 dans le Nouveau Monde. Risque de tempête calculé d'après la destination, la vitesse du bateau, le navigateur, la cohésion et l'entretien. Chaque trajet coûte du carburant/provisions représenté par des Berrys et use le bateau. Même après une mauvaise traversée, le joueur atteint sa destination, mais peut subir des dégâts.
-- **Exploration sur place** : action gratuite avec découvertes, rencontres et dangers. Butin possible de 4 000 Berrys en East Blue, 9 000 en Grand Line, 15 000 dans le Nouveau Monde. **Les gains diminuent à chaque exploration du même lieu**, jusqu'à s'épuiser ; aucune génération illimitée d'argent en spammant une île.
-- **Rencontres** : marchands, habitants, pirates, révolutionnaires ou patrouilles de la Marine. L'apparition de la Marine dépend de la pression de recherche ; les rencontres sont consignées dans le journal.
-- **Journal de bord** : 16 derniers événements avec âge, île, type d'action, rencontre et conséquences. L'historique annuel du personnage n'a qu'une ligne par année.
-- **Navire** : coque, voiles et gouvernail doivent être utilisables pour voyager. Les dommages réduisent la sécurité des voyages ; réparations et améliorations de V0.5.7 restent disponibles sans limite annuelle.
+Les victoires et défaites ont un coût : dégâts à la coque et aux canons, fatigue ou blessure, perte de Berrys, moral et cohésion. Les victoires rapportent du butin et peuvent faire augmenter la prime, distincte de la fortune ; attaquer la Marine est plus visible. La fuite dépend des capacités du navire, et la négociation peut préserver les ressources.
 
-## Architecture, sauvegarde et compatibilité
+Les confrontations ont leur **journal persistant** (16 dernières entrées), avec résultat, probabilité réelle, dégâts, butin et progression de la prime. Des compteurs historiques suivent les victoires, les défaites, les évasions et les négociations. Les actions restent illimitées par année : seul le réalisme des ressources, du niveau des membres et de la fatigue encadre les conséquences.
 
-Le schéma passe de **16 à 17** avec la clé `opl:foundation:life-v058`. La migration V16 -> V17 ajoute l'emplacement initial et le journal vierge à chaque ancien capitaine, sans modifier son navire, ses améliorations, ses compagnons, Berrys, relations, notoriété et historique. Les migrations plus anciennes sont conservées.
+Une rencontre en cours apparaît **en haut de la carrière** et bloque les autres ordres et « + Âge » jusqu'à sa résolution. Depuis Vie, un bouton **Rencontre** renvoie directement au bon écran. Le panneau Navigation reste repliable et l'interface mobile utilise les boutons existants.
 
-Tests automatiques : itinéraires successifs sans vieillir, accès aux mers, traversées avec ou sans tempête, dégradation localisée, rencontres, économies, UI mobile Chromium/WebKit et migrations anciennes.
+## Persistance et sécurité
 
-## Prochaine étape
+Le schéma V18 / clé `opl:foundation:life-v059` ajoute des confrontations vides aux parties de la V0.5.8, sans effacer personnages, navire, itinéraires, Berrys, prime ou historique. Les anciennes migrations restent actives. Chaque choix est enregistré de façon atomique ; un échec de stockage empêche toute action partielle.
 
-V0.5.9 : rencontres maritimes interactives, affrontements, abordages et choix de négociation.
+Tests : navigation interceptée, reprise après rechargement, abordage, fuite, négociation, prime, fatigue/blessure, années bloquées, migrations et parcours Playwright Chromium/iPhone WebKit.
+
+## V0.6.0 proposée
+
+Développer les **styles de combat du personnage**, l'entraînement du Haki et les Fruits du Démon, avec des probabilités dynamiques et une progression façon BitLife.
