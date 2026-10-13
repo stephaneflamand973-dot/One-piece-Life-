@@ -1,10 +1,11 @@
 /** V0.5.5 : commandement libre, sans quotas annuels d'ordres ni de candidatures. */
 import {newMemberLife,upgradeCommand,validCrewLife,ageCrewLife,crewEffects} from './pirate-crew-life.mjs';
+import {newShip,validShip,crewCapacity,ageShip} from './pirate-ships.mjs';
 export const SHIP_COST=50000;
 export const RECRUIT_COST=5000;
 export const REPAIR_COST=8000;
 export const SHARE_COST=5000;
-export const MAX_CREW_MEMBERS=4;
+export const MAX_CREW_MEMBERS=8;
 export const ORDERS=Object.freeze({
  train:{label:'Entraîner les membres',description:'Améliore les talents, au prix d’un effort collectif'},
  repair:{label:'Réparer le navire',description:'Consommer des Berrys pour restaurer la coque'},
@@ -33,10 +34,10 @@ export function validCommand(command,life,career){
   ![-1,...Array.from({length:life.age+1},(_,i)=>i)].includes(command.recruitedAtAge)||
   ![-1,...Array.from({length:life.age+1},(_,i)=>i)].includes(command.orderAtAge)||
   !Array.isArray(command.members)||command.members.length>MAX_CREW_MEMBERS||
-  !validCrewLife(command,life.age))return false;
+  !validCrewLife(command,life.age)||!validShip(command.ship,command))return false;
  const ids=new Set();
  for(const member of command.members){
-  if(!member||typeof member.id!=='string'||!/^crew-member-[1-4]$/.test(member.id)||
+  if(!member||typeof member.id!=='string'||!/^crew-member-[1-8]$/.test(member.id)||
     ids.has(member.id)||typeof member.firstName!=='string'||
     !member.firstName.trim()||member.firstName.length>35||
     typeof member.lastName!=='string'||!member.lastName.trim()||
@@ -67,7 +68,8 @@ export function foundOwnCrew(career,life,rel){
   joinedAtAge:life.age,tenure:0,rank:3,
   performance:prior?.performance??45,workUsed:0,askedAtAge:-1};
  const command=upgradeCommand({name,foundedAtAge:life.age,morale:60,hull:75,
-  recruitedAtAge:-1,orderAtAge:-1,members:[]});
+  recruitedAtAge:-1,orderAtAge:-1,members:[],
+  ship:newShip('sloop','Navire de '+life.firstName)});
  const notice={age:life.age,type:'found',text:'Vous fondez '+name+' et achetez votre navire.'};
  const notices=[...career.notices,notice].slice(-25);
  return {career:{...career,pirate,command,
@@ -87,8 +89,8 @@ export function leaveOwnEmployer(career,life,rel){
 export function recruitingAvailability(career,life){
  const command=career.command;
  if(!life?.alive||!command)return {enabled:false,reason:'Réservé aux capitaines.'};
- if(command.members.length>=MAX_CREW_MEMBERS)
-  return {enabled:false,reason:'Équipage complet (4 membres).'};
+ if(command.members.length>=crewCapacity(command))
+  return {enabled:false,reason:'Équipage complet : changez de navire pour recruter davantage.'};
  if(career.missions.berys<RECRUIT_COST)
   return {enabled:false,reason:'Recrutement : '+RECRUIT_COST+' Berrys nécessaires.'};
  return {enabled:true,reason:''};
@@ -102,7 +104,7 @@ export function recruitToCrew(career,life,specialty,random=Math.random){
  let members=cmd.members,text;
  if(accepted){
   const taken=new Set(members.map(m=>m.id));
-  const id=[1,2,3,4].map(n=>'crew-member-'+n).find(n=>!taken.has(n));
+  const id=Array.from({length:MAX_CREW_MEMBERS},(_,i)=>'crew-member-'+(i+1)).find(n=>!taken.has(n));
   const firstName=FIRST[Math.floor(roll(random)*FIRST.length)];
   const lastName=LAST[Math.floor(roll(random)*LAST.length)];
   const member={id,firstName,lastName,specialty,loyalty:50+
@@ -171,7 +173,7 @@ export function ageCommand(career,age,random=Math.random){
   members=members.filter(m=>m.id!==deserter.id);
   note=deserter.firstName+' déserte votre équipage à cause du mauvais moral.';
  }
- const command={...cmd,hull,morale,members};
+ const command=ageShip({...cmd,hull,morale,members});
  const lived=ageCrewLife({...career,command},age,random);
  return {career:lived.career,note:[note,lived.note].filter(Boolean).join(' ')};
 }
