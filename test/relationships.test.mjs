@@ -46,14 +46,14 @@ test('interactions réelles : âge minimal, lien + ou -, un contact par personne
   assert.equal(socialize(baby,'mother','talk'),null);
   const state=toAge(3);
   const initial=state.domainData.relationships.people[0].bond;
-  const contacted=socialize(state,'mother','talk');
+  const contacted=socialize(state,'mother','talk',()=>0);
   assert.equal(contacted.domainData.relationships.people[0].bond,initial+6);
   assert.equal(contacted.domainData.relationships.actionsUsed,1);
   assert.equal(socialize(contacted,'mother','talk'),null);
-  const argument=socialize(contacted,'father','argue');
+  const argument=socialize(contacted,'father','argue',()=>0);
   assert.ok(argument.domainData.relationships.people[1].bond <
     state.domainData.relationships.people[1].bond);
-  assert.equal(argument.domainData.relationships.actionsUsed,MAX_ACTIONS_PER_YEAR);
+  assert.equal(argument.domainData.relationships.actionsUsed,2);
   assert.equal(socialize(argument,'mother','spend'),null);
   assert.equal(state.domainData.relationships.actionsUsed,0);
   assert.equal(isValidState(argument),true);
@@ -70,14 +70,16 @@ test('rencontre possible à six ans, blocage pendant un événement et amitié p
   assert.equal(withFriend.domainData.relationships.actionsUsed,1);
   const friend=withFriend.domainData.relationships.people.find(p=>p.role==='friend');
   assert.ok(friend);
-  const better=socialize(withFriend,friend.id,'spend');
+  const better=socialize(withFriend,friend.id,'spend',()=>0);
   assert.ok(better.domainData.relationships.people.find(p=>p.id===friend.id).bond>friend.bond);
   assert.equal(better.domainData.relationships.actionsUsed,2);
-  assert.equal(makeFriend(better,()=>0),null);
-  const next=advanceOneYear(better);
+  const third=makeFriend(better,()=>0);
+  assert.equal(third.domainData.relationships.actionsUsed,MAX_ACTIONS_PER_YEAR);
+  assert.equal(makeFriend(third,()=>0),null);
+  const next=advanceOneYear(third);
   assert.equal(next.domainData.relationships.actionsUsed,0);
   assert.equal(next.domainData.relationships.people.find(p=>p.id===friend.id).bond,
-    better.domainData.relationships.people.find(p=>p.id===friend.id).bond-2);
+    better.domainData.relationships.people.find(p=>p.id===friend.id).bond);
   assert.equal(isValidState(next),true);
 });
 test('cap de quatre amis, effets persistants sur plusieurs décennies, décès sans réactivation',()=>{

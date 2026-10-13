@@ -1,29 +1,23 @@
-# ONE PIECE LIFE · V0.4 — Famille et relations
+# ONE PIECE LIFE · V0.4.1 — Relations vivantes
 
-## Jouable
-- **Famille générée à la naissance** : père, mère et éventuellement jusqu'à deux frères ou sœurs, avec âges et affinités propres.
-- **Amis** : à partir de six ans, possibilité de rencontrer jusqu'à quatre personnages différents.
-- **Interactions** : discuter, passer du temps, se disputer. Chaque choix influence concrètement la force du lien (0 à 100).
-- **Limites équilibrées** : deux actions sociales par année, au maximum une interaction avec la même personne par an, interactions possibles à partir de trois ans.
-- **Évolution annuelle** : affinités amicales et fraternelles qui s'érodent légèrement sans contact, âges qui progressent, décès selon un âge de fin de vie propre à chaque personne.
-- **Conséquences narratives** : certains jalons de solidarité renforcent les liens familiaux, et les amitiés durables ou fragiles peuvent être mentionnées dans le fil de vie.
-- **Premier onglet Relations réellement actif** : famille, amis, niveau de relation, fiche de chaque personne, actions et dernières interactions. Aucun nouveau sous-menu parasite.
-- **Sauvegardes** : V0.4 utilise une nouvelle clé, importe les parties V0.3 et V0.2 sans effacer les originales. Le reset V0.4 bloque la résurrection d'anciennes parties.
-- La règle fondamentale est conservée : **un clic + Âge = une année et une seule entrée dans le fil**.
+## Réactions et personnalité
+- Chaque proche possède cinq traits persistants : sociabilité, empathie, fierté, tempérament et loyauté.
+- Chaque relation conserve son affinité initiale (0–100) et trois indicateurs complémentaires : confiance, respect et rivalité.
+- Sept actions : discuter, passer du temps, aider, se confier, faire un cadeau symbolique, s'excuser ou se disputer.
+- Réactions dynamiques : les probabilités (12–95 %) dépendent des traits, du lien et de la confiance. Une action peut réussir ou mal tourner ; les conflits peuvent s'aggraver ou s'apaiser.
+- L'écran Relations reste compact : jauge d'affinité dans la liste, deux traits dominants et indicateurs dans la fiche détaillée, chance affichée sur chaque action.
+- Les actions avancées sont conditionnées par l'âge, la confiance ou l'existence d'un conflit.
+- Trois interactions sociales par année au total, dont une seule avec la même personne, avec fatigue sociale et amélioration des amitiés entretenues.
 
-## Mécaniques volontairement absentes
-Rencontres amoureuses, enfants, mariage, divorces, PNJ canons, professions et factions feront l'objet de modules ultérieurs. Il n'existe aucun bouton inutilisable pour les simuler.
+## Sauvegardes
+- Clé dédiée : `opl:foundation:life-v041`. Import automatique de V0.4, V0.3 et V0.2, avec conservation des anciennes clés.
+- Les proches existants gardent le même nom, âge, rôle, affinité, historique d'interactions et limites de l'année. Des traits persistants sont déterminés une fois pour toutes lors de la migration V0.4.
+- Le bouton Nouvelle vie conserve le comportement de reset sans faire réapparaître une ancienne partie.
 
-## Architecture
-`foundation/src/core/relationships.mjs` calcule des liens persistants et toutes les actions.
-`foundation/src/ui/relations-view.mjs` affiche les liens sans enregistrer de données.
-`foundation/src/core/state.mjs` assure les validations et l'intégration à la simulation annuelle.
-`foundation/src/core/storage.mjs` gère l'import conservateur V0.2 / V0.3 vers V0.4.
+## Portée
+Le moteur `personality.mjs` est indépendant de `relationships.mjs`, de la navigation et du DOM. Les règles d'âge, d'une année par pression sur + Âge, les événements V0.3 et le fil mobile ne changent pas.
 
-## Tester
-```sh
-npm test
-python3 -m http.server 8000
-```
-Ouvrir `http://localhost:8000/foundation/`.
-La QA automatisée couvre Chromium mobile (320/390/430 px) et WebKit iPhone simulé.
+Les PNJ n'agissent pas encore spontanément ; ce sera la V0.4.2. Romances, mariages et enfants restent ultérieurs.
+
+## Vérification
+`npm test` vérifie le moteur. Le workflow de QA mobile parcourt l'application en Chromium (320, 390 et 430 px) et WebKit iPhone simulé.

@@ -1,7 +1,12 @@
 import { escapeHtml } from './life-view.mjs';
-import { ACTIONS, MAX_ACTIONS_PER_YEAR, MAX_FRIENDS, roleLabel } from '../core/relationships.mjs';
+import {
+  ACTIONS, MAX_ACTIONS_PER_YEAR, MAX_FRIENDS, roleLabel
+} from '../core/relationships.mjs';
+import { availability, TRAIT_LABELS } from '../core/personality.mjs';
 
-const degree = bond => bond>=80?'Très proche':bond>=60?'Bon lien':bond>=35?'Lien fragile':'Relation distante';
+const degree=bond=>bond>=80?'Très proche':bond>=60?'Bon lien':bond>=35?'Lien fragile':'Relation distante';
+const labels={sociability:'Sociable',empathy:'Empathique',pride:'Fier',
+  temper:'Impulsif',loyalty:'Loyal'};
 function card(person,age,selected){
   const displayAge=age+person.ageOffset;
   const active=person.id===selected;
@@ -20,37 +25,47 @@ function card(person,age,selected){
   </button>`;
 }
 function detail(p,state,blocked){
-  if(!p)return '';
   const age=state.activeLife.age;
-  const remaining=MAX_ACTIONS_PER_YEAR-state.domainData.relationships.actionsUsed;
-  const acted=p.lastActionAge===age;
-  const disabled=blocked||remaining<=0||acted||p.deceased||age<3||!state.activeLife.alive;
+  const rel=state.domainData.relationships;
+  const unavailable=blocked||!state.activeLife.alive;
   const why=p.deceased?'Cette personne est décédée.':
     blocked?'Terminez d’abord la décision en cours.':
-    age<3?'Les interactions se débloquent à 3 ans.':
-    acted?'Vous avez déjà interagi avec cette personne cette année.':
-    remaining<=0?'Vous avez utilisé vos deux interactions de l’année.':
-    !state.activeLife.alive?'Cette vie est terminée.':'';
+    !state.activeLife.alive?'Cette vie est terminée.':
+    rel.actionsUsed>=MAX_ACTIONS_PER_YEAR?'Vos trois interactions de l’année ont été utilisées.':
+    p.lastActionAge===age?'Vous avez déjà interagi avec cette personne cette année.':'';
+  const traits=Object.entries(p.traits).sort((a,b)=>b[1]-a[1]).slice(0,2);
+  const metrics=[['Confiance',p.trust],['Respect',p.respect],['Rivalité',p.rivalry]];
   return `<section class="relation-detail" aria-label="Interactions avec ${escapeHtml(p.firstName)}">
     <h3>${escapeHtml(p.firstName)} <span>${degree(p.bond)}</span></h3>
-    <p>Lien actuel : <strong>${p.bond} / 100</strong></p>
-    <div class="relation-actions">${Object.entries(ACTIONS).map(([action,item])=>
-      `<button type="button" data-interact="${action}" data-person-id="${escapeHtml(p.id)}"
-        ${disabled?'disabled':''}>${escapeHtml(item.label)}</button>`).join('')}</div>
+    <div class="relation-tags">${traits.map(([key,value])=>
+      `<span title="${escapeHtml(TRAIT_LABELS[key])} : ${value}/100">${labels[key]}</span>`).join('')}</div>
+    <div class="relation-metrics">${metrics.map(([label,value])=>
+      `<div><span>${label}</span><strong>${value}/100</strong></div>`).join('')}</div>
+    <h4>Interagir</h4>
+    <div class="relation-actions">${Object.entries(ACTIONS).map(([action,item])=>{
+      const access=availability(rel,p,action,age);
+      const disabled=unavailable||!access.enabled;
+      return `<button type="button" data-interact="${action}" data-person-id="${escapeHtml(p.id)}"
+        ${disabled?'disabled':''}
+        title="${escapeHtml(disabled&&unavailable?'Décision ou vie en cours non disponible':access.reason??'')}"
+        aria-label="${escapeHtml(item.label)}${!disabled?' (chance '+access.chance+' pour cent)':''}">
+        <span>${escapeHtml(item.label)}</span>
+        <small>${disabled?'Indisponible':(action==='argue'?'Risque ':'Chance ')+access.chance+'%'}</small>
+      </button>`;
+    }).join('')}</div>
     ${why?`<p class="relation-hint">${escapeHtml(why)}</p>`:''}
   </section>`;
 }
 export function renderRelationships(state,{selectedId=null}={}){
-  if(!state.activeLife) return `<section class="empty-section">
+  if(!state.activeLife)return `<section class="empty-section">
     <h1>Relations</h1><p>Commencez une vie pour découvrir votre famille.</p></section>`;
   const age=state.activeLife.age;
   const rel=state.domainData.relationships;
   const family=rel.people.filter(p=>p.role!=='friend');
   const friends=rel.people.filter(p=>p.role==='friend');
-  
   const blocked=Boolean(state.domainData.story.pending);
-  const canMeet=age>=6 && state.activeLife.alive && !blocked &&
-    friends.length<MAX_FRIENDS && rel.actionsUsed<MAX_ACTIONS_PER_YEAR;
+  const canMeet=age>=6&&state.activeLife.alive&&!blocked&&
+    friends.length<MAX_FRIENDS&&rel.actionsUsed<MAX_ACTIONS_PER_YEAR;
   const why=age<6?'Disponible à partir de 6 ans.':
     blocked?'Terminez votre décision sur l’écran Vie.':
     !state.activeLife.alive?'Cette vie est terminée.':
@@ -58,7 +73,7 @@ export function renderRelationships(state,{selectedId=null}={}){
     rel.actionsUsed>=MAX_ACTIONS_PER_YEAR?'Interactions épuisées pour cette année.':'';
   return `<section class="relationships-page" aria-label="Famille et relations">
     <div class="relations-heading"><h1>Relations</h1>
-      <p>${age} an${age>1?'s':''} · ${MAX_ACTIONS_PER_YEAR-rel.actionsUsed} interaction${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} disponible${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} cette année</p></div>
+      <p>${age} an${age>1?'s':''} · ${MAX_ACTIONS_PER_YEAR-rel.actionsUsed} action${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} disponible${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} cette année</p></div>
     ${rel.recent?`<p class="relation-news" role="status">${escapeHtml(rel.recent)}</p>`:''}
     <div class="relation-section-title"><h2>Famille</h2><span>${family.length}</span></div>
     <div class="relation-list">${family.map(p=>card(p,age,selectedId)+(p.id===selectedId?detail(p,state,blocked):'')).join('')}</div>

@@ -1,72 +1,97 @@
 import { isValidState, createEmptyState, SCHEMA_VERSION } from './state.mjs';
 import { createFamily } from './relationships.mjs';
+import { legacyProfile } from './personality.mjs';
 
-export const SAVE_KEY='opl:foundation:life-v04';
+export const SAVE_KEY='opl:foundation:life-v041';
+export const V04_SAVE_KEY='opl:foundation:life-v04';
 export const V03_SAVE_KEY='opl:foundation:life-v03';
-// Compatibilité publique avec les tests et les sauvegardes V0.2.
 export const PREVIOUS_SAVE_KEY='opl:foundation:life-v02';
 
-function resolveStorage(storage) {
-  try { return storage===undefined ? globalThis.localStorage : storage; }
-  catch { return null; }
+function resolveStorage(storage){
+  try{return storage===undefined?globalThis.localStorage:storage;}
+  catch{return null;}
 }
-function seededCharacterRandom(person) {
+function seededCharacterRandom(person){
   const input=[person.firstName,person.lastName,person.origin?.place,person.origin?.sea].join('|');
   let seed=2166136261;
-  for(const c of input) seed=Math.imul(seed^c.charCodeAt(0),16777619)>>>0;
-  return ()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296);
+  for(const char of input)seed=Math.imul(seed^char.charCodeAt(0),16777619)>>>0;
+  return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 }
-// Reconstitue une famille stable pour une vie déjà entamée en V0.3.
-export function migrateV03(data) {
-  if(!data || data.schemaVersion!==3 || !data.domainData ||
-      Object.keys(data.domainData).length!==1 ||
-      !Object.prototype.hasOwnProperty.call(data.domainData,'story') ||
-      !Array.isArray(data.history)) return null;
-  if(data.activeLife===null && data.history.length!==0) return null;
-  if(data.activeLife!==null && (!data.activeLife ||
-      !Number.isInteger(data.activeLife.age))) return null;
+// Upgrade sans relancer le personnage ni changer ses relations et interactions existantes.
+export function migrateV04(data){
+  if(!data||data.schemaVersion!==4||!Array.isArray(data.history)||
+    !data.domainData||typeof data.domainData!=='object'||
+    Object.keys(data.domainData).length!==2||
+    !Object.prototype.hasOwnProperty.call(data.domainData,'story')||
+    !Object.prototype.hasOwnProperty.call(data.domainData,'relationships'))return null;
+  const rel=data.domainData.relationships;
+  if(!rel||!Array.isArray(rel.people)||!Array.isArray(rel.records))return null;
+  if(data.activeLife===null&&(data.history.length!==0||rel.people.length!==0))return null;
+  if(data.activeLife!==null&&(!data.activeLife||
+    !Number.isInteger(data.activeLife.age)))return null;
+  if(!Number.isInteger(rel.actionsUsed)||rel.actionsUsed<0||rel.actionsUsed>2)return null;
+  if(rel.people.some(person=>person?.traits!==undefined||
+    person?.trust!==undefined||person?.respect!==undefined||person?.rivalry!==undefined))
+    return null;
+  const upgraded={...rel,people:rel.people.map(person=>person&&
+    typeof person==='object'?legacyProfile(person):person)};
+  const candidate={...data,schemaVersion:SCHEMA_VERSION,
+    domainData:{story:data.domainData.story,relationships:upgraded}};
+  return isValidState(candidate)?candidate:null;
+}
+export function migrateV03(data){
+  if(!data||data.schemaVersion!==3||!Array.isArray(data.history)||
+    !data.domainData||Object.keys(data.domainData).length!==1||
+    !Object.prototype.hasOwnProperty.call(data.domainData,'story'))return null;
+  if(data.activeLife===null&&data.history.length!==0)return null;
+  if(data.activeLife!==null&&(!data.activeLife||
+    !Number.isInteger(data.activeLife.age)))return null;
   const relationships=data.activeLife===null
-    ? createEmptyState().domainData.relationships
-    : createFamily(data.activeLife,seededCharacterRandom(data.activeLife),data.activeLife.age);
+    ?createEmptyState().domainData.relationships
+    :createFamily(data.activeLife,seededCharacterRandom(data.activeLife),data.activeLife.age);
   const candidate={...data,schemaVersion:SCHEMA_VERSION,
     domainData:{story:data.domainData.story,relationships}};
   return isValidState(candidate)?candidate:null;
 }
-export function migrateV02(data) {
-  if(!data || data.schemaVersion!==2 || !Array.isArray(data.history) ||
-      !data.domainData || Object.keys(data.domainData).length!==0) return null;
+export function migrateV02(data){
+  if(!data||data.schemaVersion!==2||!Array.isArray(data.history)||
+    !data.domainData||Object.keys(data.domainData).length!==0)return null;
   const c=data.activeLife;
-  if(c===null) {
-    if(data.history.length) return null;
+  if(c===null){
+    if(data.history.length)return null;
     return createEmptyState();
   }
-  if(!c || !Number.isInteger(c.age) || c.age<0 || c.age>120 ||
-    c.alive!==(c.age<120) || data.history.length!==c.age+1 ||
-    !data.history.every((e,index)=>e && e.age===index &&
-      e.type===(index===0?'birth':index===120?'end':'year') &&
-      typeof e.text==='string')) return null;
+  if(!c||!Number.isInteger(c.age)||c.age<0||c.age>120||
+    c.alive!==(c.age<120)||data.history.length!==c.age+1||
+    !data.history.every((e,i)=>e&&e.age===i&&
+      e.type===(i===0?'birth':i===120?'end':'year')&&
+      typeof e.text==='string'))return null;
   return migrateV03({schemaVersion:3,activeLife:c,history:data.history,
     domainData:{story:createEmptyState().domainData.story}});
 }
 export function loadState(storage){
   try{
     const store=resolveStorage(storage);
-    if(!store) return null;
-    const current=store.getItem(SAVE_KEY);
-    // Une partie V0.4, même corrompue, empêche de réanimer un ancien état.
-    if(current!==null && current!==undefined){
-      const parsed=JSON.parse(current);
-      return isValidState(parsed)?parsed:null;
+    if(!store)return null;
+    const raw=store.getItem(SAVE_KEY);
+    // Un état plus récent existant ne doit jamais être écrasé par une ancienne version.
+    if(raw!==null&&raw!==undefined){
+      const candidate=JSON.parse(raw);
+      return isValidState(candidate)?candidate:null;
     }
-    const third=store.getItem(V03_SAVE_KEY);
-    if(third!==null && third!==undefined){
-      const migrated=migrateV03(JSON.parse(third));
-      return migrated && saveState(migrated,store)?migrated:null;
+    const versions=[
+      [V04_SAVE_KEY,migrateV04],
+      [V03_SAVE_KEY,migrateV03],
+      [PREVIOUS_SAVE_KEY,migrateV02]
+    ];
+    for(const [key,migrate] of versions){
+      const original=store.getItem(key);
+      if(original!==null&&original!==undefined){
+        const upgraded=migrate(JSON.parse(original));
+        return upgraded&&saveState(upgraded,store)?upgraded:null;
+      }
     }
-    const second=store.getItem(PREVIOUS_SAVE_KEY);
-    if(second===null||second===undefined) return null;
-    const migrated=migrateV02(JSON.parse(second));
-    return migrated && saveState(migrated,store)?migrated:null;
+    return null;
   }catch{return null;}
 }
 export function saveState(state,storage){
@@ -78,7 +103,6 @@ export function saveState(state,storage){
     return true;
   }catch{return false;}
 }
-// Ne jamais supprimer V0.2 ou V0.3. Une partie vide V0.4 bloque une migration répétée.
 export function eraseState(storage){
   return saveState(createEmptyState(),storage);
 }

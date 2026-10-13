@@ -90,7 +90,7 @@ async function journey(browser,label,contextOptions){
     await page.locator('button[data-interact=talk]').click();
     const afterContact=Number(await page.locator('.relation-card[data-person=mother] .relation-score')
       .innerText().then(text=>text.replace('%','')));
-    assert.ok(afterContact>parentBond,label+' l’interaction n’a pas modifié le lien');
+    assert.notEqual(afterContact,parentBond,label+' la réaction ne change pas le lien');
     await page.locator('button[data-meet]').click();
     assert.equal(await page.locator('.relation-card[data-person=friend-1]').count(),1);
     await checkGeometry(page,label,'relationships');
