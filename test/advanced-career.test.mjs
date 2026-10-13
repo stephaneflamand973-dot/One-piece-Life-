@@ -177,7 +177,7 @@ test('migration V0.5.0 préserve les anciens talents, compétences, relations et
   map.clear();
   map.set(V10_SAVE_KEY,JSON.stringify(old));
   const imported=createEngine({storage}).getState();
-  assert.equal(imported.schemaVersion,17);
+  assert.equal(imported.schemaVersion,18);
   assert.deepEqual(imported.history,state.history);
   assert.deepEqual(imported.domainData.relationships,state.domainData.relationships);
   assert.deepEqual(imported.domainData.abilities.skills,abilities.skills);
