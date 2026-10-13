@@ -378,3 +378,17 @@ body { overflow-x:clip; }
 .captain-order-actions button small{font-weight:500;font-size:9px;color:var(--muted)}
 .captain-order-actions button:disabled{opacity:.43}
 @media(max-width:340px){.captain-metrics{gap:4px}.captain-order-actions button{padding:7px;font-size:10px}}
+
+
+/* V0.5.8 — journal de bord mobile, intégré aux panneaux de Carrière. */
+.navigation-panel>summary{cursor:pointer;list-style-position:inside;line-height:1.6;
+ font-size:13px;color:var(--ocean);font-weight:600;overflow-wrap:anywhere}
+.navigation-panel>summary strong{font-size:14px}
+.navigation-panel .career-primary{display:block;width:100%;margin:10px 0}
+.navigation-panel .captain-metrics{margin:12px 0}
+.navigation-routes button{min-height:70px;overflow-wrap:anywhere;text-align:left}
+.navigation-routes button small{display:block;line-height:1.35;overflow-wrap:anywhere}
+.navigation-log{max-height:220px;overflow-y:auto;padding-right:2px}
+.navigation-log p{border-top:1px solid var(--line);padding-top:9px;margin:8px 0}
+@media(max-width:340px){.navigation-panel>summary{font-size:12px}
+ .navigation-routes{grid-template-columns:1fr}}
