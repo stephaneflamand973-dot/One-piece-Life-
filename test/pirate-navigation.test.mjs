@@ -123,7 +123,7 @@ test('les îles célestes et le Nouveau Monde demandent réellement un navire pr
  assert.equal(pilot.sail('fishman'),false,'Le sloop ne franchit pas le Nouveau Monde');
  assert.ok(pilot.recruitCrew('combattant'));
  assert.ok(pilot.shipAction('purchase','brig'));
- assert.ok(pilot.commandCrew('repair'));
+ assert.equal(pilot.getState().domainData.career.command.hull,100,'Le brick neuf a une coque neuve');
  assert.ok(pilot.sail('fishman'));
  assert.equal(ISLANDS[pilot.getState().domainData.career.command.navigation.location].sea,'new');
  assert.ok(pilot.sail('punk-hazard'));
