@@ -81,7 +81,7 @@ test('postuler à 16 ans avec compétences réelles, embauche non automatique',(
   assert.equal(engine.getState().domainData.career.appliedAtAge,16);
 });
 test('acceptation dans deux équipages et conservation du capitaine dans Relations',()=>{
-  for(const crewId of Object.keys(CREWS)){
+  for(const crewId of Object.keys(CREWS).filter(id=>id!=='own')){
     const {engine,storage}=setup(16);
     assert.ok(engine.applyPirate(crewId,'combattant'));
     const state=engine.getState();
