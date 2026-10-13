@@ -17,9 +17,10 @@ import { emptyCareer, isValidCareer, applyForCrew, workHard, ageCareer, requestP
 import { performMission } from './pirate-missions.mjs';
 import { missionWanted, annualPursuit, hideFromMarine } from './pirate-notoriety.mjs';
 import { foundOwnCrew, leaveOwnEmployer, recruitToCrew, giveOrder } from './pirate-command.mjs';
+import { assignCrewRole,actWithCrew,resolveCrewRequest } from './pirate-crew-life.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 14;
+export const SCHEMA_VERSION = 15;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
@@ -116,7 +117,8 @@ export function beginLife(state, options = {}, random = Math.random) {
 export function advanceOneYear(state,random=null) {
   if (!isValidState(state) || !state.activeLife ||
       (state.domainData.story.pending !== null ||
-       state.domainData.relationships.pending !== null)) return null;
+       state.domainData.relationships.pending !== null ||
+       state.domainData.career.command?.pending)) return null;
   const life = advanceLife(state.activeLife);
   if (!life) return null;
   let abilities=ageAbilities(state.domainData.abilities,life.age);
@@ -381,7 +383,8 @@ function careerChangeState(state,career,relationships=state.domainData.relations
 }
 function canManageCareer(state){
   return isValidState(state)&&state.activeLife?.alive&&
-    !state.domainData.story.pending&&!state.domainData.relationships.pending;
+    !state.domainData.story.pending&&!state.domainData.relationships.pending&&
+    !state.domainData.career.command?.pending;
 }
 export function resignPirate(state){
   if(!canManageCareer(state))return null;
@@ -404,4 +407,22 @@ export function orderPirateCrew(state,order){
   if(!canManageCareer(state))return null;
   const career=giveOrder(state.domainData.career,state.activeLife,order);
   return career?careerChangeState(state,career):null;
+}
+
+/** Le capitaine attribue un rôle, discute, récompense ou congédie un compagnon. */
+export function changeCrewRole(state,memberId,role){
+ if(!canManageCareer(state))return null;
+ const career=assignCrewRole(state.domainData.career,state.activeLife,memberId,role);
+ return career?careerChangeState(state,career):null;
+}
+export function interactCrew(state,memberId,action){
+ if(!canManageCareer(state))return null;
+ const career=actWithCrew(state.domainData.career,state.activeLife,memberId,action);
+ return career?careerChangeState(state,career):null;
+}
+export function answerCrewEvent(state,answer){
+ if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+ const career=resolveCrewRequest(state.domainData.career,state.activeLife,answer);
+ return career?careerChangeState(state,career):null;
 }
