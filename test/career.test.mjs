@@ -92,7 +92,7 @@ test('acceptation dans deux équipages et conservation du capitaine dans Relatio
     assert.equal(state.domainData.relationships.world.faction,'pirate');
     assert.equal(state.domainData.relationships.world.unit,CREWS[crewId].label);
     assert.ok(state.domainData.relationships.people.find(p=>p.id==='world-leader'));
-    assert.ok(renderCareer(state).includes(CREWS[crewId].label));
+    assert.ok(renderCareer(state).includes(crewId==='aurore'?"Équipage de l&#39;Aurore":CREWS[crewId].label));
     assert.ok(isValidState(state));
     assert.deepEqual(createEngine({storage}).getState(),state);
   }

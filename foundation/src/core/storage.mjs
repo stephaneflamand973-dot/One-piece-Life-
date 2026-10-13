@@ -33,6 +33,9 @@ export function migrateV09(data){
     !data.domainData||Object.keys(data.domainData).length!==2||
     !Object.hasOwn(data.domainData,'story')||
     !Object.hasOwn(data.domainData,'relationships'))return null;
+  if(data.activeLife && (!data.activeLife.origin ||
+    typeof data.activeLife.origin.sea!=='string' ||
+    typeof data.activeLife.origin.place!=='string'))return null;
   const abilities=data.activeLife?createAbilities(data.activeLife):emptyAbilities();
   const candidate={...data,schemaVersion:SCHEMA_VERSION,
     domainData:{story:data.domainData.story,relationships:data.domainData.relationships,
