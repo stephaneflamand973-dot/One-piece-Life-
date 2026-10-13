@@ -35,7 +35,7 @@ test('nouveau moteur de décisions relié à la navigation existante',()=>{
   assert.ok(app.includes('data-age'));
   assert.ok(app.includes('engine.startLife(options)'));
   assert.ok(app.includes('engine.choose(button.dataset.choice)'));
-  assert.ok(page.includes('app.mjs?v=free-actions-055'));
+  assert.ok(page.includes('app.mjs?v=crew-life-056'));
   assert.ok(!app.includes('STAT_KEYS'));
 });
 test('PWA séparée et anciens moteurs absents',()=>{
