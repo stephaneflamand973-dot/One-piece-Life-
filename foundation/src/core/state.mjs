@@ -18,9 +18,10 @@ import { performMission } from './pirate-missions.mjs';
 import { missionWanted, annualPursuit, hideFromMarine } from './pirate-notoriety.mjs';
 import { foundOwnCrew, leaveOwnEmployer, recruitToCrew, giveOrder } from './pirate-command.mjs';
 import { assignCrewRole,actWithCrew,resolveCrewRequest } from './pirate-crew-life.mjs';
+import {manageShip} from './pirate-ships.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 15;
+export const SCHEMA_VERSION = 16;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
