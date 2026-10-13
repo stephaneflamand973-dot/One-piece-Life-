@@ -29,6 +29,7 @@ function detail(p,state,blocked){
   const age=state.activeLife.age;
   const rel=state.domainData.relationships;
   const unavailable=blocked||!state.activeLife.alive;
+  const coParent=p.role==='child'?rel.people.find(person=>person.id===p.parentId):null;
   const why=p.deceased?'Cette personne est décédée.':
     blocked?'Terminez d’abord la décision en cours.':
     !state.activeLife.alive?'Cette vie est terminée.':
@@ -38,6 +39,7 @@ function detail(p,state,blocked){
   const metrics=[['Confiance',p.trust],['Respect',p.respect],['Rivalité',p.rivalry]];
   return `<section class="relation-detail" aria-label="Interactions avec ${escapeHtml(p.firstName)}">
     <h3>${escapeHtml(p.firstName)} <span>${degree(p.bond)}</span></h3>
+    ${coParent?`<p class="relation-hint">Autre parent : ${escapeHtml(coParent.firstName)} ${escapeHtml(coParent.lastName)}</p>`:''}
     <div class="relation-tags">${traits.map(([key,value])=>
       `<span title="${escapeHtml(TRAIT_LABELS[key])} : ${value}/100">${labels[key]}</span>`).join('')}</div>
     <div class="relation-metrics">${metrics.map(([label,value])=>

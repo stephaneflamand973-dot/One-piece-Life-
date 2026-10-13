@@ -159,6 +159,23 @@ root.addEventListener('click', event => {
     render();
     return;
   }
+  if (button.hasAttribute('data-romance-meet')) {
+    if(route.section!=='relationships')return;
+    if(!engine.meetPartner()){
+      notice='Rencontre amoureuse impossible pour le moment.';
+    } else {
+      notice='';
+      selectedPersonId=engine.getState().domainData.relationships.people.at(-1)?.id??null;
+    }
+    render(); return;
+  }
+  if (button.hasAttribute('data-romance')) {
+    if(route.section!=='relationships')return;
+    if(!engine.romance(button.dataset.romance)){
+      notice='Cette action de couple n’est pas disponible.';
+    } else notice='';
+    render(); return;
+  }
   if (button.hasAttribute('data-gather')) {
     if(route.section!=='relationships')return;
     if(!engine.gather()){

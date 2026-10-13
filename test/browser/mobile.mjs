@@ -148,6 +148,20 @@ async function journey(browser,label,contextOptions){
         await page.locator('[data-age]').waitFor();
       }
     }
+    // V0.4.4 : rencontre, rendez-vous, puis sauvegarde du couple.
+    await page.locator('button[data-nav=relationships]').click();
+    await page.locator('[data-romance-meet]').click();
+    assert.equal(await page.locator('.relation-card[data-person=partner-1]').count(),1);
+    await page.locator('[data-romance=date]').click();
+    const bondDating=await page.locator('.relation-card[data-person=partner-1] .relation-score').innerText();
+    await checkGeometry(page,label,'romance');
+    await page.screenshot({path:picture(label,'romance')});
+    await page.reload({waitUntil:'networkidle'});
+    assert.equal(await page.locator('.relation-card[data-person=partner-1] .relation-score').innerText(),
+      bondDating);
+    await page.locator('.bottom-nav button[data-nav=life]').click();
+    await page.locator('[data-age]').waitFor();
+
     assert.equal(await page.locator('.story-latest').getAttribute('data-history-age'),'20');
     assert.equal(await page.locator('.story-event').count(),8);
     await checkGeometry(page,label,'age20');
@@ -171,6 +185,40 @@ async function journey(browser,label,contextOptions){
     await page.reload({waitUntil:'networkidle'});
     assert.equal(await page.locator('.story-latest').getAttribute('data-history-age'),'21');
     await checkGeometry(page,label,'reload');
+
+    await page.locator('button[data-nav=relationships]').click();
+    await page.locator('[data-romance=date]').click();
+    await page.locator('.bottom-nav button[data-nav=life]').click();
+    await page.locator('[data-age]').waitFor();
+    await page.locator('[data-age]').click(); // 22 ans, mariage.
+    await page.locator('button[data-nav=relationships]').click();
+    assert.equal(await page.locator('[data-romance=marry]').isEnabled(),true);
+    await page.locator('[data-romance=marry]').click();
+    assert.match(await page.locator('.relation-card[data-person=partner-1] small').first().innerText(),
+      /Marié/);
+    await page.locator('.bottom-nav button[data-nav=life]').click();
+    await page.locator('[data-age]').waitFor();
+    await page.locator('[data-age]').click(); // 23 ans, choix PNJ potentiel.
+    if(await page.locator('[data-npc-choice]').count())
+      await page.locator('[data-npc-choice]').first().click();
+    await page.locator('button[data-nav=relationships]').click();
+    assert.equal(await page.locator('[data-romance=child]').isEnabled(),true);
+    await page.locator('[data-romance=child]').click();
+    assert.equal(await page.locator('.relation-card[data-person=child-1]').count(),1);
+    await checkGeometry(page,label,'child');
+    await page.screenshot({path:picture(label,'children')});
+    await page.reload({waitUntil:'networkidle'});
+    assert.equal(await page.locator('.relation-card[data-person=child-1]').count(),1);
+    await page.locator('.bottom-nav button[data-nav=life]').click();
+    await page.locator('[data-age]').waitFor();
+    await page.locator('[data-age]').click(); // 24 ans, séparation.
+    await page.locator('button[data-nav=relationships]').click();
+    await page.locator('[data-romance=separate]').click();
+    assert.equal(await page.locator('.relation-card[data-person=child-1]').count(),1);
+    await page.reload({waitUntil:'networkidle'});
+    assert.equal(await page.locator('.relation-card[data-person=partner-1]').count(),1);
+    assert.equal(await page.locator('[data-romance-meet]').isEnabled(),true);
+
 
     page.once('dialog',dialog=>dialog.accept());
     await page.locator('button[data-restart]').click();
