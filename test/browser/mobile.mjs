@@ -208,9 +208,25 @@ async function journey(browser,label,contextOptions){
         await page.locator('.navigation-panel summary').click();
         assert.match(await page.locator('.navigation-panel').innerText(),/Village de Fuchsia/);
         assert.equal(await page.locator('[data-voyage=shells]').isEnabled(),true);
+        // Traversée calme, patrouille Marine, interception : décision persistante.
+        await page.evaluate(()=>{
+          const draws=[0,0,.99];Math.random=()=>draws.shift()??0;
+        });
         await page.locator('[data-voyage=shells]').click();
         assert.match(await page.locator('.navigation-panel summary').innerText(),/Shells Town/);
         assert.equal(await page.locator('.navigation-panel').getAttribute('open'),'');
+        assert.equal(await page.locator('.encounter-panel').count(),1);
+        assert.equal(await page.locator('[data-encounter-choice]').count(),4);
+        assert.equal(await page.locator('[data-encounter-choice=board]').isEnabled(),false);
+        assert.equal(await page.locator('[data-explore-island]').isEnabled(),false);
+        await checkGeometry(page,label,'naval-encounter');
+        await page.reload({waitUntil:'networkidle'});
+        assert.equal(await page.locator('.encounter-panel').count(),1);
+        await page.locator('[data-encounter-choice=fight]').click();
+        assert.equal(await page.locator('.encounter-panel').count(),0);
+        assert.match(await page.locator('.career-notice').innerText(),/combattre/);
+        await page.locator('.navigation-panel summary').click();
+        assert.match(await page.locator('.navigation-panel').innerText(),/Confrontations/);
         await page.locator('[data-explore-island]').click();
         assert.match(await page.locator('.navigation-panel').innerText(),/Journal de bord/);
         assert.match(await page.locator('.navigation-panel').innerText(),/Explorations/);
