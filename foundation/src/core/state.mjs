@@ -19,9 +19,10 @@ import { missionWanted, annualPursuit, hideFromMarine } from './pirate-notoriety
 import { foundOwnCrew, leaveOwnEmployer, recruitToCrew, giveOrder } from './pirate-command.mjs';
 import { assignCrewRole,actWithCrew,resolveCrewRequest } from './pirate-crew-life.mjs';
 import {manageShip} from './pirate-ships.mjs';
+import {sailToIsland,exploreIsland} from './pirate-navigation.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 16;
+export const SCHEMA_VERSION = 17;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
@@ -432,5 +433,19 @@ export function answerCrewEvent(state,answer){
 export function managePirateShip(state,action,value){
  if(!canManageCareer(state))return null;
  const career=manageShip(state.domainData.career,state.activeLife,action,value);
+ return career?careerChangeState(state,career):null;
+}
+
+/** Voyager et explorer n'augmentent pas l'âge et gardent l'historique annuel intact. */
+export function travelPirate(state,islandId,random=Math.random){
+ if(!canManageCareer(state))return null;
+ const career=sailToIsland(state.domainData.career,state.activeLife,
+  state.domainData.abilities,islandId,random);
+ return career?careerChangeState(state,career):null;
+}
+export function explorePirateIsland(state,random=Math.random){
+ if(!canManageCareer(state))return null;
+ const career=exploreIsland(state.domainData.career,state.activeLife,
+  state.domainData.abilities,random);
  return career?careerChangeState(state,career):null;
 }

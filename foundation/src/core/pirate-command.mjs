@@ -1,6 +1,7 @@
 /** V0.5.5 : commandement libre, sans quotas annuels d'ordres ni de candidatures. */
 import {newMemberLife,upgradeCommand,validCrewLife,ageCrewLife,crewEffects} from './pirate-crew-life.mjs';
 import {newShip,validShip,crewCapacity,ageShip} from './pirate-ships.mjs';
+import {createNavigation,validNavigation} from './pirate-navigation.mjs';
 export const SHIP_COST=50000;
 export const RECRUIT_COST=5000;
 export const REPAIR_COST=8000;
@@ -34,7 +35,8 @@ export function validCommand(command,life,career){
   ![-1,...Array.from({length:life.age+1},(_,i)=>i)].includes(command.recruitedAtAge)||
   ![-1,...Array.from({length:life.age+1},(_,i)=>i)].includes(command.orderAtAge)||
   !Array.isArray(command.members)||command.members.length>MAX_CREW_MEMBERS||
-  !validCrewLife(command,life.age)||!validShip(command.ship,command))return false;
+  !validCrewLife(command,life.age)||!validShip(command.ship,command)||
+  !validNavigation(command.navigation,command,life.age))return false;
  const ids=new Set();
  for(const member of command.members){
   if(!member||typeof member.id!=='string'||!/^crew-member-[1-8]$/.test(member.id)||
@@ -69,7 +71,7 @@ export function foundOwnCrew(career,life,rel){
   performance:prior?.performance??45,workUsed:0,askedAtAge:-1};
  const command=upgradeCommand({name,foundedAtAge:life.age,morale:60,hull:75,
   recruitedAtAge:-1,orderAtAge:-1,members:[],
-  ship:newShip('sloop','Navire de '+life.firstName)});
+  ship:newShip('sloop','Navire de '+life.firstName),navigation:createNavigation()});
  const notice={age:life.age,type:'found',text:'Vous fondez '+name+' et achetez votre navire.'};
  const notices=[...career.notices,notice].slice(-25);
  return {career:{...career,pirate,command,

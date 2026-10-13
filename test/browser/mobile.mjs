@@ -204,6 +204,18 @@ async function journey(browser,label,contextOptions){
         await page.locator('[data-found-crew]').click();
         assert.match(await page.locator('.career-heading h1').innerText(),/Capitaine/);
         assert.equal(await page.locator('.captain-panel').count(),1);
+        assert.equal(await page.locator('details.navigation-panel').count(),1);
+        await page.locator('.navigation-panel summary').click();
+        assert.match(await page.locator('.navigation-panel').innerText(),/Village de Fuchsia/);
+        assert.equal(await page.locator('[data-voyage=shells]').isEnabled(),true);
+        await page.locator('[data-voyage=shells]').click();
+        assert.match(await page.locator('.navigation-panel summary').innerText(),/Shells Town/);
+        assert.equal(await page.locator('.navigation-panel').getAttribute('open'),'');
+        await page.locator('[data-explore-island]').click();
+        assert.match(await page.locator('.navigation-panel').innerText(),/Journal de bord/);
+        assert.match(await page.locator('.navigation-panel').innerText(),/Explorations/);
+        await checkGeometry(page,label,'navigation');
+
         assert.equal(await page.locator('details.ship-panel').count(),1);
         await page.locator('.ship-panel summary').click();
         assert.equal(await page.locator('details.ship-panel').getAttribute('open'),'');

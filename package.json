@@ -1,10 +1,10 @@
 {
   "name": "one-piece-life-foundation",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --check foundation/src/ui/app.mjs && node --check foundation/src/ui/life-view.mjs && node --check foundation/src/ui/career-view.mjs && node --check foundation/src/ui/activities-view.mjs && node --check foundation/src/core/pirate-ships.mjs && node --check foundation/src/core/pirate-crew-life.mjs && node --check foundation/src/core/pirate-command.mjs && node --check foundation/src/core/pirate-notoriety.mjs && node --check foundation/src/core/pirate-missions.mjs && node --check foundation/src/core/pirate-career.mjs && node --check foundation/src/core/abilities.mjs && node --check foundation/src/core/world-relations.mjs && node --check foundation/src/core/romance.mjs && node --check foundation/src/core/social-evolution.mjs && node --check foundation/src/core/initiatives.mjs && node --check foundation/src/core/events.mjs && node --check foundation/src/core/state.mjs && node --check foundation/src/core/personality.mjs && node --check foundation/src/core/storage.mjs && node --check foundation/src/core/relationships.mjs && node --check foundation/src/ui/relations-view.mjs && node --test test/*.test.mjs"
+    "test": "node --check foundation/src/ui/app.mjs && node --check foundation/src/ui/life-view.mjs && node --check foundation/src/ui/career-view.mjs && node --check foundation/src/ui/activities-view.mjs && node --check foundation/src/core/pirate-navigation.mjs && node --check foundation/src/core/pirate-ships.mjs && node --check foundation/src/core/pirate-crew-life.mjs && node --check foundation/src/core/pirate-command.mjs && node --check foundation/src/core/pirate-notoriety.mjs && node --check foundation/src/core/pirate-missions.mjs && node --check foundation/src/core/pirate-career.mjs && node --check foundation/src/core/abilities.mjs && node --check foundation/src/core/world-relations.mjs && node --check foundation/src/core/romance.mjs && node --check foundation/src/core/social-evolution.mjs && node --check foundation/src/core/initiatives.mjs && node --check foundation/src/core/events.mjs && node --check foundation/src/core/state.mjs && node --check foundation/src/core/personality.mjs && node --check foundation/src/core/storage.mjs && node --check foundation/src/core/relationships.mjs && node --check foundation/src/ui/relations-view.mjs && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=20"

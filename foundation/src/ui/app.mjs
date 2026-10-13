@@ -86,6 +86,7 @@ function currentContent() {
 }
 function render() {
   const shipWasOpen=Boolean(root.querySelector('details.ship-panel[open]'));
+  const navigationWasOpen=Boolean(root.querySelector('details.navigation-panel[open]'));
   const page = route.page ? engine.modules.getPage(route.section, route.page) : null;
   const title = page?.label ?? SECTIONS[route.section];
   const backButton = isHome(route) ? '' :
@@ -117,6 +118,7 @@ function render() {
     window.scrollTo(0, 0);
   }
   if(shipWasOpen)root.querySelector('details.ship-panel')?.setAttribute('open','');
+  if(navigationWasOpen)root.querySelector('details.navigation-panel')?.setAttribute('open','');
   lastScreen = route.hash;
 }
 function syncFromLocation() {
@@ -222,6 +224,17 @@ root.addEventListener('click', event => {
     if(route.section!=='career')return;
     notice=engine.crewInteract(button.dataset.crewMemberId,button.dataset.crewMemberAction)?'':
       'Action indisponible : vérifiez les ressources ou la décision en cours.';
+    render();return;
+  }
+  if(button.hasAttribute('data-voyage')){
+    if(route.section!=='career')return;
+    notice=engine.sail(button.dataset.voyage)?'':
+      'Voyage impossible : vérifiez l’itinéraire, votre navire et les conditions de passage.';
+    render();return;
+  }
+  if(button.hasAttribute('data-explore-island')){
+    if(route.section!=='career')return;
+    notice=engine.exploreIsland()?'':'Exploration indisponible : décision en cours.';
     render();return;
   }
   if(button.hasAttribute('data-ship-action')){

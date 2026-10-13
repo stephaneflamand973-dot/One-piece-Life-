@@ -43,7 +43,7 @@ export function isValidCareer(career,life,relationships,abilities){
     return false;
   for(const item of career.notices){
     if(!item||!Number.isInteger(item.age)||item.age<16||item.age>(life?.age??0)||
-      !['application','hire','work','promotion','rejection','sanction','found','leave','recruit','order','crew','ship'].includes(item.type)||
+      !['application','hire','work','promotion','rejection','sanction','found','leave','recruit','order','crew','ship','voyage','exploration'].includes(item.type)||
       typeof item.text!=='string'||!item.text.trim()||item.text.length>180)
       return false;
   }
