@@ -1,4 +1,4 @@
-import { createEmptyState, beginLife, advanceOneYear, resolveDecision, socialize, makeFriend, answerInitiative, socializeGroup, startRomance, doRomance, chooseFaction, actInFaction, practiceSkill, applyPirate, workPirate, practiceWithMentor, recoverFromTraining, askPiratePromotion, doPirateMission, hidePirate, resignPirate, foundPirateCrew, recruitPirateMember, orderPirateCrew, changeCrewRole, interactCrew, answerCrewEvent, managePirateShip, travelPirate, explorePirateIsland } from './state.mjs';
+import { createEmptyState, beginLife, advanceOneYear, resolveDecision, socialize, makeFriend, answerInitiative, socializeGroup, startRomance, doRomance, chooseFaction, actInFaction, practiceSkill, applyPirate, workPirate, practiceWithMentor, recoverFromTraining, askPiratePromotion, doPirateMission, hidePirate, resignPirate, foundPirateCrew, recruitPirateMember, orderPirateCrew, changeCrewRole, interactCrew, answerCrewEvent, managePirateShip, travelPirate, explorePirateIsland, answerNavalEncounter } from './state.mjs';
 import { loadState, saveState, eraseState } from './storage.mjs';
 import { createModuleRegistry } from './modules.mjs';
 
@@ -46,6 +46,7 @@ export function createEngine({ storage, random = Math.random } = {}) {
     shipAction(action,value) { return commit(managePirateShip(state,action,value)); },
     sail(islandId) { return commit(travelPirate(state,islandId,random)); },
     exploreIsland() { return commit(explorePirateIsland(state,random)); },
+    encounter(choice) { return commit(answerNavalEncounter(state,choice,random)); },
     restart() {
       if (!eraseState(storage)) return false;
       state = createEmptyState();
