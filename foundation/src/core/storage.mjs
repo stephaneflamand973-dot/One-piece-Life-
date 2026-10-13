@@ -3,8 +3,11 @@ import { createFamily } from './relationships.mjs';
 import { legacyProfile } from './personality.mjs';
 import { syncCircle } from './social-evolution.mjs';
 import { emptyWorld } from './world-relations.mjs';
+import { createAbilities, emptyAbilities } from './abilities.mjs';
+import { emptyCareer } from './pirate-career.mjs';
 
-export const SAVE_KEY='opl:foundation:life-v045';
+export const SAVE_KEY='opl:foundation:life-v050';
+export const V09_SAVE_KEY='opl:foundation:life-v045';
 export const V08_SAVE_KEY='opl:foundation:life-v044';
 export const V07_SAVE_KEY='opl:foundation:life-v043';
 export const V06_SAVE_KEY='opl:foundation:life-v042';
@@ -24,6 +27,18 @@ function seededCharacterRandom(person){
   return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 }
 // Upgrade sans relancer le personnage ni changer ses relations et interactions existantes.
+/** V0.4.5 -> V0.5.0. La progression et tous les contacts restent identiques. */
+export function migrateV09(data){
+  if(!data||data.schemaVersion!==9||!Array.isArray(data.history)||
+    !data.domainData||Object.keys(data.domainData).length!==2||
+    !Object.hasOwn(data.domainData,'story')||
+    !Object.hasOwn(data.domainData,'relationships'))return null;
+  const abilities=data.activeLife?createAbilities(data.activeLife):emptyAbilities();
+  const candidate={...data,schemaVersion:SCHEMA_VERSION,
+    domainData:{story:data.domainData.story,relationships:data.domainData.relationships,
+      abilities,career:emptyCareer()}};
+  return isValidState(candidate)?candidate:null;
+}
 /** V0.4.4 -> V0.4.5 : aucune personne ni progression n'est régénérée. */
 export function migrateV08(data){
   if(!data||data.schemaVersion!==8||!Array.isArray(data.history)||
@@ -34,10 +49,9 @@ export function migrateV08(data){
   if(!rel||!Array.isArray(rel.people)||!Array.isArray(rel.records)||
     !Array.isArray(rel.groups)||!Array.isArray(rel.milestones)||
     Object.hasOwn(rel,'world'))return null;
-  const candidate={...data,schemaVersion:SCHEMA_VERSION,
-    domainData:{story:data.domainData.story,
-      relationships:{...rel,world:emptyWorld()}}};
-  return isValidState(candidate)?candidate:null;
+  return migrateV09({...data,schemaVersion:9,domainData:{
+    story:data.domainData.story,relationships:{...rel,world:emptyWorld()}
+  }});
 }
 /** Les vies V0.4.3 gardent tous leurs liens inchangés en V0.4.4. */
 export function migrateV07(data){
@@ -110,9 +124,8 @@ export function migrateV03(data){
   const relationships=data.activeLife===null
     ?createEmptyState().domainData.relationships
     :createFamily(data.activeLife,seededCharacterRandom(data.activeLife),data.activeLife.age);
-  const candidate={...data,schemaVersion:SCHEMA_VERSION,
-    domainData:{story:data.domainData.story,relationships}};
-  return isValidState(candidate)?candidate:null;
+  return migrateV09({...data,schemaVersion:9,
+    domainData:{story:data.domainData.story,relationships}});
 }
 export function migrateV02(data){
   if(!data||data.schemaVersion!==2||!Array.isArray(data.history)||
@@ -141,6 +154,7 @@ export function loadState(storage){
       return isValidState(candidate)?candidate:null;
     }
     const versions=[
+      [V09_SAVE_KEY,migrateV09],
       [V08_SAVE_KEY,migrateV08],
       [V07_SAVE_KEY,migrateV07],
       [V06_SAVE_KEY,migrateV06],

@@ -12,14 +12,17 @@ import { initiativeForAge, resolveInitiative, INITIATIVE_AGES } from './initiati
 import { familyBirth, gatherCircle, recordFriendshipMilestones } from './social-evolution.mjs';
 import { meetPartner, actRomance } from './romance.mjs';
 import { joinFaction, takeWorldAction, advanceWorld } from './world-relations.mjs';
+import { emptyAbilities, createAbilities, validAbilities, trainSkill, ageAbilities } from './abilities.mjs';
+import { emptyCareer, isValidCareer, applyForCrew, workHard, ageCareer } from './pirate-career.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 9;
+export const SCHEMA_VERSION = 10;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
   return { schemaVersion: SCHEMA_VERSION, activeLife: null,
-    history: [], domainData: { story: emptyStory(), relationships: emptyRelations() } };
+    history: [], domainData: { story: emptyStory(), relationships: emptyRelations(),
+      abilities:emptyAbilities(),career:emptyCareer() } };
 }
 export function isEmptyState(state) {
   return isValidState(state) && state.activeLife === null;
@@ -58,16 +61,19 @@ export function isValidState(state) {
   if (!state || typeof state !== 'object' || state.schemaVersion !== SCHEMA_VERSION ||
       !Array.isArray(state.history) || !state.domainData ||
       typeof state.domainData !== 'object' || Array.isArray(state.domainData) ||
-      Object.keys(state.domainData).length !== 2 ||
-      !Object.prototype.hasOwnProperty.call(state.domainData, 'story') ||
-      !Object.prototype.hasOwnProperty.call(state.domainData, 'relationships')) return false;
+      Object.keys(state.domainData).length !== 4 ||
+      !['story','relationships','abilities','career'].every(key=>
+        Object.hasOwn(state.domainData,key))) return false;
 
   if (state.activeLife === null)
     return state.history.length === 0 &&
       validStory(state.domainData.story, state.history, 0) &&
       state.domainData.story.pending === null &&
       state.domainData.story.decisions.length === 0 &&
-      isValidRelations(state.domainData.relationships,0,false);
+      isValidRelations(state.domainData.relationships,0,false) &&
+      validAbilities(state.domainData.abilities,0,false) &&
+      isValidCareer(state.domainData.career,null,state.domainData.relationships,
+        state.domainData.abilities);
   const c = state.activeLife;
   if (!c || typeof c !== 'object' || Array.isArray(c) ||
       typeof c.firstName !== 'string' || !c.firstName.trim() || c.firstName.length > 32 ||
@@ -92,13 +98,17 @@ export function isValidState(state) {
   }
   return validStory(state.domainData.story, state.history, c.age) &&
     isValidRelations(state.domainData.relationships,c.age,true,state.history) &&
+    validAbilities(state.domainData.abilities,c.age,true) &&
+    isValidCareer(state.domainData.career,c,state.domainData.relationships,
+      state.domainData.abilities) &&
     !(state.domainData.story.pending && state.domainData.relationships.pending);
 }
 export function beginLife(state, options = {}, random = Math.random) {
   if (!isEmptyState(state)) throw new Error('Partie non vierge ou invalide');
   const life = createCharacter(options, random);
   return { ...state, activeLife: life, history: [birthEntry(life)],
-    domainData: {...state.domainData,relationships:createFamily(life,random)} };
+    domainData:{...state.domainData,relationships:createFamily(life,random),
+      abilities:createAbilities(life)} };
 }
 export function advanceOneYear(state,random=null) {
   if (!isValidState(state) || !state.activeLife ||
@@ -106,18 +116,22 @@ export function advanceOneYear(state,random=null) {
        state.domainData.relationships.pending !== null)) return null;
   const life = advanceLife(state.activeLife);
   if (!life) return null;
+  const abilities=ageAbilities(state.domainData.abilities);
+  const careerUpdate=ageCareer(state.domainData.career,abilities,life);
+  const career=careerUpdate.career;
   const update = advanceRelations(state.domainData.relationships,life.age);
   const birth=familyBirth(update.relations,life.age,life,random);
   const worldChange=advanceWorld(birth.relations,life.age,random);
   let relations = worldChange.relations;
   if (!life.alive) {
     return { ...state, activeLife:life, history:[...state.history,ageEntry(life)],
-      domainData:{...state.domainData,relationships:relations} };
+      domainData:{...state.domainData,relationships:relations,abilities,career} };
   }
   const scene = sceneForAge(life.age);
   const story = state.domainData.story;
   const socialNote = socialAnnualNote(relations,life.age);
-  const addition = [...update.announcements,...birth.announcements,...worldChange.announcements,socialNote].filter(Boolean).join(' ');
+  const addition = [...update.announcements,...birth.announcements,
+    ...worldChange.announcements,careerUpdate.note,socialNote].filter(Boolean).join(' ');
   const intro = scene ? scene.text : annualNarrative(life,story);
   // Une initiative n'apparaît pas pendant un jalon narratif classique.
   // Une année = un seul emplacement dans l'historique.
@@ -128,7 +142,8 @@ export function advanceOneYear(state,random=null) {
     text:(addition ? intro+' '+addition : intro).slice(0,300) };
   const nextStory = scene ? {...story,pending:{age:life.age,eventId:scene.id}} : story;
   return {...state,activeLife:life,history:[...state.history,entry],
-    domainData:{story:nextStory,relationships:relations} };
+    domainData:{...state.domainData,story:nextStory,relationships:relations,
+      abilities,career} };
 }
 export function resolveDecision(state, optionId) {
   if (!isValidState(state) || !state.activeLife) return null;
@@ -237,4 +252,38 @@ export function actInFaction(state,action,random=Math.random){
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
   const next=takeWorldAction(state.domainData.relationships,action,state.activeLife.age,random);
   return next?{...state,domainData:{...state.domainData,relationships:next}}:null;
+}
+
+/** S'entraîner appartient à la vie du personnage, y compris hors d'un emploi. */
+export function practiceSkill(state,skill,random=Math.random){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const abilities=trainSkill(state.domainData.abilities,state.activeLife,skill,random);
+  return abilities?{...state,domainData:{...state.domainData,abilities}}:null;
+}
+/** Candidature unique par année ; échec conservé comme un vrai événement de carrière. */
+export function applyPirate(state,crewId,specialty,random=Math.random){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const outcome=applyForCrew(state.domainData.career,state.domainData.relationships,
+    state.domainData.abilities,state.activeLife,crewId,specialty,random);
+  if(!outcome)return null;
+  const history=[...state.history];
+  const item=history.at(-1);
+  const note=outcome.career.lastNotice;
+  const prefix=item.text.slice(0,Math.max(0,299-note.length-1)).trim();
+  history[history.length-1]={...item,text:(prefix?prefix+' '+note:note).slice(0,300)};
+  return {...state,history,domainData:{...state.domainData,
+    career:outcome.career,relationships:outcome.relationships}};
+}
+export function workPirate(state){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const career=workHard(state.domainData.career,state.activeLife);
+  if(!career)return null;
+  const captain=state.domainData.relationships.people.find(p=>p.id==='world-leader'&&!p.deceased);
+  const rel=state.domainData.relationships;
+  const relationships=captain?{...rel,people:rel.people.map(p=>
+    p.id===captain.id?{...p,trust:Math.min(100,p.trust+2)}:p)}:rel;
+  return {...state,domainData:{...state.domainData,career,relationships}};
 }

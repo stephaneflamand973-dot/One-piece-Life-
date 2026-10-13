@@ -136,7 +136,7 @@ test('migration V0.4.4 : tous les proches, le fil et les décisions demeurent in
   const current=engine.getState();
   const {world,...legacyRel}=current.domainData.relationships;
   const old={...current,schemaVersion:8,domainData:{
-    ...current.domainData,relationships:legacyRel}};
+    story:current.domainData.story,relationships:legacyRel}};
   map.clear();map.set(V08_SAVE_KEY,JSON.stringify(old));
   const fresh=createEngine({storage});
   const imported=fresh.getState();

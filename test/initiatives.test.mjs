@@ -119,7 +119,7 @@ test('migration V0.4.1 fidèle et non destructive',()=>{
   const engine=ageEngine(8,storage);
   const current=engine.getState();
   const previous={...current,schemaVersion:5,domainData:{
-    ...current.domainData,relationships:Object.fromEntries(
+    story:current.domainData.story,relationships:Object.fromEntries(
       Object.entries(current.domainData.relationships).filter(([key])=>
         key!=='pending'&&key!=='initiatives'&&key!=='groups'&&key!=='milestones'&&key!=='world'))}};
   map.delete(SAVE_KEY);

@@ -115,11 +115,11 @@ test('migration V0.4.3 conserve exactement les personnages et les décisions',()
   const before=engine.getState();
   const {world,...oldRelations}=before.domainData.relationships;
   const legacy={...before,schemaVersion:7,domainData:{
-    ...before.domainData,relationships:oldRelations
+    story:before.domainData.story,relationships:oldRelations
   }};
   map.clear();map.set(V07_SAVE_KEY,JSON.stringify(legacy));
   const migrated=createEngine({storage}).getState();
-  assert.equal(migrated.schemaVersion,9);
+  assert.equal(migrated.schemaVersion,10);
   assert.deepEqual(migrated.activeLife,legacy.activeLife);
   assert.deepEqual(migrated.history,legacy.history);
   const {world:addedWorld,...oldDomainRel}=migrated.domainData.relationships;

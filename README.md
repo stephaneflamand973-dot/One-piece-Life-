@@ -1,31 +1,30 @@
-# One Piece Life · V0.4.5 : factions, équipages et réputation
+# One Piece Life V0.5.0 · Carrière pirate & entraînement
 
-## Nouveau module jouable dans Relations
-- Dès 16 ans, **rejoindre les Pirates, la Marine ou les Révolutionnaires**, sans créer de nouvel onglet.
-- Affiliations fictives intégrées au cadre de One Piece : Équipage des Alizés, Base de la Mouette ou Cellule du Vent. Les personnages sont originaux et ne prétendent pas être des personnages canoniques.
-- Quatre contacts persistants à l'adhésion : capitaine/commandant/responsable, mentor, allié et rival, chacun doté de traits, affinité, confiance, respect et rivalité.
-- Quatre actions : entraînement avec un mentor, mission de faction, soutien à un allié, défi contre un rival.
-- Résultats probabilistes : la confiance, les relations et la réputation influencent la réussite. Une action réussie peut aussi faire évoluer l'influence de la faction.
-- **Loyauté (0–100), réputation (0–100) et influence des trois factions (0–100)**, avec historique sauvegardé.
-- Aux âges-clés, votre réputation et votre loyauté produisent parfois un événement de reconnaissance ou de défiance, mentionné dans le fil principal.
-- Une seule action de faction par an, au sein du quota commun de trois actions sociales.
-- Les membres vieillissent et peuvent décéder. Les contacts disparus ne peuvent plus être sollicités.
-- Le choix de faction est permanent en V0.4.5 : changement d’allégeance et équipages canoniques sont volontairement réservés à une version ultérieure.
+## Carrière pirate (inspirée du gameplay BitLife)
+- La rubrique **Carrière** est enfin jouable. Dès 16 ans, candidature auprès de l'Équipage des Alizés ou de l'Équipage de l'Aurore.
+- Les candidatures peuvent être refusées. **Une candidature par an**, spécialités conditionnées par les compétences réellement développées.
+- Sept spécialisations : combattant, sabreur, navigateur, tireur, médecin, cuisinier, charpentier.
+- Fiche de carrière claire : équipage, métier, capitaine (contact existant dans Relations), ancienneté, performance, rang et compétence principale.
+- Bouton **Travailler davantage** une fois par année, progression de performance et de confiance du capitaine.
+- Progression automatique d'ancienneté et promotion initiale *Recrue → Membre confirmé*, sous conditions de performance et d'expérience.
+- Les missions pirates approfondies, promotions avancées, primes et commandement attendent les versions V0.5.1 et suivantes.
 
-## Continuité BitLife
-- Le même onglet **Relations** regroupe famille, amis, couple et factions.
-- **Une pression sur + Âge = un an**, sans création d'une nouvelle entrée par les interactions.
-- Les événements du monde ne prennent jamais la place d’une décision principale ou d’une initiative déjà en attente.
+## Entraînement et compétences
+- L'onglet **Activités** est jouable dès 6 ans, y compris sans appartenir à un équipage.
+- Onze capacités persistantes : Force, Vitesse, Endurance, Technique de combat, Maîtrise des armes, Volonté, Navigation, Précision, Médecine, Cuisine, Charpenterie.
+- **Trois séances maximum par an**, progression liée au talent personnel, au niveau de maîtrise et à la fatigue.
+- Fatigue qui s'accumule, puis récupération à chaque année. Les progrès et le dernier entraînement restent enregistrés.
+- Le bouton **S'entraîner** de la fiche Carrière ouvre le même écran, sans créer un second système incompatible.
+- Les compétences restent attachées au **personnage**, jamais à sa faction, son grade ou son emploi.
 
-## Sauvegardes
-- `SCHEMA_VERSION=9` et `opl:foundation:life-v045`.
-- Migration V0.4.4 → V0.4.5, puis chaîne conservatrice depuis V0.2.
-- Aucune suppression des anciennes sauvegardes ; les relations, décisions et années existantes demeurent intactes.
+## Simplicité et continuité
+- Navigation inchangée à cinq rubriques : Carrière, Biens, Vie, Relations, Activités.
+- **+ Âge** avance d'exactement un an, sans simulation laborieuse ni écrans supplémentaires.
+- La carrière utilise le même capitaine que les Relations et conserve la faction pirate et sa réputation.
+- Deux équipages originaux seulement pour cette première itération ; les équipages canoniques viendront après validation des systèmes.
 
-## Architecture et tests
-- `foundation/src/core/world-relations.mjs` : création des contacts, probabilité, réputation, loyauté, événements annuels et validation.
-- `foundation/src/ui/relations-view.mjs` : affichage compact de la faction et de ses quatre contacts.
-- `test/world-relations.test.mjs` : migrations, choix des trois factions, probabilités, actions, vie entière et protection des états.
-- QA Chromium mobile 320/390/430 px et WebKit iPhone simulé : adhésion, mission, sauvegarde, reprise et fonctionnement des relations antérieures.
-
-Lancer `npm test` pour vérifier la logique. Aucun service payant nécessaire.
+## Sauvegardes et tests
+- Schéma V10, clé `opl:foundation:life-v050`.
+- Migration automatique de V0.4.5 et versions précédentes. Les sauvegardes antérieures ne sont ni effacées ni réécrites.
+- Tests automatisés : vie de 120 ans, performances, entraînement, talent, recrutement et refus, promotions, incohérences, stockage bloqué et persistance.
+- QA mobile : Chromium 320/390/430 px et WebKit iPhone simulé, y compris candidatures et entraînements.

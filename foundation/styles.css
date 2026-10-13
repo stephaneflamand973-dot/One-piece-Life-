@@ -241,3 +241,52 @@ body { overflow-x:clip; }
 .world-actions button{min-height:62px;overflow-wrap:anywhere}
 .world-actions button small{font-size:10px;color:#66808d}
 @media(max-width:340px){.world-score-grid{gap:5px}.world-summary{padding:10px}}
+
+/* V0.5.0 — Carrière pirate / entraînement mobile, sans sous-onglets */
+.career-page,.training-page{max-width:560px;margin:0 auto;padding:23px 0 30px;min-width:0}
+.career-heading{margin-bottom:18px}
+.career-heading h1{font-size:24px;margin:0 0 6px;letter-spacing:-.45px}
+.career-heading>p{margin:0;font-size:12px;line-height:1.5;color:var(--muted)}
+.career-eyebrow{font-size:10px!important;font-weight:800;letter-spacing:1px;color:var(--ocean)!important;margin-bottom:9px!important}
+.career-panel{border:1px solid var(--line);background:#fff;border-radius:13px;padding:16px;margin:0 0 14px}
+.career-panel h2{font-size:15px;margin:0 0 12px}
+.career-muted,.career-hint{font-size:11px;line-height:1.55;color:var(--muted);margin:8px 0 14px}
+.career-form{display:grid;gap:9px}
+.career-form label{font-size:11px;font-weight:760;color:var(--ocean)}
+.career-form select{min-height:47px;width:100%;min-width:0;border:1px solid #c9dce3;
+  background:#fff;color:var(--ink);padding:8px 10px;border-radius:9px;font-size:12px}
+.career-primary,.career-secondary{width:100%;min-height:48px;border-radius:10px;
+  border:1px solid #a6cbd5;background:#e6f4f7;color:var(--ocean);
+  padding:11px 12px;text-align:center;font-weight:790;font-size:12px}
+.career-primary:disabled,.career-secondary:disabled{opacity:.45}
+.career-notice{padding:12px 13px;background:#eaf5ee;color:#26664d;
+  border-radius:10px;font-size:12px;line-height:1.5;overflow-wrap:anywhere;margin:0 0 13px}
+.career-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:19px}
+.career-facts div{display:flex;flex-direction:column;gap:5px;background:#f2f7f8;padding:11px;border-radius:9px;min-width:0}
+.career-facts span{color:var(--muted);font-size:10px}
+.career-facts strong{font-size:12px;overflow-wrap:anywhere}
+.career-progress{margin:13px 0}
+.career-progress-head,.training-skill-info{display:flex;justify-content:space-between;gap:8px;
+  align-items:center;font-size:12px;margin-bottom:8px}
+.career-meter{display:block;height:7px;background:#e2e9eb;border-radius:10px;overflow:hidden}
+.career-meter>span{height:100%;display:block;border-radius:10px;background:#328b77}
+.career-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:13px 0}
+.career-buttons button{min-height:62px;min-width:0;border:1px solid #b5d1da;border-radius:11px;
+  background:#f1f9fb;color:var(--ocean);font-size:12px;font-weight:770;
+  display:flex;flex-direction:column;justify-content:center;gap:6px;padding:10px}
+.career-buttons button span{font-size:10px;font-weight:500;color:var(--muted)}
+.career-buttons button:disabled{opacity:.42}
+.training-summary{display:flex;justify-content:space-between;gap:9px;padding:13px;
+  border-radius:11px;background:#edf5f7;margin:0 0 15px;font-size:12px}
+.training-group{padding:14px}
+.training-list{display:grid;gap:14px}
+.training-skill{display:grid;grid-template-columns:minmax(0,1fr) 102px;gap:0 10px;align-items:center}
+.training-skill-info{grid-column:1;margin-bottom:6px}
+.training-skill>.career-meter{grid-column:1;grid-row:2}
+.training-skill button{grid-column:2;grid-row:1/span 2;min-height:44px;
+  border:1px solid #b4d1dc;border-radius:9px;color:var(--ocean);
+  background:#edf6f8;font-size:11px;font-weight:780}
+.training-skill button:disabled{opacity:.4}
+@media(max-width:340px){.career-panel{padding:12px}
+  .training-skill{grid-template-columns:minmax(0,1fr) 92px;gap:7px}
+  .career-buttons{gap:6px}.career-buttons button{padding:8px}}

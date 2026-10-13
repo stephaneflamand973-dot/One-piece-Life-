@@ -166,7 +166,7 @@ export function renderRelationships(state,{selectedId=null}={}){
             </button>`).join('')}</div>
           ${age<16?'<p class="relation-hint">Disponible dès 16 ans.</p>':''}`:
         `<div class="world-summary">
-          <strong>${escapeHtml(FACTIONS[world.faction].unit)}</strong>
+          <strong>${escapeHtml(world.unit??FACTIONS[world.faction].unit)}</strong>
           <div class="world-score-grid">
             <span>Réputation <b>${world.reputation}/100</b></span>
             <span>Loyauté <b>${world.loyalty}/100</b></span>
