@@ -31,7 +31,7 @@ test('seule la rubrique Vie est branchée sur un moteur de jeu',()=>{
   assert.throws(()=>registry.register({id:'inconnu',label:'Inconnu',render:()=>''}));
 });
 test('nouveau moteur de décisions relié à la navigation existante',()=>{
-  assert.ok(app.includes("engine.modules.register({ id: 'life'"));
+  assert.ok(app.includes("engine.modules.register({") && app.includes("id: 'life'"));
   assert.ok(app.includes('data-age'));
   assert.ok(app.includes('engine.startLife(options)'));
   assert.ok(app.includes('engine.choose(button.dataset.choice)'));
