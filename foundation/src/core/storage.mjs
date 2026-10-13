@@ -55,7 +55,8 @@ export function migrateV09(data){
   if(data.activeLife && (!data.activeLife.origin ||
     typeof data.activeLife.origin.sea!=='string' ||
     typeof data.activeLife.origin.place!=='string'))return null;
-  const abilities=data.activeLife?createAbilities(data.activeLife):emptyAbilities();
+  const modern=data.activeLife?createAbilities(data.activeLife):emptyAbilities();
+  const {injury,restUsed,...abilities}=modern;
   return migrateV10({...data,schemaVersion:10,domainData:{
     story:data.domainData.story,relationships:data.domainData.relationships,
     abilities,career:emptyCareer()

@@ -18,8 +18,12 @@ export const SPECIALTIES=Object.freeze({
 });
 export const RANKS=Object.freeze(['Recrue','Membre confirmé','Officier']);
 const cap=value=>Math.min(100,Math.max(0,Math.round(value)));
-const stamp=(career,age,type,text)=>({...career,
-  notices:[...career.notices,{age,type,text}].slice(-25),lastNotice:text});
+const stamp=(career,age,type,text)=>{
+  const all=[...career.notices,{age,type,text}];
+  const hired=all.find(item=>item.type==='hire');
+  const notices=hired?[hired,...all.filter(item=>item!==hired).slice(-24)]:all.slice(-25);
+  return {...career,notices,lastNotice:text};
+};
 export function emptyCareer(){
   return {pirate:null,appliedAtAge:-1,notices:[],lastNotice:''};
 }
@@ -53,7 +57,8 @@ export function isValidCareer(career,life,relationships,abilities){
     (relationships.world.unit??CREWS.alizes.label)!==CREWS[p.crewId].label||
     !abilities||abilities.skills[SPECIALTIES[p.specialty].skill]<0)return false;
   if((p.rank===1&&p.tenure<2)||(p.rank===2&&p.tenure<4))return false;
-  return career.notices.some(n=>n.type==='hire'&&n.age===p.joinedAtAge);
+  // Un très ancien recrutement peut avoir quitté le journal tronqué des V0.5.0.
+  return true;
 }
 export function hiringAvailability(career,relations,abilities,life,crewId,specialty){
   if(!life?.alive||life.age<16||life.age>65)
