@@ -89,7 +89,8 @@ async function journey(browser,label,contextOptions){
     await page.screenshot({path:picture(label,'timeline')});
     await page.locator('[data-show-older]').click();
     assert.equal(await page.locator('.story-event').count(),16);
-    const before=await page.evaluate(()=>{window.scrollTo(0,500);return window.scrollY;});
+    await page.locator('[data-show-older]').evaluate(el=>el.scrollIntoView({block:'center'}));
+    const before=await page.evaluate(()=>window.scrollY);
     await page.locator('[data-show-older]').click();
     const after=await page.evaluate(()=>window.scrollY);
     assert.ok(Math.abs(after-before)<110,
