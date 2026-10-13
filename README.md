@@ -1,30 +1,31 @@
-# One Piece Life V0.5.6 · Un équipage vivant
+# One Piece Life V0.5.7 · Gestion avancée du navire
 
-Cette version approfondit le commandement pirate **dans la rubrique Carrière existante**. Les règles V0.5.5 restent valables : aucune limite d'ordres ni d'interactions de capitaine par année, et seul « + Âge » fait progresser le temps.
+La carrière pirate propose un **chantier naval repliable** directement dans **Carrière**, inspiré de la navigation simple de BitLife, avec la profondeur du monde de One Piece. Aucun nouvel onglet obligatoire.
 
-## Compagnons uniques
+## Trois modèles de bateaux
 
-Chaque compagnon possède désormais :
-- Une **spécialité d'origine** conservée.
-- Un **poste à bord**, modifiable à tout moment.
-- Un **tempérament** (loyal, ambitieux, prudent, rebelle, solidaire), une **ambition**, une **confiance envers le capitaine**, une **rivalité** et une **tension sociale**.
-- Sa compétence, sa loyauté et son historique d'arrivée.
+| Modèle | Prix neuf | Places | Particularités |
+|---|---:|---:|---|
+| Sloop | 50 000 Berrys | 4 | Premier bateau |
+| Brick | 140 000 Berrys | 6 | Plus rapide et armé |
+| Frégate | 350 000 Berrys | 8 | Très résistant et armé |
 
-Le capitaine peut discuter autant qu'il veut avec un membre, lui donner une récompense contre 2 500 Berrys, le renvoyer ou lui attribuer un nouveau poste. Les discussions insistantes deviennent contre-productives plutôt que d'être interdites arbitrairement. Un unique poste de **bras droit** peut être attribué.
+Le capitaine peut acheter un autre navire à tout moment. **L'ancien est repris pour 30 % de son prix neuf**, déduit du coût de l'achat ; les compagnons, compétences, prime et richesse restants sont conservés. Le bateau remplacé perd ses améliorations (elles ne sont pas transférables). Il est impossible d'acheter un bateau ayant moins de places que l'équipage présent.
 
-## Les postes servent vraiment
+## Réparations et usure
 
-- **Navigateur** : améliore le succès des déplacements et limite les dégâts à la coque.
-- **Charpentier** : réduit les dégâts des missions et améliore les réparations.
-- **Médecin** : réduit le risque de blessure pendant les missions.
-- **Cuisinier** : soutient le moral après les missions.
-- **Combattant / Tireur** : renforcent les chances lors des abordages et face à la Marine.
-- **Bras droit** : contribue à la réussite collective et au moral.
+- **Coque** : la commande déjà existante « Réparer le navire » reste disponible ; elle coûte 8 000 Berrys et peut remettre en état un bateau immobilisé.
+- **Voiles, gouvernail et canons** : réparables indépendamment pour 6 000 Berrys par intervention.
+- **Entretien général** : 9 000 Berrys ; améliore de 36 points l'entretien jusqu'à 100.
+- **Améliorations permanentes** : coque, voiles, gouvernail, canons ; maximum trois niveaux par pièce, coûts croissants (20 000 / 34 000 / 48 000 Berrys, +25 % pour la coque).
+- Les missions et les années usent les équipements et l'entretien, les missions de combat causent davantage de dégâts ; un charpentier aide à limiter les dommages.
+- Lorsque coque, voiles ou gouvernail atteignent zéro, **le navire ne peut plus participer à une mission** tant que la pièce n'est pas réparée. Le personnage et son butin ne sont pas effacés.
+- Les caractéristiques de vitesse, armure, puissance et état général influencent les chances de réussite et les dommages.
 
-Le moral, la cohésion, la loyauté, la confiance et les rivalités influencent les évolutions. Une année peut déclencher un **événement autonome** : demande de prime, candidature au poste de bras droit ou conflit. Le joueur répond **Accepter / Refuser**, et le choix modifie durablement les statistiques, les Berrys ou les postes. Une décision d'équipage doit être résolue avant de vieillir à nouveau, sans ligne d'âge supplémentaire.
+Toutes les décisions maritimes se font **sans avancer d'une année**. Seul « + Âge » fait progresser l'âge.
 
-## Compatibilité
+## Sauvegardes et tests
 
-Le schéma passe à la **V15**, clé `opl:foundation:life-v056`. La migration V14 ajoute les nouveaux attributs sans modifier les noms, loyautés, talents, Berrys, relations, histoire ou compétences du joueur. Les sauvegardes antérieures continuent de traverser la chaîne de migrations.
+Le schéma passe à **16** avec la clé `opl:foundation:life-v057`. La migration depuis la V0.5.6 reconstruit le premier sloop sans toucher aux personnages, Berrys, loyautés, liens, missions ou historique ; les versions plus anciennes passent encore par la chaîne de migrations.
 
-Tests Node supplémentaires pour rôles, traits, événements et restauration ; parcours mobile Chromium et WebKit iPhone.
+La suite naturelle est la V0.5.8 : îles, itinéraires, dangers maritimes et navigation libre.
