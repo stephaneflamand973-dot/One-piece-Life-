@@ -137,7 +137,7 @@ export function renderCareer(state){
               title="${escapeHtml(access.reason??'')}">
               ${escapeHtml(island.name)} ${command.navigation.visited.includes(id)?'· Déjà visitée':'· Inconnue'}
               <small>${escapeHtml(SEA_LABELS[island.sea])} ·
-                ${access.enabled?'Réussite '+access.chance+' % · ':escapeHtml(access.reason??'')}
+                ${access.enabled?'Mer calme '+access.chance+' % · ':escapeHtml(access.reason??'')}
                 ${(access.cost??0).toLocaleString('fr-FR')} Berrys</small>
             </button>`;
           }).join('')}
