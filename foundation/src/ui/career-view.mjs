@@ -79,7 +79,12 @@ export function renderCareer(state){
   return `<section class="career-page" aria-label="Carrière pirate">
     <div class="career-heading"><p class="career-eyebrow">CARRIÈRE ACTUELLE</p>
       <h1>${command?'Capitaine':'Pirate'}</h1>
-      <p>${escapeHtml(command?command.name:crew.label)}</p></div>
+      <p>${escapeHtml(command?command.name:crew.label)}</p>
+      <div class="career-hero-finances" aria-label="Ressources de carrière">
+        <span><small>BUTIN</small><strong>${career.missions.berys.toLocaleString('fr-FR')} Berrys</strong></span>
+        <span><small>PRIME</small><strong>${wanted.bounty.toLocaleString('fr-FR')} Berrys</strong></span>
+      </div>
+    </div>
     ${latest?`<p class="career-notice" role="status">${escapeHtml(latest.text)}</p>`:''}
     <div class="career-panel">
       <div class="career-facts">
@@ -137,6 +142,18 @@ export function renderCareer(state){
       <details class="career-panel navigation-panel">
         <summary><strong>Navigation · ${escapeHtml(ISLANDS[command.navigation.location].name)}</strong>
           · ${escapeHtml(SEA_LABELS[ISLANDS[command.navigation.location].sea])}</summary>
+        <div class="sea-chart" aria-label="Carte maritime décorative, position actuelle : ${escapeHtml(ISLANDS[command.navigation.location].name)}">
+          <svg class="sea-chart-lines" viewBox="0 0 340 98" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 74 Q48 53 89 71 T174 62 T255 69 T340 44" fill="none" stroke="#5e94a4" stroke-width="2" stroke-dasharray="5 7"/>
+            <path d="M0 90 Q68 64 128 88 T255 86 T340 75" fill="none" stroke="#fff6cf" stroke-width="1.2" opacity=".34"/>
+          </svg>
+          <span class="sea-chart-compass" aria-hidden="true">✧</span>
+          <div class="sea-chart-position">
+            <small>POSITION ACTUELLE</small>
+            <strong>${escapeHtml(ISLANDS[command.navigation.location].name)}</strong>
+            <span>${escapeHtml(SEA_LABELS[ISLANDS[command.navigation.location].sea])}</span>
+          </div>
+        </div>
         <p class="career-hint">${escapeHtml(ISLANDS[command.navigation.location].description)}</p>
         <div class="captain-metrics">
           <div><span>Îles visitées</span><strong>${command.navigation.visited.length}/${Object.keys(ISLANDS).length}</strong></div>
@@ -174,6 +191,15 @@ export function renderCareer(state){
       <details class="career-panel ship-panel">
         <summary><strong>Mon navire : ${escapeHtml(SHIP_MODELS[command.ship.model].label)}</strong>
           · Coque ${command.hull}/100 · État ${shipStats(command).condition}/100</summary>
+        <div class="ship-blueprint" aria-hidden="true">
+          <svg viewBox="0 0 300 92" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M65 63H249L224 83H103Z" fill="currentColor" fill-opacity=".15"/>
+            <path d="M147 12v52M155 22l62 41h-62V22M141 16 96 63h45V16" stroke-width="1.6"/>
+            <path d="M91 61H232M54 88c20-10 36-10 56 0s34 10 54 0 36-10 56 0 35 10 54 0" stroke-width="1.8"/>
+            <path d="M148 13l23 6-23 6"/>
+          </svg>
+          <span>${escapeHtml(SHIP_MODELS[command.ship.model].label)}</span>
+        </div>
         <p class="career-muted">${escapeHtml(command.ship.name)} · ${crewCapacity(command)} places · ${command.ship.voyages} traversées</p>
         <div class="captain-metrics">
           <div><span>Vitesse</span><strong>${shipStats(command).speed}/100</strong></div>
