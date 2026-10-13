@@ -183,6 +183,8 @@ async function journey(browser,label,contextOptions){
         await page.locator('[data-pirate-mission=explore]').click();
         assert.match(await page.locator('.career-mission-top').innerText(),/2\/2/);
         assert.equal(await page.locator('[data-pirate-mission=treasure]').isEnabled(),false);
+        const performanceAfterMissions=Number(await page.locator('[aria-label="Performance professionnelle"]')
+          .getAttribute('aria-valuenow'));
         const walletAfter=await page.locator('.career-mission-wallet strong').first().innerText();
         assert.notEqual(walletAfter,walletBefore);
         await checkGeometry(page,label,'pirate-missions');
@@ -199,7 +201,7 @@ async function journey(browser,label,contextOptions){
         await page.locator('button[data-nav=career]').click();
         await page.locator('[aria-label="Performance professionnelle"]').waitFor();
         assert.equal(Number(await page.locator('[aria-label="Performance professionnelle"]')
-          .getAttribute('aria-valuenow')),afterWork);
+          .getAttribute('aria-valuenow')),performanceAfterMissions);
         await page.locator('.bottom-nav button[data-nav=life]').click();
         await page.locator('[data-age]').waitFor();
       }
