@@ -53,15 +53,25 @@ function decisionPanel(story) {
     ).join('')}</div>
   </section>`;
 }
-export function renderLife(state) {
+export function renderLife(state, { historyLimit = 8 } = {}) {
   const person = state.activeLife;
   if (!person) return renderCreation();
   const story = state.domainData.story;
   const seaLabel = seaById(person.origin.sea)?.label ?? '';
-  const timeline = state.history.filter(event => event.type !== 'event').map(event => `<article class="story-event ${event.type === 'end' ? 'story-end' : ''} ${event.type === 'decision' ? 'story-choice' : ''}">
+  // Les sauvegardes restent strictement chronologiques. Seule la vue est inversée.
+  // Le nombre de cartes DOM est borné ; le journal complet reste consultable.
+  const events = state.history.filter(event => event.type !== 'event').slice().reverse();
+  const limit = Math.max(1, Number.isFinite(historyLimit) ? Math.floor(historyLimit) : 8);
+  const timeline = events.slice(0, limit).map((event, index) => `<article data-history-age="${event.age}" class="story-event ${index === 0 ? 'story-latest' : ''} ${event.type === 'end' ? 'story-end' : ''} ${event.type === 'decision' ? 'story-choice' : ''}">
     <div class="story-age">${event.age === 0 ? 'Naissance' : event.age + ' an' + (event.age > 1 ? 's' : '')}</div>
     <p>${escapeHtml(event.text)}</p>
   </article>`).join('');
+  const remaining = events.length - Math.min(events.length, limit);
+  const more = remaining > 0
+    ? `<button type="button" class="story-more" data-show-older>
+        Voir les années précédentes <span>(${remaining})</span>
+      </button>`
+    : '';
   return `<section class="life-main" aria-label="Vie de votre personnage">
     <div class="character-header">
       <span class="character-initial" aria-hidden="true">${escapeHtml(person.firstName.slice(0, 1).toUpperCase())}</span>
@@ -71,6 +81,6 @@ export function renderLife(state) {
     ${qualitySummary(story)}
     ${decisionPanel(story)}
     <div class="story-title"><h2>Ma vie</h2><span>${person.age} an${person.age > 1 ? 's' : ''}</span></div>
-    <div class="story-list">${timeline}</div>
+    <div class="story-list" aria-label="Événements du plus récent au plus ancien">${timeline}${more}</div>
   </section>`;
 }
