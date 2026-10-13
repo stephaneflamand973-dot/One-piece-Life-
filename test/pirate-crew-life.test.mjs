@@ -115,7 +115,7 @@ test('migration 14 -> 15 conserve identité, richesse, spécialités, historique
  const {engine,map,storage}=captain();
  const state=engine.getState();
  const cmd=state.domainData.career.command;
- const {cohesion,pending,events,...oldCommand}=cmd;
+ const {cohesion,pending,events,ship,...oldCommand}=cmd;
  const legacyCmd={...oldCommand,members:cmd.members.map(m=>{
   const {role,temperament,bond,ambition,rivalry,strain,...oldMember}=m;
   return oldMember;
@@ -133,7 +133,8 @@ test('migration 14 -> 15 conserve identité, richesse, spécialités, historique
  assert.deepEqual(restored.history,state.history);
  assert.equal(map.get(V14_SAVE_KEY),JSON.stringify(previous));
  assert.ok(map.has(SAVE_KEY));
- assert.deepEqual(upgradeCommand(legacyCmd),restored.domainData.career.command);
+ assert.deepEqual(upgradeCommand(legacyCmd),
+  (({ship,...old})=>old)(restored.domainData.career.command));
 });
 test('chargement impossible si rôle, cohésion ou événement de bord sont corrompus',()=>{
  const {engine,storage}=captain();

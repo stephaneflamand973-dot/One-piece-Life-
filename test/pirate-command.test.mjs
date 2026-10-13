@@ -200,7 +200,7 @@ test('migration V0.5.3 laisse tous les champs existants strictement identiques',
    domainData:{...s.domainData,career:oldCareer}};
  map.clear();map.set(V13_SAVE_KEY,JSON.stringify(legacy));
  const imported=createEngine({storage}).getState();
- assert.equal(imported.schemaVersion,15);
+ assert.equal(imported.schemaVersion,16);
  const {command:newCommand,...other}=imported.domainData.career;
  assert.equal(newCommand,null);
  assert.deepEqual(other,oldCareer);
@@ -246,5 +246,5 @@ test('états falsifiés, manque d’argent et échec de stockage ne font rien pe
  assert.deepEqual(locked.getState(),snapshot);
  map.set(SAVE_KEY,'{broken');
  assert.equal(loadState(storage),null);
- assert.equal(MAX_CREW_MEMBERS,4);
+ assert.equal(MAX_CREW_MEMBERS,8);
 });
