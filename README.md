@@ -8,7 +8,7 @@ La règle s'applique aussi aux **recrutements, missions pirates, efforts supplé
 
 - **Réparer le navire : 8 000 Berrys** pour restaurer jusqu'à 24 points de coque.
 - **Partager le butin : 5 000 Berrys** pour renforcer moral et loyauté.
-- **Entraîner l'équipage : gratuit**, améliore les compétences et la cohésion, sans créer une nouvelle année.
+- **Entraîner l'équipage : gratuit en Berrys**, mais les séances diminuent le moral et les gains ralentissent quand les membres progressent. Répéter un entraînement ne crée pas d'année supplémentaire.
 - **Recruter : 5 000 Berrys** seulement si le candidat accepte ; quatre membres maximum à bord, capacité physique et non quota de clics.
 - **Missions :** nombre de missions de l'année comptabilisé, journal des 20 dernières opérations, fatigue et blessures réellement prises en compte.
 
