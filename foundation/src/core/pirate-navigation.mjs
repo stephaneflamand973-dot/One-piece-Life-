@@ -131,7 +131,7 @@ export function sailToIsland(career,life,abilities,id,random=Math.random){
  const reduction=crewEffects(cmd).hullReduction;
  const damage=storm?Math.max(2,Math.round(site.hazard/5)-reduction):1;
  const vessel=wearShip({...cmd,hull:clamp(cmd.hull-damage)},storm?'failure':'success',
-  site.hazard>=60?'marine':'explore');
+  'explore');
  const text=(storm?'Traversée agitée vers ':'Vous accostez à ')+site.name+
   (storm?', malgré les dégâts.':'.')+' En mer, vous croisez '+FACTIONS[faction]+'.';
  const entry={age:life.age,kind:'travel',island:id,text,damage,berys:0,faction};
