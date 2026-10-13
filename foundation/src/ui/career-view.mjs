@@ -6,6 +6,7 @@ import { wantedLevel, pursuitChance, hideAvailability } from '../core/pirate-not
 import { SHIP_COST, RECRUIT_COST, RECRUIT_SPECIALTIES, ORDERS,
   foundAvailability, recruitingAvailability, orderAvailability } from '../core/pirate-command.mjs';
 import {SHIP_MODELS,SHIP_PARTS,shipStats,crewCapacity,shipActionAvailability,SHIP_MAINTENANCE_COST,PART_REPAIR_COST,MAX_SHIP_UPGRADE} from '../core/pirate-ships.mjs';
+import {ISLANDS,SEA_LABELS,voyageAvailability,exploreAvailability} from '../core/pirate-navigation.mjs';
 import { CREW_ROLES, TEMPERAMENT_LABELS, CREW_BONUS_COST,
   roleAvailability,crewActionAvailability } from '../core/pirate-crew-life.mjs';
 const bar=(value,label)=>`<span class="career-meter" role="meter" aria-label="${escapeHtml(label)}"
@@ -112,6 +113,40 @@ export function renderCareer(state){
       </button>
     </div>
     ${command?`
+      <details class="career-panel navigation-panel">
+        <summary><strong>Navigation · ${escapeHtml(ISLANDS[command.navigation.location].name)}</strong>
+          · ${escapeHtml(SEA_LABELS[ISLANDS[command.navigation.location].sea])}</summary>
+        <p class="career-hint">${escapeHtml(ISLANDS[command.navigation.location].description)}</p>
+        <div class="captain-metrics">
+          <div><span>Îles visitées</span><strong>${command.navigation.visited.length}/${Object.keys(ISLANDS).length}</strong></div>
+          <div><span>Voyages</span><strong>${command.navigation.journeys}</strong></div>
+          <div><span>Explorations</span><strong>${command.navigation.explorations}</strong></div>
+          <div><span>Expéditions ici</span><strong>${command.navigation.explored[command.navigation.location]??0}</strong></div>
+        </div>
+        <button type="button" class="career-primary" data-explore-island
+          ${blocked||!exploreAvailability(career,life).enabled?'disabled':''}>
+          Explorer ${escapeHtml(ISLANDS[command.navigation.location].name)}
+        </button>
+        <p class="career-hint">Fouilles et rencontres libres, avec trouvailles moins abondantes à force de parcourir la même île.</p>
+        <h3>Destinations accessibles</h3>
+        <div class="captain-order-actions navigation-routes">
+          ${ISLANDS[command.navigation.location].links.map(id=>{
+            const island=ISLANDS[id],access=voyageAvailability(career,life,abilities,id);
+            return `<button type="button" data-voyage="${id}"
+              ${blocked||!access.enabled?'disabled':''}
+              title="${escapeHtml(access.reason??'')}">
+              ${escapeHtml(island.name)} ${command.navigation.visited.includes(id)?'· Déjà visitée':'· Inconnue'}
+              <small>${escapeHtml(SEA_LABELS[island.sea])} ·
+                ${access.enabled?'Réussite '+access.chance+' % · ':escapeHtml(access.reason??'')}
+                ${(access.cost??0).toLocaleString('fr-FR')} Berrys</small>
+            </button>`;
+          }).join('')}
+        </div>
+        ${command.navigation.log.length?`<h3>Journal de bord</h3>
+          <div class="navigation-log">${command.navigation.log.slice(-4).reverse().map(e=>`
+            <p class="career-hint"><strong>${e.age} ans</strong> · ${escapeHtml(e.text)}
+              ${e.berys?'+ '+e.berys.toLocaleString('fr-FR')+' Berrys':''}</p>`).join('')}</div>`:''}
+      </details>
       <details class="career-panel ship-panel">
         <summary><strong>Mon navire : ${escapeHtml(SHIP_MODELS[command.ship.model].label)}</strong>
           · Coque ${command.hull}/100 · État ${shipStats(command).condition}/100</summary>
