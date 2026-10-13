@@ -1,6 +1,7 @@
 /** V0.5.8 : navigation continue entre îles de One Piece, sans quota annuel. */
 import {shipStats,wearShip} from './pirate-ships.mjs';
 import {crewEffects} from './pirate-crew-life.mjs';
+import {rollEncounter} from './pirate-encounters.mjs';
 
 export const SEA_LABELS=Object.freeze({east:'East Blue',grand:'Grand Line',new:'Nouveau Monde'});
 export const ISLANDS=Object.freeze({
@@ -92,7 +93,7 @@ function progression(cmd,skills,to){
 }
 export function voyageAvailability(career,life,abilities,id){
  const cmd=career.command;
- if(!life?.alive||!cmd||cmd.pending||!Object.hasOwn(ISLANDS,id))
+ if(!life?.alive||!cmd||cmd.pending||cmd.encounters.pending||!Object.hasOwn(ISLANDS,id))
   return {enabled:false,reason:'Réservé au capitaine disponible.'};
  if(!neighbors(cmd.navigation.location).includes(id))
   return {enabled:false,reason:'Cette île ne se trouve pas sur une route directe.'};
@@ -138,13 +139,16 @@ export function sailToIsland(career,life,abilities,id,random=Math.random){
  const navigation=logged({...cmd.navigation,location:id,
   visited:first?[...cmd.navigation.visited,id]:cmd.navigation.visited,
   journeys:cmd.navigation.journeys+1},entry);
- const command={...vessel,navigation,morale:clamp(vessel.morale+(storm?-3:1))};
+ const command=rollEncounter({...vessel,navigation,
+  morale:clamp(vessel.morale+(storm?-3:1))},life.age,faction,site.hazard,
+  random,career.wanted?.heat??0);
  return stamp({...career,command,missions:{...career.missions,
   berys:career.missions.berys-access.cost}},life.age,text,'voyage');
 }
 export function exploreAvailability(career,life){
  const cmd=career.command;
- if(!life?.alive||!cmd||cmd.pending)return {enabled:false,reason:'Réservé au capitaine disponible.'};
+ if(!life?.alive||!cmd||cmd.pending||cmd.encounters.pending)
+  return {enabled:false,reason:'Résolvez la rencontre ou la décision en cours.'};
  return {enabled:true};
 }
 export function exploreIsland(career,life,abilities,random=Math.random){
