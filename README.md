@@ -1,31 +1,30 @@
-# One Piece Life V0.5.7 · Gestion avancée du navire
+# One Piece Life V0.5.8 · Navigation et exploration
 
-La carrière pirate propose un **chantier naval repliable** directement dans **Carrière**, inspiré de la navigation simple de BitLife, avec la profondeur du monde de One Piece. Aucun nouvel onglet obligatoire.
+La carrière pirate propose un **journal de bord repliable** directement dans **Carrière**. Les actions de navigation et d'exploration sont libres : elles ne consomment aucune année, ne possèdent aucun quota annuel et ne changent pas d'onglet.
 
-## Trois modèles de bateaux
+## Un monde connecté, pas un catalogue de boutons
 
-| Modèle | Prix neuf | Places | Particularités |
-|---|---:|---:|---|
-| Sloop | 50 000 Berrys | 4 | Premier bateau |
-| Brick | 140 000 Berrys | 6 | Plus rapide et armé |
-| Frégate | 350 000 Berrys | 8 | Très résistant et armé |
+21 destinations inspirées de *One Piece*, réparties dans les trois mers :
+- **East Blue** : Village de Fuchsia, Shells Town, Orange Town, Village de Sirop, Baratie, Village de Cocoyasi et Loguetown ;
+- **Grand Line** : Whiskey Peak, Little Garden, Drum, Alabasta, Jaya, Skypiea, Water Seven et Sabaody ;
+- **Nouveau Monde** : Île des Hommes-Poissons, Punk Hazard, Dressrosa, Zou, Pays des Wa et Egghead.
 
-Le capitaine peut acheter un autre navire à tout moment. **L'ancien est repris pour 30 % de son prix neuf**, déduit du coût de l'achat ; les compagnons, compétences, prime et richesse restants sont conservés. Le bateau remplacé perd ses améliorations (elles ne sont pas transférables). Il est impossible d'acheter un bateau ayant moins de places que l'équipage présent.
+Chaque lieu possède un risque et une description. Le joueur ne peut voyager que vers les îles reliées à son port actuel, puis rebrousser chemin. **Grand Line** exige au moins un compagnon, un niveau de navigation 20 et une coque 35. **Le Nouveau Monde** exige deux compagnons, un brick ou une frégate, navigation 45 et coque 60. **Skypiea** demande navigation 35 et coque 50. Le navigateur de l'équipage peut satisfaire les prérequis de navigation.
 
-## Réparations et usure
+## Conséquences persistantes
 
-- **Coque** : la commande déjà existante « Réparer le navire » reste disponible ; elle coûte 8 000 Berrys et peut remettre en état un bateau immobilisé.
-- **Voiles, gouvernail et canons** : réparables indépendamment pour 6 000 Berrys par intervention.
-- **Entretien général** : 9 000 Berrys ; améliore de 36 points l'entretien jusqu'à 100.
-- **Améliorations permanentes** : coque, voiles, gouvernail, canons ; maximum trois niveaux par pièce, coûts croissants (20 000 / 34 000 / 48 000 Berrys, +25 % pour la coque).
-- Les missions et les années usent les équipements et l'entretien, les missions de combat causent davantage de dégâts ; un charpentier aide à limiter les dommages.
-- Lorsque coque, voiles ou gouvernail atteignent zéro, **le navire ne peut plus participer à une mission** tant que la pièce n'est pas réparée. Le personnage et son butin ne sont pas effacés.
-- Les caractéristiques de vitesse, armure, puissance et état général influencent les chances de réussite et les dommages.
+- **Voyages** : 1 000 Berrys en East Blue, 2 500 en Grand Line, 4 000 dans le Nouveau Monde. Risque de tempête calculé d'après la destination, la vitesse du bateau, le navigateur, la cohésion et l'entretien. Chaque trajet coûte du carburant/provisions représenté par des Berrys et use le bateau. Même après une mauvaise traversée, le joueur atteint sa destination, mais peut subir des dégâts.
+- **Exploration sur place** : action gratuite avec découvertes, rencontres et dangers. Butin possible de 4 000 Berrys en East Blue, 9 000 en Grand Line, 15 000 dans le Nouveau Monde. **Les gains diminuent à chaque exploration du même lieu**, jusqu'à s'épuiser ; aucune génération illimitée d'argent en spammant une île.
+- **Rencontres** : marchands, habitants, pirates, révolutionnaires ou patrouilles de la Marine. L'apparition de la Marine dépend de la pression de recherche ; les rencontres sont consignées dans le journal.
+- **Journal de bord** : 16 derniers événements avec âge, île, type d'action, rencontre et conséquences. L'historique annuel du personnage n'a qu'une ligne par année.
+- **Navire** : coque, voiles et gouvernail doivent être utilisables pour voyager. Les dommages réduisent la sécurité des voyages ; réparations et améliorations de V0.5.7 restent disponibles sans limite annuelle.
 
-Toutes les décisions maritimes se font **sans avancer d'une année**. Seul « + Âge » fait progresser l'âge.
+## Architecture, sauvegarde et compatibilité
 
-## Sauvegardes et tests
+Le schéma passe de **16 à 17** avec la clé `opl:foundation:life-v058`. La migration V16 -> V17 ajoute l'emplacement initial et le journal vierge à chaque ancien capitaine, sans modifier son navire, ses améliorations, ses compagnons, Berrys, relations, notoriété et historique. Les migrations plus anciennes sont conservées.
 
-Le schéma passe à **16** avec la clé `opl:foundation:life-v057`. La migration depuis la V0.5.6 reconstruit le premier sloop sans toucher aux personnages, Berrys, loyautés, liens, missions ou historique ; les versions plus anciennes passent encore par la chaîne de migrations.
+Tests automatiques : itinéraires successifs sans vieillir, accès aux mers, traversées avec ou sans tempête, dégradation localisée, rencontres, économies, UI mobile Chromium/WebKit et migrations anciennes.
 
-La suite naturelle est la V0.5.8 : îles, itinéraires, dangers maritimes et navigation libre.
+## Prochaine étape
+
+V0.5.9 : rencontres maritimes interactives, affrontements, abordages et choix de négociation.
