@@ -427,3 +427,10 @@ export function answerCrewEvent(state,answer){
  const career=resolveCrewRequest(state.domainData.career,state.activeLife,answer);
  return career?careerChangeState(state,career):null;
 }
+
+/** Achat, entretien, réparations et améliorations sans avancer l'âge. */
+export function managePirateShip(state,action,value){
+ if(!canManageCareer(state))return null;
+ const career=manageShip(state.domainData.career,state.activeLife,action,value);
+ return career?careerChangeState(state,career):null;
+}
