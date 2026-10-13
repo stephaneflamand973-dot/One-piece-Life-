@@ -1,6 +1,7 @@
 
 import { SPECIALTIES } from './pirate-career.mjs';
 import { crewEffects } from './pirate-crew-life.mjs';
+import {shipMissionEffects,wearShip} from './pirate-ships.mjs';
 export const MISSIONS=Object.freeze({
   escort:{label:'Escorter une cargaison',risk:'Faible',difficulty:24,reward:18000,skills:['navigation','endurance'],rank:0},
   explore:{label:'Explorer une île',risk:'Modéré',difficulty:36,reward:38000,skills:['navigation','vitesse'],rank:0},
@@ -37,6 +38,9 @@ export function missionAvailability(career,a,rel,life,id){
  if(!life?.alive||!p||rel.world.faction!=='pirate')
    return {enabled:false,reason:'Une carrière pirate active est nécessaire.'};
  if(p.rank<data.rank)return {enabled:false,reason:'Rang insuffisant.'};
+ if(career.command&&(career.command.hull<=0||career.command.ship.parts.sails<=0||
+  career.command.ship.parts.rudder<=0))
+  return {enabled:false,reason:'Navire immobilisé : réparez la coque, les voiles ou le gouvernail.'};
  if(a.injury.level===2)return {enabled:false,reason:'Blessure sérieuse : récupération nécessaire.'};
  if(a.fatigue>=85)return {enabled:false,reason:'Fatigue excessive : reposez-vous.'};
  const captain=rel.people.find(x=>x.id==='world-leader'&&!x.deceased);
@@ -52,7 +56,7 @@ export function missionAvailability(career,a,rel,life,id){
    (own.hull-60)*.13):0;
  const roleImpact=crewEffects(own,id);
  const chance=cap(74-data.difficulty*.66+aptitude*.38+p.performance*.14+crewBonus+
-   roleImpact.chance+
+   roleImpact.chance+shipMissionEffects(own,id).chance+
    (lead-50)*.09+((ally?.bond??25)-50)*.06+
    (rel.world.loyalty-50)*.05-a.fatigue*.22-(a.injury.level===1?10:0));
  return {enabled:true,chance:Math.max(8,Math.min(92,chance))};
@@ -85,9 +89,10 @@ export function performMission(career,a,rel,life,id,random=Math.random){
    partial:old.partial+(outcome==='partial'?1:0),
    failed:old.failed+(outcome==='failure'?1:0),
    log:[...old.log,entry].slice(-20)};
- const command=career.command?{...career.command,
+ const vessel=career.command?shipMissionEffects(career.command,id):{damageReduction:0};
+ const command=career.command?wearShip({...career.command,
    hull:cap(career.command.hull-Math.max(1,(outcome==='failure'?13:
-     outcome==='partial'?7:3)-roleImpact.hullReduction)),
+     outcome==='partial'?7:3)-roleImpact.hullReduction-vessel.damageReduction)),
    morale:cap(career.command.morale+(outcome==='success'?5:
      outcome==='partial'?1:-8)+roleImpact.heal),
    cohesion:cap(career.command.cohesion+(outcome==='success'?3:
@@ -97,7 +102,7 @@ export function performMission(career,a,rel,life,id,random=Math.random){
        outcome==='failure'?-3:0)),
      bond:cap(member.bond+(outcome==='success'?2:
        outcome==='failure'?-3:0)),
-     rivalry:cap(member.rivalry+(outcome==='failure'?3:-1))}))}:null;
+     rivalry:cap(member.rivalry+(outcome==='failure'?3:-1))}))},outcome,id):null;
  const updatedCareer={...career,missions,command,pirate:{...career.pirate,
    performance:cap(career.pirate.performance+performanceDelta)}};
  const world=rel.world;
