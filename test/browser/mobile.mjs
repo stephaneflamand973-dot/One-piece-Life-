@@ -37,7 +37,7 @@ async function journey(browser,label,contextOptions){
   const context=await browser.newContext(contextOptions);
   const page=await context.newPage();
   // Tirages contrôlés pour une QA reproductible des initiatives des PNJ.
-  await page.addInitScript(() => { Math.random=()=>0; });
+  await page.addInitScript(() => { Math.random=()=>window.__testRandomSequence?.shift()??0; });
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   try {
@@ -209,9 +209,7 @@ async function journey(browser,label,contextOptions){
         assert.match(await page.locator('.navigation-panel').innerText(),/Village de Fuchsia/);
         assert.equal(await page.locator('[data-voyage=shells]').isEnabled(),true);
         // Traversée calme, patrouille Marine, interception : décision persistante.
-        await page.evaluate(()=>{
-          const draws=[0,0,.99];Math.random=()=>draws.shift()??0;
-        });
+        await page.evaluate(()=>{ window.__testRandomSequence=[0,0,.99]; });
         await page.locator('[data-voyage=shells]').click();
         assert.match(await page.locator('.navigation-panel summary').innerText(),/Shells Town/);
         assert.equal(await page.locator('.navigation-panel').getAttribute('open'),'');
