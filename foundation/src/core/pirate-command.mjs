@@ -1,4 +1,5 @@
 /** V0.5.5 : commandement libre, sans quotas annuels d'ordres ni de candidatures. */
+import {newMemberLife,upgradeCommand,validCrewLife,ageCrewLife,crewEffects} from './pirate-crew-life.mjs';
 export const SHIP_COST=50000;
 export const RECRUIT_COST=5000;
 export const REPAIR_COST=8000;
@@ -31,7 +32,8 @@ export function validCommand(command,life,career){
   !Number.isInteger(command.hull)||command.hull<0||command.hull>100||
   ![-1,...Array.from({length:life.age+1},(_,i)=>i)].includes(command.recruitedAtAge)||
   ![-1,...Array.from({length:life.age+1},(_,i)=>i)].includes(command.orderAtAge)||
-  !Array.isArray(command.members)||command.members.length>MAX_CREW_MEMBERS)return false;
+  !Array.isArray(command.members)||command.members.length>MAX_CREW_MEMBERS||
+  !validCrewLife(command,life.age))return false;
  const ids=new Set();
  for(const member of command.members){
   if(!member||typeof member.id!=='string'||!/^crew-member-[1-4]$/.test(member.id)||
@@ -64,8 +66,8 @@ export function foundOwnCrew(career,life,rel){
  const pirate={crewId:'own',specialty:prior?.specialty??'combattant',
   joinedAtAge:life.age,tenure:0,rank:3,
   performance:prior?.performance??45,workUsed:0,askedAtAge:-1};
- const command={name,foundedAtAge:life.age,morale:60,hull:75,
-  recruitedAtAge:-1,orderAtAge:-1,members:[]};
+ const command=upgradeCommand({name,foundedAtAge:life.age,morale:60,hull:75,
+  recruitedAtAge:-1,orderAtAge:-1,members:[]});
  const notice={age:life.age,type:'found',text:'Vous fondez '+name+' et achetez votre navire.'};
  const notices=[...career.notices,notice].slice(-25);
  return {career:{...career,pirate,command,
@@ -106,7 +108,7 @@ export function recruitToCrew(career,life,specialty,random=Math.random){
   const member={id,firstName,lastName,specialty,loyalty:50+
     Math.floor(roll(random)*26),skill:30+Math.floor(roll(random)*38),
     joinedAtAge:life.age};
-  members=[...members,member];
+  members=[...members,newMemberLife(member,random)];
   text=firstName+' '+lastName+' rejoint votre équipage comme '+
     RECRUIT_SPECIALTIES[specialty]+'.';
  }else text='Le candidat refuse de rejoindre votre équipage.';
@@ -143,10 +145,13 @@ export function giveOrder(career,life,order){
   morale=cap(morale-3);
   text='Vous entraînez votre équipage. Le moral baisse légèrement après ces efforts.';
  }else if(order==='repair'){
-  berys-=REPAIR_COST;hull=cap(hull+24);morale=cap(morale+3);
+  berys-=REPAIR_COST;
+  hull=cap(hull+24+Math.min(8,crewEffects(cmd).hullReduction));
+  morale=cap(morale+3);
   text='Votre équipage répare le navire.';
  }else{
-  berys-=SHARE_COST;morale=cap(morale+11);
+  berys-=SHARE_COST;
+  morale=cap(morale+11+crewEffects(cmd).heal);
   members=members.map(m=>({...m,loyalty:cap(m.loyalty+7)}));
   text='Vous partagez le butin avec vos compagnons.';
  }
@@ -167,5 +172,6 @@ export function ageCommand(career,age,random=Math.random){
   note=deserter.firstName+' déserte votre équipage à cause du mauvais moral.';
  }
  const command={...cmd,hull,morale,members};
- return {career:{...career,command},note};
+ const lived=ageCrewLife({...career,command},age,random);
+ return {career:lived.career,note:[note,lived.note].filter(Boolean).join(' ')};
 }

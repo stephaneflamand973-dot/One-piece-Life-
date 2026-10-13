@@ -209,6 +209,11 @@ async function journey(browser,label,contextOptions){
         assert.equal(await page.locator('.captain-member').count(),1);
         await page.locator('[data-crew-order=train]').click();
         assert.equal(await page.locator('[data-crew-order=train]').isEnabled(),true);
+         await page.locator('[data-crew-role] select').selectOption('charpentier');
+         await page.locator('[data-crew-role]').evaluate(el=>el.requestSubmit());
+         assert.match(await page.locator('.captain-member').innerText(),/Charpentier/);
+         await page.locator('[data-crew-member-action=talk]').click();
+         assert.match(await page.locator('.captain-member').innerText(),/Confiance/);
          await page.locator('[data-crew-order=train]').click();
          assert.equal(await page.locator('[data-crew-order=train]').isEnabled(),true);
         const crewBefore=await page.locator('.captain-panel').innerText();

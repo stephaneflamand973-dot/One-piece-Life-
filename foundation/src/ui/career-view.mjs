@@ -5,6 +5,8 @@ import { MISSIONS, missionAvailability } from '../core/pirate-missions.mjs';
 import { wantedLevel, pursuitChance, hideAvailability } from '../core/pirate-notoriety.mjs';
 import { SHIP_COST, RECRUIT_COST, MAX_CREW_MEMBERS, RECRUIT_SPECIALTIES, ORDERS,
   foundAvailability, recruitingAvailability, orderAvailability } from '../core/pirate-command.mjs';
+import { CREW_ROLES, TEMPERAMENT_LABELS, CREW_BONUS_COST,
+  roleAvailability,crewActionAvailability } from '../core/pirate-crew-life.mjs';
 const bar=(value,label)=>`<span class="career-meter" role="meter" aria-label="${escapeHtml(label)}"
   aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}">
   <span style="width:${value}%"></span></span>`;
@@ -13,7 +15,8 @@ export function renderCareer(state){
   if(!life)return '<section class="empty-section"><h1>Carrière</h1><p>Créez votre personnage pour commencer.</p></section>';
   const {career,relationships,abilities}=state.domainData;
   const pirate=career.pirate;
-  const blocked=Boolean(state.domainData.story.pending||relationships.pending||!life.alive);
+  const blocked=Boolean(state.domainData.story.pending||relationships.pending||
+    career.command?.pending||!life.alive);
   const crew=pirate?CREWS[pirate.crewId]:null;
   const command=career.command;
   const founding=foundAvailability(career,life,relationships);
@@ -114,16 +117,50 @@ export function renderCareer(state){
           <div><span>Moral</span><strong>${command.morale}/100</strong></div>
           <div><span>Navire</span><strong>${command.hull}/100</strong></div>
           <div><span>Membres</span><strong>${command.members.length}/${MAX_CREW_MEMBERS}</strong></div>
+          <div><span>Cohésion</span><strong>${command.cohesion}/100</strong></div>
         </div>
         <p class="career-hint">Votre navire s'use avec les années et les missions.
           Maintenez le moral pour conserver vos compagnons.</p>
+        ${command.pending?`<section class="career-panel crew-pending" aria-label="Décision d’équipage" role="group">
+          <h3>Votre équipage attend une réponse</h3>
+          <p>${escapeHtml(command.pending.text)}</p>
+          ${command.pending.kind==='pay'?'<p class="career-hint">Accepter coûte '+CREW_BONUS_COST.toLocaleString('fr-FR')+' Berrys.</p>':''}
+          <div class="captain-order-actions">
+            <button type="button" data-crew-answer="accept"
+              ${state.domainData.story.pending||relationships.pending||
+                (command.pending.kind==='pay'&&career.missions.berys<CREW_BONUS_COST)?'disabled':''}>Accepter</button>
+            <button type="button" data-crew-answer="refuse"
+              ${state.domainData.story.pending||relationships.pending?'disabled':''}>Refuser</button>
+          </div>
+        </section>`:''}
         <div class="captain-members">
           ${command.members.length?command.members.map(person=>`<div class="captain-member">
-            <strong>${escapeHtml(person.firstName+' '+person.lastName)}</strong>
-            <small>${escapeHtml(RECRUIT_SPECIALTIES[person.specialty])} ·
+            <strong>${escapeHtml(person.firstName+' '+person.lastName)}
+              ${person.role==='second'?' · Bras droit':''}</strong>
+            <small>${escapeHtml(CREW_ROLES[person.role])} ·
               Talent ${person.skill}/100 · Loyauté ${person.loyalty}/100</small>
+            <small>Tempérament : ${escapeHtml(TEMPERAMENT_LABELS[person.temperament])}
+              · Confiance ${person.bond}/100 · Rivalité ${person.rivalry}/100
+              · Ambition ${person.ambition}/100</small>
+            <form data-crew-role="${escapeHtml(person.id)}" class="career-form">
+              <label for="role-${escapeHtml(person.id)}">Poste attribué</label>
+              <select id="role-${escapeHtml(person.id)}" name="role" ${blocked?'disabled':''}>
+                ${Object.entries(CREW_ROLES).map(([id,label])=>`<option value="${id}"
+                 ${person.role===id?'selected':''}
+                 ${id==='second'&&!roleAvailability(career,life,person.id,id).enabled&&person.role!=='second'?'disabled':''}>
+                 ${escapeHtml(label)}</option>`).join('')}
+              </select>
+              <button type="submit" class="career-secondary" ${blocked?'disabled':''}>Attribuer ce poste</button>
+            </form>
+            <div class="captain-order-actions">
+              ${[['talk','Discuter'],['reward','Récompenser ('+CREW_BONUS_COST+' Berrys)'],['dismiss','Renvoyer']].map(([id,label])=>`<button type="button"
+                data-crew-member-action="${id}" data-crew-member-id="${escapeHtml(person.id)}"
+                ${blocked||!crewActionAvailability(career,life,person.id,id).enabled?'disabled':''}>
+                ${label}</button>`).join('')}
+            </div>
           </div>`).join(''):'<p class="career-muted">Aucun compagnon recruté pour le moment.</p>'}
         </div>
+        ${command.events.length?`<p class="career-hint">Dernier événement : ${escapeHtml(command.events.at(-1).text)}</p>`:''}
         <form data-crew-recruit class="career-form">
           <label for="recruit-specialty">Recruter un membre</label>
           <select id="recruit-specialty" name="specialty"

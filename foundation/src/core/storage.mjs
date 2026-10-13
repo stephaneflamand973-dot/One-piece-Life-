@@ -7,8 +7,10 @@ import { createAbilities, emptyAbilities } from './abilities.mjs';
 import { emptyCareer } from './pirate-career.mjs';
 import { emptyMissions } from './pirate-missions.mjs';
 import { emptyWanted } from './pirate-notoriety.mjs';
+import { upgradeCommand } from './pirate-crew-life.mjs';
 
-export const SAVE_KEY='opl:foundation:life-v054';
+export const SAVE_KEY='opl:foundation:life-v056';
+export const V14_SAVE_KEY='opl:foundation:life-v054';
 export const V13_SAVE_KEY='opl:foundation:life-v053';
 export const V12_SAVE_KEY='opl:foundation:life-v052';
 export const V11_SAVE_KEY='opl:foundation:life-v051';
@@ -33,6 +35,17 @@ function seededCharacterRandom(person){
   return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 }
 // Upgrade sans relancer le personnage ni changer ses relations et interactions existantes.
+/** V0.5.5 -> V0.5.6 : enrichissement déterministe des compagnons existants. */
+export function migrateV14(data){
+ if(!data||data.schemaVersion!==14||!data.domainData?.career||
+    !Object.hasOwn(data.domainData.career,'command'))return null;
+ const career=data.domainData.career;
+ const candidate={...data,schemaVersion:SCHEMA_VERSION,
+  domainData:{...data.domainData,career:{...career,
+   command:upgradeCommand(career.command)}}};
+ return isValidState(candidate)?candidate:null;
+}
+
 /** V0.5.3 -> V0.5.4 : commandement facultatif, jamais de perte de Berrys. */
 export function migrateV13(data){
   if(!data||data.schemaVersion!==13||!Array.isArray(data.history)||
@@ -216,6 +229,7 @@ export function loadState(storage){
       return isValidState(candidate)?candidate:null;
     }
     const versions=[
+      [V14_SAVE_KEY,migrateV14],
       [V13_SAVE_KEY,migrateV13],
       [V12_SAVE_KEY,migrateV12],
       [V11_SAVE_KEY,migrateV11],

@@ -42,7 +42,8 @@ let lastScreen = null;
 let notice = '';
 
 function ageIsAvailable() {
-  return isHome(route) && Boolean(engine.getState().activeLife?.alive) && !engine.getState().domainData.story.pending && !engine.getState().domainData.relationships.pending;
+  return isHome(route) && Boolean(engine.getState().activeLife?.alive) && !engine.getState().domainData.story.pending && !engine.getState().domainData.relationships.pending &&
+    !engine.getState().domainData.career.command?.pending;
 }
 function navButtons() {
   return NAV_ITEMS.map(({ id, label, icon: iconName }) => {
@@ -52,11 +53,12 @@ function navButtons() {
     if (id === HOME) {
       const ageing = ageIsAvailable();
       const pending = isHome(route) && Boolean(engine.getState().domainData.story.pending || engine.getState().domainData.relationships.pending);
+      const crewPending = isHome(route) && Boolean(engine.getState().domainData.career.command?.pending);
       const ended = isHome(route) && engine.getState().activeLife?.alive === false;
-      const action = ageing ? 'data-age' : 'data-nav="life"';
-      const text = ageing ? '+ Âge' : pending ? 'Choisir' : ended ? 'Fin' : 'Vie';
+      const action = ageing ? 'data-age' : crewPending&&!pending ? 'data-nav="career"' : 'data-nav="life"';
+      const text = ageing ? '+ Âge' : crewPending&&!pending ? 'Équipage' : pending ? 'Choisir' : ended ? 'Fin' : 'Vie';
       const disabled = ended || pending ? 'disabled' : '';
-      const title = ageing ? 'Avancer d’un an' : pending ? 'Répondez à la décision en cours' : 'Retour à Vie';
+      const title = ageing ? 'Avancer d’un an' : crewPending ? 'Répondre à votre équipage dans Carrière' : pending ? 'Répondez à la décision en cours' : 'Retour à Vie';
       return `<button type="button" ${action} class="nav-button nav-home ${selected}"
         aria-label="${title}" ${aria} ${disabled}>
         <span class="nav-home-icon">${icon(iconName)}</span><span class="nav-label">${text}</span>
@@ -99,7 +101,13 @@ function render() {
     </header>
     <main id="main-content" class="page-content" tabindex="-1" aria-label="${escapeHtml(title)}">
       ${notice ? `<p role="alert" class="notice">${escapeHtml(notice)}</p>` : ''}
-      ${currentContent()}
+      ${route.section==='life'&&engine.getState().domainData.career.command?.pending?
+         `<section class="career-panel" role="status" aria-label="Décision d'équipage">
+           <h2>Décision de l’équipage</h2>
+           <p>${escapeHtml(engine.getState().domainData.career.command.pending.text)}</p>
+           <button type="button" data-nav="career" class="career-primary">Répondre dans Carrière</button>
+         </section>`:''}
+       ${currentContent()}
     </main>
     <nav class="bottom-nav" aria-label="Navigation principale">${navButtons()}</nav>
   </div>`;
@@ -130,12 +138,19 @@ root.addEventListener('change', event => {
   if (select) select.innerHTML = placeOptions(event.target.value);
 });
 root.addEventListener('submit', event => {
+  if(event.target.matches('[data-crew-role]')){
+    event.preventDefault();
+    if(route.section!=='career')return;
+    const form=new FormData(event.target);
+    notice=engine.setCrewRole(event.target.dataset.crewRole,form.get('role'))?'':'Poste indisponible ou inchangé.';
+    render();return;
+  }
   if(event.target.matches('[data-crew-recruit]')){
     event.preventDefault();
     if(route.section!=='career')return;
     const form=new FormData(event.target);
     notice=engine.recruitCrew(form.get('specialty'))?'':
-      'Recrutement indisponible cette année.';
+      'Recrutement indisponible : équipage complet, ressources ou décision en cours.';
     render();return;
   }
   if(event.target.matches('[data-career-apply]')){
@@ -196,10 +211,21 @@ root.addEventListener('click', event => {
     notice=engine.resignPirate()?'':'Impossible de quitter cet équipage actuellement.';
     render();return;
   }
+  if(button.hasAttribute('data-crew-answer')){
+    if(route.section!=='career')return;
+    notice=engine.crewAnswer(button.dataset.crewAnswer)?'':'Impossible de résoudre la demande.';
+    render();return;
+  }
+  if(button.hasAttribute('data-crew-member-action')){
+    if(route.section!=='career')return;
+    notice=engine.crewInteract(button.dataset.crewMemberId,button.dataset.crewMemberAction)?'':
+      'Action indisponible : vérifiez les ressources ou la décision en cours.';
+    render();return;
+  }
   if(button.hasAttribute('data-crew-order')){
     if(route.section!=='career')return;
     notice=engine.commandCrew(button.dataset.crewOrder)?'':
-      'Ordre indisponible : consultez le moral, les ressources et la limite annuelle.';
+      'Ordre indisponible : consultez le moral, les ressources et les décisions en cours.';
     render();return;
   }
   if(button.hasAttribute('data-hide-pirate')){

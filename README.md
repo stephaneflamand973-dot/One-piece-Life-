@@ -1,23 +1,30 @@
-# One Piece Life V0.5.5 · Liberté d'action pirate
+# One Piece Life V0.5.6 · Un équipage vivant
 
-## Nouvelle règle : pas de quota annuel d'ordres
+Cette version approfondit le commandement pirate **dans la rubrique Carrière existante**. Les règles V0.5.5 restent valables : aucune limite d'ordres ni d'interactions de capitaine par année, et seul « + Âge » fait progresser le temps.
 
-Le joueur peut **entraîner ses compagnons, réparer le navire et partager le butin dans la même année**, sans devoir appuyer sur « + Âge » entre deux décisions. Il peut répéter un ordre, si l'action a encore un effet et qu'il possède les Berrys nécessaires.
+## Compagnons uniques
 
-La règle s'applique aussi aux **recrutements, missions pirates, efforts supplémentaires, demandes de promotion et tentatives de discrétion** : aucune limite arbitraire au nombre de clics par année. Les conséquences continuent à exister : la fatigue, les blessures, les prérequis de rang, le nombre de places à bord, les réparations et les coûts en Berrys.
+Chaque compagnon possède désormais :
+- Une **spécialité d'origine** conservée.
+- Un **poste à bord**, modifiable à tout moment.
+- Un **tempérament** (loyal, ambitieux, prudent, rebelle, solidaire), une **ambition**, une **confiance envers le capitaine**, une **rivalité** et une **tension sociale**.
+- Sa compétence, sa loyauté et son historique d'arrivée.
 
-- **Réparer le navire : 8 000 Berrys** pour restaurer jusqu'à 24 points de coque.
-- **Partager le butin : 5 000 Berrys** pour renforcer moral et loyauté.
-- **Entraîner l'équipage : gratuit en Berrys**, mais les séances diminuent le moral et les gains ralentissent quand les membres progressent. Répéter un entraînement ne crée pas d'année supplémentaire.
-- **Recruter : 5 000 Berrys** seulement si le candidat accepte ; quatre membres maximum à bord, capacité physique et non quota de clics.
-- **Missions :** nombre de missions de l'année comptabilisé, journal des 20 dernières opérations, fatigue et blessures réellement prises en compte.
+Le capitaine peut discuter autant qu'il veut avec un membre, lui donner une récompense contre 2 500 Berrys, le renvoyer ou lui attribuer un nouveau poste. Les discussions insistantes deviennent contre-productives plutôt que d'être interdites arbitrairement. Un unique poste de **bras droit** peut être attribué.
 
-Les compteurs historiques sont conservés, les anciennes sauvegardes V0.5.4 restent compatibles (schéma 14, clé `opl:foundation:life-v054`). Aucun inventaire, relation, grade, prime, Berrys ni événement annuel n'est effacé.
+## Les postes servent vraiment
 
-## Prochaines extensions proposées
+- **Navigateur** : améliore le succès des déplacements et limite les dégâts à la coque.
+- **Charpentier** : réduit les dégâts des missions et améliore les réparations.
+- **Médecin** : réduit le risque de blessure pendant les missions.
+- **Cuisinier** : soutient le moral après les missions.
+- **Combattant / Tireur** : renforcent les chances lors des abordages et face à la Marine.
+- **Bras droit** : contribue à la réussite collective et au moral.
 
-1. **V0.5.6 :** rôles actifs et autonomie des membres, fonctions de médecin, charpentier, navigateur et cuisinier.
-2. **V0.5.7 :** types de navires, composants, dégâts par zone, évolution et entretien.
-3. **V0.5.8 :** navigation libre entre îles, routes maritimes, ports, dangers et événements.
-4. **V0.5.9 :** combats tactiques BitLife, abordages, pertes et négociations.
-5. **V0.6.0 :** système de Haki et Fruits du Démon, rareté, entraînement et compatibilité avec les capacités.
+Le moral, la cohésion, la loyauté, la confiance et les rivalités influencent les évolutions. Une année peut déclencher un **événement autonome** : demande de prime, candidature au poste de bras droit ou conflit. Le joueur répond **Accepter / Refuser**, et le choix modifie durablement les statistiques, les Berrys ou les postes. Une décision d'équipage doit être résolue avant de vieillir à nouveau, sans ligne d'âge supplémentaire.
+
+## Compatibilité
+
+Le schéma passe à la **V15**, clé `opl:foundation:life-v056`. La migration V14 ajoute les nouveaux attributs sans modifier les noms, loyautés, talents, Berrys, relations, histoire ou compétences du joueur. Les sauvegardes antérieures continuent de traverser la chaîne de migrations.
+
+Tests Node supplémentaires pour rôles, traits, événements et restauration ; parcours mobile Chromium et WebKit iPhone.
