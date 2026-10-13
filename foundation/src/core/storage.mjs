@@ -1,8 +1,10 @@
 import { isValidState, createEmptyState, SCHEMA_VERSION } from './state.mjs';
 import { createFamily } from './relationships.mjs';
 import { legacyProfile } from './personality.mjs';
+import { syncCircle } from './social-evolution.mjs';
 
-export const SAVE_KEY='opl:foundation:life-v042';
+export const SAVE_KEY='opl:foundation:life-v043';
+export const V06_SAVE_KEY='opl:foundation:life-v042';
 export const V05_SAVE_KEY='opl:foundation:life-v041';
 export const V04_SAVE_KEY='opl:foundation:life-v04';
 export const V03_SAVE_KEY='opl:foundation:life-v03';
@@ -19,6 +21,24 @@ function seededCharacterRandom(person){
   return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 }
 // Upgrade sans relancer le personnage ni changer ses relations et interactions existantes.
+/** V0.4.2 -> V0.4.3 : restituer le cercle social des amis existants, sans changer les PNJ. */
+export function migrateV06(data){
+  if(!data || data.schemaVersion!==6 || !Array.isArray(data.history) ||
+    !data.domainData || Object.keys(data.domainData).length!==2 ||
+    !Object.hasOwn(data.domainData,'story') ||
+    !Object.hasOwn(data.domainData,'relationships'))return null;
+  const rel=data.domainData.relationships;
+  if(!rel || !Array.isArray(rel.people) || !Array.isArray(rel.records) ||
+    !Array.isArray(rel.initiatives) || Object.hasOwn(rel,'groups') ||
+    Object.hasOwn(rel,'milestones'))return null;
+  const age=data.activeLife?.age??0;
+  if(!Number.isInteger(age)||age<0||age>120)return null;
+  const social=syncCircle({...rel,groups:[],milestones:[]},age);
+  const candidate={...data,schemaVersion:SCHEMA_VERSION,domainData:{
+    story:data.domainData.story,relationships:social
+  }};
+  return isValidState(candidate)?candidate:null;
+}
 /** V0.4.1 -> V0.4.2 : conserver la famille et ajouter uniquement le carnet PNJ. */
 export function migrateV05(data){
   if(!data||data.schemaVersion!==5||!Array.isArray(data.history)||
@@ -28,10 +48,9 @@ export function migrateV05(data){
   const rel=data.domainData.relationships;
   if(!rel||!Array.isArray(rel.people)||!Array.isArray(rel.records)||
     Object.hasOwn(rel,'pending')||Object.hasOwn(rel,'initiatives'))return null;
-  const candidate={...data,schemaVersion:SCHEMA_VERSION,domainData:{
+  return migrateV06({...data,schemaVersion:6,domainData:{
     story:data.domainData.story,relationships:{...rel,pending:null,initiatives:[]}
-  }};
-  return isValidState(candidate)?candidate:null;
+  }});
 }
 export function migrateV04(data){
   if(!data||data.schemaVersion!==4||!Array.isArray(data.history)||
@@ -94,6 +113,7 @@ export function loadState(storage){
       return isValidState(candidate)?candidate:null;
     }
     const versions=[
+      [V06_SAVE_KEY,migrateV06],
       [V05_SAVE_KEY,migrateV05],
       [V04_SAVE_KEY,migrateV04],
       [V03_SAVE_KEY,migrateV03],

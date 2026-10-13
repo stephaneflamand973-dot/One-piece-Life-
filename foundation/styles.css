@@ -194,3 +194,15 @@ body { overflow-x:clip; }
 .relation-actions button small{font-size:10px;font-weight:550;color:#74919d}
 .relation-actions button:disabled{opacity:.43}
 @media(max-width:340px){.relation-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* V0.4.3 : cercle d'amis compact, sans onglets supplémentaires. */
+.friend-memory{display:inline-flex;color:#218064!important;font-weight:750}
+.social-circle{margin:15px 0 18px}
+.social-circle-body{border:1px solid #d5e5e9;border-radius:12px;
+  background:#f7fbfb;padding:14px;display:grid;gap:10px;min-width:0}
+.social-circle-body>strong{font-size:14px;color:var(--ocean)}
+.social-circle-body>span,.social-circle-body>small{font-size:11px;color:#66808b}
+.social-circle-body>.relation-progress{height:7px;margin:0}
+.social-circle-body button{min-height:46px;border-radius:9px;border:1px solid #b3d2dc;
+  background:#e8f5f6;color:var(--ocean);font-weight:780;font-size:12px;padding:10px}
+.social-circle-body button:disabled{opacity:.45}

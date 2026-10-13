@@ -58,6 +58,7 @@ export function availability(rel,person,action,age){
   const a=ACTIONS[action];
   if(!a||!person||person.deceased)return {enabled:false,reason:'Relation indisponible.'};
   if(age<a.minAge)return {enabled:false,reason:'Disponible à partir de '+a.minAge+' ans.'};
+  if(age+person.ageOffset<3)return {enabled:false,reason:'Ce proche est encore trop jeune.'};
   if(rel.actionsUsed>=3)return {enabled:false,reason:"Actions de l'année épuisées."};
   if(person.lastActionAge===age)return {enabled:false,reason:'Déjà rencontré cette année.'};
   if(action==='confide'&&person.trust<35)

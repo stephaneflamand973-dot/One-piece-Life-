@@ -4,6 +4,8 @@
  */
 import { ACTIONS, clamp, createProfile, isProfile, resolveReaction } from './personality.mjs';
 import { INITIATIVE_TYPES, INITIATIVE_AGES } from './initiatives.mjs';
+import { emptySocialData, syncCircle, recordFriendshipMilestones,
+  ageCircle, isValidSocial, MAX_SIBLINGS, FAMILY_BIRTH_YEARS } from './social-evolution.mjs';
 export { ACTIONS, TRAITS, TRAIT_LABELS, reactionChance, availability } from './personality.mjs';
 const FIRST = Object.freeze(['Sora','Mika','Nora','Kaito','Lina','Toma','Riku','Aya','Ren','Yuna','Kenji','Robin']);
 export const MAX_ACTIONS_PER_YEAR = 3;
@@ -16,7 +18,7 @@ function draw(random) {
 function take(list,random){return list[Math.floor(draw(random)*list.length)];}
 function offset(range,random){return range[0]+Math.floor(draw(random)*(range[1]-range[0]+1));}
 export function emptyRelations(){
-  return {people:[],actionsUsed:0,records:[],recent:'',pending:null,initiatives:[]};
+  return {people:[],actionsUsed:0,records:[],recent:'',pending:null,initiatives:[],...emptySocialData()};
 }
 function person({id,role,firstName,lastName,ageOffset,bond,deathAge,createdAtAge=0,age=0},random){
   return createProfile({id,role,firstName,lastName,ageOffset,bond,deathAge,
@@ -48,8 +50,9 @@ export function isValidRelations(relations,age,started,history=null){
   const people=relations.people;
   if (!started) return people.length===0 && relations.actionsUsed===0 &&
     relations.records.length===0 && relations.recent==='' &&
-    relations.pending===null && relations.initiatives.length===0;
-  if (people.length<2 || people.length>2+2+MAX_FRIENDS) return false;
+    relations.pending===null && relations.initiatives.length===0 &&
+    isValidSocial(relations,age,false);
+  if (people.length<2 || people.length>2+MAX_SIBLINGS+MAX_FRIENDS) return false;
   const ids=new Set();
   let mother=0,father=0,sibling=0,friend=0;
   for(const p of people){
@@ -66,16 +69,19 @@ export function isValidRelations(relations,age,started,history=null){
         !isProfile(p)) return false;
     if(p.role==='mother'){mother++;if(p.id!=='mother'||p.createdAtAge!==0) return false;}
     if(p.role==='father'){father++;if(p.id!=='father'||p.createdAtAge!==0) return false;}
-    if(p.role==='sibling'){sibling++;if(p.id!=='sibling-'+sibling||p.createdAtAge!==0) return false;}
+    if(p.role==='sibling'){sibling++;if(p.id!=='sibling-'+sibling ||
+      !(p.createdAtAge===0 ||
+        (FAMILY_BIRTH_YEARS.includes(p.createdAtAge) &&
+         p.ageOffset===-p.createdAtAge))) return false;}
     if(p.role==='friend'){friend++;if(p.id!=='friend-'+friend||p.createdAtAge<6||
       p.createdAtAge+p.ageOffset<3) return false;}
     ids.add(p.id);
   }
-  if(mother!==1||father!==1||sibling>2||friend>MAX_FRIENDS) return false;
+  if(mother!==1||father!==1||sibling>MAX_SIBLINGS||friend>MAX_FRIENDS) return false;
   if(age<3 && relations.actionsUsed>0) return false;
   for(const rec of relations.records){
     if(!rec||!Number.isInteger(rec.age)||rec.age<0||rec.age>age||
-      !ids.has(rec.personId)||!['talk','spend','argue','gift','help','confide','apologize','meet','loss','initiative'].includes(rec.action)||
+      !ids.has(rec.personId)||!['talk','spend','argue','gift','help','confide','apologize','meet','loss','initiative','birth','group'].includes(rec.action)||
       typeof rec.text!=='string'||!rec.text.trim()||rec.text.length>180 ||
       (rec.outcome!==undefined &&
         (!['positive','negative'].includes(rec.outcome) ||
@@ -100,7 +106,7 @@ export function isValidRelations(relations,age,started,history=null){
   }
   if(history && (history.filter(entry=>entry.type==='npc-decision').length!==relations.initiatives.length ||
     history.filter(entry=>entry.type==='npc-event').length!==(pending?1:0)))return false;
-  return true;
+  return isValidSocial(relations,age,true);
 }
 export function advanceRelations(relations,newAge){
   const losses=[];
@@ -118,8 +124,8 @@ export function advanceRelations(relations,newAge){
   const records=[...relations.records,...losses.map(p=>({
     age:newAge,personId:p.id,action:'loss',text:p.firstName+' '+p.lastName+' est décédé(e).'
   }))].slice(-30);
-  return { relations: {...relations,people,actionsUsed:0,records,
-    recent: announcements.length ? announcements.join(' ') : relations.recent},
+  return { relations: ageCircle({...relations,people,actionsUsed:0,records,
+    recent: announcements.length ? announcements.join(' ') : relations.recent},newAge),
     announcements };
 }
 export function interact(relations,personId,action,age,solidarity=0,random=Math.random){
@@ -128,10 +134,11 @@ export function interact(relations,personId,action,age,solidarity=0,random=Math.
   if(!contact) return null;
   const reaction=resolveReaction(relations,contact,action,age,solidarity,random);
   if(!reaction) return null;
-  return {...relations,people:relations.people.map(p=>p.id===personId?reaction.updated:p),
+  return recordFriendshipMilestones({...relations,
+    people:relations.people.map(p=>p.id===personId?reaction.updated:p),
     actionsUsed:relations.actionsUsed+1,
     records:[...relations.records,reaction.record].slice(-30),
-    recent:reaction.record.text};
+    recent:reaction.record.text},age);
 }
 export function meetFriend(relations,character,age,random=Math.random){
   if(age<6 || relations.actionsUsed>=MAX_ACTIONS_PER_YEAR) return null;
@@ -144,10 +151,10 @@ export function meetFriend(relations,character,age,random=Math.random){
     ageOffset:ageDifference,bond:offset([43,59],random),
     deathAge:offset([80,103],random),createdAtAge:age,age},random);
   const text='Vous faites connaissance avec '+name+' au port.';
-  return {...relations,people:[...relations.people,friend],
+  return syncCircle({...relations,people:[...relations.people,friend],
     actionsUsed:relations.actionsUsed+1,
     records:[...relations.records,{age,personId:friend.id,action:'meet',text}].slice(-30),
-    recent:text};
+    recent:text},age);
 }
 export function socialAnnualNote(relations,age){
   if(age<6 || age%5!==0) return '';

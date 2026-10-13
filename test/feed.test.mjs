@@ -76,5 +76,5 @@ test('la nouvelle page conserve le bouton fixe et n’envoie plus le joueur en b
   assert.ok(!app.includes('.story-event:last-child'));
   assert.match(css,/\.bottom-nav\s*\{[^}]*position:fixed/);
   assert.ok(css.includes('.character-header{') && css.includes('position:sticky'));
-  assert.ok(html.includes('npc-042'));
+  assert.ok(html.includes('social-043'));
 });

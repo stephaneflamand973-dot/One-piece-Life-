@@ -7,7 +7,7 @@ import { availability, TRAIT_LABELS } from '../core/personality.mjs';
 const degree=bond=>bond>=80?'Très proche':bond>=60?'Bon lien':bond>=35?'Lien fragile':'Relation distante';
 const labels={sociability:'Sociable',empathy:'Empathique',pride:'Fier',
   temper:'Impulsif',loyalty:'Loyal'};
-function card(person,age,selected){
+function card(person,age,selected,close=false){
   const displayAge=age+person.ageOffset;
   const active=person.id===selected;
   return `<button type="button" class="relation-card ${active?'is-selected':''}"
@@ -16,6 +16,7 @@ function card(person,age,selected){
     <span class="relation-info">
       <strong>${escapeHtml(person.firstName)} ${escapeHtml(person.lastName)}</strong>
       <small>${roleLabel(person.role)} · ${person.deceased?'Décédé(e)':displayAge+' ans'}</small>
+      ${close?'<small class="friend-memory">Amitié marquante</small>':''}
       <span class="relation-progress" role="meter" aria-label="Lien avec ${escapeHtml(person.firstName)}"
         aria-valuemin="0" aria-valuemax="100" aria-valuenow="${person.bond}">
         <span style="width:${person.bond}%"></span>
@@ -64,6 +65,12 @@ export function renderRelationships(state,{selectedId=null}={}){
   const family=rel.people.filter(p=>p.role!=='friend');
   const friends=rel.people.filter(p=>p.role==='friend');
   const blocked=Boolean(state.domainData.story.pending || rel.pending);
+  const marked=new Set(rel.milestones.map(entry=>entry.personId));
+  const group=rel.groups[0];
+  const groupFriends=group?friends.filter(person=>group.members.includes(person.id)&&!person.deceased):[];
+  const canGather=Boolean(group)&&age>=8&&state.activeLife.alive&&!blocked&&
+    groupFriends.length>=2&&rel.actionsUsed<MAX_ACTIONS_PER_YEAR&&
+    group.lastGatherAge!==age;
   const canMeet=age>=6&&state.activeLife.alive&&!blocked&&
     friends.length<MAX_FRIENDS&&rel.actionsUsed<MAX_ACTIONS_PER_YEAR;
   const why=age<6?'Disponible à partir de 6 ans.':
@@ -78,12 +85,29 @@ export function renderRelationships(state,{selectedId=null}={}){
     <div class="relation-section-title"><h2>Famille</h2><span>${family.length}</span></div>
     <div class="relation-list">${family.map(p=>card(p,age,selectedId)+(p.id===selectedId?detail(p,state,blocked):'')).join('')}</div>
     <div class="relation-section-title"><h2>Amis</h2><span>${friends.length}</span></div>
-    ${friends.length?`<div class="relation-list">${friends.map(p=>card(p,age,selectedId)+(p.id===selectedId?detail(p,state,blocked):'')).join('')}</div>`:
+    ${friends.length?`<div class="relation-list">${friends.map(p=>card(p,age,selectedId,marked.has(p.id))+(p.id===selectedId?detail(p,state,blocked):'')).join('')}</div>`:
       `<p class="relation-empty">Vous n'avez pas encore d'amis.</p>`}
     <button type="button" class="relation-meet" data-meet ${canMeet?'':'disabled'}>
       Faire une rencontre <span aria-hidden="true">+</span>
     </button>
     ${why?`<p class="relation-hint">${escapeHtml(why)}</p>`:''}
+    ${group?`<section class="social-circle" aria-label="Groupe social">
+      <div class="relation-section-title"><h2>Groupe social</h2><span>${group.members.length} amis</span></div>
+      <div class="social-circle-body">
+        <strong>${escapeHtml(group.name)}</strong>
+        <span>Cohésion : ${group.cohesion}/100 · ${groupFriends.length} membre${groupFriends.length>1?'s':''} disponible${groupFriends.length>1?'s':''}</span>
+        <div class="relation-progress" role="meter" aria-label="Cohésion du groupe"
+          aria-valuemin="0" aria-valuemax="100" aria-valuenow="${group.cohesion}">
+          <span style="width:${group.cohesion}%"></span>
+        </div>
+        <button type="button" data-gather ${canGather?'':'disabled'}>Organiser une sortie du groupe</button>
+        ${canGather?'':`<small>${blocked?'Terminez votre décision sur Vie.':
+          age<8?'Disponible à partir de 8 ans.':
+          group.lastGatherAge===age?'Vous avez déjà réuni votre groupe cette année.':
+          groupFriends.length<2?'Au moins deux amis doivent être disponibles.':
+          'Plus d’actions disponibles cette année.'}</small>`}
+      </div>
+    </section>`:''}
     ${rel.records.length?`<div class="relation-activity"><h2>Interactions récentes</h2>
       ${rel.records.slice(-3).reverse().map(item=>`<p><strong>${item.age} ans</strong> · ${escapeHtml(item.text)}</p>`).join('')}
       </div>`:''}

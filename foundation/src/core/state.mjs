@@ -9,9 +9,10 @@ import {
   interact, meetFriend, socialAnnualNote
 } from './relationships.mjs';
 import { initiativeForAge, resolveInitiative, INITIATIVE_AGES } from './initiatives.mjs';
+import { familyBirth, gatherCircle, recordFriendshipMilestones } from './social-evolution.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 6;
+export const SCHEMA_VERSION = 7;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
@@ -104,7 +105,8 @@ export function advanceOneYear(state,random=null) {
   const life = advanceLife(state.activeLife);
   if (!life) return null;
   const update = advanceRelations(state.domainData.relationships,life.age);
-  let relations = update.relations;
+  const birth=familyBirth(update.relations,life.age,life,random);
+  let relations = birth.relations;
   if (!life.alive) {
     return { ...state, activeLife:life, history:[...state.history,ageEntry(life)],
       domainData:{...state.domainData,relationships:relations} };
@@ -112,7 +114,7 @@ export function advanceOneYear(state,random=null) {
   const scene = sceneForAge(life.age);
   const story = state.domainData.story;
   const socialNote = socialAnnualNote(relations,life.age);
-  const addition = [...update.announcements,socialNote].filter(Boolean).join(' ');
+  const addition = [...update.announcements,...birth.announcements,socialNote].filter(Boolean).join(' ');
   const intro = scene ? scene.text : annualNarrative(life,story);
   // Une initiative n'apparaît pas pendant un jalon narratif classique.
   // Une année = un seul emplacement dans l'historique.
@@ -138,7 +140,10 @@ export function resolveDecision(state, optionId) {
     pending: null
   };
   const newHistory = [...state.history];
-  newHistory[newHistory.length - 1] = { age: scene.age, type: 'decision', text: option.result };
+  const birthNote=state.domainData.relationships.records.findLast(r=>
+    r.age===scene.age && r.action==='birth')?.text;
+  newHistory[newHistory.length - 1] = { age: scene.age, type: 'decision',
+    text:(option.result+(birthNote?' '+birthNote:'')).slice(0,300) };
   const relations = state.domainData.relationships;
   // Une attitude solidaire renforce aussi le lien avec l'entourage familial.
   const relative = relations.people.find(p=>p.role==='mother'&&!p.deceased) ??
@@ -174,8 +179,19 @@ export function answerInitiative(state,optionId){
   const resolved=resolveInitiative(
     state.domainData.relationships,optionId,state.activeLife.age);
   if(!resolved)return null;
-  const {result,...relationships}=resolved;
+  const {result,...data}=resolved;
+  const relationships=recordFriendshipMilestones(data,state.activeLife.age);
   const history=[...state.history];
-  history[history.length-1]={age:state.activeLife.age,type:'npc-decision',text:result};
+  const birthNote=relationships.records.findLast(r=>r.age===state.activeLife.age&&r.action==='birth')?.text;
+  history[history.length-1]={age:state.activeLife.age,type:'npc-decision',
+    text:(result+(birthNote?' '+birthNote:'')).slice(0,300)};
   return {...state,history,domainData:{...state.domainData,relationships}};
+}
+
+/** Activité du cercle d'amis : une action de groupe, sans changer d'année. */
+export function socializeGroup(state,random=Math.random){
+  if(!isValidState(state)||!state.activeLife?.alive ||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const rel=gatherCircle(state.domainData.relationships,state.activeLife.age,random);
+  return rel ? {...state,domainData:{...state.domainData,relationships:rel}} : null;
 }
