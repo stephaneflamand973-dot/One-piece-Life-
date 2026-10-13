@@ -145,7 +145,13 @@ root.addEventListener('click', event => {
     window.scrollTo(0, previousScrollY);
     const more = root.querySelector('[data-show-older]');
     if (more) more.focus({ preventScroll: true });
-    else root.querySelector('.story-event:last-child')?.setAttribute('tabindex', '-1');
+    else {
+      const lastCard = root.querySelector('.story-list')?.lastElementChild;
+      if (lastCard) {
+        lastCard.setAttribute('tabindex', '-1');
+        lastCard.focus({ preventScroll: true });
+      }
+    }
     return;
   }
   if (button.hasAttribute('data-age')) {
