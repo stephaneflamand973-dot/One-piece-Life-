@@ -199,6 +199,22 @@ async function journey(browser,label,contextOptions){
         await page.reload({waitUntil:'networkidle'});
         assert.equal(await page.locator('.career-mission-wallet strong').first().innerText(),walletAfter);
         assert.equal(await page.locator('.wanted-metrics').innerText(),wantedBeforeReload);
+        // Achat du navire, recrue réelle, ordre annuel et reprise persistante.
+        assert.equal(await page.locator('[data-found-crew]').isEnabled(),true);
+        await page.locator('[data-found-crew]').click();
+        assert.match(await page.locator('.career-heading h1').innerText(),/Capitaine/);
+        assert.equal(await page.locator('.captain-panel').count(),1);
+        await page.locator('#recruit-specialty').selectOption('navigateur');
+        await page.locator('[data-crew-recruit]').evaluate(el=>el.requestSubmit());
+        assert.equal(await page.locator('.captain-member').count(),1);
+        await page.locator('[data-crew-order=train]').click();
+        assert.equal(await page.locator('[data-crew-order=train]').isEnabled(),false);
+        const crewBefore=await page.locator('.captain-panel').innerText();
+        await checkGeometry(page,label,'captain-management');
+        await page.screenshot({path:picture(label,'captain-crew')});
+        await page.reload({waitUntil:'networkidle'});
+        assert.equal(await page.locator('.captain-member').count(),1);
+        assert.equal(await page.locator('.captain-panel').innerText(),crewBefore);
         await page.locator('[data-go-training]').click();
         await page.waitForURL('**/#/activities');
         await page.locator('.training-skill').first().waitFor();

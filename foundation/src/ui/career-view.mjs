@@ -3,6 +3,8 @@ import { CREWS, SPECIALTIES, RANKS, promotionAvailability } from '../core/pirate
 import { SKILLS, MAX_TRAININGS } from '../core/abilities.mjs';
 import { MISSIONS, MAX_MISSIONS, missionAvailability } from '../core/pirate-missions.mjs';
 import { wantedLevel, pursuitChance, hideAvailability } from '../core/pirate-notoriety.mjs';
+import { SHIP_COST, RECRUIT_COST, MAX_CREW_MEMBERS, RECRUIT_SPECIALTIES, ORDERS,
+  foundAvailability, recruitingAvailability, orderAvailability } from '../core/pirate-command.mjs';
 const bar=(value,label)=>`<span class="career-meter" role="meter" aria-label="${escapeHtml(label)}"
   aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}">
   <span style="width:${value}%"></span></span>`;
@@ -13,6 +15,8 @@ export function renderCareer(state){
   const pirate=career.pirate;
   const blocked=Boolean(state.domainData.story.pending||relationships.pending||!life.alive);
   const crew=pirate?CREWS[pirate.crewId]:null;
+  const command=career.command;
+  const founding=foundAvailability(career,life,relationships);
   const role=pirate?SPECIALTIES[pirate.specialty]:null;
   const leader=relationships.people.find(p=>p.id==='world-leader');
   const latest=career.notices.at(-1);
@@ -26,8 +30,7 @@ export function renderCareer(state){
     const canApply=life.age>=16&&life.age<=65&&!blocked&&
       ['independent','pirate'].includes(relationships.world.faction);
     const preassigned=relationships.world.faction==='pirate';
-    const available=Object.entries(CREWS).filter(([id,c])=>
-      !preassigned||(relationships.world.unit??CREWS.alizes.label)===c.label);
+    const available=Object.entries(CREWS).filter(([id])=>id!=='own');
     return `<section class="career-page" aria-label="Carrière pirate">
       <div class="career-heading"><h1>Carrière pirate</h1>
         <p>Rejoignez un équipage, choisissez votre spécialité et faites vos preuves.</p></div>
@@ -54,19 +57,31 @@ export function renderCareer(state){
         ${!['independent','pirate'].includes(relationships.world.faction)?
           '<p class="career-hint">Vous appartenez déjà à une autre faction.</p>':''}
       </div>
+      <section class="career-panel captain-intro">
+        <h2>Devenir capitaine</h2>
+        <p class="career-muted">Conservez votre trésor personnel après une démission.
+          Pour acheter un navire et fonder votre équipage, il faut ${SHIP_COST.toLocaleString('fr-FR')} Berrys.</p>
+        <div class="captain-balance">Butin disponible :
+          <strong>${career.missions.berys.toLocaleString('fr-FR')} Berrys</strong></div>
+        <button type="button" data-found-crew class="career-primary"
+          ${blocked||!founding.enabled?'disabled':''}
+          title="${escapeHtml(founding.reason)}">Fonder mon équipage</button>
+      </section>
       <button type="button" data-go-training class="career-secondary">S'entraîner et développer ses capacités</button>
     </section>`;
   }
   return `<section class="career-page" aria-label="Carrière pirate">
     <div class="career-heading"><p class="career-eyebrow">CARRIÈRE ACTUELLE</p>
-      <h1>Pirate</h1><p>${escapeHtml(crew.label)}</p></div>
+      <h1>${command?'Capitaine':'Pirate'}</h1>
+      <p>${escapeHtml(command?command.name:crew.label)}</p></div>
     ${latest?`<p class="career-notice" role="status">${escapeHtml(latest.text)}</p>`:''}
     <div class="career-panel">
       <div class="career-facts">
         <div><span>Poste</span><strong>${escapeHtml(role.label)}</strong></div>
         <div><span>Rang</span><strong>${escapeHtml(RANKS[pirate.rank])}</strong></div>
         <div><span>Ancienneté</span><strong>${pirate.tenure} an${pirate.tenure>1?'s':''}</strong></div>
-        <div><span>Capitaine</span><strong>${leader?escapeHtml(leader.firstName):'Inconnu'}</strong></div>
+        <div><span>Capitaine</span><strong>${command?escapeHtml(life.firstName):
+          leader?escapeHtml(leader.firstName):'Inconnu'}</strong></div>
         <div><span>Fatigue</span><strong>${abilities.fatigue}/100</strong></div>
         <div><span>État</span><strong>${abilities.injury.level===2?'Blessure sérieuse':
           abilities.injury.level===1?'Blessure légère':'Disponible'}</strong></div>
@@ -92,6 +107,57 @@ export function renderCareer(state){
         <span>${promotion?.enabled?'Chance : '+promotion.chance+'%':escapeHtml(promotion?.reason??'')}</span>
       </button>
     </div>
+    ${command?`
+      <section class="career-panel captain-panel" aria-label="Commandement de mon équipage">
+        <h2>Mon équipage</h2>
+        <div class="captain-metrics">
+          <div><span>Moral</span><strong>${command.morale}/100</strong></div>
+          <div><span>Navire</span><strong>${command.hull}/100</strong></div>
+          <div><span>Membres</span><strong>${command.members.length}/${MAX_CREW_MEMBERS}</strong></div>
+        </div>
+        <p class="career-hint">Votre navire s'use avec les années et les missions.
+          Maintenez le moral pour conserver vos compagnons.</p>
+        <div class="captain-members">
+          ${command.members.length?command.members.map(person=>`<div class="captain-member">
+            <strong>${escapeHtml(person.firstName+' '+person.lastName)}</strong>
+            <small>${escapeHtml(RECRUIT_SPECIALTIES[person.specialty])} ·
+              Talent ${person.skill}/100 · Loyauté ${person.loyalty}/100</small>
+          </div>`).join(''):'<p class="career-muted">Aucun compagnon recruté pour le moment.</p>'}
+        </div>
+        <form data-crew-recruit class="career-form">
+          <label for="recruit-specialty">Recruter un membre</label>
+          <select id="recruit-specialty" name="specialty"
+            ${blocked||!recruitingAvailability(career,life).enabled?'disabled':''}>
+            ${Object.entries(RECRUIT_SPECIALTIES).map(([id,name])=>
+              `<option value="${id}">${escapeHtml(name)}</option>`).join('')}
+          </select>
+          <button type="submit" class="career-primary"
+            ${blocked||!recruitingAvailability(career,life).enabled?'disabled':''}>
+            Recruter (${RECRUIT_COST.toLocaleString('fr-FR')} Berrys si accepté)
+          </button>
+        </form>
+        <h3>Décisions du capitaine</h3>
+        <div class="captain-order-actions">
+          ${Object.entries(ORDERS).map(([id,order])=>{
+            const access=orderAvailability(career,life,id);
+            return `<button type="button" data-crew-order="${id}"
+              ${blocked||!access.enabled?'disabled':''}
+              title="${escapeHtml(access.reason)}">
+              ${escapeHtml(order.label)}<small>${escapeHtml(order.description)}</small>
+            </button>`;
+          }).join('')}
+        </div>
+      </section>`:`
+      <section class="career-panel captain-intro">
+        <h2>Commandement</h2>
+        <p class="career-muted">Fonder votre propre équipage coûte
+          ${SHIP_COST.toLocaleString('fr-FR')} Berrys. Votre expérience et vos capacités seront conservées.</p>
+        <button type="button" class="career-primary" data-found-crew
+          ${blocked||!founding.enabled?'disabled':''}
+          title="${escapeHtml(founding.reason)}">Acheter un navire et devenir capitaine</button>
+        <button type="button" class="career-secondary captain-resign" data-resign-pirate
+          ${blocked?'disabled':''}>Quitter cet équipage</button>
+      </section>`}
     <section class="career-panel wanted-panel" aria-label="Prime et recherche">
       <div class="career-mission-top"><h2>Avis de recherche</h2>
         <span>${escapeHtml(wantedLevel(wanted))}</span></div>

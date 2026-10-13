@@ -81,7 +81,7 @@ test('postuler à 16 ans avec compétences réelles, embauche non automatique',(
   assert.equal(engine.getState().domainData.career.appliedAtAge,16);
 });
 test('acceptation dans deux équipages et conservation du capitaine dans Relations',()=>{
-  for(const crewId of Object.keys(CREWS)){
+  for(const crewId of Object.keys(CREWS).filter(id=>id!=='own')){
     const {engine,storage}=setup(16);
     assert.ok(engine.applyPirate(crewId,'combattant'));
     const state=engine.getState();
@@ -149,7 +149,7 @@ test('migration V0.4.5 intacte, même si une faction pirate a déjà été rejoi
     story:now.domainData.story,relationships:now.domainData.relationships}};
   map.clear();map.set(V09_SAVE_KEY,JSON.stringify(old));
   const newer=createEngine({storage}).getState();
-  assert.equal(newer.schemaVersion,13);
+  assert.equal(newer.schemaVersion,14);
   assert.deepEqual(newer.history,old.history);
   assert.deepEqual(newer.domainData.relationships,old.domainData.relationships);
   assert.equal(newer.domainData.career.pirate,null);

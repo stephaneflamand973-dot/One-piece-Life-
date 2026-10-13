@@ -16,9 +16,10 @@ import { emptyAbilities, createAbilities, validAbilities, trainSkill, ageAbiliti
 import { emptyCareer, isValidCareer, applyForCrew, workHard, ageCareer, requestPromotion, SPECIALTIES } from './pirate-career.mjs';
 import { performMission } from './pirate-missions.mjs';
 import { missionWanted, annualPursuit, hideFromMarine } from './pirate-notoriety.mjs';
+import { foundOwnCrew, leaveOwnEmployer, recruitToCrew, giveOrder } from './pirate-command.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 13;
+export const SCHEMA_VERSION = 14;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
@@ -124,7 +125,8 @@ export function advanceOneYear(state,random=null) {
     update.relations,random);
   let career=careerUpdate.career;
   const birth=familyBirth(update.relations,life.age,life,random);
-  const worldChange=advanceWorld(birth.relations,life.age,random);
+  const worldChange=career.command?{relations:birth.relations,announcements:[]}:
+    advanceWorld(birth.relations,life.age,random);
   let relations = worldChange.relations;
   const pursuit=annualPursuit(career,abilities,relations,life,random??Math.random);
   career=pursuit.career;
@@ -331,8 +333,8 @@ export function workPirate(state){
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
   const career=workHard(state.domainData.career,state.activeLife,state.domainData.abilities);
   if(!career)return null;
-  const captain=state.domainData.relationships.people.find(p=>p.id==='world-leader'&&!p.deceased);
   const rel=state.domainData.relationships;
+  const captain=career.command?null:rel.people.find(p=>p.id==='world-leader'&&!p.deceased);
   const relationships=captain?{...rel,people:rel.people.map(p=>
     p.id===captain.id?{...p,trust:Math.min(100,p.trust+2)}:p)}:rel;
   const abilities={...state.domainData.abilities,
@@ -367,4 +369,39 @@ export function hidePirate(state){
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
   const career=hideFromMarine(state.domainData.career,state.activeLife);
   return career?{...state,domainData:{...state.domainData,career}}:null;
+}
+
+/** Transitions professionnelles : aucune ne fait progresser l'âge. */
+function careerChangeState(state,career,relationships=state.domainData.relationships){
+  const history=[...state.history];
+  const item=history.at(-1),note=career.lastNotice;
+  const prefix=item.text.slice(0,Math.max(0,299-note.length-1)).trim();
+  history[history.length-1]={...item,text:(prefix?prefix+' '+note:note).slice(0,300)};
+  return {...state,history,domainData:{...state.domainData,career,relationships}};
+}
+function canManageCareer(state){
+  return isValidState(state)&&state.activeLife?.alive&&
+    !state.domainData.story.pending&&!state.domainData.relationships.pending;
+}
+export function resignPirate(state){
+  if(!canManageCareer(state))return null;
+  const next=leaveOwnEmployer(state.domainData.career,state.activeLife,
+    state.domainData.relationships);
+  return next?careerChangeState(state,next.career):null;
+}
+export function foundPirateCrew(state){
+  if(!canManageCareer(state))return null;
+  const next=foundOwnCrew(state.domainData.career,state.activeLife,
+    state.domainData.relationships);
+  return next?careerChangeState(state,next.career,next.relationships):null;
+}
+export function recruitPirateMember(state,specialty,random=Math.random){
+  if(!canManageCareer(state))return null;
+  const next=recruitToCrew(state.domainData.career,state.activeLife,specialty,random);
+  return next?careerChangeState(state,next.career):null;
+}
+export function orderPirateCrew(state,order){
+  if(!canManageCareer(state))return null;
+  const career=giveOrder(state.domainData.career,state.activeLife,order);
+  return career?careerChangeState(state,career):null;
 }
