@@ -72,7 +72,7 @@ export function renderRelationships(state,{selectedId=null}={}){
   const partners=rel.people.filter(p=>p.role==='partner');
   const children=rel.people.filter(p=>p.role==='child');
   const partner=activePartner(rel);
-  const canRomance=age>=18&&age<=75&&state.activeLife.alive&&!state.domainData.story.pending&&
+  const canRomance=age>=18&&state.activeLife.alive&&!state.domainData.story.pending&&
     !rel.pending&&rel.actionsUsed<MAX_ACTIONS_PER_YEAR;
   const friends=rel.people.filter(p=>p.role==='friend');
   const blocked=Boolean(state.domainData.story.pending || rel.pending);
@@ -125,7 +125,7 @@ export function renderRelationships(state,{selectedId=null}={}){
         (p.id===selectedId?detail(p,state,blocked):'')).join('')}</div>`:
         '<p class="relation-empty">Aucune relation amoureuse pour le moment.</p>'}
       <button type="button" class="relation-meet" data-romance-meet
-        ${canRomance&&!partner&&partners.length<MAX_PARTNERS?'':'disabled'}>
+        ${canRomance&&age<=75&&!partner&&partners.length<MAX_PARTNERS?'':'disabled'}>
         Faire une rencontre amoureuse <span aria-hidden="true">+</span>
       </button>
       ${partner?`<div class="romance-actions">
@@ -139,6 +139,7 @@ export function renderRelationships(state,{selectedId=null}={}){
         }).join('')}
       </div>`:''}
       ${age<18?'<p class="relation-hint">Les rencontres amoureuses se débloquent à 18 ans.</p>':''}
+      ${age>75&&!partner?'<p class="relation-hint">Les nouvelles rencontres ne sont plus proposées après 75 ans.</p>':''}
       ${!partner&&partners.length>=MAX_PARTNERS?
         '<p class="relation-hint">Vous avez atteint la limite de quatre relations successives.</p>':''}
       <div class="relation-section-title"><h2>Mes enfants</h2><span>${children.length}/${MAX_CHILDREN}</span></div>
