@@ -75,6 +75,9 @@ test('la nouvelle page conserve le bouton fixe et n’envoie plus le joueur en b
   assert.ok(!app.includes('scrollIntoView('));
   assert.ok(!app.includes('.story-event:last-child'));
   assert.match(css,/\.bottom-nav\s*\{[^}]*position:fixed/);
-  assert.ok(css.includes('.character-header{') && css.includes('position:sticky'));
-  assert.ok(html.includes('pirate-encounters-059'));
+  const premium=readFileSync('foundation/grand-line-premium.css','utf8');
+  assert.match(premium,/\.character-header\s*\{/);
+  assert.match(premium,/position:relative/);
+  assert.match(premium,/\.hero-stats\s*\{/);
+  assert.ok(html.includes('grand-line-premium-1'));
 });
