@@ -1,0 +1,31 @@
+name: Mobile browser QA
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  mobile:
+    name: Chromium and iPhone WebKit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Test mobile game flows
+        run: node test/browser/mobile.mjs
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: one-piece-life-mobile-qa
+          path: test-output/
+          retention-days: 7
+          if-no-files-found: ignore

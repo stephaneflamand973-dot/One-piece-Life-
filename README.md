@@ -1,6 +1,16 @@
-# ONE PIECE LIFE · Fondation V0.3.1
+# ONE PIECE LIFE · Fondation V0.3.2
 
 Un moteur d'événements annuel minimal, autonome et **lié à des choix dont les conséquences sont conservées**.
+
+## Correctifs V0.3.2 · stabilité mobile
+
+- Accès continu au bouton « + Âge » et à la barre de navigation sur écrans étroits et écrans à encoche (zones de sécurité iOS).
+- Le bouton « Voir les années précédentes » garde le défilement et le focus après extension ; aucun saut vers la naissance.
+- Défilement de retour au présent compatible Safari, sans animation ou risque de méthode non prise en charge.
+- Lorsqu'un champ de création est actif, la barre inférieure se cache (navigateurs compatibles `:has`) pour éviter le recouvrement par le clavier virtuel.
+- Gestion du débordement des textes longs et du rétrécissement à 320 pixels.
+- Parcours de bout en bout automatisés en navigateur mobile Chromium et WebKit dans GitHub Actions.
+- **Moteur, événements, décisions, sauvegardes et histoire restent inchangés.**
 
 ## Amélioration V0.3.1 : fil de vie façon BitLife
 

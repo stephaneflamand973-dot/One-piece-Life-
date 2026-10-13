@@ -14,7 +14,8 @@ engine.modules.register({
 });
 function focusPresent() {
   // Pas de scrollIntoView vers la fin du journal : le présent est en tête.
-  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  // Signature numérique largement compatible avec Safari et les PWA iOS.
+  window.scrollTo(0, 0);
 }
 
 const ICONS = Object.freeze({
@@ -137,9 +138,20 @@ root.addEventListener('click', event => {
   if (!button || !root.contains(button) || button.disabled) return;
   if (button.hasAttribute('data-back')) { back(); return; }
   if (button.hasAttribute('data-show-older')) {
-    // Affiche uniquement un lot de plus, sans sauter vers le bas.
+    // Conserver le point de lecture, ainsi que le focus clavier.
+    const previousScrollY = window.scrollY;
     visibleHistoryCount += HISTORY_PAGE_SIZE;
     render();
+    window.scrollTo(0, previousScrollY);
+    const more = root.querySelector('[data-show-older]');
+    if (more) more.focus({ preventScroll: true });
+    else {
+      const lastCard = root.querySelector('.story-list')?.lastElementChild;
+      if (lastCard) {
+        lastCard.setAttribute('tabindex', '-1');
+        lastCard.focus({ preventScroll: true });
+      }
+    }
     return;
   }
   if (button.hasAttribute('data-age')) {

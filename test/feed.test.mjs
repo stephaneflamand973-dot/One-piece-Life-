@@ -69,12 +69,12 @@ test('la nouvelle page conserve le bouton fixe et n’envoie plus le joueur en b
   const app=readFileSync('foundation/src/ui/app.mjs','utf8');
   const css=readFileSync('foundation/styles.css','utf8');
   const html=readFileSync('foundation/index.html','utf8');
-  assert.ok(app.includes('window.scrollTo({ top: 0'));
+  assert.ok(app.includes('window.scrollTo(0, 0)'));
   assert.ok(app.includes('visibleHistoryCount = HISTORY_PAGE_SIZE'));
   assert.ok(app.includes("button.hasAttribute('data-show-older')"));
   assert.ok(!app.includes('scrollIntoView('));
   assert.ok(!app.includes('.story-event:last-child'));
   assert.match(css,/\.bottom-nav\s*\{[^}]*position:fixed/);
   assert.ok(css.includes('.character-header{') && css.includes('position:sticky'));
-  assert.ok(html.includes('feed-031'));
+  assert.ok(html.includes('mobile-032'));
 });
