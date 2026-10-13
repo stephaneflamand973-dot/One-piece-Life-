@@ -115,7 +115,7 @@ test('migration 14 -> 15 conserve identité, richesse, spécialités, historique
  const {engine,map,storage}=captain();
  const state=engine.getState();
  const cmd=state.domainData.career.command;
- const {cohesion,pending,events,...oldCommand}=cmd;
+ const {cohesion,pending,events,ship,...oldCommand}=cmd;
  const legacyCmd={...oldCommand,members:cmd.members.map(m=>{
   const {role,temperament,bond,ambition,rivalry,strain,...oldMember}=m;
   return oldMember;
