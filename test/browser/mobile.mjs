@@ -175,7 +175,7 @@ async function journey(browser,label,contextOptions){
         const afterWork=Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow'));
         assert.ok(afterWork>performance);
-        // Mission réelle, gain persistant et deux missions maximum dans une année.
+        // Les missions n'ont plus de quota annuel : seules les conditions réelles limitent l'accès.
         const walletBefore=await page.locator('.career-mission-wallet strong').first().innerText();
         assert.equal(await page.locator('[data-pirate-mission=escort]').isEnabled(),true);
         await page.locator('[data-pirate-mission=escort]').click();
@@ -183,8 +183,8 @@ async function journey(browser,label,contextOptions){
         assert.equal(await page.locator('.wanted-panel').count(),1);
         assert.match(await page.locator('.wanted-bounty strong').innerText(),/Berrys/);
         await page.locator('[data-pirate-mission=explore]').click();
-        assert.match(await page.locator('.pirate-mission-panel .career-mission-top').innerText(),/2\/2/);
-        assert.equal(await page.locator('[data-pirate-mission=treasure]').isEnabled(),false);
+        assert.match(await page.locator('.pirate-mission-panel .career-mission-top').innerText(),/2 cette année/);
+        assert.equal(await page.locator('[data-pirate-mission=treasure]').isEnabled(),true);
         const performanceAfterMissions=Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow'));
         const walletAfter=await page.locator('.career-mission-wallet strong').first().innerText();
@@ -199,7 +199,7 @@ async function journey(browser,label,contextOptions){
         await page.reload({waitUntil:'networkidle'});
         assert.equal(await page.locator('.career-mission-wallet strong').first().innerText(),walletAfter);
         assert.equal(await page.locator('.wanted-metrics').innerText(),wantedBeforeReload);
-        // Achat du navire, recrue réelle, ordre annuel et reprise persistante.
+        // Achat du navire, recrue réelle, ordres multiples et reprise persistante.
         assert.equal(await page.locator('[data-found-crew]').isEnabled(),true);
         await page.locator('[data-found-crew]').click();
         assert.match(await page.locator('.career-heading h1').innerText(),/Capitaine/);
@@ -208,7 +208,9 @@ async function journey(browser,label,contextOptions){
         await page.locator('[data-crew-recruit]').evaluate(el=>el.requestSubmit());
         assert.equal(await page.locator('.captain-member').count(),1);
         await page.locator('[data-crew-order=train]').click();
-        assert.equal(await page.locator('[data-crew-order=train]').isEnabled(),false);
+        assert.equal(await page.locator('[data-crew-order=train]').isEnabled(),true);
+         await page.locator('[data-crew-order=train]').click();
+         assert.equal(await page.locator('[data-crew-order=train]').isEnabled(),true);
         const crewBefore=await page.locator('.captain-panel').innerText();
         await checkGeometry(page,label,'captain-management');
         await page.screenshot({path:picture(label,'captain-crew')});
