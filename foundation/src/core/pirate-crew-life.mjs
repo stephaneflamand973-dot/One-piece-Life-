@@ -129,12 +129,20 @@ export function actWithCrew(career,life,memberId,action){
 export function ageCrewLife(career,age,random=Math.random){
  const cmd=career.command;
  if(!cmd)return {career,note:''};
- const crew=cmd.members.map(m=>({...m,strain:Math.max(0,m.strain-28),
-  rivalry:cap(m.rivalry+(cmd.cohesion<30?3:-1)),
-  loyalty:cap(m.loyalty+(cmd.morale<25?-2:0))}));
+ const crew=cmd.members.map(m=>{
+  const isolated=m.temperament==='rebelle'&&cmd.cohesion<55;
+  const frustrated=m.temperament==='ambitieux'&&m.role!=='second'&&m.ambition>=60;
+  return {...m,strain:Math.max(0,m.strain-28),
+   ambition:cap(m.ambition+(m.temperament==='ambitieux'?1:0)),
+   rivalry:cap(m.rivalry+(cmd.cohesion<30?3:-1)+(isolated?3:0)+(frustrated?2:0)),
+   loyalty:cap(m.loyalty+(cmd.morale<25?-2:0)+
+     (m.temperament==='loyal'&&cmd.morale>=55?1:0)+
+     (m.temperament==='rebelle'&&cmd.morale<35?-1:0))};
+ });
  const avg=crew.reduce((s,m)=>s+m.rivalry,0)/Math.max(1,crew.length);
+ const supportive=crew.filter(m=>m.temperament==='solidaire'&&m.loyalty>=45).length;
  let cohesion=cap(cmd.cohesion+(cmd.morale>=65?2:cmd.morale<30?-4:-1)-
-  (avg>60?3:0));
+  (avg>60?3:0)+supportive);
  let pending=null,note='';
  // Une proposition par passage d'âge, à résoudre avant de vieillir de nouveau.
  if(age<120&&crew.length>=2&&age>cmd.foundedAtAge+1&&
