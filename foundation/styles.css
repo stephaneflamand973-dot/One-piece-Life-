@@ -80,3 +80,19 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .decision-choice span{font-size:21px}
 .decision-choice:active{background:#e0f1f5}
 .story-choice{border-left:3px solid var(--green)}
+
+/* V0.3.1 : le fil se lit du présent vers le passé, sans scroll automatique en bas. */
+.topbar{position:sticky;top:0;z-index:12}
+.character-header{
+  position:sticky;top:62px;z-index:9;background:var(--paper);
+  padding:14px 0 15px;
+}
+.story-latest{border-color:#b8d5dd;background:#f5fafa}
+.story-latest:before{background:var(--green)}
+.story-more{
+  display:block;width:100%;min-height:46px;margin:5px 0 14px;
+  border:1px solid #d7e4e9;border-radius:11px;background:#f4f8fa;
+  color:var(--ocean);font-weight:750;font-size:12px;
+}
+.story-more:active{background:#e5f0f4}
+.story-more span{font-weight:500;color:#69838e}

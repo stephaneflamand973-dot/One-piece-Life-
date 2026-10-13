@@ -5,7 +5,17 @@ import { renderLife, placeOptions, escapeHtml } from './life-view.mjs';
 const root = document.getElementById('app');
 if (!root) throw new Error('Point de montage absent.');
 const engine = createEngine();
-engine.modules.register({ id: 'life', label: 'Vie', render: renderLife });
+const HISTORY_PAGE_SIZE = 8;
+let visibleHistoryCount = HISTORY_PAGE_SIZE;
+engine.modules.register({
+  id: 'life',
+  label: 'Vie',
+  render: state => renderLife(state, { historyLimit: visibleHistoryCount })
+});
+function focusPresent() {
+  // Pas de scrollIntoView vers la fin du journal : le présent est en tête.
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+}
 
 const ICONS = Object.freeze({
   briefcase: '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2"/>',
@@ -118,12 +128,20 @@ root.addEventListener('submit', event => {
   } else {
     notice = '';
   }
+  visibleHistoryCount = HISTORY_PAGE_SIZE;
   render();
+  if (!notice) focusPresent();
 });
 root.addEventListener('click', event => {
   const button = event.target.closest('button');
   if (!button || !root.contains(button) || button.disabled) return;
   if (button.hasAttribute('data-back')) { back(); return; }
+  if (button.hasAttribute('data-show-older')) {
+    // Affiche uniquement un lot de plus, sans sauter vers le bas.
+    visibleHistoryCount += HISTORY_PAGE_SIZE;
+    render();
+    return;
+  }
   if (button.hasAttribute('data-age')) {
     if (!ageIsAvailable()) return;
     if (!engine.age()) {
@@ -131,10 +149,9 @@ root.addEventListener('click', event => {
       render(); return;
     }
     notice = '';
+    visibleHistoryCount = HISTORY_PAGE_SIZE;
     render();
-    const decision = root.querySelector('.decision-panel');
-    if (decision) decision.scrollIntoView({ block: 'start', behavior: 'instant' });
-    else root.querySelector('.story-event:last-child')?.scrollIntoView({ block: 'end', behavior: 'instant' });
+    focusPresent();
     return;
   }
   if (button.hasAttribute('data-choice')) {
@@ -144,8 +161,9 @@ root.addEventListener('click', event => {
       render(); return;
     }
     notice = '';
+    visibleHistoryCount = HISTORY_PAGE_SIZE;
     render();
-    root.querySelector('.story-event:last-child')?.scrollIntoView({ block: 'end', behavior: 'instant' });
+    focusPresent();
     return;
   }
   if (button.hasAttribute('data-restart')) {
@@ -154,8 +172,10 @@ root.addEventListener('click', event => {
       notice = 'Impossible de supprimer la partie actuelle.'; render(); return;
     }
     notice = '';
-    go('life');
-    render();
+    visibleHistoryCount = HISTORY_PAGE_SIZE;
+    if (route.section === 'life') render();
+    else go('life');
+    focusPresent();
     return;
   }
   if (button.dataset.nav) go(button.dataset.nav);

@@ -1,6 +1,16 @@
-# ONE PIECE LIFE · Fondation V0.3
+# ONE PIECE LIFE · Fondation V0.3.1
 
 Un moteur d'événements annuel minimal, autonome et **lié à des choix dont les conséquences sont conservées**.
+
+## Amélioration V0.3.1 : fil de vie façon BitLife
+
+- **Dernière année en premier** : le journal affiche d'abord le présent puis les années précédentes.
+- **Huit entrées par lot**, avec « Voir les années précédentes » pour remonter dans toute sa vie. Aucun événement ni choix n'est supprimé.
+- **Fiche personnage compacte et épinglée** sous la barre supérieure pendant le défilement.
+- **+ Âge** reste fixé en bas ; chaque année et chaque décision ramène au présent (haut de la page), jamais à la fin.
+- Une décision active reste sous la fiche, au-dessus du journal. Elle ne se retrouve pas répétée dans le fil.
+- Le moteur, les données, l'ordre chronologique de sauvegarde et la migration V0.2 restent inchangés.
+- Les tests vérifient l'affichage inversé, la pagination, la mémoire des décisions et la stabilité des sauvegardes.
 
 ## Fonctionnel
 
