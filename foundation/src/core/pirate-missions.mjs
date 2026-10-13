@@ -1,6 +1,5 @@
 
 import { SPECIALTIES } from './pirate-career.mjs';
-export const MAX_MISSIONS=2;
 export const MISSIONS=Object.freeze({
   escort:{label:'Escorter une cargaison',risk:'Faible',difficulty:24,reward:18000,skills:['navigation','endurance'],rank:0},
   explore:{label:'Explorer une île',risk:'Modéré',difficulty:36,reward:38000,skills:['navigation','vitesse'],rank:0},
@@ -12,16 +11,17 @@ const cap=n=>Math.max(0,Math.min(100,Math.round(n)));
 export function emptyMissions(){return {used:0,berys:0,completed:0,partial:0,failed:0,log:[]};}
 export function validMissions(m,age,career){
  if(!m||typeof m!=='object'||Object.keys(m).length!==6||
-   !Number.isInteger(m.used)||m.used<0||m.used>MAX_MISSIONS||
+   !Number.isSafeInteger(m.used)||m.used<0||
    !Number.isInteger(m.berys)||m.berys<0||m.berys>999999999||
-   !['completed','partial','failed'].every(k=>Number.isInteger(m[k])&&m[k]>=0&&m[k]<=500)||
-   !Array.isArray(m.log)||m.log.length>20||
-   m.used>MAX_MISSIONS)return false;
+   !['completed','partial','failed'].every(k=>Number.isSafeInteger(m[k])&&m[k]>=0)||
+   !Array.isArray(m.log)||m.log.length>20)return false;
  // Le trésor et le journal appartiennent au personnage, pas à son employeur.
  // Un ancien pirate peut avoir rempli son quota avant de démissionner.
 
  if(age===null)return m.used===0&&m.log.length===0&&m.berys===0;
- if(m.log.filter(e=>e.age===age).length!==m.used)return false;
+ // Le journal conserve seulement les 20 dernières missions, mais le compteur annuel reste exact.
+ const currentEntries=m.log.filter(e=>e.age===age).length;
+ if(currentEntries!==Math.min(m.used,20))return false;
  if(m.log.length>m.completed+m.partial+m.failed)return false;
  return m.log.every(e=>e&&Number.isInteger(e.age)&&e.age>=16&&e.age<=age&&
    Object.hasOwn(MISSIONS,e.id)&&['success','partial','failure'].includes(e.outcome)&&
@@ -36,7 +36,6 @@ export function missionAvailability(career,a,rel,life,id){
  if(!life?.alive||!p||rel.world.faction!=='pirate')
    return {enabled:false,reason:'Une carrière pirate active est nécessaire.'};
  if(p.rank<data.rank)return {enabled:false,reason:'Rang insuffisant.'};
- if(career.missions.used>=MAX_MISSIONS)return {enabled:false,reason:'Deux missions déjà effectuées cette année.'};
  if(a.injury.level===2)return {enabled:false,reason:'Blessure sérieuse : récupération nécessaire.'};
  if(a.fatigue>=85)return {enabled:false,reason:'Fatigue excessive : reposez-vous.'};
  const captain=rel.people.find(x=>x.id==='world-leader'&&!x.deceased);
