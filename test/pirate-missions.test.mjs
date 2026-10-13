@@ -144,7 +144,7 @@ test('migration V0.5.1 : carrière, équipage, talents et historique strictement
  data.clear();
  data.set(V11_SAVE_KEY,JSON.stringify(old));
  const imported=createEngine({storage}).getState();
- assert.equal(imported.schemaVersion,17);
+ assert.equal(imported.schemaVersion,18);
  assert.deepEqual(imported.history,old.history);
  assert.deepEqual(imported.domainData.story,old.domainData.story);
  assert.deepEqual(imported.domainData.relationships,old.domainData.relationships);

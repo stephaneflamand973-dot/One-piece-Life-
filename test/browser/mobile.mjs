@@ -37,7 +37,7 @@ async function journey(browser,label,contextOptions){
   const context=await browser.newContext(contextOptions);
   const page=await context.newPage();
   // Tirages contrôlés pour une QA reproductible des initiatives des PNJ.
-  await page.addInitScript(() => { Math.random=()=>0; });
+  await page.addInitScript(() => { Math.random=()=>window.__testRandomSequence?.shift()??0; });
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   try {
@@ -208,9 +208,27 @@ async function journey(browser,label,contextOptions){
         await page.locator('.navigation-panel summary').click();
         assert.match(await page.locator('.navigation-panel').innerText(),/Village de Fuchsia/);
         assert.equal(await page.locator('[data-voyage=shells]').isEnabled(),true);
+        // Traversée calme, patrouille Marine, interception : décision persistante.
+        await page.evaluate(()=>{ window.__testRandomSequence=[0,0,.99]; });
         await page.locator('[data-voyage=shells]').click();
         assert.match(await page.locator('.navigation-panel summary').innerText(),/Shells Town/);
         assert.equal(await page.locator('.navigation-panel').getAttribute('open'),'');
+        assert.equal(await page.locator('.encounter-panel').count(),1);
+        assert.equal(await page.locator('[data-encounter-choice]').count(),4);
+        assert.equal(await page.locator('[data-encounter-choice=board]').isEnabled(),false);
+        assert.equal(await page.locator('[data-explore-island]').isEnabled(),false);
+        await checkGeometry(page,label,'naval-encounter');
+        await page.reload({waitUntil:'networkidle'});
+        assert.equal(await page.locator('.encounter-panel').count(),1);
+        await page.locator('[data-encounter-choice=fight]').click();
+        assert.equal(await page.locator('.encounter-panel').count(),0);
+        const performanceAfterEncounter=Number(await page.locator('[aria-label="Performance professionnelle"]')
+          .getAttribute('aria-valuenow'));
+        assert.equal(performanceAfterEncounter,performanceAfterMissions+3,
+          'Une victoire navale augmente la performance du capitaine');
+        assert.match(await page.locator('.career-notice').innerText(),/combattre/);
+        await page.locator('.navigation-panel summary').click();
+        assert.match(await page.locator('.navigation-panel').innerText(),/Confrontations/);
         await page.locator('[data-explore-island]').click();
         assert.match(await page.locator('.navigation-panel').innerText(),/Journal de bord/);
         assert.match(await page.locator('.navigation-panel').innerText(),/Explorations/);
@@ -251,7 +269,7 @@ async function journey(browser,label,contextOptions){
         await page.locator('button[data-nav=career]').click();
         await page.locator('[aria-label="Performance professionnelle"]').waitFor();
         assert.equal(Number(await page.locator('[aria-label="Performance professionnelle"]')
-          .getAttribute('aria-valuenow')),performanceAfterMissions);
+          .getAttribute('aria-valuenow')),performanceAfterEncounter);
         await page.locator('.bottom-nav button[data-nav=life]').click();
         await page.locator('[data-age]').waitFor();
       }

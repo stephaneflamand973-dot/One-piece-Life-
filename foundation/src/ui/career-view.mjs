@@ -7,6 +7,7 @@ import { SHIP_COST, RECRUIT_COST, RECRUIT_SPECIALTIES, ORDERS,
   foundAvailability, recruitingAvailability, orderAvailability } from '../core/pirate-command.mjs';
 import {SHIP_MODELS,SHIP_PARTS,shipStats,crewCapacity,shipActionAvailability,SHIP_MAINTENANCE_COST,PART_REPAIR_COST,MAX_SHIP_UPGRADE} from '../core/pirate-ships.mjs';
 import {ISLANDS,SEA_LABELS,voyageAvailability,exploreAvailability} from '../core/pirate-navigation.mjs';
+import {ENCOUNTER_CHOICES,ENCOUNTER_FACTIONS,encounterAvailability} from '../core/pirate-encounters.mjs';
 import { CREW_ROLES, TEMPERAMENT_LABELS, CREW_BONUS_COST,
   roleAvailability,crewActionAvailability } from '../core/pirate-crew-life.mjs';
 const bar=(value,label)=>`<span class="career-meter" role="meter" aria-label="${escapeHtml(label)}"
@@ -18,7 +19,7 @@ export function renderCareer(state){
   const {career,relationships,abilities}=state.domainData;
   const pirate=career.pirate;
   const blocked=Boolean(state.domainData.story.pending||relationships.pending||
-    career.command?.pending||!life.alive);
+    career.command?.pending||career.command?.encounters.pending||!life.alive);
   const crew=pirate?CREWS[pirate.crewId]:null;
   const command=career.command;
   const founding=foundAvailability(career,life,relationships);
@@ -113,6 +114,26 @@ export function renderCareer(state){
       </button>
     </div>
     ${command?`
+      ${command.encounters.pending?`<section class="career-panel encounter-panel"
+         aria-label="Rencontre navale à résoudre" role="group">
+        <div class="career-mission-top"><h2>Rencontre en mer</h2>
+          <span>${escapeHtml(ENCOUNTER_FACTIONS[command.encounters.pending.faction])}</span></div>
+        <p>${escapeHtml(command.encounters.pending.text)}</p>
+        <p class="career-hint">Danger estimé : ${command.encounters.pending.threat}/100 ·
+          ${escapeHtml(ISLANDS[command.encounters.pending.island].name)}</p>
+        <p class="career-hint">Choisissez une réponse pour reprendre votre aventure. Aucun choix ne fait vieillir.</p>
+        <div class="captain-order-actions">
+          ${Object.entries(ENCOUNTER_CHOICES).map(([id,data])=>{
+            const access=encounterAvailability(career,life,abilities,id);
+            return `<button type="button" data-encounter-choice="${id}"
+              ${state.domainData.story.pending||relationships.pending||command.pending||!access.enabled?'disabled':''}
+              title="${escapeHtml(access.reason??data.description)}">
+              ${escapeHtml(data.label)}
+              <small>${access.enabled?'Chance '+access.chance+' %':escapeHtml(access.reason)}</small>
+            </button>`;
+          }).join('')}
+        </div>
+      </section>`:''}
       <details class="career-panel navigation-panel">
         <summary><strong>Navigation · ${escapeHtml(ISLANDS[command.navigation.location].name)}</strong>
           · ${escapeHtml(SEA_LABELS[ISLANDS[command.navigation.location].sea])}</summary>
@@ -142,6 +163,9 @@ export function renderCareer(state){
             </button>`;
           }).join('')}
         </div>
+        ${command.encounters.log.length?`<h3>Confrontations</h3>
+          <div class="navigation-log">${command.encounters.log.slice(-3).reverse().map(e=>`
+            <p class="career-hint"><strong>${e.age} ans</strong> · ${escapeHtml(e.text)}</p>`).join('')}</div>`:''}
         ${command.navigation.log.length?`<h3>Journal de bord</h3>
           <div class="navigation-log">${command.navigation.log.slice(-4).reverse().map(e=>`
             <p class="career-hint"><strong>${e.age} ans</strong> · ${escapeHtml(e.text)}

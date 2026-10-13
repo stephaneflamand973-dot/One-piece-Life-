@@ -43,7 +43,8 @@ let notice = '';
 
 function ageIsAvailable() {
   return isHome(route) && Boolean(engine.getState().activeLife?.alive) && !engine.getState().domainData.story.pending && !engine.getState().domainData.relationships.pending &&
-    !engine.getState().domainData.career.command?.pending;
+    !engine.getState().domainData.career.command?.pending&&
+    !engine.getState().domainData.career.command?.encounters.pending;
 }
 function navButtons() {
   return NAV_ITEMS.map(({ id, label, icon: iconName }) => {
@@ -54,11 +55,12 @@ function navButtons() {
       const ageing = ageIsAvailable();
       const pending = isHome(route) && Boolean(engine.getState().domainData.story.pending || engine.getState().domainData.relationships.pending);
       const crewPending = isHome(route) && Boolean(engine.getState().domainData.career.command?.pending);
+      const navalPending = isHome(route) && Boolean(engine.getState().domainData.career.command?.encounters.pending);
       const ended = isHome(route) && engine.getState().activeLife?.alive === false;
-      const action = ageing ? 'data-age' : crewPending&&!pending ? 'data-nav="career"' : 'data-nav="life"';
-      const text = ageing ? '+ Âge' : crewPending&&!pending ? 'Équipage' : pending ? 'Choisir' : ended ? 'Fin' : 'Vie';
+      const action = ageing ? 'data-age' : (crewPending||navalPending)&&!pending ? 'data-nav="career"' : 'data-nav="life"';
+      const text = ageing ? '+ Âge' : navalPending&&!pending ? 'Rencontre' : crewPending&&!pending ? 'Équipage' : pending ? 'Choisir' : ended ? 'Fin' : 'Vie';
       const disabled = ended || pending ? 'disabled' : '';
-      const title = ageing ? 'Avancer d’un an' : crewPending ? 'Répondre à votre équipage dans Carrière' : pending ? 'Répondez à la décision en cours' : 'Retour à Vie';
+      const title = ageing ? 'Avancer d’un an' : navalPending ? 'Résoudre la rencontre en mer dans Carrière' : crewPending ? 'Répondre à votre équipage dans Carrière' : pending ? 'Répondez à la décision en cours' : 'Retour à Vie';
       return `<button type="button" ${action} class="nav-button nav-home ${selected}"
         aria-label="${title}" ${aria} ${disabled}>
         <span class="nav-home-icon">${icon(iconName)}</span><span class="nav-label">${text}</span>
@@ -108,6 +110,12 @@ function render() {
            <h2>Décision de l’équipage</h2>
            <p>${escapeHtml(engine.getState().domainData.career.command.pending.text)}</p>
            <button type="button" data-nav="career" class="career-primary">Répondre dans Carrière</button>
+         </section>`:''}
+       ${route.section==='life'&&engine.getState().domainData.career.command?.encounters.pending?
+         `<section class="career-panel" role="status" aria-label="Rencontre en mer">
+           <h2>Rencontre en mer</h2>
+           <p>${escapeHtml(engine.getState().domainData.career.command.encounters.pending.text)}</p>
+           <button type="button" data-nav="career" class="career-primary">Choisir dans Carrière</button>
          </section>`:''}
        ${currentContent()}
     </main>
@@ -224,6 +232,12 @@ root.addEventListener('click', event => {
     if(route.section!=='career')return;
     notice=engine.crewInteract(button.dataset.crewMemberId,button.dataset.crewMemberAction)?'':
       'Action indisponible : vérifiez les ressources ou la décision en cours.';
+    render();return;
+  }
+  if(button.hasAttribute('data-encounter-choice')){
+    if(route.section!=='career')return;
+    notice=engine.encounter(button.dataset.encounterChoice)?'':
+      'Décision navale impossible : vérifiez l’état du navire et de l’équipage.';
     render();return;
   }
   if(button.hasAttribute('data-voyage')){
