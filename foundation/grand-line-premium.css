@@ -400,3 +400,53 @@ button:not(:disabled):active{transform:scale(.985)}
 @media(prefers-reduced-motion:reduce){
  button:not(:disabled){transition:none}
 }
+
+/* BANDEAU DE CARRIÈRE : les valeurs viennent du moteur, aucune monnaie cosmétique. */
+.career-hero-finances{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+ margin-top:15px;padding-top:13px;border-top:1px solid #f3d39340;
+}
+.career-hero-finances>span{min-width:0;display:grid;gap:4px;padding:9px 10px;
+ border:1px solid #e1c2883d;border-radius:9px;background:#f5dfa912}
+.career-hero-finances small{font-size:9px;color:#edc983;letter-spacing:.15em;font-weight:800}
+.career-hero-finances strong{font-size:12px;color:#fdf2d8;
+ overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+/* La carte évoque les routes sans afficher de fausses coordonnées géographiques. */
+.sea-chart{
+ min-height:116px;margin:15px 0 12px;border:1px solid #6c9bad;
+ border-radius:12px;position:relative;overflow:hidden;
+ background:
+  radial-gradient(circle at 82% 52%,#b7d9d12b 0 10%,transparent 10.5%),
+  radial-gradient(circle at 20% 25%,#abd4d323 0 8%,transparent 8.5%),
+  repeating-radial-gradient(circle at 50% 130%,transparent 0 23px,#aecfd410 24px 25px),
+  linear-gradient(115deg,#16445c,#367485);
+ color:#fff7e3;box-shadow:inset 0 0 18px #06273877;
+}
+.sea-chart-lines{position:absolute;inset:0;width:100%;height:100%;
+ pointer-events:none}
+.sea-chart-compass{position:absolute;right:16px;top:9px;font-size:32px;
+ color:#e7cf93b8;line-height:1}
+.sea-chart-position{position:relative;z-index:1;display:grid;gap:5px;
+ padding:22px 16px 18px;max-width:84%}
+.sea-chart-position small{font-size:9px;letter-spacing:.19em;
+ color:#f1daab;font-weight:850}
+.sea-chart-position strong{font:700 20px/1.2 Georgia,serif;
+ color:#fff9e9;overflow-wrap:anywhere;text-shadow:0 2px 4px #0e293d80}
+.sea-chart-position>span{font-size:11px;color:#c3dce1}
+/* Silhouette navale monochrome : valable pour les trois classes de bateaux. */
+.ship-blueprint{display:flex;align-items:center;justify-content:center;
+ position:relative;min-height:105px;overflow:hidden;
+ margin:12px 0 10px;border-radius:10px;border:1px solid #d7ba85;
+ background:radial-gradient(ellipse at 50% 115%,#9ebcb5aa,transparent 64%),
+ repeating-linear-gradient(0deg,transparent 0 22px,#b5b29f1d 23px 24px),
+ linear-gradient(120deg,#f6ebd4,#eaddbc);
+ color:#385f70}
+.ship-blueprint svg{height:95px;max-width:92%;filter:drop-shadow(0 3px 1px #a18d6933)}
+.ship-blueprint>span{position:absolute;top:9px;left:12px;
+ font-size:9px;font-weight:850;letter-spacing:.14em;color:#786544;
+ text-transform:uppercase}
+@media(max-width:360px){
+ .career-hero-finances strong{font-size:11px}
+ .sea-chart-position strong{font-size:18px}
+ .sea-chart-compass{font-size:25px}
+}
