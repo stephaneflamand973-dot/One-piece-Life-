@@ -170,7 +170,7 @@ export function resolveDecision(state, optionId) {
     ? {...relations,people:relations.people.map(p=>p.id===relative.id
       ? {...p,bond:Math.min(100,p.bond+3)}:p)}
     : relations;
-  return {...state,domainData:{story:newStory,relationships:updatedRelations},
+  return {...state,domainData:{...state.domainData,story:newStory,relationships:updatedRelations},
     history:newHistory};
 }
 
