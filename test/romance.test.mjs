@@ -119,7 +119,7 @@ test('migration V0.4.3 conserve exactement les personnages et les décisions',()
   }};
   map.clear();map.set(V07_SAVE_KEY,JSON.stringify(legacy));
   const migrated=createEngine({storage}).getState();
-  assert.equal(migrated.schemaVersion,11);
+  assert.equal(migrated.schemaVersion,12);
   assert.deepEqual(migrated.activeLife,legacy.activeLife);
   assert.deepEqual(migrated.history,legacy.history);
   const {world:addedWorld,...oldDomainRel}=migrated.domainData.relationships;

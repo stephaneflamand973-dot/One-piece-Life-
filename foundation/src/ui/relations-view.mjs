@@ -4,6 +4,7 @@ import {
 } from '../core/relationships.mjs';
 import { availability, TRAIT_LABELS } from '../core/personality.mjs';
 import { trainingAvailability } from '../core/abilities.mjs';
+import { missionAvailability } from '../core/pirate-missions.mjs';
 import { activePartner, romanceAvailability, MAX_PARTNERS, MAX_CHILDREN } from '../core/romance.mjs';
 import { FACTIONS, WORLD_ROLES, WORLD_ACTIONS,
   worldActionAvailability,worldRoleLabel } from '../core/world-relations.mjs';
@@ -179,7 +180,9 @@ export function renderRelationships(state,{selectedId=null}={}){
         <div class="relation-list">${worldPeople.map(p=>card(p,age,selectedId)+
           (selectedId===p.id?detail(p,state,blocked):'')).join('')}</div>
         <div class="relation-actions world-actions">${Object.entries(WORLD_ACTIONS).map(([id,action])=>{
-          const enabled=worldActionAvailability(rel,id,age);
+          const enabled=id==='mission'&&state.domainData.career.pirate?
+            missionAvailability(state.domainData.career,state.domainData.abilities,
+              rel,state.activeLife,'escort'):worldActionAvailability(rel,id,age);
           const skill=state.domainData.career.pirate?.specialty;
           const primary=skill?({combattant:'technique',sabreur:'armes',navigateur:'navigation',
             tireur:'precision',medecin:'medecine',cuisinier:'cuisine',charpentier:'charpenterie'}[skill]):'technique';

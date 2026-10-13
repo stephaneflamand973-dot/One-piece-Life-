@@ -14,9 +14,10 @@ import { meetPartner, actRomance } from './romance.mjs';
 import { joinFaction, takeWorldAction, advanceWorld, worldActionAvailability } from './world-relations.mjs';
 import { emptyAbilities, createAbilities, validAbilities, trainSkill, ageAbilities, restAbilities, trainingAvailability } from './abilities.mjs';
 import { emptyCareer, isValidCareer, applyForCrew, workHard, ageCareer, requestPromotion, SPECIALTIES } from './pirate-career.mjs';
+import { performMission } from './pirate-missions.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 11;
+export const SCHEMA_VERSION = 12;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
@@ -249,6 +250,8 @@ export function chooseFaction(state,faction,random=Math.random){
   return next?romanceUpdate(state,next,true):null;
 }
 export function actInFaction(state,action,random=Math.random){
+  if(action==='mission'&&state?.domainData?.career?.pirate)
+    return doPirateMission(state,'escort',random);
   if(action==='train'){
     const p=state?.domainData?.career?.pirate;
     const skill=p?SPECIALTIES[p.specialty].skill:'technique';
@@ -331,4 +334,21 @@ export function workPirate(state){
   const abilities={...state.domainData.abilities,
     fatigue:Math.min(100,state.domainData.abilities.fatigue+10)};
   return {...state,domainData:{...state.domainData,career,relationships,abilities}};
+}
+
+/** Mission pirate jouée dans l'année actuelle. Sauvegarde atomique, aucun âge supplémentaire. */
+export function doPirateMission(state,id,random=Math.random){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const outcome=performMission(state.domainData.career,state.domainData.abilities,
+    state.domainData.relationships,state.activeLife,id,random);
+  if(!outcome)return null;
+  const history=[...state.history],entry=history.at(-1);
+  const summary=outcome.entry.text;
+  const remaining=299-summary.length-1;
+  const prefix=entry.text.slice(0,Math.max(0,remaining)).trim();
+  history[history.length-1]={...entry,
+    text:(prefix?prefix+' '+summary:summary).slice(0,300)};
+  return {...state,history,domainData:{...state.domainData,
+    career:outcome.career,abilities:outcome.abilities,relationships:outcome.relationships}};
 }

@@ -3,6 +3,7 @@
  * Rang, emploi et performance ne sont pas des compétences personnelles.
  */
 import { joinFaction } from './world-relations.mjs';
+import { emptyMissions, validMissions, ageMissions } from './pirate-missions.mjs';
 export const CREWS=Object.freeze({
   alizes:{label:'Équipage des Alizés',baseChance:82},
   aurore:{label:"Équipage de l'Aurore",baseChance:67}
@@ -25,14 +26,15 @@ const stamp=(career,age,type,text)=>{
   return {...career,notices,lastNotice:text};
 };
 export function emptyCareer(){
-  return {pirate:null,appliedAtAge:-1,notices:[],lastNotice:''};
+  return {pirate:null,appliedAtAge:-1,notices:[],lastNotice:'',missions:emptyMissions()};
 }
 export function isValidCareer(career,life,relationships,abilities){
   if(!career||typeof career!=='object'||Array.isArray(career)||
     !Number.isInteger(career.appliedAtAge)||career.appliedAtAge< -1||
     career.appliedAtAge>(life?.age??0)||
     !Array.isArray(career.notices)||career.notices.length>25||
-    typeof career.lastNotice!=='string'||career.lastNotice.length>180)
+    typeof career.lastNotice!=='string'||career.lastNotice.length>180||
+    !validMissions(career.missions,life?.age??null,career))
     return false;
   for(const item of career.notices){
     if(!item||!Number.isInteger(item.age)||item.age<16||item.age>(life?.age??0)||
@@ -192,5 +194,5 @@ export function ageCareer(career,abilities,life,relations=null,random=null){
       }
     }
   }
-  return {career:result,note};
+  return {career:ageMissions(result),note};
 }

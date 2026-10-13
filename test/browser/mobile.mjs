@@ -175,6 +175,22 @@ async function journey(browser,label,contextOptions){
         const afterWork=Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow'));
         assert.ok(afterWork>performance);
+        // Mission réelle, gain persistant et deux missions maximum dans une année.
+        const walletBefore=await page.locator('.career-mission-wallet strong').first().innerText();
+        assert.equal(await page.locator('[data-pirate-mission=escort]').isEnabled(),true);
+        await page.locator('[data-pirate-mission=escort]').click();
+        assert.equal(await page.locator('.career-mission-result').count(),1);
+        await page.locator('[data-pirate-mission=explore]').click();
+        assert.match(await page.locator('.career-mission-top').innerText(),/2\/2/);
+        assert.equal(await page.locator('[data-pirate-mission=treasure]').isEnabled(),false);
+        const performanceAfterMissions=Number(await page.locator('[aria-label="Performance professionnelle"]')
+          .getAttribute('aria-valuenow'));
+        const walletAfter=await page.locator('.career-mission-wallet strong').first().innerText();
+        assert.notEqual(walletAfter,walletBefore);
+        await checkGeometry(page,label,'pirate-missions');
+        await page.screenshot({path:picture(label,'pirate-missions')});
+        await page.reload({waitUntil:'networkidle'});
+        assert.equal(await page.locator('.career-mission-wallet strong').first().innerText(),walletAfter);
         await page.locator('[data-go-training]').click();
         await page.waitForURL('**/#/activities');
         await page.locator('.training-skill').first().waitFor();
@@ -185,7 +201,7 @@ async function journey(browser,label,contextOptions){
         await page.locator('button[data-nav=career]').click();
         await page.locator('[aria-label="Performance professionnelle"]').waitFor();
         assert.equal(Number(await page.locator('[aria-label="Performance professionnelle"]')
-          .getAttribute('aria-valuenow')),afterWork);
+          .getAttribute('aria-valuenow')),performanceAfterMissions);
         await page.locator('.bottom-nav button[data-nav=life]').click();
         await page.locator('[data-age]').waitFor();
       }
