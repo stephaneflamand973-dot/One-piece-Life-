@@ -222,6 +222,7 @@ async function journey(browser,label,contextOptions){
 
     page.once('dialog',dialog=>dialog.accept());
     await page.locator('button[data-restart]').click();
+    await page.locator('[data-create-life]').waitFor();
     assert.equal(await page.locator('[data-create-life]').count(),1);
     await page.reload({waitUntil:'networkidle'});
     assert.equal(await page.locator('[data-create-life]').count(),1);
