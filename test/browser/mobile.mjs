@@ -180,17 +180,25 @@ async function journey(browser,label,contextOptions){
         assert.equal(await page.locator('[data-pirate-mission=escort]').isEnabled(),true);
         await page.locator('[data-pirate-mission=escort]').click();
         assert.equal(await page.locator('.career-mission-result').count(),1);
+        assert.equal(await page.locator('.wanted-panel').count(),1);
+        assert.match(await page.locator('.wanted-bounty strong').innerText(),/Berrys/);
         await page.locator('[data-pirate-mission=explore]').click();
-        assert.match(await page.locator('.career-mission-top').innerText(),/2\/2/);
+        assert.match(await page.locator('.pirate-mission-panel .career-mission-top').innerText(),/2\/2/);
         assert.equal(await page.locator('[data-pirate-mission=treasure]').isEnabled(),false);
         const performanceAfterMissions=Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow'));
         const walletAfter=await page.locator('.career-mission-wallet strong').first().innerText();
+        // Deux missions ordinaires ne doivent pas créer une prime artificielle.
+        assert.match(await page.locator('.wanted-bounty strong').innerText(),/^0[\s\u00a0]*Berrys$/);
+        const wantedBeforeReload=await page.locator('.wanted-metrics').innerText();
+        assert.match(wantedBeforeReload,/Notoriété mondiale/);
+        assert.equal(await page.locator('[data-hide-pirate]').isEnabled(),false);
         assert.notEqual(walletAfter,walletBefore);
         await checkGeometry(page,label,'pirate-missions');
         await page.screenshot({path:picture(label,'pirate-missions')});
         await page.reload({waitUntil:'networkidle'});
         assert.equal(await page.locator('.career-mission-wallet strong').first().innerText(),walletAfter);
+        assert.equal(await page.locator('.wanted-metrics').innerText(),wantedBeforeReload);
         await page.locator('[data-go-training]').click();
         await page.waitForURL('**/#/activities');
         await page.locator('.training-skill').first().waitFor();

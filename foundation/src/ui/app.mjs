@@ -178,6 +178,11 @@ root.addEventListener('click', event => {
     notice=engine.rest()?'':'Repos déjà effectué ou décision en cours.';
     render();return;
   }
+  if(button.hasAttribute('data-hide-pirate')){
+    if(route.section!=='career')return;
+    notice=engine.hidePirate()?'':'Discrétion indisponible pour cette année.';
+    render();return;
+  }
   if(button.hasAttribute('data-pirate-mission')){
     if(route.section!=='career')return;
     notice=engine.mission(button.dataset.pirateMission)?'':

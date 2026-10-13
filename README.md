@@ -1,13 +1,21 @@
-# One Piece Life V0.5.2 · Missions pirates
+# One Piece Life V0.5.3 · Avis de recherche et Marine
 
-La version 0.5.2 introduit de vraies expéditions dans **Carrière** sans ajouter d'onglet. Cinq missions de difficulté progressive : escorter une cargaison, explorer une île, chercher un trésor, aborder un rival et échapper à la Marine. Certaines requièrent le rang membre confirmé ou officier.
+La V0.5.3 ajoute dans **Carrière** une fiche d'avis de recherche, une **prime en Berrys**, une **notoriété mondiale** et la **pression de la Marine**. Les trois valeurs sont indépendantes du butin et de la réputation interne de l'équipage. Une prime constitue une récompense offerte aux chasseurs de primes, jamais de l'argent possédé.
 
-Chaque mission affiche une chance dynamique (8 à 92 %) calculée à partir des aptitudes pertinentes, de la spécialité, de la performance, de la confiance du capitaine, de la cohésion et de la loyauté, ainsi que de la fatigue et des blessures. Trois issues possibles : réussite, succès partiel, échec. Les résultats modifient le butin en Berrys, la performance, la réputation, la loyauté, la fatigue, et parfois la santé. Le succès n'est jamais garanti.
+## Conséquences
+- Les missions font évoluer la notoriété et l'attention de la Marine, mais **ne produisent pas toutes une augmentation de prime**.
+- Les actes publics graves, notamment les abordages et confrontations avec la Marine, déclenchent des hausses de prime. Une découverte de trésor suffisamment médiatisée peut produire un premier avis local.
+- Le montant dépend de l'importance de l'événement, pas directement des points de puissance ou du butin.
+- L'attention de la Marine diminue progressivement avec le temps. À partir d'un avis de recherche et d'une pression suffisante, une **poursuite annuelle probabiliste** peut intervenir.
+- Les qualités de navigation, de vitesse, de combat, la performance et le capitaine influencent les chances de s'échapper.
+- En cas d'interception, du butin peut être confisqué, les performances baisser et une blessure légère survenir. Pas d'arrestation définitive simulée sans futur système pénitentiaire.
+- Le bouton **Se faire discret** permet une fois par année de réduire la pression Marine au prix d'une légère baisse de performance. Il n'annule pas la prime.
+- Les rencontres, récompenses et poursuites s'inscrivent dans l'historique de réputation et le journal annuel, sans ajouter d'années.
 
-Deux missions au maximum par année, sans avancer automatiquement l'âge. Le journal garde **exactement une entrée par année**, même après plusieurs expéditions. Les missions réelles sont aussi accessibles par l'ancienne action Mission des Relations après recrutement.
+## Sauvegardes et compatibilité
+- Schéma V13 ; clé `opl:foundation:life-v053` et migration automatique depuis V0.5.2 et versions antérieures.
+- Âge, histoire, capacités, relations, équipage, rang et Berrys existants conservés à l'identique.
+- Tests Node de notoriété, prime, probabilité de poursuites, évitement/interception, progression jusqu'à 120 ans, migrations et échecs de stockage.
+- QA Chromium mobile à 320/390/430 px et WebKit iPhone simulé.
 
-Les Berrys sont la richesse gagnée par le personnage ; **la prime de recherche ne constitue pas une récompense financière** et sera développée dans une version ultérieure. Les sommes, résultats et blessures sont enregistrés et persistent après rechargement.
-
-Le schéma V12 utilise la sauvegarde `opl:foundation:life-v052`, avec migration automatique et non destructive depuis V0.5.1 et la chaîne des sauvegardes précédentes. Les capacités, équipages, partenaires et données de vie existants sont conservés.
-
-Exécuter `npm test` pour les tests Node. La QA mobile explore les missions et sauvegardes sur Chromium (320/390/430 px) et WebKit simulant un iPhone.
+Le système de prison, la chasse aux primes et les confrontations avec des personnages canoniques restent hors périmètre : ils méritent leurs propres mécanismes.

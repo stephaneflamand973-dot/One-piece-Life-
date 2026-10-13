@@ -6,8 +6,10 @@ import { emptyWorld } from './world-relations.mjs';
 import { createAbilities, emptyAbilities } from './abilities.mjs';
 import { emptyCareer } from './pirate-career.mjs';
 import { emptyMissions } from './pirate-missions.mjs';
+import { emptyWanted } from './pirate-notoriety.mjs';
 
-export const SAVE_KEY='opl:foundation:life-v052';
+export const SAVE_KEY='opl:foundation:life-v053';
+export const V12_SAVE_KEY='opl:foundation:life-v052';
 export const V11_SAVE_KEY='opl:foundation:life-v051';
 export const V10_SAVE_KEY='opl:foundation:life-v050';
 export const V09_SAVE_KEY='opl:foundation:life-v045';
@@ -30,6 +32,18 @@ function seededCharacterRandom(person){
   return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 }
 // Upgrade sans relancer le personnage ni changer ses relations et interactions existantes.
+/** V0.5.2 -> V0.5.3 : ajout d'une notoriété neutre sans réécriture de l'historique. */
+export function migrateV12(data){
+  if(!data||data.schemaVersion!==12||!Array.isArray(data.history)||
+    !data.domainData||Object.keys(data.domainData).length!==4||
+    !['story','relationships','abilities','career'].every(k=>Object.hasOwn(data.domainData,k)))
+    return null;
+  const career=data.domainData.career;
+  if(!career||Object.hasOwn(career,'wanted')||!Object.hasOwn(career,'missions'))return null;
+  const candidate={...data,schemaVersion:SCHEMA_VERSION,
+    domainData:{...data.domainData,career:{...career,wanted:emptyWanted()}}};
+  return isValidState(candidate)?candidate:null;
+}
 /** V0.5.1 -> V0.5.2 : missions vierges, sans toucher à l'existant. */
 export function migrateV11(data){
   if(!data||data.schemaVersion!==11||!Array.isArray(data.history)||
@@ -38,9 +52,8 @@ export function migrateV11(data){
     return null;
   const career=data.domainData.career;
   if(!career||Object.hasOwn(career,'missions'))return null;
-  const candidate={...data,schemaVersion:SCHEMA_VERSION,
-    domainData:{...data.domainData,career:{...career,missions:emptyMissions()}}};
-  return isValidState(candidate)?candidate:null;
+  return migrateV12({...data,schemaVersion:12,
+    domainData:{...data.domainData,career:{...career,missions:emptyMissions()}}});
 }
 /** V0.5.0 -> V0.5.1 : ajouter blessures, repos et demandes de promotion, sans
  * recalculer les talents ni modifier une seule relation ou année. */
@@ -72,7 +85,7 @@ export function migrateV09(data){
   const {injury,restUsed,...abilities}=modern;
   return migrateV10({...data,schemaVersion:10,domainData:{
     story:data.domainData.story,relationships:data.domainData.relationships,
-    abilities,career:(()=>{const {missions,...legacy}=emptyCareer();return legacy;})()
+    abilities,career:(()=>{const {missions,wanted,...legacy}=emptyCareer();return legacy;})()
   }});
 }
 /** V0.4.4 -> V0.4.5 : aucune personne ni progression n'est régénérée. */
@@ -190,6 +203,7 @@ export function loadState(storage){
       return isValidState(candidate)?candidate:null;
     }
     const versions=[
+      [V12_SAVE_KEY,migrateV12],
       [V11_SAVE_KEY,migrateV11],
       [V10_SAVE_KEY,migrateV10],
       [V09_SAVE_KEY,migrateV09],

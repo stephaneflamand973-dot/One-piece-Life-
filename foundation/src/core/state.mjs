@@ -15,9 +15,10 @@ import { joinFaction, takeWorldAction, advanceWorld, worldActionAvailability } f
 import { emptyAbilities, createAbilities, validAbilities, trainSkill, ageAbilities, restAbilities, trainingAvailability } from './abilities.mjs';
 import { emptyCareer, isValidCareer, applyForCrew, workHard, ageCareer, requestPromotion, SPECIALTIES } from './pirate-career.mjs';
 import { performMission } from './pirate-missions.mjs';
+import { missionWanted, annualPursuit, hideFromMarine } from './pirate-notoriety.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 12;
+export const SCHEMA_VERSION = 13;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
@@ -117,14 +118,17 @@ export function advanceOneYear(state,random=null) {
        state.domainData.relationships.pending !== null)) return null;
   const life = advanceLife(state.activeLife);
   if (!life) return null;
-  const abilities=ageAbilities(state.domainData.abilities,life.age);
+  let abilities=ageAbilities(state.domainData.abilities,life.age);
   const update = advanceRelations(state.domainData.relationships,life.age);
   const careerUpdate=ageCareer(state.domainData.career,abilities,life,
     update.relations,random);
-  const career=careerUpdate.career;
+  let career=careerUpdate.career;
   const birth=familyBirth(update.relations,life.age,life,random);
   const worldChange=advanceWorld(birth.relations,life.age,random);
   let relations = worldChange.relations;
+  const pursuit=annualPursuit(career,abilities,relations,life,random??Math.random);
+  career=pursuit.career;
+  abilities=pursuit.abilities;
   if (!life.alive) {
     return { ...state, activeLife:life, history:[...state.history,ageEntry(life)],
       domainData:{...state.domainData,relationships:relations,abilities,career} };
@@ -133,7 +137,7 @@ export function advanceOneYear(state,random=null) {
   const story = state.domainData.story;
   const socialNote = socialAnnualNote(relations,life.age);
   const addition = [...update.announcements,...birth.announcements,
-    ...worldChange.announcements,careerUpdate.note,socialNote].filter(Boolean).join(' ');
+    ...worldChange.announcements,careerUpdate.note,pursuit.note,socialNote].filter(Boolean).join(' ');
   const intro = scene ? scene.text : annualNarrative(life,story);
   // Une initiative n'apparaît pas pendant un jalon narratif classique.
   // Une année = un seul emplacement dans l'historique.
@@ -344,11 +348,23 @@ export function doPirateMission(state,id,random=Math.random){
     state.domainData.relationships,state.activeLife,id,random);
   if(!outcome)return null;
   const history=[...state.history],entry=history.at(-1);
-  const summary=outcome.entry.text;
+  const prior=state.domainData.career.wanted;
+  const wanted=missionWanted(prior,outcome.entry,state.activeLife.age);
+  const gained=wanted.bounty-prior.bounty;
+  const summary=outcome.entry.text+(gained>0?
+    ' Nouvelle prime : '+wanted.bounty.toLocaleString('fr-FR')+' Berrys.':'');
   const remaining=299-summary.length-1;
   const prefix=entry.text.slice(0,Math.max(0,remaining)).trim();
   history[history.length-1]={...entry,
     text:(prefix?prefix+' '+summary:summary).slice(0,300)};
   return {...state,history,domainData:{...state.domainData,
-    career:outcome.career,abilities:outcome.abilities,relationships:outcome.relationships}};
+    career:{...outcome.career,wanted},abilities:outcome.abilities,
+    relationships:outcome.relationships}};
+}
+/** Une action discrète réduit les poursuites, pas la prime déjà publiée. */
+export function hidePirate(state){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const career=hideFromMarine(state.domainData.career,state.activeLife);
+  return career?{...state,domainData:{...state.domainData,career}}:null;
 }

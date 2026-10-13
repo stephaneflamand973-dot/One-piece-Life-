@@ -335,3 +335,22 @@ body { overflow-x:clip; }
 .career-mission-result span{color:#56756a}
 @media(max-width:340px){.pirate-mission{grid-template-columns:minmax(0,1fr) 96px;gap:5px;padding:7px}
  .pirate-mission button{font-size:10px}.career-mission-wallet strong{font-size:12px}}
+
+/* V0.5.3 : avis de recherche intégré à la fiche de carrière */
+.wanted-bounty{background:#f4f1e9;border:1px solid #e4d9c4;border-radius:11px;padding:14px;margin:10px 0}
+.wanted-bounty>span{font-size:9px;font-weight:850;letter-spacing:1.2px;color:#856a42}
+.wanted-bounty>strong{display:block;font-size:25px;line-height:1.4;color:#67482e;
+  overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.wanted-bounty>strong small{font-size:13px}
+.wanted-bounty p{font-size:10px;color:#867660;line-height:1.5;margin:5px 0 0}
+.wanted-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.wanted-metrics>div{padding:9px 7px;background:#f0f5f5;border-radius:8px;
+  display:flex;flex-direction:column;gap:5px;min-width:0}
+.wanted-metrics span{font-size:10px;color:var(--muted);line-height:1.4}
+.wanted-metrics strong{font-size:13px;color:var(--ocean);font-variant-numeric:tabular-nums}
+.wanted-last{margin-top:12px!important;overflow-wrap:anywhere}
+.wanted-hide{margin-top:12px;display:grid;gap:4px}
+.wanted-hide span{font-size:10px;font-weight:500;color:var(--muted)}
+.wanted-hide:disabled{opacity:.43}
+@media(max-width:340px){.wanted-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+.wanted-bounty>strong{font-size:21px}}

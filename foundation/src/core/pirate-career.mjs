@@ -4,6 +4,7 @@
  */
 import { joinFaction } from './world-relations.mjs';
 import { emptyMissions, validMissions, ageMissions } from './pirate-missions.mjs';
+import { emptyWanted, validWanted } from './pirate-notoriety.mjs';
 export const CREWS=Object.freeze({
   alizes:{label:'Équipage des Alizés',baseChance:82},
   aurore:{label:"Équipage de l'Aurore",baseChance:67}
@@ -26,7 +27,7 @@ const stamp=(career,age,type,text)=>{
   return {...career,notices,lastNotice:text};
 };
 export function emptyCareer(){
-  return {pirate:null,appliedAtAge:-1,notices:[],lastNotice:'',missions:emptyMissions()};
+  return {pirate:null,appliedAtAge:-1,notices:[],lastNotice:'',missions:emptyMissions(),wanted:emptyWanted()};
 }
 export function isValidCareer(career,life,relationships,abilities){
   if(!career||typeof career!=='object'||Array.isArray(career)||
@@ -34,7 +35,8 @@ export function isValidCareer(career,life,relationships,abilities){
     career.appliedAtAge>(life?.age??0)||
     !Array.isArray(career.notices)||career.notices.length>25||
     typeof career.lastNotice!=='string'||career.lastNotice.length>180||
-    !validMissions(career.missions,life?.age??null,career))
+    !validMissions(career.missions,life?.age??null,career)||
+    !validWanted(career.wanted,life,career))
     return false;
   for(const item of career.notices){
     if(!item||!Number.isInteger(item.age)||item.age<16||item.age>(life?.age??0)||
