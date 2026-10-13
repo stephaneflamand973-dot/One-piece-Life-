@@ -29,7 +29,7 @@ export function emptyWorld(){return {
 export function worldContacts(rel){
   return rel.people.filter(person=>WORLD_ROLES.includes(person.role));
 }
-export function joinFaction(rel,life,faction,random=Math.random){
+export function joinFaction(rel,life,faction,random=Math.random,unitOverride=null){
   if(!Object.hasOwn(FACTIONS,faction)||rel.world.faction!=='independent'||
     life.age<16||life.age>65||rel.actionsUsed>=3)return null;
   const age=life.age;
@@ -48,9 +48,10 @@ export function joinFaction(rel,life,faction,random=Math.random){
   const standings={...rel.world.standings,[faction]:55};
   if(faction==='pirate')standings.marine=25;
   if(faction==='marine')standings.pirate=25;
-  const text="Vous rejoignez "+FACTIONS[faction].unit+".";
+  const unit=unitOverride??FACTIONS[faction].unit;
+  const text="Vous rejoignez "+unit+".";
   const world={...rel.world,faction,reputation:8,loyalty:48,standings,
-    joinedAtAge:age,
+    joinedAtAge:age,unit,
     log:[{age,action:'join',personId:'world-leader',text}]};
   return {...rel,people:[...rel.people,...contacts],world,
     actionsUsed:rel.actionsUsed+1,recent:text,
@@ -143,6 +144,8 @@ export function isValidWorld(rel,age,started){
       world.standings[f]>=0&&world.standings[f]<=100)||
     !Number.isInteger(world.lastActionAge)||world.lastActionAge< -1||
     world.lastActionAge>age||!Array.isArray(world.log)||world.log.length>25)return false;
+  if(world.unit!==undefined && (typeof world.unit!=='string'||
+    world.unit.length<3||world.unit.length>65))return false;
   const members=worldContacts(rel);
   if(!started||world.faction==='independent'){
     return members.length===0&&world.faction==='independent'&&

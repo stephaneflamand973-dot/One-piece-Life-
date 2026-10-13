@@ -129,6 +129,16 @@ async function journey(browser,label,contextOptions){
         assert.equal(await page.locator('.relation-card[data-person=friend-2]').count(),1);
         assert.equal(await page.locator('.social-circle').count(),1);
         await checkGeometry(page,label,'social-circle');
+        await page.locator('button[data-nav=activities]').click();
+        await page.locator('.training-skill [data-train=force]').click();
+        const power=Number(await page.locator('[aria-label="Force"].career-meter')
+          .getAttribute('aria-valuenow'));
+        assert.ok(power>0);
+        await page.reload({waitUntil:'networkidle'});
+        assert.equal(Number(await page.locator('[aria-label="Force"].career-meter')
+          .getAttribute('aria-valuenow')),power);
+        await checkGeometry(page,label,'training');
+        await page.screenshot({path:picture(label,'training')});
         await page.locator('.bottom-nav button[data-nav=life]').click();
         await page.locator('[data-age]').waitFor();
       }
@@ -154,6 +164,28 @@ async function journey(browser,label,contextOptions){
         await page.screenshot({path:picture(label,'world-mission')});
         await page.reload({waitUntil:'networkidle'});
         assert.equal(Number(await page.locator('.world-score-grid b').first().innerText().then(x=>x.split('/')[0])),after);
+        await page.locator('button[data-nav=career]').click();
+        await page.locator('#crew-offer').selectOption('alizes');
+        await page.locator('#pirate-job').selectOption('combattant');
+        await page.locator('[data-career-apply]').evaluate(el=>el.requestSubmit());
+        assert.match(await page.locator('.career-heading h1').innerText(),/Pirate/);
+        const performance=Number(await page.locator('[aria-label="Performance professionnelle"]')
+          .getAttribute('aria-valuenow'));
+        await page.locator('[data-work-pirate]').click();
+        const afterWork=Number(await page.locator('[aria-label="Performance professionnelle"]')
+          .getAttribute('aria-valuenow'));
+        assert.ok(afterWork>performance);
+        await page.locator('[data-go-training]').click();
+        await page.waitForURL('**/#/activities');
+        await page.locator('.training-skill').first().waitFor();
+        assert.equal(await page.locator('.training-skill').count(),11);
+        await checkGeometry(page,label,'career-training');
+        await page.screenshot({path:picture(label,'career')});
+        await page.reload({waitUntil:'networkidle'});
+        await page.locator('button[data-nav=career]').click();
+        await page.locator('[aria-label="Performance professionnelle"]').waitFor();
+        assert.equal(Number(await page.locator('[aria-label="Performance professionnelle"]')
+          .getAttribute('aria-valuenow')),afterWork);
         await page.locator('.bottom-nav button[data-nav=life]').click();
         await page.locator('[data-age]').waitFor();
       }

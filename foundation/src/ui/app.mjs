@@ -2,6 +2,8 @@ import { createEngine } from '../core/engine.mjs';
 import { NAV_ITEMS, SECTIONS, HOME, isHome, resolveHash, makeHash, parentHash } from '../core/navigation.mjs';
 import { renderLife, placeOptions, escapeHtml } from './life-view.mjs';
 import { renderRelationships } from './relations-view.mjs';
+import { renderCareer } from './career-view.mjs';
+import { renderActivities } from './activities-view.mjs';
 
 const root = document.getElementById('app');
 if (!root) throw new Error('Point de montage absent.');
@@ -18,6 +20,8 @@ engine.modules.register({
   id:'relationships',label:'Relations',
   render:state=>renderRelationships(state,{selectedId:selectedPersonId})
 });
+engine.modules.register({id:'career',label:'Carrière',render:renderCareer});
+engine.modules.register({id:'activities',label:'Activités',render:renderActivities});
 function focusPresent() {
   // Pas de scrollIntoView vers la fin du journal : le présent est en tête.
   // Signature numérique largement compatible avec Safari et les PWA iOS.
@@ -126,6 +130,16 @@ root.addEventListener('change', event => {
   if (select) select.innerHTML = placeOptions(event.target.value);
 });
 root.addEventListener('submit', event => {
+  if(event.target.matches('[data-career-apply]')){
+    event.preventDefault();
+    if(route.section!=='career')return;
+    const form=new FormData(event.target);
+    if(!engine.applyPirate(form.get('crew'),form.get('specialty')))
+      notice='Candidature impossible : vérifiez le poste, vos capacités et vos disponibilités.';
+    else notice='';
+    render();
+    return;
+  }
   if (!event.target.matches('[data-create-life]')) return;
   event.preventDefault();
   const form = new FormData(event.target);
@@ -144,6 +158,20 @@ root.addEventListener('click', event => {
   const button = event.target.closest('button');
   if (!button || !root.contains(button) || button.disabled) return;
   if (button.hasAttribute('data-back')) { back(); return; }
+  if(button.hasAttribute('data-go-training')){
+    go('activities');return;
+  }
+  if(button.hasAttribute('data-train')){
+    if(route.section!=='activities')return;
+    notice=engine.train(button.dataset.train)?'':
+      'Entraînement impossible : séance épuisée, fatigue ou décision en cours.';
+    render();return;
+  }
+  if(button.hasAttribute('data-work-pirate')){
+    if(route.section!=='career')return;
+    notice=engine.workPirate()?'':'Vous avez déjà travaillé davantage cette année.';
+    render();return;
+  }
   if (button.hasAttribute('data-person')) {
     selectedPersonId=button.dataset.person===selectedPersonId ? null : button.dataset.person;
     notice='';

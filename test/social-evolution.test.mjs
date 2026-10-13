@@ -119,7 +119,7 @@ test('migration depuis V0.4.2 conserve événements, liens, décisions et groupe
   advanceTo(engine,9);
   const original=engine.getState();
   const previous={...original,schemaVersion:6,domainData:{
-    ...original.domainData,
+    story:original.domainData.story,
     relationships:Object.fromEntries(Object.entries(original.domainData.relationships)
       .filter(([key])=>key!=='groups'&&key!=='milestones'&&key!=='world'))
   }};
