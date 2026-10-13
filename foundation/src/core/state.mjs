@@ -435,3 +435,17 @@ export function managePirateShip(state,action,value){
  const career=manageShip(state.domainData.career,state.activeLife,action,value);
  return career?careerChangeState(state,career):null;
 }
+
+/** Voyager et explorer n'augmentent pas l'âge et gardent l'historique annuel intact. */
+export function travelPirate(state,islandId,random=Math.random){
+ if(!canManageCareer(state))return null;
+ const career=sailToIsland(state.domainData.career,state.activeLife,
+  state.domainData.abilities,islandId,random);
+ return career?careerChangeState(state,career):null;
+}
+export function explorePirateIsland(state,random=Math.random){
+ if(!canManageCareer(state))return null;
+ const career=exploreIsland(state.domainData.career,state.activeLife,
+  state.domainData.abilities,random);
+ return career?careerChangeState(state,career):null;
+}
