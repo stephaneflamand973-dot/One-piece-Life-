@@ -96,3 +96,37 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 }
 .story-more:active{background:#e5f0f4}
 .story-more span{font-weight:500;color:#69838e}
+
+/* V0.3.2 — iPhone, petits écrans et navigation sans recouvrement. */
+html { -webkit-text-size-adjust:100%; }
+body { overflow-x:clip; }
+.app-shell, .page-content, .life-main { min-width:0; }
+.topbar {
+  height:calc(62px + env(safe-area-inset-top, 0px));
+  padding-top:env(safe-area-inset-top, 0px);
+}
+.character-header {
+  top:calc(62px + env(safe-area-inset-top, 0px));
+}
+.character-header h1, .character-header p,
+.story-event p, .decision-choice { overflow-wrap:anywhere; }
+.nav-button { min-height:44px; }
+.decision-choice, .start-button, .story-more { min-height:48px; }
+.story-event { min-width:0; }
+@supports selector(.app-shell:has(.creation-form:focus-within)) {
+  /* Sur mobile, le clavier virtuel ne doit pas être masqué par la navigation. */
+  .app-shell:has(.creation-form:focus-within) .bottom-nav {
+    visibility:hidden;
+    pointer-events:none;
+  }
+}
+@media (max-width:340px) {
+  .topbar { padding-inline:10px; }
+  .page-content { padding-inline:12px; }
+  .brand { gap:6px;font-size:10px;letter-spacing:.45px; }
+  .brand-mark { height:29px;width:29px; }
+  .bottom-nav { height:calc(78px + env(safe-area-inset-bottom)); }
+  .nav-button { padding-inline:0;gap:5px; }
+  .nav-home-icon { width:55px;height:55px; }
+  .decision-panel { padding:16px 12px; }
+}
