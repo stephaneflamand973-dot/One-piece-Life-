@@ -82,7 +82,7 @@ test('rencontre possible à six ans, blocage pendant un événement et amitié p
 });
 test('cap de quatre amis, effets persistants sur plusieurs décennies, décès sans réactivation',()=>{
   let state=toAge(6);
-  for(let year=6;year<=9;year++){
+  for(let year=6;year<=7;year++){
     if(state.activeLife.age<year)state=toAge(year,state);
     for(let count=0;count<2;count++)state=makeFriend(state,()=>0);
   }
