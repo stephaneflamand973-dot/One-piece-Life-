@@ -96,7 +96,7 @@ test('les ordres améliorent les membres, le navire ou la loyauté avec coûts r
  assert.ok(engine.commandCrew('train'));
  const trained=engine.getState().domainData.career;
  assert.ok(trained.command.members[0].skill>before.command.members[0].skill);
- assert.ok(trained.command.morale>before.command.morale);
+ assert.ok(trained.command.morale<before.command.morale,'L’entraînement a un coût en moral');
  assert.equal(engine.commandCrew('repair'),false,'Manque de Berrys, pas quota annuel');
  assert.equal(orderAvailability(trained,engine.getState().activeLife,'share').enabled,false);
  const mock={...trained,missions:{...trained.missions,berys:30000},
