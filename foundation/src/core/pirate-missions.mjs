@@ -65,7 +65,7 @@ export function performMission(career,a,rel,life,id,random=Math.random){
  const performanceDelta=outcome==='success'?Math.max(3,Math.round(data.difficulty/10)):
    outcome==='partial'?1:-Math.max(3,Math.round(data.difficulty/12));
  const repDelta=outcome==='success'?Math.max(2,Math.round(data.difficulty/14)):outcome==='partial'?1:-3;
- const text=data.label+(outcome==='success?' : réussite.':outcome==='partial'?' : succès partiel.':' : échec.');
+ const text=data.label+(outcome==='success'?' : réussite.':outcome==='partial'?' : succès partiel.':' : échec.');
  const entry={age:life.age,id,outcome,chance:available.chance,reward,performanceDelta,injury:injured,text};
  const old=career.missions;
  const missions={...old,used:old.used+1,berys:Math.min(999999999,old.berys+reward),
