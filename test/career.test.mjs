@@ -107,7 +107,8 @@ test('travailler davantage améliore la performance et la confiance du capitaine
   assert.ok(after.domainData.career.pirate.performance>before.domainData.career.pirate.performance);
   assert.equal(after.domainData.relationships.people.find(p=>p.id==='world-leader').trust,
     Math.min(100,captain.trust+2));
-  assert.equal(engine.workPirate(),false);
+  assert.ok(engine.workPirate(),'plusieurs efforts possibles la même année');
+  assert.equal(engine.getState().domainData.career.pirate.workUsed,2);
   assert.equal(after.history.length,17);
   assert.ok(isValidState(after));
   aging(engine,17);
