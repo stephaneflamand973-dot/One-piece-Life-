@@ -3,7 +3,8 @@ import { createFamily } from './relationships.mjs';
 import { legacyProfile } from './personality.mjs';
 import { syncCircle } from './social-evolution.mjs';
 
-export const SAVE_KEY='opl:foundation:life-v043';
+export const SAVE_KEY='opl:foundation:life-v044';
+export const V07_SAVE_KEY='opl:foundation:life-v043';
 export const V06_SAVE_KEY='opl:foundation:life-v042';
 export const V05_SAVE_KEY='opl:foundation:life-v041';
 export const V04_SAVE_KEY='opl:foundation:life-v04';
@@ -21,6 +22,18 @@ function seededCharacterRandom(person){
   return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 }
 // Upgrade sans relancer le personnage ni changer ses relations et interactions existantes.
+/** Les vies V0.4.3 gardent tous leurs liens inchangés en V0.4.4. */
+export function migrateV07(data){
+  if(!data||data.schemaVersion!==7||!Array.isArray(data.history)||
+    !data.domainData||Object.keys(data.domainData).length!==2||
+    !Object.hasOwn(data.domainData,'story')||
+    !Object.hasOwn(data.domainData,'relationships'))return null;
+  const rel=data.domainData.relationships;
+  if(!rel||!Array.isArray(rel.people)||!Array.isArray(rel.records)||
+    !Array.isArray(rel.groups)||!Array.isArray(rel.milestones))return null;
+  const candidate={...data,schemaVersion:SCHEMA_VERSION};
+  return isValidState(candidate)?candidate:null;
+}
 /** V0.4.2 -> V0.4.3 : restituer le cercle social des amis existants, sans changer les PNJ. */
 export function migrateV06(data){
   if(!data || data.schemaVersion!==6 || !Array.isArray(data.history) ||
@@ -34,10 +47,9 @@ export function migrateV06(data){
   const age=data.activeLife?.age??0;
   if(!Number.isInteger(age)||age<0||age>120)return null;
   const social=syncCircle({...rel,groups:[],milestones:[]},age);
-  const candidate={...data,schemaVersion:SCHEMA_VERSION,domainData:{
+  return migrateV07({...data,schemaVersion:7,domainData:{
     story:data.domainData.story,relationships:social
-  }};
-  return isValidState(candidate)?candidate:null;
+  }});
 }
 /** V0.4.1 -> V0.4.2 : conserver la famille et ajouter uniquement le carnet PNJ. */
 export function migrateV05(data){
@@ -113,6 +125,7 @@ export function loadState(storage){
       return isValidState(candidate)?candidate:null;
     }
     const versions=[
+      [V07_SAVE_KEY,migrateV07],
       [V06_SAVE_KEY,migrateV06],
       [V05_SAVE_KEY,migrateV05],
       [V04_SAVE_KEY,migrateV04],

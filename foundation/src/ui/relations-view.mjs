@@ -3,10 +3,14 @@ import {
   ACTIONS, MAX_ACTIONS_PER_YEAR, MAX_FRIENDS, roleLabel
 } from '../core/relationships.mjs';
 import { availability, TRAIT_LABELS } from '../core/personality.mjs';
+import { activePartner, romanceAvailability, MAX_PARTNERS, MAX_CHILDREN } from '../core/romance.mjs';
 
 const degree=bond=>bond>=80?'Très proche':bond>=60?'Bon lien':bond>=35?'Lien fragile':'Relation distante';
 const labels={sociability:'Sociable',empathy:'Empathique',pride:'Fier',
   temper:'Impulsif',loyalty:'Loyal'};
+const romanceName=p=>({
+  dating:'En couple',married:'Marié(e)',separated:'Séparé(e)',widowed:'Partenaire décédé(e)'
+})[p.status]??'';
 function card(person,age,selected,close=false){
   const displayAge=age+person.ageOffset;
   const active=person.id===selected;
@@ -15,7 +19,7 @@ function card(person,age,selected,close=false){
     <span class="relation-avatar" aria-hidden="true">${escapeHtml(person.firstName.slice(0,1))}</span>
     <span class="relation-info">
       <strong>${escapeHtml(person.firstName)} ${escapeHtml(person.lastName)}</strong>
-      <small>${roleLabel(person.role)} · ${person.deceased?'Décédé(e)':displayAge+' ans'}</small>
+      <small>${roleLabel(person.role)}${person.role==='partner'?' · '+romanceName(person):''} · ${person.deceased?'Décédé(e)':displayAge+' ans'}</small>
       ${close?'<small class="friend-memory">Amitié marquante</small>':''}
       <span class="relation-progress" role="meter" aria-label="Lien avec ${escapeHtml(person.firstName)}"
         aria-valuemin="0" aria-valuemax="100" aria-valuenow="${person.bond}">
@@ -29,6 +33,7 @@ function detail(p,state,blocked){
   const age=state.activeLife.age;
   const rel=state.domainData.relationships;
   const unavailable=blocked||!state.activeLife.alive;
+  const coParent=p.role==='child'?rel.people.find(person=>person.id===p.parentId):null;
   const why=p.deceased?'Cette personne est décédée.':
     blocked?'Terminez d’abord la décision en cours.':
     !state.activeLife.alive?'Cette vie est terminée.':
@@ -38,6 +43,7 @@ function detail(p,state,blocked){
   const metrics=[['Confiance',p.trust],['Respect',p.respect],['Rivalité',p.rivalry]];
   return `<section class="relation-detail" aria-label="Interactions avec ${escapeHtml(p.firstName)}">
     <h3>${escapeHtml(p.firstName)} <span>${degree(p.bond)}</span></h3>
+    ${coParent?`<p class="relation-hint">Autre parent : ${escapeHtml(coParent.firstName)} ${escapeHtml(coParent.lastName)}</p>`:''}
     <div class="relation-tags">${traits.map(([key,value])=>
       `<span title="${escapeHtml(TRAIT_LABELS[key])} : ${value}/100">${labels[key]}</span>`).join('')}</div>
     <div class="relation-metrics">${metrics.map(([label,value])=>
@@ -62,7 +68,12 @@ export function renderRelationships(state,{selectedId=null}={}){
     <h1>Relations</h1><p>Commencez une vie pour découvrir votre famille.</p></section>`;
   const age=state.activeLife.age;
   const rel=state.domainData.relationships;
-  const family=rel.people.filter(p=>p.role!=='friend');
+  const family=rel.people.filter(p=>['mother','father','sibling'].includes(p.role));
+  const partners=rel.people.filter(p=>p.role==='partner');
+  const children=rel.people.filter(p=>p.role==='child');
+  const partner=activePartner(rel);
+  const canRomance=age>=18&&state.activeLife.alive&&!state.domainData.story.pending&&
+    !rel.pending&&rel.actionsUsed<MAX_ACTIONS_PER_YEAR;
   const friends=rel.people.filter(p=>p.role==='friend');
   const blocked=Boolean(state.domainData.story.pending || rel.pending);
   const marked=new Set(rel.milestones.map(entry=>entry.personId));
@@ -108,6 +119,34 @@ export function renderRelationships(state,{selectedId=null}={}){
           'Plus d’actions disponibles cette année.'}</small>`}
       </div>
     </section>`:''}
+    <section class="romance-section" aria-label="Amour et générations">
+      <div class="relation-section-title"><h2>Amour et couple</h2><span>${partner?'En couple':'Célibataire'}</span></div>
+      ${partners.length?`<div class="relation-list">${partners.map(p=>card(p,age,selectedId)+
+        (p.id===selectedId?detail(p,state,blocked):'')).join('')}</div>`:
+        '<p class="relation-empty">Aucune relation amoureuse pour le moment.</p>'}
+      <button type="button" class="relation-meet" data-romance-meet
+        ${canRomance&&age<=75&&!partner&&partners.length<MAX_PARTNERS?'':'disabled'}>
+        Faire une rencontre amoureuse <span aria-hidden="true">+</span>
+      </button>
+      ${partner?`<div class="romance-actions">
+        ${[['date','Organiser un rendez-vous'],['marry','Demander en mariage'],
+          ['child','Avoir un enfant'],['separate','Se séparer']].map(([action,label])=>{
+          const info=romanceAvailability(rel,action,age);
+          const disabled=!canRomance||!info.enabled;
+          return `<button type="button" data-romance="${action}"
+            ${disabled?'disabled':''} title="${escapeHtml(disabled&&!canRomance?
+              'Terminez la décision ou attendez l’année suivante.':info.reason)}">${label}</button>`;
+        }).join('')}
+      </div>`:''}
+      ${age<18?'<p class="relation-hint">Les rencontres amoureuses se débloquent à 18 ans.</p>':''}
+      ${age>75&&!partner?'<p class="relation-hint">Les nouvelles rencontres ne sont plus proposées après 75 ans.</p>':''}
+      ${!partner&&partners.length>=MAX_PARTNERS?
+        '<p class="relation-hint">Vous avez atteint la limite de quatre relations successives.</p>':''}
+      <div class="relation-section-title"><h2>Mes enfants</h2><span>${children.length}/${MAX_CHILDREN}</span></div>
+      ${children.length?`<div class="relation-list">${children.map(p=>card(p,age,selectedId)+
+        (p.id===selectedId?detail(p,state,blocked):'')).join('')}</div>`:
+        '<p class="relation-empty">Vous n’avez pas encore d’enfants.</p>'}
+    </section>
     ${rel.records.length?`<div class="relation-activity"><h2>Interactions récentes</h2>
       ${rel.records.slice(-3).reverse().map(item=>`<p><strong>${item.age} ans</strong> · ${escapeHtml(item.text)}</p>`).join('')}
       </div>`:''}

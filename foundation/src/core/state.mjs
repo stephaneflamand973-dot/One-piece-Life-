@@ -10,9 +10,10 @@ import {
 } from './relationships.mjs';
 import { initiativeForAge, resolveInitiative, INITIATIVE_AGES } from './initiatives.mjs';
 import { familyBirth, gatherCircle, recordFriendshipMilestones } from './social-evolution.mjs';
+import { meetPartner, actRomance } from './romance.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 8;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
@@ -194,4 +195,30 @@ export function socializeGroup(state,random=Math.random){
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
   const rel=gatherCircle(state.domainData.relationships,state.activeLife.age,random);
   return rel ? {...state,domainData:{...state.domainData,relationships:rel}} : null;
+}
+
+/** Les jalons familiaux enrichissent l'année actuelle au lieu de créer un second événement. */
+function romanceUpdate(state,relations,important){
+  const history=[...state.history];
+  if(important){
+    const latest=history.at(-1);
+    const text=relations.recent;
+    // On donne la priorité au jalon récent en conservant un extrait du contexte annuel.
+    const prefix=latest.text.slice(0,Math.max(0,299-text.length-1)).trim();
+    history[history.length-1]={...latest,text:(prefix ? prefix+' '+text : text).slice(0,300)};
+  }
+  return {...state,history,domainData:{...state.domainData,relationships:relations}};
+}
+/** Actions relationnelles de V0.4.4, sans progression du temps. */
+export function startRomance(state,random=Math.random){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const next=meetPartner(state.domainData.relationships,state.activeLife,random);
+  return next?romanceUpdate(state,next,true):null;
+}
+export function doRomance(state,action,random=Math.random){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const next=actRomance(state.domainData.relationships,action,state.activeLife,random);
+  return next?romanceUpdate(state,next,action!=='date'):null;
 }

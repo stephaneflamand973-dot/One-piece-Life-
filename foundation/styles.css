@@ -206,3 +206,16 @@ body { overflow-x:clip; }
 .social-circle-body button{min-height:46px;border-radius:9px;border:1px solid #b3d2dc;
   background:#e8f5f6;color:var(--ocean);font-weight:780;font-size:12px;padding:10px}
 .social-circle-body button:disabled{opacity:.45}
+
+/* V0.4.4 - Couples et famille dans la même rubrique Relations. */
+.romance-section{margin:20px 0 10px;min-width:0}
+.romance-section>.relation-meet{margin-bottom:10px}
+.romance-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;margin:12px 0}
+.romance-actions button{font-size:11px;font-weight:730;min-height:48px;
+  border-radius:10px;border:1px solid #c4dce3;background:#f5fafb;
+  color:var(--ocean);padding:8px 10px;overflow-wrap:anywhere}
+.romance-actions button[data-romance="separate"]{color:#87494c;background:#fcf8f8;
+  border-color:#e7d6d5}
+.romance-actions button:disabled{opacity:.38}
+.romance-actions button:active:not(:disabled){background:#dfedf1}
