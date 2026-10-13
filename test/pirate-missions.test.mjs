@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createEngine } from '../foundation/src/core/engine.mjs';
 import { isValidState } from '../foundation/src/core/state.mjs';
-import { MISSIONS, missionAvailability, performMission, MAX_MISSIONS } from '../foundation/src/core/pirate-missions.mjs';
+import { MISSIONS, missionAvailability, performMission } from '../foundation/src/core/pirate-missions.mjs';
 import { migrateV11, SAVE_KEY, V11_SAVE_KEY, loadState } from '../foundation/src/core/storage.mjs';
 import { renderCareer } from '../foundation/src/ui/career-view.mjs';
 
@@ -64,13 +64,13 @@ test('réussite pirate : Berrys, compétence, performance, réputation et capita
  assert.ok(isValidState(after));
  assert.deepEqual(createEngine({storage}).getState(),after);
 });
-test('exactement deux missions maximum par année, remise à zéro l’année suivante',()=>{
+test('trois missions ou plus peuvent être jouées avant de vieillir selon la fatigue',()=>{
  const {engine}=setup();
  engine.applyPirate('alizes','combattant');
  assert.ok(engine.mission('escort'));
  assert.ok(engine.mission('explore'));
- assert.equal(engine.mission('treasure'),false);
- assert.equal(engine.getState().domainData.career.missions.used,MAX_MISSIONS);
+ assert.ok(engine.mission('treasure'));
+ assert.equal(engine.getState().domainData.career.missions.used,3);
  const oldBalance=engine.getState().domainData.career.missions.berys;
  ageTo(engine,17);
  assert.equal(engine.getState().domainData.career.missions.used,0);
