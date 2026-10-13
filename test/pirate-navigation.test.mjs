@@ -149,13 +149,13 @@ test('migration V16 -> V17 conserve Berrys, bateau, équipage, âge et historiqu
  assert.ok(engine.recruitCrew('navigateur'));
  assert.ok(engine.shipAction('upgrade','sails'));
  const now=engine.getState(),cmd=now.domainData.career.command;
- const {navigation,...oldCommand}=cmd;
+ const {navigation,encounters,...oldCommand}=cmd;
  const legacy={...now,schemaVersion:16,domainData:{...now.domainData,
   career:{...now.domainData.career,command:oldCommand}}};
  map.clear();map.set(V16_SAVE_KEY,JSON.stringify(legacy));
  const converted=migrateV16(legacy);
  assert.ok(converted);
- assert.equal(converted.schemaVersion,17);
+ assert.equal(converted.schemaVersion,18);
  assert.deepEqual(converted.domainData.career.command.ship,cmd.ship);
  assert.deepEqual(converted.domainData.career.command.members,cmd.members);
  assert.equal(converted.domainData.career.missions.berys,now.domainData.career.missions.berys);
