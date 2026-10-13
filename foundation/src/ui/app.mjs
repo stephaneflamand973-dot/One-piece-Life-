@@ -85,6 +85,7 @@ function currentContent() {
   return typeof output === 'string' ? output : '';
 }
 function render() {
+  const shipWasOpen=Boolean(root.querySelector('details.ship-panel[open]'));
   const page = route.page ? engine.modules.getPage(route.section, route.page) : null;
   const title = page?.label ?? SECTIONS[route.section];
   const backButton = isHome(route) ? '' :
@@ -115,6 +116,7 @@ function render() {
     root.querySelector('.page-content')?.focus({ preventScroll: true });
     window.scrollTo(0, 0);
   }
+  if(shipWasOpen)root.querySelector('details.ship-panel')?.setAttribute('open','');
   lastScreen = route.hash;
 }
 function syncFromLocation() {
@@ -220,6 +222,12 @@ root.addEventListener('click', event => {
     if(route.section!=='career')return;
     notice=engine.crewInteract(button.dataset.crewMemberId,button.dataset.crewMemberAction)?'':
       'Action indisponible : vérifiez les ressources ou la décision en cours.';
+    render();return;
+  }
+  if(button.hasAttribute('data-ship-action')){
+    if(route.section!=='career')return;
+    notice=engine.shipAction(button.dataset.shipAction,button.dataset.shipValue)?'':
+      'Action impossible : vérifiez le modèle, les pièces et les Berrys.';
     render();return;
   }
   if(button.hasAttribute('data-crew-order')){
