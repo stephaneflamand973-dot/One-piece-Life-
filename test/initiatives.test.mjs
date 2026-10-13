@@ -121,7 +121,7 @@ test('migration V0.4.1 fidèle et non destructive',()=>{
   const previous={...current,schemaVersion:5,domainData:{
     ...current.domainData,relationships:Object.fromEntries(
       Object.entries(current.domainData.relationships).filter(([key])=>
-        key!=='pending'&&key!=='initiatives'&&key!=='groups'&&key!=='milestones'))}};
+        key!=='pending'&&key!=='initiatives'&&key!=='groups'&&key!=='milestones'&&key!=='world'))}};
   map.delete(SAVE_KEY);
   map.set(V05_SAVE_KEY,JSON.stringify(previous));
   const imported=createEngine({storage});

@@ -11,9 +11,10 @@ import {
 import { initiativeForAge, resolveInitiative, INITIATIVE_AGES } from './initiatives.mjs';
 import { familyBirth, gatherCircle, recordFriendshipMilestones } from './social-evolution.mjs';
 import { meetPartner, actRomance } from './romance.mjs';
+import { joinFaction, takeWorldAction, advanceWorld } from './world-relations.mjs';
 export { MAX_AGE } from './life.mjs';
 
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 const VALID_HISTORY_TYPES = new Set(['birth','year','event','decision','end','npc-event','npc-decision']);
 
 export function createEmptyState() {
@@ -107,7 +108,8 @@ export function advanceOneYear(state,random=null) {
   if (!life) return null;
   const update = advanceRelations(state.domainData.relationships,life.age);
   const birth=familyBirth(update.relations,life.age,life,random);
-  let relations = birth.relations;
+  const worldChange=advanceWorld(birth.relations,life.age,random);
+  let relations = worldChange.relations;
   if (!life.alive) {
     return { ...state, activeLife:life, history:[...state.history,ageEntry(life)],
       domainData:{...state.domainData,relationships:relations} };
@@ -115,7 +117,7 @@ export function advanceOneYear(state,random=null) {
   const scene = sceneForAge(life.age);
   const story = state.domainData.story;
   const socialNote = socialAnnualNote(relations,life.age);
-  const addition = [...update.announcements,...birth.announcements,socialNote].filter(Boolean).join(' ');
+  const addition = [...update.announcements,...birth.announcements,...worldChange.announcements,socialNote].filter(Boolean).join(' ');
   const intro = scene ? scene.text : annualNarrative(life,story);
   // Une initiative n'apparaît pas pendant un jalon narratif classique.
   // Une année = un seul emplacement dans l'historique.
@@ -221,4 +223,18 @@ export function doRomance(state,action,random=Math.random){
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
   const next=actRomance(state.domainData.relationships,action,state.activeLife,random);
   return next?romanceUpdate(state,next,action!=='date'):null;
+}
+
+/** Choix d'une affiliation et action auprès d'un contact, sans passer d'année. */
+export function chooseFaction(state,faction,random=Math.random){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const next=joinFaction(state.domainData.relationships,state.activeLife,faction,random);
+  return next?romanceUpdate(state,next,true):null;
+}
+export function actInFaction(state,action,random=Math.random){
+  if(!isValidState(state)||!state.activeLife?.alive||
+    state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const next=takeWorldAction(state.domainData.relationships,action,state.activeLife.age,random);
+  return next?{...state,domainData:{...state.domainData,relationships:next}}:null;
 }

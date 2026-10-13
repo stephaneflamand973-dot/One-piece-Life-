@@ -5,6 +5,7 @@
 import { ACTIONS, clamp, createProfile, isProfile, resolveReaction } from './personality.mjs';
 import { INITIATIVE_TYPES, INITIATIVE_AGES } from './initiatives.mjs';
 import { validRomance, MAX_PARTNERS, MAX_CHILDREN, advanceRomance } from './romance.mjs';
+import { emptyWorld, isValidWorld, WORLD_ROLES } from './world-relations.mjs';
 import { emptySocialData, syncCircle, recordFriendshipMilestones,
   ageCircle, isValidSocial, MAX_SIBLINGS, FAMILY_BIRTH_YEARS } from './social-evolution.mjs';
 export { ACTIONS, TRAITS, TRAIT_LABELS, reactionChance, availability } from './personality.mjs';
@@ -19,7 +20,7 @@ function draw(random) {
 function take(list,random){return list[Math.floor(draw(random)*list.length)];}
 function offset(range,random){return range[0]+Math.floor(draw(random)*(range[1]-range[0]+1));}
 export function emptyRelations(){
-  return {people:[],actionsUsed:0,records:[],recent:'',pending:null,initiatives:[],...emptySocialData()};
+  return {people:[],actionsUsed:0,records:[],recent:'',pending:null,initiatives:[],...emptySocialData(),world:emptyWorld()};
 }
 function person({id,role,firstName,lastName,ageOffset,bond,deathAge,createdAtAge=0,age=0},random){
   return createProfile({id,role,firstName,lastName,ageOffset,bond,deathAge,
@@ -52,13 +53,13 @@ export function isValidRelations(relations,age,started,history=null){
   if (!started) return people.length===0 && relations.actionsUsed===0 &&
     relations.records.length===0 && relations.recent==='' &&
     relations.pending===null && relations.initiatives.length===0 &&
-    isValidSocial(relations,age,false) && validRomance(relations,age,false);
-  if (people.length<2 || people.length>2+MAX_SIBLINGS+MAX_FRIENDS+MAX_PARTNERS+MAX_CHILDREN) return false;
+    isValidSocial(relations,age,false) && validRomance(relations,age,false) && isValidWorld(relations,age,false);
+  if (people.length<2 || people.length>2+MAX_SIBLINGS+MAX_FRIENDS+MAX_PARTNERS+MAX_CHILDREN+WORLD_ROLES.length) return false;
   const ids=new Set();
   let mother=0,father=0,sibling=0,friend=0;
   for(const p of people){
     if (!p || typeof p.id!=='string' || ids.has(p.id) ||
-        !['mother','father','sibling','friend','partner','child'].includes(p.role) ||
+        !['mother','father','sibling','friend','partner','child',...WORLD_ROLES].includes(p.role) ||
         typeof p.firstName!=='string' || !p.firstName.trim() || p.firstName.length>32 ||
         typeof p.lastName!=='string' || !p.lastName.trim() || p.lastName.length>32 ||
         !Number.isInteger(p.ageOffset) || p.ageOffset< -120 || p.ageOffset>55 ||
@@ -82,7 +83,7 @@ export function isValidRelations(relations,age,started,history=null){
   if(age<3 && relations.actionsUsed>0) return false;
   for(const rec of relations.records){
     if(!rec||!Number.isInteger(rec.age)||rec.age<0||rec.age>age||
-      !ids.has(rec.personId)||!['talk','spend','argue','gift','help','confide','apologize','meet','loss','initiative','birth','group','romance-meet','romance-date','romance-marriage','romance-separation','romance-child'].includes(rec.action)||
+      !ids.has(rec.personId)||!['talk','spend','argue','gift','help','confide','apologize','meet','loss','initiative','birth','group','romance-meet','romance-date','romance-marriage','romance-separation','romance-child','world'].includes(rec.action)||
       typeof rec.text!=='string'||!rec.text.trim()||rec.text.length>180 ||
       (rec.outcome!==undefined &&
         (!['positive','negative'].includes(rec.outcome) ||
@@ -107,7 +108,7 @@ export function isValidRelations(relations,age,started,history=null){
   }
   if(history && (history.filter(entry=>entry.type==='npc-decision').length!==relations.initiatives.length ||
     history.filter(entry=>entry.type==='npc-event').length!==(pending?1:0)))return false;
-  return isValidSocial(relations,age,true) && validRomance(relations,age,true);
+  return isValidSocial(relations,age,true) && validRomance(relations,age,true) && isValidWorld(relations,age,true);
 }
 export function advanceRelations(relations,newAge){
   const losses=[];
@@ -176,4 +177,4 @@ export function socialAnnualNote(relations,age){
   return '';
 }
 export const roleLabel = role =>
-  ({mother:'Mère',father:'Père',sibling:'Fratrie',friend:'Amitié',partner:'Couple',child:'Enfant'})[role]??'Relation';
+  ({mother:'Mère',father:'Père',sibling:'Fratrie',friend:'Amitié',partner:'Couple',child:'Enfant',leader:'Chef',mentor:'Mentor',ally:'Allié',rival:'Rival'})[role]??'Relation';

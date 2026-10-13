@@ -219,3 +219,25 @@ body { overflow-x:clip; }
   border-color:#e7d6d5}
 .romance-actions button:disabled{opacity:.38}
 .romance-actions button:active:not(:disabled){background:#dfedf1}
+
+/* V0.4.5 — faction et équipage dans l'onglet Relations existant */
+.world-section{margin:22px 0 12px;min-width:0}
+.world-join-actions{display:grid;gap:8px;margin:12px 0}
+.world-join-actions button{border:1px solid #b4d1dc;border-radius:10px;
+  background:#eef7fa;color:var(--ocean);font-size:12px;font-weight:750;
+  min-height:48px;padding:11px;text-align:left}
+.world-join-actions button:disabled,.world-actions button:disabled{opacity:.4}
+.world-summary{border:1px solid #d8e4e8;border-radius:12px;background:#f6fafb;
+  padding:13px;display:grid;gap:12px;margin-bottom:14px}
+.world-summary>strong{color:var(--ocean);font-size:14px}
+.world-score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.world-score-grid span{display:flex;flex-direction:column;gap:4px;background:#e9f2f5;
+  padding:9px;border-radius:8px;font-size:11px;color:#536f7b}
+.world-score-grid b{color:var(--ocean);font-size:13px}
+.world-standings{display:flex;flex-wrap:wrap;gap:7px}
+.world-standings span{background:#fff;border:1px solid #d3e2e8;
+  padding:6px;border-radius:7px;color:#526e7a;font-size:10px}
+.world-actions{margin:10px 0}
+.world-actions button{min-height:62px;overflow-wrap:anywhere}
+.world-actions button small{font-size:10px;color:#66808d}
+@media(max-width:340px){.world-score-grid{gap:5px}.world-summary{padding:10px}}

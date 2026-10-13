@@ -2,8 +2,10 @@ import { isValidState, createEmptyState, SCHEMA_VERSION } from './state.mjs';
 import { createFamily } from './relationships.mjs';
 import { legacyProfile } from './personality.mjs';
 import { syncCircle } from './social-evolution.mjs';
+import { emptyWorld } from './world-relations.mjs';
 
-export const SAVE_KEY='opl:foundation:life-v044';
+export const SAVE_KEY='opl:foundation:life-v045';
+export const V08_SAVE_KEY='opl:foundation:life-v044';
 export const V07_SAVE_KEY='opl:foundation:life-v043';
 export const V06_SAVE_KEY='opl:foundation:life-v042';
 export const V05_SAVE_KEY='opl:foundation:life-v041';
@@ -22,6 +24,21 @@ function seededCharacterRandom(person){
   return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 }
 // Upgrade sans relancer le personnage ni changer ses relations et interactions existantes.
+/** V0.4.4 -> V0.4.5 : aucune personne ni progression n'est régénérée. */
+export function migrateV08(data){
+  if(!data||data.schemaVersion!==8||!Array.isArray(data.history)||
+    !data.domainData||Object.keys(data.domainData).length!==2||
+    !Object.hasOwn(data.domainData,'story')||
+    !Object.hasOwn(data.domainData,'relationships'))return null;
+  const rel=data.domainData.relationships;
+  if(!rel||!Array.isArray(rel.people)||!Array.isArray(rel.records)||
+    !Array.isArray(rel.groups)||!Array.isArray(rel.milestones)||
+    Object.hasOwn(rel,'world'))return null;
+  const candidate={...data,schemaVersion:SCHEMA_VERSION,
+    domainData:{story:data.domainData.story,
+      relationships:{...rel,world:emptyWorld()}}};
+  return isValidState(candidate)?candidate:null;
+}
 /** Les vies V0.4.3 gardent tous leurs liens inchangés en V0.4.4. */
 export function migrateV07(data){
   if(!data||data.schemaVersion!==7||!Array.isArray(data.history)||
@@ -31,8 +48,7 @@ export function migrateV07(data){
   const rel=data.domainData.relationships;
   if(!rel||!Array.isArray(rel.people)||!Array.isArray(rel.records)||
     !Array.isArray(rel.groups)||!Array.isArray(rel.milestones))return null;
-  const candidate={...data,schemaVersion:SCHEMA_VERSION};
-  return isValidState(candidate)?candidate:null;
+  return migrateV08({...data,schemaVersion:8});
 }
 /** V0.4.2 -> V0.4.3 : restituer le cercle social des amis existants, sans changer les PNJ. */
 export function migrateV06(data){
@@ -125,6 +141,7 @@ export function loadState(storage){
       return isValidState(candidate)?candidate:null;
     }
     const versions=[
+      [V08_SAVE_KEY,migrateV08],
       [V07_SAVE_KEY,migrateV07],
       [V06_SAVE_KEY,migrateV06],
       [V05_SAVE_KEY,migrateV05],

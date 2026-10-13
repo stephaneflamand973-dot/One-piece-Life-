@@ -113,13 +113,19 @@ test('l’enfant devient adulte et la sauvegarde reste valide jusqu’à 120 ans
 test('migration V0.4.3 conserve exactement les personnages et les décisions',()=>{
   const {engine,map,storage}=setup(9);
   const before=engine.getState();
-  const legacy={...before,schemaVersion:7};
+  const {world,...oldRelations}=before.domainData.relationships;
+  const legacy={...before,schemaVersion:7,domainData:{
+    ...before.domainData,relationships:oldRelations
+  }};
   map.clear();map.set(V07_SAVE_KEY,JSON.stringify(legacy));
   const migrated=createEngine({storage}).getState();
-  assert.equal(migrated.schemaVersion,8);
+  assert.equal(migrated.schemaVersion,9);
   assert.deepEqual(migrated.activeLife,legacy.activeLife);
   assert.deepEqual(migrated.history,legacy.history);
-  assert.deepEqual(migrated.domainData,legacy.domainData);
+  const {world:addedWorld,...oldDomainRel}=migrated.domainData.relationships;
+  assert.deepEqual(oldDomainRel,legacy.domainData.relationships);
+  assert.deepEqual(migrated.domainData.story,legacy.domainData.story);
+  assert.equal(addedWorld.faction,'independent');
   assert.deepEqual(migrateV07(legacy),migrated);
   assert.equal(map.get(V07_SAVE_KEY),JSON.stringify(legacy));
   assert.ok(map.has(SAVE_KEY));
