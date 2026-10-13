@@ -68,8 +68,6 @@ export function hideAvailability(career,life){
   const w=career.wanted;
   if(!life?.alive||!career.pirate||w.bounty===0||w.heat<10)
     return {enabled:false,reason:'Vous n’êtes pas suffisamment recherché.'};
-  if(w.hideAtAge===life.age)
-    return {enabled:false,reason:'Discrétion déjà tentée cette année.'};
   return {enabled:true,reason:''};
 }
 export function hideFromMarine(career,life){
