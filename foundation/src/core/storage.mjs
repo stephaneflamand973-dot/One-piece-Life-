@@ -9,8 +9,10 @@ import { emptyMissions } from './pirate-missions.mjs';
 import { emptyWanted } from './pirate-notoriety.mjs';
 import { upgradeCommand } from './pirate-crew-life.mjs';
 import { upgradeShipSave } from './pirate-ships.mjs';
+import { upgradeNavigationSave } from './pirate-navigation.mjs';
 
-export const SAVE_KEY='opl:foundation:life-v057';
+export const SAVE_KEY='opl:foundation:life-v058';
+export const V16_SAVE_KEY='opl:foundation:life-v057';
 export const V15_SAVE_KEY='opl:foundation:life-v056';
 export const V14_SAVE_KEY='opl:foundation:life-v054';
 export const V13_SAVE_KEY='opl:foundation:life-v053';
@@ -37,15 +39,24 @@ function seededCharacterRandom(person){
   return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 }
 // Upgrade sans relancer le personnage ni changer ses relations et interactions existantes.
+/** V0.5.7 vers V0.5.8 : navigation déterministe, conservation intégrale du navire. */
+export function migrateV16(data){
+ if(!data||data.schemaVersion!==16||!data.domainData?.career||
+  !Object.hasOwn(data.domainData.career,'command'))return null;
+ const career=data.domainData.career;
+ const candidate={...data,schemaVersion:SCHEMA_VERSION,
+  domainData:{...data.domainData,career:{...career,
+   command:upgradeNavigationSave(career.command)}}};
+ return isValidState(candidate)?candidate:null;
+}
 /** V0.5.6 vers V0.5.7 : navire initial reconstruit, personnages intacts. */
 export function migrateV15(data){
  if(!data||data.schemaVersion!==15||!data.domainData?.career||
   !Object.hasOwn(data.domainData.career,'command'))return null;
  const career=data.domainData.career;
- const candidate={...data,schemaVersion:SCHEMA_VERSION,
+ return migrateV16({...data,schemaVersion:16,
   domainData:{...data.domainData,career:{...career,
-   command:upgradeShipSave(career.command)}}};
- return isValidState(candidate)?candidate:null;
+   command:upgradeShipSave(career.command)}}});
 }
 
 /** V0.5.5 -> V0.5.6 : enrichissement déterministe des compagnons existants. */
@@ -241,6 +252,7 @@ export function loadState(storage){
       return isValidState(candidate)?candidate:null;
     }
     const versions=[
+      [V16_SAVE_KEY,migrateV16],
       [V15_SAVE_KEY,migrateV15],
       [V14_SAVE_KEY,migrateV14],
       [V13_SAVE_KEY,migrateV13],
