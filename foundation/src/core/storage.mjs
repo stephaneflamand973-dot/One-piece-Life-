@@ -5,8 +5,10 @@ import { syncCircle } from './social-evolution.mjs';
 import { emptyWorld } from './world-relations.mjs';
 import { createAbilities, emptyAbilities } from './abilities.mjs';
 import { emptyCareer } from './pirate-career.mjs';
+import { emptyMissions } from './pirate-missions.mjs';
 
-export const SAVE_KEY='opl:foundation:life-v051';
+export const SAVE_KEY='opl:foundation:life-v052';
+export const V11_SAVE_KEY='opl:foundation:life-v051';
 export const V10_SAVE_KEY='opl:foundation:life-v050';
 export const V09_SAVE_KEY='opl:foundation:life-v045';
 export const V08_SAVE_KEY='opl:foundation:life-v044';
@@ -28,6 +30,18 @@ function seededCharacterRandom(person){
   return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 }
 // Upgrade sans relancer le personnage ni changer ses relations et interactions existantes.
+/** V0.5.1 -> V0.5.2 : missions vierges, sans toucher à l'existant. */
+export function migrateV11(data){
+  if(!data||data.schemaVersion!==11||!Array.isArray(data.history)||
+    !data.domainData||Object.keys(data.domainData).length!==4||
+    !['story','relationships','abilities','career'].every(k=>Object.hasOwn(data.domainData,k)))
+    return null;
+  const career=data.domainData.career;
+  if(!career||Object.hasOwn(career,'missions'))return null;
+  const candidate={...data,schemaVersion:SCHEMA_VERSION,
+    domainData:{...data.domainData,career:{...career,missions:emptyMissions()}}};
+  return isValidState(candidate)?candidate:null;
+}
 /** V0.5.0 -> V0.5.1 : ajouter blessures, repos et demandes de promotion, sans
  * recalculer les talents ni modifier une seule relation ou année. */
 export function migrateV10(data){
@@ -41,10 +55,9 @@ export function migrateV10(data){
     (c.pirate!==null&&(!c.pirate||Object.hasOwn(c.pirate,'askedAtAge'))))return null;
   const abilities={...a,injury:{level:0,recoverAtAge:null},restUsed:0};
   const career={...c,pirate:c.pirate?{...c.pirate,askedAtAge:-1}:null};
-  const candidate={...data,schemaVersion:SCHEMA_VERSION,domainData:{
+  return migrateV11({...data,schemaVersion:11,domainData:{
     ...data.domainData,abilities,career
-  }};
-  return isValidState(candidate)?candidate:null;
+  }});
 }
 /** V0.4.5 -> V0.5.0. La progression et tous les contacts restent identiques. */
 export function migrateV09(data){
@@ -177,6 +190,7 @@ export function loadState(storage){
       return isValidState(candidate)?candidate:null;
     }
     const versions=[
+      [V11_SAVE_KEY,migrateV11],
       [V10_SAVE_KEY,migrateV10],
       [V09_SAVE_KEY,migrateV09],
       [V08_SAVE_KEY,migrateV08],

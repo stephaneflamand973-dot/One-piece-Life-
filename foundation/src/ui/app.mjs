@@ -178,6 +178,12 @@ root.addEventListener('click', event => {
     notice=engine.rest()?'':'Repos déjà effectué ou décision en cours.';
     render();return;
   }
+  if(button.hasAttribute('data-pirate-mission')){
+    if(route.section!=='career')return;
+    notice=engine.mission(button.dataset.pirateMission)?'':
+      'Mission indisponible : vérifiez le rang, la fatigue et les limites annuelles.';
+    render();return;
+  }
   if(button.hasAttribute('data-ask-promotion')){
     if(route.section!=='career')return;
     notice=engine.askPromotion()?'':'Promotion non disponible pour le moment.';

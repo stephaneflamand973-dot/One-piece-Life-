@@ -1,6 +1,7 @@
 import { escapeHtml } from './life-view.mjs';
 import { CREWS, SPECIALTIES, RANKS, promotionAvailability } from '../core/pirate-career.mjs';
 import { SKILLS, MAX_TRAININGS } from '../core/abilities.mjs';
+import { MISSIONS, MAX_MISSIONS, missionAvailability } from '../core/pirate-missions.mjs';
 const bar=(value,label)=>`<span class="career-meter" role="meter" aria-label="${escapeHtml(label)}"
   aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}">
   <span style="width:${value}%"></span></span>`;
@@ -15,6 +16,8 @@ export function renderCareer(state){
   const leader=relationships.people.find(p=>p.id==='world-leader');
   const latest=career.notices.at(-1);
   const promotion=pirate?promotionAvailability(career,relationships,abilities,life):null;
+  const missions=career.missions;
+  const lastMission=missions.log.at(-1);
   if(!pirate){
     const canApply=life.age>=16&&life.age<=65&&!blocked&&
       ['independent','pirate'].includes(relationships.world.faction);
@@ -85,6 +88,38 @@ export function renderCareer(state){
         <span>${promotion?.enabled?'Chance : '+promotion.chance+'%':escapeHtml(promotion?.reason??'')}</span>
       </button>
     </div>
-    <p class="career-hint">Les compétences appartiennent au personnage, et non à cet emploi. Les promotions reposent sur la performance, la compétence, la confiance du capitaine et la loyauté. Les missions approfondies viendront ensuite.</p>
+    <section class="career-panel pirate-mission-panel" aria-label="Missions pirates">
+      <div class="career-mission-top">
+        <h2>Missions pirates</h2><span>${missions.used}/${MAX_MISSIONS} cette année</span>
+      </div>
+      <div class="career-mission-wallet">
+        <div><small>Butin personnel cumulé</small><strong>${missions.berys.toLocaleString('fr-FR')} Berrys</strong></div>
+        <div><small>Réussies</small><strong>${missions.completed}</strong></div>
+        <div><small>Partielles</small><strong>${missions.partial}</strong></div>
+        <div><small>Échecs</small><strong>${missions.failed}</strong></div>
+      </div>
+      ${lastMission?`<p class="career-mission-result" role="status">
+        <strong>${escapeHtml(lastMission.text)}</strong>
+        <span>${lastMission.reward?'+ '+lastMission.reward.toLocaleString('fr-FR')+' Berrys':'Aucun butin'} ·
+        ${lastMission.performanceDelta>=0?'+':''}${lastMission.performanceDelta} performance
+        ${lastMission.injury?' · Blessure':''}</span></p>`:''}
+      <div class="pirate-missions">
+        ${Object.entries(MISSIONS).map(([id,mission])=>{
+          const access=missionAvailability(career,abilities,relationships,life,id);
+          const disabled=blocked||!access.enabled;
+          return `<div class="pirate-mission">
+            <div class="pirate-mission-description"><strong>${escapeHtml(mission.label)}</strong>
+              <small>Risque ${escapeHtml(mission.risk)} · Jusqu'à ${mission.reward.toLocaleString('fr-FR')} Berrys</small></div>
+            <button type="button" data-pirate-mission="${id}" ${disabled?'disabled':''}
+              title="${escapeHtml(disabled?(blocked?'Résolvez votre décision en cours.':access.reason):'Lancer la mission')}">
+              ${access.enabled?'Chance '+access.chance+' %':'Indisponible'}
+            </button>
+          </div>`;
+        }).join('')}
+      </div>
+      <p class="career-hint">Les résultats dépendent de vos capacités, de votre équipe et de votre état.
+        Les missions ratées peuvent vous blesser ou diminuer votre réputation. La prime n'est pas votre argent.</p>
+    </section>
+    <p class="career-hint">Les compétences appartiennent au personnage. Les missions enrichissent l'année en cours, sans faire avancer l'âge.</p>
   </section>`;
 }

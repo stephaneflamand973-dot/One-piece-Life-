@@ -311,3 +311,27 @@ body { overflow-x:clip; }
 .career-buttons .career-promotion{grid-column:1 / -1;min-height:54px;
   background:#e6f5ee;border-color:#b5d8c7}
 @media(max-width:340px){.training-skill-actions button{font-size:9px}}
+
+/* V0.5.2 : contrats de mission compacts dans l'écran Carrière */
+.career-mission-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
+.career-mission-top h2{margin:0}
+.career-mission-top>span{font-size:11px;color:var(--muted);white-space:nowrap}
+.career-mission-wallet{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:14px}
+.career-mission-wallet>div{min-width:0;background:#edf5f6;border-radius:9px;padding:10px;display:grid;gap:4px}
+.career-mission-wallet small{font-size:10px;color:var(--muted)}
+.career-mission-wallet strong{font-size:13px;overflow-wrap:anywhere;color:var(--ocean)}
+.pirate-missions{display:grid;gap:7px}
+.pirate-mission{display:grid;grid-template-columns:minmax(0,1fr) minmax(102px,112px);
+ align-items:center;gap:9px;border:1px solid #dbe8e9;border-radius:10px;padding:10px;min-width:0}
+.pirate-mission-description{display:grid;gap:6px;min-width:0}
+.pirate-mission-description strong{font-size:12px;overflow-wrap:anywhere}
+.pirate-mission-description small{font-size:10px;color:var(--muted);line-height:1.4}
+.pirate-mission button{border:1px solid #b6d4d5;border-radius:8px;min-height:43px;
+ color:var(--ocean);background:#eaf5f3;font-size:11px;font-weight:700;padding:7px;
+ overflow-wrap:anywhere}
+.pirate-mission button:disabled{opacity:.4}
+.career-mission-result{display:grid;gap:5px;background:#ecf5f0;padding:12px;border-radius:9px;
+ font-size:11px;line-height:1.5;color:#26664d}
+.career-mission-result span{color:#56756a}
+@media(max-width:340px){.pirate-mission{grid-template-columns:minmax(0,1fr) 96px;gap:5px;padding:7px}
+ .pirate-mission button{font-size:10px}.career-mission-wallet strong{font-size:12px}}

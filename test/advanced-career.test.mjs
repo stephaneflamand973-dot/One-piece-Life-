@@ -169,14 +169,15 @@ test('migration V0.5.0 préserve les anciens talents, compétences, relations et
   const state=engine.getState();
   const {injury,restUsed,...abilities}=state.domainData.abilities;
   const {askedAtAge,...pirate}=state.domainData.career.pirate;
+  const {missions,...previousCareer}=state.domainData.career;
   const old={...state,schemaVersion:10,domainData:{
     ...state.domainData,abilities,
-    career:{...state.domainData.career,pirate}
+    career:{...previousCareer,pirate}
   }};
   map.clear();
   map.set(V10_SAVE_KEY,JSON.stringify(old));
   const imported=createEngine({storage}).getState();
-  assert.equal(imported.schemaVersion,11);
+  assert.equal(imported.schemaVersion,12);
   assert.deepEqual(imported.history,state.history);
   assert.deepEqual(imported.domainData.relationships,state.domainData.relationships);
   assert.deepEqual(imported.domainData.abilities.skills,abilities.skills);
