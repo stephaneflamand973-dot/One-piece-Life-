@@ -99,8 +99,16 @@ export function renderRelationships(state,{selectedId=null}={}){
     friends.length>=MAX_FRIENDS?'Votre cercle de quatre amis est complet.':
     rel.actionsUsed>=MAX_ACTIONS_PER_YEAR?'Interactions épuisées pour cette année.':'';
   return `<section class="relationships-page" aria-label="Famille et relations">
-    <div class="relations-heading"><h1>Relations</h1>
-      <p>${age} an${age>1?'s':''} · ${MAX_ACTIONS_PER_YEAR-rel.actionsUsed} action${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} disponible${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} cette année</p></div>
+    <div class="relations-heading">
+      <p class="premium-eyebrow">MON ENTOURAGE</p>
+      <h1>Relations</h1>
+      <p>${age} an${age>1?'s':''} · ${MAX_ACTIONS_PER_YEAR-rel.actionsUsed} action${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} disponible${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} cette année</p>
+      <div class="relation-hero-counters" aria-label="Mon entourage">
+        <span><strong>${family.length}</strong><small>Famille</small></span>
+        <span><strong>${friends.length}</strong><small>Amis</small></span>
+        <span><strong>${partners.filter(p=>p.status==='dating'||p.status==='married').length}</strong><small>Couple</small></span>
+      </div>
+    </div>
     ${rel.recent?`<p class="relation-news" role="status">${escapeHtml(rel.recent)}</p>`:''}
     <div class="relation-section-title"><h2>Famille</h2><span>${family.length}</span></div>
     <div class="relation-list">${family.map(p=>card(p,age,selectedId)+(p.id===selectedId?detail(p,state,blocked):'')).join('')}</div>
