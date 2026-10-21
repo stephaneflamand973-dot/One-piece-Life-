@@ -190,6 +190,7 @@ async function journey(browser,label,contextOptions){
         await page.locator('button[data-nav=career]').click();
         await page.locator('[data-career-page=aventures]').first().click();
         await page.waitForURL('**/#/career/aventures');
+        await page.locator('.career-adventure-tabs button').first().waitFor();
         assert.equal(await page.locator('.career-adventure-tabs button').count(),2);
         const walletBefore=await page.locator('.career-mission-wallet strong').first().innerText();
         assert.equal(await page.locator('[data-pirate-mission=escort]').isEnabled(),true);
@@ -206,6 +207,7 @@ async function journey(browser,label,contextOptions){
         const performanceAfterMissions=Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow'));
         await page.locator('[data-career-page=influence]').first().click();
+        await page.locator('.wanted-panel').waitFor();
         assert.equal(await page.locator('.wanted-panel').count(),1);
         assert.match(await page.locator('.wanted-bounty strong').innerText(),/^0[\s\u00a0]*Berrys$/);
         const wantedBeforeReload=await page.locator('.wanted-metrics').innerText();
@@ -221,6 +223,7 @@ async function journey(browser,label,contextOptions){
         assert.equal(await page.locator('[data-found-crew]').isEnabled(),true);
         await page.locator('[data-found-crew]').click();
         await page.locator('button[data-nav=career]').click();
+        await page.locator('.career-dashboard').waitFor();
         assert.match(await page.locator('.career-heading h1').innerText(),/Capitaine/);
         assert.equal(await page.locator('.career-dashboard').count(),1);
         assert.equal(await page.locator('.career-dash-grid [data-career-page]').count(),6);
@@ -231,6 +234,7 @@ async function journey(browser,label,contextOptions){
         // Traversée et interception persistante avec fenêtre prioritaire.
         await page.evaluate(()=>{ window.__testRandomSequence=[0,0,.99]; });
         await page.locator('[data-voyage=shells]').click();
+        await page.locator('.career-decision-dialog').waitFor();
         assert.match(await page.locator('.navigation-panel summary').innerText(),/Shells Town/);
         assert.equal(await page.locator('.career-decision-dialog').count(),1);
         assert.equal(await page.locator('[data-encounter-choice]').count(),4);
@@ -239,6 +243,7 @@ async function journey(browser,label,contextOptions){
         await page.reload({waitUntil:'networkidle'});
         assert.equal(await page.locator('.career-decision-dialog').count(),1);
         await page.locator('[data-encounter-choice=fight]').click();
+        await page.locator('.career-decision-dialog').waitFor({state:'hidden'});
         assert.equal(await page.locator('.career-decision-dialog').count(),0);
         await page.locator('button[data-nav=career]').click();
         const performanceAfterEncounter=Number(await page.locator('[aria-label="Performance professionnelle"]')
@@ -254,6 +259,7 @@ async function journey(browser,label,contextOptions){
         // Entretien et améliorations dans leur propre espace.
         await page.locator('button[data-nav=career]').click();
         await page.locator('[data-career-page=navire]').first().click();
+        await page.locator('.ship-blueprint').waitFor();
         assert.equal(await page.locator('.ship-blueprint').isVisible(),true);
         assert.match(await page.locator('.ship-panel').innerText(),/Voiles|Gouvernail/);
         assert.equal(await page.locator('[data-ship-action=upgrade]').count(),4);
@@ -263,6 +269,7 @@ async function journey(browser,label,contextOptions){
         assert.equal(await page.locator('.captain-panel').count(),1);
         await page.locator('#recruit-specialty').selectOption('navigateur');
         await page.locator('[data-crew-recruit]').evaluate(el=>el.requestSubmit());
+        await page.locator('.captain-member').waitFor();
         assert.equal(await page.locator('.captain-member').count(),1);
         await page.locator('.captain-member summary').click();
         assert.equal(await page.locator('[data-crew-role] select').isVisible(),true);
