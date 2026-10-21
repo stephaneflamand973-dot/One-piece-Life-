@@ -96,6 +96,7 @@ function currentContent() {
 function render() {
   const shipWasOpen=Boolean(root.querySelector('details.ship-panel[open]'));
   const navigationWasOpen=Boolean(root.querySelector('details.navigation-panel[open]'));
+  const openCrewIds=[...root.querySelectorAll('details[data-member-card][open]')].map(el=>el.dataset.memberCard);
   const page = route.page ? engine.modules.getPage(route.section, route.page) : null;
   const title = page?.label ?? SECTIONS[route.section];
   const backButton = isHome(route) ? '' :
@@ -135,6 +136,10 @@ function render() {
   }
   if(shipWasOpen)root.querySelector('details.ship-panel')?.setAttribute('open','');
   if(navigationWasOpen)root.querySelector('details.navigation-panel')?.setAttribute('open','');
+  for(const id of openCrewIds){
+    const card=[...root.querySelectorAll('details[data-member-card]')].find(el=>el.dataset.memberCard===id);
+    card?.setAttribute('open','');
+  }
   const pendingDialog=root.querySelector('.career-decision-dialog');
   if(pendingDialog){
     const first=pendingDialog.querySelector('button:not([disabled])');
@@ -201,6 +206,18 @@ root.addEventListener('submit', event => {
   selectedPersonId = null;
   render();
   if (!notice) focusPresent();
+});
+root.addEventListener('keydown',event=>{
+  const dialog=root.querySelector('.career-decision-dialog');
+  if(!dialog||event.key!=='Tab')return;
+  const active=[...dialog.querySelectorAll('button:not([disabled])')];
+  if(!active.length){event.preventDefault();dialog.focus({preventScroll:true});return;}
+  const first=active[0],last=active.at(-1);
+  if(event.shiftKey&&(document.activeElement===first||!dialog.contains(document.activeElement))){
+    event.preventDefault();last.focus({preventScroll:true});
+  }else if(!event.shiftKey&&(document.activeElement===last||!dialog.contains(document.activeElement))){
+    event.preventDefault();first.focus({preventScroll:true});
+  }
 });
 root.addEventListener('click', event => {
   const button = event.target.closest('button');
