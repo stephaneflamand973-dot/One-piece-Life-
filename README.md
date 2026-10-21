@@ -1,3 +1,34 @@
+# One Piece Life V0.5.11 · Carrière pirate Grand Line Premium
+
+**Réorganisation UX/UI pure** de la carrière pirate. Les calculs, les probabilités, les coûts, les accès métiers, le vieillissement et les sauvegardes restent ceux de la V0.5.10. Le schéma V18 et la clé locale de sauvegarde sont inchangés.
+
+## Organisation
+
+Depuis **Carrière**, le tableau de bord rassemble la fiche professionnelle et les informations de prime/butin, la performance, les événements prioritaires et des raccourcis. Six sous-pages claires sont disponibles : **Mon parcours**, **Mon équipage**, **Aventures**, **Mon navire**, **Finances**, **Influence**.
+
+- **Mon parcours** : emploi, rang, ancienneté, performance, entraînement, demande de promotion, recrutement et fondation de son propre équipage.
+- **Mon équipage** : présentation adaptée au statut ; cartes monogrammes et fiches individuelles repliables pour les membres recrutés, fonctions de commandement pour le capitaine uniquement.
+- **Aventures** : Missions (contrats existants) et Exploration (routes/îles, navire, journal), avec bascule interne sans nouvel onglet général.
+- **Mon navire** : état, réparations, entretien, amélioration et achat d'un autre navire, sur un seul écran.
+- **Finances** : Berrys disponibles, bilan de missions, coûts déjà définis, partage du butin et renvoi vers les dépenses navales. Aucune comptabilité fictive.
+- **Influence** : avis de recherche, notoriété, pression et discrétion.
+
+En recrutement, le joueur accède aux offres via **Mon parcours**. Les simples membres et officiers voient leurs tâches et relations, tandis que le capitaine dispose des six espaces de commandement. Les pages non pertinentes ne polluent pas le tableau de bord.
+
+## Fenêtres de décision
+
+Une rencontre maritime ou demande d'équipage en attente s'affiche dans une **fenêtre immersive prioritaire** avec ses véritables choix et chances. La fenêtre bloque l'accès au reste jusqu'à résolution, sans ajouter un vieillissement. Navigation au clavier, focus et viewport mobile sont pris en compte.
+
+## Garantie technique
+
+L'architecture utilise le registre de sous-pages `#/career/*` déjà existant. Le fichier `career-layout.mjs` réorganise des fragments de `career-view.mjs` (mêmes boutons et disponibilités). Les styles sont isolés dans `career-dashboard.css`.
+
+**Aucun fichier `foundation/src/core/` n'a été modifié.** Tests Node, compatibilité des sauvegardes et parcours Chromium/WebKit vérifient l'absence de régression. La seule action faisant passer une année reste `+ Âge`.
+
+---
+
+## Versions précédentes
+
 # One Piece Life V0.5.10 · Grand Line Premium
 
 **Refonte strictement visuelle**, livrée après la V0.5.9. Aucun changement aux probabilités, décisions, âge, sauvegardes, carrière pirate ou relations. Schéma de sauvegarde inchangé (V18).
