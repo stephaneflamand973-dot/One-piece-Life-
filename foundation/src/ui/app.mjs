@@ -2,7 +2,7 @@ import { createEngine } from '../core/engine.mjs';
 import { NAV_ITEMS, SECTIONS, HOME, isHome, resolveHash, makeHash, parentHash } from '../core/navigation.mjs';
 import { renderLife, placeOptions, escapeHtml } from './life-view.mjs';
 import { renderRelationships } from './relations-view.mjs';
-import { renderCareer } from './career-view.mjs';
+import {renderCareerDashboard,CAREER_PAGES} from './career-layout.mjs';
 import { renderActivities } from './activities-view.mjs';
 
 const root = document.getElementById('app');
@@ -11,6 +11,7 @@ const engine = createEngine();
 const HISTORY_PAGE_SIZE = 8;
 let visibleHistoryCount = HISTORY_PAGE_SIZE;
 let selectedPersonId = null;
+let adventureTab = 'missions';
 engine.modules.register({
   id: 'life',
   label: 'Vie',
@@ -20,7 +21,13 @@ engine.modules.register({
   id:'relationships',label:'Relations',
   render:state=>renderRelationships(state,{selectedId:selectedPersonId})
 });
-engine.modules.register({id:'career',label:'Carrière',render:renderCareer});
+engine.modules.register({
+  id:'career',label:'Carrière',
+  render:state=>renderCareerDashboard(state,{adventureTab}),
+  pages:Object.entries(CAREER_PAGES).map(([id,item])=>({
+    id,label:item.label,render:state=>renderCareerDashboard(state,{page:id,adventureTab})
+  }))
+});
 engine.modules.register({id:'activities',label:'Activités',render:renderActivities});
 function focusPresent() {
   // Pas de scrollIntoView vers la fin du journal : le présent est en tête.
@@ -128,6 +135,11 @@ function render() {
   }
   if(shipWasOpen)root.querySelector('details.ship-panel')?.setAttribute('open','');
   if(navigationWasOpen)root.querySelector('details.navigation-panel')?.setAttribute('open','');
+  const pendingDialog=root.querySelector('.career-decision-dialog');
+  if(pendingDialog){
+    const first=pendingDialog.querySelector('button:not([disabled])');
+    (first??pendingDialog).focus({preventScroll:true});
+  }
   lastScreen = route.hash;
 }
 function syncFromLocation() {
@@ -194,6 +206,19 @@ root.addEventListener('click', event => {
   const button = event.target.closest('button');
   if (!button || !root.contains(button) || button.disabled) return;
   if (button.hasAttribute('data-back')) { back(); return; }
+  if(button.hasAttribute('data-career-page')){
+    if(route.section!=='career')return;
+    go('career',button.dataset.careerPage);return;
+  }
+  if(button.hasAttribute('data-adventure-tab')){
+    if(route.section!=='career'||route.page!=='aventures')return;
+    if(!['missions','exploration'].includes(button.dataset.adventureTab))return;
+    adventureTab=button.dataset.adventureTab;notice='';render();return;
+  }
+  if(button.hasAttribute('data-career-resolve')){
+    root.querySelector('.career-decision-dialog button:not([disabled])')?.focus({preventScroll:true});
+    return;
+  }
   if(button.hasAttribute('data-go-training')){
     go('activities');return;
   }
