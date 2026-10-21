@@ -171,6 +171,8 @@ async function journey(browser,label,contextOptions){
         await page.reload({waitUntil:'networkidle'});
         assert.equal(Number(await page.locator('.world-score-grid b').first().innerText().then(x=>x.split('/')[0])),after);
         await page.locator('button[data-nav=career]').click();
+        await page.waitForURL('**/#/career');
+        await page.locator('.career-dashboard').waitFor();
         assert.equal(await page.locator('.career-dashboard').count(),1);
         await page.locator('[data-career-page=parcours]').first().click();
         await page.waitForURL('**/#/career/parcours');
