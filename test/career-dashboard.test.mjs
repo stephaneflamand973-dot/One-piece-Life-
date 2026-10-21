@@ -94,9 +94,13 @@ test('capitaine : six espaces exclusivement dédiés, sans duplication des missi
  assert.match(renderCareer(s),/captain-panel/,'moteur HTML historique préservé');
 });
 test('rencontre navale : un seul dialogue persistant et tous les choix du moteur',()=>{
- const {e,storage}=captain();
- assert.ok(e.sail('shells'));
+ const {storage}=captain();
+ const draws=[0,0,.99];
+ const voyage=createEngine({storage,random:()=>draws.shift()??0});
+ assert.ok(voyage.sail('shells'));
+ const e=createEngine({storage,random:()=>0});
  const s=e.getState(),before=JSON.stringify(s);
+ assert.ok(s.domainData.career.command.encounters.pending);
  const board=renderCareerDashboard(s);
  assert.match(board,/role="dialog" aria-modal="true"/);
  assert.equal((board.match(/data-encounter-choice="/g)||[]).length,4);
