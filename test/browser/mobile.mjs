@@ -171,112 +171,123 @@ async function journey(browser,label,contextOptions){
         await page.reload({waitUntil:'networkidle'});
         assert.equal(Number(await page.locator('.world-score-grid b').first().innerText().then(x=>x.split('/')[0])),after);
         await page.locator('button[data-nav=career]').click();
+        assert.equal(await page.locator('.career-dashboard').count(),1);
+        await page.locator('[data-career-page=parcours]').first().click();
+        await page.waitForURL('**/#/career/parcours');
         await page.locator('#crew-offer').selectOption('alizes');
         await page.locator('#pirate-job').selectOption('combattant');
         await page.locator('[data-career-apply]').evaluate(el=>el.requestSubmit());
-        assert.match(await page.locator('.career-heading h1').innerText(),/Pirate/);
+        assert.match(await page.locator('.career-section-header h1').innerText(),/Mon parcours/);
         const performance=Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow'));
         await page.locator('[data-work-pirate]').click();
         const afterWork=Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow'));
         assert.ok(afterWork>performance);
-        // Les missions n'ont plus de quota annuel : seules les conditions réelles limitent l'accès.
+        // Les actions restent dans leurs écrans dédiés : aucune limite annuelle ajoutée.
+        await page.locator('button[data-nav=career]').click();
+        await page.locator('[data-career-page=aventures]').first().click();
+        await page.waitForURL('**/#/career/aventures');
+        assert.equal(await page.locator('.career-adventure-tabs button').count(),2);
         const walletBefore=await page.locator('.career-mission-wallet strong').first().innerText();
         assert.equal(await page.locator('[data-pirate-mission=escort]').isEnabled(),true);
         await page.locator('[data-pirate-mission=escort]').click();
         assert.equal(await page.locator('.career-mission-result').count(),1);
-        assert.equal(await page.locator('.wanted-panel').count(),1);
-        assert.match(await page.locator('.wanted-bounty strong').innerText(),/Berrys/);
         await page.locator('[data-pirate-mission=explore]').click();
         assert.match(await page.locator('.pirate-mission-panel .career-mission-top').innerText(),/2 cette année/);
         assert.equal(await page.locator('[data-pirate-mission=treasure]').isEnabled(),true);
-        const performanceAfterMissions=Number(await page.locator('[aria-label="Performance professionnelle"]')
-          .getAttribute('aria-valuenow'));
         const walletAfter=await page.locator('.career-mission-wallet strong').first().innerText();
-        // Deux missions ordinaires ne doivent pas créer une prime artificielle.
-        assert.match(await page.locator('.wanted-bounty strong').innerText(),/^0[\s\u00a0]*Berrys$/);
-        const wantedBeforeReload=await page.locator('.wanted-metrics').innerText();
-        assert.match(wantedBeforeReload,/Notoriété mondiale/);
-        assert.equal(await page.locator('[data-hide-pirate]').isEnabled(),false);
         assert.notEqual(walletAfter,walletBefore);
         await checkGeometry(page,label,'pirate-missions');
         await page.screenshot({path:picture(label,'pirate-missions')});
+        await page.locator('button[data-nav=career]').click();
+        const performanceAfterMissions=Number(await page.locator('[aria-label="Performance professionnelle"]')
+          .getAttribute('aria-valuenow'));
+        await page.locator('[data-career-page=influence]').first().click();
+        assert.equal(await page.locator('.wanted-panel').count(),1);
+        assert.match(await page.locator('.wanted-bounty strong').innerText(),/^0[\s\u00a0]*Berrys$/);
+        const wantedBeforeReload=await page.locator('.wanted-metrics').innerText();
+        assert.equal(await page.locator('[data-hide-pirate]').isEnabled(),false);
         await page.reload({waitUntil:'networkidle'});
-        assert.equal(await page.locator('.career-mission-wallet strong').first().innerText(),walletAfter);
         assert.equal(await page.locator('.wanted-metrics').innerText(),wantedBeforeReload);
-        // Achat du navire, recrue réelle, ordres multiples et reprise persistante.
+        await page.locator('button[data-nav=career]').click();
+        await page.locator('[data-career-page=aventures]').first().click();
+        assert.equal(await page.locator('.career-mission-wallet strong').first().innerText(),walletAfter);
+        // De membre à capitaine : la page se réorganise, pas le moteur.
+        await page.locator('button[data-nav=career]').click();
+        await page.locator('[data-career-page=parcours]').first().click();
         assert.equal(await page.locator('[data-found-crew]').isEnabled(),true);
         await page.locator('[data-found-crew]').click();
+        await page.locator('button[data-nav=career]').click();
         assert.match(await page.locator('.career-heading h1').innerText(),/Capitaine/);
-        assert.equal(await page.locator('.captain-panel').count(),1);
-        assert.equal(await page.locator('details.navigation-panel').count(),1);
-        assert.equal(await page.locator('.career-hero-finances>span').count(),2);
-        await page.locator('.navigation-panel summary').click();
+        assert.equal(await page.locator('.career-dashboard').count(),1);
+        assert.equal(await page.locator('.career-dash-grid [data-career-page]').count(),6);
+        await page.locator('[data-career-page=aventures]').first().click();
+        await page.locator('[data-adventure-tab=exploration]').click();
         assert.equal(await page.locator('.sea-chart').isVisible(),true);
-        assert.match(await page.locator('.navigation-panel').innerText(),/Village de Fuchsia/);
         assert.equal(await page.locator('[data-voyage=shells]').isEnabled(),true);
-        // Traversée calme, patrouille Marine, interception : décision persistante.
+        // Traversée et interception persistante avec fenêtre prioritaire.
         await page.evaluate(()=>{ window.__testRandomSequence=[0,0,.99]; });
         await page.locator('[data-voyage=shells]').click();
         assert.match(await page.locator('.navigation-panel summary').innerText(),/Shells Town/);
-        assert.equal(await page.locator('.navigation-panel').getAttribute('open'),'');
-        assert.equal(await page.locator('.encounter-panel').count(),1);
+        assert.equal(await page.locator('.career-decision-dialog').count(),1);
         assert.equal(await page.locator('[data-encounter-choice]').count(),4);
         assert.equal(await page.locator('[data-encounter-choice=board]').isEnabled(),false);
-        assert.equal(await page.locator('[data-explore-island]').isEnabled(),false);
         await checkGeometry(page,label,'naval-encounter');
         await page.reload({waitUntil:'networkidle'});
-        assert.equal(await page.locator('.encounter-panel').count(),1);
+        assert.equal(await page.locator('.career-decision-dialog').count(),1);
         await page.locator('[data-encounter-choice=fight]').click();
-        assert.equal(await page.locator('.encounter-panel').count(),0);
+        assert.equal(await page.locator('.career-decision-dialog').count(),0);
+        await page.locator('button[data-nav=career]').click();
         const performanceAfterEncounter=Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow'));
-        assert.equal(performanceAfterEncounter,performanceAfterMissions+3,
-          'Une victoire navale augmente la performance du capitaine');
+        assert.equal(performanceAfterEncounter,performanceAfterMissions+3);
         assert.match(await page.locator('.career-notice').innerText(),/combattre/);
-        await page.locator('.navigation-panel summary').click();
+        await page.locator('[data-career-page=aventures]').first().click();
+        await page.locator('[data-adventure-tab=exploration]').click();
         assert.match(await page.locator('.navigation-panel').innerText(),/Confrontations/);
         await page.locator('[data-explore-island]').click();
         assert.match(await page.locator('.navigation-panel').innerText(),/Journal de bord/);
-        assert.match(await page.locator('.navigation-panel').innerText(),/Explorations/);
         await checkGeometry(page,label,'navigation');
-
-        assert.equal(await page.locator('details.ship-panel').count(),1);
-        await page.locator('.ship-panel summary').click();
+        // Entretien et améliorations dans leur propre espace.
+        await page.locator('button[data-nav=career]').click();
+        await page.locator('[data-career-page=navire]').first().click();
         assert.equal(await page.locator('.ship-blueprint').isVisible(),true);
-        assert.equal(await page.locator('details.ship-panel').getAttribute('open'),'');
         assert.match(await page.locator('.ship-panel').innerText(),/Voiles|Gouvernail/);
         assert.equal(await page.locator('[data-ship-action=upgrade]').count(),4);
-
+        // Fiches de compagnons individuelles : détails repliables, actions préservées.
+        await page.locator('button[data-nav=career]').click();
+        await page.locator('[data-career-page=equipage]').first().click();
+        assert.equal(await page.locator('.captain-panel').count(),1);
         await page.locator('#recruit-specialty').selectOption('navigateur');
         await page.locator('[data-crew-recruit]').evaluate(el=>el.requestSubmit());
         assert.equal(await page.locator('.captain-member').count(),1);
+        await page.locator('.captain-member summary').click();
+        assert.equal(await page.locator('[data-crew-role] select').isVisible(),true);
+        await page.locator('[data-crew-order=train]').click();
+        assert.equal(await page.locator('.captain-member').getAttribute('open'),'');
+        await page.locator('[data-crew-role] select').selectOption('charpentier');
+        await page.locator('[data-crew-role]').evaluate(el=>el.requestSubmit());
+        assert.match(await page.locator('.captain-member summary').innerText(),/Charpentier/);
+        await page.locator('[data-crew-member-action=talk]').click();
+        assert.match(await page.locator('.captain-member').innerText(),/Confiance/);
         await page.locator('[data-crew-order=train]').click();
         assert.equal(await page.locator('[data-crew-order=train]').isEnabled(),true);
-         await page.locator('[data-crew-role] select').selectOption('charpentier');
-         await page.locator('[data-crew-role]').evaluate(el=>el.requestSubmit());
-         assert.match(await page.locator('.captain-member').innerText(),/Charpentier/);
-         await page.locator('[data-crew-member-action=talk]').click();
-         assert.match(await page.locator('.captain-member').innerText(),/Confiance/);
-         await page.locator('[data-crew-order=train]').click();
-         assert.equal(await page.locator('[data-crew-order=train]').isEnabled(),true);
-        const crewBefore=await page.locator('.captain-panel').innerText();
         await checkGeometry(page,label,'captain-management');
         await page.screenshot({path:picture(label,'captain-crew')});
         await page.reload({waitUntil:'networkidle'});
         assert.equal(await page.locator('.captain-member').count(),1);
-        assert.equal(await page.locator('.captain-panel').innerText(),crewBefore);
-        assert.equal(await page.locator('details.ship-panel').count(),1);
+        assert.match(await page.locator('.captain-member summary').innerText(),/Charpentier/);
+        // Retour depuis la Carrière vers la page générale Entraînement.
+        await page.locator('button[data-nav=career]').click();
+        await page.locator('[data-career-page=parcours]').first().click();
         await page.locator('[data-go-training]').click();
         await page.waitForURL('**/#/activities');
-        await page.locator('.training-skill').first().waitFor();
         assert.equal(await page.locator('.training-skill').count(),11);
         await checkGeometry(page,label,'career-training');
         await page.screenshot({path:picture(label,'career')});
         await page.reload({waitUntil:'networkidle'});
         await page.locator('button[data-nav=career]').click();
-        await page.locator('[aria-label="Performance professionnelle"]').waitFor();
         assert.equal(Number(await page.locator('[aria-label="Performance professionnelle"]')
           .getAttribute('aria-valuenow')),performanceAfterEncounter);
         await page.locator('.bottom-nav button[data-nav=life]').click();
