@@ -171,8 +171,9 @@ function finance(state){
 function companions(state){
  const {career,relationships}=state.domainData;
  const p=career.pirate,crew=CREWS[p.crewId];
- const known=relationships.people.filter(person=>
-   ['leader','mentor','ally','rival'].includes(person.role)&&!person.deceased);
+ // Une relation de faction (mentor, rival...) n'est pas nécessairement un marin recruté.
+ // Chez un employeur, seul le capitaine connu est présenté comme contact d'équipage.
+ const known=relationships.people.filter(person=>person.role==='leader'&&!person.deceased);
  return `<section class="career-panel">
   <h2>${escapeHtml(crew.label)}</h2>
   <p class="career-hint">Vous servez sous les ordres de votre capitaine.
