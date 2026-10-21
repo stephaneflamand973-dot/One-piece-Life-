@@ -1,0 +1,138 @@
+
+/* Grand Line Premium V0.5.11 : architecture de carrière sans surcharge verticale. */
+.career-dashboard .career-heading{margin-bottom:12px}
+.career-dash-status{background:linear-gradient(130deg,#fffdf7,#eee3cf);
+ border:1px solid #d8c39d;border-radius:13px;padding:13px 15px;margin:0 0 12px;
+ box-shadow:var(--glp-shadow)}
+.career-dash-status-label{color:#8a642e;font-size:10px;font-weight:800;
+ letter-spacing:.05em}
+.career-dash-status-row{display:flex;align-items:center;justify-content:space-between;
+ gap:10px;margin:11px 0 8px;color:#27495a;font-size:12px}
+.career-dash-status-row strong{font-size:14px;color:#204d56}
+.career-dash-status p{font-size:11px;color:#72808a;margin:9px 0 0}
+.career-dash-priority{display:grid;gap:5px;width:100%;text-align:left;
+ border:1px solid #b78b56;border-radius:13px;
+ padding:14px;background:linear-gradient(135deg,#f5e5c6,#e8d1a4);
+ color:#644b2b;box-shadow:var(--glp-shadow)}
+.career-dash-priority strong{font-size:13px}
+.career-dash-priority span{display:flex;justify-content:space-between;gap:12px;
+ font-size:11px;line-height:1.5}
+.career-dash-priority b{font-size:23px;line-height:1}
+.career-dash-calm{display:flex;gap:7px;flex-direction:column;
+ background:#e9f1ec;border:1px solid #cbdcd2;color:#315b50;
+ border-radius:12px;padding:11px 13px;font-size:11px}
+.career-dash-calm strong{font-size:12px}
+.career-dash-title{font:700 18px/1.3 Georgia,serif;color:#244454;
+ margin:20px 0 11px}
+.career-dash-quick,.career-dash-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px}
+.career-dash-card{position:relative;display:flex;align-items:center;gap:11px;
+ min-width:0;min-height:87px;text-align:left;padding:11px 10px;
+ background:linear-gradient(135deg,#1d475f,#123149);
+ color:#f8ecda;border:1px solid #9e835c;
+ border-radius:13px;box-shadow:0 5px 13px #163e5124}
+.career-dash-icon{display:grid;place-items:center;flex:none;
+ height:37px;width:37px;color:#e9c587;font:700 23px Georgia,serif;
+ background:#e9c58714;border:1px solid #dbb57868;border-radius:10px}
+.career-dash-card>span:nth-child(2){display:grid;gap:5px;min-width:0}
+.career-dash-card strong{color:#fff2dd;font-size:12px}
+.career-dash-card small{color:#b9cbd2;font-size:10px;line-height:1.35;
+ overflow-wrap:anywhere}
+.career-dash-chevron{margin-left:auto;color:#f1d29a;font-size:22px}
+.career-dash-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.career-dash-grid .career-dash-card{display:grid;justify-items:center;
+ align-content:center;gap:8px;min-height:94px;padding:9px 6px;background:#fffaf0;
+ color:#284d5d;border-color:#dac59c;box-shadow:var(--glp-shadow);text-align:center}
+.career-dash-grid .career-dash-card strong{color:#284d5d;font-size:11px}
+.career-dash-grid .career-dash-card small{font-size:9px;color:#71818a}
+.career-dash-grid .career-dash-icon{height:30px;width:30px;background:#e8ddc3;
+ border:0;color:#9e7234;font-size:19px}
+.career-dash-grid .career-dash-chevron{display:none}
+.career-dash-card:not(:disabled):active{background:#315e75;transform:scale(.985)}
+.career-dash-grid .career-dash-card:not(:disabled):active{background:#f2e5cb}
+.career-section-header{position:relative;overflow:hidden;margin:0 0 15px;
+ padding:19px 17px;background:linear-gradient(120deg,#1a4259,#102c41);
+ color:#fff4df;border:1px solid #aa885c;border-radius:16px;
+ box-shadow:0 8px 18px #12375125}
+.career-section-header:after{content:"✦";position:absolute;top:8px;right:13px;
+ color:#d7b47873;font-size:27px}
+.career-section-header h1{font:700 27px/1.15 Georgia,serif;margin:7px 0 8px;
+ color:#fff1d8}
+.career-section-header p:last-child{font-size:12px;color:#d2ddde;margin:0}
+.career-adventure-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;
+ padding:5px;background:#e9dbc2;border:1px solid #d7bf92;
+ border-radius:12px;margin:0 0 14px}
+.career-adventure-tabs button{min-height:46px;border:1px solid transparent;
+ border-radius:9px;color:#6e6658;background:transparent;font-weight:800;font-size:12px}
+.career-adventure-tabs button.is-selected{color:#fff1d6;
+ background:#194761;border-color:#476a7b;box-shadow:0 3px 8px #1946602b}
+.career-subpage .navigation-panel>summary,.career-subpage .ship-panel>summary{font-size:13px}
+.career-subpage .navigation-panel[open]>summary,.career-subpage .ship-panel[open]>summary{
+ margin-bottom:10px}
+.career-finances .career-treasury{display:grid;gap:8px;
+ border:1px solid #a5834d;background:linear-gradient(140deg,#eedaba,#e2c798);
+ color:#553f26;padding:17px;border-radius:13px;margin-bottom:14px}
+.career-treasury small{font-weight:900;letter-spacing:.15em;font-size:10px}
+.career-treasury strong{font:700 24px Georgia,serif;overflow-wrap:anywhere}
+.career-treasury span{font-size:11px}
+.career-dash-action-row{display:grid;gap:9px}
+.career-dash-action-row button{min-height:49px;border-radius:9px;
+ padding:12px;background:#194b62;border:1px solid #9e834e;
+ color:#fbeac9;font-weight:800;font-size:12px}
+.career-dash-action-row button:disabled{opacity:.48}
+.crew-member-heading{list-style:none;display:flex;gap:11px;align-items:center;
+ cursor:pointer;padding:1px;min-height:60px}
+.crew-member-heading::-webkit-details-marker{display:none}
+.crew-member-avatar{width:49px;height:53px;display:grid;place-items:center;
+ flex:none;border-radius:12px;color:#f4d4a0;
+ border:1px solid #b99056;background:linear-gradient(145deg,#436b7b,#183b55);
+ font:700 25px Georgia,serif}
+.crew-member-identity{min-width:0;flex:1;display:grid;gap:6px}
+.crew-member-identity strong{color:#264657;font-size:13px;overflow-wrap:anywhere}
+.crew-member-identity small{color:#707e86;font-size:11px}
+.crew-member-arrow{font-size:23px;color:#916f40;transition:transform .16s ease}
+.captain-member[open] .crew-member-arrow{transform:rotate(180deg)}
+.crew-member-details{display:grid;gap:10px;margin-top:10px;padding:12px 4px 2px;
+ border-top:1px solid #e2d0b1}
+.crew-member-details>small{line-height:1.5}
+.career-decision-overlay{position:fixed;inset:0;z-index:60;
+ display:flex;align-items:center;justify-content:center;
+ padding:calc(14px + env(safe-area-inset-top)) 13px
+ calc(14px + env(safe-area-inset-bottom));
+ background:#051625bf;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.career-decision-dialog{min-width:0;width:100%;max-width:440px;max-height:100%;
+ overflow-y:auto;overscroll-behavior:contain;
+ border:1px solid #d9ac66;border-radius:19px;
+ padding:19px 19px 14px;background:linear-gradient(135deg,#214961,#112d43);
+ color:#fff0d7;box-shadow:0 25px 75px #03121b99}
+.career-decision-dialog:focus{outline:none}
+.career-decision-art{display:grid;place-items:center;
+ height:88px;margin-bottom:14px;border-radius:12px;
+ background:radial-gradient(circle at 50% 90%,#50899977,transparent 70%),#2b5770;
+ border:1px solid #e6c38355;color:#e3c78f;font:700 46px Georgia,serif}
+.career-decision-dialog h2{font:700 25px/1.2 Georgia,serif;
+ color:#fff7e7;margin:8px 0}
+.career-decision-dialog>p:not(.career-eyebrow){font-size:12px;
+ line-height:1.6;color:#d8e4e6}
+.career-decision-risk{color:#e8c680!important;font-weight:750}
+.career-decision-actions{display:grid;gap:8px;margin:17px 0}
+.career-decision-actions button{display:flex;align-items:center;
+ justify-content:space-between;gap:11px;min-width:0;min-height:58px;
+ padding:11px 13px;text-align:left;border:1px solid #d8b989;
+ border-radius:10px;background:#fff6e5;color:#1a4357}
+.career-decision-actions button strong{font-size:13px}
+.career-decision-actions button small{font-size:10px;color:#6d7578;
+ text-align:right;line-height:1.35;overflow-wrap:anywhere}
+.career-decision-actions button:disabled{opacity:.43}
+.career-decision-dialog .career-decision-footnote{font-size:10px!important;
+ color:#b7c8cd!important;text-align:center;margin:0}
+@media(max-width:360px){
+ .career-dash-card{padding:9px 7px;min-height:81px;gap:7px}
+ .career-dash-icon{height:32px;width:32px;font-size:19px}
+ .career-dash-card strong{font-size:11px}
+ .career-dash-card small{font-size:9px}
+ .career-dash-grid .career-dash-card{min-height:87px}
+ .career-decision-dialog{padding:14px}
+ .career-decision-actions button{padding:10px;min-height:54px}
+}
+@media(prefers-reduced-motion:reduce){.crew-member-arrow{transition:none}}

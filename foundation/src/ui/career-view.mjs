@@ -77,6 +77,7 @@ export function renderCareer(state){
     </section>`;
   }
   return `<section class="career-page" aria-label="Carrière pirate">
+    <!-- glp:head -->
     <div class="career-heading"><p class="career-eyebrow">CARRIÈRE ACTUELLE</p>
       <h1>${command?'Capitaine':'Pirate'}</h1>
       <p>${escapeHtml(command?command.name:crew.label)}</p>
@@ -85,7 +86,9 @@ export function renderCareer(state){
         <span><small>PRIME</small><strong>${wanted.bounty.toLocaleString('fr-FR')} Berrys</strong></span>
       </div>
     </div>
+    <!-- glp:notice -->
     ${latest?`<p class="career-notice" role="status">${escapeHtml(latest.text)}</p>`:''}
+    <!-- glp:parcours -->
     <div class="career-panel">
       <div class="career-facts">
         <div><span>Poste</span><strong>${escapeHtml(role.label)}</strong></div>
@@ -118,6 +121,7 @@ export function renderCareer(state){
         <span>${promotion?.enabled?'Chance : '+promotion.chance+'%':escapeHtml(promotion?.reason??'')}</span>
       </button>
     </div>
+    <!-- glp:encounter -->
     ${command?`
       ${command.encounters.pending?`<section class="career-panel encounter-panel"
          aria-label="Rencontre navale à résoudre" role="group">
@@ -139,6 +143,7 @@ export function renderCareer(state){
           }).join('')}
         </div>
       </section>`:''}
+      <!-- glp:navigation -->
       <details class="career-panel navigation-panel">
         <summary><strong>Navigation · ${escapeHtml(ISLANDS[command.navigation.location].name)}</strong>
           · ${escapeHtml(SEA_LABELS[ISLANDS[command.navigation.location].sea])}</summary>
@@ -188,6 +193,7 @@ export function renderCareer(state){
             <p class="career-hint"><strong>${e.age} ans</strong> · ${escapeHtml(e.text)}
               ${e.berys?'+ '+e.berys.toLocaleString('fr-FR')+' Berrys':''}</p>`).join('')}</div>`:''}
       </details>
+      <!-- glp:navire -->
       <details class="career-panel ship-panel">
         <summary><strong>Mon navire : ${escapeHtml(SHIP_MODELS[command.ship.model].label)}</strong>
           · Coque ${command.hull}/100 · État ${shipStats(command).condition}/100</summary>
@@ -248,6 +254,7 @@ export function renderCareer(state){
           }).join('')}
         </div>
       </details>
+      <!-- glp:equipage -->
       <section class="career-panel captain-panel" aria-label="Commandement de mon équipage">
         <h2>Mon équipage</h2>
         <div class="captain-metrics">
@@ -271,11 +278,17 @@ export function renderCareer(state){
           </div>
         </section>`:''}
         <div class="captain-members">
-          ${command.members.length?command.members.map(person=>`<div class="captain-member">
-            <strong>${escapeHtml(person.firstName+' '+person.lastName)}
-              ${person.role==='second'?' · Bras droit':''}</strong>
-            <small>${escapeHtml(CREW_ROLES[person.role])} ·
-              Talent ${person.skill}/100 · Loyauté ${person.loyalty}/100</small>
+          ${command.members.length?command.members.map(person=>`<details class="captain-member" data-member-card="${escapeHtml(person.id)}">
+            <summary class="crew-member-heading">
+              <span class="crew-member-avatar" aria-hidden="true">${escapeHtml(person.firstName.slice(0,1).toUpperCase())}</span>
+              <span class="crew-member-identity">
+                <strong>${escapeHtml(person.firstName+' '+person.lastName)}
+                  ${person.role==='second'?' · Bras droit':''}</strong>
+                <small>${escapeHtml(CREW_ROLES[person.role])} ·
+                  Talent ${person.skill}/100 · Loyauté ${person.loyalty}/100</small>
+              </span><span class="crew-member-arrow" aria-hidden="true">⌄</span>
+            </summary>
+            <div class="crew-member-details">
             <small>Tempérament : ${escapeHtml(TEMPERAMENT_LABELS[person.temperament])}
               · Confiance ${person.bond}/100 · Rivalité ${person.rivalry}/100
               · Ambition ${person.ambition}/100</small>
@@ -295,7 +308,8 @@ export function renderCareer(state){
                 ${blocked||!crewActionAvailability(career,life,person.id,id).enabled?'disabled':''}>
                 ${label}</button>`).join('')}
             </div>
-          </div>`).join(''):'<p class="career-muted">Aucun compagnon recruté pour le moment.</p>'}
+            </div>
+          </details>`).join(''):'<p class="career-muted">Aucun compagnon recruté pour le moment.</p>'}
         </div>
         ${command.events.length?`<p class="career-hint">Dernier événement : ${escapeHtml(command.events.at(-1).text)}</p>`:''}
         <form data-crew-recruit class="career-form">
@@ -333,6 +347,7 @@ export function renderCareer(state){
         <button type="button" class="career-secondary captain-resign" data-resign-pirate
           ${blocked?'disabled':''}>Quitter cet équipage</button>
       </section>`}
+    <!-- glp:influence -->
     <section class="career-panel wanted-panel" aria-label="Prime et recherche">
       <div class="career-mission-top"><h2>Avis de recherche</h2>
         <span>${escapeHtml(wantedLevel(wanted))}</span></div>
@@ -353,6 +368,7 @@ export function renderCareer(state){
         <span>Réduire la pression (-22) · Performance -2</span>
       </button>
     </section>
+    <!-- glp:missions -->
     <section class="career-panel pirate-mission-panel" aria-label="Missions pirates">
       <div class="career-mission-top">
         <h2>Missions pirates</h2><span>${missions.used} cette année</span>
@@ -385,6 +401,7 @@ export function renderCareer(state){
       <p class="career-hint">Les résultats dépendent de vos capacités, de votre équipe et de votre état.
         Les missions ratées peuvent vous blesser ou diminuer votre réputation. La prime n'est pas votre argent.</p>
     </section>
+    <!-- glp:footer -->
     <p class="career-hint">Les compétences appartiennent au personnage. Les missions enrichissent l'année en cours, sans faire avancer l'âge.</p>
   </section>`;
 }
