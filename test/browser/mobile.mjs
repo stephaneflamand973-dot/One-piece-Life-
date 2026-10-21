@@ -342,6 +342,7 @@ async function journey(browser,label,contextOptions){
     assert.equal(Number(await page.locator('.training-skill [aria-label="Technique de combat"]')
       .getAttribute('aria-valuenow')),afterMentor);
     await page.locator('button[data-nav=career]').click();
+    await page.locator('[data-career-page=parcours]').first().click();
     await page.locator('[data-ask-promotion]').waitFor();
     await checkGeometry(page,label,'career-promotion');
     await page.locator('.bottom-nav button[data-nav=life]').click();
