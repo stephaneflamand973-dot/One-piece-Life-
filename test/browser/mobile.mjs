@@ -266,6 +266,7 @@ async function journey(browser,label,contextOptions){
         // Fiches de compagnons individuelles : détails repliables, actions préservées.
         await page.locator('button[data-nav=career]').click();
         await page.locator('[data-career-page=equipage]').first().click();
+        await page.locator('.captain-panel').waitFor();
         assert.equal(await page.locator('.captain-panel').count(),1);
         await page.locator('#recruit-specialty').selectOption('navigateur');
         await page.locator('[data-crew-recruit]').evaluate(el=>el.requestSubmit());
