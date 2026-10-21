@@ -293,6 +293,7 @@ async function journey(browser,label,contextOptions){
         await page.locator('[data-career-page=parcours]').first().click();
         await page.locator('[data-go-training]').click();
         await page.waitForURL('**/#/activities');
+        await page.locator('.training-skill').first().waitFor();
         assert.equal(await page.locator('.training-skill').count(),11);
         await checkGeometry(page,label,'career-training');
         await page.screenshot({path:picture(label,'career')});
