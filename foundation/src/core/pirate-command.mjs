@@ -3,6 +3,8 @@ import {newMemberLife,upgradeCommand,validCrewLife,ageCrewLife,crewEffects} from
 import {newShip,validShip,crewCapacity,ageShip} from './pirate-ships.mjs';
 import {createNavigation,validNavigation} from './pirate-navigation.mjs';
 import {emptyEncounters,validEncounters} from './pirate-encounters.mjs';
+import {scaledBenefit} from './diminishing.mjs';
+import {usage,used,validUsage,resetUsage} from './action-usage.mjs';
 export const SHIP_COST=50000;
 export const RECRUIT_COST=5000;
 export const REPAIR_COST=8000;
@@ -38,7 +40,7 @@ export function validCommand(command,life,career){
   !Array.isArray(command.members)||command.members.length>MAX_CREW_MEMBERS||
   !validCrewLife(command,life.age)||!validShip(command.ship,command)||
   !validNavigation(command.navigation,command,life.age)||
-  !validEncounters(command.encounters,command,life.age))return false;
+  !validEncounters(command.encounters,command,life.age)||!validUsage(command))return false;
  const ids=new Set();
  for(const member of command.members){
   if(!member||typeof member.id!=='string'||!/^crew-member-[1-8]$/.test(member.id)||
@@ -142,27 +144,28 @@ export function orderAvailability(career,life,order){
 export function giveOrder(career,life,order){
  if(!orderAvailability(career,life,order).enabled)return null;
  const cmd=career.command;
+ const count=usage(cmd,'order:'+order);
  let morale=cmd.morale,hull=cmd.hull,members=cmd.members,berys=career.missions.berys,text;
  if(order==='train'){
   // Pas de plafond de séances : la fatigue morale et la maîtrise ralentissent les gains.
   const effort=morale>=60?4:morale>=30?2:1;
   members=members.map(m=>({...m,
-   skill:cap(m.skill+Math.min(effort,Math.max(1,Math.ceil((100-m.skill)/25)))),
+   skill:cap(m.skill+scaledBenefit(Math.min(effort,Math.max(1,Math.ceil((100-m.skill)/25))),count)),
    loyalty:cap(m.loyalty+(morale>=25?1:-1))}));
   morale=cap(morale-3);
   text='Vous entraînez votre équipage. Le moral baisse légèrement après ces efforts.';
  }else if(order==='repair'){
   berys-=REPAIR_COST;
-  hull=cap(hull+24+Math.min(8,crewEffects(cmd).hullReduction));
+  hull=cap(hull+scaledBenefit(24+Math.min(8,crewEffects(cmd).hullReduction),count));
   morale=cap(morale+3);
   text='Votre équipage répare le navire.';
  }else{
   berys-=SHARE_COST;
-  morale=cap(morale+11+crewEffects(cmd).heal);
-  members=members.map(m=>({...m,loyalty:cap(m.loyalty+7)}));
+  morale=cap(morale+scaledBenefit(11+crewEffects(cmd).heal,count));
+  members=members.map(m=>({...m,loyalty:cap(m.loyalty+scaledBenefit(7,count))}));
   text='Vous partagez le butin avec vos compagnons.';
  }
- const command={...cmd,morale,hull,members,orderAtAge:life.age};
+ const command=used({...cmd,morale,hull,members,orderAtAge:life.age},'order:'+order);
  const notice={age:life.age,type:'order',text};
  return {...career,command,missions:{...career.missions,berys},
   notices:[...career.notices,notice].slice(-25),lastNotice:text};
@@ -178,7 +181,7 @@ export function ageCommand(career,age,random=Math.random){
   members=members.filter(m=>m.id!==deserter.id);
   note=deserter.firstName+' déserte votre équipage à cause du mauvais moral.';
  }
- const command=ageShip({...cmd,hull,morale,members});
+ const command=ageShip(resetUsage({...cmd,hull,morale,members}));
  const lived=ageCrewLife({...career,command},age,random);
  return {career:lived.career,note:[note,lived.note].filter(Boolean).join(' ')};
 }
