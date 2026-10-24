@@ -1,6 +1,6 @@
 import { escapeHtml } from './life-view.mjs';
 import {
-  ACTIONS, MAX_ACTIONS_PER_YEAR, MAX_FRIENDS, roleLabel
+  ACTIONS, MAX_FRIENDS, roleLabel
 } from '../core/relationships.mjs';
 import { availability, TRAIT_LABELS } from '../core/personality.mjs';
 import { trainingAvailability } from '../core/abilities.mjs';
@@ -41,8 +41,7 @@ function detail(p,state,blocked){
   const why=p.deceased?'Cette personne est décédée.':
     blocked?'Terminez d’abord la décision en cours.':
     !state.activeLife.alive?'Cette vie est terminée.':
-    rel.actionsUsed>=MAX_ACTIONS_PER_YEAR?'Vos trois interactions de l’année ont été utilisées.':
-    p.lastActionAge===age?'Vous avez déjà interagi avec cette personne cette année.':'';
+    rel.actionsUsed>=3?'Les effets des interactions deviennent plus faibles cette année.':'';
   const traits=Object.entries(p.traits).sort((a,b)=>b[1]-a[1]).slice(0,2);
   const metrics=[['Confiance',p.trust],['Respect',p.respect],['Rivalité',p.rivalry]];
   return `<section class="relation-detail" aria-label="Interactions avec ${escapeHtml(p.firstName)}">
@@ -77,32 +76,31 @@ export function renderRelationships(state,{selectedId=null}={}){
   const worldPeople=rel.people.filter(p=>WORLD_ROLES.includes(p.role));
   const canJoin=age>=16&&age<=65&&state.activeLife.alive&&
     !state.domainData.story.pending&&!rel.pending&&
-    rel.actionsUsed<MAX_ACTIONS_PER_YEAR&&world.faction==='independent';
+    world.faction==='independent';
   const partners=rel.people.filter(p=>p.role==='partner');
   const children=rel.people.filter(p=>p.role==='child');
   const partner=activePartner(rel);
   const canRomance=age>=18&&state.activeLife.alive&&!state.domainData.story.pending&&
-    !rel.pending&&rel.actionsUsed<MAX_ACTIONS_PER_YEAR;
+    !rel.pending;
   const friends=rel.people.filter(p=>p.role==='friend');
   const blocked=Boolean(state.domainData.story.pending || rel.pending);
   const marked=new Set(rel.milestones.map(entry=>entry.personId));
   const group=rel.groups[0];
   const groupFriends=group?friends.filter(person=>group.members.includes(person.id)&&!person.deceased):[];
   const canGather=Boolean(group)&&age>=8&&state.activeLife.alive&&!blocked&&
-    groupFriends.length>=2&&rel.actionsUsed<MAX_ACTIONS_PER_YEAR&&
-    group.lastGatherAge!==age;
+    groupFriends.length>=2;
   const canMeet=age>=6&&state.activeLife.alive&&!blocked&&
-    friends.length<MAX_FRIENDS&&rel.actionsUsed<MAX_ACTIONS_PER_YEAR;
+    friends.length<MAX_FRIENDS;
   const why=age<6?'Disponible à partir de 6 ans.':
     blocked?'Terminez votre décision sur l’écran Vie.':
     !state.activeLife.alive?'Cette vie est terminée.':
     friends.length>=MAX_FRIENDS?'Votre cercle de quatre amis est complet.':
-    rel.actionsUsed>=MAX_ACTIONS_PER_YEAR?'Interactions épuisées pour cette année.':'';
+    '';
   return `<section class="relationships-page" aria-label="Famille et relations">
     <div class="relations-heading">
       <p class="premium-eyebrow">MON ENTOURAGE</p>
       <h1>Relations</h1>
-      <p>${age} an${age>1?'s':''} · ${MAX_ACTIONS_PER_YEAR-rel.actionsUsed} action${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} disponible${MAX_ACTIONS_PER_YEAR-rel.actionsUsed>1?'s':''} cette année</p>
+      <p>${age} an${age>1?'s':''} · ${rel.actionsUsed} interaction${rel.actionsUsed>1?'s':''} cette année · efficacité décroissante</p>
       <div class="relation-hero-counters" aria-label="Mon entourage">
         <span><strong>${family.length}</strong><small>Famille</small></span>
         <span><strong>${friends.length}</strong><small>Amis</small></span>
@@ -131,9 +129,8 @@ export function renderRelationships(state,{selectedId=null}={}){
         <button type="button" data-gather ${canGather?'':'disabled'}>Organiser une sortie du groupe</button>
         ${canGather?'':`<small>${blocked?'Terminez votre décision sur Vie.':
           age<8?'Disponible à partir de 8 ans.':
-          group.lastGatherAge===age?'Vous avez déjà réuni votre groupe cette année.':
           groupFriends.length<2?'Au moins deux amis doivent être disponibles.':
-          'Plus d’actions disponibles cette année.'}</small>`}
+          'Conditions de la rencontre non réunies.'}</small>`}
       </div>
     </section>`:''}
     <section class="romance-section" aria-label="Amour et générations">
@@ -152,7 +149,7 @@ export function renderRelationships(state,{selectedId=null}={}){
           const disabled=!canRomance||!info.enabled;
           return `<button type="button" data-romance="${action}"
             ${disabled?'disabled':''} title="${escapeHtml(disabled&&!canRomance?
-              'Terminez la décision ou attendez l’année suivante.':info.reason)}">${label}</button>`;
+              'Terminez la décision en cours.':info.reason)}">${label}</button>`;
         }).join('')}
       </div>`:''}
       ${age<18?'<p class="relation-hint">Les rencontres amoureuses se débloquent à 18 ans.</p>':''}
