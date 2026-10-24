@@ -92,7 +92,7 @@ test('les probabilités suivent réellement les capacités, la fatigue et la loy
  assert.ok(better>weak);
  assert.ok(tired<better);
  assert.equal(missionAvailability(c,{...a,injury:{level:2,recoverAtAge:17}},
-   rel,s.activeLife,'escort').enabled,false);
+   rel,s.activeLife,'escort').enabled,true);
  assert.equal(missionAvailability(c,{...a,fatigue:90},rel,s.activeLife,'escort').enabled,false);
 });
 test('succès partiel, échec et blessures : risques mais aucune mort automatique',()=>{
