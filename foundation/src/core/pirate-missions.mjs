@@ -1,5 +1,6 @@
 
 import { SPECIALTIES } from './pirate-career.mjs';
+import {scaledBenefit,scaledChance,nextCount} from './diminishing.mjs';
 import { crewEffects } from './pirate-crew-life.mjs';
 import {shipMissionEffects,wearShip} from './pirate-ships.mjs';
 export const MISSIONS=Object.freeze({
@@ -41,8 +42,6 @@ export function missionAvailability(career,a,rel,life,id){
  if(career.command&&(career.command.hull<=0||career.command.ship.parts.sails<=0||
   career.command.ship.parts.rudder<=0))
   return {enabled:false,reason:'Navire immobilisé : réparez la coque, les voiles ou le gouvernail.'};
- if(a.injury.level===2)return {enabled:false,reason:'Blessure sérieuse : récupération nécessaire.'};
- if(a.fatigue>=85)return {enabled:false,reason:'Fatigue excessive : reposez-vous.'};
  const captain=rel.people.find(x=>x.id==='world-leader'&&!x.deceased);
  const own=career.command;
  const ally=rel.people.find(x=>x.id==='world-ally'&&!x.deceased);
@@ -59,7 +58,7 @@ export function missionAvailability(career,a,rel,life,id){
    roleImpact.chance+shipMissionEffects(own,id).chance+
    (lead-50)*.09+((ally?.bond??25)-50)*.06+
    (rel.world.loyalty-50)*.05-a.fatigue*.22-(a.injury.level===1?10:0));
- return {enabled:true,chance:Math.max(8,Math.min(92,chance))};
+ return {enabled:true,chance:scaledChance(Math.max(8,Math.min(92,chance)),career.missions.used,3,8)};
 }
 export function performMission(career,a,rel,life,id,random=Math.random){
  const available=missionAvailability(career,a,rel,life,id);
@@ -70,7 +69,8 @@ export function performMission(career,a,rel,life,id,random=Math.random){
  const data=MISSIONS[id];
  const outcome=roll<available.chance/100?'success':
    roll<Math.min(.98,(available.chance+22)/100)?'partial':'failure';
- const reward=outcome==='success'?data.reward:outcome==='partial'?Math.round(data.reward*.35):0;
+ const reward=scaledBenefit(outcome==='success'?data.reward:outcome==='partial'?Math.round(data.reward*.35):0,
+   career.missions.used);
  const baseRisk=outcome==='failure'?(data.difficulty>=60?.30:.14):
    outcome==='partial'?(data.difficulty>=60?.09:.035):.008;
  const roleImpact=crewEffects(career.command,id);
@@ -78,13 +78,13 @@ export function performMission(career,a,rel,life,id,random=Math.random){
  const injured=secondary>1-risk?(data.difficulty>=60&&secondary>1-risk*.25?2:1):0;
  const level=Math.max(a.injury.level,injured);
  const injury=injured?{level,recoverAtAge:Math.max(a.injury.recoverAtAge??0,life.age+level)}:a.injury;
- const performanceDelta=outcome==='success'?Math.max(3,Math.round(data.difficulty/10)):
-   outcome==='partial'?1:-Math.max(3,Math.round(data.difficulty/12));
- const repDelta=outcome==='success'?Math.max(2,Math.round(data.difficulty/14)):outcome==='partial'?1:-3;
+ const performanceDelta=outcome==='success'?scaledBenefit(Math.max(3,Math.round(data.difficulty/10)),career.missions.used):
+   outcome==='partial'?scaledBenefit(1,career.missions.used):-Math.max(3,Math.round(data.difficulty/12));
+ const repDelta=outcome==='success'?scaledBenefit(Math.max(2,Math.round(data.difficulty/14)),career.missions.used):outcome==='partial'?scaledBenefit(1,career.missions.used):-3;
  const text=data.label+(outcome==='success'?' : réussite.':outcome==='partial'?' : succès partiel.':' : échec.');
  const entry={age:life.age,id,outcome,chance:available.chance,reward,performanceDelta,injury:injured,text};
  const old=career.missions;
- const missions={...old,used:old.used+1,berys:Math.min(999999999,old.berys+reward),
+ const missions={...old,used:nextCount(old.used),berys:Math.min(999999999,old.berys+reward),
    completed:old.completed+(outcome==='success'?1:0),
    partial:old.partial+(outcome==='partial'?1:0),
    failed:old.failed+(outcome==='failure'?1:0),
