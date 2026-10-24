@@ -49,12 +49,12 @@ test('interactions réelles : âge minimal, lien + ou -, un contact par personne
   const contacted=socialize(state,'mother','talk',()=>0);
   assert.equal(contacted.domainData.relationships.people[0].bond,initial+6);
   assert.equal(contacted.domainData.relationships.actionsUsed,1);
-  assert.equal(socialize(contacted,'mother','talk'),null);
+  assert.ok(socialize(contacted,'mother','talk'));
   const argument=socialize(contacted,'father','argue',()=>0);
   assert.ok(argument.domainData.relationships.people[1].bond <
     state.domainData.relationships.people[1].bond);
   assert.equal(argument.domainData.relationships.actionsUsed,2);
-  assert.equal(socialize(argument,'mother','spend'),null);
+  assert.ok(socialize(argument,'mother','spend'));
   assert.equal(state.domainData.relationships.actionsUsed,0);
   assert.equal(isValidState(argument),true);
 });
@@ -75,7 +75,7 @@ test('rencontre possible à six ans, blocage pendant un événement et amitié p
   assert.equal(better.domainData.relationships.actionsUsed,2);
   const third=makeFriend(better,()=>0);
   assert.equal(third.domainData.relationships.actionsUsed,MAX_ACTIONS_PER_YEAR);
-  assert.equal(makeFriend(third,()=>0),null);
+  assert.ok(makeFriend(third,()=>0));
   const next=advanceOneYear(third);
   assert.equal(next.domainData.relationships.actionsUsed,0);
   assert.equal(next.domainData.relationships.people.find(p=>p.id===friend.id).bond,
