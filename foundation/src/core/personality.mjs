@@ -1,4 +1,5 @@
-// V0.4.1 : règles de personnalité et réactions, sans dépendance sur le DOM.
+// V0.6.0 : réactions sociales avec rendement décroissant.
+import {scaledBenefit,scaledChance} from './diminishing.mjs';
 export const TRAITS=Object.freeze(['sociability','empathy','pride','temper','loyalty']);
 export const TRAIT_LABELS=Object.freeze({
   sociability:'Sociabilité',empathy:'Empathie',pride:'Fierté',
@@ -52,15 +53,13 @@ export function reactionChance(rel,person,action){
   const attitude=action==='argue'
     ?Math.round((person.rivalry-40)/6)
     :Math.round((person.bond-50)/5+(person.trust-50)/9);
-  return Math.max(12,Math.min(95,Math.round(a.base+alignment+attitude-rel.actionsUsed*5)));
+  return scaledChance(Math.max(12,Math.min(95,Math.round(a.base+alignment+attitude))),rel.actionsUsed,3,8);
 }
 export function availability(rel,person,action,age){
   const a=ACTIONS[action];
   if(!a||!person||person.deceased)return {enabled:false,reason:'Relation indisponible.'};
   if(age<a.minAge)return {enabled:false,reason:'Disponible à partir de '+a.minAge+' ans.'};
   if(age+person.ageOffset<3)return {enabled:false,reason:'Ce proche est encore trop jeune.'};
-  if(rel.actionsUsed>=3)return {enabled:false,reason:"Actions de l'année épuisées."};
-  if(person.lastActionAge===age)return {enabled:false,reason:'Déjà rencontré cette année.'};
   if(action==='confide'&&person.trust<35)
     return {enabled:false,reason:'Confiance insuffisante (35 minimum).'};
   if(action==='apologize'&&person.rivalry<25&&person.bond>=65)
@@ -74,9 +73,10 @@ export function resolveReaction(rel,person,action,age,solidarity=0,random=Math.r
   const a=ACTIONS[action];
   const [bond,trust,respect,rivalry]=positive?a.good:a.bad;
   const solidarityBonus=positive&&action!=='argue'?Math.min(3,Math.max(0,solidarity)):0;
-  const updated={...person,bond:clamp(person.bond+bond+solidarityBonus),
-    trust:clamp(person.trust+trust),respect:clamp(person.respect+respect),
-    rivalry:clamp(person.rivalry+rivalry),lastActionAge:age};
+  const adjust=n=>n>0?scaledBenefit(n,rel.actionsUsed):n;
+  const updated={...person,bond:clamp(person.bond+adjust(bond+solidarityBonus)),
+    trust:clamp(person.trust+adjust(trust)),respect:clamp(person.respect+adjust(respect)),
+    rivalry:clamp(person.rivalry+adjust(rivalry)),lastActionAge:age};
   const messages={
     talk:positive?'La discussion vous rapproche de ':'La discussion tourne court avec ',
     spend:positive?'Vous passez un excellent moment avec ':'La sortie se passe mal avec ',
