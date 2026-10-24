@@ -27,6 +27,8 @@ export const ISLANDS=Object.freeze({
  wano:{name:'Pays des Wa',sea:'new',hazard:84,links:['zou','egghead'],description:'Mer hostile, guerriers et traditions.'},
  egghead:{name:'Egghead',sea:'new',hazard:85,links:['wano'],description:'Île du futur sous haute surveillance.'}
 });
+import {scaledBenefit,scaledChance} from './diminishing.mjs';
+import {usage,used} from './action-usage.mjs';
 export const START_ISLAND='fuchsia';
 const IDS=Object.keys(ISLANDS);
 const clamp=(n,lo=0,hi=100)=>Math.max(lo,Math.min(hi,Math.round(n)));
@@ -154,13 +156,13 @@ export function exploreAvailability(career,life){
 export function exploreIsland(career,life,abilities,random=Math.random){
  if(!exploreAvailability(career,life).enabled)return null;
  const cmd=career.command,nav=cmd.navigation,id=nav.location,site=ISLANDS[id];
- const tries=nav.explored[id]??0;
- const chance=clamp(72-site.hazard*.38+(abilities.skills.navigation??0)*.12+
-  cmd.members.length*2+(cmd.cohesion-50)*.08-tries*9,8,88);
+ const tries=usage(cmd,'navigation:'+id);
+ const chance=scaledChance(clamp(72-site.hazard*.38+(abilities.skills.navigation??0)*.12+
+  cmd.members.length*2+(cmd.cohesion-50)*.08,8,88),tries);
  const success=roll(random)<chance/100;
  const faction=encounterFaction(site,random,career.wanted?.heat??0);
  const base=site.sea==='new'?15000:site.sea==='grand'?9000:4000;
- const gain=success?Math.max(0,Math.round(base*Math.max(0,1-tries*.25))):0;
+ const gain=success?scaledBenefit(base,tries):0;
  const damage=success?0:Math.max(0,Math.round(site.hazard/18)-1);
  const text=success?
   'Exploration de '+site.name+' : découverte de '+gain.toLocaleString('fr-FR')+
@@ -170,8 +172,8 @@ export function exploreIsland(career,life,abilities,random=Math.random){
  const entry={age:life.age,kind:'explore',island:id,text,damage,berys:gain,faction};
  const navigation=logged({...nav,explored:{...nav.explored,[id]:tries+1},
   explorations:nav.explorations+1},entry);
- const command={...cmd,navigation,hull:clamp(cmd.hull-damage),
-  morale:clamp(cmd.morale+(success?1:-2))};
+ const command=used({...cmd,navigation,hull:clamp(cmd.hull-damage),
+  morale:clamp(cmd.morale+(success?1:-2))},'navigation:'+id);
  return stamp({...career,command,
   missions:{...career.missions,berys:Math.min(999999999,career.missions.berys+gain)}},
   life.age,text,'exploration');
