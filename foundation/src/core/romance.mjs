@@ -4,6 +4,7 @@
  * se rencontrer en couple, se marier ou envisager un enfant.
  */
 import { clamp, createProfile, draw } from './personality.mjs';
+import {scaledBenefit,nextCount} from './diminishing.mjs';
 
 export const MAX_PARTNERS=4;
 export const MAX_CHILDREN=4;
@@ -70,7 +71,7 @@ export function actRomance(rel,action,life,random=Math.random){
     ?draw(random)<Math.min(.95,Math.max(.20,(68+partner.traits.empathy/6+
       (partner.bond-50)/5-partner.rivalry/12)/100))
     :action==='marry'?draw(random)<Math.min(.95,Math.max(.3,
-      (60+partner.trust/5+partner.bond/7-partner.traits.pride/12)/100))
+      (60+partner.trust/5+partner.bond/7-partner.traits.pride/12-Math.max(0,rel.actionsUsed-2)*5)/100))
     :action==='child'?draw(random)<.68:true;
   const adjust=n=>n>0?scaledBenefit(n,rel.actionsUsed):n;
   let newPartner={...partner,lastActionAge:age};
