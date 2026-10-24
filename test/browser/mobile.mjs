@@ -335,7 +335,10 @@ async function journey(browser,label,contextOptions){
     await page.locator('[data-rest]').click();
     const fatigueAfterRest=Number((await page.locator('.training-summary').innerText()).match(/Fatigue : (\d+)/)?.[1]);
     assert.ok(fatigueAfterRest<fatigueBeforeRest);
-    assert.equal(await page.locator('[data-rest]').isEnabled(),false);
+    assert.equal(await page.locator('[data-rest]').isEnabled(),true);
+    await page.locator('[data-rest]').click();
+    assert.equal(await page.locator('[data-rest]').isEnabled(),true);
+    assert.match(await page.locator('.training-summary').innerText(),/Fatigue/);
     await checkGeometry(page,label,'mentor-rest');
     await page.screenshot({path:picture(label,'mentor-rest')});
     await page.reload({waitUntil:'networkidle'});
