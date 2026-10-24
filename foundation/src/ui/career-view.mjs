@@ -1,6 +1,6 @@
 import { escapeHtml } from './life-view.mjs';
 import { CREWS, SPECIALTIES, RANKS, promotionAvailability } from '../core/pirate-career.mjs';
-import { SKILLS, MAX_TRAININGS } from '../core/abilities.mjs';
+import { SKILLS } from '../core/abilities.mjs';
 import { MISSIONS, missionAvailability } from '../core/pirate-missions.mjs';
 import { wantedLevel, pursuitChance, hideAvailability } from '../core/pirate-notoriety.mjs';
 import { SHIP_COST, RECRUIT_COST, RECRUIT_SPECIALTIES, ORDERS,
@@ -109,11 +109,11 @@ export function renderCareer(state){
     </div>
     <div class="career-buttons">
       <button type="button" data-work-pirate ${blocked||
-        abilities.injury.level===2||abilities.fatigue>=90?'disabled':''}>
+        !life.alive?'disabled':''}>
         Travailler davantage <span>+ performance</span>
       </button>
       <button type="button" data-go-training ${!life.alive?'disabled':''}>
-        S'entraîner <span>${MAX_TRAININGS-abilities.trainingUsed} séance${MAX_TRAININGS-abilities.trainingUsed>1?'s':''} disponible${MAX_TRAININGS-abilities.trainingUsed>1?'s':''}</span>
+        S'entraîner <span>${abilities.trainingUsed} séance${abilities.trainingUsed>1?'s':''} cette année · rendement décroissant</span>
       </button>
       <button type="button" class="career-promotion" data-ask-promotion
         ${blocked||!promotion?.enabled?'disabled':''}>
