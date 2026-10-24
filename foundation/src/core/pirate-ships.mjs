@@ -8,6 +8,8 @@ export const SHIP_MODELS=Object.freeze({
 export const SHIP_PARTS=Object.freeze({
  hull:'Coque',sails:'Voiles',rudder:'Gouvernail',cannons:'Canons'
 });
+import {scaledBenefit} from './diminishing.mjs';
+import {usage,used} from './action-usage.mjs';
 export const MAX_SHIP_UPGRADE=3;
 export const SHIP_MAINTENANCE_COST=9000;
 export const PART_REPAIR_COST=6000;
@@ -103,13 +105,15 @@ export function manageShip(career,life,action,value){
  const access=shipActionAvailability(career,life,action,value);
  if(!access.enabled)return null;
  const cmd=career.command,s=cmd.ship;
+ const repeatKey='ship:'+(action==='repair'?'repair-'+value:action);
+ const count=usage(cmd,repeatKey);
  let ship=s,hull=cmd.hull,text='';
  const mechanic=crewEffects(cmd).hullReduction;
  if(action==='maintain'){
-  ship={...s,maintenance:cap(s.maintenance+36)};
+  ship={...s,maintenance:cap(s.maintenance+scaledBenefit(36,count))};
   text='Vous entretenez le navire et améliorez sa fiabilité.';
  }else if(action==='repair'){
-  ship={...s,parts:{...s.parts,[value]:cap(s.parts[value]+28+mechanic)}};
+  ship={...s,parts:{...s.parts,[value]:cap(s.parts[value]+scaledBenefit(28+mechanic,count))}};
   text='Vous réparez les '+SHIP_PARTS[value].toLowerCase()+' du navire.';
  }else if(action==='upgrade'){
   const levels={...s.upgrades,[value]:s.upgrades[value]+1};
@@ -121,7 +125,7 @@ export function manageShip(career,life,action,value){
   ship={...ship,maintenance:100,parts:{sails:100,rudder:100,cannons:100}};
   text='Vous achetez un '+SHIP_MODELS[value].label+'. Ancien navire repris.';
  }
- const next={...cmd,ship,hull};
+ const next=used({...cmd,ship,hull},repeatKey);
  const notice={age:life.age,type:'ship',text};
  return {...career,command:next,missions:{...career.missions,berys:career.missions.berys-access.cost},
   notices:[...career.notices,notice].slice(-25),lastNotice:text};
