@@ -3,6 +3,7 @@
  * Rang, emploi et performance ne sont pas des compétences personnelles.
  */
 import { joinFaction } from './world-relations.mjs';
+import {scaledBenefit,scaledChance,nextCount} from './diminishing.mjs';
 import { emptyMissions, validMissions, ageMissions } from './pirate-missions.mjs';
 import { emptyWanted, validWanted } from './pirate-notoriety.mjs';
 import { validCommand, ageCommand } from './pirate-command.mjs';
@@ -80,13 +81,12 @@ export function hiringAvailability(career,relations,abilities,life,crewId,specia
   // Une ancienne affiliation pirate ne bloque pas la mobilité professionnelle.
   // Les contacts de l'ancien équipage restent dans Relations.
   
-  if(relations.world.faction==='independent'&&relations.actionsUsed>=3)
-    return {enabled:false,reason:'Plus d’actions sociales cette année.'};
   if(abilities.skills[SPECIALTIES[specialty].skill]<SPECIALTIES[specialty].min)
     return {enabled:false,reason:'Compétence insuffisante : entraînez-vous avant de postuler.'};
-  const chance=Math.min(95,Math.max(20,CREWS[crewId].baseChance+
+  const retries=career.notices.filter(n=>n.age===life.age&&n.type==='application').length;
+  const chance=scaledChance(Math.min(95,Math.max(20,CREWS[crewId].baseChance+
     Math.floor(abilities.skills[SPECIALTIES[specialty].skill]/5)+
-    Math.floor(relations.world.reputation/12)));
+    Math.floor(relations.world.reputation/12))),retries);
   return {enabled:true,chance};
 }
 export function applyForCrew(career,relations,abilities,life,crewId,specialty,random=Math.random){
@@ -117,9 +117,9 @@ export function applyForCrew(career,relations,abilities,life,crewId,specialty,ra
 }
 export function workHard(career,life,abilities){
   const pirate=career.pirate;
-  if(!life?.alive||!pirate||abilities.injury.level===2||abilities.fatigue>=90)return null;
-  const updated={...pirate,workUsed:pirate.workUsed+1,
-    performance:cap(pirate.performance+5)};
+  if(!life?.alive||!pirate)return null;
+  const updated={...pirate,workUsed:nextCount(pirate.workUsed),
+    performance:cap(pirate.performance+scaledBenefit(5,pirate.workUsed))};
   return stamp({...career,pirate:updated},life.age,'work',
     'Vous redoublez d’efforts au sein de votre équipage.');
 }
