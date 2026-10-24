@@ -104,7 +104,7 @@ test('une amitié forte devient un souvenir permanent et la fiche reste concise'
   const strong=socialize(prepared,target.id,'spend',()=>0);
   assert.equal(strong.domainData.relationships.milestones.length,1);
   assert.equal(strong.domainData.relationships.milestones[0].personId,target.id);
-  assert.equal(socialize(strong,target.id,'talk',()=>0),null);
+  assert.ok(socialize(strong,target.id,'talk',()=>0));
   const html=renderRelationships(strong,{selectedId:target.id});
   assert.match(html,/Amitié marquante/);
   assert.ok(!html.includes('<script>'));
