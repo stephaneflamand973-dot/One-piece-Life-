@@ -8,6 +8,8 @@ export const TEMPERAMENTS=Object.freeze(['loyal','ambitieux','prudent','rebelle'
 export const TEMPERAMENT_LABELS=Object.freeze({
  loyal:'Loyal',ambitieux:'Ambitieux',prudent:'Prudent',rebelle:'Rebelle',solidaire:'Solidaire'
 });
+import {scaledBenefit} from './diminishing.mjs';
+import {usage,used} from './action-usage.mjs';
 export const CREW_BONUS_COST=2500;
 const cap=n=>Math.max(0,Math.min(100,Math.round(n)));
 const draw=random=>{
@@ -102,6 +104,7 @@ export function crewActionAvailability(career,life,memberId,action){
 export function actWithCrew(career,life,memberId,action){
  if(!crewActionAvailability(career,life,memberId,action).enabled)return null;
  const cmd=career.command,m=cmd.members.find(m=>m.id===memberId);
+ const count=usage(cmd,'crew:'+memberId);
  let members=cmd.members,morale=cmd.morale,cohesion=cmd.cohesion,berys=career.missions.berys,text;
  if(action==='talk'){
   // Discussions à volonté, mais elles deviennent improductives quand on insiste trop.
@@ -114,16 +117,16 @@ export function actWithCrew(career,life,memberId,action){
  }else if(action==='reward'){
   berys-=CREW_BONUS_COST;
   members=members.map(x=>x.id===memberId?{...x,
-    loyalty:cap(x.loyalty+9),bond:cap(x.bond+6),rivalry:cap(x.rivalry-6),
+    loyalty:cap(x.loyalty+scaledBenefit(9,count)),bond:cap(x.bond+scaledBenefit(6,count)),rivalry:cap(x.rivalry-6),
     strain:cap(x.strain-8)}:x);
-  morale=cap(morale+3);
+  morale=cap(morale+scaledBenefit(3,count));
   text='Vous récompensez '+m.firstName+' avec '+CREW_BONUS_COST+' Berrys.';
  }else{
   members=members.filter(x=>x.id!==memberId);
   cohesion=cap(cohesion-8);morale=cap(morale-5);
   text=m.firstName+' quitte votre équipage sur votre ordre.';
  }
- const command=event({...cmd,members,morale,cohesion},life.age,text);
+ const command=event(used({...cmd,members,morale,cohesion},'crew:'+memberId),life.age,text);
  return stamp({...career,command,missions:{...career.missions,berys}},life.age,text,'crew');
 }
 export function ageCrewLife(career,age,random=Math.random){
