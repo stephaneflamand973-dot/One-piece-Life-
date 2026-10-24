@@ -1,3 +1,30 @@
+# One Piece Life V0.6.0 · Actions répétables et rendements décroissants
+
+La simulation conserve la navigation **Grand Line Premium** et son moteur, mais retire les **quotas annuels artificiels** : les actions restent déclenchables plusieurs fois tant que leurs prérequis de jeu sont remplis. Seul **+ Âge** fait avancer une année.
+
+## Principe commun
+
+Les trois premières utilisations d'une famille d'actions dans l'année fonctionnent normalement, puis les bénéfices positifs et/ou probabilités diminuent. Le facteur commun est `max(5 %, 1/(1 + 0,42 × répétitions supplémentaires))`. Les échecs, les coûts et les risques ne disparaissent pas. Le gain réel dépend toujours de la compétence, de la fatigue, du contexte et des ressources.
+
+- **Activités :** entraînements illimités à rendement décroissant ; fatigue et blessure restent des pénalités, sans blocage annuel. Repos répétables avec récupération diminuée.
+- **Relations :** discussions répétées avec le même proche, cadeaux, aide et conflits ; chances et gains positifs dégressifs. Rencontres amicales, sorties de groupe, romance et contacts de faction ne consomment plus un quota verrouillant.
+- **Carrière pirate :** travail intensif et candidatures réitérables. Les missions peuvent être répétées sans restriction de fréquence ; chances, butin, progression et croissance de la prime sont modulés.
+- **Équipage et navire :** entraînements, réparations, partage, récompenses et entretien restent accessibles sous leurs conditions réelles ; les bénéfices se réduisent à force de répéter l'action.
+- **Exploration :** plusieurs fouilles de la même île restent possibles. Le butin et la réussite sont dégressifs *durant l'année*, puis le rendement revient à la normale au passage à l'année suivante.
+- **Affichage :** Relations et Activités présentent le nombre d'actions réalisées sans barre de quota ; Missions affiche le rendement et le gain maximal actuel.
+
+## Ce qui reste soumis à des règles
+
+Une action peut rester indisponible si le personnage est décédé, trop jeune pour une activité, si une décision obligatoire est en attente, si le navire est immobilisé ou si l'argent ou la capacité réelle manque. La maîtrise maximale d'une statistique et la capacité d'un équipage ne sont pas des quotas annuels. Les événements annuels narratifs et le bouton + Âge ne sont pas des activités répétables.
+
+## Compatibilité et sûreté
+
+**Aucune nouvelle clé de sauvegarde et aucun changement du schéma V18.** Les compteurs existants continuent d'être utilisés. Pour les commandes du capitaine, un compteur d'usage facultatif et borné en taille est ajouté seulement lorsque nécessaire : les anciennes sauvegardes demeurent valides. Tous les compteurs annuels sont réinitialisés avec + Âge. Les tests vérifient les répétitions au-delà de dix utilisations, la sauvegarde atomique, la diminution et la remise à zéro.
+
+---
+
+## Historique des versions
+
 # One Piece Life V0.5.11 · Carrière pirate Grand Line Premium
 
 **Réorganisation UX/UI pure** de la carrière pirate. Les calculs, les probabilités, les coûts, les accès métiers, le vieillissement et les sauvegardes restent ceux de la V0.5.10. Le schéma V18 et la clé locale de sauvegarde sont inchangés.
