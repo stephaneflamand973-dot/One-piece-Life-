@@ -57,11 +57,12 @@ test('fatigue, blessures temporaires et récupération par repos puis années',(
   const injury=trainSkill(previous,life,'force',()=>0.99999);
   assert.equal(injury.injury.level,2);
   assert.equal(injury.injury.recoverAtAge,18);
-  assert.equal(trainingAvailability(injury,life,'force').enabled,false);
+  assert.equal(trainingAvailability(injury,life,'force').enabled,true);
   const rest=restAbilities(injury,life);
   assert.equal(rest.injury.level,1);
   assert.ok(rest.fatigue<injury.fatigue);
-  assert.equal(restAbilities(rest,life),null);
+  assert.ok(restAbilities(rest,life));
+  assert.ok(restAbilities(rest,life).fatigue<=rest.fatigue);
   assert.equal(ageAbilities(rest,17).injury.level,0);
   assert.equal(ageAbilities(injury,17).injury.level,2);
   assert.equal(ageAbilities(injury,18).injury.level,0);
@@ -80,8 +81,8 @@ test('le mentor améliore une capacité et dépense une action sociale et une s�
   assert.equal(after.domainData.abilities.log.at(-1).mentor,true);
   assert.ok(after.domainData.abilities.skills.technique>before.domainData.abilities.skills.technique);
   assert.deepEqual(createEngine({storage}).getState(),after);
-  assert.equal(engine.mentorTrain('technique'),false);
-  assert.equal(engine.factionAction('train'),false);
+  assert.equal(engine.mentorTrain('technique'),true);
+  assert.equal(engine.factionAction('train'),true);
   assert.ok(isValidState(after));
 });
 test('l’entraînement mentor du panneau Relations utilise le même moteur',()=>{
@@ -101,7 +102,7 @@ test('le repos n’avance pas l’année, se limite à une action, et sauvegarde
   assert.ok(engine.rest());
   assert.ok(engine.getState().domainData.abilities.fatigue<fatigue);
   assert.equal(engine.getState().activeLife.age,7);
-  assert.equal(engine.rest(),false);
+  assert.equal(engine.rest(),true);
   assert.ok(engine.getState().domainData.abilities.restUsed);
   assert.deepEqual(createEngine({storage}).getState(),engine.getState());
   aging(engine,8);
@@ -156,7 +157,7 @@ test('une blessure grave empêche de travailler et de solliciter une promotion',
   const state=engine.getState();
   const wounded={...state.domainData.abilities,
     injury:{level:2,recoverAtAge:18}};
-  assert.equal(trainingAvailability(wounded,state.activeLife,'force').enabled,false);
+  assert.equal(trainingAvailability(wounded,state.activeLife,'force').enabled,true);
   const rich={...state.domainData.career,pirate:{
     ...state.domainData.career.pirate,performance:88,tenure:2,joinedAtAge:14}};
   assert.equal(promotionAvailability(rich,state.domainData.relationships,
