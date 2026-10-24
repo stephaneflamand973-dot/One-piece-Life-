@@ -275,8 +275,7 @@ export function actInFaction(state,action,random=Math.random){
   return next?{...state,domainData:{...state.domainData,relationships:next}}:null;
 }
 
-/** Le mentor est un vrai PNJ partagé avec Relations. La séance utilise le même quota
- * d'entraînement et une action sociale, sans créer une année supplémentaire. */
+/** Le mentor utilise une séance répétable et une action sociale, sans vieillir. */
 export function practiceWithMentor(state,skill,random=Math.random){
   if(!isValidState(state)||!state.activeLife?.alive||
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
@@ -359,7 +358,8 @@ export function doPirateMission(state,id,random=Math.random){
   if(!outcome)return null;
   const history=[...state.history],entry=history.at(-1);
   const prior=state.domainData.career.wanted;
-  const wanted=missionWanted(prior,outcome.entry,state.activeLife.age);
+  const wanted=missionWanted(prior,outcome.entry,state.activeLife.age,
+    state.domainData.career.missions.used);
   const gained=wanted.bounty-prior.bounty;
   const summary=outcome.entry.text+(gained>0?
     ' Nouvelle prime : '+wanted.bounty.toLocaleString('fr-FR')+' Berrys.':'');
