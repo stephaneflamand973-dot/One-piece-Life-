@@ -275,8 +275,7 @@ export function actInFaction(state,action,random=Math.random){
   return next?{...state,domainData:{...state.domainData,relationships:next}}:null;
 }
 
-/** Le mentor est un vrai PNJ partagé avec Relations. La séance utilise le même quota
- * d'entraînement et une action sociale, sans créer une année supplémentaire. */
+/** Le mentor utilise une séance répétable et une action sociale, sans vieillir. */
 export function practiceWithMentor(state,skill,random=Math.random){
   if(!isValidState(state)||!state.activeLife?.alive||
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
@@ -319,7 +318,7 @@ export function practiceSkill(state,skill,random=Math.random){
   const abilities=trainSkill(state.domainData.abilities,state.activeLife,skill,random);
   return abilities?{...state,domainData:{...state.domainData,abilities}}:null;
 }
-/** Candidature unique par année ; échec conservé comme un vrai événement de carrière. */
+/** Les candidatures sont répétables ; leur réussite diminue à chaque refus. */
 export function applyPirate(state,crewId,specialty,random=Math.random){
   if(!isValidState(state)||!state.activeLife?.alive||
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
@@ -337,12 +336,13 @@ export function applyPirate(state,crewId,specialty,random=Math.random){
 export function workPirate(state){
   if(!isValidState(state)||!state.activeLife?.alive||
     state.domainData.story.pending||state.domainData.relationships.pending)return null;
+  const workCount=state.domainData.career.pirate?.workUsed??0;
   const career=workHard(state.domainData.career,state.activeLife,state.domainData.abilities);
   if(!career)return null;
   const rel=state.domainData.relationships;
   const captain=career.command?null:rel.people.find(p=>p.id==='world-leader'&&!p.deceased);
   const relationships=captain?{...rel,people:rel.people.map(p=>
-    p.id===captain.id?{...p,trust:Math.min(100,p.trust+2)}:p)}:rel;
+    p.id===captain.id?{...p,trust:Math.min(100,p.trust+(workCount<3?2:0))}:p)}:rel;
   const abilities={...state.domainData.abilities,
     fatigue:Math.min(100,state.domainData.abilities.fatigue+10)};
   return {...state,domainData:{...state.domainData,career,relationships,abilities}};
@@ -358,7 +358,8 @@ export function doPirateMission(state,id,random=Math.random){
   if(!outcome)return null;
   const history=[...state.history],entry=history.at(-1);
   const prior=state.domainData.career.wanted;
-  const wanted=missionWanted(prior,outcome.entry,state.activeLife.age);
+  const wanted=missionWanted(prior,outcome.entry,state.activeLife.age,
+    state.domainData.career.missions.used);
   const gained=wanted.bounty-prior.bounty;
   const summary=outcome.entry.text+(gained>0?
     ' Nouvelle prime : '+wanted.bounty.toLocaleString('fr-FR')+' Berrys.':'');

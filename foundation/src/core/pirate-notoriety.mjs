@@ -33,14 +33,15 @@ export function wantedLevel(w){
   if(w.bounty>0)return 'Avis de recherche local';
   return 'Sans prime';
 }
-export function missionWanted(w,mission,age){
+import {scaledBenefit} from './diminishing.mjs';
+export function missionWanted(w,mission,age,used=0){
   if(!mission||!Number.isInteger(age))return w;
   const {id,outcome}=mission;
   const success=outcome==='success',partial=outcome==='partial';
   const publicAction=id==='marine'||id==='raid';
   const fame=success?({escort:1,explore:3,treasure:5,raid:11,marine:15}[id]??1):
     partial?({escort:0,explore:1,treasure:2,raid:5,marine:7}[id]??0):1;
-  const notoriety=clamp(w.notoriety+fame);
+  const notoriety=clamp(w.notoriety+scaledBenefit(fame,used));
   const heat=clamp(w.heat+(publicAction?(success?17:partial?9:6):
     success&&id==='treasure'?7:outcome==='failure'?5:success?2:1));
   let growth=0;
@@ -51,7 +52,7 @@ export function missionWanted(w,mission,age){
     // Seule une découverte assez médiatisée peut susciter un premier avis local.
     growth=250000;
   }
-  const bounty=Math.min(MAX_BOUNTY,w.bounty+growth);
+  const bounty=Math.min(MAX_BOUNTY,w.bounty+scaledBenefit(growth,used));
   const gained=bounty-w.bounty;
   let next={...w,bounty,notoriety,heat,incidents:w.incidents+(gained>0?1:0)};
   if(gained>0)next=event(next,age,'bounty',

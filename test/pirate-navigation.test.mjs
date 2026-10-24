@@ -85,8 +85,9 @@ test('exploration libre, rencontres de factions et butin décroissant par île',
  assert.equal(nav.explorations,5);
  assert.equal(nav.explored.fuchsia,5);
  assert.equal(nav.log.at(-1).kind,'explore');
- assert.equal(nav.log.at(-1).berys,0,'La même île ne produit pas du butin infini');
- assert.equal(s.domainData.career.missions.berys,money+10000);
+ assert.ok(nav.log.at(-1).berys>0,'Un rendement résiduel reste possible même après cinq fouilles');
+ assert.ok(nav.log.at(-1).berys<4000,'Les trouvailles deviennent progressivement moins abondantes');
+ assert.ok(s.domainData.career.missions.berys>money+10000);
  assert.ok(['pirate','marine','revolutionnaire','marchand','civil'].includes(nav.log.at(-1).faction));
  assert.equal(exploreAvailability(s.domainData.career,s.activeLife).enabled,true);
  assert.ok(isValidState(s));

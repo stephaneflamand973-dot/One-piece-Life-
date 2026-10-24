@@ -2,6 +2,8 @@
  * Compétences personnelles V0.5.0, indépendantes de la carrière et des factions.
  * Potentiel = vitesse d'apprentissage (souple), jamais une limite infranchissable.
  */
+import {scaledBenefit,nextCount} from './diminishing.mjs';
+/** Nombre de séances au rendement normal, plus une limite. */
 export const MAX_TRAININGS=3;
 export const SKILLS=Object.freeze({
   force:{label:'Force',family:'Physique'},
@@ -44,8 +46,8 @@ export function validAbilities(abilities,age,started){
   if(!abilities||typeof abilities!=='object'||Array.isArray(abilities)||
     !abilities.skills||!abilities.talents||
     !Number.isInteger(abilities.trainingUsed)||abilities.trainingUsed<0||
-    abilities.trainingUsed>MAX_TRAININGS||
-    !Number.isInteger(abilities.restUsed)||abilities.restUsed<0||abilities.restUsed>1||
+    !Number.isSafeInteger(abilities.trainingUsed)||
+    !Number.isSafeInteger(abilities.restUsed)||abilities.restUsed<0||
     !abilities.injury||![0,1,2].includes(abilities.injury.level)||
     (abilities.injury.level===0?abilities.injury.recoverAtAge!==null:
       !Number.isInteger(abilities.injury.recoverAtAge)||
@@ -78,14 +80,8 @@ export function trainingAvailability(abilities,life,skill){
   if(!life?.alive||!Object.hasOwn(SKILLS,skill))
     return {enabled:false,reason:'Entraînement indisponible.'};
   if(life.age<6)return {enabled:false,reason:'Entraînement disponible à partir de 6 ans.'};
-  if(abilities.trainingUsed>=MAX_TRAININGS)
-    return {enabled:false,reason:'Trois séances effectuées cette année.'};
   if(abilities.skills[skill]>=100)
     return {enabled:false,reason:'Capacité déjà maîtrisée au maximum.'};
-  if(abilities.injury.level===2)
-    return {enabled:false,reason:'Blessure sérieuse : reposez-vous avant de reprendre.'};
-  if(abilities.fatigue>=85)
-    return {enabled:false,reason:'Fatigue trop élevée. Reposez-vous.'};
   return {enabled:true,reason:''};
 }
 export function trainSkill(abilities,life,skill,random=Math.random,mentorBonus=0){
@@ -97,8 +93,9 @@ export function trainSkill(abilities,life,skill,random=Math.random,mentorBonus=0
   const fatiguePenalty=abilities.fatigue>=48?2:
     abilities.fatigue>=24?1:0;
   const injuryPenalty=abilities.injury.level===1?1:0;
-  const gain=Math.max(1,Math.min(9,base+talentBonus+
-    Math.min(2,Math.max(0,mentorBonus))-masteryPenalty-fatiguePenalty-injuryPenalty));
+  const gain=scaledBenefit(Math.max(1,Math.min(9,base+talentBonus+
+    Math.min(2,Math.max(0,mentorBonus))-masteryPenalty-fatiguePenalty-injuryPenalty-
+    (abilities.injury.level===2?2:0))),abilities.trainingUsed);
   const after=Math.min(100,abilities.skills[skill]+gain);
   const actual=after-abilities.skills[skill];
   // Une blessure est rare à faible fatigue, plus probable en forçant.
@@ -113,17 +110,18 @@ export function trainSkill(abilities,life,skill,random=Math.random,mentorBonus=0
     mentor:mentorBonus>0,injured:severity};
   return {...abilities,
     skills:{...abilities.skills,[skill]:after},
-    trainingUsed:abilities.trainingUsed+1,
-    fatigue:clamp(abilities.fatigue+18+abilities.trainingUsed*7),
+    trainingUsed:nextCount(abilities.trainingUsed),
+    fatigue:clamp(abilities.fatigue+18+Math.min(20,abilities.trainingUsed*3)),
     injury,
     log:[...abilities.log,item].slice(-20)};
 }
 export function restAbilities(abilities,life){
-  if(!life?.alive||abilities.restUsed||life.age<6)return null;
+  if(!life?.alive||life.age<6)return null;
   const injury=abilities.injury.level===2?
     {level:1,recoverAtAge:Math.min(abilities.injury.recoverAtAge,life.age+1)}:
     abilities.injury.level===1?{level:0,recoverAtAge:null}:abilities.injury;
-  return {...abilities,restUsed:1,fatigue:Math.max(0,abilities.fatigue-38),
+  return {...abilities,restUsed:nextCount(abilities.restUsed),
+    fatigue:Math.max(0,abilities.fatigue-Math.max(2,scaledBenefit(38,abilities.restUsed,1))),
     injury};
 }
 export function ageAbilities(abilities,lifeAge){

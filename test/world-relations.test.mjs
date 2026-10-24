@@ -77,7 +77,7 @@ test('missions, entraînement, duel et protection changent réellement les liens
   assert.ok(after.world.standings.marine>before.world.standings.marine);
   assert.ok(after.people.find(p=>p.id==='world-leader').trust>
     before.people.find(p=>p.id==='world-leader').trust);
-  assert.equal(engine.factionAction('train'),false);
+  assert.equal(engine.factionAction('train'),true);
   assert.equal(after.world.log.at(-1).outcome,'positive');
   assert.ok(isValidState(engine.getState()));
   for(const action of ['train','protect','challenge']){

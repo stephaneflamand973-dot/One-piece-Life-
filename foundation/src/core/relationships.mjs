@@ -10,6 +10,8 @@ import { emptySocialData, syncCircle, recordFriendshipMilestones,
   ageCircle, isValidSocial, MAX_SIBLINGS, FAMILY_BIRTH_YEARS } from './social-evolution.mjs';
 export { ACTIONS, TRAITS, TRAIT_LABELS, reactionChance, availability } from './personality.mjs';
 const FIRST = Object.freeze(['Sora','Mika','Nora','Kaito','Lina','Toma','Riku','Aya','Ren','Yuna','Kenji','Robin']);
+import {nextCount} from './diminishing.mjs';
+/** Interactions au rendement ordinaire, sans plafond annuel. */
 export const MAX_ACTIONS_PER_YEAR = 3;
 export const MAX_FRIENDS = 4;
 function draw(random) {
@@ -47,7 +49,7 @@ export function isValidRelations(relations,age,started,history=null){
       !Array.isArray(relations.initiatives) || relations.initiatives.length>INITIATIVE_AGES.length ||
       typeof relations.recent!=='string' || relations.recent.length>180 ||
       !Number.isInteger(relations.actionsUsed) || relations.actionsUsed<0 ||
-      relations.actionsUsed>MAX_ACTIONS_PER_YEAR ||
+      !Number.isSafeInteger(relations.actionsUsed) ||
       relations.records.length>30) return false;
   const people=relations.people;
   if (!started) return people.length===0 && relations.actionsUsed===0 &&
@@ -133,19 +135,19 @@ export function advanceRelations(relations,newAge){
     announcements:[...announcements,...romance.announcements]};
 }
 export function interact(relations,personId,action,age,solidarity=0,random=Math.random){
-  if(age<3 || relations.actionsUsed>=MAX_ACTIONS_PER_YEAR || !ACTIONS[action]) return null;
+  if(age<3 || !ACTIONS[action]) return null;
   const contact=relations.people.find(p=>p.id===personId);
   if(!contact) return null;
   const reaction=resolveReaction(relations,contact,action,age,solidarity,random);
   if(!reaction) return null;
   return recordFriendshipMilestones({...relations,
     people:relations.people.map(p=>p.id===personId?reaction.updated:p),
-    actionsUsed:relations.actionsUsed+1,
+    actionsUsed:nextCount(relations.actionsUsed),
     records:[...relations.records,reaction.record].slice(-30),
     recent:reaction.record.text},age);
 }
 export function meetFriend(relations,character,age,random=Math.random){
-  if(age<6 || relations.actionsUsed>=MAX_ACTIONS_PER_YEAR) return null;
+  if(age<6) return null;
   const current=relations.people.filter(p=>p.role==='friend').length;
   if(current>=MAX_FRIENDS) return null;
   const name=take(FIRST,random);
@@ -156,7 +158,7 @@ export function meetFriend(relations,character,age,random=Math.random){
     deathAge:offset([80,103],random),createdAtAge:age,age},random);
   const text='Vous faites connaissance avec '+name+' au port.';
   return syncCircle({...relations,people:[...relations.people,friend],
-    actionsUsed:relations.actionsUsed+1,
+    actionsUsed:nextCount(relations.actionsUsed),
     records:[...relations.records,{age,personId:friend.id,action:'meet',text}].slice(-30),
     recent:text},age);
 }

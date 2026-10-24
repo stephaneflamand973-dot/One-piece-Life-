@@ -3,6 +3,7 @@
  * Transitions pures; aucun onglet supplémentaire, aucune romance anticipée.
  */
 import { clamp, createProfile, draw } from './personality.mjs';
+import {scaledBenefit,scaledChance,nextCount} from './diminishing.mjs';
 
 export const FAMILY_BIRTH_YEARS=Object.freeze([4,8,12]);
 export const MAX_SIBLINGS=3;
@@ -55,21 +56,21 @@ export function familyBirth(rel,age,character,random){
 }
 export function gatherCircle(rel,age,random=Math.random){
   const group=rel.groups[0];
-  if(!group||age<8||rel.actionsUsed>=3||group.lastGatherAge===age)return null;
+  if(!group||age<8)return null;
   const friends=rel.people.filter(p=>group.members.includes(p.id)&&
     !p.deceased&&age+p.ageOffset>=3);
   if(friends.length<2)return null;
   const avg=friends.reduce((n,p)=>n+p.bond,0)/friends.length;
-  const chance=clamp(63+(avg-50)/4+(group.cohesion-50)/3-rel.actionsUsed*5);
+  const chance=scaledChance(clamp(63+(avg-50)/4+(group.cohesion-50)/3),rel.actionsUsed);
   const success=draw(random)<chance/100;
-  const delta=success?5:-4;
+  const delta=success?scaledBenefit(5,rel.actionsUsed):-4;
   const updatedPeople=rel.people.map(p=>friends.some(friend=>friend.id===p.id)?
     {...p,bond:clamp(p.bond+delta),trust:clamp(p.trust+(success?2:-3))}:p);
   const text=success?'Vous passez un excellent moment avec votre cercle d’amis.':
     'Votre sortie entre amis crée quelques tensions.';
   const updated={...rel,people:updatedPeople,
-    groups:[{...group,cohesion:clamp(group.cohesion+(success?8:-10)),lastGatherAge:age}],
-    actionsUsed:rel.actionsUsed+1,recent:text,
+    groups:[{...group,cohesion:clamp(group.cohesion+(success?scaledBenefit(8,rel.actionsUsed):-10)),lastGatherAge:age}],
+    actionsUsed:nextCount(rel.actionsUsed),recent:text,
     records:[...rel.records,{age,personId:friends[0].id,action:'group',
       outcome:success?'positive':'negative',chance,delta,text}].slice(-30)};
   return recordFriendshipMilestones(updated,age);

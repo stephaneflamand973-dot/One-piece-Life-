@@ -3,6 +3,7 @@
  * Mécaniques indépendantes des écrans et des narrations canoniques.
  */
 import { clamp, draw, createProfile } from './personality.mjs';
+import {scaledBenefit,scaledChance,nextCount} from './diminishing.mjs';
 
 export const FACTIONS=Object.freeze({
   pirate:{label:'Pirates',unit:'Équipage des Alizés',leader:'Capitaine'},
@@ -31,7 +32,7 @@ export function worldContacts(rel){
 }
 export function joinFaction(rel,life,faction,random=Math.random,unitOverride=null){
   if(!Object.hasOwn(FACTIONS,faction)||rel.world.faction!=='independent'||
-    life.age<16||life.age>65||rel.actionsUsed>=3)return null;
+    life.age<16||life.age>65)return null;
   const age=life.age;
   const contacts=WORLD_ROLES.map((role,index)=>{
     const id='world-'+role;
@@ -54,34 +55,33 @@ export function joinFaction(rel,life,faction,random=Math.random,unitOverride=nul
     joinedAtAge:age,unit,
     log:[{age,action:'join',personId:'world-leader',text}]};
   return {...rel,people:[...rel.people,...contacts],world,
-    actionsUsed:rel.actionsUsed+1,recent:text,
+    actionsUsed:nextCount(rel.actionsUsed),recent:text,
     records:[...rel.records,{age,personId:'world-leader',action:'world',text}].slice(-30)};
 }
 export function worldActionAvailability(rel,action,age){
   const entry=WORLD_ACTIONS[action],world=rel.world;
   if(!entry||world.faction==='independent')
     return {enabled:false,reason:"Rejoignez d'abord une faction."};
-  if(rel.actionsUsed>=3)return {enabled:false,reason:'Trois actions sociales déjà utilisées cette année.'};
-  if(world.lastActionAge===age)return {enabled:false,reason:'Une action de faction déjà effectuée cette année.'};
   const target=rel.people.find(p=>p.role===entry.role);
   if(!target||target.deceased)return {enabled:false,reason:'Ce contact n’est plus disponible.'};
-  const chance=cap(entry.base+
+  const chance=scaledChance(cap(entry.base+
     (target.trust-50)/7+(target.bond-50)/6+
     (world.loyalty-50)/8+(world.reputation-50)/12-
-    (action==='challenge'?target.rivalry/9:0)-rel.actionsUsed*5);
-  return {enabled:true,chance:Math.max(15,Math.min(95,chance)),target};
+    (action==='challenge'?target.rivalry/9:0)),rel.actionsUsed);
+  return {enabled:true,chance,target};
 }
 export function takeWorldAction(rel,action,age,random=Math.random){
   const available=worldActionAvailability(rel,action,age);
   if(!available.enabled)return null;
   const target=available.target;
   const positive=draw(random)<available.chance/100;
-  const score=action==='challenge'?(positive?12:-7):positive?7:-5;
-  const loyaltyDelta=action==='mission'?(positive?9:-7):
-    action==='protect'?(positive?5:-4):
-    action==='train'?(positive?3:-2):
-    positive?2:-3;
-  const bondDelta=action==='challenge'?(positive?-3:-8):(positive?8:-6);
+  const adjust=n=>n>0?scaledBenefit(n,rel.actionsUsed):n;
+  const score=action==='challenge'?(positive?adjust(12):-7):positive?adjust(7):-5;
+  const loyaltyDelta=action==='mission'?(positive?adjust(9):-7):
+    action==='protect'?(positive?adjust(5):-4):
+    action==='train'?(positive?adjust(3):-2):
+    positive?adjust(2):-3;
+  const bondDelta=action==='challenge'?(positive?-3:-8):(positive?adjust(8):-6);
   const text={
     train:positive?'Votre mentor reconnaît vos progrès.':'Votre entraînement se passe difficilement.',
     mission:positive?'Votre mission renforce la réputation de votre groupe.':
@@ -92,8 +92,8 @@ export function takeWorldAction(rel,action,age,random=Math.random){
       'Votre rival prend le dessus lors de votre confrontation.'
   }[action];
   const person={...target,bond:cap(target.bond+bondDelta),
-    trust:cap(target.trust+(positive?6:-5)),
-    respect:cap(target.respect+(positive?8:-4)),
+    trust:cap(target.trust+(positive?adjust(6):-5)),
+    respect:cap(target.respect+(positive?adjust(8):-4)),
     rivalry:cap(target.rivalry+(action==='challenge'?(positive?-8:11):positive?-2:3)),
     lastActionAge:age};
   const world={...rel.world,reputation:cap(rel.world.reputation+score),

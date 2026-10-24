@@ -1,4 +1,5 @@
 import { SKILLS, MAX_TRAININGS, trainingAvailability, talentLabel } from '../core/abilities.mjs';
+import {diminishingFactor} from '../core/diminishing.mjs';
 import { worldActionAvailability } from '../core/world-relations.mjs';
 import { escapeHtml } from './life-view.mjs';
 export function renderActivities(state){
@@ -20,16 +21,16 @@ export function renderActivities(state){
       <h1>Entraînement</h1>
       <p>Développez vos capacités, même avant de commencer votre carrière.</p>
       <div class="training-hero-counters" aria-label="État de l'entraînement">
-        <span><strong>${abilities.trainingUsed}/${MAX_TRAININGS}</strong><small>Séances utilisées</small></span>
+        <span><strong>${abilities.trainingUsed}</strong><small>Séances utilisées</small></span>
         <span><strong>${abilities.fatigue}/100</strong><small>Fatigue</small></span>
       </div>
     </div>
-    <div class="training-summary"><span>Séances : <strong>${abilities.trainingUsed}/${MAX_TRAININGS}</strong></span>
+    <div class="training-summary"><span>Séances : <strong>${abilities.trainingUsed}</strong></span>
       <span>Fatigue : <strong>${abilities.fatigue}/100</strong></span></div>
     ${injuryName?`<p class="training-injury" role="status">${injuryName} · récupération prévue à ${injury.recoverAtAge} ans.</p>`:''}
     <button type="button" class="training-rest" data-rest
-      ${blocked||abilities.restUsed?'disabled':''}>Se reposer
-      <small>${abilities.restUsed?'Repos déjà effectué cette année':'Réduit la fatigue et aide à guérir'}</small>
+      ${blocked?'disabled':''}>Se reposer
+      <small>Récupération décroissante au fil des repos dans l’année</small>
     </button>
     ${mentor?`<p class="career-hint">Mentor disponible : ${escapeHtml(mentor.firstName)}
       (confiance ${mentor.trust}/100). Une séance encadrée utilise aussi une action sociale.</p>`:''}
@@ -57,6 +58,6 @@ export function renderActivities(state){
             </div>
           </div>`;
         }).join('')}</div></section>`).join('')}
-    <p class="career-hint">Trois séances par année. Le talent influe sur la progression. La fatigue et les niveaux élevés la ralentissent.</p>
+    <p class="career-hint">Entraînements et repos sans limite annuelle. Rendement estimé : ${Math.round(diminishingFactor(abilities.trainingUsed)*100)} %. La fatigue, le talent et la maîtrise continuent d'influencer chaque séance.</p>
   </section>`;
 }

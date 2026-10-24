@@ -83,7 +83,7 @@ test('à deux amis, un cercle apparaît ; sortie positive ou négative, cohésio
   assert.ok(good.domainData.relationships.people.find(p=>p.id==='friend-1').bond >
     bad.domainData.relationships.people.find(p=>p.id==='friend-1').bond);
   assert.equal(good.domainData.relationships.actionsUsed,1);
-  assert.equal(socializeGroup(good,()=>0),null,'pas deux sorties de groupe la même année');
+  assert.ok(socializeGroup(good,()=>0),'on peut répéter la sortie la même année');
   assert.ok(isValidState(good));
 });
 test('une amitié forte devient un souvenir permanent et la fiche reste concise',()=>{
@@ -104,7 +104,7 @@ test('une amitié forte devient un souvenir permanent et la fiche reste concise'
   const strong=socialize(prepared,target.id,'spend',()=>0);
   assert.equal(strong.domainData.relationships.milestones.length,1);
   assert.equal(strong.domainData.relationships.milestones[0].personId,target.id);
-  assert.equal(socialize(strong,target.id,'talk',()=>0),null);
+  assert.ok(socialize(strong,target.id,'talk',()=>0));
   const html=renderRelationships(strong,{selectedId:target.id});
   assert.match(html,/Amitié marquante/);
   assert.ok(!html.includes('<script>'));

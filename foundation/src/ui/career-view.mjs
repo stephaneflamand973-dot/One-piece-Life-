@@ -1,6 +1,7 @@
 import { escapeHtml } from './life-view.mjs';
 import { CREWS, SPECIALTIES, RANKS, promotionAvailability } from '../core/pirate-career.mjs';
-import { SKILLS, MAX_TRAININGS } from '../core/abilities.mjs';
+import { SKILLS } from '../core/abilities.mjs';
+import {diminishingFactor,scaledBenefit} from '../core/diminishing.mjs';
 import { MISSIONS, missionAvailability } from '../core/pirate-missions.mjs';
 import { wantedLevel, pursuitChance, hideAvailability } from '../core/pirate-notoriety.mjs';
 import { SHIP_COST, RECRUIT_COST, RECRUIT_SPECIALTIES, ORDERS,
@@ -109,11 +110,11 @@ export function renderCareer(state){
     </div>
     <div class="career-buttons">
       <button type="button" data-work-pirate ${blocked||
-        abilities.injury.level===2||abilities.fatigue>=90?'disabled':''}>
+        !life.alive?'disabled':''}>
         Travailler davantage <span>+ performance</span>
       </button>
       <button type="button" data-go-training ${!life.alive?'disabled':''}>
-        S'entraîner <span>${MAX_TRAININGS-abilities.trainingUsed} séance${MAX_TRAININGS-abilities.trainingUsed>1?'s':''} disponible${MAX_TRAININGS-abilities.trainingUsed>1?'s':''}</span>
+        S'entraîner <span>${abilities.trainingUsed} séance${abilities.trainingUsed>1?'s':''} cette année · rendement décroissant</span>
       </button>
       <button type="button" class="career-promotion" data-ask-promotion
         ${blocked||!promotion?.enabled?'disabled':''}>
@@ -325,6 +326,7 @@ export function renderCareer(state){
           </button>
         </form>
         <h3>Décisions du capitaine</h3>
+        <p class="career-hint">Les ordres répétables peuvent perdre de leur efficacité au fil de l'année, sans jamais imposer une limite de séances.</p>
         <p class="career-hint">Entraîner, réparer et partager le butin autant de fois que souhaité, même pendant la même année. Les coûts restent réels.</p>
         <div class="captain-order-actions">
           ${Object.entries(ORDERS).map(([id,order])=>{
@@ -373,6 +375,7 @@ export function renderCareer(state){
       <div class="career-mission-top">
         <h2>Missions pirates</h2><span>${missions.used} cette année</span>
       </div>
+      <p class="career-hint">Missions répétables : ${Math.round(diminishingFactor(missions.used)*100)} % de rendement potentiel pour la prochaine mission. Le compteur revient à zéro avec + Âge.</p>
       <div class="career-mission-wallet">
         <div><small>Butin personnel cumulé</small><strong>${missions.berys.toLocaleString('fr-FR')} Berrys</strong></div>
         <div><small>Réussies</small><strong>${missions.completed}</strong></div>
@@ -390,7 +393,7 @@ export function renderCareer(state){
           const disabled=blocked||!access.enabled;
           return `<div class="pirate-mission">
             <div class="pirate-mission-description"><strong>${escapeHtml(mission.label)}</strong>
-              <small>Risque ${escapeHtml(mission.risk)} · Jusqu'à ${mission.reward.toLocaleString('fr-FR')} Berrys</small></div>
+              <small>Risque ${escapeHtml(mission.risk)} · Jusqu'à ${scaledBenefit(mission.reward,missions.used).toLocaleString('fr-FR')} Berrys actuellement</small></div>
             <button type="button" data-pirate-mission="${id}" ${disabled?'disabled':''}
               title="${escapeHtml(disabled?(blocked?'Résolvez votre décision en cours.':access.reason):'Lancer la mission')}">
               ${access.enabled?'Chance '+access.chance+' %':'Indisponible'}

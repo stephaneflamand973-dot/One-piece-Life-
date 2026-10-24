@@ -4,6 +4,7 @@
  * se rencontrer en couple, se marier ou envisager un enfant.
  */
 import { clamp, createProfile, draw } from './personality.mjs';
+import {scaledBenefit,nextCount} from './diminishing.mjs';
 
 export const MAX_PARTNERS=4;
 export const MAX_CHILDREN=4;
@@ -24,7 +25,7 @@ const person=(attrs,random)=>createProfile({
 
 export function meetPartner(rel,life,random=Math.random){
   const age=life.age;
-  if(age<18||age>75||rel.actionsUsed>=3||activePartner(rel)||count(rel,'partner')>=MAX_PARTNERS)return null;
+  if(age<18||age>75||activePartner(rel)||count(rel,'partner')>=MAX_PARTNERS)return null;
   const offset=Math.max(18-age,-4)+Math.floor(draw(random)*(Math.min(4,120-age)-Math.max(18-age,-4)+1));
   const id='partner-'+(count(rel,'partner')+1);
   const name=choose(NAMES,random);
@@ -33,15 +34,13 @@ export function meetPartner(rel,life,random=Math.random){
     deathAge:82+Math.floor(draw(random)*20),status:'dating',marriedAtAge:null,
     endedAtAge:null},random);
   const text='Vous faites une rencontre amoureuse avec '+name+'.';
-  return record({...rel,people:[...rel.people,partner],actionsUsed:rel.actionsUsed+1},
+  return record({...rel,people:[...rel.people,partner],actionsUsed:nextCount(rel.actionsUsed)},
     age,id,'romance-meet',text);
 }
 export function romanceAvailability(rel,action,age){
   const partner=activePartner(rel);
   if(!partner)return {enabled:false,reason:'Aucun partenaire actuel.'};
   if(age<18||age+partner.ageOffset<18)return {enabled:false,reason:'Réservé aux adultes.'};
-  if(rel.actionsUsed>=3)return {enabled:false,reason:'Trois actions déjà utilisées cette année.'};
-  if(partner.lastActionAge===age)return {enabled:false,reason:'Une action de couple déjà effectuée cette année.'};
   if(action==='date')return {enabled:true,reason:''};
   if(action==='separate')return {enabled:true,reason:''};
   if(action==='marry'){
@@ -72,13 +71,14 @@ export function actRomance(rel,action,life,random=Math.random){
     ?draw(random)<Math.min(.95,Math.max(.20,(68+partner.traits.empathy/6+
       (partner.bond-50)/5-partner.rivalry/12)/100))
     :action==='marry'?draw(random)<Math.min(.95,Math.max(.3,
-      (60+partner.trust/5+partner.bond/7-partner.traits.pride/12)/100))
+      (60+partner.trust/5+partner.bond/7-partner.traits.pride/12-Math.max(0,rel.actionsUsed-2)*5)/100))
     :action==='child'?draw(random)<.68:true;
+  const adjust=n=>n>0?scaledBenefit(n,rel.actionsUsed):n;
   let newPartner={...partner,lastActionAge:age};
   let newChild=null,kind='',text='';
   if(action==='date'){
-    newPartner={...newPartner,bond:clamp(partner.bond+(positive?9:-5)),
-      trust:clamp(partner.trust+(positive?5:-3)),
+    newPartner={...newPartner,bond:clamp(partner.bond+(positive?adjust(9):-5)),
+      trust:clamp(partner.trust+(positive?adjust(5):-3)),
       rivalry:clamp(partner.rivalry+(positive?-3:5))};
     kind='romance-date';
     text=positive?'Votre rendez-vous avec '+partner.firstName+' vous rapproche.':
