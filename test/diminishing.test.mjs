@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {diminishingFactor,scaledBenefit,scaledChance} from '../foundation/src/core/diminishing.mjs';
 import {createEngine} from '../foundation/src/core/engine.mjs';
+import {sceneForAge} from '../foundation/src/core/events.mjs';
 import {isValidState,SCHEMA_VERSION} from '../foundation/src/core/state.mjs';
 import {restAbilities} from '../foundation/src/core/abilities.mjs';
 import {reactionChance,resolveReaction} from '../foundation/src/core/personality.mjs';
@@ -21,7 +22,8 @@ function prepare(){
  while(engine.getState().activeLife.age<16){
   assert.ok(engine.age());
   const s=engine.getState();
-  if(s.domainData.story.pending)assert.ok(engine.choose('aider'));
+  if(s.domainData.story.pending)
+    assert.ok(engine.choose(sceneForAge(s.activeLife.age).options[0].id));
   if(engine.getState().domainData.relationships.pending)assert.ok(engine.answerNpc('accept'));
  }
  return {engine,storage,values};
@@ -96,10 +98,12 @@ test('commandement : ordres de capitaine répétables et compteur remis à zéro
  assert.ok(engine.mission('escort'));assert.ok(engine.mission('explore'));
  assert.ok(engine.foundCrew());
  const life=engine.getState().activeLife;
- for(let i=0;i<6;i++)assert.ok(engine.commandCrew('repair')===false||
-  engine.getState().domainData.career.command.hull<=100);
- // L'ordre entraînement est toujours disponible dès qu'un compagnon est recruté.
+ assert.ok(engine.recruitCrew('combattant'));
+ const before=engine.getState().domainData.career.command.members[0].skill;
+ for(let i=0;i<8;i++)assert.ok(engine.commandCrew('train'),'ordre '+i);
  const cmd=engine.getState().domainData.career.command;
+ assert.equal(cmd.actionUsage['order:train'],8);
+ assert.ok(cmd.members[0].skill>before);
  const next=ageCommand(engine.getState().domainData.career,life.age+1,()=>.99);
  assert.deepEqual(next.career.command.actionUsage,{});
  assert.ok(isValidState(engine.getState()));
