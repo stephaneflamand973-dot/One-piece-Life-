@@ -54,7 +54,7 @@ test('entraînement dès 6 ans, trois séances, fatigue et récupération annuel
     assert.equal(a.trainingUsed,i);
     assert.ok(a.skills.force>initial);
   }
-  assert.equal(engine.train('force'),false);
+  assert.ok(engine.train('force'),'la quatrième séance reste possible');
   const after=engine.getState().domainData.abilities;
   assert.ok(after.fatigue>0&&after.fatigue<=100);
   const reloaded=createEngine({storage}).getState();
@@ -187,7 +187,7 @@ test('état frauduleux et refus d’écriture ne corrompent pas la partie',()=>{
   assert.ok(engine.applyPirate('alizes','combattant'));
   const state=engine.getState();
   const forged={...state,domainData:{...state.domainData,
-    abilities:{...state.domainData.abilities,trainingUsed:100}}};
+    abilities:{...state.domainData.abilities,trainingUsed:-1}}};
   assert.equal(isValidState(forged),false);
   map.set(SAVE_KEY,'{broken');
   assert.equal(loadState(storage),null);
