@@ -108,7 +108,7 @@ export function actWithCrew(career,life,memberId,action){
  let members=cmd.members,morale=cmd.morale,cohesion=cmd.cohesion,berys=career.missions.berys,text;
  if(action==='talk'){
   // Discussions à volonté, mais elles deviennent improductives quand on insiste trop.
-  const gain=m.strain<30?5:m.strain<60?1:-2;
+  const gain=m.strain<30?scaledBenefit(5,count):m.strain<60?scaledBenefit(1,count):-2;
   members=members.map(x=>x.id===memberId?{...x,
     bond:cap(x.bond+gain),loyalty:cap(x.loyalty+(gain>0?1:-1)),
     strain:cap(x.strain+18),rivalry:cap(x.rivalry+(gain<0?3:-1))}:x);
