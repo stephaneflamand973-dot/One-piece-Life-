@@ -5,6 +5,7 @@
 
 import { rand, noter, age, agePnj, pnjIci, puissance, souvenir, transferer, gagnerStat, blesser, GAINS, ILES, LIEUX, ROUTES, lieuxDe } from "./engine.js";
 import { nouvelle, regionDe, vivants } from "./monde.js";
+import { EVENEMENTS_FACTIONS } from "./factions.js";
 
 const pick = (s, arr) => arr[Math.floor(rand(s) * arr.length)];
 const AN = 365;
@@ -128,7 +129,7 @@ export const EVENEMENTS = [
     texte: (s, d) => `${nom(s, d.p)} est dans la gêne et te demande de lui prêter 100 Berrys.`,
     choix: [["Prêter 100 Berrys", (s, d) => { transferer(s, "joueur", d.p, 100); relation(s, d.p, 8, "tu lui as prêté 100 Berrys"); planifier(s, "remboursement", 60, { p: d.p }); trait(s, "bonte", 1); return "Il te promet de te rembourser dans deux mois."; }],
       ["Refuser", (s, d) => { relation(s, d.p, -4); return "Il baisse les yeux et s'en va."; }]] },
-  { id: "remboursement", planifie: true, cond: (s, d) => s.pnj[d.p]?.vivant !== false, texte: (s, d) => `${nom(s, d.p)} revient au sujet des 100 Berrys que tu lui as prêtés.`,
+  { id: "remboursement", planifie: true, cond: (s, d) => !!s.pnj[d.p] && s.pnj[d.p].vivant !== false, texte: (s, d) => `${nom(s, d.p)} revient au sujet des 100 Berrys que tu lui as prêtés.`,
     choix: [["L'écouter", (s, d) => { if (s.pnj[d.p].fonds >= 100) { transferer(s, d.p, "joueur", 100); relation(s, d.p, 5); return "Il te rend tes 100 Berrys, avec un grand sourire."; } return "Il n'a pas l'argent. Il te supplie d'attendre."; }],
       ["Lui faire cadeau de la dette", (s, d) => { trait(s, "bonte", 2); relation(s, d.p, 15, "tu lui as fait cadeau de sa dette"); return "Il en a les larmes aux yeux."; }]] },
   { id: "mission_livraison", age: [15, 75], poids: 3, cond: s => presentsAdultes(s).some(id => s.pnj[id].fonds >= 150), prep: s => ({ p: pick(s, presentsAdultes(s).filter(id => s.pnj[id].fonds >= 150)) }),
@@ -222,6 +223,8 @@ export const EVENEMENTS = [
       ["Refuser", () => "Tu as assez donné."]] },
 ];
 
+EVENEMENTS.push(...EVENEMENTS_FACTIONS);
+
 // ---------- Déclenchement ----------
 
 const PAR_ID = Object.fromEntries(EVENEMENTS.map(e => [e.id, e]));
@@ -288,6 +291,8 @@ export function choisir(s, i) {
   const e = ev && PAR_ID[ev.id];
   if (!e || !e.choix[i]) return { ok: false, texte: "Il n'y a pas de décision à prendre." };
   s.evenement = null;
+  // La personne concernée a pu mourir ou être remplacée entre-temps : l'occasion est passée.
+  if (ev.data?.p && (!s.pnj[ev.data.p] || s.pnj[ev.data.p].vivant === false)) return { ok: true, texte: "L'occasion est passée." };
   s.histo.evenements[e.id] = s.jour;
   const texte = e.choix[i][1](s, ev.data) || "";
   return { ok: true, texte };

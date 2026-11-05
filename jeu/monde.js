@@ -12,6 +12,11 @@ const AN = 365;
 // Postes de travail : à la mort du titulaire, un enfant adulte ou un habitant de l'île reprend l'activité.
 export const POSTES = ["makino", "woop", "tomas", "bern", "ilda", "rivo", "mira", "gallo", "nino", "barro", "lise", "garo",
   "oswin", "bolt", "tess", "hal", "coral", "rocco", "soen"];
+const PRENOMS = {
+  g: ["Aldo", "Caius", "Emil", "Goran", "Ivo", "Koby", "Lior", "Nils", "Pavel", "Silas", "Ugo", "Wim", "Yann", "Amos", "Cyrus", "Bram", "Teo", "Ruben"],
+  f: ["Bree", "Dena", "Fia", "Hilde", "Jana", "Mara", "Odile", "Rosa", "Tilda", "Vesna", "Xia", "Zelda", "Bianca", "Dora", "Lys", "Nell", "Aurore", "Ines"],
+};
+const prenom = (s, genre) => pick(s, PRENOMS[genre] || [...PRENOMS.g, ...PRENOMS.f]);
 const PRENOMS_PNJ = ["Aldo", "Bree", "Caius", "Dena", "Emil", "Fia", "Goran", "Hilde", "Ivo", "Jana", "Koby", "Lior", "Mara", "Nils",
   "Odile", "Pavel", "Quinn", "Rosa", "Silas", "Tilda", "Ugo", "Vesna", "Wim", "Xia", "Yann", "Zelda", "Amos", "Bianca", "Cyrus", "Dora"];
 const ROLES_ARRIVANTS = { g: ["marin de passage", "commerçant", "apprenti", "voyageur", "docker", "musicien", "pêcheur"],
@@ -48,7 +53,7 @@ export function initialiserMonde(s, { parents = true } = {}) {
   if (parents && !s.pnj.mere && s.perso.naissance === 0 && s.jour === 0) {
     const nomFamille = pick(s, ["Aube", "Vent", "Rivage", "Cordier", "Marin"]);
     for (const [id, role, genre] of [["mere", "ta mère", "f"], ["pere", "ton père", "g"]]) {
-      s.pnj[id] = { nom: `${pick(s, PRENOMS_PNJ)} ${nomFamille}`, role, genre, lieu: "maison", relation: 60, fonds: 300, souvenirs: [],
+      s.pnj[id] = { nom: `${prenom(s, genre)} ${nomFamille}`, role, genre, lieu: "maison", relation: 60, fonds: 300, souvenirs: [],
         naissance: -Math.floor((24 + rand(s) * 12) * AN), vivant: true, enfants: [], parents: [], couple: null, famille: true };
       s.monde.exterieur -= 300;
     }
@@ -143,7 +148,7 @@ function naissancePnj(s, mereId, pereId) {
   const m = s.pnj[mereId], p = s.pnj[pereId];
   const id = nouvelId(s, "n");
   const genre = rand(s) < 0.5 ? "f" : "g";
-  s.pnj[id] = { nom: pick(s, PRENOMS_PNJ), role: `enfant de ${m.nom} et ${p.nom}`, genre, lieu: m.lieu === "equipage" ? "maison" : m.lieu,
+  s.pnj[id] = { nom: prenom(s, genre), role: `enfant de ${m.nom} et ${p.nom}`, genre, lieu: m.lieu === "equipage" ? "maison" : m.lieu,
     relation: 0, fonds: 0, souvenirs: [], naissance: s.jour, vivant: true, enfants: [], parents: [mereId, pereId], couple: null };
   m.enfants = [...(m.enfants || []), id]; p.enfants = [...(p.enfants || []), id];
   nouvelle(s, ileDe(s, mereId) || s.ile, `${m.nom} et ${p.nom} ont eu un enfant : ${s.pnj[id].nom}.`);
@@ -245,7 +250,7 @@ function annuel(s) {
       const role = pick(s, ROLES_ARRIVANTS[genre]);
       const fonds = 100 + Math.floor(rand(s) * 300);
       s.monde.exterieur -= fonds;
-      s.pnj[id] = { nom: pick(s, PRENOMS_PNJ), role, genre, lieu: pick(s, lieuxDe(ile).filter(l => l !== "maison")),
+      s.pnj[id] = { nom: prenom(s, genre), role, genre, lieu: pick(s, lieuxDe(ile).filter(l => l !== "maison")),
         relation: 0, fonds, souvenirs: [], naissance: s.jour - Math.floor((18 + rand(s) * 20) * AN), vivant: true, enfants: [], parents: [], couple: null,
         romance: rand(s) < 0.5 };
       nouvelle(s, ile, `${s.pnj[id].nom}, ${role}, vient de s'installer ${ILES[ile].a}.`);

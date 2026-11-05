@@ -613,6 +613,7 @@ test("événements : chaque choix de chaque événement s'exécute sans erreur n
       s.pnj.ami = { nom: "Ami", role: "ami", genre: "g", lieu: s.lieu, relation: 30, fonds: 500, souvenirs: [], naissance: s.jour - 30 * 365, vivant: true, enfants: [], parents: [], couple: null, romance: true };
       s.monde.exterieur -= 500;
       const masse = E.masseMonetaire(s);
+      s.carriere = { type: "pirate", equipage: "Test", depuis: 0, raids: 0 };
       s.evenement = { id: ev.id, jour: s.jour, data: { p: "ami" } };
       const r = E.agir(s, { id: "choisir", cible: i });
       assert.ok(r.ok, `${ev.id} choix ${i}`);
@@ -677,4 +678,53 @@ test("chronologie : sauver l'enfant du Seigneur de la Côte crée une divergence
   assert.ok(s.chrono.divergences.bras_shanks);
   E.avancer(s, 40, { sansInterruption: true });
   assert.ok(s.monde.nouvelles.some(n => n.texte.includes("deux bras intacts")));
+});
+
+// ---------- Étape 4 : factions et politique ----------
+import * as F from "../jeu/factions.js";
+
+const aLogue = () => { const s = ado(); s.jour = 20 * 365; s.ile = "loguetown"; s.lieu = "bureau_primes"; return s; };
+
+test("chasseur de primes : inscription, capture binaire payée sans création d'argent", () => {
+  let capture = false;
+  for (let seed = 1; seed < 30 && !capture; seed++) {
+    const s = aLogue(); s.rng = seed; s.stats.force = 30; s.stats.agilite = 30;
+    assert.ok(E.agir(s, { id: "chasseur" }).ok);
+    s.lieu = "quais_logue";
+    s.monde.rivaux = [{ id: "r1", nom: "Pirates Test", capitaine: "Test", region: "eb", ile: "loguetown", prime: 5000000, force: 20, actif: true }];
+    const masse = E.masseMonetaire(s);
+    E.agir(s, { id: "traquer" });
+    if (!s.monde.rivaux[0].actif) { capture = true; assert.equal(s.berrys, 5000); assert.equal(E.masseMonetaire(s), masse); }
+  }
+  assert.ok(capture);
+});
+
+test("révolution : il faut avoir combattu l'injustice pour être approché", () => {
+  const s = aLogue(); s.lieu = "echafaud";
+  assert.equal(E.agir(s, { id: "revolution" }).ok, false);
+  s.traits.bonte = 3;
+  assert.ok(E.agir(s, { id: "revolution" }).ok);
+  assert.equal(s.carriere.type, "revolution");
+});
+
+test("Grand Corsaire : l'offre arrive avec une grosse prime, et la Marine laisse alors en paix", () => {
+  const s = capitaine(); s.infamie = 15; s.prime = F.SEUIL_CORSAIRE;
+  for (let i = 0; i < 20 && s.evenement?.id !== "offre_corsaire"; i++) {
+    if (s.evenement) E.agir(s, { id: "choisir", cible: s.evenement.id === "offre_corsaire" ? 0 : 1 });
+    E.avancer(s, 1);
+  }
+  assert.equal(s.evenement?.id, "offre_corsaire");
+  E.agir(s, { id: "choisir", cible: 0 });
+  assert.ok(s.carriere.corsaire);
+  assert.ok(F.marineIgnore(s));
+});
+
+test("alliance puis trahison : la réputation chez les pirates s'effondre", () => {
+  const s = capitaine(); s.stats.charisme = 60; s.stats.force = 40;
+  s.monde.rivaux = [{ id: "r2", nom: "Pirates Alliés", capitaine: "Allié", region: "eb", ile: "fuchsia", prime: 3000000, force: 10, actif: true }];
+  E.agir(s, { id: "alliance" });
+  assert.ok(s.monde.rivaux[0].allie);
+  E.agir(s, { id: "trahir" });
+  assert.ok(s.monde.rivaux[0].ennemi);
+  assert.ok(s.reputation.pirates < 0);
 });

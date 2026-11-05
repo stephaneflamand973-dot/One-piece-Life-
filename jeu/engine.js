@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { ACTIONS_FACTIONS, actionsFactions, vieFactions, marineIgnore, reputation } from "./factions.js";
 import { initialiserChronologie, avancerChronologie, presentSelonCanon } from "./chronologie.js";
 import { initialiserEvenements, declencherEvenement, choixEvenement, choisir, accomplir, verifierAmbition } from "./evenements.js";
 
@@ -64,6 +65,7 @@ export const LIEUX = {
   armurerie: { ile: "loguetown", nom: "l'armurerie", court: "Armurerie", a: "à l'armurerie" },
   echafaud: { ile: "loguetown", nom: "la place de l'échafaud", court: "Échafaud", a: "sur la place de l'échafaud" },
   auberge_logue: { ile: "loguetown", nom: "l'auberge", court: "Auberge", a: "à l'auberge" },
+  bureau_primes: { ile: "loguetown", nom: "le bureau des primes", court: "Bureau des primes", a: "au bureau des primes" },
   phare: { ile: "cap", nom: "le phare du cap", court: "Phare", a: "au phare du cap" },
   rivage_lg: { ile: "little_garden", nom: "le rivage de Little Garden", court: "Rivage", a: "sur le rivage" },
   jungle: { ile: "little_garden", nom: "la jungle préhistorique", court: "Jungle", a: "dans la jungle" },
@@ -357,6 +359,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
   vieDuMonde(s);
   if (declencherEvenement(s)) importants.push({ type: "evenement", texte: "Un événement demande ta décision." });
   verifierAmbition(s);
+  vieFactions(s);
   // Vieillissement et mortalité crédible (simplifiée) après 70 ans.
   if (age(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - 65) * 0.02) {
     s.perso.vivant = false;
@@ -473,6 +476,7 @@ export function actionsDisponibles(s) {
     if (s.lieu === ILES[s.ile].port) a.push({ id: "quitter", label: "Renoncer à la piraterie" });
   }
   if (s.lieu === "chantier" && s.navire && s.navire.coque < 100) a.push({ id: "radoub", label: `Faire réparer le navire (${(100 - s.navire.coque) * 20} B)` });
+  a.push(...actionsFactions(s));
   if (s.lieu === "colisee" && ag >= 18) a.push({ id: "colisee", label: "Combattre au Colisée (3 000 B si victoire)" });
   if (ici.includes("soen") && s.pnj.soen.relation >= 20) a.push({ id: "sabre", label: `Leçon de sabre avec Sōen (${PRIX_LECON_SABRE} B)` });
   if (s.lieu === "enrobage" && s.navire && !s.navire.enrobe) a.push({ id: "enrober", label: `Faire enrober le navire (${PRIX_ENROBAGE} B, 3 jours)` });
@@ -542,6 +546,7 @@ function gagnerStat(s, k, gain) {
 }
 
 const ACTIONS = {
+  ...ACTIONS_FACTIONS,
   choisir: (s, i) => choisir(s, +i),
   accomplir: s => {
     const e = activite(s, { heures: 4, fatigue: 25, ageMin: 12 });
@@ -769,7 +774,7 @@ const ACTIONS = {
         s.navire.coque = Math.max(0, s.navire.coque - usure);
         if (s.navire.coque <= 0) return naufrage(s, "en pleine mer, la coque disloquée", dest);
       }
-      if (s.prime > 0 && rand(s) < Math.min(0.25, 0.03 * s.infamie)) {
+      if (s.prime > 0 && !marineIgnore(s) && rand(s) < Math.min(0.25, 0.03 * s.infamie)) {
         const r = combatMarine(s, "en mer");
         if (s.prison || !s.perso.vivant) return r;
         noter(s, r.texte, "action");
@@ -779,7 +784,7 @@ const ACTIONS = {
     noter(s, `Tu débarques ${ILES[dest].a}, ${ILES[dest].desc}.`, "voyage");
     let txt = `Tu quittes ${depart}${s.navire ? ` à bord du « ${s.navire.nom} »` : ""}. ${textes.join(" ")} Après ${jours} jours de mer, tu arrives ${ILES[dest].a}.${s.navire && (versGL || depuisGL) ? ` Coque : ${s.navire.coque}/100.` : ""}`;
     // Shells Town abrite une base de la Marine : un pirate recherché y est vite repéré.
-    if (dest === "shells" && s.prime > 0 && rand(s) < 0.6) {
+    if (dest === "shells" && s.prime > 0 && !marineIgnore(s) && rand(s) < 0.6) {
       const r = combatMarine(s, "sur le port de Shells Town");
       txt += ` ${r.texte}`;
     }
@@ -896,6 +901,8 @@ const ACTIONS = {
     // Butin pris au commerce extérieur (comptabilisé) ; l'équipage reçoit sa part.
     const butin = Math.round((150 + rand(s) * 350) * (1 + equipage(s).length / 3) * (1 + danger));
     s.monde.exterieur -= butin;
+    reputation(s, "pirates", 3); reputation(s, "marine", -3); reputation(s, "gouvernement", -2);
+    if (s.carriere.corsaire) { s.carriere.corsaire = false; noter(s, "En attaquant un navire marchand, tu perds ton titre de Grand Corsaire.", "mission"); }
     const membres = equipage(s);
     const part = membres.length ? Math.floor(butin * 0.4 / membres.length) : 0;
     for (const id of membres) { s.pnj[id].fonds += part; s.pnj[id].relation += 3; }
@@ -923,7 +930,7 @@ const ACTIONS = {
       return res(true, "Un dinosaure surgit des fougères géantes ! Tu t'échappes de justesse, blessé. Au loin, deux géants s'affrontent dans un fracas de tonnerre.");
     }
     const x = rand(s);
-    if (reste.length && x < 0.012 * (1 + danger)) {
+    if (reste.length && x < 0.004 * (1 + danger)) {
       const f = reste[Math.floor(rand(s) * reste.length)];
       s.monde.fruitsTrouves.push(f); s.inventaire.fruits.push(f);
       return res(true, `Sous des racines, tu découvres un fruit étrange couvert de spirales… C'est un Fruit du Démon : le ${FRUITS[f].nom} (${FRUITS[f].type}) !`);
@@ -1011,6 +1018,7 @@ const ACTIONS = {
     if (age(s) < 16) return res(false, "La Marine n'engage qu'à partir de 16 ans.");
     if (s.stats.force + s.stats.endurance < 6) return res(false, "Sergent Rivo : « Reviens quand tu seras plus solide. » (force + endurance : 6 minimum)");
     s.carriere = { type: "marine", rang: 0, merite: 0, depuis: s.jour };
+    reputation(s, "marine", 10); reputation(s, "gouvernement", 5);
     souvenir(s, "rivo", "tu t'es engagé dans la Marine");
     return res(true, `Tu signes ton engagement. Te voilà ${RANGS_MARINE[0]} de la Marine, avec une solde de ${SOLDE_MARINE[0]} Berrys par semaine.`);
   },
@@ -1041,6 +1049,10 @@ const ACTIONS = {
     return res(true, `Patrouille échouée : les contrebandiers vous échappent et tu es blessé.${eveilDanger(s)}`);
   },
   quitter(s) {
+    if (s.carriere?.type === "chasseur" || s.carriere?.type === "revolution") {
+      const t = s.carriere.type; s.ancienneCarriere = { ...s.carriere, fin: s.jour }; s.carriere = null;
+      return res(true, t === "chasseur" ? "Tu rends ta licence de chasseur de primes." : "Tu quittes discrètement l'Armée révolutionnaire.");
+    }
     if (s.carriere?.type === "pirate") {
       s.ancienneCarriere = { ...s.carriere, fin: s.jour }; s.carriere = null;
       for (const id of equipage(s)) s.pnj[id].lieu = "disparu";

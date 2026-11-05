@@ -6,9 +6,10 @@ import {
 } from "./engine.js";
 import { regionDe, RANGS_OFFICIERS } from "./monde.js";
 import { ERES, CALENDRIER, anneeRelative, anneeTexte } from "./chronologie.js";
+import { FACTIONS } from "./factions.js";
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "10 · chronologie";
+export const VERSION_APP = "11 · factions";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -162,7 +163,7 @@ const GROUPES = [
   ["prison", "En cellule", ["attendre", "evader"]],
   ["progresser", "Progresser", ["entrainer", "etudier", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
   ["activites", "Activités", ["travailler", "pecher", "cuisiner", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "manger"]],
-  ["aventure", "Aventure", ["voyager", "pirate", "recruter", "attaquer", "combattre", "engager", "service", "patrouille", "quitter"]],
+  ["aventure", "Aventure", ["voyager", "pirate", "recruter", "attaquer", "combattre", "engager", "service", "patrouille", "chasseur", "traquer", "revolution", "sabotage", "alliance", "trahir", "quitter"]],
   ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant"]],
 ];
 
@@ -307,7 +308,9 @@ function rendreFiche() {
       ${Object.entries(s.pnj).filter(([, p]) => !p.invisible && p.lieu !== "disparu" && (p.relation !== 0 || p.souvenirs.length || LIEUX[p.lieu]?.ile === s.ile)).map(([id, p]) => `<div class="stat"><span>${esc(p.nom)} <i class="discret">${esc(p.role)}${agePnj(s, id) != null ? `, ${agePnj(s, id)} ans` : ""}</i></span>${barre(Math.max(0, p.relation))}<b>${p.relation}</b></div>`).join("")}</section>
     <section class="carte"><h2>Carrière</h2>
       ${s.carriere?.type === "marine" ? `<p>${RANGS_MARINE[s.carriere.rang]} de la Marine · mérite ${s.carriere.merite}${s.carriere.rang < RANGS_MARINE.length - 1 ? ` / ${MERITE_RANG[s.carriere.rang + 1]} pour ${RANGS_MARINE[s.carriere.rang + 1]}` : ""}</p>`
-        : s.carriere?.type === "pirate" ? `<p>Capitaine des <b>${esc(s.carriere.equipage)}</b> · ${s.carriere.raids} abordage${s.carriere.raids > 1 ? "s" : ""}</p>
+        : s.carriere?.type === "chasseur" ? `<p>Chasseur de primes · ${s.carriere.captures} capture${s.carriere.captures > 1 ? "s" : ""}</p>`
+        : s.carriere?.type === "revolution" ? `<p>Membre de l'Armée révolutionnaire · ${s.carriere.missions} mission${s.carriere.missions > 1 ? "s" : ""}</p>`
+        : s.carriere?.type === "pirate" ? `<p>Capitaine des <b>${esc(s.carriere.equipage)}</b> · ${s.carriere.raids} abordage${s.carriere.raids > 1 ? "s" : ""}${s.carriere.corsaire ? " · <b>Grand Corsaire</b>" : ""}${s.carriere.empereur ? " · <b>Empereur</b>" : ""}</p>
           ${equipage(s).map(id => `<p>${esc(s.pnj[id].nom)} · <span class="discret">${esc(s.pnj[id].role)}, force ${s.pnj[id].force}</span></p>`).join("") || "<p class=\"discret\">Pas encore d'équipage : recrute dans les tavernes.</p>"}`
         : `<p>Aucune carrière.${age(s) >= 16 ? " La Marine recrute à la base de Shells Town ; avec un navire, tu peux aussi hisser le pavillon pirate." : ""}</p>`}
       ${s.prime ? `<p class="m-échouée">Avis de recherche : ${s.prime.toLocaleString("fr-FR")} Berrys</p>` : ""}
@@ -323,6 +326,8 @@ function rendreFiche() {
         .map(r => `<p>${esc(r.capitaine)} · <span class="discret">${esc(r.nom)}</span> · <b>${r.prime.toLocaleString("fr-FR")} ฿</b></p>`).join("") || "<p>Aucun.</p>"}
       <p class="discret">Dernières nouvelles :</p>
       ${s.journal.filter(e => e.type === "rumeur").slice(-5).reverse().map(e => `<p class="petit">${esc(e.texte)}</p>`).join("") || "<p>Rien de neuf.</p>"}</section>
+    <section class="carte"><h2>Réputation</h2>
+      ${Object.entries(FACTIONS).map(([k, n]) => { const v = s.reputation?.[k] || 0; return `<div class="stat"><span>${n}</span><span class="barre"><i style="width:${(v + 100) / 2}%;background:${v < 0 ? "var(--ko)" : "var(--ok)"}"></i></span><b>${v > 0 ? "+" : ""}${v}</b></div>`; }).join("")}</section>
     <section class="carte"><h2>Chronologie</h2>
       <p class="discret">Époque : ${ERES[s.chrono.ere].nom}. Dates approximatives.</p>
       ${CALENDRIER.filter(ev => s.chrono.faits[ev.id]).map(ev => `<p class="petit"><b>${anneeTexte(ev.annee)}</b> · ${esc(typeof ev.texte === "function" ? ev.texte(s) : ev.texte)}</p>`).join("") || "<p>Aucun grand événement pour l'instant.</p>"}
