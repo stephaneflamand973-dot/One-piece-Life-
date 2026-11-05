@@ -76,7 +76,7 @@ function actionConnue(s, a) {
     case "jouer": case "ecouter": case "etudier": case "travailler": case "pecher": case "cuisiner":
     case "reparer": case "combattre": case "repos": case "engager": case "service": case "patrouille":
     case "quitter": case "famille": case "enfant": case "pirate": case "recruter": case "attaquer": case "explorer":
-    case "maitriser": case "attendre": case "evader": return true;
+    case "maitriser": case "attendre": case "evader": case "radoub": case "enrober": return true;
     case "manger": return c in FRUITS;
     case "haki": return c in HAKI;
     case "initier": return c === "observation" || c === "armement";

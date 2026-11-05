@@ -106,7 +106,7 @@ function rendreStatut() {
   const sante = s.prison ? "En prison" : s.sante.blessures.length ? `Blessé` : "En forme";
   $("#statut").innerHTML = `
     <div><strong>${esc(s.perso.prenom)}</strong> · ${age(s)} an${age(s) > 1 ? "s" : ""}</div>
-    <div class="discret">Année ${annee(s)}, jour ${jourDansAnnee(s)} · ${Math.floor(s.heure)}h · ${ILES[s.ile].nom} · ${LIEUX[s.lieu].court}</div>
+    <div class="discret">Année ${annee(s)}, jour ${jourDansAnnee(s)} · ${Math.floor(s.heure)}h · ${ILES[s.ile].nom}${ILES[s.ile].grandLine ? " (Grand Line)" : ""} · ${LIEUX[s.lieu].court}</div>
     <div class="jauges"><span>${s.berrys} ฿</span><span>Fatigue ${s.fatigue}</span><span>${sante}</span>${s.prime ? `<span class="prime">Prime ${s.prime.toLocaleString("fr-FR")} ฿</span>` : ""}${iaActive() ? `<span class="ia">IA</span>` : ""}</div>`;
 }
 
@@ -223,7 +223,7 @@ function rendreFiche() {
     <section class="carte"><h2>Possessions</h2><p>${s.berrys} Berrys</p>
       <p>${Object.entries(s.inventaire).filter(([k, n]) => k !== "fruits" && n > 0).map(([k, n]) => `${n} ${n > 1 ? OBJETS[k].pluriel : OBJETS[k].nom}`).join(", ") || "Rien d'autre."}</p>
       ${s.inventaire.fruits.length ? `<p>Fruits du Démon non mangés : ${s.inventaire.fruits.map(f => FRUITS[f].nom).join(", ")}</p>` : ""}
-      ${s.navire ? `<p>Navire : « ${esc(s.navire.nom)} », ${NAVIRES[s.navire.type].nom} (${NAVIRES[s.navire.type].capacite} places d'équipage)</p>` : ""}</section>
+      ${s.navire ? `<p>Navire : « ${esc(s.navire.nom)} », ${NAVIRES[s.navire.type].nom} (${NAVIRES[s.navire.type].capacite} places d'équipage) · coque ${s.navire.coque}/100${s.navire.enrobe ? " · enrobé" : ""}</p>` : ""}</section>
     <section class="carte"><h2>Pouvoir et combat</h2>
       <p>Puissance de combat : <b>${puissance(s)}</b></p>
       ${Object.keys(HAKI).filter(t => s.haki.eveil[t] || (t !== "rois" && s.haki.progres[t] > 0)).map(t => s.haki.eveil[t]

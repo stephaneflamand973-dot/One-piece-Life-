@@ -9,18 +9,29 @@ export const JOUR_HEURES = 16; // heures d'éveil par jour
 export const FATIGUE_MAX_ACTIVITE = 80;
 
 export const ILES = {
-  fuchsia: { nom: "Fuchsia", desc: "village de l'île de Dawn, sur East Blue", port: "port", auberge: "maison" },
-  shells: { nom: "Shells Town", desc: "ville portuaire d'East Blue, siège d'une base de la Marine", port: "port_shells", auberge: "taverne_shells" },
-  baratie: { nom: "le Baratie", desc: "restaurant flottant au large d'East Blue", port: "pont_baratie", auberge: "pont_baratie" },
-  loguetown: { nom: "Loguetown", desc: "grande ville d'East Blue, la ville du commencement et de la fin", port: "quais_logue", auberge: "auberge_logue" },
+  fuchsia: { nom: "Fuchsia", a: "à Fuchsia", desc: "village de l'île de Dawn, sur East Blue", port: "port", auberge: "maison" },
+  shells: { nom: "Shells Town", a: "à Shells Town", desc: "ville portuaire d'East Blue, siège d'une base de la Marine", port: "port_shells", auberge: "taverne_shells" },
+  baratie: { nom: "le Baratie", a: "au Baratie", desc: "restaurant flottant au large d'East Blue", port: "pont_baratie", auberge: "pont_baratie" },
+  loguetown: { nom: "Loguetown", a: "à Loguetown", desc: "grande ville d'East Blue, la ville du commencement et de la fin", port: "quais_logue", auberge: "auberge_logue" },
+  // Grand Line : îles canoniques, habitants inventés pour le jeu. « danger » renforce adversaires et butins.
+  cap: { nom: "le cap des Jumeaux", a: "au cap des Jumeaux", desc: "promontoire au pied de Reverse Mountain, porte de Grand Line", port: "phare", auberge: "phare", grandLine: true, danger: 1 },
+  little_garden: { nom: "Little Garden", a: "à Little Garden", desc: "île préhistorique de Grand Line, couverte de jungle et de bêtes géantes", port: "rivage_lg", auberge: "rivage_lg", grandLine: true, danger: 2 },
+  water_seven: { nom: "Water Seven", a: "à Water Seven", desc: "cité des eaux de Grand Line, capitale des charpentiers navals", port: "quai_w7", auberge: "bar_w7", grandLine: true, danger: 2 },
+  sabaody: { nom: "l'archipel Sabaody", a: "à l'archipel Sabaody", desc: "archipel de mangroves géantes, au bout de la première moitié de Grand Line", port: "mangroves", auberge: "bar_sabaody", grandLine: true, danger: 3 },
 };
 // Durée des traversées en jours (prix : 20 Berrys par jour de mer).
 export const ROUTES = {
   fuchsia: { shells: 2, baratie: 3, loguetown: 5 },
   shells: { fuchsia: 2, baratie: 2, loguetown: 4 },
   baratie: { fuchsia: 3, shells: 2, loguetown: 3 },
-  loguetown: { fuchsia: 5, shells: 4, baratie: 3 },
+  loguetown: { fuchsia: 5, shells: 4, baratie: 3, cap: 3 },
+  // Le Log Pose impose l'ordre des îles ; revenir à East Blue oblige à traverser la Calm Belt.
+  cap: { little_garden: 4, loguetown: 7 },
+  little_garden: { cap: 4, water_seven: 6, loguetown: 7 },
+  water_seven: { little_garden: 6, sabaody: 5, loguetown: 7 },
+  sabaody: { water_seven: 5, loguetown: 7 },
 };
+export const estGrandLine = ile => !!ILES[ile]?.grandLine;
 export const PRIX_JOUR_MER = 20;
 export const PRIX_AUBERGE = 10;
 
@@ -43,6 +54,15 @@ export const LIEUX = {
   armurerie: { ile: "loguetown", nom: "l'armurerie", court: "Armurerie", a: "à l'armurerie" },
   echafaud: { ile: "loguetown", nom: "la place de l'échafaud", court: "Échafaud", a: "sur la place de l'échafaud" },
   auberge_logue: { ile: "loguetown", nom: "l'auberge", court: "Auberge", a: "à l'auberge" },
+  phare: { ile: "cap", nom: "le phare du cap", court: "Phare", a: "au phare du cap" },
+  rivage_lg: { ile: "little_garden", nom: "le rivage de Little Garden", court: "Rivage", a: "sur le rivage" },
+  jungle: { ile: "little_garden", nom: "la jungle préhistorique", court: "Jungle", a: "dans la jungle" },
+  quai_w7: { ile: "water_seven", nom: "les quais de Water Seven", court: "Quais", a: "sur les quais de Water Seven" },
+  chantier: { ile: "water_seven", nom: "le chantier naval", court: "Chantier", a: "au chantier naval" },
+  bar_w7: { ile: "water_seven", nom: "un bar au bord des canaux", court: "Bar", a: "au bar des canaux" },
+  mangroves: { ile: "sabaody", nom: "les mangroves du port", court: "Mangroves", a: "dans les mangroves du port" },
+  enrobage: { ile: "sabaody", nom: "l'atelier d'enrobage", court: "Enrobage", a: "à l'atelier d'enrobage" },
+  bar_sabaody: { ile: "sabaody", nom: "un bar de l'archipel", court: "Bar", a: "au bar de l'archipel" },
 };
 export const lieuxDe = ile => Object.keys(LIEUX).filter(k => LIEUX[k].ile === ile);
 
@@ -52,6 +72,8 @@ export const EMPLOIS = {
     texte: "Tu aides Bern à remonter les filets et trier la pêche." },
   cuisine_baratie: { payeur: "gallo", salaire: 45, heures: 5, fatigue: 25, ageMin: 14, competence: "cuisine", label: "Travailler en cuisine",
     texte: "Tu enchaînes les commandes sous les ordres du chef Gallo." },
+  chantier: { payeur: "bolt", salaire: 70, heures: 5, fatigue: 30, ageMin: 15, competence: "charpenterie", label: "Travailler au chantier naval",
+    texte: "Tu scies, cloues et calfates des coques sous l'œil exigeant de Bolt." },
   quais_logue: { payeur: "dock", salaire: 35, heures: 4, fatigue: 30, ageMin: 14, competence: null, stat: "force", label: "Décharger les navires",
     texte: "Tu portes des caisses entre les navires et les entrepôts." },
 };
@@ -75,6 +97,7 @@ export const OBJETS = {
   bague: { nom: "bague", pluriel: "bagues", prix: 150, vendeur: "lise" },
   barque: { nom: "barque", pluriel: "barques", prix: 600, vendeur: "tomas", navire: true },
   caravelle: { nom: "caravelle", pluriel: "caravelles", prix: 4000, vendeur: "barro", navire: true },
+  logpose: { nom: "Log Pose", pluriel: "Log Pose", prix: 500, vendeur: "oswin" },
 };
 
 // Gains fixes prédéfinis (D.2A) : jamais modulés.
@@ -94,8 +117,9 @@ export const SEUIL_EVEIL = 8;
 export const PRIX_LECON_HAKI = 50;
 
 export const NAVIRES = { barque: { nom: "barque de pêche aménagée", capacite: 3 }, caravelle: { nom: "caravelle", capacite: 8 } };
-export const TAVERNES = ["bar", "taverne_shells", "salle_baratie", "auberge_logue"];
-export const EXPLORABLES = ["colline", "port", "port_shells", "quais_logue", "echafaud", "pont_baratie"];
+export const TAVERNES = ["bar", "taverne_shells", "salle_baratie", "auberge_logue", "bar_w7", "bar_sabaody"];
+export const EXPLORABLES = ["colline", "port", "port_shells", "quais_logue", "echafaud", "pont_baratie", "phare", "jungle", "quai_w7", "mangroves"];
+export const PRIX_ENROBAGE = 3000;
 
 export const GAINS = {
   entrainement: 1, etude: 1, jeu_enfant: 1, peche: 1, charpenterie: 1, combat: 1,
@@ -114,6 +138,10 @@ const PNJ_INITIAUX = () => ({
   gallo: { nom: "Chef Gallo", role: "cuisinier du Baratie", genre: "g", lieu: "cuisine_baratie", relation: 0, fonds: 4000, souvenirs: [] },
   nino: { nom: "Nino", role: "serveur du Baratie", genre: "g", lieu: "salle_baratie", relation: 0, fonds: 300, souvenirs: [], naissance: -365, romance: true },
   barro: { nom: "Barro", role: "armurier de Loguetown", genre: "g", lieu: "armurerie", relation: 0, fonds: 2000, souvenirs: [], stock: { sabre: 3, caravelle: 1 } },
+  oswin: { nom: "Oswin", role: "gardien du phare du cap", genre: "g", lieu: "phare", relation: 0, fonds: 1000, souvenirs: [], stock: { logpose: 5 } },
+  bolt: { nom: "Bolt", role: "maître charpentier de Water Seven", genre: "g", lieu: "chantier", relation: 0, fonds: 30000, souvenirs: [] },
+  tess: { nom: "Tess", role: "serveuse au bord des canaux", genre: "f", lieu: "bar_w7", relation: 0, fonds: 400, souvenirs: [], naissance: -365, romance: true },
+  hal: { nom: "Hal", role: "enrobeur de navires", genre: "g", lieu: "enrobage", relation: 0, fonds: 5000, souvenirs: [] },
   garo: { nom: "Garo", role: "vieux marin retraité aux yeux perçants", genre: "g", lieu: "auberge_logue", relation: 0, fonds: 300, souvenirs: [], naissance: -60 * 365 },
   lise: { nom: "Lise", role: "bijoutière du grand marché", genre: "f", lieu: "marche_logue", relation: 0, fonds: 1500, souvenirs: [], naissance: -1095, romance: true, stock: { bague: 5 } },
 });
@@ -138,7 +166,7 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
     stats: { force: 1, agilite: 1, endurance: 1, intelligence: 1, charisme: 1 },
     competences: { charpenterie: 0, peche: 0, combat: 0, cuisine: 0 },
     potentiel: {},
-    berrys: 0, inventaire: { planche: 0, clou: 0, poisson: 0, canne: 0, sabre: 0, bague: 0, fruits: [] },
+    berrys: 0, inventaire: { planche: 0, clou: 0, poisson: 0, canne: 0, sabre: 0, bague: 0, logpose: 0, fruits: [] },
     sante: { blessures: [], sequelles: [] },
     lieu: "maison", ile: "fuchsia",
     pnj: PNJ_INITIAUX(),
@@ -199,6 +227,7 @@ export function migrer(s) {
   s.inventaire.fruits ??= []; s.fruit ??= null; s.navire ??= null; s.prime ??= 0; s.infamie ??= 0; s.prison ??= null;
   s.monde.fruitsTrouves ??= [];
   s.haki ??= { observation: 0, armement: 0, rois: 0, eveil: { observation: false, armement: false, rois: false }, progres: { observation: 0, armement: 0 }, roisInne: rand(s) < 0.03 };
+  s.inventaire.logpose ??= 0;
   s.pnj.tomas.stock.barque ??= 2; if (s.pnj.barro) s.pnj.barro.stock.caravelle ??= 1;
   s.version = VERSION;
   return s;
@@ -381,7 +410,7 @@ export function actionsDisponibles(s) {
   if (s.lieu === "port" && s.inventaire.canne > 0) a.push({ id: "pecher", label: "Pêcher" });
   for (const [k, o] of Object.entries(OBJETS)) {
     if (o.vendeur && ici.includes(o.vendeur) && (s.pnj[o.vendeur].stock?.[k] ?? 0) > 0 && ag >= 10 && !(o.navire && s.navire && NAVIRES[s.navire.type].capacite >= NAVIRES[k].capacite))
-      a.push({ id: "acheter", cible: k, label: `Acheter ${["planche", "canne", "bague", "barque", "caravelle"].includes(k) ? "une" : "un"} ${o.nom} (${o.prix} B)` });
+      a.push({ id: "acheter", cible: k, label: `Acheter ${["planche", "canne", "bague", "barque", "caravelle"].includes(k) ? "une" : k === "logpose" ? "un" : "un"} ${o.nom} (${o.prix} B)` });
   }
   if (s.lieu === "remise" && s.monde.toitRemise === "abîmé") a.push({ id: "reparer", label: "Réparer le toit (3 planches, 6 clous)" });
   if (s.lieu === "port" && s.monde.voyouAuPort) a.push({ id: "combattre", label: "Affronter le voyou" });
@@ -399,8 +428,15 @@ export function actionsDisponibles(s) {
     if (TAVERNES.includes(s.lieu)) a.push({ id: "recruter", label: "Recruter un membre d'équipage" });
     if (s.lieu === ILES[s.ile].port) a.push({ id: "quitter", label: "Renoncer à la piraterie" });
   }
+  if (s.lieu === "chantier" && s.navire && s.navire.coque < 100) a.push({ id: "radoub", label: `Faire réparer le navire (${(100 - s.navire.coque) * 20} B)` });
+  if (s.lieu === "enrobage" && s.navire && !s.navire.enrobe) a.push({ id: "enrober", label: `Faire enrober le navire (${PRIX_ENROBAGE} B, 3 jours)` });
   if (s.lieu === ILES[s.ile].port && ag >= 14) {
-    for (const [dest, j] of Object.entries(ROUTES[s.ile])) a.push({ id: "voyager", cible: dest, label: s.navire ? `Naviguer vers ${ILES[dest].nom} (${j} j)` : `Embarquer pour ${ILES[dest].nom} (${j} j, ${j * PRIX_JOUR_MER} B)` });
+    for (const [dest, j] of Object.entries(ROUTES[s.ile])) {
+      const versGL = estGrandLine(dest), depuisGL = estGrandLine(s.ile);
+      if ((versGL || depuisGL) && !s.navire) continue;
+      const passage = versGL && !depuisGL ? " par Reverse Mountain" : depuisGL && !versGL ? " par la Calm Belt" : "";
+      a.push({ id: "voyager", cible: dest, label: s.navire ? `Naviguer vers ${ILES[dest].nom}${passage} (${j} j)` : `Embarquer pour ${ILES[dest].nom} (${j} j, ${j * PRIX_JOUR_MER} B)` });
+    }
   }
   if (s.lieu === "base") {
     if (!s.carriere && ag >= 16) a.push({ id: "engager", label: "S'engager dans la Marine" });
@@ -462,7 +498,7 @@ function gagnerStat(s, k, gain) {
 const ACTIONS = {
   aller(s, lieu) {
     if (!LIEUX[lieu]) return res(false, "Ce lieu n'existe pas.");
-    if (LIEUX[lieu].ile !== s.ile) return res(false, `Ce lieu est à ${ILES[LIEUX[lieu].ile].nom} : il faut d'abord embarquer depuis le port.`);
+    if (LIEUX[lieu].ile !== s.ile) return res(false, `Ce lieu se trouve ${ILES[LIEUX[lieu].ile].a} : il faut d'abord embarquer depuis le port.`);
     if (s.lieu === lieu) return res(false, `Tu es déjà ${LIEUX[lieu].a}.`);
     if (!tempsDisponible(s, 0.5)) return res(false, "Il fait nuit. Rentre te reposer.");
     if (blessureGrave(s) && lieu === "colline") return res(false, "Ta blessure t'empêche de grimper la colline.");
@@ -631,19 +667,40 @@ const ACTIONS = {
     return res(true, `${txt} ${r.texte}`, { interruption: r.interruption });
   },
   voyager(s, dest) {
-    if (!ILES[dest] || dest === s.ile) return res(false, "Cette destination n'existe pas.");
+    if (!ILES[dest] || dest === s.ile || !(dest in ROUTES[s.ile])) return res(false, "Cette destination n'est pas accessible d'ici.");
     if (s.lieu !== ILES[s.ile].port) return res(false, "Les navires partent du port.");
     if (age(s) < 14) return res(false, "Tu es trop jeune pour embarquer seul (à partir de 14 ans).");
+    const versGL = estGrandLine(dest), depuisGL = estGrandLine(s.ile);
+    if ((versGL || depuisGL) && !s.navire) return res(false, "Aucun navire de ligne ne va là-bas : il te faut ton propre navire.");
+    if (versGL && !depuisGL && age(s) < 17) return res(false, "Reverse Mountain, à ton âge ? Attends au moins tes 17 ans.");
+    if (depuisGL && versGL && s.inventaire.logpose < 1) return res(false, "Sans Log Pose, impossible de naviguer sur Grand Line : les boussoles y sont folles. Le gardien du phare en vend.");
     const jours = ROUTES[s.ile][dest];
     const prix = s.navire ? 0 : jours * PRIX_JOUR_MER;
     if (s.berrys < prix) return res(false, `La traversée coûte ${prix} Berrys ; tu en as ${s.berrys}.`);
     s.berrys -= prix; s.monde.exterieur += prix;
     const depart = ILES[s.ile].nom;
+    const textes = [];
+    // Passages dangereux : la montée de Reverse Mountain, ou la Calm Belt et ses rois des mers.
+    if (versGL && !depuisGL || depuisGL && !versGL) {
+      const calm = depuisGL;
+      let risque = calm ? 0.35 : 0.25;
+      if (aRole(s, "navigateur")) risque -= 0.12;
+      if (s.navire.type === "caravelle") risque -= 0.05;
+      if (rand(s) < risque) return naufrage(s, calm ? "dans la Calm Belt, renversé par un roi des mers" : "contre les parois de Reverse Mountain", calm ? "loguetown" : "cap");
+      textes.push(calm ? "Vous traversez la Calm Belt sans vent, en retenant votre souffle au-dessus des rois des mers endormis." : "Le courant vous aspire vers le sommet de Reverse Mountain, puis vous dévalez de l'autre côté jusqu'à Grand Line !");
+    }
     // Les jours de mer passent réellement : le monde continue, les blessures guérissent.
-    // Avec une prime sur la tête, la Marine peut intercepter le navire en mer.
     for (let j = 0; j < jours; j++) {
       avancer(s, 1, { sansInterruption: true });
       if (!s.perso.vivant) return res(true, "Ta vie s'achève en mer.");
+      if (s.navire && (versGL || depuisGL)) {
+        // Sur Grand Line, la mer use la coque ; un charpentier de bord répare en route.
+        let usure = 2 + Math.floor(rand(s) * 5);
+        if (rand(s) < (aRole(s, "navigateur") ? 0.04 : 0.1)) { usure += 20; textes.push("Une tempête soudaine malmène le navire."); }
+        if (aRole(s, "charpentier de bord")) usure = Math.max(0, usure - 4);
+        s.navire.coque = Math.max(0, s.navire.coque - usure);
+        if (s.navire.coque <= 0) return naufrage(s, "en pleine mer, la coque disloquée", dest);
+      }
       if (s.prime > 0 && rand(s) < Math.min(0.25, 0.03 * s.infamie)) {
         const r = combatMarine(s, "en mer");
         if (s.prison || !s.perso.vivant) return r;
@@ -651,14 +708,35 @@ const ACTIONS = {
       }
     }
     s.ile = dest; s.lieu = ILES[dest].port;
-    noter(s, `Tu débarques à ${ILES[dest].nom}, ${ILES[dest].desc}.`, "voyage");
-    let txt = `Tu quittes ${depart}${s.navire ? ` à bord du « ${s.navire.nom} »` : ""}. Après ${jours} jours de mer, tu arrives à ${ILES[dest].nom}.`;
+    noter(s, `Tu débarques ${ILES[dest].a}, ${ILES[dest].desc}.`, "voyage");
+    let txt = `Tu quittes ${depart}${s.navire ? ` à bord du « ${s.navire.nom} »` : ""}. ${textes.join(" ")} Après ${jours} jours de mer, tu arrives ${ILES[dest].a}.${s.navire && (versGL || depuisGL) ? ` Coque : ${s.navire.coque}/100.` : ""}`;
     // Shells Town abrite une base de la Marine : un pirate recherché y est vite repéré.
     if (dest === "shells" && s.prime > 0 && rand(s) < 0.6) {
       const r = combatMarine(s, "sur le port de Shells Town");
       txt += ` ${r.texte}`;
     }
-    return res(true, txt);
+    return res(true, txt.replace(/\s+/g, " "));
+  },
+  radoub(s) {
+    if (s.lieu !== "chantier") return res(false, "Seul le chantier naval de Water Seven répare les navires.");
+    if (!s.navire) return res(false, "Tu n'as pas de navire.");
+    const manque = 100 - s.navire.coque;
+    if (manque <= 0) return res(false, "Ta coque est en parfait état.");
+    const prix = manque * 20;
+    if (s.berrys < prix) return res(false, `Bolt : « ${prix} Berrys pour tout remettre à neuf. Reviens avec l'argent. »`);
+    transferer(s, "joueur", "bolt", prix);
+    s.navire.coque = 100;
+    return res(true, `Les charpentiers de Bolt remettent « ${s.navire.nom} » à neuf pour ${prix} Berrys. Coque : 100/100.`);
+  },
+  enrober(s) {
+    if (s.lieu !== "enrobage") return res(false, "L'enrobage se fait à l'atelier de Hal, à Sabaody.");
+    if (!s.navire) return res(false, "Tu n'as pas de navire.");
+    if (s.navire.enrobe) return res(false, "Ton navire est déjà enrobé.");
+    if (s.berrys < PRIX_ENROBAGE) return res(false, `Hal : « L'enrobage, c'est ${PRIX_ENROBAGE} Berrys et trois jours de travail. »`);
+    transferer(s, "joueur", "hal", PRIX_ENROBAGE);
+    avancer(s, 3, { sansInterruption: true });
+    s.navire.enrobe = true;
+    return res(true, `Pendant trois jours, Hal enveloppe « ${s.navire.nom} » d'une immense bulle de résine. Ton navire pourrait désormais plonger sous la Red Line, vers l'île des Hommes-Poissons et le Nouveau Monde… Cette route n'est pas encore ouverte dans le jeu.`);
   },
   pirate(s) {
     if (s.carriere?.type === "marine") return res(false, "Quitte d'abord la Marine.");
@@ -695,7 +773,8 @@ const ACTIONS = {
     if (blessureGrave(s)) return res(false, "Tu es trop gravement blessé pour un abordage.");
     consommer(s, 8, 40);
     s.carriere.raids += 1;
-    const cible = 15 + rand(s) * 20;
+    const danger = ILES[s.ile].danger || 0;
+    const cible = 15 + danger * 8 + rand(s) * 20;
     const nous = puissance(s) + forceEquipage(s) + rand(s) * 15;
     if (nous < cible) {
       blesser(s, rand(s) < 0.3 ? 2 : 1);
@@ -704,7 +783,7 @@ const ACTIONS = {
       return res(true, `L'abordage tourne mal : l'équipage marchand vous repousse et tu es blessé.${eveilDanger(s)}`);
     }
     // Butin pris au commerce extérieur (comptabilisé) ; l'équipage reçoit sa part.
-    const butin = Math.round((150 + rand(s) * 350) * (1 + equipage(s).length / 3));
+    const butin = Math.round((150 + rand(s) * 350) * (1 + equipage(s).length / 3) * (1 + danger));
     s.monde.exterieur -= butin;
     const membres = equipage(s);
     const part = membres.length ? Math.floor(butin * 0.4 / membres.length) : 0;
@@ -727,14 +806,19 @@ const ACTIONS = {
     if (e) return res(false, e);
     consommer(s, 3, 15);
     const reste = Object.keys(FRUITS).filter(f => !s.monde.fruitsTrouves.includes(f));
+    const danger = ILES[s.ile].danger || 0;
+    if (s.lieu === "jungle" && rand(s) < 0.15) {
+      blesser(s, rand(s) < 0.3 ? 2 : 1);
+      return res(true, "Un dinosaure surgit des fougères géantes ! Tu t'échappes de justesse, blessé. Au loin, deux géants s'affrontent dans un fracas de tonnerre.");
+    }
     const x = rand(s);
-    if (reste.length && x < 0.012) {
+    if (reste.length && x < 0.012 * (1 + danger)) {
       const f = reste[Math.floor(rand(s) * reste.length)];
       s.monde.fruitsTrouves.push(f); s.inventaire.fruits.push(f);
       return res(true, `Sous des racines, tu découvres un fruit étrange couvert de spirales… C'est un Fruit du Démon : le ${FRUITS[f].nom} (${FRUITS[f].type}) !`);
     }
     if (x < 0.15) {
-      const n = 5 + Math.floor(rand(s) * 25);
+      const n = (5 + Math.floor(rand(s) * 25)) * (1 + danger * 2);
       s.monde.exterieur -= n; s.berrys += n;
       return res(true, `En fouillant les environs, tu trouves une bourse perdue : ${n} Berrys.`);
     }
@@ -955,7 +1039,7 @@ export const calculPrime = infamie => infamie <= 0 ? 0 : Math.round(infamie * in
 
 // Affrontement avec la Marine : victoire (fuite) ou capture. Un utilisateur de fruit peut se noyer en mer.
 function combatMarine(s, ou) {
-  const marine = 18 + s.infamie * 3 + rand(s) * 20;
+  const marine = 18 + s.infamie * 3 + (ILES[s.ile].danger || 0) * 10 + rand(s) * 20;
   const nous = puissance(s) + forceEquipage(s) * 0.5 + rand(s) * 20;
   if (nous >= marine) {
     s.infamie += 1; s.prime = calculPrime(s.infamie);
@@ -983,6 +1067,24 @@ function eveilDanger(s) {
   s.haki.eveil.observation = true; s.haki.observation = Math.max(1, s.haki.observation);
   noter(s, "Éveil du Haki de l'observation.", "mission");
   return " Au cœur du danger, tu as perçu chaque mouvement avant qu'il ne se produise : ton Haki de l'observation s'est éveillé !";
+}
+
+const aRole = (s, role) => equipage(s).some(id => s.pnj[id].role.startsWith(role));
+
+// Naufrage : le navire est perdu, l'équipage se disperse, et un mangeur de fruit peut se noyer.
+function naufrage(s, ou, rivage) {
+  const nom = s.navire?.nom;
+  s.navire = null;
+  for (const id of equipage(s)) if (rand(s) < 0.6) s.pnj[id].lieu = "disparu";
+  if (s.fruit && rand(s) < (equipage(s).length ? 0.2 : 0.6)) {
+    s.perso.vivant = false;
+    noter(s, `${s.perso.prenom} disparaît en mer lors du naufrage. Son fruit l'empêchait de nager.`, "mort");
+    return res(true, `Naufrage ${ou} ! « ${nom} » sombre. Ton fruit t'empêche de nager, et personne ne te repêche… Ta vie s'achève en mer.`);
+  }
+  blesser(s, 2);
+  s.ile = rivage; s.lieu = ILES[rivage].port;
+  noter(s, `Naufrage : « ${nom} » est perdu.`, "mission");
+  return res(true, `Naufrage ${ou} ! « ${nom} » sombre corps et biens. ${equipage(s).length ? "Ce qu'il reste de ton équipage te hisse" : "Accroché à une planche, tu dérives"} jusqu'${ILES[rivage].a}, blessé.`);
 }
 
 function capturer(s, ou) {
@@ -1057,6 +1159,10 @@ function repliquePnj(s, id, dernier) {
     gallo: ["« En cuisine, on ne traîne pas ! »", "« Un bon plat, ça se mérite. »"],
     nino: ["« Bienvenue au Baratie ! Une table pour toi ? »", "« Le chef crie fort, mais il a bon cœur. »"],
     barro: [`« Un sabre, c'est ${OBJETS.sabre.prix} Berrys. Il te sauvera la vie. »`, "« Loguetown voit passer bien des pirates. »"],
+    oswin: ["« Sans Log Pose, Grand Line te dévorera. Les boussoles n'y servent à rien. »", "« Je garde ce phare depuis plus longtemps que je ne m'en souviens. »"],
+    bolt: [s.navire ? `« Ta coque est à ${s.navire.coque} sur 100. ${s.navire.coque < 60 ? "Elle ne tiendra pas longtemps." : "Elle tient encore."} »` : "« Un navire, c'est une vie. Traite-le bien. »", "« Si tu sais tenir un rabot, il y a du travail au chantier. »"],
+    tess: ["« Les canaux sont plus beaux au coucher du soleil. »", "« Tu viens d'East Blue ? Tu as dû traverser Reverse Mountain ! »"],
+    hal: [`« Pour plonger sous la Red Line, il faut un enrobage. ${PRIX_ENROBAGE} Berrys. »`, "« Ici, le monde se divise : ceux qui continuent, et ceux qui renoncent. »"],
     garo: [s.pnj.garo.relation < 30 ? "« Hmph. Encore un gamin qui rêve de Grand Line ? »" : "« Il existe une force que chacun porte en soi. Les marins de Grand Line l'appellent le Haki. »",
       age(s) >= 15 && s.pnj.garo.relation >= 30 ? "« Si tu veux, je peux t'apprendre à l'éveiller. Ça ne sera pas gratuit, et ça fera mal. »" : "« J'ai navigué loin, autrefois. Très loin. »"],
     lise: [`« Mes bagues sont à ${OBJETS.bague.prix} Berrys. Pour une demande en mariage, peut-être ? »`, "« Le marché est plus animé que jamais. »"],
@@ -1078,12 +1184,15 @@ export function interpreterTexte(s, texte) {
   const lieuMotsTous = { bar: ["bar", "partys", "makino"], port: ["port", "quai"], place: ["place"], atelier: ["atelier", "charpentier", "tomas"],
     remise: ["remise"], colline: ["colline"], maison: ["maison", "chez moi"],
     port_shells: ["port"], base: ["base", "marine", "caserne"], taverne_shells: ["taverne", "mira"],
+    phare: ["phare"], rivage_lg: ["rivage"], jungle: ["jungle"], quai_w7: ["quai"], chantier: ["chantier"], bar_w7: ["bar"],
+    mangroves: ["mangrove", "port"], enrobage: ["enrobage"], bar_sabaody: ["bar"],
     pont_baratie: ["pont"], salle_baratie: ["salle", "restaurant"], cuisine_baratie: ["cuisine"],
     quais_logue: ["quai", "port", "dock"], marche_logue: ["marche"], armurerie: ["armurerie", "arme"], echafaud: ["echafaud"], auberge_logue: ["auberge"] };
   const lieuMots = Object.fromEntries(Object.entries(lieuMotsTous).filter(([k]) => LIEUX[k].ile === s.ile));
-  const ileMots = { fuchsia: ["fuchsia", "dawn"], shells: ["shells"], baratie: ["baratie"], loguetown: ["loguetown", "logue"] };
+  const ileMots = { fuchsia: ["fuchsia", "dawn"], shells: ["shells"], baratie: ["baratie"], loguetown: ["loguetown", "logue", "east blue", "calm belt"],
+    cap: ["cap", "reverse", "grand line"], little_garden: ["little garden"], water_seven: ["water seven", "water 7"], sabaody: ["sabaody"] };
   const pnjMots = { makino: ["makino"], woop: ["maire", "woop"], tomas: ["tomas", "charpentier"], bern: ["bern", "pecheur"], ilda: ["ilda", "marchande"],
-    sacha: ["sacha"], rivo: ["rivo", "sergent", "recruteur"], mira: ["mira"], gallo: ["gallo", "chef"], nino: ["nino", "serveur"], barro: ["barro", "armurier"], lise: ["lise", "bijout"], garo: ["garo", "vieux marin"] };
+    sacha: ["sacha"], rivo: ["rivo", "sergent", "recruteur"], mira: ["mira"], gallo: ["gallo", "chef"], nino: ["nino", "serveur"], barro: ["barro", "armurier"], lise: ["lise", "bijout"], garo: ["garo", "vieux marin"], oswin: ["oswin", "gardien"], bolt: ["bolt"], tess: ["tess"], hal: ["hal"] };
   const morceaux = t.split(/,| puis | et ensuite | ensuite |;| et /);
   for (const m of morceaux) {
     if (/(embarque|navigue|voyage|pars pour|part pour|bateau|navire)/.test(m)) {
@@ -1091,6 +1200,8 @@ export function interpreterTexte(s, texte) {
       if (d) { actions.push({ id: "voyager", cible: d[0] }); continue; }
     }
     if (/(engage|enrole)/.test(m)) { actions.push({ id: "engager" }); continue; }
+    if (/(radoub|repare.*(navire|bateau|coque))/.test(m)) { actions.push({ id: "radoub" }); continue; }
+    if (/enrob/.test(m)) { actions.push({ id: "enrober" }); continue; }
     if (/(pavillon|devenir pirate|deviens pirate)/.test(m)) { actions.push({ id: "pirate" }); continue; }
     if (/recrut/.test(m)) { actions.push({ id: "recruter" }); continue; }
     if (/(abordage|attaque.*navire|pille)/.test(m)) { actions.push({ id: "attaquer" }); continue; }
@@ -1117,7 +1228,7 @@ export function interpreterTexte(s, texte) {
     if (/peche|pecher/.test(m)) { actions.push({ id: "pecher" }); continue; }
     if (/(repare|reparer)/.test(m)) { actions.push({ id: "reparer" }); continue; }
     if (/(achete|acheter)/.test(m)) {
-      const o = /planche/.test(m) ? "planche" : /clou/.test(m) ? "clou" : /canne/.test(m) ? "canne" : /sabre/.test(m) ? "sabre" : /bague/.test(m) ? "bague" : /barque/.test(m) ? "barque" : /caravelle/.test(m) ? "caravelle" : null;
+      const o = /planche/.test(m) ? "planche" : /clou/.test(m) ? "clou" : /canne/.test(m) ? "canne" : /sabre/.test(m) ? "sabre" : /bague/.test(m) ? "bague" : /barque/.test(m) ? "barque" : /caravelle/.test(m) ? "caravelle" : /log/.test(m) ? "logpose" : null;
       if (o) { const n = parseInt(m.match(/\d+/)?.[0] || "1", 10); for (let i = 0; i < Math.min(n, 20); i++) actions.push({ id: "acheter", cible: o }); continue; }
     }
     if (/(bat|combat|affronte|frappe)/.test(m)) { actions.push({ id: "combattre" }); continue; }
@@ -1150,7 +1261,7 @@ export function faitsPourNarration(s, resultat) {
   // Faits établis transmis au narrateur IA : rien d'autre ne doit être raconté.
   const ici = pnjIci(s).map(id => `${s.pnj[id].nom} (${s.pnj[id].role})`);
   return [
-    `Lieu : ${LIEUX[s.lieu].nom}, à ${ILES[s.ile].nom} (${ILES[s.ile].desc}). Heure : ${Math.floor(s.heure)}h. Météo : ${s.monde.meteo}.`,
+    `Lieu : ${LIEUX[s.lieu].nom}, ${ILES[s.ile].a} (${ILES[s.ile].desc}). Heure : ${Math.floor(s.heure)}h. Météo : ${s.monde.meteo}.`,
     `Protagoniste : ${s.perso.prenom}, ${age(s)} ans${s.carriere?.type === "marine" ? `, ${RANGS_MARINE[s.carriere.rang]} de la Marine` : ""}${s.carriere?.type === "pirate" ? `, capitaine des ${s.carriere.equipage}` : ""}${s.prime ? `, prime de ${s.prime} Berrys` : ""}${s.fruit ? `, mangeur du ${FRUITS[s.fruit.id].nom} (${FRUITS[s.fruit.id].pouvoir})` : ""}${s.prison ? ", en prison" : ""}${s.haki && Object.keys(HAKI).some(t => s.haki.eveil[t]) ? `, maîtrise le ${Object.keys(HAKI).filter(t => s.haki.eveil[t]).map(t => HAKI[t].nom).join(" et le ")}` : ""}. Fatigue ${s.fatigue}/100.${blessureActive(s) ? ` Blessé : ${s.sante.blessures.map(b => b.nom).join(", ")}.` : ""}`,
     ici.length ? `Présents : ${ici.join(", ")}.` : "Personne d'autre n'est présent.",
     `Résultat établi par le jeu : ${resultat}`,

@@ -422,3 +422,75 @@ test("migration : une sauvegarde de la version 2 (sans piraterie ni fruits) devi
   assert.ok(E.agir(s, { id: "explorer" }).ok);
   assert.ok(E.actionsDisponibles(s).length > 0);
 });
+
+// ---------- Version 5 : Grand Line ----------
+
+const aLoguetown = (seed = 7) => {
+  const s = ado(); s.rng = seed; s.jour = 20 * 365; s.ile = "loguetown"; s.lieu = "quais_logue"; s.berrys = 5000;
+  s.navire = { type: "caravelle", nom: "Test", coque: 100 };
+  return s;
+};
+
+test("Grand Line : Reverse Mountain exige un navire et 17 ans", () => {
+  const s = aLoguetown(); s.navire = null;
+  assert.equal(E.agir(s, { id: "voyager", cible: "cap" }).ok, false);
+  const t = aLoguetown(); t.jour = 16 * 365;
+  assert.equal(E.agir(t, { id: "voyager", cible: "cap" }).ok, false);
+});
+
+test("Grand Line : traversée de Reverse Mountain, réussie ou naufrage", () => {
+  let arrive = 0, naufrages = 0;
+  for (let seed = 1; seed <= 60; seed++) {
+    const s = aLoguetown(seed);
+    E.agir(s, { id: "voyager", cible: "cap" });
+    if (s.ile === "cap" && s.navire) arrive++;
+    if (!s.navire) naufrages++;
+  }
+  assert.ok(arrive > 0 && naufrages > 0);
+});
+
+test("Grand Line : sans Log Pose, on ne quitte pas le cap ; avec, la coque s'use", () => {
+  const s = aLoguetown(); s.ile = "cap"; s.lieu = "phare";
+  assert.equal(E.agir(s, { id: "voyager", cible: "little_garden" }).ok, false);
+  assert.ok(E.agir(s, { id: "acheter", cible: "logpose" }).ok);
+  let essais = 0;
+  while (s.ile !== "little_garden" && essais++ < 30) {
+    s.ile = "cap"; s.lieu = "phare"; s.navire ??= { type: "caravelle", nom: "T", coque: 100 }; s.navire.coque = 100;
+    E.agir(s, { id: "voyager", cible: "little_garden" });
+  }
+  assert.equal(s.ile, "little_garden");
+  assert.ok(s.navire.coque < 100);
+});
+
+test("Grand Line : on ne saute pas d'île sans suivre le Log Pose", () => {
+  const s = aLoguetown(); s.ile = "cap"; s.lieu = "phare"; s.inventaire.logpose = 1;
+  assert.equal(E.agir(s, { id: "voyager", cible: "sabaody" }).ok, false);
+});
+
+test("Water Seven : réparation payée sans création d'argent", () => {
+  const s = aLoguetown(); s.ile = "water_seven"; s.lieu = "chantier"; s.navire.coque = 40;
+  const masse = E.masseMonetaire(s);
+  assert.ok(E.agir(s, { id: "radoub" }).ok);
+  assert.equal(s.navire.coque, 100);
+  assert.equal(s.berrys, 5000 - 60 * 20);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("naufrage quand la coque cède en mer", () => {
+  let coule = false;
+  for (let seed = 1; seed < 40 && !coule; seed++) {
+    const s = aLoguetown(seed); s.ile = "water_seven"; s.lieu = "quai_w7"; s.inventaire.logpose = 1; s.navire.coque = 3;
+    E.agir(s, { id: "voyager", cible: "sabaody" });
+    if (!s.navire) coule = true;
+  }
+  assert.ok(coule);
+});
+
+test("Sabaody : l'enrobage coûte 3 jours et 3000 Berrys", () => {
+  const s = aLoguetown(); s.ile = "sabaody"; s.lieu = "enrobage";
+  const jour = s.jour;
+  assert.ok(E.agir(s, { id: "enrober" }).ok);
+  assert.equal(s.navire.enrobe, true);
+  assert.equal(s.jour, jour + 3);
+  assert.equal(s.berrys, 2000);
+});
