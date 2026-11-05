@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { ACTIONS_VIE, actionsVie, initialiserVie, vieInterieure, seuilFatigue } from "./vie.js";
 import { ACTIONS_FACTIONS, actionsFactions, vieFactions, marineIgnore, reputation } from "./factions.js";
 import { initialiserChronologie, avancerChronologie, presentSelonCanon } from "./chronologie.js";
 import { initialiserEvenements, declencherEvenement, choixEvenement, choisir, accomplir, verifierAmbition } from "./evenements.js";
@@ -54,6 +55,7 @@ export const LIEUX = {
   atelier: { ile: "fuchsia", nom: "l'atelier du charpentier", court: "Atelier", a: "à l'atelier du charpentier" },
   remise: { ile: "fuchsia", nom: "la remise du maire", court: "Remise", a: "à la remise du maire" },
   colline: { ile: "fuchsia", nom: "la colline", court: "Colline", a: "sur la colline" },
+  ecole: { ile: "fuchsia", nom: "l'école du village", court: "École", a: "à l'école" },
   port_shells: { ile: "shells", nom: "le port de Shells Town", court: "Port", a: "au port de Shells Town" },
   base: { ile: "shells", nom: "la base de la Marine", court: "Base Marine", a: "à la base de la Marine" },
   taverne_shells: { ile: "shells", nom: "la taverne", court: "Taverne", a: "à la taverne" },
@@ -106,7 +108,7 @@ export const STATS = {
   force: "Force", agilite: "Agilité", endurance: "Endurance", intelligence: "Intelligence", charisme: "Charisme",
 };
 export const COMPETENCES = {
-  charpenterie: "Charpenterie", peche: "Pêche", combat: "Combat", cuisine: "Cuisine",
+  charpenterie: "Charpenterie", peche: "Pêche", combat: "Combat", cuisine: "Cuisine", navigation: "Navigation", musique: "Musique", medecine: "Médecine",
 };
 export const OBJETS = {
   planche: { nom: "planche", pluriel: "planches", prix: 20, vendeur: "tomas" },
@@ -190,7 +192,7 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
     jour: 0, heure: 8, fatigue: 0,
     perso: { prenom: prenom || "Sans-nom", genre, naissance: 0, vivant: true },
     stats: { force: 1, agilite: 1, endurance: 1, intelligence: 1, charisme: 1 },
-    competences: { charpenterie: 0, peche: 0, combat: 0, cuisine: 0 },
+    competences: { charpenterie: 0, peche: 0, combat: 0, cuisine: 0, navigation: 0, musique: 0, medecine: 0 },
     potentiel: {},
     berrys: 0, inventaire: { planche: 0, clou: 0, poisson: 0, canne: 0, sabre: 0, bague: 0, logpose: 0, logpose_nm: 0, fruits: [] },
     sante: { blessures: [], sequelles: [] },
@@ -211,6 +213,7 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
   initialiserMonde(s);
   initialiserEvenements(s);
   initialiserChronologie(s, ere);
+  initialiserVie(s);
   noter(s, `Tu nais à Fuchsia, un petit village paisible de l'île de Dawn, sur East Blue. Tes parents, ${s.pnj.mere.nom} et ${s.pnj.pere.nom}, t'appellent ${s.perso.prenom}.`, "naissance");
   return s;
 }
@@ -263,6 +266,7 @@ export function migrer(s) {
   initialiserMonde(s, { parents: false });
   initialiserEvenements(s);
   initialiserChronologie(s);
+  initialiserVie(s);
   s.version = VERSION;
   return s;
 }
@@ -313,6 +317,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
     s.famille.enfants.push(enfant); s.famille.grossesse = null;
     importants.push({ type: "naissance_enfant", texte: `Ton enfant ${enfant.prenom} est né${enfant.genre === "f" ? "e" : ""} !` });
     noter(s, `Naissance de ton enfant, ${enfant.prenom}.`, "famille");
+    s.humeur = Math.min(100, (s.humeur || 0) + 40);
   }
   // Guérison automatique pendant le temps simulé (K.2A) ; séquelle possible pour les blessures graves.
   for (const b of s.sante.blessures) b.jours -= 1;
@@ -360,6 +365,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
   if (declencherEvenement(s)) importants.push({ type: "evenement", texte: "Un événement demande ta décision." });
   verifierAmbition(s);
   vieFactions(s);
+  vieInterieure(s);
   // Vieillissement et mortalité crédible (simplifiée) après 70 ans.
   if (age(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - 65) * 0.02) {
     s.perso.vivant = false;
@@ -477,6 +483,7 @@ export function actionsDisponibles(s) {
   }
   if (s.lieu === "chantier" && s.navire && s.navire.coque < 100) a.push({ id: "radoub", label: `Faire réparer le navire (${(100 - s.navire.coque) * 20} B)` });
   a.push(...actionsFactions(s));
+  a.push(...actionsVie(s));
   if (s.lieu === "colisee" && ag >= 18) a.push({ id: "colisee", label: "Combattre au Colisée (3 000 B si victoire)" });
   if (ici.includes("soen") && s.pnj.soen.relation >= 20) a.push({ id: "sabre", label: `Leçon de sabre avec Sōen (${PRIX_LECON_SABRE} B)` });
   if (s.lieu === "enrobage" && s.navire && !s.navire.enrobe) a.push({ id: "enrober", label: `Faire enrober le navire (${PRIX_ENROBAGE} B, 3 jours)` });
@@ -536,7 +543,7 @@ function activite(s, { heures, fatigue, ageMin = 0 }) {
   // Conditions de validité (Q-résolution 3) : elles décident si l'activité a lieu, jamais du montant du gain.
   if (age(s) < ageMin) return `Tu es trop jeune pour ça (à partir de ${ageMin} ans).`;
   if (!tempsDisponible(s, heures)) return "Il est trop tard aujourd'hui. Repose-toi jusqu'à demain.";
-  if (s.fatigue >= FATIGUE_MAX_ACTIVITE) return "Tu es trop fatigué : l'activité n'est pas possible. Repose-toi.";
+  if (s.fatigue >= seuilFatigue(s)) return s.sante.maladies?.length ? "Ta santé ne te permet plus de forcer autant : repose-toi." : "Tu es trop fatigué : l'activité n'est pas possible. Repose-toi.";
   return null;
 }
 function gagnerStat(s, k, gain) {
@@ -547,6 +554,7 @@ function gagnerStat(s, k, gain) {
 
 const ACTIONS = {
   ...ACTIONS_FACTIONS,
+  ...ACTIONS_VIE,
   choisir: (s, i) => choisir(s, +i),
   accomplir: s => {
     const e = activite(s, { heures: 4, fatigue: 25, ageMin: 12 });
@@ -748,18 +756,18 @@ const ACTIONS = {
     if (versGL && !depuisGL || depuisGL && !versGL) {
       const calm = depuisGL;
       let risque = calm ? 0.35 : 0.25;
-      if (aRole(s, "navigateur")) risque -= 0.12;
+      if (navigue(s)) risque -= 0.12;
       if (s.navire.type === "caravelle") risque -= 0.05;
       if (rand(s) < risque) return naufrage(s, calm ? "dans la Calm Belt, renversé par un roi des mers" : "contre les parois de Reverse Mountain", calm ? "loguetown" : "cap");
       textes.push(calm ? "Vous traversez la Calm Belt sans vent, en retenant votre souffle au-dessus des rois des mers endormis." : "Le courant vous aspire vers le sommet de Reverse Mountain, puis vous dévalez de l'autre côté jusqu'à Grand Line !");
     }
     // Descente sous-marine et entrée de Wano : deux passages redoutables.
     if (dest === "hommes_poissons" && s.ile === "sabaody") {
-      if (rand(s) < (aRole(s, "navigateur") ? 0.08 : 0.15)) return naufrage(s, "dans les profondeurs, la bulle crevée par un courant descendant", "sabaody");
+      if (rand(s) < (navigue(s) ? 0.08 : 0.15)) return naufrage(s, "dans les profondeurs, la bulle crevée par un courant descendant", "sabaody");
       textes.push("La bulle plonge dans les abysses : lumières des poissons des profondeurs, ombres de rois des mers, puis la lueur d'un royaume sous-marin.");
     }
     if (dest === "wano") {
-      if (rand(s) < (aRole(s, "navigateur") ? 0.18 : 0.3)) return naufrage(s, "au pied des cascades qui défendent Wano", "dressrosa");
+      if (rand(s) < (navigue(s) ? 0.18 : 0.3)) return naufrage(s, "au pied des cascades qui défendent Wano", "dressrosa");
       textes.push("Une carpe géante, un courant furieux, puis l'ascension d'une cascade vertigineuse : Wano s'ouvre devant vous.");
     }
     // Les jours de mer passent réellement : le monde continue, les blessures guérissent.
@@ -769,7 +777,7 @@ const ACTIONS = {
       if (s.navire && (versGL || depuisGL)) {
         // Sur Grand Line, la mer use la coque ; un charpentier de bord répare en route.
         let usure = 2 + Math.floor(rand(s) * 5);
-        if (rand(s) < (aRole(s, "navigateur") ? 0.04 : 0.1)) { usure += 20; textes.push("Une tempête soudaine malmène le navire."); }
+        if (rand(s) < (navigue(s) ? 0.04 : 0.1)) { usure += 20; textes.push("Une tempête soudaine malmène le navire."); }
         if (aRole(s, "charpentier de bord")) usure = Math.max(0, usure - 4);
         s.navire.coque = Math.max(0, s.navire.coque - usure);
         if (s.navire.coque <= 0) return naufrage(s, "en pleine mer, la coque disloquée", dest);
@@ -1088,6 +1096,7 @@ const ACTIONS = {
     if (rand(s) < Math.min(0.95, (p.relation - 50) / 40)) {
       s.inventaire.bague -= 1; s.famille.statut = "marié";
       p.lieu = "maison"; p.relation += 15; souvenir(s, id, "vous vous êtes mariés");
+      s.humeur = Math.min(100, (s.humeur || 0) + 40);
       return res(true, `${p.nom} dit oui ! Vous vous mariez à Fuchsia, et ${il(p)} vient vivre avec toi dans ta maison.`);
     }
     return res(true, `${p.nom} : « Je t'aime, mais je ne suis pas encore prêt${p.genre === "f" ? "e" : ""}. »`);
@@ -1136,7 +1145,7 @@ export function succeder(s, index) {
   // L'enfant a grandi par lui-même : base liée à son âge, sans rien recevoir du parent.
   const base = 1 + Math.min(10, Math.floor((s.jour - e.naissance) / 365 / 3));
   s.stats = { force: base, agilite: base, endurance: base, intelligence: base, charisme: base };
-  s.competences = { charpenterie: 0, peche: 0, combat: 0, cuisine: 0 };
+  s.competences = { charpenterie: 0, peche: 0, combat: 0, cuisine: 0, navigation: 0, musique: 0, medecine: 0 };
   for (const k of Object.keys(s.stats)) s.potentiel[k] = 40 + Math.floor(rand(s) * 61);
   s.sante = { blessures: [], sequelles: [] };
   s.haki = { observation: 0, armement: 0, rois: 0, eveil: { observation: false, armement: false, rois: false }, progres: { observation: 0, armement: 0 }, roisInne: rand(s) < 0.03 };
@@ -1192,6 +1201,8 @@ function eveilDanger(s) {
   return " Au cœur du danger, tu as perçu chaque mouvement avant qu'il ne se produise : ton Haki de l'observation s'est éveillé !";
 }
 
+// Un navigateur à bord, ou ta propre science des cartes (navigation 10), réduit les risques en mer.
+const navigue = s => aRole(s, "navigateur") || (s.competences.navigation || 0) >= 10;
 const aRole = (s, role) => equipage(s).some(id => s.pnj[id].role.startsWith(role));
 
 // Naufrage : le navire est perdu, l'équipage se disperse, et un mangeur de fruit peut se noyer.
@@ -1240,7 +1251,7 @@ function blesser(s, gravite) {
     return;
   }
   const b = { ...types[gravite] };
-  if (b.sequelle && rand(s) > 0.4) delete b.sequelle;
+  if (b.sequelle && (rand(s) > 0.4 || (s.competences.medecine || 0) >= 10)) delete b.sequelle;
   s.sante.blessures.push({ ...b, gravite, depuis: s.jour });
   noter(s, `Blessure : ${b.nom} (guérison en ${b.jours} jours).`, "sante");
 }

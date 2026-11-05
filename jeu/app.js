@@ -7,9 +7,10 @@ import {
 import { regionDe, RANGS_OFFICIERS } from "./monde.js";
 import { ERES, CALENDRIER, anneeRelative, anneeTexte } from "./chronologie.js";
 import { FACTIONS } from "./factions.js";
+import { humeurTexte, portraitTraits, TRAITS } from "./vie.js";
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "11 · factions";
+export const VERSION_APP = "12 · vie profonde";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -151,6 +152,7 @@ function rendreStatut() {
     <div class="jauges">
       <span class="energie" title="Énergie"><i style="width:${energie}%"></i><em>Énergie ${energie}</em></span>
       <span class="${etat[1]}">${etat[0]}</span>
+      <span class="${humeurTexte(s.humeur || 0)[1]}">${humeurTexte(s.humeur || 0)[0]}</span>
       <span class="region">${region}</span>
       ${s.prime ? `<span class="prime">Prime ${s.prime.toLocaleString("fr-FR")} ฿</span>` : ""}
       ${iaActive() ? `<span class="ia">IA</span>` : ""}
@@ -161,8 +163,8 @@ function rendreStatut() {
 const GROUPES = [
   ["propositions", "Décision", ["choisir", "accepter", "refuser", "accomplir"]],
   ["prison", "En cellule", ["attendre", "evader"]],
-  ["progresser", "Progresser", ["entrainer", "etudier", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
-  ["activites", "Activités", ["travailler", "pecher", "cuisiner", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "manger"]],
+  ["progresser", "Progresser", ["entrainer", "etudier", "ecole", "cartes", "medecine", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
+  ["activites", "Activités", ["travailler", "pecher", "cuisiner", "musique", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "consulter", "genereux", "tricher", "harangue", "manger"]],
   ["aventure", "Aventure", ["voyager", "pirate", "recruter", "attaquer", "combattre", "engager", "service", "patrouille", "chasseur", "traquer", "revolution", "sabotage", "alliance", "trahir", "quitter"]],
   ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant"]],
 ];
@@ -289,11 +291,16 @@ function rendreFiche() {
     <section class="carte"><h2>Caractéristiques</h2>
       ${Object.entries(STATS).map(([k, l]) => `<div class="stat"><span>${l}</span>${barre(s.stats[k])}<b>${s.stats[k]}</b></div>`).join("")}
       <p class="discret">Chaque entraînement réussi rapporte toujours le même gain fixe.</p></section>
+    <section class="carte"><h2>Personnalité</h2>
+      <p>${portraitTraits(s).join(", ") || "Encore en train de se dessiner."}</p>
+      ${Object.entries(TRAITS).map(([k, [neg, pos]]) => `<div class="stat"><span class="petit">${neg} · ${pos}</span><span class="barre"><i style="width:${((s.traits[k] || 0) + 10) * 5}%"></i></span><b>${s.traits[k] || 0}</b></div>`).join("")}
+      <p class="discret">Éducation : ${s.education || 0}${(s.education || 0) >= 40 ? " (instruit)" : ""} · Humeur : ${humeurTexte(s.humeur || 0)[0].toLowerCase()}</p></section>
     <section class="carte"><h2>Compétences</h2>
       ${Object.entries(COMPETENCES).map(([k, l]) => `<div class="stat"><span>${l}</span>${barre(s.competences[k], 50)}<b>${s.competences[k]}</b></div>`).join("")}</section>
     <section class="carte"><h2>Santé</h2>
       ${s.sante.blessures.length ? s.sante.blessures.map(b => `<p>${esc(b.nom)} · guérison dans ${b.jours} jour${b.jours > 1 ? "s" : ""}</p>`).join("") : "<p>Aucune blessure.</p>"}
-      ${s.sante.sequelles.length ? `<p class="discret">Séquelles : ${s.sante.sequelles.map(esc).join(", ")}</p>` : ""}</section>
+      ${s.sante.sequelles.length ? `<p class="discret">Séquelles : ${s.sante.sequelles.map(esc).join(", ")}</p>` : ""}
+      ${s.sante.maladies?.length ? `<p class="discret">Maladies : ${s.sante.maladies.join(", ")}</p>` : ""}</section>
     <section class="carte"><h2>Possessions</h2><p>${s.berrys} Berrys</p>
       <p>${Object.entries(s.inventaire).filter(([k, n]) => k !== "fruits" && n > 0).map(([k, n]) => `${n} ${n > 1 ? OBJETS[k].pluriel : OBJETS[k].nom}`).join(", ") || "Rien d'autre."}</p>
       ${s.inventaire.fruits.length ? `<p>Fruits du Démon non mangés : ${s.inventaire.fruits.map(f => FRUITS[f].nom).join(", ")}</p>` : ""}

@@ -728,3 +728,42 @@ test("alliance puis trahison : la réputation chez les pirates s'effondre", () =
   assert.ok(s.monde.rivaux[0].ennemi);
   assert.ok(s.reputation.pirates < 0);
 });
+
+// ---------- Étape 5 : une vie profonde ----------
+import * as VI from "../jeu/vie.js";
+
+test("école : chaque journée de classe rapporte exactement +1 en éducation", () => {
+  const s = E.nouvelleVie({ prenom: "S", seed: 51 }); s.jour = 8 * 365; s.lieu = "ecole";
+  for (let i = 1; i <= 3; i++) { s.heure = 8; s.fatigue = 0; assert.ok(E.agir(s, { id: "ecole" }).ok); assert.equal(s.education, i); }
+});
+
+test("maladie chronique : moins d'énergie disponible, mais le gain d'un entraînement reste fixe", () => {
+  const s = ado(); s.sante.maladies = ["rhumatismes"];
+  s.fatigue = 70;
+  assert.equal(E.agir(s, { id: "entrainer", cible: "force" }).ok, false);
+  s.fatigue = 0; const f = s.stats.force;
+  E.agir(s, { id: "entrainer", cible: "force" });
+  assert.equal(s.stats.force, f + E.GAINS.entrainement);
+});
+
+test("musique : les pourboires viennent des présents, sans création d'argent", () => {
+  const s = ado(); s.lieu = "bar";
+  const masse = E.masseMonetaire(s);
+  assert.ok(E.agir(s, { id: "musique" }).ok);
+  assert.ok(s.berrys > 0);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("personnalité : deux vies identiques à la naissance divergent selon les choix", () => {
+  const vivre = choix => {
+    const s = E.nouvelleVie({ prenom: "J", seed: 52 });
+    for (let j = 0; j < 20 * 365 && s.perso.vivant; j++) {
+      if (s.evenement) { const n = E.actionsDisponibles(s).filter(a => a.id === "choisir").length; E.agir(s, { id: "choisir", cible: choix === "premier" ? 0 : n - 1 }); }
+      E.avancer(s, 1);
+    }
+    return s;
+  };
+  const a = vivre("premier"), b = vivre("dernier");
+  const ecart = Object.keys(a.traits).reduce((t, k) => t + Math.abs(a.traits[k] - b.traits[k]), 0);
+  assert.ok(ecart >= 4, `écart de personnalité trop faible : ${ecart}`);
+});
