@@ -14,6 +14,7 @@ const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 let s = null;
 let occupe = false;
 let onglet = "jeu";
+let dernierLieu = null;
 
 // ---------- Sauvegardes (automatiques, vérifiées, avec copie de secours) ----------
 
@@ -42,6 +43,17 @@ function charger(id) {
   }
 }
 
+// ---------- Prénoms au hasard ----------
+
+const PRENOMS = {
+  g: ["Kai", "Milo", "Ren", "Taro", "Elio", "Noé", "Sven", "Jiro", "Lucas", "Matéo", "Hugo", "Raiden", "Yuki", "Diego", "Ilan", "Kenji", "Léo", "Orin", "Bastien", "Akira"],
+  f: ["Lena", "Sora", "Mei", "Lina", "Rin", "Iris", "Nora", "Yumi", "Alba", "Kiara", "Zoé", "Inès", "Hana", "Maya", "Luna", "Aiko", "Elsa", "Naïa", "Clara", "Sakura"],
+};
+function prenomAuHasard(genre) {
+  const liste = genre === "g" ? PRENOMS.g : genre === "f" ? PRENOMS.f : [...PRENOMS.g, ...PRENOMS.f];
+  return liste[Math.floor(Math.random() * liste.length)];
+}
+
 // ---------- Écrans ----------
 
 function ecranAccueil() {
@@ -52,7 +64,10 @@ function ecranAccueil() {
     <section class="carte">
       <h2>Nouvelle vie</h2>
       <label for="prenom">Prénom</label>
-      <input id="prenom" maxlength="24" placeholder="Ton prénom" autocomplete="off">
+      <div class="ligne-champ">
+        <input id="prenom" maxlength="24" placeholder="Ton prénom" autocomplete="off">
+        <button type="button" class="de" id="hasard" aria-label="Prénom au hasard">🎲</button>
+      </div>
       <label for="genre">Tu es</label>
       <select id="genre"><option value="g">un garçon</option><option value="f">une fille</option><option value="x">non précisé</option></select>
       <button id="naitre" class="principal">Naître à Fuchsia</button>
@@ -62,8 +77,9 @@ function ecranAccueil() {
       <div class="ligne-vie"><button class="secondaire" data-ouvrir="${esc(m.id)}">${esc(m.prenom)} · ${m.vivant ? `${m.age} ans` : "vie terminée"}</button>
       <button class="icone" data-suppr="${esc(m.id)}" aria-label="Supprimer">✕</button></div>`).join("")}</section>` : ""}
     <section class="carte"><h2>Réglages</h2>${htmlReglages()}</section>`;
+  $("#hasard").onclick = () => { $("#prenom").value = prenomAuHasard($("#genre").value); };
   $("#naitre").onclick = () => {
-    const prenom = $("#prenom").value.trim() || ["Kai", "Lena", "Sora", "Milo", "Nami"][Math.floor(Math.random() * 5)];
+    const prenom = $("#prenom").value.trim() || prenomAuHasard($("#genre").value);
     s = nouvelleVie({ prenom, genre: $("#genre").value, seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0 });
     sauver(); ecranJeu();
   };
@@ -96,50 +112,100 @@ function ecranJeu() {
   rendre();
 }
 
+// Après chaque mise à jour de l'écran, les boutons changent de place : un second appui trop rapide
+// tomberait sur un autre bouton. On ignore donc les appuis pendant un court instant.
+let verrouAppuis = 0;
+document.addEventListener("click", e => {
+  if (performance.now() < verrouAppuis && e.target.closest("button")) { e.preventDefault(); e.stopPropagation(); }
+}, true);
+
 function rendre() {
+  verrouAppuis = performance.now() + 350;
   document.querySelectorAll("[data-onglet]").forEach(b => b.classList.toggle("actif", b.dataset.onglet === onglet));
   rendreStatut();
   ({ jeu: rendreVivre, fiche: rendreFiche, journal: rendreJournal, menu: rendreMenu })[onglet]();
 }
 
 function rendreStatut() {
-  const sante = s.prison ? "En prison" : s.sante.blessures.length ? `Blessé` : "En forme";
+  const ile = ILES[s.ile];
+  const region = ile.nouveauMonde ? "Nouveau Monde" : ile.grandLine ? "Grand Line" : "East Blue";
+  const energie = 100 - s.fatigue;
+  const etat = s.prison ? ["En prison", "ko"] : s.sante.blessures.length ? ["Blessé", "ko"] : ["En forme", "ok"];
   $("#statut").innerHTML = `
-    <div><strong>${esc(s.perso.prenom)}</strong> · ${age(s)} an${age(s) > 1 ? "s" : ""}</div>
-    <div class="discret">Année ${annee(s)}, jour ${jourDansAnnee(s)} · ${Math.floor(s.heure)}h · ${ILES[s.ile].nom}${ILES[s.ile].nouveauMonde ? " (Nouveau Monde)" : ILES[s.ile].grandLine ? " (Grand Line)" : ""} · ${LIEUX[s.lieu].court}</div>
-    <div class="jauges"><span>${s.berrys} ฿</span><span>Fatigue ${s.fatigue}</span><span>${sante}</span>${s.prime ? `<span class="prime">Prime ${s.prime.toLocaleString("fr-FR")} ฿</span>` : ""}${iaActive() ? `<span class="ia">IA</span>` : ""}</div>`;
+    <div class="tete">
+      <div class="avatar" aria-hidden="true">${esc(s.perso.prenom[0] || "?")}</div>
+      <div class="identite">
+        <div><strong>${esc(s.perso.prenom)}</strong> <span class="discret">· ${age(s)} an${age(s) > 1 ? "s" : ""}</span></div>
+        <div class="discret petit">Année ${annee(s)}, jour ${jourDansAnnee(s)} · ${Math.floor(s.heure)}h</div>
+      </div>
+      <div class="bourse"><b>${s.berrys.toLocaleString("fr-FR")}</b> ฿</div>
+    </div>
+    <div class="jauges">
+      <span class="energie" title="Énergie"><i style="width:${energie}%"></i><em>Énergie ${energie}</em></span>
+      <span class="${etat[1]}">${etat[0]}</span>
+      <span class="region">${region}</span>
+      ${s.prime ? `<span class="prime">Prime ${s.prime.toLocaleString("fr-FR")} ฿</span>` : ""}
+      ${iaActive() ? `<span class="ia">IA</span>` : ""}
+    </div>`;
 }
+
+// Regroupement des actions par thème pour l'écran principal.
+const GROUPES = [
+  ["propositions", "Propositions", ["accepter", "refuser"]],
+  ["prison", "En cellule", ["attendre", "evader"]],
+  ["progresser", "Progresser", ["entrainer", "etudier", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
+  ["activites", "Activités", ["travailler", "pecher", "cuisiner", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "manger"]],
+  ["aventure", "Aventure", ["voyager", "pirate", "recruter", "attaquer", "combattre", "engager", "service", "patrouille", "quitter"]],
+  ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant"]],
+];
 
 const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole", "voyage", "famille"]);
 
 function rendreVivre() {
   const recents = s.journal.filter(e => TYPES_VISIBLES.has(e.type)).slice(-14);
   const actions = actionsDisponibles(s);
-  const ici = pnjIci(s).map(id => s.pnj[id].nom);
+  const ici = pnjIci(s);
   const enfant = age(s) < 6;
+  const ile = ILES[s.ile];
+  const lieu = LIEUX[s.lieu];
+  const index = new Map(actions.map((a, i) => [a, i]));
+  const groupes = GROUPES.map(([cle, titre, ids]) => [cle, titre, actions.filter(a => ids.includes(a.id))]).filter(g => g[2].length);
+  const bouton = a => `<button class="action${a.id === "manger" && s.fruit ? " danger" : ""}" data-action="${index.get(a)}">${esc(a.label)}</button>`;
+  let jourPrec = null;
+  const recit = recents.map((e, i) => {
+    const sep = e.jour !== jourPrec ? `<div class="sep-jour">Année ${Math.floor(e.jour / 365) + 1} · jour ${(e.jour % 365) + 1}</div>` : "";
+    jourPrec = e.jour;
+    return `${sep}<p class="e-${e.type}${i === recents.length - 1 ? " dernier" : ""}">${esc(e.texte)}</p>`;
+  }).join("");
   $("#contenu").innerHTML = `
-    <section class="recit" id="recit">${recents.map(e => `<p class="e-${e.type}">${esc(e.texte)}</p>`).join("")}</section>
+    <section class="scene">
+      <div class="scene-ile">${esc(ile.nom[0].toUpperCase() + ile.nom.slice(1))}</div>
+      <div class="scene-lieu">${esc(lieu.nom[0].toUpperCase() + lieu.nom.slice(1))}</div>
+      <div class="presents">${ici.length ? ici.map(id => `<button class="pnj" data-parler="${id}"><span>${esc(s.pnj[id].nom[0])}</span>${esc(s.pnj[id].nom)}</button>`).join("") : `<span class="discret petit">Personne ici.</span>`}</div>
+    </section>
+    <section class="recit" id="recit">${recit}</section>
     ${s.perso.vivant ? `
     ${enfant ? "" : `<form class="saisie" id="saisie">
-      <input id="texte" placeholder="Que fais-tu ? (ex. « je vais au port et je travaille avec Bern »)" autocomplete="off">
-      <button class="principal" type="submit">OK</button>
+      <input id="texte" placeholder="Que fais-tu ?" autocomplete="off" enterkeyhint="send">
+      <button class="principal" type="submit" aria-label="Valider">➤</button>
     </form>`}
-    <section class="carte compacte">
-      <p class="discret">${LIEUX[s.lieu].nom[0].toUpperCase() + LIEUX[s.lieu].nom.slice(1)}${ici.length ? ` · ${ici.join(", ")}` : " · personne"}</p>
-      <div class="boutons">${actions.map((a, i) => `<button data-action="${i}">${esc(a.label)}</button>`).join("")}</div>
-      <div class="lieux">${lieuxDe(s.ile).filter(id => id !== s.lieu).map(id => `<button class="secondaire" data-aller="${id}">${LIEUX[id].court}</button>`).join("")}</div>
-      <div class="boutons temps">
-        <button class="secondaire" data-temps="repos">Dormir</button>
-        <button class="secondaire" data-temps="7">+1 semaine</button>
-        <button class="secondaire" data-temps="30">+1 mois</button>
-        ${age(s) < 16 ? `<button class="secondaire" data-temps="365">+1 an</button>` : ""}
-      </div>
+    ${groupes.map(([cle, titre, liste]) => `<section class="groupe g-${cle}"><h3>${titre}</h3><div class="grille">${liste.map(bouton).join("")}</div></section>`).join("")}
+    ${s.prison ? "" : `<section class="groupe"><h3>Se déplacer ${ile.a}</h3>
+      <div class="lieux">${lieuxDe(s.ile).filter(id => id !== s.lieu).map(id => `<button class="chip" data-aller="${id}">${LIEUX[id].court}</button>`).join("")}</div></section>`}
+    <section class="temps">
+      <button data-temps="repos">🌙 Dormir</button>
+      <button data-temps="7">+1 sem.</button>
+      <button data-temps="30">+1 mois</button>
+      ${age(s) < 16 ? `<button data-temps="365">+1 an</button>` : ""}
     </section>
 ` : `<section class="carte"><h2>Fin de vie</h2><p>${esc(s.perso.prenom)} a vécu ${age(s)} ans.</p>
       ${heritiers(s).map((e, i) => `<button class="principal" data-heritier="${i}">Continuer avec ${esc(e.prenom)} (${Math.floor((s.jour - e.naissance) / 365)} ans)</button>`).join("")}
       <button class="${heritiers(s).length ? "secondaire" : "principal"}" id="retour">Commencer une nouvelle vie</button></section>`}`;
   const r = $("#recit"); r.scrollTop = r.scrollHeight;
+  // Nouveau lieu : on remonte en haut pour voir la scène et qui est présent.
+  if (s.lieu !== dernierLieu) { window.scrollTo(0, 0); dernierLieu = s.lieu; }
   document.querySelectorAll("[data-action]").forEach(b => b.onclick = () => jouer([actions[+b.dataset.action]]));
+  document.querySelectorAll("[data-parler]").forEach(b => b.onclick = () => jouer([{ id: "parler", cible: b.dataset.parler }]));
   document.querySelectorAll("[data-aller]").forEach(b => b.onclick = () => jouer([{ id: "aller", cible: b.dataset.aller }]));
   document.querySelectorAll("[data-temps]").forEach(b => b.onclick = () => {
     if (b.dataset.temps === "repos") return jouer([{ id: "repos" }]);
