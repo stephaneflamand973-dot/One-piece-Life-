@@ -479,7 +479,7 @@ function renderSummary() {
 }
 
 function exportData() {
-  const models = [...new Set(db.runs.map(r => r.model).concat(db.endurance.map(e => e.model)))];
+  const models = [...new Set([...db.runs, ...db.endurance, ...db.crashes].map(x => x.model))];
   return JSON.stringify({ banc: "R.7D-safari", seuils: SEUILS, exportedAt: new Date().toISOString(),
     bilan: models.map(evaluate), ...db }, null, 2);
 }
