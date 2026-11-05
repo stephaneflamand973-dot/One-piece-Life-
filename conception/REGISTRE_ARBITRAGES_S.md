@@ -60,3 +60,14 @@ Complément au *Dossier maître de transmission* du 2026-11-05. Ce registre ne r
 3. Les seuils de performance ne sont pas fixés.
 4. Les cas limites du séquestre (Q-résolution 2) restent à confronter.
 5. Les libellés non retrouvés de D.1, G.6, K.5/K.6 et de certaines sous-questions F restent non reconstitués.
+
+## Résultats de la mesure R.7D, volet Safari (iPhone 15, iOS 26.5.2, 2026-11-05)
+
+| Modèle | Résultat |
+|---|---|
+| Qwen 3.5 · 2B | Chargé (65 s), puis **fermeture forcée par iOS** à la première génération. P4 échoué. |
+| Llama 3.2 · 1B | **2 fermetures forcées** (début de série, début d'endurance). P4 échoué. Après environ 4,5 minutes, le moteur IA ne répond plus (réponses vides). Interprétation JSON très insuffisante : intentions inventées, conditions fausses, boucles d'espaces. Vitesse passée de 27 à 20 jetons/s en 4 minutes. |
+
+Le bilan automatique de l'export comptait comme « réussis » des cas vides (T24) et calculait P1/P2 sur trop peu de réponses : ces statuts sont **invalides**. Le banc est corrigé.
+
+**Constat :** les deux candidats mesurés, dont le plus léger, échouent à P4 dans Safari. Ce n'est pas une démonstration d'infaisabilité de l'IA locale sur iPhone ; le volet natif n'est pas mesuré.
