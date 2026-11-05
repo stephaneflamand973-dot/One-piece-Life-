@@ -6,6 +6,7 @@ import {
 } from "./engine.js";
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
+export const VERSION_APP = "7.1 · interface";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -60,7 +61,7 @@ function ecranAccueil() {
   s = null;
   const ix = lireIndex();
   $("#app").innerHTML = `
-    <header class="titre"><h1>One Piece Life</h1><p>Une vie entière dans le monde de One Piece.</p></header>
+    <header class="titre"><h1>One Piece Life</h1><p>Une vie entière dans le monde de One Piece.</p><p class="discret petit">Version ${VERSION_APP}</p></header>
     <section class="carte">
       <h2>Nouvelle vie</h2>
       <label for="prenom">Prénom</label>
@@ -324,7 +325,7 @@ function rendreJournal() {
 function rendreMenu() {
   $("#contenu").innerHTML = `
     <section class="carte"><h2>Partie</h2>
-      <p class="discret">Sauvegarde automatique après chaque action. Le monde est figé quand tu quittes l'app.</p>
+      <p class="discret">Sauvegarde automatique après chaque action. Le monde est figé quand tu quittes l'app. Version ${VERSION_APP}.</p>
       <button class="secondaire" id="exporter">Exporter la sauvegarde</button>
       <button class="secondaire" id="accueil">Changer de vie</button></section>
     <section class="carte"><h2>IA (facultative)</h2>${htmlReglages()}</section>`;
@@ -371,5 +372,18 @@ function alerte(t) {
   document.body.appendChild(d); setTimeout(() => d.remove(), 4000);
 }
 
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
+// Mises à jour : on vérifie au lancement et à chaque retour dans l'app ; si une nouvelle version
+// s'installe, la page se recharge d'elle-même (la partie est déjà sauvegardée).
+if ("serviceWorker" in navigator) {
+  const avaitControleur = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then(reg => {
+    reg.update().catch(() => {});
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") reg.update().catch(() => {}); });
+  }).catch(() => {});
+  let recharge = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!avaitControleur || recharge) return;
+    recharge = true; sauver(); location.reload();
+  });
+}
 ecranAccueil();
