@@ -1,6 +1,7 @@
 import {
   nouvelleVie, agir, avancer, actionsDisponibles, interpreterTexte, serialiser, deserialiser,
-  age, annee, jourDansAnnee, LIEUX, STATS, COMPETENCES, OBJETS, pnjIci, faitsPourNarration,
+  age, annee, jourDansAnnee, LIEUX, ILES, STATS, COMPETENCES, OBJETS, pnjIci, faitsPourNarration,
+  migrer, lieuxDe, heritiers, succeder, RANGS_MARINE, MERITE_RANG, agePnj,
 } from "./engine.js";
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
@@ -33,9 +34,9 @@ function sauver() {
 
 function charger(id) {
   const k = cleMonde(id);
-  try { return { etat: deserialiser(localStorage.getItem(k)), secours: false }; }
+  try { return { etat: migrer(deserialiser(localStorage.getItem(k))), secours: false }; }
   catch {
-    try { return { etat: deserialiser(localStorage.getItem(`${k}-secours`)), secours: true }; }
+    try { return { etat: migrer(deserialiser(localStorage.getItem(`${k}-secours`))), secours: true }; }
     catch { return null; }
   }
 }
@@ -104,11 +105,11 @@ function rendreStatut() {
   const sante = s.sante.blessures.length ? `Blessé` : "En forme";
   $("#statut").innerHTML = `
     <div><strong>${esc(s.perso.prenom)}</strong> · ${age(s)} an${age(s) > 1 ? "s" : ""}</div>
-    <div class="discret">Année ${annee(s)}, jour ${jourDansAnnee(s)} · ${Math.floor(s.heure)}h · ${LIEUX[s.lieu].court}</div>
+    <div class="discret">Année ${annee(s)}, jour ${jourDansAnnee(s)} · ${Math.floor(s.heure)}h · ${ILES[s.ile].nom} · ${LIEUX[s.lieu].court}</div>
     <div class="jauges"><span>${s.berrys} ฿</span><span>Fatigue ${s.fatigue}</span><span>${sante}</span>${iaActive() ? `<span class="ia">IA</span>` : ""}</div>`;
 }
 
-const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole"]);
+const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole", "voyage", "famille"]);
 
 function rendreVivre() {
   const recents = s.journal.filter(e => TYPES_VISIBLES.has(e.type)).slice(-14);
@@ -125,7 +126,7 @@ function rendreVivre() {
     <section class="carte compacte">
       <p class="discret">${LIEUX[s.lieu].nom[0].toUpperCase() + LIEUX[s.lieu].nom.slice(1)}${ici.length ? ` · ${ici.join(", ")}` : " · personne"}</p>
       <div class="boutons">${actions.map((a, i) => `<button data-action="${i}">${esc(a.label)}</button>`).join("")}</div>
-      <div class="lieux">${Object.entries(LIEUX).filter(([id]) => id !== s.lieu).map(([id, l]) => `<button class="secondaire" data-aller="${id}">${l.court}</button>`).join("")}</div>
+      <div class="lieux">${lieuxDe(s.ile).filter(id => id !== s.lieu).map(id => `<button class="secondaire" data-aller="${id}">${LIEUX[id].court}</button>`).join("")}</div>
       <div class="boutons temps">
         <button class="secondaire" data-temps="repos">Dormir</button>
         <button class="secondaire" data-temps="7">+1 semaine</button>
@@ -133,7 +134,9 @@ function rendreVivre() {
         ${age(s) < 16 ? `<button class="secondaire" data-temps="365">+1 an</button>` : ""}
       </div>
     </section>
-` : `<section class="carte"><h2>Fin de vie</h2><p>${esc(s.perso.prenom)} a vécu ${age(s)} ans.</p><button class="principal" id="retour">Commencer une nouvelle vie</button></section>`}`;
+` : `<section class="carte"><h2>Fin de vie</h2><p>${esc(s.perso.prenom)} a vécu ${age(s)} ans.</p>
+      ${heritiers(s).map((e, i) => `<button class="principal" data-heritier="${i}">Continuer avec ${esc(e.prenom)} (${Math.floor((s.jour - e.naissance) / 365)} ans)</button>`).join("")}
+      <button class="${heritiers(s).length ? "secondaire" : "principal"}" id="retour">Commencer une nouvelle vie</button></section>`}`;
   const r = $("#recit"); r.scrollTop = r.scrollHeight;
   document.querySelectorAll("[data-action]").forEach(b => b.onclick = () => jouer([actions[+b.dataset.action]]));
   document.querySelectorAll("[data-aller]").forEach(b => b.onclick = () => jouer([{ id: "aller", cible: b.dataset.aller }]));
@@ -143,6 +146,7 @@ function rendreVivre() {
   });
   if ($("#saisie")) $("#saisie").onsubmit = e => { e.preventDefault(); libre($("#texte").value.trim()); };
   if ($("#retour")) $("#retour").onclick = ecranAccueil;
+  document.querySelectorAll("[data-heritier]").forEach(b => b.onclick = () => { succeder(s, +b.dataset.heritier); sauver(); rendre(); });
 }
 
 async function jouer(actions, { narrer: avecNarration = true } = {}) {
@@ -218,7 +222,15 @@ function rendreFiche() {
     <section class="carte"><h2>Possessions</h2><p>${s.berrys} Berrys</p>
       <p>${Object.entries(s.inventaire).filter(([, n]) => n > 0).map(([k, n]) => `${n} ${n > 1 ? OBJETS[k].pluriel : OBJETS[k].nom}`).join(", ") || "Rien d'autre."}</p></section>
     <section class="carte"><h2>Relations</h2>
-      ${Object.values(s.pnj).map(p => `<div class="stat"><span>${esc(p.nom)} <i class="discret">${esc(p.role)}</i></span>${barre(Math.max(0, p.relation))}<b>${p.relation}</b></div>`).join("")}</section>
+      ${Object.entries(s.pnj).filter(([, p]) => !p.invisible && (p.relation !== 0 || p.souvenirs.length || LIEUX[p.lieu]?.ile === s.ile)).map(([id, p]) => `<div class="stat"><span>${esc(p.nom)} <i class="discret">${esc(p.role)}${agePnj(s, id) != null ? `, ${agePnj(s, id)} ans` : ""}</i></span>${barre(Math.max(0, p.relation))}<b>${p.relation}</b></div>`).join("")}</section>
+    <section class="carte"><h2>Carrière</h2>
+      ${s.carriere?.type === "marine" ? `<p>${RANGS_MARINE[s.carriere.rang]} de la Marine · mérite ${s.carriere.merite}${s.carriere.rang < RANGS_MARINE.length - 1 ? ` / ${MERITE_RANG[s.carriere.rang + 1]} pour ${RANGS_MARINE[s.carriere.rang + 1]}` : ""}</p>`
+        : `<p>Aucune carrière.${age(s) >= 16 ? " La Marine recrute à la base de Shells Town." : ""}</p>`}</section>
+    <section class="carte"><h2>Famille</h2>
+      ${s.famille.partenaire ? `<p>${s.famille.statut === "marié" ? "Marié·e à" : "En couple avec"} ${esc(s.pnj[s.famille.partenaire].nom)}</p>` : "<p>Célibataire.</p>"}
+      ${s.famille.grossesse ? `<p class="discret">Un enfant est attendu dans ${s.famille.grossesse.terme - s.jour} jours.</p>` : ""}
+      ${s.famille.enfants.map(e => `<p>${esc(e.prenom)} · ${Math.floor((s.jour - e.naissance) / 365)} ans</p>`).join("")}
+      ${s.ancetres.length ? `<p class="discret">Génération ${s.generation} · ancêtres : ${s.ancetres.map(a => `${esc(a.prenom)} (${a.age} ans)`).join(", ")}</p>` : ""}</section>
     <section class="carte"><h2>Missions</h2>
       ${missions.length ? missions.map(m => `<div class="mission"><b>${esc(m.titre)}</b> · <span class="m-${m.statut}">${m.statut}</span>
         <p class="discret">${esc(m.condition)} Récompense : ${m.recompense} Berrys${m.statut === "active" ? ` (mise de côté) · échéance fin du jour ${m.echeance + 1}` : ""}.</p></div>`).join("") : "<p>Aucune mission.</p>"}</section>`;

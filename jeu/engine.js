@@ -4,19 +4,61 @@
 // guérison automatique en temps simulé (K.2A), fabrication instantanée si ressources (I.5A),
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
-export const VERSION = 1;
+export const VERSION = 2;
 export const JOUR_HEURES = 16; // heures d'éveil par jour
 export const FATIGUE_MAX_ACTIVITE = 80;
 
-export const LIEUX = {
-  maison: { nom: "ta maison", court: "Maison", a: "chez toi" },
-  bar: { nom: "le bar Partys", court: "Bar Partys", a: "au bar Partys" },
-  place: { nom: "la place du village", court: "Place", a: "sur la place du village" },
-  port: { nom: "le port", court: "Port", a: "au port" },
-  atelier: { nom: "l'atelier du charpentier", court: "Atelier", a: "à l'atelier du charpentier" },
-  remise: { nom: "la remise du maire", court: "Remise", a: "à la remise du maire" },
-  colline: { nom: "la colline", court: "Colline", a: "sur la colline" },
+export const ILES = {
+  fuchsia: { nom: "Fuchsia", desc: "village de l'île de Dawn, sur East Blue", port: "port", auberge: "maison" },
+  shells: { nom: "Shells Town", desc: "ville portuaire d'East Blue, siège d'une base de la Marine", port: "port_shells", auberge: "taverne_shells" },
+  baratie: { nom: "le Baratie", desc: "restaurant flottant au large d'East Blue", port: "pont_baratie", auberge: "pont_baratie" },
+  loguetown: { nom: "Loguetown", desc: "grande ville d'East Blue, la ville du commencement et de la fin", port: "quais_logue", auberge: "auberge_logue" },
 };
+// Durée des traversées en jours (prix : 20 Berrys par jour de mer).
+export const ROUTES = {
+  fuchsia: { shells: 2, baratie: 3, loguetown: 5 },
+  shells: { fuchsia: 2, baratie: 2, loguetown: 4 },
+  baratie: { fuchsia: 3, shells: 2, loguetown: 3 },
+  loguetown: { fuchsia: 5, shells: 4, baratie: 3 },
+};
+export const PRIX_JOUR_MER = 20;
+export const PRIX_AUBERGE = 10;
+
+export const LIEUX = {
+  maison: { ile: "fuchsia", nom: "ta maison", court: "Maison", a: "chez toi" },
+  bar: { ile: "fuchsia", nom: "le bar Partys", court: "Bar Partys", a: "au bar Partys" },
+  place: { ile: "fuchsia", nom: "la place du village", court: "Place", a: "sur la place du village" },
+  port: { ile: "fuchsia", nom: "le port", court: "Port", a: "au port" },
+  atelier: { ile: "fuchsia", nom: "l'atelier du charpentier", court: "Atelier", a: "à l'atelier du charpentier" },
+  remise: { ile: "fuchsia", nom: "la remise du maire", court: "Remise", a: "à la remise du maire" },
+  colline: { ile: "fuchsia", nom: "la colline", court: "Colline", a: "sur la colline" },
+  port_shells: { ile: "shells", nom: "le port de Shells Town", court: "Port", a: "au port de Shells Town" },
+  base: { ile: "shells", nom: "la base de la Marine", court: "Base Marine", a: "à la base de la Marine" },
+  taverne_shells: { ile: "shells", nom: "la taverne", court: "Taverne", a: "à la taverne" },
+  pont_baratie: { ile: "baratie", nom: "le pont du Baratie", court: "Pont", a: "sur le pont du Baratie" },
+  salle_baratie: { ile: "baratie", nom: "la salle du restaurant", court: "Salle", a: "dans la salle du restaurant" },
+  cuisine_baratie: { ile: "baratie", nom: "les cuisines du Baratie", court: "Cuisines", a: "dans les cuisines du Baratie" },
+  quais_logue: { ile: "loguetown", nom: "les quais de Loguetown", court: "Quais", a: "sur les quais de Loguetown" },
+  marche_logue: { ile: "loguetown", nom: "le grand marché", court: "Marché", a: "au grand marché" },
+  armurerie: { ile: "loguetown", nom: "l'armurerie", court: "Armurerie", a: "à l'armurerie" },
+  echafaud: { ile: "loguetown", nom: "la place de l'échafaud", court: "Échafaud", a: "sur la place de l'échafaud" },
+  auberge_logue: { ile: "loguetown", nom: "l'auberge", court: "Auberge", a: "à l'auberge" },
+};
+export const lieuxDe = ile => Object.keys(LIEUX).filter(k => LIEUX[k].ile === ile);
+
+// Emplois : celui qui paie, le salaire fixe, la compétence travaillée (gain fixe, D.2A).
+export const EMPLOIS = {
+  port: { payeur: "bern", salaire: 30, heures: 4, fatigue: 25, ageMin: 10, competence: "peche", label: "Travailler avec Bern",
+    texte: "Tu aides Bern à remonter les filets et trier la pêche." },
+  cuisine_baratie: { payeur: "gallo", salaire: 45, heures: 5, fatigue: 25, ageMin: 14, competence: "cuisine", label: "Travailler en cuisine",
+    texte: "Tu enchaînes les commandes sous les ordres du chef Gallo." },
+  quais_logue: { payeur: "dock", salaire: 35, heures: 4, fatigue: 30, ageMin: 14, competence: null, stat: "force", label: "Décharger les navires",
+    texte: "Tu portes des caisses entre les navires et les entrepôts." },
+};
+
+export const RANGS_MARINE = ["Recrue", "Matelot", "Caporal", "Sergent", "Adjudant", "Enseigne", "Lieutenant"];
+export const MERITE_RANG = [0, 10, 25, 45, 70, 100, 140];
+export const SOLDE_MARINE = [40, 60, 90, 130, 180, 250, 350]; // par semaine
 
 export const STATS = {
   force: "Force", agilite: "Agilité", endurance: "Endurance", intelligence: "Intelligence", charisme: "Charisme",
@@ -29,20 +71,29 @@ export const OBJETS = {
   clou: { nom: "clou", pluriel: "clous", prix: 2, vendeur: "ilda" },
   poisson: { nom: "poisson", pluriel: "poissons", prix: 0 },
   canne: { nom: "canne à pêche", pluriel: "cannes à pêche", prix: 60, vendeur: "ilda" },
+  sabre: { nom: "sabre", pluriel: "sabres", prix: 300, vendeur: "barro" },
+  bague: { nom: "bague", pluriel: "bagues", prix: 150, vendeur: "lise" },
 };
 
 // Gains fixes prédéfinis (D.2A) : jamais modulés.
 export const GAINS = {
   entrainement: 1, etude: 1, jeu_enfant: 1, peche: 1, charpenterie: 1, combat: 1,
-  relation_conversation: 2, relation_aide: 5, salaire_port: 30,
+  relation_conversation: 2, relation_aide: 5, salaire_port: 30, merite_service: 1, merite_patrouille: 3, temps_famille: 3,
 };
 
 const PNJ_INITIAUX = () => ({
-  makino: { nom: "Makino", role: "tient le bar Partys", canon: true, lieu: "bar", relation: 10, fonds: 3000, souvenirs: [] },
-  woop: { nom: "Woop Slap", role: "maire du village", canon: true, lieu: "place", relation: 0, fonds: 2500, souvenirs: [] },
-  tomas: { nom: "Tomas", role: "charpentier", canon: false, lieu: "atelier", relation: 0, fonds: 800, souvenirs: [], stock: { planche: 30 } },
-  bern: { nom: "Bern", role: "pêcheur", canon: false, lieu: "port", relation: 0, fonds: 600, souvenirs: [] },
-  ilda: { nom: "Ilda", role: "marchande ambulante", canon: false, lieu: "place", relation: 0, fonds: 1200, souvenirs: [], stock: { clou: 80, canne: 2 }, presente: true },
+  makino: { nom: "Makino", role: "tient le bar Partys", genre: "f", canon: true, lieu: "bar", relation: 10, fonds: 3000, souvenirs: [] },
+  woop: { nom: "Woop Slap", role: "maire du village", genre: "g", canon: true, lieu: "place", relation: 0, fonds: 2500, souvenirs: [] },
+  tomas: { nom: "Tomas", role: "charpentier", genre: "g", lieu: "atelier", relation: 0, fonds: 800, souvenirs: [], stock: { planche: 30 } },
+  bern: { nom: "Bern", role: "pêcheur", genre: "g", lieu: "port", relation: 0, fonds: 600, souvenirs: [] },
+  ilda: { nom: "Ilda", role: "marchande ambulante", genre: "f", lieu: "place", relation: 0, fonds: 1200, souvenirs: [], stock: { clou: 80, canne: 2 }, presente: true },
+  sacha: { nom: "Sacha", role: "enfant du village, de ton âge", genre: "x", lieu: "colline", relation: 5, fonds: 50, souvenirs: [], naissance: 120, romance: true },
+  rivo: { nom: "Sergent Rivo", role: "recruteur de la Marine", genre: "g", lieu: "base", relation: 0, fonds: 500, souvenirs: [] },
+  mira: { nom: "Mira", role: "tient la taverne de Shells Town", genre: "f", lieu: "taverne_shells", relation: 0, fonds: 900, souvenirs: [], naissance: -730, romance: true },
+  gallo: { nom: "Chef Gallo", role: "cuisinier du Baratie", genre: "g", lieu: "cuisine_baratie", relation: 0, fonds: 4000, souvenirs: [] },
+  nino: { nom: "Nino", role: "serveur du Baratie", genre: "g", lieu: "salle_baratie", relation: 0, fonds: 300, souvenirs: [], naissance: -365, romance: true },
+  barro: { nom: "Barro", role: "armurier de Loguetown", genre: "g", lieu: "armurerie", relation: 0, fonds: 2000, souvenirs: [], stock: { sabre: 3 } },
+  lise: { nom: "Lise", role: "bijoutière du grand marché", genre: "f", lieu: "marche_logue", relation: 0, fonds: 1500, souvenirs: [], naissance: -1095, romance: true, stock: { bague: 5 } },
 });
 
 // ---------- Hasard reproductible (l'état du générateur est sauvegardé) ----------
@@ -65,13 +116,17 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
     stats: { force: 1, agilite: 1, endurance: 1, intelligence: 1, charisme: 1 },
     competences: { charpenterie: 0, peche: 0, combat: 0, cuisine: 0 },
     potentiel: {},
-    berrys: 0, inventaire: { planche: 0, clou: 0, poisson: 0, canne: 0 },
+    berrys: 0, inventaire: { planche: 0, clou: 0, poisson: 0, canne: 0, sabre: 0, bague: 0 },
     sante: { blessures: [], sequelles: [] },
-    lieu: "maison",
+    lieu: "maison", ile: "fuchsia",
     pnj: PNJ_INITIAUX(),
+    carriere: null,
+    famille: { partenaire: null, statut: null, enfants: [], grossesse: null },
+    generation: 1, ancetres: [],
     monde: { toitRemise: "abîmé", prochainNavire: 18, voyouAuPort: false, meteo: "beau", exterieur: 100000 },
     missions: [], journal: [], compteurs: { actions: 0 },
   };
+  s.pnj.dock = { nom: "Compagnie des docks", role: "employeur des quais", lieu: null, relation: 0, fonds: 20000, souvenirs: [], invisible: true };
   // Potentiel inné (B.4D) : il ne multiplie jamais les gains, il fixe seulement un plafond naturel.
   for (const k of Object.keys(s.stats)) s.potentiel[k] = 40 + Math.floor(rand(s) * 61);
   if (aleatoire) for (const k of Object.keys(s.stats)) s.stats[k] += Math.floor(rand(s) * 2);
@@ -96,7 +151,28 @@ function souvenir(s, id, texte) {
 export const blessureActive = s => s.sante.blessures.length > 0;
 const blessureGrave = s => s.sante.blessures.some(b => b.gravite >= 2);
 export function pnjIci(s) {
-  return Object.entries(s.pnj).filter(([, p]) => p.lieu === s.lieu && p.presente !== false).map(([id]) => id);
+  return Object.entries(s.pnj).filter(([, p]) => p.lieu === s.lieu && p.presente !== false && !p.invisible && p.vivant !== false).map(([id]) => id);
+}
+export const agePnj = (s, id) => s.pnj[id].naissance == null ? null : Math.floor((s.jour - s.pnj[id].naissance) / 365);
+const il = p => (p.genre === "f" ? "elle" : p.genre === "g" ? "il" : "iel");
+const Il = p => il(p)[0].toUpperCase() + il(p).slice(1);
+
+// Anciennes sauvegardes (version 1) : ajout des îles, des nouveaux habitants et de la famille.
+export function migrer(s) {
+  if (s.version >= VERSION) return s;
+  const neufs = PNJ_INITIAUX();
+  for (const [id, p] of Object.entries(neufs)) {
+    if (!s.pnj[id]) s.pnj[id] = { ...p, naissance: p.naissance != null ? s.perso.naissance + p.naissance : undefined };
+    else s.pnj[id].genre ??= p.genre;
+  }
+  s.pnj.dock ??= { nom: "Compagnie des docks", role: "employeur des quais", lieu: null, relation: 0, fonds: 20000, souvenirs: [], invisible: true };
+  s.ile ??= "fuchsia";
+  s.carriere ??= null;
+  s.famille ??= { partenaire: null, statut: null, enfants: [], grossesse: null };
+  s.generation ??= 1; s.ancetres ??= [];
+  s.inventaire.sabre ??= 0; s.inventaire.bague ??= 0;
+  s.version = VERSION;
+  return s;
 }
 function transferer(s, de, vers, montant) {
   // Transfert sans création ni destruction d'argent (G.5D).
@@ -122,10 +198,25 @@ function consommer(s, heures, fatigue) {
 function tempsDisponible(s, heures) { return s.heure + heures <= 8 + JOUR_HEURES; }
 
 // Un jour qui passe : guérison, monde autonome, missions. Retourne les événements importants.
-function passerJour(s) {
+function passerJour(s, { recuperation = 70 } = {}) {
   const importants = [];
   s.jour += 1; s.heure = 8;
-  s.fatigue = Math.max(0, s.fatigue - 70);
+  s.fatigue = Math.max(0, s.fatigue - recuperation);
+  // Solde hebdomadaire de la Marine (versée par l'institution, argent venu de l'extérieur, comptabilisé).
+  if (s.carriere?.type === "marine" && (s.jour - s.carriere.depuis) % 7 === 0) {
+    const solde = SOLDE_MARINE[s.carriere.rang];
+    s.monde.exterieur -= solde; s.berrys += solde;
+    noter(s, `La Marine te verse ta solde : ${solde} Berrys.`, "monde");
+  }
+  // Naissance d'un enfant.
+  const g = s.famille?.grossesse;
+  if (g && s.jour >= g.terme) {
+    const prenoms = ["Ace", "Lou", "Maya", "Taro", "Noé", "Rin", "Elio", "Kim", "Sana", "Yuri"];
+    const enfant = { prenom: prenoms[Math.floor(rand(s) * prenoms.length)], naissance: s.jour, genre: rand(s) < 0.5 ? "f" : "g" };
+    s.famille.enfants.push(enfant); s.famille.grossesse = null;
+    importants.push({ type: "naissance_enfant", texte: `Ton enfant ${enfant.prenom} est né${enfant.genre === "f" ? "e" : ""} !` });
+    noter(s, `Naissance de ton enfant, ${enfant.prenom}.`, "famille");
+  }
   // Guérison automatique pendant le temps simulé (K.2A) ; séquelle possible pour les blessures graves.
   for (const b of s.sante.blessures) b.jours -= 1;
   for (const b of s.sante.blessures.filter(b => b.jours <= 0)) {
@@ -153,12 +244,12 @@ function passerJour(s) {
     importants.push({ type: "navire", texte: "Un navire marchand entre dans le port de Fuchsia." });
     noter(s, "Un navire marchand accoste. Bern lui vend sa pêche, et Tomas reçoit du bois.", "monde");
   }
-  s.monde.voyouAuPort = age(s) >= 12 && rand(s) < 0.06;
-  if (s.monde.voyouAuPort) importants.push({ type: "voyou", texte: "Un voyou de passage traîne au port et cherche des ennuis." });
+  s.monde.voyouAuPort = s.ile === "fuchsia" && age(s) >= 12 && rand(s) < 0.06;
+  if (s.monde.voyouAuPort && s.lieu === "port") noter(s, "Un voyou de passage traîne au port et cherche des ennuis.", "monde");
   // Missions : échéances.
   verifierMissions(s, importants);
   // Proposition de mission par le maire (conditions réelles : toit abîmé, fonds suffisants, âge).
-  if (s.monde.toitRemise === "abîmé" && age(s) >= 12 && !s.missions.some(m => m.code === "toit" && ["proposée", "active"].includes(m.statut))
+  if (s.ile === "fuchsia" && s.monde.toitRemise === "abîmé" && age(s) >= 12 && !s.missions.some(m => m.code === "toit" && ["proposée", "active"].includes(m.statut))
       && s.pnj.woop.fonds >= 500 && rand(s) < 0.15) {
     s.missions.push({
       id: `m${s.jour}`, code: "toit", donneur: "woop", titre: "Réparer le toit de la remise du maire",
@@ -198,15 +289,17 @@ function verifierMissions(s, importants) {
 }
 
 // Ellipse : avance de n jours, interrompue par un événement important (01.3C).
-export function avancer(s, jours) {
+export function avancer(s, jours, { recuperation, sansInterruption = false } = {}) {
   if (!s.perso.vivant) return res(false, "Cette vie est terminée.");
   const debut = s.jour;
   let interruption = null;
   for (let i = 0; i < jours; i++) {
-    const evts = passerJour(s);
+    const evts = passerJour(s, { recuperation });
+    if (!s.perso.vivant) { interruption = evts.find(e => e.type === "mort"); break; }
+    if (sansInterruption) continue;
     // Seuls les événements qui demandent une décision interrompent l'ellipse (01.3C) ;
     // l'arrivée d'un navire est notée au journal sans arrêter le temps.
-    const imp = evts.find(e => ["voyou", "mission", "mort"].includes(e.type));
+    const imp = evts.find(e => ["mission", "mort", "naissance_enfant"].includes(e.type));
     const fin = evts.find(e => e.type === "mission_finie");
     if (imp || fin) { interruption = imp || fin; break; }
   }
@@ -229,21 +322,43 @@ export function actionsDisponibles(s) {
   if (ag < 6) {
     a.push({ id: "jouer", label: "Jouer dehors" });
     if (s.lieu === "bar") a.push({ id: "ecouter", label: "Écouter les histoires du bar" });
-  } else {
-    a.push({ id: "entrainer", cible: "force", label: "S'entraîner (force)" });
-    a.push({ id: "entrainer", cible: "agilite", label: "S'entraîner (agilité)" });
-    a.push({ id: "entrainer", cible: "endurance", label: "Courir (endurance)" });
-    a.push({ id: "etudier", label: "Lire et étudier" });
-    if (s.lieu === "port" && ag >= 10) a.push({ id: "travailler", label: "Travailler avec Bern" });
-    if (s.lieu === "port" && s.inventaire.canne > 0) a.push({ id: "pecher", label: "Pêcher" });
-    if (s.lieu === "atelier" && ag >= 10) a.push({ id: "acheter", cible: "planche", label: "Acheter une planche (20 B)" });
-    if (ici.includes("ilda")) {
-      a.push({ id: "acheter", cible: "clou", label: "Acheter un clou (2 B)" });
-      if (s.pnj.ilda.stock.canne > 0) a.push({ id: "acheter", cible: "canne", label: "Acheter une canne à pêche (60 B)" });
+    return a;
+  }
+  a.push({ id: "entrainer", cible: "force", label: "S'entraîner (force)" });
+  a.push({ id: "entrainer", cible: "agilite", label: "S'entraîner (agilité)" });
+  a.push({ id: "entrainer", cible: "endurance", label: "Courir (endurance)" });
+  a.push({ id: "etudier", label: "Lire et étudier" });
+  const emploi = EMPLOIS[s.lieu];
+  if (emploi && ag >= emploi.ageMin) a.push({ id: "travailler", label: emploi.label });
+  if (s.lieu === "port" && s.inventaire.canne > 0) a.push({ id: "pecher", label: "Pêcher" });
+  for (const [k, o] of Object.entries(OBJETS)) {
+    if (o.vendeur && ici.includes(o.vendeur) && (s.pnj[o.vendeur].stock?.[k] ?? 0) > 0 && ag >= 10)
+      a.push({ id: "acheter", cible: k, label: `Acheter ${k === "planche" || k === "canne" || k === "bague" ? "une" : "un"} ${o.nom} (${o.prix} B)` });
+  }
+  if (s.lieu === "remise" && s.monde.toitRemise === "abîmé") a.push({ id: "reparer", label: "Réparer le toit (3 planches, 6 clous)" });
+  if (s.lieu === "port" && s.monde.voyouAuPort) a.push({ id: "combattre", label: "Affronter le voyou" });
+  if (s.lieu === "bar" && ag >= 12) a.push({ id: "cuisiner", label: "Aider Makino en cuisine" });
+  if (s.lieu === ILES[s.ile].port && ag >= 14) {
+    for (const [dest, j] of Object.entries(ROUTES[s.ile])) a.push({ id: "voyager", cible: dest, label: `Embarquer pour ${ILES[dest].nom} (${j} j, ${j * PRIX_JOUR_MER} B)` });
+  }
+  if (s.lieu === "base") {
+    if (!s.carriere && ag >= 16) a.push({ id: "engager", label: "S'engager dans la Marine" });
+    if (s.carriere?.type === "marine") {
+      a.push({ id: "service", label: "Faire son service" });
+      a.push({ id: "patrouille", label: "Partir en patrouille (mission)" });
+      a.push({ id: "quitter", label: "Quitter la Marine" });
     }
-    if (s.lieu === "remise" && s.monde.toitRemise === "abîmé") a.push({ id: "reparer", label: "Réparer le toit (3 planches, 6 clous)" });
-    if (s.lieu === "port" && s.monde.voyouAuPort) a.push({ id: "combattre", label: "Affronter le voyou" });
-    if (s.lieu === "bar" && ag >= 12) a.push({ id: "cuisiner", label: "Aider Makino en cuisine" });
+  }
+  // Amour et famille : seulement entre adultes, jamais imposé.
+  for (const id of ici) {
+    const p = s.pnj[id];
+    if (!p.romance || ag < 18 || (agePnj(s, id) ?? 0) < 18) continue;
+    if (s.famille.partenaire == null && p.relation >= 40) a.push({ id: "declarer", cible: id, label: `Déclarer tes sentiments à ${p.nom}` });
+    if (s.famille.partenaire === id && s.famille.statut === "couple" && p.relation >= 70) a.push({ id: "mariage", cible: id, label: `Demander ${p.nom} en mariage` });
+  }
+  if (s.famille.partenaire && pnjIci(s).includes(s.famille.partenaire)) {
+    a.push({ id: "famille", label: "Passer du temps en famille" });
+    if (s.famille.statut === "marié" && !s.famille.grossesse && ag < 50) a.push({ id: "enfant", label: "Proposer d'avoir un enfant" });
   }
   for (const m of s.missions.filter(m => m.statut === "proposée" && ici.includes(m.donneur))) {
     a.push({ id: "accepter", cible: m.id, label: `Accepter : ${m.titre}` });
@@ -282,7 +397,8 @@ function gagnerStat(s, k, gain) {
 
 const ACTIONS = {
   aller(s, lieu) {
-    if (!LIEUX[lieu]) return res(false, "Ce lieu n'existe pas à Fuchsia.");
+    if (!LIEUX[lieu]) return res(false, "Ce lieu n'existe pas.");
+    if (LIEUX[lieu].ile !== s.ile) return res(false, `Ce lieu est à ${ILES[LIEUX[lieu].ile].nom} : il faut d'abord embarquer depuis le port.`);
     if (s.lieu === lieu) return res(false, `Tu es déjà ${LIEUX[lieu].a}.`);
     if (!tempsDisponible(s, 0.5)) return res(false, "Il fait nuit. Rentre te reposer.");
     if (blessureGrave(s) && lieu === "colline") return res(false, "Ta blessure t'empêche de grimper la colline.");
@@ -333,17 +449,20 @@ const ACTIONS = {
     return res(true, `Tu lis et apprends. Intelligence +${GAINS.etude}.`);
   },
   travailler(s) {
-    if (s.lieu !== "port") return res(false, "Bern travaille au port.");
-    const e = activite(s, { heures: 4, fatigue: 25, ageMin: 10 });
+    const e0 = EMPLOIS[s.lieu];
+    if (!e0) return res(false, "Il n'y a pas de travail ici.");
+    const e = activite(s, { heures: e0.heures, fatigue: e0.fatigue, ageMin: e0.ageMin });
     if (e) return res(false, e);
     if (blessureGrave(s)) return res(false, "Ta blessure t'empêche de travailler.");
-    if (s.pnj.bern.fonds < GAINS.salaire_port) return res(false, "Bern n'a plus de quoi te payer en ce moment.");
-    consommer(s, 4, 25);
-    transferer(s, "bern", "joueur", GAINS.salaire_port);
-    s.competences.peche += GAINS.peche;
-    s.pnj.bern.relation += GAINS.relation_aide;
-    souvenir(s, "bern", "tu l'as aidé à remonter les filets");
-    return res(true, `Tu aides Bern à remonter les filets et trier la pêche. Il te paie ${GAINS.salaire_port} Berrys. Pêche +${GAINS.peche}.`);
+    const payeur = s.pnj[e0.payeur];
+    if (payeur.fonds < e0.salaire) return res(false, `${payeur.nom} n'a plus de quoi te payer en ce moment.`);
+    consommer(s, e0.heures, e0.fatigue);
+    transferer(s, e0.payeur, "joueur", e0.salaire);
+    let gain = "";
+    if (e0.competence) { s.competences[e0.competence] += 1; gain = ` ${COMPETENCES[e0.competence]} +1.`; }
+    else if (gagnerStat(s, e0.stat, GAINS.entrainement)) gain = ` ${STATS[e0.stat]} +${GAINS.entrainement}.`;
+    if (!payeur.invisible) { payeur.relation += GAINS.relation_aide; souvenir(s, e0.payeur, "tu as bien travaillé pour lui"); }
+    return res(true, `${e0.texte} Tu gagnes ${e0.salaire} Berrys.${gain}`);
   },
   pecher(s) {
     if (s.lieu !== "port") return res(false, "On pêche au port.");
@@ -397,7 +516,7 @@ const ACTIONS = {
     const e = activite(s, { heures: 1, fatigue: 20, ageMin: 12 });
     if (e) return res(false, e);
     consommer(s, 1, 20);
-    const toi = s.stats.force + s.stats.agilite + s.competences.combat * 2 + rand(s) * 10;
+    const toi = s.stats.force + s.stats.agilite + s.competences.combat * 2 + (s.inventaire.sabre > 0 ? 4 : 0) + rand(s) * 10;
     const lui = 8 + rand(s) * 10;
     s.monde.voyouAuPort = false;
     s.competences.combat += GAINS.combat; // l'expérience de l'affrontement, gain fixe
@@ -429,11 +548,157 @@ const ACTIONS = {
     return res(true, `Tu déclines la proposition de ${s.pnj[m.donneur].nom}.`);
   },
   repos(s) {
-    if (s.lieu !== "maison") { s.lieu = "maison"; }
-    const r = avancer(s, 1);
-    return res(true, `Tu rentres dormir. ${r.texte}`, { interruption: r.interruption });
+    const lit = ILES[s.ile].auberge;
+    let recuperation = 70, txt;
+    if (s.ile === "fuchsia") { s.lieu = "maison"; txt = "Tu rentres dormir chez toi."; }
+    else if (s.berrys >= PRIX_AUBERGE) {
+      s.lieu = lit; transferer(s, "joueur", "dock", PRIX_AUBERGE);
+      txt = `Tu paies ${PRIX_AUBERGE} Berrys pour une nuit ${LIEUX[lit].a}.`;
+    } else { s.lieu = lit; recuperation = 35; txt = "Sans argent pour une chambre, tu dors dehors. Tu récupères mal."; }
+    const r = avancer(s, 1, { recuperation });
+    return res(true, `${txt} ${r.texte}`, { interruption: r.interruption });
+  },
+  voyager(s, dest) {
+    if (!ILES[dest] || dest === s.ile) return res(false, "Cette destination n'existe pas.");
+    if (s.lieu !== ILES[s.ile].port) return res(false, "Les navires partent du port.");
+    if (age(s) < 14) return res(false, "Tu es trop jeune pour embarquer seul (à partir de 14 ans).");
+    const jours = ROUTES[s.ile][dest];
+    const prix = jours * PRIX_JOUR_MER;
+    if (s.berrys < prix) return res(false, `La traversée coûte ${prix} Berrys ; tu en as ${s.berrys}.`);
+    s.berrys -= prix; s.monde.exterieur += prix;
+    const depart = ILES[s.ile].nom;
+    // Les jours de mer passent réellement : le monde continue, les blessures guérissent.
+    avancer(s, jours, { sansInterruption: true });
+    if (!s.perso.vivant) return res(true, "Ta vie s'achève en mer.");
+    s.ile = dest; s.lieu = ILES[dest].port;
+    noter(s, `Tu débarques à ${ILES[dest].nom}, ${ILES[dest].desc}.`, "voyage");
+    return res(true, `Tu quittes ${depart}. Après ${jours} jours de mer, tu arrives à ${ILES[dest].nom}.`);
+  },
+  engager(s) {
+    if (s.lieu !== "base") return res(false, "On s'engage à la base de la Marine de Shells Town.");
+    if (s.carriere) return res(false, "Tu as déjà une carrière en cours.");
+    if (age(s) < 16) return res(false, "La Marine n'engage qu'à partir de 16 ans.");
+    if (s.stats.force + s.stats.endurance < 6) return res(false, "Sergent Rivo : « Reviens quand tu seras plus solide. » (force + endurance : 6 minimum)");
+    s.carriere = { type: "marine", rang: 0, merite: 0, depuis: s.jour };
+    souvenir(s, "rivo", "tu t'es engagé dans la Marine");
+    return res(true, `Tu signes ton engagement. Te voilà ${RANGS_MARINE[0]} de la Marine, avec une solde de ${SOLDE_MARINE[0]} Berrys par semaine.`);
+  },
+  service(s) {
+    if (s.carriere?.type !== "marine" || s.lieu !== "base") return res(false, "Le service se fait à la base, dans la Marine.");
+    const e = activite(s, { heures: 6, fatigue: 25 });
+    if (e) return res(false, e);
+    consommer(s, 6, 25);
+    s.carriere.merite += GAINS.merite_service;
+    gagnerStat(s, "force", GAINS.entrainement);
+    s.competences.combat += 1;
+    return res(true, `Exercices, corvées et maniement des armes. Mérite +${GAINS.merite_service}, Force +${GAINS.entrainement}, Combat +1.${promotion(s)}`);
+  },
+  patrouille(s) {
+    if (s.carriere?.type !== "marine" || s.lieu !== "base") return res(false, "Les patrouilles partent de la base.");
+    const e = activite(s, { heures: 8, fatigue: 35 });
+    if (e) return res(false, e);
+    if (blessureActive(s)) return res(false, "Tu es blessé : on ne t'envoie pas en patrouille.");
+    consommer(s, 8, 35);
+    // Mission formelle : réussite ou échec, sans entre-deux (L.3A).
+    const difficulte = 10 + s.carriere.rang * 4;
+    const score = s.stats.force + s.stats.agilite + s.competences.combat + (s.inventaire.sabre > 0 ? 4 : 0) + rand(s) * 12;
+    if (score >= difficulte) {
+      s.carriere.merite += GAINS.merite_patrouille;
+      return res(true, `Patrouille réussie : vous arrêtez une bande de contrebandiers. Mérite +${GAINS.merite_patrouille}.${promotion(s)}`);
+    }
+    blesser(s, rand(s) < 0.25 ? 2 : 1);
+    return res(true, "Patrouille échouée : les contrebandiers vous échappent et tu es blessé.");
+  },
+  quitter(s) {
+    if (s.carriere?.type !== "marine") return res(false, "Tu n'es pas dans la Marine.");
+    const rang = RANGS_MARINE[s.carriere.rang];
+    s.ancienneCarriere = { ...s.carriere, fin: s.jour };
+    s.carriere = null;
+    return res(true, `Tu rends ton uniforme de ${rang}. Tu es libre.`);
+  },
+  declarer(s, id) {
+    const p = s.pnj[id];
+    if (!p?.romance || !pnjIci(s).includes(id)) return res(false, "Cette personne n'est pas là.");
+    if (age(s) < 18 || (agePnj(s, id) ?? 0) < 18) return res(false, "Ce n'est pas possible.");
+    if (s.famille.partenaire) return res(false, "Tu es déjà en couple.");
+    consommer(s, 1, 2);
+    // Le consentement n'est jamais imposé : la réponse dépend de la relation et d'une part de hasard.
+    const chance = Math.min(0.9, (p.relation - 30) / 50 + s.stats.charisme * 0.01);
+    if (rand(s) < chance) {
+      s.famille.partenaire = id; s.famille.statut = "couple";
+      p.relation += 10; souvenir(s, id, "vous vous êtes avoué vos sentiments");
+      return res(true, `${p.nom} rougit, puis sourit : ${il(p)} partage tes sentiments. Vous êtes ensemble.`);
+    }
+    p.relation -= 5; souvenir(s, id, "tu lui as déclaré tes sentiments, mais ce n'était pas réciproque");
+    return res(true, `${p.nom} te regarde avec douceur, mais ne partage pas tes sentiments. Vous restez amis.`);
+  },
+  mariage(s, id) {
+    const p = s.pnj[id];
+    if (s.famille.partenaire !== id || s.famille.statut !== "couple" || !pnjIci(s).includes(id)) return res(false, "Ce n'est pas possible.");
+    if (s.inventaire.bague < 1) return res(false, "Il te faut une bague (en vente au grand marché de Loguetown).");
+    consommer(s, 2, 5);
+    if (rand(s) < Math.min(0.95, (p.relation - 50) / 40)) {
+      s.inventaire.bague -= 1; s.famille.statut = "marié";
+      p.lieu = "maison"; p.relation += 15; souvenir(s, id, "vous vous êtes mariés");
+      return res(true, `${p.nom} dit oui ! Vous vous mariez à Fuchsia, et ${il(p)} vient vivre avec toi dans ta maison.`);
+    }
+    return res(true, `${p.nom} : « Je t'aime, mais je ne suis pas encore prêt${p.genre === "f" ? "e" : ""}. »`);
+  },
+  famille(s) {
+    if (!s.famille.partenaire || !pnjIci(s).includes(s.famille.partenaire)) return res(false, "Ta famille n'est pas ici.");
+    if (!tempsDisponible(s, 2)) return res(false, "Il est tard : vous vous retrouverez demain.");
+    s.heure += 2; s.fatigue = Math.max(0, s.fatigue - 10);
+    const p = s.pnj[s.famille.partenaire];
+    p.relation += GAINS.temps_famille;
+    const enfants = s.famille.enfants.filter(e => e.vivant !== false);
+    return res(true, `Tu passes du temps avec ${p.nom}${enfants.length ? ` et ${enfants.map(e => e.prenom).join(", ")}` : ""}. Relation +${GAINS.temps_famille}.`);
+  },
+  enfant(s) {
+    const p = s.pnj[s.famille.partenaire];
+    if (!p || s.famille.statut !== "marié" || !pnjIci(s).includes(s.famille.partenaire)) return res(false, "Ce n'est pas possible.");
+    if (s.famille.grossesse) return res(false, "Un enfant est déjà en route.");
+    if (rand(s) < 0.7) {
+      s.famille.grossesse = { debut: s.jour, terme: s.jour + 270 };
+      return res(true, `${p.nom} est d'accord. Quelques semaines plus tard, la nouvelle tombe : un enfant est en route.`);
+    }
+    return res(true, `${p.nom} préfère attendre encore un peu.`);
   },
 };
+
+// Promotion automatique dès que le mérite atteint le seuil du grade suivant.
+function promotion(s) {
+  const c = s.carriere;
+  if (!c || c.rang >= RANGS_MARINE.length - 1 || c.merite < MERITE_RANG[c.rang + 1]) return "";
+  c.rang += 1;
+  noter(s, `Promotion : tu deviens ${RANGS_MARINE[c.rang]} de la Marine.`, "mission");
+  return ` Promotion : tu deviens ${RANGS_MARINE[c.rang]} ! Nouvelle solde : ${SOLDE_MARINE[c.rang]} Berrys par semaine.`;
+}
+
+// Succession (B.7D) : on continue avec un enfant. Patrimoine transmis, compétences jamais transmises.
+export function heritiers(s) {
+  return s.famille.enfants.filter(e => e.vivant !== false);
+}
+export function succeder(s, index) {
+  const e = heritiers(s)[index];
+  if (s.perso.vivant || !e) return res(false, "Succession impossible.");
+  s.ancetres.push({ prenom: s.perso.prenom, mort: s.jour, age: age(s), generation: s.generation });
+  const heritage = s.berrys;
+  s.perso = { prenom: e.prenom, genre: e.genre, naissance: e.naissance, vivant: true };
+  s.generation += 1;
+  // L'enfant a grandi par lui-même : base liée à son âge, sans rien recevoir du parent.
+  const base = 1 + Math.min(10, Math.floor((s.jour - e.naissance) / 365 / 3));
+  s.stats = { force: base, agilite: base, endurance: base, intelligence: base, charisme: base };
+  s.competences = { charpenterie: 0, peche: 0, combat: 0, cuisine: 0 };
+  for (const k of Object.keys(s.stats)) s.potentiel[k] = 40 + Math.floor(rand(s) * 61);
+  s.sante = { blessures: [], sequelles: [] };
+  s.fatigue = 0; s.carriere = null; s.ancienneCarriere = null;
+  const parent = s.famille.partenaire;
+  s.famille = { partenaire: null, statut: null, enfants: [], grossesse: null };
+  if (parent && s.pnj[parent]) { s.pnj[parent].relation = 60; s.pnj[parent].role = "ton parent"; }
+  s.ile = "fuchsia"; s.lieu = "maison";
+  noter(s, `Tu es ${e.prenom}, enfant de ${s.ancetres.at(-1).prenom}. Tu hérites de ${heritage} Berrys et de la maison familiale de Fuchsia.`, "naissance");
+  return res(true, `La vie continue avec ${e.prenom}.`);
+}
 
 function blesser(s, gravite) {
   const types = [
@@ -476,11 +741,20 @@ function repliquePnj(s, id, dernier) {
       "« Des clous, des cordes, de tout ! Je repars bientôt en tournée. »",
       "« J'ai vu du pays, mais Fuchsia reste mon arrêt préféré. »",
     ],
-  }[id];
+    sacha: [ag < 12 ? "« On fait la course jusqu'en haut de la colline ? »" : "« Tu crois qu'on quittera Fuchsia un jour ? »",
+      proche ? "« Je suis content qu'on se connaisse depuis toujours. »" : "« Salut ! »"],
+    rivo: [s.carriere?.type === "marine" ? `« Au rapport, ${RANGS_MARINE[s.carriere.rang]} ! »` : "« La Marine cherche des recrues solides, à partir de 16 ans. »",
+      "« Justice et discipline. Le reste s'apprend. »"],
+    mira: ["« Une chope de cidre ? La maison offre la première. »", "« Les marins de la base viennent ici après leur service. »"],
+    gallo: ["« En cuisine, on ne traîne pas ! »", "« Un bon plat, ça se mérite. »"],
+    nino: ["« Bienvenue au Baratie ! Une table pour toi ? »", "« Le chef crie fort, mais il a bon cœur. »"],
+    barro: [`« Un sabre, c'est ${OBJETS.sabre.prix} Berrys. Il te sauvera la vie. »`, "« Loguetown voit passer bien des pirates. »"],
+    lise: [`« Mes bagues sont à ${OBJETS.bague.prix} Berrys. Pour une demande en mariage, peut-être ? »`, "« Le marché est plus animé que jamais. »"],
+  }[id] || ["« Bonjour. »"];
   let txt = `${p.nom} : ${pick(s, lignes)}`;
   // Mémoire subjective : seul ce PNJ se souvient de ce qu'il a vécu avec toi.
   if (dernier?.texte && s.jour - dernier.jour <= 14 && rand(s) < 0.6) {
-    txt += ` ${["woop", "tomas", "bern"].includes(id) ? "Il" : "Elle"} n'a pas oublié que ${dernier.texte}.`;
+    txt += ` ${Il(p)} n'a pas oublié que ${dernier.texte}.`;
   }
   return txt;
 }
@@ -491,11 +765,24 @@ const NORMALISER = t => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
 export function interpreterTexte(s, texte) {
   const t = NORMALISER(texte);
   const actions = [];
-  const lieuMots = { bar: ["bar", "partys", "makino"], port: ["port", "quai"], place: ["place"], atelier: ["atelier", "charpentier", "tomas"],
-    remise: ["remise"], colline: ["colline"], maison: ["maison", "chez moi"] };
-  const pnjMots = { makino: ["makino"], woop: ["maire", "woop"], tomas: ["tomas", "charpentier"], bern: ["bern", "pecheur"], ilda: ["ilda", "marchande"] };
+  const lieuMotsTous = { bar: ["bar", "partys", "makino"], port: ["port", "quai"], place: ["place"], atelier: ["atelier", "charpentier", "tomas"],
+    remise: ["remise"], colline: ["colline"], maison: ["maison", "chez moi"],
+    port_shells: ["port"], base: ["base", "marine", "caserne"], taverne_shells: ["taverne", "mira"],
+    pont_baratie: ["pont"], salle_baratie: ["salle", "restaurant"], cuisine_baratie: ["cuisine"],
+    quais_logue: ["quai", "port", "dock"], marche_logue: ["marche"], armurerie: ["armurerie", "arme"], echafaud: ["echafaud"], auberge_logue: ["auberge"] };
+  const lieuMots = Object.fromEntries(Object.entries(lieuMotsTous).filter(([k]) => LIEUX[k].ile === s.ile));
+  const ileMots = { fuchsia: ["fuchsia", "dawn"], shells: ["shells"], baratie: ["baratie"], loguetown: ["loguetown", "logue"] };
+  const pnjMots = { makino: ["makino"], woop: ["maire", "woop"], tomas: ["tomas", "charpentier"], bern: ["bern", "pecheur"], ilda: ["ilda", "marchande"],
+    sacha: ["sacha"], rivo: ["rivo", "sergent", "recruteur"], mira: ["mira"], gallo: ["gallo", "chef"], nino: ["nino", "serveur"], barro: ["barro", "armurier"], lise: ["lise", "bijout"] };
   const morceaux = t.split(/,| puis | et ensuite | ensuite |;| et /);
   for (const m of morceaux) {
+    if (/(embarque|navigue|voyage|pars pour|part pour|bateau|navire)/.test(m)) {
+      const d = Object.entries(ileMots).find(([, mots]) => mots.some(w => m.includes(w)));
+      if (d) { actions.push({ id: "voyager", cible: d[0] }); continue; }
+    }
+    if (/(engage|enrole)/.test(m)) { actions.push({ id: "engager" }); continue; }
+    if (/patrouill/.test(m)) { actions.push({ id: "patrouille" }); continue; }
+    if (/service/.test(m)) { actions.push({ id: "service" }); continue; }
     if (/(va|vais|aller|rendre|retourne|rentre)/.test(m)) {
       const l = Object.entries(lieuMots).find(([, mots]) => mots.some(w => m.includes(w)));
       if (l) { actions.push({ id: "aller", cible: l[0] }); continue; }
@@ -511,7 +798,7 @@ export function interpreterTexte(s, texte) {
     if (/peche|pecher/.test(m)) { actions.push({ id: "pecher" }); continue; }
     if (/(repare|reparer)/.test(m)) { actions.push({ id: "reparer" }); continue; }
     if (/(achete|acheter)/.test(m)) {
-      const o = /planche/.test(m) ? "planche" : /clou/.test(m) ? "clou" : /canne/.test(m) ? "canne" : null;
+      const o = /planche/.test(m) ? "planche" : /clou/.test(m) ? "clou" : /canne/.test(m) ? "canne" : /sabre/.test(m) ? "sabre" : /bague/.test(m) ? "bague" : null;
       if (o) { const n = parseInt(m.match(/\d+/)?.[0] || "1", 10); for (let i = 0; i < Math.min(n, 20); i++) actions.push({ id: "acheter", cible: o }); continue; }
     }
     if (/(bat|combat|affronte|frappe)/.test(m)) { actions.push({ id: "combattre" }); continue; }
@@ -544,8 +831,8 @@ export function faitsPourNarration(s, resultat) {
   // Faits établis transmis au narrateur IA : rien d'autre ne doit être raconté.
   const ici = pnjIci(s).map(id => `${s.pnj[id].nom} (${s.pnj[id].role})`);
   return [
-    `Lieu : ${LIEUX[s.lieu].nom}, à Fuchsia (île de Dawn, East Blue). Heure : ${Math.floor(s.heure)}h. Météo : ${s.monde.meteo}.`,
-    `Protagoniste : ${s.perso.prenom}, ${age(s)} ans. Fatigue ${s.fatigue}/100.${blessureActive(s) ? ` Blessé : ${s.sante.blessures.map(b => b.nom).join(", ")}.` : ""}`,
+    `Lieu : ${LIEUX[s.lieu].nom}, à ${ILES[s.ile].nom} (${ILES[s.ile].desc}). Heure : ${Math.floor(s.heure)}h. Météo : ${s.monde.meteo}.`,
+    `Protagoniste : ${s.perso.prenom}, ${age(s)} ans${s.carriere?.type === "marine" ? `, ${RANGS_MARINE[s.carriere.rang]} de la Marine` : ""}. Fatigue ${s.fatigue}/100.${blessureActive(s) ? ` Blessé : ${s.sante.blessures.map(b => b.nom).join(", ")}.` : ""}`,
     ici.length ? `Présents : ${ici.join(", ")}.` : "Personne d'autre n'est présent.",
     `Résultat établi par le jeu : ${resultat}`,
   ].join("\n");

@@ -1,0 +1,6 @@
+{
+  "appId": "io.github.stephaneflamand973.onepiecelife",
+  "appName": "One Piece Life",
+  "webDir": "www",
+  "ios": { "contentInset": "always" }
+}

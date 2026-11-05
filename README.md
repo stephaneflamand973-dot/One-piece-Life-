@@ -6,7 +6,8 @@ Simulation de vie dans le monde de One Piece, jouable sur iPhone : https://steph
 - **Sans IA :** gratuit, hors ligne, boutons d'actions et saisie libre simple.
 - **IA facultative :** clé Gemini gratuite à saisir dans Menu → IA. L'IA interprète les phrases et raconte les scènes ; le moteur reste seul juge des résultats.
 - **Règles :** gains fixes à chaque entraînement, missions réussies ou échouées sans entre-deux, récompense mise de côté dès l'acceptation, guérison automatique avec le temps, réparation instantanée si les matériaux sont là, monde figé quand l'app est fermée, sauvegarde automatique vérifiée avec copie de secours.
-- **Contenu actuel :** naissance et vie à Fuchsia (île de Dawn), cinq habitants, travail, achats, mission du toit, voyou du port, navires marchands, vieillissement.
+- **Contenu actuel :** naissance à Fuchsia ; voyages en navire vers Shells Town, le Baratie et Loguetown ; métiers (pêche, cuisine du Baratie, docks) ; carrière dans la Marine avec grades et solde ; amour, mariage, enfants et succession ; mission du toit, voyou du port, blessures, vieillissement.
+- **App native (plus tard) :** le dossier `capacitor/` emballe le jeu en application iOS ; il faudra un compte Apple Developer pour l'installer.
 
 L'ancien prototype reste disponible dans `foundation/`. La conception figure dans `conception/`, le banc de mesure IA dans `mesure/`.
 

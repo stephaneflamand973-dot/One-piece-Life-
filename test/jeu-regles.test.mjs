@@ -167,3 +167,78 @@ test("une vie complète peut être simulée année par année sans erreur", () =
   assert.ok(E.age(s) > 0);
   assert.ok(E.masseMonetaire(s) > 0);
 });
+
+// ---------- Version 2 : voyages, Marine, famille, succession ----------
+
+test("voyage : traversée payée, jours écoulés, argent conservé", () => {
+  const s = ado(); s.berrys = 100; s.lieu = "port";
+  const masse = E.masseMonetaire(s); const jour = s.jour;
+  const r = E.agir(s, { id: "voyager", cible: "shells" });
+  assert.ok(r.ok, r.texte);
+  assert.equal(s.ile, "shells");
+  assert.equal(s.lieu, "port_shells");
+  assert.equal(s.jour, jour + 2);
+  assert.equal(s.berrys, 60);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("voyage : impossible sans argent, et on ne va pas à pied sur une autre île", () => {
+  const s = ado(); s.lieu = "port";
+  assert.equal(E.agir(s, { id: "voyager", cible: "loguetown" }).ok, false);
+  assert.equal(E.agir(s, { id: "aller", cible: "base" }).ok, false);
+  assert.equal(s.ile, "fuchsia");
+});
+
+test("Marine : engagement, solde hebdomadaire, mérite fixe et promotion", () => {
+  const s = ado(); s.ile = "shells"; s.lieu = "base"; s.stats.force = 5; s.stats.endurance = 5;
+  assert.ok(E.agir(s, { id: "engager" }).ok);
+  assert.equal(s.carriere.rang, 0);
+  const b = s.berrys;
+  E.avancer(s, 7, { sansInterruption: true });
+  assert.equal(s.berrys, b + E.SOLDE_MARINE[0]);
+  s.heure = 8; s.fatigue = 0;
+  E.agir(s, { id: "service" });
+  assert.equal(s.carriere.merite, 1);
+  s.carriere.merite = 9; s.heure = 8; s.fatigue = 0;
+  E.agir(s, { id: "service" });
+  assert.equal(s.carriere.rang, 1);
+});
+
+test("amour : le consentement n'est pas garanti, et le mariage exige une bague", () => {
+  let acceptes = 0, refus = 0;
+  for (let seed = 1; seed <= 40; seed++) {
+    const s = E.nouvelleVie({ prenom: "A", seed }); s.jour = 20 * 365; s.lieu = "colline"; s.pnj.sacha.relation = 50;
+    const r = E.agir(s, { id: "declarer", cible: "sacha" });
+    if (s.famille.partenaire === "sacha") acceptes++; else refus++;
+    assert.ok(r.ok);
+  }
+  assert.ok(acceptes > 0 && refus > 0);
+  const s = E.nouvelleVie({ prenom: "A", seed: 5 }); s.jour = 20 * 365; s.lieu = "colline";
+  s.famille.partenaire = "sacha"; s.famille.statut = "couple"; s.pnj.sacha.relation = 95;
+  assert.equal(E.agir(s, { id: "mariage", cible: "sacha" }).ok, false);
+});
+
+test("famille : un enfant naît au terme, puis succession sans transmission de compétences", () => {
+  const s = ado(); s.jour = 25 * 365;
+  s.famille = { partenaire: "sacha", statut: "marié", enfants: [], grossesse: { debut: s.jour, terme: s.jour + 3 } };
+  s.pnj.sacha.lieu = "maison";
+  E.avancer(s, 5, { sansInterruption: true });
+  assert.equal(s.famille.enfants.length, 1);
+  s.competences.combat = 30; s.stats.force = 40; s.berrys = 777;
+  s.perso.vivant = false;
+  assert.ok(E.succeder(s, 0).ok);
+  assert.equal(s.perso.vivant, true);
+  assert.equal(s.generation, 2);
+  assert.equal(s.competences.combat, 0);
+  assert.ok(s.stats.force < 40);
+  assert.equal(s.berrys, 777);
+});
+
+test("migration : une sauvegarde version 1 reçoit les îles et les nouveaux habitants", () => {
+  const s = ado();
+  delete s.ile; delete s.famille; delete s.carriere; delete s.pnj.mira; s.version = 1;
+  const m = E.migrer(s);
+  assert.equal(m.ile, "fuchsia");
+  assert.ok(m.pnj.mira);
+  assert.deepEqual(m.famille.enfants, []);
+});

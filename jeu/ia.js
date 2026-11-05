@@ -1,7 +1,7 @@
 // IA en ligne facultative (Google Gemini, palier gratuit, clé fournie par le joueur).
 // L'IA n'a aucune autorité : elle propose des actions que le moteur valide, et raconte des faits établis.
 
-import { LIEUX, STATS, OBJETS, actionsDisponibles } from "./engine.js";
+import { LIEUX, ILES, STATS, OBJETS, actionsDisponibles, lieuxDe } from "./engine.js";
 
 const CLE_CONFIG = "opl-jeu-ia";
 export const MODELE_DEFAUT = "gemini-2.5-flash";
@@ -42,10 +42,10 @@ async function appeler(prompt, { json = false } = {}) {
 // Interprétation : l'IA choisit seulement parmi les actions que le moteur autorise ici et maintenant.
 export async function interpreter(s, texte) {
   const dispo = actionsDisponibles(s).map(a => ({ id: a.id, cible: a.cible ?? null, description: a.label }));
-  for (const [id, l] of Object.entries(LIEUX)) if (id !== s.lieu) dispo.push({ id: "aller", cible: id, description: `Aller ${l.a}` });
+  for (const id of lieuxDe(s.ile)) if (id !== s.lieu) { const l = LIEUX[id]; dispo.push({ id: "aller", cible: id, description: `Aller ${l.a}` }); }
   dispo.push({ id: "repos", cible: null, description: "Rentrer dormir jusqu'au lendemain" });
   const prompt = `Tu es l'interpréteur d'un jeu de simulation de vie dans l'univers de One Piece. Tu ne racontes rien.
-Traduis la phrase du joueur en une suite d'actions. Voici les actions possibles ici et maintenant (id et cible exacts) ; après un déplacement, tu peux aussi utiliser parler (cibles : makino, woop, tomas, bern, ilda), acheter (planche, clou, canne), entrainer (force, agilite, endurance), travailler, pecher, cuisiner, reparer, combattre, repos :
+Traduis la phrase du joueur en une suite d'actions. Voici les actions possibles ici et maintenant (id et cible exacts) ; après un déplacement, tu peux aussi utiliser parler (cible : identifiant d'un habitant de l'île), acheter (planche, clou, canne, sabre, bague), entrainer (force, agilite, endurance), travailler, pecher, cuisiner, reparer, combattre, service, patrouille, repos :
 ${JSON.stringify(dispo)}
 Règles :
 - Respecte l'ordre voulu par le joueur. Une action peut être répétée (par exemple acheter plusieurs fois).
@@ -68,12 +68,14 @@ function actionConnue(s, a) {
   const c = a.cible ?? null;
   switch (a.id) {
     case "aller": return c in LIEUX;
-    case "parler": return c in s.pnj;
+    case "parler": case "declarer": case "mariage": return c in s.pnj;
+    case "voyager": return c in ILES;
     case "entrainer": return c in STATS;
     case "acheter": return c in OBJETS;
     case "accepter": case "refuser": return s.missions.some(m => m.id === c);
     case "jouer": case "ecouter": case "etudier": case "travailler": case "pecher": case "cuisiner":
-    case "reparer": case "combattre": case "repos": return true;
+    case "reparer": case "combattre": case "repos": case "engager": case "service": case "patrouille":
+    case "quitter": case "famille": case "enfant": return true;
     default: return false;
   }
 }
