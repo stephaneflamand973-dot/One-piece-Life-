@@ -333,7 +333,7 @@ async function runQuality() {
   const reps = Math.max(1, Math.min(20, parseInt($("reps").value, 10) || 10));
   const total = reps * CASES.length;
   const bar = $("qbar"); bar.hidden = false; bar.max = total; bar.value = 0;
-  let done = 0;
+  let done = 0, empties = 0;
   try {
     for (const c of CASES) {
       for (let r = 1; r <= reps; r++) {
@@ -341,11 +341,14 @@ async function runQuality() {
         markRunning(`série ${c.id}`);
         const g = await generate(c.messages, { json: c.kind === "interp", maxTokens: c.long ? 260 : 180 });
         clearRunning();
-        const auto = c.check(g.text);
+        // Réponse vide : le moteur IA ne répond plus (souvent perte du GPU sous pression mémoire).
+        const auto = g.text.trim() ? c.check(g.text) : { v: "sur", note: "Réponse vide : moteur IA défaillant" };
+        empties = g.text.trim() ? 0 : empties + 1;
         db.runs.push({ model: currentModel, case: c.id, kind: c.kind, long: !!c.long, rep: r, at: Date.now(),
           ...g, auto: auto.v, note: auto.note, verdict: auto.v === "verifier" ? null : auto.v });
         save();
         bar.value = ++done;
+        if (empties >= 3) throw new Error("trois réponses vides de suite : le moteur IA ne répond plus. Recharge la page puis le modèle.");
       }
     }
     $("qtxt").textContent = `Série terminée : ${done} réponses. Vérifie-les plus bas.`;
@@ -430,11 +433,12 @@ function evaluate(model) {
     anyFaux += k.faux; pendingAll += k.pending;
     if (!k.ok) allCasesOk = false;
   }
-  const narr = runs.filter(r => r.kind === "narr" && r.ttft != null).map(r => r.ttft);
+  // Seules les réponses réellement produites comptent pour les délais.
+  const narr = runs.filter(r => r.kind === "narr" && r.ttft != null && r.text.trim()).map(r => r.ttft);
   const end = db.endurance.filter(e => e.model === model);
   end.forEach(e => e.samples.forEach(s => s.ttft != null && narr.push(s.ttft)));
-  const longT = runs.filter(r => r.long).map(r => r.total);
-  end.forEach(e => e.samples.forEach(s => longT.push(s.total)));
+  const longT = runs.filter(r => r.long && r.words >= 50).map(r => r.total);
+  end.forEach(e => e.samples.forEach(s => s.words >= 50 && longT.push(s.total)));
   const crashes = db.crashes.filter(c => c.model === model).length;
   const usage = db.storage[model]?.usage ?? null;
 
