@@ -48,7 +48,8 @@ Complément au *Dossier maître de transmission* du 2026-11-05. Ce registre ne r
 | Palier | Contenu | Statut |
 |---|---|---|
 | 1 | Relevé de l'iPhone, liste fermée de la tranche, fiches de critères avec seuils. **Sans code.** | **En cours** |
-| 1 bis | Mesure comparative R.7D (banc de mesure jetable, pas le jeu) | Non autorisé : attend l'accord du user |
+| 1 | (bilan) | Validé par le user, sauf l'espace disponible sur l'iPhone, encore à relever |
+| 1 bis | Mesure R.7D : **Safari d'abord** (banc jetable `mesure/`, pas le jeu) ; natif seulement si Safari échoue à un seuil obligatoire, et le compte Apple Developer est alors décidé par le user | **Autorisé, banc prêt** ; mesures sur iPhone à faire |
 | 2 | Socle minimal (S.7) | Non autorisé |
 | 3 | Tranche verticale (S.6D) | Non autorisé |
 

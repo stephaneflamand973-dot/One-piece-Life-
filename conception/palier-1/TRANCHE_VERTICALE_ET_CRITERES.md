@@ -88,7 +88,7 @@ Seuils fixés sous la délégation S.Δ à partir de l'expérience visée (fluid
 | P4 | Mémoire | Obligatoire | Aucune fermeture forcée par iOS pendant toute la tranche |
 | P5 | Stockage total (modèles et sauvegardes) | Obligatoire | ≤ 6 Go |
 | P6 | Stabilité | Obligatoire | Session continue de 60 min sans plantage ni perte |
-| P7 | Chauffe | Obligatoire | Aucun ralentissement thermique visible ; mesure de l'état thermique là où elle est possible |
+| P7 | Chauffe | Obligatoire | Vitesse de génération des 5 dernières minutes ≥ 80 % de celle des 5 premières (Safari ne donne pas l'état thermique) |
 | P8 | Sauvegarde et reprise | Obligatoire | ≤ 2 s chacune |
 | P9 | Batterie | Obligatoire | ≤ 15 % par heure de jeu |
 | P10 | Premier lancement (chargement des modèles déjà installés) | Informatif | Mesuré et rapporté |
