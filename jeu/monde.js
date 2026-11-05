@@ -255,7 +255,7 @@ function annuel(s) {
     const p = s.pnj[poste];
     const fonds = 500;
     s.monde.exterieur -= fonds;
-    p.nom = pick(s, PRENOMS_PNJ); p.vivant = true; p.ferme = false; p.relation = 0; p.souvenirs = []; p.fonds = fonds;
+    p.nom = pick(s, PRENOMS_PNJ); p.vivant = true; p.ferme = false; p.relation = 0; p.souvenirs = []; p.fonds += fonds;
     p.naissance = s.jour - Math.floor((25 + rand(s) * 15) * AN); p.couple = null; p.enfants = []; p.parents = [];
     nouvelle(s, ileDuLieu(p.lieu), `${p.nom} rouvre l'activité : ${p.role}.`);
   }

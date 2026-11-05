@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { initialiserEvenements, declencherEvenement, choixEvenement, choisir, accomplir, verifierAmbition } from "./evenements.js";
 
 export const VERSION = 4;
 export const JOUR_HEURES = 16; // heures d'éveil par jour
@@ -205,6 +206,7 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
   s.haki.roisInne = rand(s) < 0.03; // le Haki des Rois ne s'apprend pas : il est inné, et rare
   if (aleatoire) for (const k of Object.keys(s.stats)) s.stats[k] += Math.floor(rand(s) * 2);
   initialiserMonde(s);
+  initialiserEvenements(s);
   noter(s, `Tu nais à Fuchsia, un petit village paisible de l'île de Dawn, sur East Blue. Tes parents, ${s.pnj.mere.nom} et ${s.pnj.pere.nom}, t'appellent ${s.perso.prenom}.`, "naissance");
   return s;
 }
@@ -223,7 +225,7 @@ function souvenir(s, id, texte) {
   p.souvenirs.push({ jour: s.jour, texte });
   if (p.souvenirs.length > 20) p.souvenirs.shift();
 }
-export { souvenir };
+export { souvenir, transferer, gagnerStat, blesser, res };
 export const blessureActive = s => s.sante.blessures.length > 0;
 const blessureGrave = s => s.sante.blessures.some(b => b.gravite >= 2);
 export function pnjIci(s) {
@@ -254,6 +256,7 @@ export function migrer(s) {
   s.inventaire.logpose ??= 0; s.inventaire.logpose_nm ??= 0;
   s.pnj.tomas.stock.barque ??= 2; if (s.pnj.barro) s.pnj.barro.stock.caravelle ??= 1;
   initialiserMonde(s, { parents: false });
+  initialiserEvenements(s);
   s.version = VERSION;
   return s;
 }
@@ -326,8 +329,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
     s.monde.prochainNavire = s.jour + 15 + Math.floor(rand(s) * 15);
     // Commerce extérieur : le navire achète le poisson de Bern (argent venu de l'extérieur, comptabilisé).
     const vente = 100 + Math.floor(rand(s) * 100);
-    s.monde.exterieur -= vente;
-    s.pnj.bern.fonds += vente;
+    if (s.pnj.bern.vivant !== false && !s.pnj.bern.ferme) { s.monde.exterieur -= vente; s.pnj.bern.fonds += vente; }
     s.pnj.tomas.stock.planche += 10;
     importants.push({ type: "navire", texte: "Un navire marchand entre dans le port de Fuchsia." });
     noter(s, "Un navire marchand accoste. Bern lui vend sa pêche, et Tomas reçoit du bois.", "monde");
@@ -348,6 +350,8 @@ function passerJour(s, { recuperation = 70 } = {}) {
   }
   // Le reste du monde vit sa vie : habitants, équipages rivaux, officiers, nouvelles.
   vieDuMonde(s);
+  if (declencherEvenement(s)) importants.push({ type: "evenement", texte: "Un événement demande ta décision." });
+  verifierAmbition(s);
   // Vieillissement et mortalité crédible (simplifiée) après 70 ans.
   if (age(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - 65) * 0.02) {
     s.perso.vivant = false;
@@ -358,20 +362,27 @@ function passerJour(s, { recuperation = 70 } = {}) {
   return importants;
 }
 
+// Condition de réussite binaire, fixée avant l'acceptation (L.3A, Q-résolution 1).
+function missionAccomplie(s, m) {
+  if (m.code === "toit") return s.monde.toitRemise === "réparé";
+  if (m.code === "livraison") return s.ile === m.dest && s.inventaire.colis > 0;
+  return !!m.fait; // chasse, sauvetage : action « accomplir » réussie sur le lieu prévu
+}
 function verifierMissions(s, importants) {
   for (const m of s.missions.filter(m => m.statut === "active")) {
-    const reussie = m.code === "toit" && s.monde.toitRemise === "réparé";
-    if (reussie) {
+    const d = s.pnj[m.donneur];
+    if (missionAccomplie(s, m)) {
+      if (m.code === "livraison") s.inventaire.colis -= 1;
       // Verdict automatique binaire (L.3A) et récompense automatique depuis le séquestre (L.4A).
       s.berrys += m.sequestre; m.sequestre = 0; m.statut = "réussie"; m.fin = s.jour;
-      s.pnj[m.donneur].relation += 10;
-      souvenir(s, m.donneur, "tu as réparé le toit de la remise comme promis");
+      if (d) { d.relation += 10; souvenir(s, m.donneur, `tu as tenu parole : ${m.titre.toLowerCase()}`); }
       noter(s, `Mission réussie : ${m.titre}. Tu reçois ${m.recompense} Berrys.`, "mission");
       importants?.push({ type: "mission_finie", texte: `Mission réussie : ${m.recompense} Berrys reçus.` });
     } else if (s.jour > m.echeance) {
-      s.pnj[m.donneur].fonds += m.sequestre; m.sequestre = 0; m.statut = "échouée"; m.fin = s.jour;
-      s.pnj[m.donneur].relation -= 5;
-      souvenir(s, m.donneur, "tu n'as pas réparé le toit à temps");
+      if (d && d.vivant !== false) d.fonds += m.sequestre; else s.monde.exterieur += m.sequestre;
+      m.sequestre = 0; m.statut = "échouée"; m.fin = s.jour;
+      if (m.code === "livraison" && s.inventaire.colis > 0) s.inventaire.colis -= 1;
+      if (d) { d.relation -= 5; souvenir(s, m.donneur, `tu n'as pas tenu parole : ${m.titre.toLowerCase()}`); }
       noter(s, `Mission échouée : ${m.titre}. L'échéance est passée.`, "mission");
       importants?.push({ type: "mission_finie", texte: "Mission échouée : l'échéance est passée." });
     }
@@ -389,7 +400,7 @@ export function avancer(s, jours, { recuperation, sansInterruption = false } = {
     if (sansInterruption) continue;
     // Seuls les événements qui demandent une décision interrompent l'ellipse (01.3C) ;
     // l'arrivée d'un navire est notée au journal sans arrêter le temps.
-    const imp = evts.find(e => ["mission", "mort", "naissance_enfant", "liberation"].includes(e.type));
+    const imp = evts.find(e => ["mission", "mort", "naissance_enfant", "liberation", "evenement"].includes(e.type));
     const fin = evts.find(e => e.type === "mission_finie");
     if (imp || fin) { interruption = imp || fin; break; }
   }
@@ -413,12 +424,13 @@ function actionsHaki(s) {
 
 export function actionsDisponibles(s) {
   if (!s.perso.vivant) return [];
-  const a = [];
+  const a = [...choixEvenement(s)];
+  for (const m of s.missions.filter(m => m.statut === "active" && m.lieu === s.lieu && !m.fait)) a.push({ id: "accomplir", label: `Mission : ${m.titre}` });
   const ag = age(s);
   const ici = pnjIci(s);
   for (const id of ici) a.push({ id: "parler", cible: id, label: `Parler à ${s.pnj[id].nom}` });
   if (s.prison) {
-    return [{ id: "attendre", label: "Attendre (jusqu'à 30 jours)" }, { id: "evader", label: "Tenter de t'évader" },
+    return [...a, { id: "attendre", label: "Attendre (jusqu'à 30 jours)" }, { id: "evader", label: "Tenter de t'évader" },
       { id: "entrainer", cible: "force", label: "S'entraîner en cellule (force)" },
       ...(s.fruit ? [{ id: "maitriser", label: "Travailler ton pouvoir" }] : []),
       ...actionsHaki(s)];
@@ -501,7 +513,7 @@ export function agir(s, action) {
   const ag = age(s);
   const f = ACTIONS[id];
   if (!f) return res(false, "Cette action n'existe pas dans le jeu.");
-  if (s.prison && !["attendre", "evader", "entrainer", "etudier", "maitriser", "repos", "haki"].includes(id)) {
+  if (s.prison && !["attendre", "evader", "entrainer", "etudier", "maitriser", "repos", "haki", "choisir"].includes(id)) {
     return res(false, `Tu es en prison jusqu'au jour ${s.prison.jusqua + 1}. Tu peux attendre, t'entraîner ou tenter de t'évader.`);
   }
   const r = f(s, cible, ag);
@@ -525,6 +537,13 @@ function gagnerStat(s, k, gain) {
 }
 
 const ACTIONS = {
+  choisir: (s, i) => choisir(s, +i),
+  accomplir: s => {
+    const e = activite(s, { heures: 4, fatigue: 25, ageMin: 12 });
+    if (e) return res(false, e);
+    consommer(s, 4, 25);
+    return accomplir(s);
+  },
   aller(s, lieu) {
     if (!LIEUX[lieu]) return res(false, "Ce lieu n'existe pas.");
     if (LIEUX[lieu].ile !== s.ile) return res(false, `Ce lieu se trouve ${ILES[LIEUX[lieu].ile].a} : il faut d'abord embarquer depuis le port.`);
@@ -661,6 +680,7 @@ const ACTIONS = {
       blesser(s, rand(s) < 0.5 ? 0 : 1);
       s.pnj.bern.relation += 5;
       souvenir(s, "bern", "tu as chassé un voyou du port");
+      if (rand(s) < 0.3) s.planifies?.push({ jour: s.jour + 120 + Math.floor(rand(s) * 200), id: "voyou_vengeance", data: {} });
       return res(true, `Tu fais face au voyou. Après un échange de coups, il détale. Combat +${GAINS.combat}.`);
     }
     blesser(s, rand(s) < 0.3 ? 2 : 1);
@@ -670,11 +690,13 @@ const ACTIONS = {
     const m = s.missions.find(m => m.id === mid && m.statut === "proposée");
     if (!m) return res(false, "Cette proposition n'existe plus.");
     // Séquestre de la récompense avant engagement (Q-résolution 2).
+    if (!pnjIci(s).includes(m.donneur)) return res(false, "Il faut être en face de la personne pour accepter.");
     if (s.pnj[m.donneur].fonds < m.recompense) {
       return res(false, `${s.pnj[m.donneur].nom} n'a plus les fonds : la mission ne peut pas être garantie.`);
     }
     s.pnj[m.donneur].fonds -= m.recompense; m.sequestre = m.recompense;
     m.statut = "active"; m.echeance = s.jour + m.duree;
+    if (m.code === "livraison") s.inventaire.colis = (s.inventaire.colis || 0) + 1;
     souvenir(s, m.donneur, `tu as accepté de l'aider : ${m.titre.toLowerCase()}`);
     return res(true, `Tu acceptes. ${s.pnj[m.donneur].nom} met ${m.recompense} Berrys de côté pour toi. Condition : ${m.condition} Échéance : fin du jour ${m.echeance + 1}.`);
   },

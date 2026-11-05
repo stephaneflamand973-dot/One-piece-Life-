@@ -589,3 +589,57 @@ test("monde vivant : la mort de ses parents donne un héritage, sans création d
   assert.equal(s.berrys, 300);
   assert.equal(E.masseMonetaire(s), masse);
 });
+
+// ---------- Étape 2 : événements et choix ----------
+import * as EV from "../jeu/evenements.js";
+import { jouerVie } from "../outils/simuler.mjs";
+
+test("événements : un événement se déclenche, interrompt l'ellipse et attend une décision", () => {
+  const s = E.nouvelleVie({ prenom: "V", seed: 21 });
+  let r = null, n = 0;
+  while (!s.evenement && n++ < 200) r = E.avancer(s, 30);
+  assert.ok(s.evenement, "aucun événement en 200 mois");
+  const choix = E.actionsDisponibles(s).filter(a => a.id === "choisir");
+  assert.ok(choix.length >= 2);
+  const res = E.agir(s, choix[0]);
+  assert.ok(res.ok);
+  assert.equal(s.evenement, null);
+});
+
+test("événements : chaque choix de chaque événement s'exécute sans erreur ni création d'argent", () => {
+  for (const ev of EV.EVENEMENTS) {
+    ev.choix.forEach((c, i) => {
+      const s = E.nouvelleVie({ prenom: "V", seed: 30 + i }); s.jour = 30 * 365; s.berrys = 500; s.monde.exterieur -= 500;
+      s.pnj.ami = { nom: "Ami", role: "ami", genre: "g", lieu: s.lieu, relation: 30, fonds: 500, souvenirs: [], naissance: s.jour - 30 * 365, vivant: true, enfants: [], parents: [], couple: null, romance: true };
+      s.monde.exterieur -= 500;
+      const masse = E.masseMonetaire(s);
+      s.evenement = { id: ev.id, jour: s.jour, data: { p: "ami" } };
+      const r = E.agir(s, { id: "choisir", cible: i });
+      assert.ok(r.ok, `${ev.id} choix ${i}`);
+      assert.equal(E.masseMonetaire(s), masse, `${ev.id} choix ${i} crée de l'argent`);
+    });
+  }
+});
+
+test("missions variées : livraison binaire, colis remis à l'arrivée, argent conservé", () => {
+  const s = ado(); s.berrys = 200; s.lieu = "port";
+  s.pnj.bern.fonds = 1000;
+  s.evenement = { id: "mission_livraison", jour: s.jour, data: { p: "bern" } };
+  E.agir(s, { id: "choisir", cible: 0 });
+  const m = s.missions.at(-1);
+  assert.equal(m.code, "livraison");
+  const masse = E.masseMonetaire(s);
+  assert.ok(E.agir(s, { id: "accepter", cible: m.id }).ok);
+  assert.equal(s.inventaire.colis, 1);
+  E.agir(s, { id: "voyager", cible: m.dest });
+  assert.equal(m.statut, "réussie");
+  assert.equal(s.inventaire.colis, 0);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("simulateur : des vies jouées au hasard sans erreur ni création d'argent", () => {
+  for (let seed = 1; seed <= 4; seed++) {
+    const v = jouerVie(seed, { maxJours: 25 * 365 });
+    assert.ok(v.masseOk, `vie ${seed} : argent créé`);
+  }
+});

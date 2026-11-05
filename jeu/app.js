@@ -7,7 +7,7 @@ import {
 import { regionDe, RANGS_OFFICIERS } from "./monde.js";
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "8 · monde vivant";
+export const VERSION_APP = "9 · événements";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -153,7 +153,7 @@ function rendreStatut() {
 
 // Regroupement des actions par thème pour l'écran principal.
 const GROUPES = [
-  ["propositions", "Propositions", ["accepter", "refuser"]],
+  ["propositions", "Décision", ["choisir", "accepter", "refuser", "accomplir"]],
   ["prison", "En cellule", ["attendre", "evader"]],
   ["progresser", "Progresser", ["entrainer", "etudier", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
   ["activites", "Activités", ["travailler", "pecher", "cuisiner", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "manger"]],
@@ -161,7 +161,7 @@ const GROUPES = [
   ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant"]],
 ];
 
-const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole", "voyage", "famille", "rumeur"]);
+const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole", "voyage", "famille", "rumeur", "evenement"]);
 
 function rendreVivre() {
   const recents = s.journal.filter(e => TYPES_VISIBLES.has(e.type)).slice(-14);
