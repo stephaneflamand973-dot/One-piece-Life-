@@ -76,39 +76,38 @@ Légende des scénarios S.2D : **1** actions libres et PNJ · **2** missions et 
 | F7 | Non-régression : tout cas passé reste passé au jalon suivant | Obligatoire | **100 %** |
 | F8 | Fidélité narrative jugée par le user (ton One Piece, clarté) | Informatif | Grille 1–5, notée au bilan |
 
-### 3.2 Critères de performance (seuils à fixer après le relevé de l'iPhone, avant tout test)
+### 3.2 Critères de performance (seuils fixés sur l'iPhone 15, avant tout test)
 
-| Code | Mesure | Type prévu |
-|---|---|---|
-| P1 | Latence entre la saisie libre et le début de la réponse | Obligatoire |
-| P2 | Latence de la réponse narrative complète | Obligatoire |
-| P3 | Durée de calcul d'une ellipse d'une semaine | Obligatoire |
-| P4 | Mémoire vive maximale pendant la tranche | Obligatoire |
-| P5 | Stockage (modèles et sauvegardes) | Obligatoire |
-| P6 | Stabilité : session continue sans plantage | Obligatoire |
-| P7 | Échauffement de l'iPhone | Obligatoire |
-| P9 | Consommation de batterie pendant la tranche | Obligatoire |
-| P8 | Durée de sauvegarde et de reprise | Obligatoire |
+Seuils fixés sous la délégation S.Δ à partir de l'expérience visée (fluidité, pas de microgestion), après le relevé et avant tout test. **Ils ne seront jamais abaissés après lecture des résultats.**
 
-Règle S.8 : une fois ces seuils fixés, on ne les abaisse jamais après avoir lu des résultats.
+| Code | Mesure | Type | Seuil |
+|---|---|---|---|
+| P1 | Délai entre la saisie libre et le premier mot de réponse | Obligatoire | ≤ 3 s pour 90 % des tours ; ≤ 6 s pour tous |
+| P2 | Réponse narrative complète (environ 120 mots) | Obligatoire | ≤ 15 s pour 90 % des tours |
+| P3 | Calcul d'une ellipse d'une semaine dans la tranche | Obligatoire | ≤ 5 s |
+| P4 | Mémoire | Obligatoire | Aucune fermeture forcée par iOS pendant toute la tranche |
+| P5 | Stockage total (modèles et sauvegardes) | Obligatoire | ≤ 6 Go |
+| P6 | Stabilité | Obligatoire | Session continue de 60 min sans plantage ni perte |
+| P7 | Chauffe | Obligatoire | Aucun ralentissement thermique visible ; mesure de l'état thermique là où elle est possible |
+| P8 | Sauvegarde et reprise | Obligatoire | ≤ 2 s chacune |
+| P9 | Batterie | Obligatoire | ≤ 15 % par heure de jeu |
+| P10 | Premier lancement (chargement des modèles déjà installés) | Informatif | Mesuré et rapporté |
 
 ### 3.3 Statuts de validation
 
 Réussi selon preuve · échoué · non testé · bloqué · en attente d'arbitrage. Un critère obligatoire qui n'est pas « réussi » bloque le jalon.
 
-## 4. Relevé de l'iPhone (à fournir par le user)
-
-Dans **Réglages → Général → Informations**, relever les éléments ci-dessous. La mémoire vive n'y est pas affichée : elle se déduit du modèle exact.
+## 4. Relevé de l'iPhone
 
 Ce relevé décrit l'appareil ; ce n'est pas un test. Il ne prouve aucune capacité.
 
 | Élément | Valeur |
 |---|---|
-| Nom du modèle (ex. « iPhone 15 Pro ») | *à relever* |
-| Version d'iOS | *à relever* |
-| Capacité de stockage | *à relever* |
-| Espace disponible | *à relever* |
-| Apple Intelligence disponible et activé (Réglages → Apple Intelligence et Siri) | *à relever* |
+| Modèle | iPhone 15 (puce A16 Bionic, 6 Go de mémoire vive d'après la fiche Apple) |
+| Version d'iOS | 26.5.2 |
+| Capacité | 128 Go |
+| Espace disponible | *à relever (Réglages → Général → Stockage iPhone)* |
+| Apple Intelligence | Non compatible avec ce modèle : le modèle d'IA intégré à iOS n'est pas utilisable |
 
 ## 5. Bilan du palier 1
 
@@ -116,5 +115,5 @@ Ce relevé décrit l'appareil ; ce n'est pas un test. Il ne prouve aucune capaci
 |---|---|
 | Liste fermée de la tranche | Rédigée, en attente de ta relecture |
 | Critères fonctionnels et seuils | Rédigés |
-| Seuils de performance | En attente du relevé de l'iPhone |
-| Relevé de l'iPhone | En attente |
+| Seuils de performance | Fixés (§ 3.2) |
+| Relevé de l'iPhone | Fait, sauf l'espace disponible |

@@ -22,7 +22,8 @@ Complément au *Dossier maître de transmission* du 2026-11-05. Ce registre ne r
 | **R.1A-iPhone** | Le user veut l'application sur son iPhone. **L'iPhone est la seule machine** : développement, essais et validation se font dessus. Remplace R.1D (« Mac d'abord, iPhone après validation ») et R.2A (Mac comme machine de référence). |
 | Maintenu | **P.2A : 100 % local sur l'iPhone, IA comprise.** Aucune dérogation, aucun serveur. |
 | Conséquences | Les seuils de performance sont fixés sur l'iPhone. L'instrumentation de mesure (S.7) doit fonctionner sur le téléphone et permettre d'exporter les résultats. Dans S.13, la réussite sur l'iPhone est la preuve visée ; elle ne certifie toujours pas le monde complet ni le multigénérationnel. |
-| Non décidé | La forme technique (web app installable ou app native) et le modèle IA. |
+| **R.7D** | Forme technique **décidée par mesure** : comparaison courte de l'IA locale dans Safari et en natif, sur les cas T01–T04 et T24, avec les seuils du palier 1, avant de construire le socle. |
+| Non décidé | La forme technique retenue et le modèle IA (issus de la mesure R.7D). |
 
 ## Arbitrages adoptés sous délégation S.Δ
 
@@ -47,12 +48,13 @@ Complément au *Dossier maître de transmission* du 2026-11-05. Ce registre ne r
 | Palier | Contenu | Statut |
 |---|---|---|
 | 1 | Relevé de l'iPhone, liste fermée de la tranche, fiches de critères avec seuils. **Sans code.** | **En cours** |
-| 2 | Socle minimal (S.7) | Non autorisé : attend le bilan du palier 1 |
+| 1 bis | Mesure comparative R.7D (banc de mesure jetable, pas le jeu) | Non autorisé : attend l'accord du user |
+| 2 | Socle minimal (S.7) | Non autorisé |
 | 3 | Tranche verticale (S.6D) | Non autorisé |
 
 ## Réserves ouvertes
 
-1. L'iPhone n'est pas relevé ; aucune capacité n'est prouvée. Faire tourner une IA locale de qualité suffisante sur un iPhone n'est pas démontré.
+1. iPhone relevé (iPhone 15, 6 Go de mémoire vive, non compatible Apple Intelligence) ; aucune capacité n'est prouvée. Le modèle d'IA local intégré à iOS n'est pas disponible sur cet appareil. Faire tourner une IA locale de qualité suffisante sur un iPhone n'est pas démontré.
 2. Aucun modèle IA n'est choisi.
 3. Les seuils de performance ne sont pas fixés.
 4. Les cas limites du séquestre (Q-résolution 2) restent à confronter.
