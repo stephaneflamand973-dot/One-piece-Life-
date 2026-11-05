@@ -33,6 +33,18 @@ Réponds uniquement avec un objet JSON de la forme :
 - "condition" : texte de la condition si l'action n'a lieu que sous condition, sinon null.
 - "clarification" : si la phrase est trop ambiguë pour être interprétée, une seule question courte au joueur, et "intentions" vide. Sinon null.`;
 
+const STR_OR_NULL = { anyOf: [{ type: "string" }, { type: "null" }] };
+const INTERP_SCHEMA = JSON.stringify({
+  type: "object",
+  properties: {
+    intentions: { type: "array", items: { type: "object",
+      properties: { action: { type: "string" }, cible: { type: "string" }, condition: STR_OR_NULL },
+      required: ["action", "cible", "condition"] } },
+    clarification: STR_OR_NULL,
+  },
+  required: ["intentions", "clarification"],
+});
+
 const NARR_RULES = `Règles absolues : n'utilise que les faits fournis. N'invente aucun nom, objet, lieu, nombre ou événement. Si une information n'est pas fournie, le personnage ne la connaît pas. Écris en français, au présent, dans le ton de One Piece.`;
 
 const REFUS = /(sais pas|sais rien|aucune idée|j'ignore|ignore|pas au courant|pas la moindre idée|rien vu|pas vu|n'en sais|me demande bien|aucune information)/i;
@@ -294,7 +306,8 @@ async function generate(messages, { json = false, maxTokens = 220 } = {}) {
     messages, stream: true, stream_options: { include_usage: true },
     temperature: 0.7, top_p: 0.9, max_tokens: maxTokens,
   };
-  if (json) req.response_format = { type: "json_object" };
+  // WebLLM 0.2.86 exige un schéma explicite avec json_object (sinon erreur du grammar matcher).
+  if (json) req.response_format = { type: "json_object", schema: INTERP_SCHEMA };
   if (/^Qwen3/.test(currentModel)) req.extra_body = { enable_thinking: false };
   const t0 = performance.now();
   let ttft = null, text = "", usage = null;
