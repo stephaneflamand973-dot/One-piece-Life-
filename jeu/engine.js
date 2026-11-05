@@ -73,9 +73,22 @@ export const OBJETS = {
   canne: { nom: "canne à pêche", pluriel: "cannes à pêche", prix: 60, vendeur: "ilda" },
   sabre: { nom: "sabre", pluriel: "sabres", prix: 300, vendeur: "barro" },
   bague: { nom: "bague", pluriel: "bagues", prix: 150, vendeur: "lise" },
+  barque: { nom: "barque", pluriel: "barques", prix: 600, vendeur: "tomas", navire: true },
+  caravelle: { nom: "caravelle", pluriel: "caravelles", prix: 4000, vendeur: "barro", navire: true },
 };
 
 // Gains fixes prédéfinis (D.2A) : jamais modulés.
+// Fruits du Démon inventés pour ce jeu (aucun fruit canonique n'est attribué au joueur).
+export const FRUITS = {
+  echo: { nom: "Fruit de l'Écho", type: "Paramecia", pouvoir: "projeter des ondes sonores qui renversent tes adversaires", bonus: 6 },
+  plume: { nom: "Fruit de la Plume", type: "Zoan", pouvoir: "te transformer en grand oiseau de mer", bonus: 5 },
+  braise: { nom: "Fruit de la Braise", type: "Logia", pouvoir: "devenir braise et projeter des flammes", bonus: 8, intangible: true },
+  verre: { nom: "Fruit du Verre", type: "Paramecia", pouvoir: "créer et façonner du verre à volonté", bonus: 5 },
+};
+export const NAVIRES = { barque: { nom: "barque de pêche aménagée", capacite: 3 }, caravelle: { nom: "caravelle", capacite: 8 } };
+export const TAVERNES = ["bar", "taverne_shells", "salle_baratie", "auberge_logue"];
+export const EXPLORABLES = ["colline", "port", "port_shells", "quais_logue", "echafaud", "pont_baratie"];
+
 export const GAINS = {
   entrainement: 1, etude: 1, jeu_enfant: 1, peche: 1, charpenterie: 1, combat: 1,
   relation_conversation: 2, relation_aide: 5, salaire_port: 30, merite_service: 1, merite_patrouille: 3, temps_famille: 3,
@@ -84,7 +97,7 @@ export const GAINS = {
 const PNJ_INITIAUX = () => ({
   makino: { nom: "Makino", role: "tient le bar Partys", genre: "f", canon: true, lieu: "bar", relation: 10, fonds: 3000, souvenirs: [] },
   woop: { nom: "Woop Slap", role: "maire du village", genre: "g", canon: true, lieu: "place", relation: 0, fonds: 2500, souvenirs: [] },
-  tomas: { nom: "Tomas", role: "charpentier", genre: "g", lieu: "atelier", relation: 0, fonds: 800, souvenirs: [], stock: { planche: 30 } },
+  tomas: { nom: "Tomas", role: "charpentier", genre: "g", lieu: "atelier", relation: 0, fonds: 800, souvenirs: [], stock: { planche: 30, barque: 2 } },
   bern: { nom: "Bern", role: "pêcheur", genre: "g", lieu: "port", relation: 0, fonds: 600, souvenirs: [] },
   ilda: { nom: "Ilda", role: "marchande ambulante", genre: "f", lieu: "place", relation: 0, fonds: 1200, souvenirs: [], stock: { clou: 80, canne: 2 }, presente: true },
   sacha: { nom: "Sacha", role: "enfant du village, de ton âge", genre: "x", lieu: "colline", relation: 5, fonds: 50, souvenirs: [], naissance: 120, romance: true },
@@ -92,7 +105,7 @@ const PNJ_INITIAUX = () => ({
   mira: { nom: "Mira", role: "tient la taverne de Shells Town", genre: "f", lieu: "taverne_shells", relation: 0, fonds: 900, souvenirs: [], naissance: -730, romance: true },
   gallo: { nom: "Chef Gallo", role: "cuisinier du Baratie", genre: "g", lieu: "cuisine_baratie", relation: 0, fonds: 4000, souvenirs: [] },
   nino: { nom: "Nino", role: "serveur du Baratie", genre: "g", lieu: "salle_baratie", relation: 0, fonds: 300, souvenirs: [], naissance: -365, romance: true },
-  barro: { nom: "Barro", role: "armurier de Loguetown", genre: "g", lieu: "armurerie", relation: 0, fonds: 2000, souvenirs: [], stock: { sabre: 3 } },
+  barro: { nom: "Barro", role: "armurier de Loguetown", genre: "g", lieu: "armurerie", relation: 0, fonds: 2000, souvenirs: [], stock: { sabre: 3, caravelle: 1 } },
   lise: { nom: "Lise", role: "bijoutière du grand marché", genre: "f", lieu: "marche_logue", relation: 0, fonds: 1500, souvenirs: [], naissance: -1095, romance: true, stock: { bague: 5 } },
 });
 
@@ -116,14 +129,14 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
     stats: { force: 1, agilite: 1, endurance: 1, intelligence: 1, charisme: 1 },
     competences: { charpenterie: 0, peche: 0, combat: 0, cuisine: 0 },
     potentiel: {},
-    berrys: 0, inventaire: { planche: 0, clou: 0, poisson: 0, canne: 0, sabre: 0, bague: 0 },
+    berrys: 0, inventaire: { planche: 0, clou: 0, poisson: 0, canne: 0, sabre: 0, bague: 0, fruits: [] },
     sante: { blessures: [], sequelles: [] },
     lieu: "maison", ile: "fuchsia",
     pnj: PNJ_INITIAUX(),
-    carriere: null,
+    carriere: null, navire: null, fruit: null, prime: 0, infamie: 0, prison: null,
     famille: { partenaire: null, statut: null, enfants: [], grossesse: null },
     generation: 1, ancetres: [],
-    monde: { toitRemise: "abîmé", prochainNavire: 18, voyouAuPort: false, meteo: "beau", exterieur: 100000 },
+    monde: { toitRemise: "abîmé", prochainNavire: 18, voyouAuPort: false, meteo: "beau", exterieur: 1000000, fruitsTrouves: [] },
     missions: [], journal: [], compteurs: { actions: 0 },
   };
   s.pnj.dock = { nom: "Compagnie des docks", role: "employeur des quais", lieu: null, relation: 0, fonds: 20000, souvenirs: [], invisible: true };
@@ -151,7 +164,8 @@ function souvenir(s, id, texte) {
 export const blessureActive = s => s.sante.blessures.length > 0;
 const blessureGrave = s => s.sante.blessures.some(b => b.gravite >= 2);
 export function pnjIci(s) {
-  return Object.entries(s.pnj).filter(([, p]) => p.lieu === s.lieu && p.presente !== false && !p.invisible && p.vivant !== false).map(([id]) => id);
+  if (s.prison) return [];
+  return Object.entries(s.pnj).filter(([, p]) => (p.lieu === s.lieu || p.lieu === "equipage") && p.presente !== false && !p.invisible && p.vivant !== false).map(([id]) => id);
 }
 export const agePnj = (s, id) => s.pnj[id].naissance == null ? null : Math.floor((s.jour - s.pnj[id].naissance) / 365);
 const il = p => (p.genre === "f" ? "elle" : p.genre === "g" ? "il" : "iel");
@@ -171,6 +185,9 @@ export function migrer(s) {
   s.famille ??= { partenaire: null, statut: null, enfants: [], grossesse: null };
   s.generation ??= 1; s.ancetres ??= [];
   s.inventaire.sabre ??= 0; s.inventaire.bague ??= 0;
+  s.inventaire.fruits ??= []; s.fruit ??= null; s.navire ??= null; s.prime ??= 0; s.infamie ??= 0; s.prison ??= null;
+  s.monde.fruitsTrouves ??= [];
+  s.pnj.tomas.stock.barque ??= 2; if (s.pnj.barro) s.pnj.barro.stock.caravelle ??= 1;
   s.version = VERSION;
   return s;
 }
@@ -492,8 +509,14 @@ const ACTIONS = {
     if (!pnjIci(s).includes(o.vendeur)) return res(false, `${v.nom} n'est pas ici.`);
     if ((v.stock?.[objet] ?? 0) < 1) return res(false, `${v.nom} n'en a plus en stock.`);
     if (s.berrys < o.prix) return res(false, `Il te faut ${o.prix} Berrys ; tu en as ${s.berrys}.`);
+    if (o.navire && s.navire && NAVIRES[s.navire.type].capacite >= NAVIRES[objet].capacite) return res(false, "Tu as déjà un navire au moins aussi grand.");
     transferer(s, "joueur", o.vendeur, o.prix);
-    v.stock[objet] -= 1; s.inventaire[objet] += 1;
+    v.stock[objet] -= 1;
+    if (o.navire) {
+      s.navire = { type: objet, nom: s.navire?.nom || `Le ${["Goéland", "Vent d'Aube", "Petit Espoir", "Mouette Rieuse"][Math.floor(rand(s) * 4)]}`, coque: 100 };
+      return res(true, `Tu achètes une ${o.nom} à ${v.nom} pour ${o.prix} Berrys. Tu la baptises « ${s.navire.nom} ». Tu peux désormais prendre la mer gratuitement, et accueillir jusqu'à ${NAVIRES[objet].capacite} membres d'équipage.`);
+    }
+    s.inventaire[objet] += 1;
     return res(true, `Tu achètes un${objet === "planche" || objet === "canne" ? "e" : ""} ${o.nom} à ${v.nom} pour ${o.prix} Berrys.`);
   },
   reparer(s) {
@@ -563,16 +586,30 @@ const ACTIONS = {
     if (s.lieu !== ILES[s.ile].port) return res(false, "Les navires partent du port.");
     if (age(s) < 14) return res(false, "Tu es trop jeune pour embarquer seul (à partir de 14 ans).");
     const jours = ROUTES[s.ile][dest];
-    const prix = jours * PRIX_JOUR_MER;
+    const prix = s.navire ? 0 : jours * PRIX_JOUR_MER;
     if (s.berrys < prix) return res(false, `La traversée coûte ${prix} Berrys ; tu en as ${s.berrys}.`);
     s.berrys -= prix; s.monde.exterieur += prix;
     const depart = ILES[s.ile].nom;
     // Les jours de mer passent réellement : le monde continue, les blessures guérissent.
-    avancer(s, jours, { sansInterruption: true });
-    if (!s.perso.vivant) return res(true, "Ta vie s'achève en mer.");
+    // Avec une prime sur la tête, la Marine peut intercepter le navire en mer.
+    for (let j = 0; j < jours; j++) {
+      avancer(s, 1, { sansInterruption: true });
+      if (!s.perso.vivant) return res(true, "Ta vie s'achève en mer.");
+      if (s.prime > 0 && rand(s) < Math.min(0.25, 0.03 * s.infamie)) {
+        const r = combatMarine(s, "en mer");
+        if (s.prison || !s.perso.vivant) return r;
+        noter(s, r.texte, "action");
+      }
+    }
     s.ile = dest; s.lieu = ILES[dest].port;
     noter(s, `Tu débarques à ${ILES[dest].nom}, ${ILES[dest].desc}.`, "voyage");
-    return res(true, `Tu quittes ${depart}. Après ${jours} jours de mer, tu arrives à ${ILES[dest].nom}.`);
+    let txt = `Tu quittes ${depart}${s.navire ? ` à bord du « ${s.navire.nom} »` : ""}. Après ${jours} jours de mer, tu arrives à ${ILES[dest].nom}.`;
+    // Shells Town abrite une base de la Marine : un pirate recherché y est vite repéré.
+    if (dest === "shells" && s.prime > 0 && rand(s) < 0.6) {
+      const r = combatMarine(s, "sur le port de Shells Town");
+      txt += ` ${r.texte}`;
+    }
+    return res(true, txt);
   },
   engager(s) {
     if (s.lieu !== "base") return res(false, "On s'engage à la base de la Marine de Shells Town.");
