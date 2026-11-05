@@ -1,6 +1,6 @@
 // Fonctionnement hors ligne : fichiers du jeu en cache, mis à jour à chaque nouvelle version.
-const CACHE = "opl-jeu-v8";
-const FICHIERS = ["./", "./index.html", "./app.js", "./engine.js", "./ia.js", "./manifest.webmanifest", "./icone.svg", "./icone-180.png", "./icone-512.png"];
+const CACHE = "opl-jeu-v9";
+const FICHIERS = ["./", "./index.html", "./app.js", "./engine.js", "./ia.js", "./monde.js", "./manifest.webmanifest", "./icone.svg", "./icone-180.png", "./icone-512.png"];
 self.addEventListener("install", e => e.waitUntil(
   caches.open(CACHE).then(c => c.addAll(FICHIERS.map(f => new Request(f, { cache: "reload" })))).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil((async () => {

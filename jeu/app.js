@@ -4,9 +4,10 @@ import {
   migrer, lieuxDe, heritiers, succeder, RANGS_MARINE, MERITE_RANG, agePnj, FRUITS, NAVIRES, equipage, puissance,
   HAKI, SEUIL_EVEIL,
 } from "./engine.js";
+import { regionDe, RANGS_OFFICIERS } from "./monde.js";
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "7.1 · interface";
+export const VERSION_APP = "8 · monde vivant";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -160,7 +161,7 @@ const GROUPES = [
   ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant"]],
 ];
 
-const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole", "voyage", "famille"]);
+const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole", "voyage", "famille", "rumeur"]);
 
 function rendreVivre() {
   const recents = s.journal.filter(e => TYPES_VISIBLES.has(e.type)).slice(-14);
@@ -311,6 +312,12 @@ function rendreFiche() {
       ${s.famille.grossesse ? `<p class="discret">Un enfant est attendu dans ${s.famille.grossesse.terme - s.jour} jours.</p>` : ""}
       ${s.famille.enfants.map(e => `<p>${esc(e.prenom)} · ${Math.floor((s.jour - e.naissance) / 365)} ans</p>`).join("")}
       ${s.ancetres.length ? `<p class="discret">Génération ${s.generation} · ancêtres : ${s.ancetres.map(a => `${esc(a.prenom)} (${a.age} ans)`).join(", ")}</p>` : ""}</section>
+    <section class="carte"><h2>Le monde</h2>
+      <p class="discret">Avis de recherche affichés dans ta région :</p>
+      ${s.monde.rivaux.filter(r => r.actif && r.region === regionDe(s.ile)).sort((a, b) => b.prime - a.prime).slice(0, 5)
+        .map(r => `<p>${esc(r.capitaine)} · <span class="discret">${esc(r.nom)}</span> · <b>${r.prime.toLocaleString("fr-FR")} ฿</b></p>`).join("") || "<p>Aucun.</p>"}
+      <p class="discret">Dernières nouvelles :</p>
+      ${s.journal.filter(e => e.type === "rumeur").slice(-5).reverse().map(e => `<p class="petit">${esc(e.texte)}</p>`).join("") || "<p>Rien de neuf.</p>"}</section>
     <section class="carte"><h2>Missions</h2>
       ${missions.length ? missions.map(m => `<div class="mission"><b>${esc(m.titre)}</b> · <span class="m-${m.statut}">${m.statut}</span>
         <p class="discret">${esc(m.condition)} Récompense : ${m.recompense} Berrys${m.statut === "active" ? ` (mise de côté) · échéance fin du jour ${m.echeance + 1}` : ""}.</p></div>`).join("") : "<p>Aucune mission.</p>"}</section>`;

@@ -4,7 +4,9 @@
 // guérison automatique en temps simulé (K.2A), fabrication instantanée si ressources (I.5A),
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
-export const VERSION = 3;
+import { initialiserMonde, vieDuMonde } from "./monde.js";
+
+export const VERSION = 4;
 export const JOUR_HEURES = 16; // heures d'éveil par jour
 export const FATIGUE_MAX_ACTIVITE = 80;
 
@@ -202,7 +204,8 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
   for (const k of Object.keys(s.stats)) s.potentiel[k] = 40 + Math.floor(rand(s) * 61);
   s.haki.roisInne = rand(s) < 0.03; // le Haki des Rois ne s'apprend pas : il est inné, et rare
   if (aleatoire) for (const k of Object.keys(s.stats)) s.stats[k] += Math.floor(rand(s) * 2);
-  noter(s, `Tu nais à Fuchsia, un petit village paisible de l'île de Dawn, sur East Blue. Tes parents t'appellent ${s.perso.prenom}.`, "naissance");
+  initialiserMonde(s);
+  noter(s, `Tu nais à Fuchsia, un petit village paisible de l'île de Dawn, sur East Blue. Tes parents, ${s.pnj.mere.nom} et ${s.pnj.pere.nom}, t'appellent ${s.perso.prenom}.`, "naissance");
   return s;
 }
 
@@ -220,6 +223,7 @@ function souvenir(s, id, texte) {
   p.souvenirs.push({ jour: s.jour, texte });
   if (p.souvenirs.length > 20) p.souvenirs.shift();
 }
+export { souvenir };
 export const blessureActive = s => s.sante.blessures.length > 0;
 const blessureGrave = s => s.sante.blessures.some(b => b.gravite >= 2);
 export function pnjIci(s) {
@@ -249,6 +253,7 @@ export function migrer(s) {
   s.haki ??= { observation: 0, armement: 0, rois: 0, eveil: { observation: false, armement: false, rois: false }, progres: { observation: 0, armement: 0 }, roisInne: rand(s) < 0.03 };
   s.inventaire.logpose ??= 0; s.inventaire.logpose_nm ??= 0;
   s.pnj.tomas.stock.barque ??= 2; if (s.pnj.barro) s.pnj.barro.stock.caravelle ??= 1;
+  initialiserMonde(s, { parents: false });
   s.version = VERSION;
   return s;
 }
@@ -341,6 +346,8 @@ function passerJour(s, { recuperation = 70 } = {}) {
     });
     importants.push({ type: "mission", texte: "Le maire Woop Slap te cherche : il a une proposition de travail." });
   }
+  // Le reste du monde vit sa vie : habitants, équipages rivaux, officiers, nouvelles.
+  vieDuMonde(s);
   // Vieillissement et mortalité crédible (simplifiée) après 70 ans.
   if (age(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - 65) * 0.02) {
     s.perso.vivant = false;
@@ -578,6 +585,7 @@ const ACTIONS = {
     if (e) return res(false, e);
     if (blessureGrave(s)) return res(false, "Ta blessure t'empêche de travailler.");
     const payeur = s.pnj[e0.payeur];
+    if (payeur.vivant === false || payeur.ferme) return res(false, "Il n'y a plus personne pour t'employer ici.");
     if (payeur.fonds < e0.salaire) return res(false, `${payeur.nom} n'a plus de quoi te payer en ce moment.`);
     consommer(s, e0.heures, e0.fatigue);
     transferer(s, e0.payeur, "joueur", e0.salaire);

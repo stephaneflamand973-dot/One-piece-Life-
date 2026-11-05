@@ -539,3 +539,53 @@ test("Wano : les leçons de Sōen mènent au Haki de l'armement à pas fixes", (
   assert.equal(s.haki.eveil.armement, true);
   assert.equal(s.competences.combat, E.SEUIL_EVEIL);
 });
+
+// ---------- Étape 1 : un monde qui vit seul ----------
+import * as M from "../jeu/monde.js";
+
+test("monde vivant : en 50 ans sans le joueur, au moins 30 % des habitants ont changé", () => {
+  const s = E.nouvelleVie({ prenom: "W", seed: 11 });
+  const initiaux = M.vivants(s);
+  const masse = E.masseMonetaire(s);
+  for (let y = 0; y < 50; y++) E.avancer(s, 365, { sansInterruption: true });
+  const changes = initiaux.filter(id => !s.pnj[id] || s.pnj[id].vivant === false || s.pnj[id].couple || s.pnj[id].enfants?.length).length;
+  assert.ok(changes / initiaux.length >= 0.3, `${changes}/${initiaux.length}`);
+  assert.ok(s.monde.defunts.length > 0);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("monde vivant : les personnages canoniques ne meurent pas avant 90 ans", () => {
+  const s = E.nouvelleVie({ prenom: "W", seed: 12 });
+  s.pnj.makino.naissance = s.jour - 30 * 365;
+  for (let y = 0; y < 50; y++) E.avancer(s, 365, { sansInterruption: true });
+  assert.notEqual(s.pnj.makino.vivant, false);
+});
+
+test("monde vivant : à la mort d'un artisan, un successeur reprend son poste", () => {
+  const s = E.nouvelleVie({ prenom: "W", seed: 13 });
+  s.pnj.tomas.enfants = []; s.pnj.app = { nom: "Apo", role: "apprenti", genre: "g", lieu: "atelier", relation: 0, fonds: 10, souvenirs: [], naissance: s.jour - 20 * 365, vivant: true, enfants: [], parents: [], couple: null };
+  M.mourir(s, "tomas", "de maladie");
+  assert.equal(s.pnj.tomas.nom, "Apo");
+  assert.notEqual(s.pnj.tomas.vivant, false);
+  assert.equal(s.pnj.app, undefined);
+  assert.equal(s.pnj.tomas.stock.planche, 30);
+});
+
+test("monde vivant : une nouvelle lointaine arrive avec un délai", () => {
+  const s = E.nouvelleVie({ prenom: "W", seed: 14 }); s.jour = 20 * 365;
+  M.nouvelle(s, "loguetown", "Test lointain.", "region");
+  M.nouvelle(s, "loguetown", "Petite nouvelle locale.");
+  M.recevoirNouvelles(s);
+  assert.ok(!s.journal.some(e => e.texte.includes("Test lointain")));
+  s.jour += 3; M.recevoirNouvelles(s);
+  assert.ok(s.journal.some(e => e.type === "rumeur" && e.texte.includes("Test lointain")));
+  assert.ok(!s.journal.some(e => e.texte.includes("Petite nouvelle locale")));
+});
+
+test("monde vivant : la mort de ses parents donne un héritage, sans création d'argent", () => {
+  const s = E.nouvelleVie({ prenom: "W", seed: 15 });
+  const masse = E.masseMonetaire(s);
+  M.mourir(s, "mere", "de maladie");
+  assert.equal(s.berrys, 300);
+  assert.equal(E.masseMonetaire(s), masse);
+});
