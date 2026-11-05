@@ -1,7 +1,7 @@
 // IA en ligne facultative (Google Gemini, palier gratuit, clé fournie par le joueur).
 // L'IA n'a aucune autorité : elle propose des actions que le moteur valide, et raconte des faits établis.
 
-import { LIEUX, ILES, STATS, OBJETS, actionsDisponibles, lieuxDe } from "./engine.js";
+import { LIEUX, ILES, STATS, OBJETS, FRUITS, actionsDisponibles, lieuxDe } from "./engine.js";
 
 const CLE_CONFIG = "opl-jeu-ia";
 export const MODELE_DEFAUT = "gemini-2.5-flash";
@@ -45,7 +45,7 @@ export async function interpreter(s, texte) {
   for (const id of lieuxDe(s.ile)) if (id !== s.lieu) { const l = LIEUX[id]; dispo.push({ id: "aller", cible: id, description: `Aller ${l.a}` }); }
   dispo.push({ id: "repos", cible: null, description: "Rentrer dormir jusqu'au lendemain" });
   const prompt = `Tu es l'interpréteur d'un jeu de simulation de vie dans l'univers de One Piece. Tu ne racontes rien.
-Traduis la phrase du joueur en une suite d'actions. Voici les actions possibles ici et maintenant (id et cible exacts) ; après un déplacement, tu peux aussi utiliser parler (cible : identifiant d'un habitant de l'île), acheter (planche, clou, canne, sabre, bague), entrainer (force, agilite, endurance), travailler, pecher, cuisiner, reparer, combattre, service, patrouille, repos :
+Traduis la phrase du joueur en une suite d'actions. Voici les actions possibles ici et maintenant (id et cible exacts) ; après un déplacement, tu peux aussi utiliser parler (cible : identifiant d'un habitant de l'île), acheter (planche, clou, canne, sabre, bague), entrainer (force, agilite, endurance), travailler, pecher, cuisiner, reparer, combattre, service, patrouille, pirate, recruter, attaquer, explorer, maitriser, repos :
 ${JSON.stringify(dispo)}
 Règles :
 - Respecte l'ordre voulu par le joueur. Une action peut être répétée (par exemple acheter plusieurs fois).
@@ -75,7 +75,9 @@ function actionConnue(s, a) {
     case "accepter": case "refuser": return s.missions.some(m => m.id === c);
     case "jouer": case "ecouter": case "etudier": case "travailler": case "pecher": case "cuisiner":
     case "reparer": case "combattre": case "repos": case "engager": case "service": case "patrouille":
-    case "quitter": case "famille": case "enfant": return true;
+    case "quitter": case "famille": case "enfant": case "pirate": case "recruter": case "attaquer": case "explorer":
+    case "maitriser": case "attendre": case "evader": return true;
+    case "manger": return c in FRUITS;
     default: return false;
   }
 }

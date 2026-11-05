@@ -225,6 +225,11 @@ function passerJour(s, { recuperation = 70 } = {}) {
     s.monde.exterieur -= solde; s.berrys += solde;
     noter(s, `La Marine te verse ta solde : ${solde} Berrys.`, "monde");
   }
+  if (s.prison && s.jour >= s.prison.jusqua) {
+    s.prison = null; s.lieu = "port_shells";
+    importants.push({ type: "liberation", texte: "Tu as purgé ta peine : la Marine te relâche sur le port de Shells Town." });
+    noter(s, "Libéré de prison.", "mission");
+  }
   // Naissance d'un enfant.
   const g = s.famille?.grossesse;
   if (g && s.jour >= g.terme) {
@@ -316,7 +321,7 @@ export function avancer(s, jours, { recuperation, sansInterruption = false } = {
     if (sansInterruption) continue;
     // Seuls les événements qui demandent une décision interrompent l'ellipse (01.3C) ;
     // l'arrivée d'un navire est notée au journal sans arrêter le temps.
-    const imp = evts.find(e => ["mission", "mort", "naissance_enfant"].includes(e.type));
+    const imp = evts.find(e => ["mission", "mort", "naissance_enfant", "liberation"].includes(e.type));
     const fin = evts.find(e => e.type === "mission_finie");
     if (imp || fin) { interruption = imp || fin; break; }
   }
@@ -336,6 +341,11 @@ export function actionsDisponibles(s) {
   const ag = age(s);
   const ici = pnjIci(s);
   for (const id of ici) a.push({ id: "parler", cible: id, label: `Parler à ${s.pnj[id].nom}` });
+  if (s.prison) {
+    return [{ id: "attendre", label: "Attendre (jusqu'à 30 jours)" }, { id: "evader", label: "Tenter de t'évader" },
+      { id: "entrainer", cible: "force", label: "S'entraîner en cellule (force)" },
+      ...(s.fruit ? [{ id: "maitriser", label: "Travailler ton pouvoir" }] : [])];
+  }
   if (ag < 6) {
     a.push({ id: "jouer", label: "Jouer dehors" });
     if (s.lieu === "bar") a.push({ id: "ecouter", label: "Écouter les histoires du bar" });
@@ -349,14 +359,23 @@ export function actionsDisponibles(s) {
   if (emploi && ag >= emploi.ageMin) a.push({ id: "travailler", label: emploi.label });
   if (s.lieu === "port" && s.inventaire.canne > 0) a.push({ id: "pecher", label: "Pêcher" });
   for (const [k, o] of Object.entries(OBJETS)) {
-    if (o.vendeur && ici.includes(o.vendeur) && (s.pnj[o.vendeur].stock?.[k] ?? 0) > 0 && ag >= 10)
-      a.push({ id: "acheter", cible: k, label: `Acheter ${k === "planche" || k === "canne" || k === "bague" ? "une" : "un"} ${o.nom} (${o.prix} B)` });
+    if (o.vendeur && ici.includes(o.vendeur) && (s.pnj[o.vendeur].stock?.[k] ?? 0) > 0 && ag >= 10 && !(o.navire && s.navire && NAVIRES[s.navire.type].capacite >= NAVIRES[k].capacite))
+      a.push({ id: "acheter", cible: k, label: `Acheter ${["planche", "canne", "bague", "barque", "caravelle"].includes(k) ? "une" : "un"} ${o.nom} (${o.prix} B)` });
   }
   if (s.lieu === "remise" && s.monde.toitRemise === "abîmé") a.push({ id: "reparer", label: "Réparer le toit (3 planches, 6 clous)" });
   if (s.lieu === "port" && s.monde.voyouAuPort) a.push({ id: "combattre", label: "Affronter le voyou" });
   if (s.lieu === "bar" && ag >= 12) a.push({ id: "cuisiner", label: "Aider Makino en cuisine" });
+  if (EXPLORABLES.includes(s.lieu) && ag >= 8) a.push({ id: "explorer", label: "Explorer les environs" });
+  for (const f of new Set(s.inventaire.fruits)) a.push({ id: "manger", cible: f, label: `Manger le ${FRUITS[f].nom}${s.fruit ? " (tu as déjà un pouvoir !)" : ""}` });
+  if (s.fruit) a.push({ id: "maitriser", label: "Travailler ton pouvoir" });
+  if (s.lieu === ILES[s.ile].port && s.navire && !s.carriere && ag >= 16) a.push({ id: "pirate", label: "Hisser le pavillon pirate" });
+  if (s.carriere?.type === "pirate") {
+    if (s.lieu === ILES[s.ile].port) a.push({ id: "attaquer", label: "Attaquer un navire marchand" });
+    if (TAVERNES.includes(s.lieu)) a.push({ id: "recruter", label: "Recruter un membre d'équipage" });
+    if (s.lieu === ILES[s.ile].port) a.push({ id: "quitter", label: "Renoncer à la piraterie" });
+  }
   if (s.lieu === ILES[s.ile].port && ag >= 14) {
-    for (const [dest, j] of Object.entries(ROUTES[s.ile])) a.push({ id: "voyager", cible: dest, label: `Embarquer pour ${ILES[dest].nom} (${j} j, ${j * PRIX_JOUR_MER} B)` });
+    for (const [dest, j] of Object.entries(ROUTES[s.ile])) a.push({ id: "voyager", cible: dest, label: s.navire ? `Naviguer vers ${ILES[dest].nom} (${j} j)` : `Embarquer pour ${ILES[dest].nom} (${j} j, ${j * PRIX_JOUR_MER} B)` });
   }
   if (s.lieu === "base") {
     if (!s.carriere && ag >= 16) a.push({ id: "engager", label: "S'engager dans la Marine" });
@@ -392,6 +411,9 @@ export function agir(s, action) {
   const ag = age(s);
   const f = ACTIONS[id];
   if (!f) return res(false, "Cette action n'existe pas dans le jeu.");
+  if (s.prison && !["attendre", "evader", "entrainer", "etudier", "maitriser", "repos"].includes(id)) {
+    return res(false, `Tu es en prison jusqu'au jour ${s.prison.jusqua + 1}. Tu peux attendre, t'entraîner ou tenter de t'évader.`);
+  }
   const r = f(s, cible, ag);
   if (r.ok) s.compteurs.actions += 1;
   if (r.texte) noter(s, r.texte, r.ok ? "action" : "refus");
@@ -421,7 +443,8 @@ const ACTIONS = {
     if (blessureGrave(s) && lieu === "colline") return res(false, "Ta blessure t'empêche de grimper la colline.");
     s.lieu = lieu; consommer(s, 0.5, 1);
     const ici = pnjIci(s).map(id => s.pnj[id].nom);
-    return res(true, `Tu vas ${LIEUX[lieu].a}.${ici.length ? ` ${ici.join(" et ")} ${ici.length > 1 ? "sont" : "est"} là.` : ""}`);
+    const liste = ici.length > 1 ? `${ici.slice(0, -1).join(", ")} et ${ici.at(-1)}` : ici[0];
+    return res(true, `Tu vas ${LIEUX[lieu].a}.${ici.length ? ` ${liste} ${ici.length > 1 ? "sont" : "est"} là.` : ""}`);
   },
   parler(s, id) {
     const p = s.pnj[id];
@@ -539,7 +562,7 @@ const ACTIONS = {
     const e = activite(s, { heures: 1, fatigue: 20, ageMin: 12 });
     if (e) return res(false, e);
     consommer(s, 1, 20);
-    const toi = s.stats.force + s.stats.agilite + s.competences.combat * 2 + (s.inventaire.sabre > 0 ? 4 : 0) + rand(s) * 10;
+    const toi = puissance(s) + rand(s) * 10;
     const lui = 8 + rand(s) * 10;
     s.monde.voyouAuPort = false;
     s.competences.combat += GAINS.combat; // l'expérience de l'affrontement, gain fixe
@@ -571,6 +594,7 @@ const ACTIONS = {
     return res(true, `Tu déclines la proposition de ${s.pnj[m.donneur].nom}.`);
   },
   repos(s) {
+    if (s.prison) { const r = avancer(s, 1); return res(true, `Tu dors sur la paillasse de ta cellule. ${r.texte}`, { interruption: r.interruption }); }
     const lit = ILES[s.ile].auberge;
     let recuperation = 70, txt;
     if (s.ile === "fuchsia") { s.lieu = "maison"; txt = "Tu rentres dormir chez toi."; }
@@ -611,9 +635,130 @@ const ACTIONS = {
     }
     return res(true, txt);
   },
+  pirate(s) {
+    if (s.carriere?.type === "marine") return res(false, "Quitte d'abord la Marine.");
+    if (s.carriere?.type === "pirate") return res(false, "Tu es déjà pirate.");
+    if (age(s) < 16) return res(false, "Tu es trop jeune pour prendre la mer en pirate (16 ans).");
+    if (!s.navire) return res(false, "Un pirate a besoin d'un navire. Tomas vend des barques à Fuchsia.");
+    if (s.lieu !== ILES[s.ile].port) return res(false, "On hisse le pavillon depuis le port.");
+    s.carriere = { type: "pirate", equipage: `Pirates de ${s.perso.prenom}`, depuis: s.jour, raids: 0 };
+    return res(true, `Tu hisses un pavillon noir sur « ${s.navire.nom} ». Les ${s.carriere.equipage} sont nés. La Marine ne te connaît pas encore.`);
+  },
+  recruter(s) {
+    if (s.carriere?.type !== "pirate") return res(false, "Seul un capitaine pirate recrute un équipage.");
+    if (!TAVERNES.includes(s.lieu)) return res(false, "On trouve des recrues dans les tavernes et les bars.");
+    if (equipage(s).length >= NAVIRES[s.navire?.type]?.capacite) return res(false, "Ton navire est plein. Une caravelle (Loguetown) accueille plus de monde.");
+    const e = activite(s, { heures: 2, fatigue: 5 });
+    if (e) return res(false, e);
+    consommer(s, 2, 5);
+    const noms = ["Dag", "Orso", "Pia", "Zeke", "Luna", "Kurt", "Moe", "Vera", "Toby", "Ines", "Rufo", "Alba"];
+    const roles = [["navigateur", 3], ["cuisinier", 4], ["combattant", 9], ["canonnier", 7], ["charpentier de bord", 5], ["médecin de bord", 3]];
+    const [role, fbase] = roles[Math.floor(rand(s) * roles.length)];
+    const nom = noms[Math.floor(rand(s) * noms.length)];
+    const chance = Math.min(0.9, 0.3 + s.stats.charisme * 0.02 + s.infamie * 0.04);
+    if (rand(s) >= chance) return res(true, `Tu proposes à ${nom}, ${role}, de rejoindre ton équipage. ${nom} refuse : ${s.prime ? "trop risqué" : "personne n'a jamais entendu parler de toi"}.`);
+    const id = `r${s.jour}_${Math.floor(rand(s) * 1e6)}`;
+    s.pnj[id] = { nom, role: `${role} de ton équipage`, genre: rand(s) < 0.5 ? "f" : "g", lieu: "equipage", relation: 20, fonds: 0, souvenirs: [], force: fbase + Math.floor(rand(s) * 5), membre: true };
+    souvenir(s, id, "tu l'as recruté dans ton équipage");
+    return res(true, `${nom}, ${role}, accepte de te suivre ! Ton équipage compte ${equipage(s).length} membre${equipage(s).length > 1 ? "s" : ""}.`);
+  },
+  attaquer(s) {
+    if (s.carriere?.type !== "pirate" || !s.navire) return res(false, "Il faut être pirate et avoir un navire.");
+    if (s.lieu !== ILES[s.ile].port) return res(false, "On part à l'abordage depuis le port.");
+    const e = activite(s, { heures: 8, fatigue: 40 });
+    if (e) return res(false, e);
+    if (blessureGrave(s)) return res(false, "Tu es trop gravement blessé pour un abordage.");
+    consommer(s, 8, 40);
+    s.carriere.raids += 1;
+    const cible = 15 + rand(s) * 20;
+    const nous = puissance(s) + forceEquipage(s) + rand(s) * 15;
+    if (nous < cible) {
+      blesser(s, rand(s) < 0.3 ? 2 : 1);
+      const membres = equipage(s);
+      if (membres.length && rand(s) < 0.3) { const d = membres[Math.floor(rand(s) * membres.length)]; s.pnj[d].lieu = "disparu"; noter(s, `Déçu, ${s.pnj[d].nom} quitte ton équipage.`, "monde"); }
+      return res(true, "L'abordage tourne mal : l'équipage marchand vous repousse et tu es blessé.");
+    }
+    // Butin pris au commerce extérieur (comptabilisé) ; l'équipage reçoit sa part.
+    const butin = Math.round((150 + rand(s) * 350) * (1 + equipage(s).length / 3));
+    s.monde.exterieur -= butin;
+    const membres = equipage(s);
+    const part = membres.length ? Math.floor(butin * 0.4 / membres.length) : 0;
+    for (const id of membres) { s.pnj[id].fonds += part; s.pnj[id].relation += 3; }
+    s.berrys += butin - part * membres.length;
+    s.infamie += 1; s.prime = calculPrime(s.infamie);
+    let txt = `À l'abordage ! Le navire marchand se rend. Butin : ${butin} Berrys${membres.length ? `, dont ${part * membres.length} partagés avec l'équipage` : ""}. Ta prime passe à ${s.prime.toLocaleString("fr-FR")} Berrys.`;
+    const reste = Object.keys(FRUITS).filter(f => !s.monde.fruitsTrouves.includes(f));
+    if (reste.length && rand(s) < 0.05) {
+      const f = reste[Math.floor(rand(s) * reste.length)];
+      s.monde.fruitsTrouves.push(f); s.inventaire.fruits.push(f);
+      txt += ` Dans la cale, un coffre contient un fruit étrange aux motifs en spirale : le ${FRUITS[f].nom} !`;
+    }
+    if (s.infamie >= 3 && rand(s) < 0.15) { const r = combatMarine(s, "au large"); txt += ` ${r.texte}`; }
+    return res(true, txt);
+  },
+  explorer(s) {
+    if (!EXPLORABLES.includes(s.lieu)) return res(false, "Il n'y a rien à explorer ici.");
+    const e = activite(s, { heures: 3, fatigue: 15, ageMin: 8 });
+    if (e) return res(false, e);
+    consommer(s, 3, 15);
+    const reste = Object.keys(FRUITS).filter(f => !s.monde.fruitsTrouves.includes(f));
+    const x = rand(s);
+    if (reste.length && x < 0.012) {
+      const f = reste[Math.floor(rand(s) * reste.length)];
+      s.monde.fruitsTrouves.push(f); s.inventaire.fruits.push(f);
+      return res(true, `Sous des racines, tu découvres un fruit étrange couvert de spirales… C'est un Fruit du Démon : le ${FRUITS[f].nom} (${FRUITS[f].type}) !`);
+    }
+    if (x < 0.15) {
+      const n = 5 + Math.floor(rand(s) * 25);
+      s.monde.exterieur -= n; s.berrys += n;
+      return res(true, `En fouillant les environs, tu trouves une bourse perdue : ${n} Berrys.`);
+    }
+    return res(true, pick(s, ["Tu explores les environs sans rien trouver de particulier.", "Tu découvres un joli point de vue, mais rien d'autre.", "Des mouettes se moquent de toi pendant que tu fouilles."]));
+  },
+  manger(s, f) {
+    const i = s.inventaire.fruits.indexOf(f);
+    if (i < 0) return res(false, "Tu n'as pas ce fruit.");
+    s.inventaire.fruits.splice(i, 1);
+    if (s.fruit) {
+      // Règle du monde de One Piece : deux fruits dans un même corps, c'est la mort.
+      s.perso.vivant = false;
+      noter(s, `${s.perso.prenom} a mangé un second Fruit du Démon. Son corps n'y a pas survécu.`, "mort");
+      return res(true, "Tu croques dans un second Fruit du Démon… Ton corps se déchire de l'intérieur. Ta vie s'achève.");
+    }
+    s.fruit = { id: f, maitrise: 0, depuis: s.jour };
+    return res(true, `Tu croques dans le ${FRUITS[f].nom}. Le goût est atroce ! Un frisson parcourt ton corps : tu peux désormais ${FRUITS[f].pouvoir}. En échange, la mer ne te portera plus jamais : tu ne sais plus nager.`);
+  },
+  maitriser(s) {
+    if (!s.fruit) return res(false, "Tu n'as pas de pouvoir à maîtriser.");
+    const e = activite(s, { heures: 3, fatigue: 20 });
+    if (e) return res(false, e);
+    consommer(s, 3, 20);
+    s.fruit.maitrise += 1; // gain fixe (D.2A)
+    return res(true, `Tu t'exerces avec le pouvoir du ${FRUITS[s.fruit.id].nom}. Maîtrise +1 (${s.fruit.maitrise}).`);
+  },
+  attendre(s) {
+    if (!s.prison) return res(false, "Tu n'es pas en prison.");
+    const r = avancer(s, Math.max(1, Math.min(30, s.prison.jusqua - s.jour)));
+    return res(true, `Les jours passent derrière les barreaux. ${r.texte}`, { interruption: r.interruption });
+  },
+  evader(s) {
+    if (!s.prison) return res(false, "Tu n'es pas en prison.");
+    const e = activite(s, { heures: 4, fatigue: 30 });
+    if (e) return res(false, e);
+    consommer(s, 4, 30);
+    if (s.stats.agilite + (s.fruit ? 6 : 0) + rand(s) * 15 >= 22) {
+      s.prison = null; s.lieu = "port_shells";
+      s.infamie += 1; s.prime = calculPrime(s.infamie);
+      return res(true, `Tu t'évades de la base de Shells Town ! Te voilà sur le port, sans navire. Ta prime monte à ${s.prime.toLocaleString("fr-FR")} Berrys.`);
+    }
+    s.prison.jusqua += 20;
+    blesser(s, 0);
+    return res(true, "Les gardes te rattrapent. Ta peine est prolongée de 20 jours.");
+  },
   engager(s) {
     if (s.lieu !== "base") return res(false, "On s'engage à la base de la Marine de Shells Town.");
     if (s.carriere) return res(false, "Tu as déjà une carrière en cours.");
+    if (s.prime > 0) return res(false, "Sergent Rivo : « Un pirate recherché ? Dans la Marine ? Jamais ! »");
     if (age(s) < 16) return res(false, "La Marine n'engage qu'à partir de 16 ans.");
     if (s.stats.force + s.stats.endurance < 6) return res(false, "Sergent Rivo : « Reviens quand tu seras plus solide. » (force + endurance : 6 minimum)");
     s.carriere = { type: "marine", rang: 0, merite: 0, depuis: s.jour };
@@ -638,7 +783,7 @@ const ACTIONS = {
     consommer(s, 8, 35);
     // Mission formelle : réussite ou échec, sans entre-deux (L.3A).
     const difficulte = 10 + s.carriere.rang * 4;
-    const score = s.stats.force + s.stats.agilite + s.competences.combat + (s.inventaire.sabre > 0 ? 4 : 0) + rand(s) * 12;
+    const score = puissance(s) + rand(s) * 12;
     if (score >= difficulte) {
       s.carriere.merite += GAINS.merite_patrouille;
       return res(true, `Patrouille réussie : vous arrêtez une bande de contrebandiers. Mérite +${GAINS.merite_patrouille}.${promotion(s)}`);
@@ -647,6 +792,11 @@ const ACTIONS = {
     return res(true, "Patrouille échouée : les contrebandiers vous échappent et tu es blessé.");
   },
   quitter(s) {
+    if (s.carriere?.type === "pirate") {
+      s.ancienneCarriere = { ...s.carriere, fin: s.jour }; s.carriere = null;
+      for (const id of equipage(s)) s.pnj[id].lieu = "disparu";
+      return res(true, `Tu dissous ton équipage et renonces à la piraterie. Ta prime de ${s.prime.toLocaleString("fr-FR")} Berrys, elle, reste affichée.`);
+    }
     if (s.carriere?.type !== "marine") return res(false, "Tu n'es pas dans la Marine.");
     const rang = RANGS_MARINE[s.carriere.rang];
     s.ancienneCarriere = { ...s.carriere, fin: s.jour };
@@ -737,12 +887,55 @@ export function succeder(s, index) {
   return res(true, `La vie continue avec ${e.prenom}.`);
 }
 
+// Puissance de combat : caractéristiques, expérience, arme et pouvoir du fruit.
+export function puissance(s) {
+  const fruit = s.fruit ? FRUITS[s.fruit.id].bonus + Math.floor(s.fruit.maitrise / 2) : 0;
+  return s.stats.force + s.stats.agilite + s.competences.combat * 2 + (s.inventaire.sabre > 0 ? 4 : 0) + fruit;
+}
+export const equipage = s => Object.keys(s.pnj).filter(id => s.pnj[id].lieu === "equipage" && s.pnj[id].vivant !== false);
+const forceEquipage = s => equipage(s).reduce((t, id) => t + (s.pnj[id].force || 0), 0);
+export const calculPrime = infamie => infamie <= 0 ? 0 : Math.round(infamie * infamie * 400000 + infamie * 1600000);
+
+// Affrontement avec la Marine : victoire (fuite) ou capture. Un utilisateur de fruit peut se noyer en mer.
+function combatMarine(s, ou) {
+  const marine = 18 + s.infamie * 3 + rand(s) * 20;
+  const nous = puissance(s) + forceEquipage(s) * 0.5 + rand(s) * 20;
+  if (nous >= marine) {
+    s.infamie += 1; s.prime = calculPrime(s.infamie);
+    if (rand(s) < 0.4) blesser(s, 0);
+    return res(true, `La Marine vous attaque ${ou} ! Vous la repoussez et prenez la fuite. Ta prime monte à ${s.prime.toLocaleString("fr-FR")} Berrys.`);
+  }
+  if (s.fruit && ou === "en mer" && rand(s) < 0.2) {
+    s.perso.vivant = false;
+    noter(s, `${s.perso.prenom} tombe à la mer pendant l'abordage. Le pouvoir du fruit l'empêche de nager.`, "mort");
+    return res(true, "Pendant l'abordage, tu tombes à l'eau. Ton fruit t'empêche de nager… Ta vie s'achève en mer.");
+  }
+  return capturer(s, ou);
+}
+function capturer(s, ou) {
+  const jours = 30 + s.infamie * 20;
+  s.prison = { jusqua: s.jour + jours, depuis: s.jour };
+  for (const id of equipage(s)) { s.pnj[id].lieu = "disparu"; s.pnj[id].relation -= 10; }
+  const navire = s.navire?.nom;
+  s.navire = null;
+  if (s.carriere?.type === "pirate") s.carriere.capture = (s.carriere.capture || 0) + 1;
+  s.ile = "shells"; s.lieu = "base";
+  blesser(s, 1);
+  noter(s, `Capturé ${ou}. Condamné à ${jours} jours de prison à la base de Shells Town.`, "mission");
+  return res(true, `La Marine vous submerge ${ou}. Tu es capturé${navire ? `, « ${navire} » est saisi` : ""} et ton équipage se disperse. Tu es condamné à ${jours} jours de prison à Shells Town.`);
+}
+
 function blesser(s, gravite) {
   const types = [
     { nom: "contusions", jours: 3 },
     { nom: "entaille au bras", jours: 7 },
     { nom: "côte fêlée", jours: 21, sequelle: "douleur au flanc par temps humide" },
   ];
+  // Un Logia peut devenir intangible face à un adversaire ordinaire.
+  if (s.fruit && FRUITS[s.fruit.id].intangible && rand(s) < 0.5) {
+    noter(s, "Les coups traversent ton corps de braise sans te blesser.", "sante");
+    return;
+  }
   const b = { ...types[gravite] };
   if (b.sequelle && rand(s) > 0.4) delete b.sequelle;
   s.sante.blessures.push({ ...b, gravite, depuis: s.jour });
@@ -818,6 +1011,13 @@ export function interpreterTexte(s, texte) {
       if (d) { actions.push({ id: "voyager", cible: d[0] }); continue; }
     }
     if (/(engage|enrole)/.test(m)) { actions.push({ id: "engager" }); continue; }
+    if (/(pavillon|devenir pirate|deviens pirate)/.test(m)) { actions.push({ id: "pirate" }); continue; }
+    if (/recrut/.test(m)) { actions.push({ id: "recruter" }); continue; }
+    if (/(abordage|attaque.*navire|pille)/.test(m)) { actions.push({ id: "attaquer" }); continue; }
+    if (/(explor|fouill)/.test(m)) { actions.push({ id: "explorer" }); continue; }
+    if (/(evade|evasion)/.test(m)) { actions.push({ id: "evader" }); continue; }
+    if (/(mange|croque).*fruit/.test(m) && s.inventaire.fruits.length) { actions.push({ id: "manger", cible: s.inventaire.fruits[0] }); continue; }
+    if (/(pouvoir|maitris)/.test(m)) { actions.push({ id: "maitriser" }); continue; }
     if (/patrouill/.test(m)) { actions.push({ id: "patrouille" }); continue; }
     if (/service/.test(m)) { actions.push({ id: "service" }); continue; }
     if (/(va|vais|aller|rendre|retourne|rentre)/.test(m)) {
@@ -835,7 +1035,7 @@ export function interpreterTexte(s, texte) {
     if (/peche|pecher/.test(m)) { actions.push({ id: "pecher" }); continue; }
     if (/(repare|reparer)/.test(m)) { actions.push({ id: "reparer" }); continue; }
     if (/(achete|acheter)/.test(m)) {
-      const o = /planche/.test(m) ? "planche" : /clou/.test(m) ? "clou" : /canne/.test(m) ? "canne" : /sabre/.test(m) ? "sabre" : /bague/.test(m) ? "bague" : null;
+      const o = /planche/.test(m) ? "planche" : /clou/.test(m) ? "clou" : /canne/.test(m) ? "canne" : /sabre/.test(m) ? "sabre" : /bague/.test(m) ? "bague" : /barque/.test(m) ? "barque" : /caravelle/.test(m) ? "caravelle" : null;
       if (o) { const n = parseInt(m.match(/\d+/)?.[0] || "1", 10); for (let i = 0; i < Math.min(n, 20); i++) actions.push({ id: "acheter", cible: o }); continue; }
     }
     if (/(bat|combat|affronte|frappe)/.test(m)) { actions.push({ id: "combattre" }); continue; }
@@ -869,7 +1069,7 @@ export function faitsPourNarration(s, resultat) {
   const ici = pnjIci(s).map(id => `${s.pnj[id].nom} (${s.pnj[id].role})`);
   return [
     `Lieu : ${LIEUX[s.lieu].nom}, à ${ILES[s.ile].nom} (${ILES[s.ile].desc}). Heure : ${Math.floor(s.heure)}h. Météo : ${s.monde.meteo}.`,
-    `Protagoniste : ${s.perso.prenom}, ${age(s)} ans${s.carriere?.type === "marine" ? `, ${RANGS_MARINE[s.carriere.rang]} de la Marine` : ""}. Fatigue ${s.fatigue}/100.${blessureActive(s) ? ` Blessé : ${s.sante.blessures.map(b => b.nom).join(", ")}.` : ""}`,
+    `Protagoniste : ${s.perso.prenom}, ${age(s)} ans${s.carriere?.type === "marine" ? `, ${RANGS_MARINE[s.carriere.rang]} de la Marine` : ""}${s.carriere?.type === "pirate" ? `, capitaine des ${s.carriere.equipage}` : ""}${s.prime ? `, prime de ${s.prime} Berrys` : ""}${s.fruit ? `, mangeur du ${FRUITS[s.fruit.id].nom} (${FRUITS[s.fruit.id].pouvoir})` : ""}${s.prison ? ", en prison" : ""}. Fatigue ${s.fatigue}/100.${blessureActive(s) ? ` Blessé : ${s.sante.blessures.map(b => b.nom).join(", ")}.` : ""}`,
     ici.length ? `Présents : ${ici.join(", ")}.` : "Personne d'autre n'est présent.",
     `Résultat établi par le jeu : ${resultat}`,
   ].join("\n");

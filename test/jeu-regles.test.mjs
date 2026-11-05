@@ -242,3 +242,92 @@ test("migration : une sauvegarde version 1 reçoit les îles et les nouveaux hab
   assert.ok(m.pnj.mira);
   assert.deepEqual(m.famille.enfants, []);
 });
+
+// ---------- Version 3 : piraterie et Fruits du Démon ----------
+
+const capitaine = (seed = 42) => {
+  const s = ado(); s.rng = seed; s.berrys = 700; s.lieu = "atelier";
+  assert.ok(E.agir(s, { id: "acheter", cible: "barque" }).ok);
+  s.lieu = "port";
+  assert.ok(E.agir(s, { id: "pirate" }).ok);
+  return s;
+};
+
+test("navire : une barque permet de naviguer gratuitement", () => {
+  const s = ado(); s.berrys = 600; s.lieu = "atelier";
+  assert.ok(E.agir(s, { id: "acheter", cible: "barque" }).ok);
+  assert.equal(s.navire.type, "barque");
+  assert.equal(s.berrys, 0);
+  s.lieu = "port";
+  assert.ok(E.agir(s, { id: "voyager", cible: "shells" }).ok);
+  assert.equal(s.ile, "shells");
+});
+
+test("piraterie : impossible sans navire ou depuis la Marine", () => {
+  const s = ado(); s.lieu = "port";
+  assert.equal(E.agir(s, { id: "pirate" }).ok, false);
+  s.navire = { type: "barque", nom: "X", coque: 100 }; s.carriere = { type: "marine", rang: 0, merite: 0, depuis: 0 };
+  assert.equal(E.agir(s, { id: "pirate" }).ok, false);
+});
+
+test("piraterie : un abordage réussi donne un butin, partage l'argent sans en créer et fait monter la prime", () => {
+  let reussi = false;
+  for (let seed = 1; seed < 60 && !reussi; seed++) {
+    const s = capitaine(seed); s.stats.force = 20; s.stats.agilite = 20;
+    const masse = E.masseMonetaire(s); const b = s.berrys;
+    E.agir(s, { id: "attaquer" });
+    if (s.infamie === 1 && !s.prison) {
+      reussi = true;
+      assert.ok(s.berrys > b);
+      assert.equal(s.prime, E.calculPrime(1));
+      assert.equal(E.masseMonetaire(s), masse);
+    }
+  }
+  assert.ok(reussi);
+});
+
+test("piraterie : recruter remplit l'équipage jusqu'à la capacité du navire", () => {
+  const s = capitaine(); s.lieu = "bar"; s.stats.charisme = 40;
+  for (let i = 0; i < 20; i++) { s.heure = 8; s.fatigue = 0; E.agir(s, { id: "recruter" }); }
+  assert.equal(E.equipage(s).length, 3);
+  assert.equal(E.agir(s, { id: "recruter" }).ok, false);
+});
+
+test("Marine : capture, prison, navire saisi, puis libération à Shells Town", () => {
+  const s = capitaine(); s.infamie = 5; s.prime = E.calculPrime(5); s.stats.force = 1; s.stats.agilite = 1;
+  s.pnj.dagtest = { nom: "Dag", role: "x", lieu: "equipage", relation: 20, fonds: 0, souvenirs: [], force: 1 };
+  // La Marine est forcément plus forte : la capture est garantie.
+  let essais = 0;
+  while (!s.prison && essais++ < 50) { s.ile = "fuchsia"; s.lieu = "port"; s.heure = 8; s.fatigue = 0; s.navire ??= { type: "barque", nom: "X", coque: 100 }; E.agir(s, { id: "voyager", cible: "shells" }); }
+  assert.ok(s.prison, "capture attendue");
+  assert.equal(s.navire, null);
+  assert.equal(s.pnj.dagtest.lieu, "disparu");
+  assert.equal(E.agir(s, { id: "aller", cible: "taverne_shells" }).ok, false);
+  let n = 0; while (s.prison && n++ < 20) E.agir(s, { id: "attendre" });
+  assert.equal(s.prison, null);
+  assert.equal(s.lieu, "port_shells");
+});
+
+test("fruit : le manger donne un pouvoir et ôte la nage ; la maîtrise a un gain fixe", () => {
+  const s = ado(); s.inventaire.fruits.push("echo");
+  const avant = E.puissance(s);
+  assert.ok(E.agir(s, { id: "manger", cible: "echo" }).ok);
+  assert.equal(s.fruit.id, "echo");
+  assert.equal(E.puissance(s), avant + E.FRUITS.echo.bonus);
+  for (let i = 1; i <= 3; i++) { s.heure = 8; s.fatigue = 0; E.agir(s, { id: "maitriser" }); assert.equal(s.fruit.maitrise, i); }
+});
+
+test("fruit : en manger un second est mortel", () => {
+  const s = ado(); s.inventaire.fruits.push("echo", "verre");
+  E.agir(s, { id: "manger", cible: "echo" });
+  E.agir(s, { id: "manger", cible: "verre" });
+  assert.equal(s.perso.vivant, false);
+});
+
+test("fruit : chaque fruit n'existe qu'une fois par monde", () => {
+  const s = ado(); s.lieu = "colline";
+  for (let i = 0; i < 3000; i++) { s.heure = 8; s.fatigue = 0; E.agir(s, { id: "explorer" }); }
+  assert.equal(new Set(s.monde.fruitsTrouves).size, s.monde.fruitsTrouves.length);
+  assert.ok(s.monde.fruitsTrouves.length <= Object.keys(E.FRUITS).length);
+  assert.ok(s.monde.fruitsTrouves.length > 0);
+});

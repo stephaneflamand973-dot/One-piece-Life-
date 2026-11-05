@@ -1,7 +1,7 @@
 import {
   nouvelleVie, agir, avancer, actionsDisponibles, interpreterTexte, serialiser, deserialiser,
   age, annee, jourDansAnnee, LIEUX, ILES, STATS, COMPETENCES, OBJETS, pnjIci, faitsPourNarration,
-  migrer, lieuxDe, heritiers, succeder, RANGS_MARINE, MERITE_RANG, agePnj,
+  migrer, lieuxDe, heritiers, succeder, RANGS_MARINE, MERITE_RANG, agePnj, FRUITS, NAVIRES, equipage, puissance,
 } from "./engine.js";
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
@@ -102,11 +102,11 @@ function rendre() {
 }
 
 function rendreStatut() {
-  const sante = s.sante.blessures.length ? `Blessé` : "En forme";
+  const sante = s.prison ? "En prison" : s.sante.blessures.length ? `Blessé` : "En forme";
   $("#statut").innerHTML = `
     <div><strong>${esc(s.perso.prenom)}</strong> · ${age(s)} an${age(s) > 1 ? "s" : ""}</div>
     <div class="discret">Année ${annee(s)}, jour ${jourDansAnnee(s)} · ${Math.floor(s.heure)}h · ${ILES[s.ile].nom} · ${LIEUX[s.lieu].court}</div>
-    <div class="jauges"><span>${s.berrys} ฿</span><span>Fatigue ${s.fatigue}</span><span>${sante}</span>${iaActive() ? `<span class="ia">IA</span>` : ""}</div>`;
+    <div class="jauges"><span>${s.berrys} ฿</span><span>Fatigue ${s.fatigue}</span><span>${sante}</span>${s.prime ? `<span class="prime">Prime ${s.prime.toLocaleString("fr-FR")} ฿</span>` : ""}${iaActive() ? `<span class="ia">IA</span>` : ""}</div>`;
 }
 
 const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole", "voyage", "famille"]);
@@ -220,12 +220,21 @@ function rendreFiche() {
       ${s.sante.blessures.length ? s.sante.blessures.map(b => `<p>${esc(b.nom)} · guérison dans ${b.jours} jour${b.jours > 1 ? "s" : ""}</p>`).join("") : "<p>Aucune blessure.</p>"}
       ${s.sante.sequelles.length ? `<p class="discret">Séquelles : ${s.sante.sequelles.map(esc).join(", ")}</p>` : ""}</section>
     <section class="carte"><h2>Possessions</h2><p>${s.berrys} Berrys</p>
-      <p>${Object.entries(s.inventaire).filter(([, n]) => n > 0).map(([k, n]) => `${n} ${n > 1 ? OBJETS[k].pluriel : OBJETS[k].nom}`).join(", ") || "Rien d'autre."}</p></section>
+      <p>${Object.entries(s.inventaire).filter(([k, n]) => k !== "fruits" && n > 0).map(([k, n]) => `${n} ${n > 1 ? OBJETS[k].pluriel : OBJETS[k].nom}`).join(", ") || "Rien d'autre."}</p>
+      ${s.inventaire.fruits.length ? `<p>Fruits du Démon non mangés : ${s.inventaire.fruits.map(f => FRUITS[f].nom).join(", ")}</p>` : ""}
+      ${s.navire ? `<p>Navire : « ${esc(s.navire.nom)} », ${NAVIRES[s.navire.type].nom} (${NAVIRES[s.navire.type].capacite} places d'équipage)</p>` : ""}</section>
+    <section class="carte"><h2>Pouvoir et combat</h2>
+      <p>Puissance de combat : <b>${puissance(s)}</b></p>
+      ${s.fruit ? `<p><b>${FRUITS[s.fruit.id].nom}</b> (${FRUITS[s.fruit.id].type}) : tu peux ${FRUITS[s.fruit.id].pouvoir}. Maîtrise ${s.fruit.maitrise}.</p><p class="discret">Tu ne sais plus nager.</p>` : "<p>Pas de Fruit du Démon.</p>"}</section>
     <section class="carte"><h2>Relations</h2>
-      ${Object.entries(s.pnj).filter(([, p]) => !p.invisible && (p.relation !== 0 || p.souvenirs.length || LIEUX[p.lieu]?.ile === s.ile)).map(([id, p]) => `<div class="stat"><span>${esc(p.nom)} <i class="discret">${esc(p.role)}${agePnj(s, id) != null ? `, ${agePnj(s, id)} ans` : ""}</i></span>${barre(Math.max(0, p.relation))}<b>${p.relation}</b></div>`).join("")}</section>
+      ${Object.entries(s.pnj).filter(([, p]) => !p.invisible && p.lieu !== "disparu" && (p.relation !== 0 || p.souvenirs.length || LIEUX[p.lieu]?.ile === s.ile)).map(([id, p]) => `<div class="stat"><span>${esc(p.nom)} <i class="discret">${esc(p.role)}${agePnj(s, id) != null ? `, ${agePnj(s, id)} ans` : ""}</i></span>${barre(Math.max(0, p.relation))}<b>${p.relation}</b></div>`).join("")}</section>
     <section class="carte"><h2>Carrière</h2>
       ${s.carriere?.type === "marine" ? `<p>${RANGS_MARINE[s.carriere.rang]} de la Marine · mérite ${s.carriere.merite}${s.carriere.rang < RANGS_MARINE.length - 1 ? ` / ${MERITE_RANG[s.carriere.rang + 1]} pour ${RANGS_MARINE[s.carriere.rang + 1]}` : ""}</p>`
-        : `<p>Aucune carrière.${age(s) >= 16 ? " La Marine recrute à la base de Shells Town." : ""}</p>`}</section>
+        : s.carriere?.type === "pirate" ? `<p>Capitaine des <b>${esc(s.carriere.equipage)}</b> · ${s.carriere.raids} abordage${s.carriere.raids > 1 ? "s" : ""}</p>
+          ${equipage(s).map(id => `<p>${esc(s.pnj[id].nom)} · <span class="discret">${esc(s.pnj[id].role)}, force ${s.pnj[id].force}</span></p>`).join("") || "<p class=\"discret\">Pas encore d'équipage : recrute dans les tavernes.</p>"}`
+        : `<p>Aucune carrière.${age(s) >= 16 ? " La Marine recrute à la base de Shells Town ; avec un navire, tu peux aussi hisser le pavillon pirate." : ""}</p>`}
+      ${s.prime ? `<p class="m-échouée">Avis de recherche : ${s.prime.toLocaleString("fr-FR")} Berrys</p>` : ""}
+      ${s.prison ? `<p>En prison jusqu'au jour ${s.prison.jusqua + 1} (encore ${s.prison.jusqua - s.jour} jours).</p>` : ""}</section>
     <section class="carte"><h2>Famille</h2>
       ${s.famille.partenaire ? `<p>${s.famille.statut === "marié" ? "Marié·e à" : "En couple avec"} ${esc(s.pnj[s.famille.partenaire].nom)}</p>` : "<p>Célibataire.</p>"}
       ${s.famille.grossesse ? `<p class="discret">Un enfant est attendu dans ${s.famille.grossesse.terme - s.jour} jours.</p>` : ""}
