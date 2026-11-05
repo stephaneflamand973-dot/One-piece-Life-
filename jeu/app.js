@@ -8,9 +8,23 @@ import { regionDe, RANGS_OFFICIERS } from "./monde.js";
 import { ERES, CALENDRIER, anneeRelative, anneeTexte } from "./chronologie.js";
 import { FACTIONS } from "./factions.js";
 import { humeurTexte, portraitTraits, TRAITS } from "./vie.js";
+import { ORIGINES, PEUPLES, DEFIS, SUCCES } from "./origines.js";
+
+// Mémorial : toutes les vies terminées, gardées sur l'iPhone d'une partie à l'autre.
+const CLE_MEMORIAL = "opl-memorial";
+const lireMemorial = () => { try { return JSON.parse(localStorage.getItem(CLE_MEMORIAL) || "[]"); } catch { return []; } };
+function memorialiser() {
+  if (!s || s.perso.vivant || s.drapeaux?.memorialise) return;
+  s.drapeaux.memorialise = s.jour;
+  const m = lireMemorial();
+  m.unshift({ prenom: s.perso.prenom, age: age(s), generation: s.generation, peuple: s.peuple, origine: s.origine,
+    carriere: s.carriere?.type || s.ancienneCarriere?.type || null, prime: s.prime, fruit: s.fruit?.id || null, succes: Object.keys(s.succes || {}), date: Date.now() });
+  try { localStorage.setItem(CLE_MEMORIAL, JSON.stringify(m.slice(0, 100))); } catch {}
+  sauver();
+}
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "12 · vie profonde";
+export const VERSION_APP = "13 · rejouabilité";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -75,21 +89,33 @@ function ecranAccueil() {
       </div>
       <label for="genre">Tu es</label>
       <select id="genre"><option value="g">un garçon</option><option value="f">une fille</option><option value="x">non précisé</option></select>
+      <label for="peuple">Peuple</label>
+      <select id="peuple">${Object.entries(PEUPLES).map(([k, p]) => `<option value="${k}">${p.nom}</option>`).join("")}</select>
+      <label for="origine">Île de naissance</label>
+      <select id="origine">${Object.entries(ORIGINES).filter(([k]) => k !== "hommes_poissons").map(([k, o]) => `<option value="${k}">${o.nom}</option>`).join("")}</select>
+      <label for="defi">Départ</label>
+      <select id="defi">${Object.entries(DEFIS).map(([k, d]) => `<option value="${k}">${d.nom}</option>`).join("")}</select>
+      <p class="discret petit" id="defi-desc">${DEFIS.aucun.desc}</p>
       <label for="ere">Époque</label>
       <select id="ere">${Object.entries(ERES).map(([k, e]) => `<option value="${k}" ${k === "avant_luffy" ? "selected" : ""}>${e.nom}</option>`).join("")}</select>
       <p class="discret petit" id="ere-desc">${ERES.avant_luffy.desc}</p>
-      <button id="naitre" class="principal">Naître à Fuchsia</button>
+      <button id="naitre" class="principal">Naître</button>
       <p class="discret">Ta vie commence à la naissance, dans le village de Fuchsia, sur l'île de Dawn (East Blue). Chaque vie est un monde indépendant.</p>
     </section>
     ${ix.length ? `<section class="carte"><h2>Continuer</h2>${ix.map(m => `
       <div class="ligne-vie"><button class="secondaire" data-ouvrir="${esc(m.id)}">${esc(m.prenom)} · ${m.vivant ? `${m.age} ans` : "vie terminée"}</button>
       <button class="icone" data-suppr="${esc(m.id)}" aria-label="Supprimer">✕</button></div>`).join("")}</section>` : ""}
+    ${(() => { const m = lireMemorial(); if (!m.length) return ""; const tous = new Set(m.flatMap(v => v.succes || []));
+      return `<section class="carte"><h2>Mémorial</h2><p class="discret">${m.length} vie${m.length > 1 ? "s" : ""} vécue${m.length > 1 ? "s" : ""} · ${tous.size}/${Object.keys(SUCCES).length} succès débloqués</p>
+      ${m.slice(0, 8).map(v => `<p class="petit"><b>${esc(v.prenom)}</b> · ${v.age} ans${v.carriere ? ` · ${v.carriere}` : ""}${v.prime ? ` · prime ${v.prime.toLocaleString("fr-FR")} ฿` : ""}${v.fruit ? " · fruit" : ""}</p>`).join("")}</section>`; })()}
     <section class="carte"><h2>Réglages</h2>${htmlReglages()}</section>`;
+  $("#defi").onchange = () => { $("#defi-desc").textContent = DEFIS[$("#defi").value].desc; };
+  $("#peuple").onchange = () => { const hp = $("#peuple").value === "homme_poisson"; $("#origine").disabled = hp; };
   $("#ere").onchange = () => { $("#ere-desc").textContent = ERES[$("#ere").value].desc; };
   $("#hasard").onclick = () => { $("#prenom").value = prenomAuHasard($("#genre").value); };
   $("#naitre").onclick = () => {
     const prenom = $("#prenom").value.trim() || prenomAuHasard($("#genre").value);
-    s = nouvelleVie({ prenom, genre: $("#genre").value, ere: $("#ere").value, seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0 });
+    s = nouvelleVie({ prenom, genre: $("#genre").value, ere: $("#ere").value, origine: $("#origine").value, peuple: $("#peuple").value, defi: $("#defi").value, seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0 });
     sauver(); ecranJeu();
   };
   document.querySelectorAll("[data-ouvrir]").forEach(b => b.onclick = () => {
@@ -130,6 +156,7 @@ document.addEventListener("click", e => {
 
 function rendre() {
   verrouAppuis = performance.now() + 350;
+  memorialiser();
   document.querySelectorAll("[data-onglet]").forEach(b => b.classList.toggle("actif", b.dataset.onglet === onglet));
   rendreStatut();
   ({ jeu: rendreVivre, fiche: rendreFiche, journal: rendreJournal, menu: rendreMenu })[onglet]();
@@ -169,7 +196,7 @@ const GROUPES = [
   ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant"]],
 ];
 
-const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole", "voyage", "famille", "rumeur", "evenement"]);
+const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole", "voyage", "famille", "rumeur", "evenement", "succes"]);
 
 function rendreVivre() {
   const recents = s.journal.filter(e => TYPES_VISIBLES.has(e.type)).slice(-14);
@@ -339,6 +366,9 @@ function rendreFiche() {
       <p class="discret">Époque : ${ERES[s.chrono.ere].nom}. Dates approximatives.</p>
       ${CALENDRIER.filter(ev => s.chrono.faits[ev.id]).map(ev => `<p class="petit"><b>${anneeTexte(ev.annee)}</b> · ${esc(typeof ev.texte === "function" ? ev.texte(s) : ev.texte)}</p>`).join("") || "<p>Aucun grand événement pour l'instant.</p>"}
       ${s.chrono.divergences.bras_shanks ? `<p class="m-réussie">Divergence : grâce à toi, Shanks a gardé ses deux bras. Le futur n'est plus celui du canon.</p>` : ""}</section>
+    <section class="carte"><h2>Succès de cette vie</h2>
+      <p>${Object.keys(s.succes || {}).map(k => SUCCES[k]?.[0]).filter(Boolean).join(" · ") || "Aucun pour l'instant."}</p>
+      <p class="discret">${Object.keys(s.succes || {}).length}/${Object.keys(SUCCES).length}</p></section>
     <section class="carte"><h2>Missions</h2>
       ${missions.length ? missions.map(m => `<div class="mission"><b>${esc(m.titre)}</b> · <span class="m-${m.statut}">${m.statut}</span>
         <p class="discret">${esc(m.condition)} Récompense : ${m.recompense} Berrys${m.statut === "active" ? ` (mise de côté) · échéance fin du jour ${m.echeance + 1}` : ""}.</p></div>`).join("") : "<p>Aucune mission.</p>"}</section>`;

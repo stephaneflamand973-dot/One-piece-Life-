@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { appliquerOrigine, texteNaissance, verifierSucces, ORIGINES } from "./origines.js";
 import { ACTIONS_VIE, actionsVie, initialiserVie, vieInterieure, seuilFatigue } from "./vie.js";
 import { ACTIONS_FACTIONS, actionsFactions, vieFactions, marineIgnore, reputation } from "./factions.js";
 import { initialiserChronologie, avancerChronologie, presentSelonCanon } from "./chronologie.js";
@@ -15,7 +16,7 @@ export const JOUR_HEURES = 16; // heures d'éveil par jour
 export const FATIGUE_MAX_ACTIVITE = 80;
 
 export const ILES = {
-  fuchsia: { nom: "Fuchsia", a: "à Fuchsia", desc: "village de l'île de Dawn, sur East Blue", port: "port", auberge: "maison" },
+  fuchsia: { nom: "Fuchsia", a: "à Fuchsia", desc: "village de l'île de Dawn, sur East Blue", port: "port", auberge: "bar" },
   shells: { nom: "Shells Town", a: "à Shells Town", desc: "ville portuaire d'East Blue, siège d'une base de la Marine", port: "port_shells", auberge: "taverne_shells" },
   baratie: { nom: "le Baratie", a: "au Baratie", desc: "restaurant flottant au large d'East Blue", port: "pont_baratie", auberge: "pont_baratie" },
   loguetown: { nom: "Loguetown", a: "à Loguetown", desc: "grande ville d'East Blue, la ville du commencement et de la fin", port: "quais_logue", auberge: "auberge_logue" },
@@ -55,6 +56,10 @@ export const LIEUX = {
   atelier: { ile: "fuchsia", nom: "l'atelier du charpentier", court: "Atelier", a: "à l'atelier du charpentier" },
   remise: { ile: "fuchsia", nom: "la remise du maire", court: "Remise", a: "à la remise du maire" },
   colline: { ile: "fuchsia", nom: "la colline", court: "Colline", a: "sur la colline" },
+  maison_shells: { ile: "shells", nom: "ta maison", court: "Maison", a: "chez toi" },
+  maison_logue: { ile: "loguetown", nom: "ta maison", court: "Maison", a: "chez toi" },
+  maison_w7: { ile: "water_seven", nom: "ta maison", court: "Maison", a: "chez toi" },
+  maison_hp: { ile: "hommes_poissons", nom: "ta maison de corail", court: "Maison", a: "chez toi" },
   ecole: { ile: "fuchsia", nom: "l'école du village", court: "École", a: "à l'école" },
   port_shells: { ile: "shells", nom: "le port de Shells Town", court: "Port", a: "au port de Shells Town" },
   base: { ile: "shells", nom: "la base de la Marine", court: "Base Marine", a: "à la base de la Marine" },
@@ -186,7 +191,9 @@ const pick = (s, arr) => arr[Math.floor(rand(s) * arr.length)];
 
 // ---------- Création ----------
 
-export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, aleatoire = true, ere = "avant_luffy" } = {}) {
+export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, aleatoire = true, ere = "avant_luffy", origine = "fuchsia", peuple = "humain", defi = "aucun" } = {}) {
+  if (peuple === "homme_poisson") origine = "hommes_poissons";
+  if (!ORIGINES[origine] || (origine === "hommes_poissons" && peuple !== "homme_poisson")) origine = "fuchsia";
   const s = {
     version: VERSION, id: `monde-${seed.toString(36)}`, rng: seed >>> 0, cree: seed,
     jour: 0, heure: 8, fatigue: 0,
@@ -196,7 +203,7 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
     potentiel: {},
     berrys: 0, inventaire: { planche: 0, clou: 0, poisson: 0, canne: 0, sabre: 0, bague: 0, logpose: 0, logpose_nm: 0, fruits: [] },
     sante: { blessures: [], sequelles: [] },
-    lieu: "maison", ile: "fuchsia",
+    lieu: ORIGINES[origine].foyer, ile: origine, foyer: ORIGINES[origine].foyer,
     pnj: PNJ_INITIAUX(),
     carriere: null, navire: null, fruit: null, prime: 0, infamie: 0, prison: null,
     haki: { observation: 0, armement: 0, rois: 0, eveil: { observation: false, armement: false, rois: false }, progres: { observation: 0, armement: 0 }, roisInne: false },
@@ -214,7 +221,8 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
   initialiserEvenements(s);
   initialiserChronologie(s, ere);
   initialiserVie(s);
-  noter(s, `Tu nais à Fuchsia, un petit village paisible de l'île de Dawn, sur East Blue. Tes parents, ${s.pnj.mere.nom} et ${s.pnj.pere.nom}, t'appellent ${s.perso.prenom}.`, "naissance");
+  appliquerOrigine(s, { origine, peuple, defi });
+  noter(s, texteNaissance(s, `${s.pnj.mere.nom} et ${s.pnj.pere.nom}`), "naissance");
   return s;
 }
 
@@ -267,6 +275,7 @@ export function migrer(s) {
   initialiserEvenements(s);
   initialiserChronologie(s);
   initialiserVie(s);
+  s.foyer ??= "maison"; s.origine ??= "fuchsia"; s.peuple ??= "humain"; s.defi ??= "aucun"; s.succes ??= {};
   s.version = VERSION;
   return s;
 }
@@ -366,6 +375,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
   verifierAmbition(s);
   vieFactions(s);
   vieInterieure(s);
+  verifierSucces(s);
   // Vieillissement et mortalité crédible (simplifiée) après 70 ans.
   if (age(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - 65) * 0.02) {
     s.perso.vivant = false;
@@ -536,6 +546,7 @@ export function agir(s, action) {
   if (r.ok) s.compteurs.actions += 1;
   if (r.texte) noter(s, r.texte, r.ok ? "action" : "refus");
   verifierMissions(s, null);
+  verifierSucces(s);
   return r;
 }
 
@@ -626,6 +637,7 @@ const ACTIONS = {
     if (payeur.fonds < e0.salaire) return res(false, `${payeur.nom} n'a plus de quoi te payer en ce moment.`);
     consommer(s, e0.heures, e0.fatigue);
     transferer(s, e0.payeur, "joueur", e0.salaire);
+    s.compteurs.salaires = (s.compteurs.salaires || 0) + 1;
     let gain = "";
     if (e0.competence) { s.competences[e0.competence] += 1; gain = ` ${COMPETENCES[e0.competence]} +1.`; }
     else if (gagnerStat(s, e0.stat, GAINS.entrainement)) gain = ` ${STATS[e0.stat]} +${GAINS.entrainement}.`;
@@ -728,10 +740,12 @@ const ACTIONS = {
     if (s.prison) { const r = avancer(s, 1); return res(true, `Tu dors sur la paillasse de ta cellule. ${r.texte}`, { interruption: r.interruption }); }
     const lit = ILES[s.ile].auberge;
     let recuperation = 70, txt;
-    if (s.ile === "fuchsia") { s.lieu = "maison"; txt = "Tu rentres dormir chez toi."; }
-    else if (s.berrys >= PRIX_AUBERGE) {
-      s.lieu = lit; transferer(s, "joueur", "dock", PRIX_AUBERGE);
-      txt = `Tu paies ${PRIX_AUBERGE} Berrys pour une nuit ${LIEUX[lit].a}.`;
+    // Les hommes-poissons paient trois fois plus cher à Sabaody : les préjugés y sont tenaces.
+    const prix = PRIX_AUBERGE * (s.peuple === "homme_poisson" && s.ile === "sabaody" ? 3 : 1);
+    if (LIEUX[s.foyer || "maison"].ile === s.ile) { s.lieu = s.foyer || "maison"; txt = "Tu rentres dormir chez toi."; }
+    else if (s.berrys >= prix) {
+      s.lieu = lit; transferer(s, "joueur", "dock", prix);
+      txt = `Tu paies ${prix} Berrys pour une nuit ${LIEUX[lit].a}${prix > PRIX_AUBERGE ? " (le triple, parce que tu es un homme-poisson)" : ""}.`;
     } else { s.lieu = lit; recuperation = 35; txt = "Sans argent pour une chambre, tu dors dehors. Tu récupères mal."; }
     const r = avancer(s, 1, { recuperation });
     return res(true, `${txt} ${r.texte}`, { interruption: r.interruption });
@@ -741,13 +755,14 @@ const ACTIONS = {
     if (s.lieu !== ILES[s.ile].port) return res(false, "Les navires partent du port.");
     if (age(s) < 14) return res(false, "Tu es trop jeune pour embarquer seul (à partir de 14 ans).");
     const versGL = estGrandLine(dest), depuisGL = estGrandLine(s.ile);
-    if ((versGL || depuisGL) && !s.navire) return res(false, "Aucun navire de ligne ne va là-bas : il te faut ton propre navire.");
+    const nage = s.peuple === "homme_poisson" && !s.fruit && [s.ile, dest].includes("hommes_poissons") && [s.ile, dest].includes("sabaody");
+    if ((versGL || depuisGL) && !s.navire && !nage) return res(false, "Aucun navire de ligne ne va là-bas : il te faut ton propre navire.");
     if (versGL && !depuisGL && age(s) < 17) return res(false, "Reverse Mountain, à ton âge ? Attends au moins tes 17 ans.");
-    if (depuisGL && versGL && s.inventaire.logpose < 1) return res(false, "Sans Log Pose, impossible de naviguer sur Grand Line : les boussoles y sont folles. Le gardien du phare en vend.");
-    if (dest === "hommes_poissons" && !s.navire.enrobe) return res(false, "Pour plonger à 10 000 mètres, le navire doit être enrobé (atelier de Hal, à Sabaody).");
+    if (depuisGL && versGL && s.inventaire.logpose < 1 && !(nage && !s.navire)) return res(false, "Sans Log Pose, impossible de naviguer sur Grand Line : les boussoles y sont folles. Le gardien du phare en vend.");
+    if (dest === "hommes_poissons" && s.peuple !== "homme_poisson" && !s.navire.enrobe) return res(false, "Pour plonger à 10 000 mètres, le navire doit être enrobé (atelier de Hal, à Sabaody).");
     if ((ILES[dest].nouveauMonde || ILES[s.ile].nouveauMonde) && s.inventaire.logpose_nm < 1) return res(false, "Dans le Nouveau Monde, un Log Pose ordinaire s'affole : il faut le Log Pose à trois aiguilles. Coral en vend, à l'île des Hommes-Poissons.");
     const jours = ROUTES[s.ile][dest];
-    const prix = s.navire ? 0 : jours * PRIX_JOUR_MER;
+    const prix = s.navire || nage ? 0 : jours * PRIX_JOUR_MER;
     if (s.berrys < prix) return res(false, `La traversée coûte ${prix} Berrys ; tu en as ${s.berrys}.`);
     s.berrys -= prix; s.monde.exterieur += prix;
     const depart = ILES[s.ile].nom;
@@ -762,6 +777,11 @@ const ACTIONS = {
       textes.push(calm ? "Vous traversez la Calm Belt sans vent, en retenant votre souffle au-dessus des rois des mers endormis." : "Le courant vous aspire vers le sommet de Reverse Mountain, puis vous dévalez de l'autre côté jusqu'à Grand Line !");
     }
     // Descente sous-marine et entrée de Wano : deux passages redoutables.
+    if (nage && !s.navire) {
+      avancer(s, ROUTES[s.ile][dest], { sansInterruption: true });
+      s.ile = dest; s.lieu = ILES[dest].port;
+      return res(true, `Tu plonges et nages ${ILES[dest].a}, à travers les profondeurs que tu connais si bien.`);
+    }
     if (dest === "hommes_poissons" && s.ile === "sabaody") {
       if (rand(s) < (navigue(s) ? 0.08 : 0.15)) return naufrage(s, "dans les profondeurs, la bulle crevée par un courant descendant", "sabaody");
       textes.push("La bulle plonge dans les abysses : lumières des poissons des profondeurs, ombres de rois des mers, puis la lueur d'un royaume sous-marin.");
@@ -819,6 +839,7 @@ const ACTIONS = {
     if (puissance(s) + rand(s) * 25 >= adversaire) {
       const prix = 3000;
       transferer(s, "rocco", "joueur", prix);
+      s.compteurs.colisee = (s.compteurs.colisee || 0) + 1;
       s.competences.combat += GAINS.combat;
       return res(true, `Sous les cris de la foule, tu remportes ton bloc ! Rocco te remet ${prix} Berrys. Combat +${GAINS.combat}.`);
     }
@@ -1011,7 +1032,7 @@ const ACTIONS = {
     if (e) return res(false, e);
     consommer(s, 4, 30);
     if (s.stats.agilite + (s.fruit ? 6 : 0) + rand(s) * 15 >= 22) {
-      s.prison = null; s.lieu = "port_shells";
+      s.prison = null; s.lieu = "port_shells"; s.drapeaux.evade = s.jour;
       s.infamie += 1; s.prime = calculPrime(s.infamie);
       return res(true, `Tu t'évades de la base de Shells Town ! Te voilà sur le port, sans navire. Ta prime monte à ${s.prime.toLocaleString("fr-FR")} Berrys.`);
     }
@@ -1095,7 +1116,7 @@ const ACTIONS = {
     consommer(s, 2, 5);
     if (rand(s) < Math.min(0.95, (p.relation - 50) / 40)) {
       s.inventaire.bague -= 1; s.famille.statut = "marié";
-      p.lieu = "maison"; p.relation += 15; souvenir(s, id, "vous vous êtes mariés");
+      p.lieu = s.foyer || "maison"; p.relation += 15; souvenir(s, id, "vous vous êtes mariés");
       s.humeur = Math.min(100, (s.humeur || 0) + 40);
       return res(true, `${p.nom} dit oui ! Vous vous mariez à Fuchsia, et ${il(p)} vient vivre avec toi dans ta maison.`);
     }
@@ -1153,7 +1174,7 @@ export function succeder(s, index) {
   const parent = s.famille.partenaire;
   s.famille = { partenaire: null, statut: null, enfants: [], grossesse: null };
   if (parent && s.pnj[parent]) { s.pnj[parent].relation = 60; s.pnj[parent].role = "ton parent"; }
-  s.ile = "fuchsia"; s.lieu = "maison";
+  s.lieu = s.foyer || "maison"; s.ile = LIEUX[s.lieu].ile;
   noter(s, `Tu es ${e.prenom}, enfant de ${s.ancetres.at(-1).prenom}. Tu hérites de ${heritage} Berrys et de la maison familiale de Fuchsia.`, "naissance");
   return res(true, `La vie continue avec ${e.prenom}.`);
 }
@@ -1215,7 +1236,7 @@ function naufrage(s, ou, rivage) {
     noter(s, `${s.perso.prenom} disparaît en mer lors du naufrage. Son fruit l'empêchait de nager.`, "mort");
     return res(true, `Naufrage ${ou} ! « ${nom} » sombre. Ton fruit t'empêche de nager, et personne ne te repêche… Ta vie s'achève en mer.`);
   }
-  blesser(s, 2);
+  blesser(s, s.peuple === "homme_poisson" && !s.fruit ? 0 : 2);
   s.ile = rivage; s.lieu = ILES[rivage].port;
   noter(s, `Naufrage : « ${nom} » est perdu.`, "mission");
   return res(true, `Naufrage ${ou} ! « ${nom} » sombre corps et biens. ${equipage(s).length ? "Ce qu'il reste de ton équipage te hisse" : "Accroché à une planche, tu dérives"} jusqu'${ILES[rivage].a}, blessé.`);

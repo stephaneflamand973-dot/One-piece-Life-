@@ -41,7 +41,7 @@ function proposerMission(s, donneur, code) {
     m.condition = `Arriver ${ILES[m.dest].a} avec le colis.`;
     m.duree = ROUTES[s.ile][m.dest] + 6;
   } else {
-    const lieux = lieuxDe(s.ile).filter(l => l !== "maison");
+    const lieux = lieuxDe(s.ile).filter(l => !l.startsWith("maison"));
     m.lieu = pick(s, lieux);
     if (code === "chasse") { m.titre = `Chasser le bandit qui rôde ${LIEUX[m.lieu].a}`; m.condition = `Vaincre le bandit ${LIEUX[m.lieu].a}.`; m.difficulte = 14 + (ILES[s.ile].danger || 0) * 10; }
     else { m.titre = `Retrouver un enfant perdu ${LIEUX[m.lieu].a}`; m.condition = `Retrouver l'enfant ${LIEUX[m.lieu].a}.`; m.difficulte = 8; }

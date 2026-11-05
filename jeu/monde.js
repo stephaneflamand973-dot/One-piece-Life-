@@ -53,7 +53,7 @@ export function initialiserMonde(s, { parents = true } = {}) {
   if (parents && !s.pnj.mere && s.perso.naissance === 0 && s.jour === 0) {
     const nomFamille = pick(s, ["Aube", "Vent", "Rivage", "Cordier", "Marin"]);
     for (const [id, role, genre] of [["mere", "ta mère", "f"], ["pere", "ton père", "g"]]) {
-      s.pnj[id] = { nom: `${prenom(s, genre)} ${nomFamille}`, role, genre, lieu: "maison", relation: 60, fonds: 300, souvenirs: [],
+      s.pnj[id] = { nom: `${prenom(s, genre)} ${nomFamille}`, role, genre, lieu: s.foyer || "maison", relation: 60, fonds: 300, souvenirs: [],
         naissance: -Math.floor((24 + rand(s) * 12) * AN), vivant: true, enfants: [], parents: [], couple: null, famille: true };
       s.monde.exterieur -= 300;
     }
@@ -148,7 +148,7 @@ function naissancePnj(s, mereId, pereId) {
   const m = s.pnj[mereId], p = s.pnj[pereId];
   const id = nouvelId(s, "n");
   const genre = rand(s) < 0.5 ? "f" : "g";
-  s.pnj[id] = { nom: prenom(s, genre), role: `enfant de ${m.nom} et ${p.nom}`, genre, lieu: m.lieu === "equipage" ? "maison" : m.lieu,
+  s.pnj[id] = { nom: prenom(s, genre), role: `enfant de ${m.nom} et ${p.nom}`, genre, lieu: m.lieu === "equipage" ? (s.foyer || "maison") : m.lieu,
     relation: 0, fonds: 0, souvenirs: [], naissance: s.jour, vivant: true, enfants: [], parents: [mereId, pereId], couple: null };
   m.enfants = [...(m.enfants || []), id]; p.enfants = [...(p.enfants || []), id];
   nouvelle(s, ileDe(s, mereId) || s.ile, `${m.nom} et ${p.nom} ont eu un enfant : ${s.pnj[id].nom}.`);
@@ -250,7 +250,7 @@ function annuel(s) {
       const role = pick(s, ROLES_ARRIVANTS[genre]);
       const fonds = 100 + Math.floor(rand(s) * 300);
       s.monde.exterieur -= fonds;
-      s.pnj[id] = { nom: prenom(s, genre), role, genre, lieu: pick(s, lieuxDe(ile).filter(l => l !== "maison")),
+      s.pnj[id] = { nom: prenom(s, genre), role, genre, lieu: pick(s, lieuxDe(ile).filter(l => !l.startsWith("maison"))),
         relation: 0, fonds, souvenirs: [], naissance: s.jour - Math.floor((18 + rand(s) * 20) * AN), vivant: true, enfants: [], parents: [], couple: null,
         romance: rand(s) < 0.5 };
       nouvelle(s, ile, `${s.pnj[id].nom}, ${role}, vient de s'installer ${ILES[ile].a}.`);

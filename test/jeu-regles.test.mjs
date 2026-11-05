@@ -767,3 +767,43 @@ test("personnalité : deux vies identiques à la naissance divergent selon les c
   const ecart = Object.keys(a.traits).reduce((t, k) => t + Math.abs(a.traits[k] - b.traits[k]), 0);
   assert.ok(ecart >= 4, `écart de personnalité trop faible : ${ecart}`);
 });
+
+// ---------- Étape 6 : rejouabilité ----------
+test("origines : naître à Water Seven, rentrer dormir chez soi", () => {
+  const s = E.nouvelleVie({ prenom: "O", seed: 61, origine: "water_seven" });
+  assert.equal(s.ile, "water_seven");
+  assert.equal(s.lieu, "maison_w7");
+  assert.match(s.journal[0].texte, /Water Seven/);
+  s.jour = 20 * 365; s.lieu = "chantier";
+  E.agir(s, { id: "repos" });
+  assert.equal(s.lieu, "maison_w7");
+});
+
+test("peuples : un homme-poisson naît sous la mer, plus fort, et nage jusqu'à Sabaody", () => {
+  const s = E.nouvelleVie({ prenom: "P", seed: 62, peuple: "homme_poisson" });
+  assert.equal(s.ile, "hommes_poissons");
+  assert.ok(s.stats.force >= 4);
+  s.jour = 18 * 365; s.lieu = "port_hp";
+  assert.ok(E.agir(s, { id: "voyager", cible: "sabaody" }).ok);
+  assert.equal(s.ile, "sabaody");
+});
+
+test("défis : l'orphelin n'a pas de parents, l'héritier hérite sans création d'argent", () => {
+  const o = E.nouvelleVie({ prenom: "Q", seed: 63, defi: "orphelin" });
+  assert.equal(o.pnj.mere.vivant, false);
+  const h = E.nouvelleVie({ prenom: "R", seed: 64, defi: "heritier" });
+  const masse = E.masseMonetaire(h);
+  M.mourir(h, "mere", "de maladie");
+  assert.equal(h.berrys, 5000);
+  assert.equal(E.masseMonetaire(h), masse);
+});
+
+test("succès : débloqués une seule fois, notés au journal", () => {
+  const s = ado(); s.lieu = "port";
+  E.agir(s, { id: "travailler" });
+  assert.ok(s.succes.premier_salaire);
+  assert.ok(s.succes.majeur === undefined || s.succes.majeur >= 0);
+  const n = s.journal.filter(e => e.type === "succes" && e.texte.includes("Premier salaire")).length;
+  E.agir(s, { id: "travailler" });
+  assert.equal(s.journal.filter(e => e.type === "succes" && e.texte.includes("Premier salaire")).length, n);
+});
