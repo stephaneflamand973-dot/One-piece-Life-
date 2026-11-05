@@ -2,6 +2,7 @@ import {
   nouvelleVie, agir, avancer, actionsDisponibles, interpreterTexte, serialiser, deserialiser,
   age, annee, jourDansAnnee, LIEUX, ILES, STATS, COMPETENCES, OBJETS, pnjIci, faitsPourNarration,
   migrer, lieuxDe, heritiers, succeder, RANGS_MARINE, MERITE_RANG, agePnj, FRUITS, NAVIRES, equipage, puissance,
+  HAKI, SEUIL_EVEIL,
 } from "./engine.js";
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
@@ -225,6 +226,9 @@ function rendreFiche() {
       ${s.navire ? `<p>Navire : « ${esc(s.navire.nom)} », ${NAVIRES[s.navire.type].nom} (${NAVIRES[s.navire.type].capacite} places d'équipage)</p>` : ""}</section>
     <section class="carte"><h2>Pouvoir et combat</h2>
       <p>Puissance de combat : <b>${puissance(s)}</b></p>
+      ${Object.keys(HAKI).filter(t => s.haki.eveil[t] || (t !== "rois" && s.haki.progres[t] > 0)).map(t => s.haki.eveil[t]
+        ? `<p><b>${HAKI[t].nom}</b> · niveau ${s.haki[t]} <span class="discret">(${HAKI[t].effet})</span></p>`
+        : `<p>${HAKI[t].nom} · éveil ${s.haki.progres[t]}/${SEUIL_EVEIL}</p>`).join("") || `<p class="discret">Aucun Haki éveillé.${age(s) >= 15 ? " On parle d'un vieux marin, à Loguetown, qui en saurait long." : ""}</p>`}
       ${s.fruit ? `<p><b>${FRUITS[s.fruit.id].nom}</b> (${FRUITS[s.fruit.id].type}) : tu peux ${FRUITS[s.fruit.id].pouvoir}. Maîtrise ${s.fruit.maitrise}.</p><p class="discret">Tu ne sais plus nager.</p>` : "<p>Pas de Fruit du Démon.</p>"}</section>
     <section class="carte"><h2>Relations</h2>
       ${Object.entries(s.pnj).filter(([, p]) => !p.invisible && p.lieu !== "disparu" && (p.relation !== 0 || p.souvenirs.length || LIEUX[p.lieu]?.ile === s.ile)).map(([id, p]) => `<div class="stat"><span>${esc(p.nom)} <i class="discret">${esc(p.role)}${agePnj(s, id) != null ? `, ${agePnj(s, id)} ans` : ""}</i></span>${barre(Math.max(0, p.relation))}<b>${p.relation}</b></div>`).join("")}</section>

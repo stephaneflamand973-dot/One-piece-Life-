@@ -4,7 +4,7 @@
 // guérison automatique en temps simulé (K.2A), fabrication instantanée si ressources (I.5A),
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
-export const VERSION = 2;
+export const VERSION = 3;
 export const JOUR_HEURES = 16; // heures d'éveil par jour
 export const FATIGUE_MAX_ACTIVITE = 80;
 
@@ -85,6 +85,14 @@ export const FRUITS = {
   braise: { nom: "Fruit de la Braise", type: "Logia", pouvoir: "devenir braise et projeter des flammes", bonus: 8, intangible: true },
   verre: { nom: "Fruit du Verre", type: "Paramecia", pouvoir: "créer et façonner du verre à volonté", bonus: 5 },
 };
+export const HAKI = {
+  observation: { nom: "Haki de l'observation", effet: "pressentir les coups et les intentions" },
+  armement: { nom: "Haki de l'armement", effet: "durcir ton corps et tes coups d'une force invisible" },
+  rois: { nom: "Haki des Rois", effet: "imposer ta volonté et faire plier les esprits faibles" },
+};
+export const SEUIL_EVEIL = 8;
+export const PRIX_LECON_HAKI = 50;
+
 export const NAVIRES = { barque: { nom: "barque de pêche aménagée", capacite: 3 }, caravelle: { nom: "caravelle", capacite: 8 } };
 export const TAVERNES = ["bar", "taverne_shells", "salle_baratie", "auberge_logue"];
 export const EXPLORABLES = ["colline", "port", "port_shells", "quais_logue", "echafaud", "pont_baratie"];
@@ -106,6 +114,7 @@ const PNJ_INITIAUX = () => ({
   gallo: { nom: "Chef Gallo", role: "cuisinier du Baratie", genre: "g", lieu: "cuisine_baratie", relation: 0, fonds: 4000, souvenirs: [] },
   nino: { nom: "Nino", role: "serveur du Baratie", genre: "g", lieu: "salle_baratie", relation: 0, fonds: 300, souvenirs: [], naissance: -365, romance: true },
   barro: { nom: "Barro", role: "armurier de Loguetown", genre: "g", lieu: "armurerie", relation: 0, fonds: 2000, souvenirs: [], stock: { sabre: 3, caravelle: 1 } },
+  garo: { nom: "Garo", role: "vieux marin retraité aux yeux perçants", genre: "g", lieu: "auberge_logue", relation: 0, fonds: 300, souvenirs: [], naissance: -60 * 365 },
   lise: { nom: "Lise", role: "bijoutière du grand marché", genre: "f", lieu: "marche_logue", relation: 0, fonds: 1500, souvenirs: [], naissance: -1095, romance: true, stock: { bague: 5 } },
 });
 
@@ -134,6 +143,7 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
     lieu: "maison", ile: "fuchsia",
     pnj: PNJ_INITIAUX(),
     carriere: null, navire: null, fruit: null, prime: 0, infamie: 0, prison: null,
+    haki: { observation: 0, armement: 0, rois: 0, eveil: { observation: false, armement: false, rois: false }, progres: { observation: 0, armement: 0 }, roisInne: false },
     famille: { partenaire: null, statut: null, enfants: [], grossesse: null },
     generation: 1, ancetres: [],
     monde: { toitRemise: "abîmé", prochainNavire: 18, voyouAuPort: false, meteo: "beau", exterieur: 1000000, fruitsTrouves: [] },
@@ -142,6 +152,7 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
   s.pnj.dock = { nom: "Compagnie des docks", role: "employeur des quais", lieu: null, relation: 0, fonds: 20000, souvenirs: [], invisible: true };
   // Potentiel inné (B.4D) : il ne multiplie jamais les gains, il fixe seulement un plafond naturel.
   for (const k of Object.keys(s.stats)) s.potentiel[k] = 40 + Math.floor(rand(s) * 61);
+  s.haki.roisInne = rand(s) < 0.03; // le Haki des Rois ne s'apprend pas : il est inné, et rare
   if (aleatoire) for (const k of Object.keys(s.stats)) s.stats[k] += Math.floor(rand(s) * 2);
   noter(s, `Tu nais à Fuchsia, un petit village paisible de l'île de Dawn, sur East Blue. Tes parents t'appellent ${s.perso.prenom}.`, "naissance");
   return s;
@@ -173,7 +184,7 @@ const Il = p => il(p)[0].toUpperCase() + il(p).slice(1);
 
 // Anciennes sauvegardes (version 1) : ajout des îles, des nouveaux habitants et de la famille.
 export function migrer(s) {
-  if (s.version >= VERSION) return s;
+  // Idempotente : complète tout ce qui manque, quelle que soit la version d'origine.
   const neufs = PNJ_INITIAUX();
   for (const [id, p] of Object.entries(neufs)) {
     if (!s.pnj[id]) s.pnj[id] = { ...p, naissance: p.naissance != null ? s.perso.naissance + p.naissance : undefined };
@@ -187,6 +198,7 @@ export function migrer(s) {
   s.inventaire.sabre ??= 0; s.inventaire.bague ??= 0;
   s.inventaire.fruits ??= []; s.fruit ??= null; s.navire ??= null; s.prime ??= 0; s.infamie ??= 0; s.prison ??= null;
   s.monde.fruitsTrouves ??= [];
+  s.haki ??= { observation: 0, armement: 0, rois: 0, eveil: { observation: false, armement: false, rois: false }, progres: { observation: 0, armement: 0 }, roisInne: rand(s) < 0.03 };
   s.pnj.tomas.stock.barque ??= 2; if (s.pnj.barro) s.pnj.barro.stock.caravelle ??= 1;
   s.version = VERSION;
   return s;
@@ -335,6 +347,14 @@ function res(ok, texte, extra = {}) { return { ok, texte, ...extra }; }
 
 // ---------- Actions disponibles (suggestions contextuelles) ----------
 
+function actionsHaki(s) {
+  const a = [];
+  if (s.haki?.eveil.observation) a.push({ id: "haki", cible: "observation", label: "Méditer (Haki de l'observation)" });
+  if (s.haki?.eveil.armement) a.push({ id: "haki", cible: "armement", label: "Endurcir ton corps (Haki de l'armement)" });
+  if (s.haki?.eveil.rois) a.push({ id: "haki", cible: "rois", label: "Dompter ton Haki des Rois" });
+  return a;
+}
+
 export function actionsDisponibles(s) {
   if (!s.perso.vivant) return [];
   const a = [];
@@ -344,7 +364,8 @@ export function actionsDisponibles(s) {
   if (s.prison) {
     return [{ id: "attendre", label: "Attendre (jusqu'à 30 jours)" }, { id: "evader", label: "Tenter de t'évader" },
       { id: "entrainer", cible: "force", label: "S'entraîner en cellule (force)" },
-      ...(s.fruit ? [{ id: "maitriser", label: "Travailler ton pouvoir" }] : [])];
+      ...(s.fruit ? [{ id: "maitriser", label: "Travailler ton pouvoir" }] : []),
+      ...actionsHaki(s)];
   }
   if (ag < 6) {
     a.push({ id: "jouer", label: "Jouer dehors" });
@@ -368,6 +389,10 @@ export function actionsDisponibles(s) {
   if (EXPLORABLES.includes(s.lieu) && ag >= 8) a.push({ id: "explorer", label: "Explorer les environs" });
   for (const f of new Set(s.inventaire.fruits)) a.push({ id: "manger", cible: f, label: `Manger le ${FRUITS[f].nom}${s.fruit ? " (tu as déjà un pouvoir !)" : ""}` });
   if (s.fruit) a.push({ id: "maitriser", label: "Travailler ton pouvoir" });
+  a.push(...actionsHaki(s));
+  if (pnjIci(s).includes("garo") && ag >= 15 && s.pnj.garo.relation >= 30) {
+    for (const t of ["observation", "armement"]) if (!s.haki.eveil[t]) a.push({ id: "initier", cible: t, label: `Leçon de ${HAKI[t].nom} avec Garo (${PRIX_LECON_HAKI} B)` });
+  }
   if (s.lieu === ILES[s.ile].port && s.navire && !s.carriere && ag >= 16) a.push({ id: "pirate", label: "Hisser le pavillon pirate" });
   if (s.carriere?.type === "pirate") {
     if (s.lieu === ILES[s.ile].port) a.push({ id: "attaquer", label: "Attaquer un navire marchand" });
@@ -411,7 +436,7 @@ export function agir(s, action) {
   const ag = age(s);
   const f = ACTIONS[id];
   if (!f) return res(false, "Cette action n'existe pas dans le jeu.");
-  if (s.prison && !["attendre", "evader", "entrainer", "etudier", "maitriser", "repos"].includes(id)) {
+  if (s.prison && !["attendre", "evader", "entrainer", "etudier", "maitriser", "repos", "haki"].includes(id)) {
     return res(false, `Tu es en prison jusqu'au jour ${s.prison.jusqua + 1}. Tu peux attendre, t'entraîner ou tenter de t'évader.`);
   }
   const r = f(s, cible, ag);
@@ -573,7 +598,7 @@ const ACTIONS = {
       return res(true, `Tu fais face au voyou. Après un échange de coups, il détale. Combat +${GAINS.combat}.`);
     }
     blesser(s, rand(s) < 0.3 ? 2 : 1);
-    return res(true, `Le voyou est plus coriace que prévu. Il te laisse au sol et s'enfuit. Combat +${GAINS.combat}.`);
+    return res(true, `Le voyou est plus coriace que prévu. Il te laisse au sol et s'enfuit. Combat +${GAINS.combat}.${eveilDanger(s)}`);
   },
   accepter(s, mid) {
     const m = s.missions.find(m => m.id === mid && m.statut === "proposée");
@@ -655,7 +680,7 @@ const ACTIONS = {
     const roles = [["navigateur", 3], ["cuisinier", 4], ["combattant", 9], ["canonnier", 7], ["charpentier de bord", 5], ["médecin de bord", 3]];
     const [role, fbase] = roles[Math.floor(rand(s) * roles.length)];
     const nom = noms[Math.floor(rand(s) * noms.length)];
-    const chance = Math.min(0.9, 0.3 + s.stats.charisme * 0.02 + s.infamie * 0.04);
+    const chance = Math.min(0.95, 0.3 + s.stats.charisme * 0.02 + s.infamie * 0.04 + (s.haki?.eveil.rois ? 0.15 : 0));
     if (rand(s) >= chance) return res(true, `Tu proposes à ${nom}, ${role}, de rejoindre ton équipage. ${nom} refuse : ${s.prime ? "trop risqué" : "personne n'a jamais entendu parler de toi"}.`);
     const id = `r${s.jour}_${Math.floor(rand(s) * 1e6)}`;
     s.pnj[id] = { nom, role: `${role} de ton équipage`, genre: rand(s) < 0.5 ? "f" : "g", lieu: "equipage", relation: 20, fonds: 0, souvenirs: [], force: fbase + Math.floor(rand(s) * 5), membre: true };
@@ -676,7 +701,7 @@ const ACTIONS = {
       blesser(s, rand(s) < 0.3 ? 2 : 1);
       const membres = equipage(s);
       if (membres.length && rand(s) < 0.3) { const d = membres[Math.floor(rand(s) * membres.length)]; s.pnj[d].lieu = "disparu"; noter(s, `Déçu, ${s.pnj[d].nom} quitte ton équipage.`, "monde"); }
-      return res(true, "L'abordage tourne mal : l'équipage marchand vous repousse et tu es blessé.");
+      return res(true, `L'abordage tourne mal : l'équipage marchand vous repousse et tu es blessé.${eveilDanger(s)}`);
     }
     // Butin pris au commerce extérieur (comptabilisé) ; l'équipage reçoit sa part.
     const butin = Math.round((150 + rand(s) * 350) * (1 + equipage(s).length / 3));
@@ -727,6 +752,35 @@ const ACTIONS = {
     }
     s.fruit = { id: f, maitrise: 0, depuis: s.jour };
     return res(true, `Tu croques dans le ${FRUITS[f].nom}. Le goût est atroce ! Un frisson parcourt ton corps : tu peux désormais ${FRUITS[f].pouvoir}. En échange, la mer ne te portera plus jamais : tu ne sais plus nager.`);
+  },
+  initier(s, t) {
+    if (!["observation", "armement"].includes(t)) return res(false, "Garo ne connaît pas cette voie.");
+    if (!pnjIci(s).includes("garo")) return res(false, "Garo n'est pas ici. On dit qu'il loge à l'auberge de Loguetown.");
+    if (age(s) < 15) return res(false, "Garo : « Reviens quand tu seras plus grand. »");
+    if (s.pnj.garo.relation < 30) return res(false, "Garo : « Je ne t'apprendrai rien tant que je ne te connaîtrai pas mieux. »");
+    if (s.haki.eveil[t]) return res(false, "Ce Haki est déjà éveillé : entraîne-le par toi-même.");
+    if (s.berrys < PRIX_LECON_HAKI) return res(false, `Une leçon coûte ${PRIX_LECON_HAKI} Berrys.`);
+    const e = activite(s, { heures: 4, fatigue: 35, ageMin: 15 });
+    if (e) return res(false, e);
+    consommer(s, 4, 35);
+    transferer(s, "joueur", "garo", PRIX_LECON_HAKI);
+    s.haki.progres[t] += 1; // progression fixe vers l'éveil (D.2A)
+    if (s.haki.progres[t] >= SEUIL_EVEIL) {
+      s.haki.eveil[t] = true; s.haki[t] = Math.max(1, s.haki[t]);
+      souvenir(s, "garo", `il t'a aidé à éveiller le ${HAKI[t].nom}`);
+      noter(s, `Éveil du ${HAKI[t].nom}.`, "mission");
+      return res(true, `Après des jours d'efforts, quelque chose cède en toi. Tu peux désormais ${HAKI[t].effet} : ton ${HAKI[t].nom} est éveillé !`);
+    }
+    const leçon = t === "observation" ? "Les yeux bandés, tu tentes d'esquiver les coups de bâton de Garo." : "Garo te fait frapper un rocher jusqu'à ce que tes poings saignent.";
+    return res(true, `${leçon} « Encore ! » Éveil : ${s.haki.progres[t]}/${SEUIL_EVEIL}.`);
+  },
+  haki(s, t) {
+    if (!HAKI[t] || !s.haki.eveil[t]) return res(false, "Ce Haki n'est pas éveillé en toi.");
+    const e = activite(s, { heures: 3, fatigue: 25 });
+    if (e) return res(false, e);
+    consommer(s, 3, 25);
+    s.haki[t] += 1; // gain fixe (D.2A)
+    return res(true, `Tu t'exerces au ${HAKI[t].nom}. Niveau +1 (${s.haki[t]}).`);
   },
   maitriser(s) {
     if (!s.fruit) return res(false, "Tu n'as pas de pouvoir à maîtriser.");
@@ -789,7 +843,7 @@ const ACTIONS = {
       return res(true, `Patrouille réussie : vous arrêtez une bande de contrebandiers. Mérite +${GAINS.merite_patrouille}.${promotion(s)}`);
     }
     blesser(s, rand(s) < 0.25 ? 2 : 1);
-    return res(true, "Patrouille échouée : les contrebandiers vous échappent et tu es blessé.");
+    return res(true, `Patrouille échouée : les contrebandiers vous échappent et tu es blessé.${eveilDanger(s)}`);
   },
   quitter(s) {
     if (s.carriere?.type === "pirate") {
@@ -878,6 +932,7 @@ export function succeder(s, index) {
   s.competences = { charpenterie: 0, peche: 0, combat: 0, cuisine: 0 };
   for (const k of Object.keys(s.stats)) s.potentiel[k] = 40 + Math.floor(rand(s) * 61);
   s.sante = { blessures: [], sequelles: [] };
+  s.haki = { observation: 0, armement: 0, rois: 0, eveil: { observation: false, armement: false, rois: false }, progres: { observation: 0, armement: 0 }, roisInne: rand(s) < 0.03 };
   s.fatigue = 0; s.carriere = null; s.ancienneCarriere = null;
   const parent = s.famille.partenaire;
   s.famille = { partenaire: null, statut: null, enfants: [], grossesse: null };
@@ -890,7 +945,9 @@ export function succeder(s, index) {
 // Puissance de combat : caractéristiques, expérience, arme et pouvoir du fruit.
 export function puissance(s) {
   const fruit = s.fruit ? FRUITS[s.fruit.id].bonus + Math.floor(s.fruit.maitrise / 2) : 0;
-  return s.stats.force + s.stats.agilite + s.competences.combat * 2 + (s.inventaire.sabre > 0 ? 4 : 0) + fruit;
+  const h = s.haki || {};
+  const haki = (h.armement || 0) + Math.floor((h.observation || 0) / 2) + (h.eveil?.rois ? 8 + Math.floor((h.rois || 0) / 2) : 0);
+  return s.stats.force + s.stats.agilite + s.competences.combat * 2 + (s.inventaire.sabre > 0 ? 4 : 0) + fruit + haki;
 }
 export const equipage = s => Object.keys(s.pnj).filter(id => s.pnj[id].lieu === "equipage" && s.pnj[id].vivant !== false);
 const forceEquipage = s => equipage(s).reduce((t, id) => t + (s.pnj[id].force || 0), 0);
@@ -905,6 +962,14 @@ function combatMarine(s, ou) {
     if (rand(s) < 0.4) blesser(s, 0);
     return res(true, `La Marine vous attaque ${ou} ! Vous la repoussez et prenez la fuite. Ta prime monte à ${s.prime.toLocaleString("fr-FR")} Berrys.`);
   }
+  // Moment décisif : un Haki des Rois inné peut s'éveiller et renverser l'affrontement.
+  if (s.haki?.roisInne && !s.haki.eveil.rois && age(s) >= 14 && rand(s) < 0.35) {
+    s.haki.eveil.rois = true;
+    s.infamie += 2; s.prime = calculPrime(s.infamie);
+    noter(s, "Éveil du Haki des Rois.", "mission");
+    return res(true, `Acculé, tu sens une force immense jaillir de toi. Une onde invisible balaie le pont : les marines s'effondrent, inconscients. Tu viens d'éveiller le Haki des Rois ! Ta prime bondit à ${s.prime.toLocaleString("fr-FR")} Berrys.`);
+  }
+  eveilDanger(s);
   if (s.fruit && ou === "en mer" && rand(s) < 0.2) {
     s.perso.vivant = false;
     noter(s, `${s.perso.prenom} tombe à la mer pendant l'abordage. Le pouvoir du fruit l'empêche de nager.`, "mort");
@@ -912,6 +977,14 @@ function combatMarine(s, ou) {
   }
   return capturer(s, ou);
 }
+// Face au danger, l'observation peut s'éveiller d'elle-même.
+function eveilDanger(s) {
+  if (!s.haki || s.haki.eveil.observation || age(s) < 12 || rand(s) >= 0.05) return "";
+  s.haki.eveil.observation = true; s.haki.observation = Math.max(1, s.haki.observation);
+  noter(s, "Éveil du Haki de l'observation.", "mission");
+  return " Au cœur du danger, tu as perçu chaque mouvement avant qu'il ne se produise : ton Haki de l'observation s'est éveillé !";
+}
+
 function capturer(s, ou) {
   const jours = 30 + s.infamie * 20;
   s.prison = { jusqua: s.jour + jours, depuis: s.jour };
@@ -934,6 +1007,11 @@ function blesser(s, gravite) {
   // Un Logia peut devenir intangible face à un adversaire ordinaire.
   if (s.fruit && FRUITS[s.fruit.id].intangible && rand(s) < 0.5) {
     noter(s, "Les coups traversent ton corps de braise sans te blesser.", "sante");
+    return;
+  }
+  // Le Haki de l'observation permet de pressentir et d'éviter un coup.
+  if (s.haki?.eveil.observation && rand(s) < Math.min(0.6, s.haki.observation * 0.03)) {
+    noter(s, "Tu pressens le coup une fraction de seconde avant : tu l'esquives.", "sante");
     return;
   }
   const b = { ...types[gravite] };
@@ -979,6 +1057,8 @@ function repliquePnj(s, id, dernier) {
     gallo: ["« En cuisine, on ne traîne pas ! »", "« Un bon plat, ça se mérite. »"],
     nino: ["« Bienvenue au Baratie ! Une table pour toi ? »", "« Le chef crie fort, mais il a bon cœur. »"],
     barro: [`« Un sabre, c'est ${OBJETS.sabre.prix} Berrys. Il te sauvera la vie. »`, "« Loguetown voit passer bien des pirates. »"],
+    garo: [s.pnj.garo.relation < 30 ? "« Hmph. Encore un gamin qui rêve de Grand Line ? »" : "« Il existe une force que chacun porte en soi. Les marins de Grand Line l'appellent le Haki. »",
+      age(s) >= 15 && s.pnj.garo.relation >= 30 ? "« Si tu veux, je peux t'apprendre à l'éveiller. Ça ne sera pas gratuit, et ça fera mal. »" : "« J'ai navigué loin, autrefois. Très loin. »"],
     lise: [`« Mes bagues sont à ${OBJETS.bague.prix} Berrys. Pour une demande en mariage, peut-être ? »`, "« Le marché est plus animé que jamais. »"],
   }[id] || ["« Bonjour. »"];
   let txt = `${p.nom} : ${pick(s, lignes)}`;
@@ -1003,7 +1083,7 @@ export function interpreterTexte(s, texte) {
   const lieuMots = Object.fromEntries(Object.entries(lieuMotsTous).filter(([k]) => LIEUX[k].ile === s.ile));
   const ileMots = { fuchsia: ["fuchsia", "dawn"], shells: ["shells"], baratie: ["baratie"], loguetown: ["loguetown", "logue"] };
   const pnjMots = { makino: ["makino"], woop: ["maire", "woop"], tomas: ["tomas", "charpentier"], bern: ["bern", "pecheur"], ilda: ["ilda", "marchande"],
-    sacha: ["sacha"], rivo: ["rivo", "sergent", "recruteur"], mira: ["mira"], gallo: ["gallo", "chef"], nino: ["nino", "serveur"], barro: ["barro", "armurier"], lise: ["lise", "bijout"] };
+    sacha: ["sacha"], rivo: ["rivo", "sergent", "recruteur"], mira: ["mira"], gallo: ["gallo", "chef"], nino: ["nino", "serveur"], barro: ["barro", "armurier"], lise: ["lise", "bijout"], garo: ["garo", "vieux marin"] };
   const morceaux = t.split(/,| puis | et ensuite | ensuite |;| et /);
   for (const m of morceaux) {
     if (/(embarque|navigue|voyage|pars pour|part pour|bateau|navire)/.test(m)) {
@@ -1017,6 +1097,8 @@ export function interpreterTexte(s, texte) {
     if (/(explor|fouill)/.test(m)) { actions.push({ id: "explorer" }); continue; }
     if (/(evade|evasion)/.test(m)) { actions.push({ id: "evader" }); continue; }
     if (/(mange|croque).*fruit/.test(m) && s.inventaire.fruits.length) { actions.push({ id: "manger", cible: s.inventaire.fruits[0] }); continue; }
+    if (/(lecon|apprend).*haki|haki.*(lecon|garo)/.test(m)) { actions.push({ id: "initier", cible: /arme/.test(m) ? "armement" : "observation" }); continue; }
+    if (/(haki|medit|endurci)/.test(m)) { actions.push({ id: "haki", cible: /rois|conquer/.test(m) ? "rois" : /arme|endurci/.test(m) ? "armement" : "observation" }); continue; }
     if (/(pouvoir|maitris)/.test(m)) { actions.push({ id: "maitriser" }); continue; }
     if (/patrouill/.test(m)) { actions.push({ id: "patrouille" }); continue; }
     if (/service/.test(m)) { actions.push({ id: "service" }); continue; }
@@ -1069,7 +1151,7 @@ export function faitsPourNarration(s, resultat) {
   const ici = pnjIci(s).map(id => `${s.pnj[id].nom} (${s.pnj[id].role})`);
   return [
     `Lieu : ${LIEUX[s.lieu].nom}, à ${ILES[s.ile].nom} (${ILES[s.ile].desc}). Heure : ${Math.floor(s.heure)}h. Météo : ${s.monde.meteo}.`,
-    `Protagoniste : ${s.perso.prenom}, ${age(s)} ans${s.carriere?.type === "marine" ? `, ${RANGS_MARINE[s.carriere.rang]} de la Marine` : ""}${s.carriere?.type === "pirate" ? `, capitaine des ${s.carriere.equipage}` : ""}${s.prime ? `, prime de ${s.prime} Berrys` : ""}${s.fruit ? `, mangeur du ${FRUITS[s.fruit.id].nom} (${FRUITS[s.fruit.id].pouvoir})` : ""}${s.prison ? ", en prison" : ""}. Fatigue ${s.fatigue}/100.${blessureActive(s) ? ` Blessé : ${s.sante.blessures.map(b => b.nom).join(", ")}.` : ""}`,
+    `Protagoniste : ${s.perso.prenom}, ${age(s)} ans${s.carriere?.type === "marine" ? `, ${RANGS_MARINE[s.carriere.rang]} de la Marine` : ""}${s.carriere?.type === "pirate" ? `, capitaine des ${s.carriere.equipage}` : ""}${s.prime ? `, prime de ${s.prime} Berrys` : ""}${s.fruit ? `, mangeur du ${FRUITS[s.fruit.id].nom} (${FRUITS[s.fruit.id].pouvoir})` : ""}${s.prison ? ", en prison" : ""}${s.haki && Object.keys(HAKI).some(t => s.haki.eveil[t]) ? `, maîtrise le ${Object.keys(HAKI).filter(t => s.haki.eveil[t]).map(t => HAKI[t].nom).join(" et le ")}` : ""}. Fatigue ${s.fatigue}/100.${blessureActive(s) ? ` Blessé : ${s.sante.blessures.map(b => b.nom).join(", ")}.` : ""}`,
     ici.length ? `Présents : ${ici.join(", ")}.` : "Personne d'autre n'est présent.",
     `Résultat établi par le jeu : ${resultat}`,
   ].join("\n");

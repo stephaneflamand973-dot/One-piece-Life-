@@ -331,3 +331,94 @@ test("fruit : chaque fruit n'existe qu'une fois par monde", () => {
   assert.ok(s.monde.fruitsTrouves.length <= Object.keys(E.FRUITS).length);
   assert.ok(s.monde.fruitsTrouves.length > 0);
 });
+
+// ---------- Version 4 : Haki ----------
+
+const chezGaro = () => { const s = ado(); s.ile = "loguetown"; s.lieu = "auberge_logue"; s.berrys = 1000; return s; };
+
+test("Haki : Garo n'enseigne qu'à quelqu'un qu'il connaît", () => {
+  const s = chezGaro();
+  assert.equal(E.agir(s, { id: "initier", cible: "observation" }).ok, false);
+  assert.ok(!E.actionsDisponibles(s).some(a => a.id === "initier"));
+});
+
+test("Haki : leçons payées, progression fixe, éveil au seuil", () => {
+  const s = chezGaro(); s.pnj.garo.relation = 30;
+  const masse = E.masseMonetaire(s);
+  for (let i = 1; i <= E.SEUIL_EVEIL; i++) {
+    s.heure = 8; s.fatigue = 0;
+    assert.ok(E.agir(s, { id: "initier", cible: "armement" }).ok);
+    assert.equal(s.haki.progres.armement, i);
+  }
+  assert.equal(s.haki.eveil.armement, true);
+  assert.equal(s.berrys, 1000 - E.SEUIL_EVEIL * E.PRIX_LECON_HAKI);
+  assert.equal(E.masseMonetaire(s), masse);
+  assert.equal(E.agir(s, { id: "initier", cible: "armement" }).ok, false);
+});
+
+test("Haki : l'entraînement d'un Haki éveillé rapporte toujours +1 et augmente la puissance", () => {
+  const s = ado();
+  assert.equal(E.agir(s, { id: "haki", cible: "armement" }).ok, false);
+  s.haki.eveil.armement = true; s.haki.armement = 1;
+  const p0 = E.puissance(s);
+  for (let i = 0; i < 4; i++) { s.heure = 8; s.fatigue = 0; E.agir(s, { id: "haki", cible: "armement" }); }
+  assert.equal(s.haki.armement, 5);
+  assert.equal(E.puissance(s), p0 + 4);
+});
+
+test("Haki de l'observation : certains coups sont esquivés", () => {
+  const s = ado(); s.haki.eveil.observation = true; s.haki.observation = 20;
+  let esquives = 0;
+  for (let i = 0; i < 200; i++) {
+    s.sante.blessures = [];
+    s.ile = "fuchsia"; s.lieu = "port"; s.monde.voyouAuPort = true; s.heure = 8; s.fatigue = 0;
+    E.agir(s, { id: "combattre" });
+    if (!s.sante.blessures.length) esquives++;
+  }
+  assert.ok(esquives > 40);
+});
+
+test("Haki des Rois : seulement s'il est inné, éveillé dans un moment décisif", () => {
+  let eveille = false;
+  for (let seed = 1; seed < 80 && !eveille; seed++) {
+    const s = capitaine(seed); s.haki.roisInne = true; s.infamie = 10; s.prime = E.calculPrime(10);
+    s.stats.force = 1; s.stats.agilite = 1;
+    for (let n = 0; n < 20 && !s.prison && !s.haki.eveil.rois && s.perso.vivant; n++) {
+      s.ile = "fuchsia"; s.lieu = "port"; s.heure = 8; s.fatigue = 0; s.navire ??= { type: "barque", nom: "X", coque: 100 };
+      E.agir(s, { id: "voyager", cible: "shells" });
+    }
+    eveille = s.haki.eveil.rois;
+  }
+  assert.ok(eveille);
+  const sansDon = capitaine(3); sansDon.haki.roisInne = false; sansDon.infamie = 10; sansDon.prime = E.calculPrime(10);
+  for (let n = 0; n < 20 && !sansDon.prison && sansDon.perso.vivant; n++) {
+    sansDon.ile = "fuchsia"; sansDon.lieu = "port"; sansDon.navire ??= { type: "barque", nom: "X", coque: 100 };
+    E.agir(sansDon, { id: "voyager", cible: "shells" });
+  }
+  assert.equal(sansDon.haki.eveil.rois, false);
+});
+
+test("Haki : les anciennes sauvegardes le reçoivent, la succession ne le transmet pas", () => {
+  const s = ado(); delete s.haki; delete s.pnj.garo; s.version = 1;
+  E.migrer(s);
+  assert.ok(s.haki && s.pnj.garo);
+  s.haki.eveil.armement = true; s.haki.armement = 30;
+  s.famille.enfants.push({ prenom: "Z", naissance: s.jour - 3650, genre: "f" });
+  s.perso.vivant = false;
+  E.succeder(s, 0);
+  assert.equal(s.haki.eveil.armement, false);
+  assert.equal(s.haki.armement, 0);
+});
+
+test("migration : une sauvegarde de la version 2 (sans piraterie ni fruits) devient jouable", () => {
+  const s = ado();
+  delete s.inventaire.fruits; delete s.fruit; delete s.navire; delete s.prime; delete s.infamie; delete s.prison; delete s.haki;
+  delete s.monde.fruitsTrouves; delete s.pnj.tomas.stock.barque; s.version = 2;
+  E.migrer(s);
+  assert.deepEqual(s.inventaire.fruits, []);
+  assert.equal(s.prime, 0);
+  assert.equal(s.pnj.tomas.stock.barque, 2);
+  s.lieu = "colline";
+  assert.ok(E.agir(s, { id: "explorer" }).ok);
+  assert.ok(E.actionsDisponibles(s).length > 0);
+});
