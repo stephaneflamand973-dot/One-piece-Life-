@@ -15,16 +15,25 @@ Complément au *Dossier maître de transmission* du 2026-11-05. Ce registre ne r
 | **S.5D** | Socle transversal minimal → tranche verticale traversant les cinq scénarios en version très réduite → approfondissement par itérations, avec non-régression complète à chaque itération. Remplace l'ancien déroulé « étapes 0 à 5 », jamais validé. |
 | **S.Δ** | Délégation générale du user : « choisis automatiquement tous les autres aspects ». Elle couvre les arbitrages de conception du dossier S, pas l'autorisation de coder, tester ou choisir un modèle IA. |
 
+## Révision de plateforme (décision du user, postérieure au dossier)
+
+| Réf. | Décision |
+|---|---|
+| **R.1A-iPhone** | Le user veut l'application sur son iPhone. **L'iPhone est la seule machine** : développement, essais et validation se font dessus. Remplace R.1D (« Mac d'abord, iPhone après validation ») et R.2A (Mac comme machine de référence). |
+| Maintenu | **P.2A : 100 % local sur l'iPhone, IA comprise.** Aucune dérogation, aucun serveur. |
+| Conséquences | Les seuils de performance sont fixés sur l'iPhone. L'instrumentation de mesure (S.7) doit fonctionner sur le téléphone et permettre d'exporter les résultats. Dans S.13, la réussite sur l'iPhone est la preuve visée ; elle ne certifie toujours pas le monde complet ni le multigénérationnel. |
+| Non décidé | La forme technique (web app installable ou app native) et le modèle IA. |
+
 ## Arbitrages adoptés sous délégation S.Δ
 
 | Réf. | Sujet | Décision |
 |---|---|---|
 | S.6D | Périmètre de la tranche | Séquence de vie continue couvrant obligatoirement chaque invariant prioritaire, O.6D, N.3D, les interactions entre scénarios et des cas limites ciblés. **Liste fermée** fixée avant réalisation. |
 | S.7 | Socle minimal | Uniquement ce que la tranche exige : états objectifs, temps simulé figé hors session, sauvegardes automatiques avec copies valides et contrôle d'intégrité, isolation des mondes, journal causal, interfaces entre modules, instrumentation de mesure. Aucun choix technique. |
-| S.8 | Critères et seuils | Une fiche par jalon, critères obligatoires et informatifs. Seuils fonctionnels fixés dès la fiche. Seuils de performance fixés après le relevé du Mac et avant tout test. On ne les abaisse jamais après lecture des résultats ; toute révision est un arbitrage explicite et oblige à refaire les tests. |
+| S.8 | Critères et seuils | Une fiche par jalon, critères obligatoires et informatifs. Seuils fonctionnels fixés dès la fiche. Seuils de performance fixés après le relevé de l'iPhone et avant tout test. On ne les abaisse jamais après lecture des résultats ; toute révision est un arbitrage explicite et oblige à refaire les tests. |
 | S.9 | Ordre des itérations | Du risque le plus fort au plus faible : faisabilité IA locale → invariants fragiles (séquestre, gains fixes, fabrication) → autonomie PNJ et monde → profondeur de vie → succession et continuité générationnelle. |
 | S.10 | Sélection du modèle IA | Comparaison des candidats sur la même tranche et les mêmes fiches, avant l'approfondissement. Un modèle par rôle est permis. Élimination sur les critères obligatoires, puis départage. Aucun recours distant. |
-| S.11 | Échecs | Un critère obligatoire échoué bloque le jalon : analyse causale, correction, non-régression complète. Mac insuffisant → allègement de charge (P.3D) sans altérer règles ni conséquences, jamais de recours distant ; si c'est impossible, le signaler. |
+| S.11 | Échecs | Un critère obligatoire échoué bloque le jalon : analyse causale, correction, non-régression complète. iPhone insuffisant → allègement de charge (P.3D) sans altérer règles ni conséquences, jamais de recours distant ; si c'est impossible, le signaler. |
 | S.12 | Traçabilité | Registre des jalons, fiche de preuve par critère, journal des écarts, dossier de transmission mis à jour à chaque jalon. |
 | S.13 | Fin de préproduction | Réussite = tous les critères obligatoires de la tranche et des itérations prévues passés. Ne certifie ni le monde complet, ni le multigénérationnel, ni l'iPhone. Production et portage iPhone sont des décisions distinctes. |
 | S.14 | Prototypes existants | Archivés comme source d'idées, pas comme base. Rien n'est modifié ni supprimé. |
@@ -37,13 +46,13 @@ Complément au *Dossier maître de transmission* du 2026-11-05. Ce registre ne r
 
 | Palier | Contenu | Statut |
 |---|---|---|
-| 1 | Relevé du Mac, liste fermée de la tranche, fiches de critères avec seuils. **Sans code.** | **En cours** |
+| 1 | Relevé de l'iPhone, liste fermée de la tranche, fiches de critères avec seuils. **Sans code.** | **En cours** |
 | 2 | Socle minimal (S.7) | Non autorisé : attend le bilan du palier 1 |
 | 3 | Tranche verticale (S.6D) | Non autorisé |
 
 ## Réserves ouvertes
 
-1. Le Mac n'est pas relevé ; aucune capacité n'est prouvée (R.2A n'est pas une preuve).
+1. L'iPhone n'est pas relevé ; aucune capacité n'est prouvée. Faire tourner une IA locale de qualité suffisante sur un iPhone n'est pas démontré.
 2. Aucun modèle IA n'est choisi.
 3. Les seuils de performance ne sont pas fixés.
 4. Les cas limites du séquestre (Q-résolution 2) restent à confronter.

@@ -63,7 +63,7 @@ Légende des scénarios S.2D : **1** actions libres et PNJ · **2** missions et 
 
 ## 3. Fiches de critères
 
-### 3.1 Critères fonctionnels (seuils fixés maintenant, indépendants du Mac)
+### 3.1 Critères fonctionnels (seuils fixés maintenant, indépendants de la machine)
 
 | Code | Critère | Type | Seuil |
 |---|---|---|---|
@@ -76,7 +76,7 @@ Légende des scénarios S.2D : **1** actions libres et PNJ · **2** missions et 
 | F7 | Non-régression : tout cas passé reste passé au jalon suivant | Obligatoire | **100 %** |
 | F8 | Fidélité narrative jugée par le user (ton One Piece, clarté) | Informatif | Grille 1–5, notée au bilan |
 
-### 3.2 Critères de performance (seuils à fixer après le relevé du Mac, avant tout test)
+### 3.2 Critères de performance (seuils à fixer après le relevé de l'iPhone, avant tout test)
 
 | Code | Mesure | Type prévu |
 |---|---|---|
@@ -86,7 +86,8 @@ Légende des scénarios S.2D : **1** actions libres et PNJ · **2** missions et 
 | P4 | Mémoire vive maximale pendant la tranche | Obligatoire |
 | P5 | Stockage (modèles et sauvegardes) | Obligatoire |
 | P6 | Stabilité : session continue sans plantage | Obligatoire |
-| P7 | Échauffement et bruit du Mac | Informatif |
+| P7 | Échauffement de l'iPhone | Obligatoire |
+| P9 | Consommation de batterie pendant la tranche | Obligatoire |
 | P8 | Durée de sauvegarde et de reprise | Obligatoire |
 
 Règle S.8 : une fois ces seuils fixés, on ne les abaisse jamais après avoir lu des résultats.
@@ -95,23 +96,19 @@ Règle S.8 : une fois ces seuils fixés, on ne les abaisse jamais après avoir l
 
 Réussi selon preuve · échoué · non testé · bloqué · en attente d'arbitrage. Un critère obligatoire qui n'est pas « réussi » bloque le jalon.
 
-## 4. Relevé du Mac (à fournir par le user)
+## 4. Relevé de l'iPhone (à fournir par le user)
 
-Dans le Terminal du Mac, coller :
+Dans **Réglages → Général → Informations**, relever les éléments ci-dessous. La mémoire vive n'y est pas affichée : elle se déduit du modèle exact.
 
-```
-sw_vers; system_profiler SPHardwareDataType SPDisplaysDataType | grep -vE "Serial|UUID|Provisioning"; df -h /
-```
-
-Ce relevé décrit la machine ; ce n'est pas un test. Il ne prouve aucune capacité (R.2A).
+Ce relevé décrit l'appareil ; ce n'est pas un test. Il ne prouve aucune capacité.
 
 | Élément | Valeur |
 |---|---|
-| Modèle et puce | *à relever* |
-| Mémoire vive | *à relever* |
-| Version de macOS | *à relever* |
-| GPU / cœurs | *à relever* |
-| Stockage libre | *à relever* |
+| Nom du modèle (ex. « iPhone 15 Pro ») | *à relever* |
+| Version d'iOS | *à relever* |
+| Capacité de stockage | *à relever* |
+| Espace disponible | *à relever* |
+| Apple Intelligence disponible et activé (Réglages → Apple Intelligence et Siri) | *à relever* |
 
 ## 5. Bilan du palier 1
 
@@ -119,5 +116,5 @@ Ce relevé décrit la machine ; ce n'est pas un test. Il ne prouve aucune capaci
 |---|---|
 | Liste fermée de la tranche | Rédigée, en attente de ta relecture |
 | Critères fonctionnels et seuils | Rédigés |
-| Seuils de performance | En attente du relevé du Mac |
-| Relevé du Mac | En attente |
+| Seuils de performance | En attente du relevé de l'iPhone |
+| Relevé de l'iPhone | En attente |
