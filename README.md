@@ -1,3 +1,17 @@
+# One Piece Life · nouvelle application (`jeu/`)
+
+Simulation de vie dans le monde de One Piece, jouable sur iPhone : https://stephaneflamand973-dot.github.io/One-piece-Life-/
+
+- **Installation sur iPhone :** ouvrir le lien dans Safari → Partager → « Sur l'écran d'accueil ».
+- **Sans IA :** gratuit, hors ligne, boutons d'actions et saisie libre simple.
+- **IA facultative :** clé Gemini gratuite à saisir dans Menu → IA. L'IA interprète les phrases et raconte les scènes ; le moteur reste seul juge des résultats.
+- **Règles :** gains fixes à chaque entraînement, missions réussies ou échouées sans entre-deux, récompense mise de côté dès l'acceptation, guérison automatique avec le temps, réparation instantanée si les matériaux sont là, monde figé quand l'app est fermée, sauvegarde automatique vérifiée avec copie de secours.
+- **Contenu actuel :** naissance et vie à Fuchsia (île de Dawn), cinq habitants, travail, achats, mission du toit, voyou du port, navires marchands, vieillissement.
+
+L'ancien prototype reste disponible dans `foundation/`. La conception figure dans `conception/`, le banc de mesure IA dans `mesure/`.
+
+---
+
 # One Piece Life V0.6.0 · Actions répétables et rendements décroissants
 
 La simulation conserve la navigation **Grand Line Premium** et son moteur, mais retire les **quotas annuels artificiels** : les actions restent déclenchables plusieurs fois tant que leurs prérequis de jeu sont remplis. Seul **+ Âge** fait avancer une année.

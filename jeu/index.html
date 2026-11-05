@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OP Life">
+<meta name="theme-color" content="#0f2a44">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icone.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icone-180.png">
+<title>One Piece Life</title>
+<style>
+  :root {
+    --fond: #f4efe4; --carte: #fffaf0; --texte: #1e2428; --discret: #6a6f73; --ligne: #e2d9c6;
+    --accent: #0f4c81; --accent-txt: #ffffff; --or: #b8860b; --ok: #2e7d4f; --ko: #b3361e; --ia: #6b3fa0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --fond: #0e1720; --carte: #16222e; --texte: #eef1f3; --discret: #9aa7b2;
+      --ligne: #26384a; --accent: #4f9be0; --accent-txt: #08131d; --or: #e3b341; --ok: #63c58c; --ko: #ff8a73; --ia: #b28cf0; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--fond); color: var(--texte); }
+  body { font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-text-size-adjust: 100%; }
+  #app { max-width: 640px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column;
+    padding: env(safe-area-inset-top) 16px calc(72px + env(safe-area-inset-bottom)); }
+  h1 { font-size: 1.8rem; margin: 24px 0 4px; color: var(--accent); }
+  h2 { font-size: 1.05rem; margin: 0 0 8px; }
+  p { margin: 6px 0; }
+  .titre p { color: var(--discret); margin-top: 0; }
+  .discret { color: var(--discret); font-size: .9rem; }
+  .carte { background: var(--carte); border: 1px solid var(--ligne); border-radius: 16px; padding: 14px; margin: 12px 0; }
+  .carte.compacte { padding: 10px 12px; }
+  label { display: block; font-weight: 600; font-size: .92rem; margin: 10px 0 4px; }
+  label.case { display: flex; gap: 8px; align-items: center; font-weight: 500; }
+  input, select { width: 100%; font: inherit; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--ligne);
+    background: var(--fond); color: var(--texte); }
+  input[type=checkbox] { width: auto; }
+  button { font: inherit; font-size: .95rem; font-weight: 600; border-radius: 12px; padding: 10px 12px; cursor: pointer;
+    border: 1px solid var(--accent); background: var(--accent); color: var(--accent-txt); }
+  button.secondaire { background: transparent; color: var(--accent); }
+  button.principal { width: 100%; margin-top: 12px; padding: 13px; }
+  button.icone { background: transparent; color: var(--discret); border-color: var(--ligne); padding: 8px 12px; }
+  .ligne-vie { display: flex; gap: 8px; margin: 6px 0; } .ligne-vie button:first-child { flex: 1; text-align: left; }
+  .statut { position: sticky; top: 0; z-index: 2; background: var(--fond); padding: 10px 0 8px; border-bottom: 1px solid var(--ligne); }
+  .jauges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; font-size: .85rem; }
+  .jauges span { background: var(--carte); border: 1px solid var(--ligne); border-radius: 999px; padding: 2px 9px; }
+  .jauges .ia { color: var(--ia); border-color: var(--ia); }
+  .recit { max-height: 46dvh; overflow-y: auto; padding: 8px 2px; }
+  .recit p, .carte p[class^="e-"] { border-left: 3px solid transparent; padding-left: 8px; }
+  .e-action, .e-naissance { border-color: var(--accent) !important; }
+  .e-refus { color: var(--ko); border-color: var(--ko) !important; }
+  .e-monde, .e-ellipse, .e-age { color: var(--discret); font-style: italic; }
+  .e-mission { border-color: var(--or) !important; font-weight: 600; }
+  .e-sante { border-color: var(--ko) !important; }
+  .e-narration { border-color: var(--ia) !important; }
+  .e-parole { color: var(--discret); text-align: right; border: 0 !important; }
+  .e-attente { color: var(--ia); }
+  .boutons, .lieux { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .lieux button, .temps button { font-size: .85rem; padding: 7px 10px; }
+  .saisie { display: flex; gap: 8px; margin: 4px 0 12px; }
+  .saisie button { width: auto; margin: 0; padding: 0 16px; }
+  .onglets { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; display: flex; background: var(--carte);
+    border-top: 1px solid var(--ligne); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); justify-content: center; }
+  .onglets button { flex: 1; max-width: 160px; background: transparent; border: 0; color: var(--discret); }
+  .onglets button.actif { color: var(--accent); }
+  .stat { display: grid; grid-template-columns: 1fr 90px 36px; align-items: center; gap: 8px; margin: 6px 0; }
+  .stat b { text-align: right; }
+  .barre { height: 8px; background: var(--ligne); border-radius: 999px; overflow: hidden; }
+  .barre i { display: block; height: 100%; background: var(--accent); }
+  .mission { border-top: 1px solid var(--ligne); padding: 8px 0; }
+  .m-active { color: var(--or); } .m-réussie { color: var(--ok); } .m-échouée { color: var(--ko); }
+  .toast { position: fixed; left: 16px; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom)); z-index: 9;
+    background: var(--texte); color: var(--fond); padding: 12px 14px; border-radius: 12px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<noscript>Active JavaScript pour jouer.</noscript>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

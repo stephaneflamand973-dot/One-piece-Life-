@@ -71,3 +71,14 @@ Complément au *Dossier maître de transmission* du 2026-11-05. Ce registre ne r
 Le bilan automatique de l'export comptait comme « réussis » des cas vides (T24) et calculait P1/P2 sur trop peu de réponses : ces statuts sont **invalides**. Le banc est corrigé.
 
 **Constat :** les deux candidats mesurés, dont le plus léger, échouent à P4 dans Safari. Ce n'est pas une démonstration d'infaisabilité de l'IA locale sur iPhone ; le volet natif n'est pas mesuré.
+
+## Changement de cap (décision du user, 2026-11-05)
+
+Le user demande « une application hébergée sur une plateforme gratuite ». Il n'a pas répondu à la question sur l'IA et la base de départ ; Claude a choisi :
+
+| Sujet | Choix |
+|---|---|
+| Hébergement | GitHub Pages (gratuit, déjà en place), app installable sur l'écran d'accueil |
+| Base | Nouvelle application `jeu/`, respectant les invariants D.2A, L.3A, L.4A, K.2A, I.5A, 01.6A |
+| IA | Le jeu fonctionne sans IA et hors ligne. IA en ligne **facultative** (Gemini, clé gratuite du joueur) : **P.2A n'est plus garanti quand elle est activée.** L'IA n'a aucune autorité sur les faits. |
+| Processus | La démarche par paliers et questions est suspendue : réalisation directe. |
