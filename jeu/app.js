@@ -106,7 +106,7 @@ function rendreStatut() {
   const sante = s.prison ? "En prison" : s.sante.blessures.length ? `Blessé` : "En forme";
   $("#statut").innerHTML = `
     <div><strong>${esc(s.perso.prenom)}</strong> · ${age(s)} an${age(s) > 1 ? "s" : ""}</div>
-    <div class="discret">Année ${annee(s)}, jour ${jourDansAnnee(s)} · ${Math.floor(s.heure)}h · ${ILES[s.ile].nom}${ILES[s.ile].grandLine ? " (Grand Line)" : ""} · ${LIEUX[s.lieu].court}</div>
+    <div class="discret">Année ${annee(s)}, jour ${jourDansAnnee(s)} · ${Math.floor(s.heure)}h · ${ILES[s.ile].nom}${ILES[s.ile].nouveauMonde ? " (Nouveau Monde)" : ILES[s.ile].grandLine ? " (Grand Line)" : ""} · ${LIEUX[s.lieu].court}</div>
     <div class="jauges"><span>${s.berrys} ฿</span><span>Fatigue ${s.fatigue}</span><span>${sante}</span>${s.prime ? `<span class="prime">Prime ${s.prime.toLocaleString("fr-FR")} ฿</span>` : ""}${iaActive() ? `<span class="ia">IA</span>` : ""}</div>`;
 }
 

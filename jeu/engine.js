@@ -18,6 +18,9 @@ export const ILES = {
   little_garden: { nom: "Little Garden", a: "à Little Garden", desc: "île préhistorique de Grand Line, couverte de jungle et de bêtes géantes", port: "rivage_lg", auberge: "rivage_lg", grandLine: true, danger: 2 },
   water_seven: { nom: "Water Seven", a: "à Water Seven", desc: "cité des eaux de Grand Line, capitale des charpentiers navals", port: "quai_w7", auberge: "bar_w7", grandLine: true, danger: 2 },
   sabaody: { nom: "l'archipel Sabaody", a: "à l'archipel Sabaody", desc: "archipel de mangroves géantes, au bout de la première moitié de Grand Line", port: "mangroves", auberge: "bar_sabaody", grandLine: true, danger: 3 },
+  hommes_poissons: { nom: "l'île des Hommes-Poissons", a: "à l'île des Hommes-Poissons", desc: "royaume sous-marin enveloppé d'une bulle géante, à 10 000 mètres sous la surface", port: "port_hp", auberge: "port_hp", grandLine: true, danger: 3 },
+  dressrosa: { nom: "Dressrosa", a: "à Dressrosa", desc: "royaume de l'amour et de la passion, dans le Nouveau Monde", port: "port_dr", auberge: "ville_dr", grandLine: true, nouveauMonde: true, danger: 5 },
+  wano: { nom: "Wano", a: "à Wano", desc: "pays fermé du Nouveau Monde, terre des samouraïs", port: "cote_wano", auberge: "village_wano", grandLine: true, nouveauMonde: true, danger: 6 },
 };
 // Durée des traversées en jours (prix : 20 Berrys par jour de mer).
 export const ROUTES = {
@@ -29,7 +32,10 @@ export const ROUTES = {
   cap: { little_garden: 4, loguetown: 7 },
   little_garden: { cap: 4, water_seven: 6, loguetown: 7 },
   water_seven: { little_garden: 6, sabaody: 5, loguetown: 7 },
-  sabaody: { water_seven: 5, loguetown: 7 },
+  sabaody: { water_seven: 5, loguetown: 7, hommes_poissons: 3 },
+  hommes_poissons: { sabaody: 3, dressrosa: 6 },
+  dressrosa: { hommes_poissons: 6, wano: 7 },
+  wano: { dressrosa: 7 },
 };
 export const estGrandLine = ile => !!ILES[ile]?.grandLine;
 export const PRIX_JOUR_MER = 20;
@@ -63,6 +69,14 @@ export const LIEUX = {
   mangroves: { ile: "sabaody", nom: "les mangroves du port", court: "Mangroves", a: "dans les mangroves du port" },
   enrobage: { ile: "sabaody", nom: "l'atelier d'enrobage", court: "Enrobage", a: "à l'atelier d'enrobage" },
   bar_sabaody: { ile: "sabaody", nom: "un bar de l'archipel", court: "Bar", a: "au bar de l'archipel" },
+  port_hp: { ile: "hommes_poissons", nom: "le port de bulles", court: "Port", a: "au port de bulles" },
+  place_hp: { ile: "hommes_poissons", nom: "la grande place du royaume", court: "Place", a: "sur la grande place du royaume" },
+  port_dr: { ile: "dressrosa", nom: "le port de Dressrosa", court: "Port", a: "au port de Dressrosa" },
+  ville_dr: { ile: "dressrosa", nom: "les rues fleuries", court: "Ville", a: "dans les rues fleuries" },
+  colisee: { ile: "dressrosa", nom: "le Colisée", court: "Colisée", a: "au Colisée" },
+  cote_wano: { ile: "wano", nom: "la côte escarpée", court: "Côte", a: "sur la côte escarpée" },
+  village_wano: { ile: "wano", nom: "un village de rizières", court: "Village", a: "au village" },
+  dojo: { ile: "wano", nom: "le dojo", court: "Dojo", a: "au dojo" },
 };
 export const lieuxDe = ile => Object.keys(LIEUX).filter(k => LIEUX[k].ile === ile);
 
@@ -98,6 +112,7 @@ export const OBJETS = {
   barque: { nom: "barque", pluriel: "barques", prix: 600, vendeur: "tomas", navire: true },
   caravelle: { nom: "caravelle", pluriel: "caravelles", prix: 4000, vendeur: "barro", navire: true },
   logpose: { nom: "Log Pose", pluriel: "Log Pose", prix: 500, vendeur: "oswin" },
+  logpose_nm: { nom: "Log Pose du Nouveau Monde", pluriel: "Log Pose du Nouveau Monde", prix: 2000, vendeur: "coral" },
 };
 
 // Gains fixes prédéfinis (D.2A) : jamais modulés.
@@ -117,8 +132,9 @@ export const SEUIL_EVEIL = 8;
 export const PRIX_LECON_HAKI = 50;
 
 export const NAVIRES = { barque: { nom: "barque de pêche aménagée", capacite: 3 }, caravelle: { nom: "caravelle", capacite: 8 } };
-export const TAVERNES = ["bar", "taverne_shells", "salle_baratie", "auberge_logue", "bar_w7", "bar_sabaody"];
-export const EXPLORABLES = ["colline", "port", "port_shells", "quais_logue", "echafaud", "pont_baratie", "phare", "jungle", "quai_w7", "mangroves"];
+export const TAVERNES = ["bar", "taverne_shells", "salle_baratie", "auberge_logue", "bar_w7", "bar_sabaody", "place_hp", "ville_dr", "village_wano"];
+export const EXPLORABLES = ["colline", "port", "port_shells", "quais_logue", "echafaud", "pont_baratie", "phare", "jungle", "quai_w7", "mangroves", "place_hp", "ville_dr", "cote_wano"];
+export const PRIX_LECON_SABRE = 200;
 export const PRIX_ENROBAGE = 3000;
 
 export const GAINS = {
@@ -141,6 +157,10 @@ const PNJ_INITIAUX = () => ({
   oswin: { nom: "Oswin", role: "gardien du phare du cap", genre: "g", lieu: "phare", relation: 0, fonds: 1000, souvenirs: [], stock: { logpose: 5 } },
   bolt: { nom: "Bolt", role: "maître charpentier de Water Seven", genre: "g", lieu: "chantier", relation: 0, fonds: 30000, souvenirs: [] },
   tess: { nom: "Tess", role: "serveuse au bord des canaux", genre: "f", lieu: "bar_w7", relation: 0, fonds: 400, souvenirs: [], naissance: -365, romance: true },
+  coral: { nom: "Coral", role: "marchand homme-poisson", genre: "g", lieu: "port_hp", relation: 0, fonds: 8000, souvenirs: [], stock: { logpose_nm: 3 } },
+  maela: { nom: "Maela", role: "sirène du royaume", genre: "f", lieu: "place_hp", relation: 0, fonds: 500, souvenirs: [], naissance: -730, romance: true },
+  rocco: { nom: "Rocco", role: "organisateur des combats du Colisée", genre: "g", lieu: "colisee", relation: 0, fonds: 80000, souvenirs: [] },
+  soen: { nom: "Sōen", role: "vieux maître samouraï", genre: "g", lieu: "dojo", relation: 0, fonds: 1000, souvenirs: [], naissance: -55 * 365 },
   hal: { nom: "Hal", role: "enrobeur de navires", genre: "g", lieu: "enrobage", relation: 0, fonds: 5000, souvenirs: [] },
   garo: { nom: "Garo", role: "vieux marin retraité aux yeux perçants", genre: "g", lieu: "auberge_logue", relation: 0, fonds: 300, souvenirs: [], naissance: -60 * 365 },
   lise: { nom: "Lise", role: "bijoutière du grand marché", genre: "f", lieu: "marche_logue", relation: 0, fonds: 1500, souvenirs: [], naissance: -1095, romance: true, stock: { bague: 5 } },
@@ -166,7 +186,7 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
     stats: { force: 1, agilite: 1, endurance: 1, intelligence: 1, charisme: 1 },
     competences: { charpenterie: 0, peche: 0, combat: 0, cuisine: 0 },
     potentiel: {},
-    berrys: 0, inventaire: { planche: 0, clou: 0, poisson: 0, canne: 0, sabre: 0, bague: 0, logpose: 0, fruits: [] },
+    berrys: 0, inventaire: { planche: 0, clou: 0, poisson: 0, canne: 0, sabre: 0, bague: 0, logpose: 0, logpose_nm: 0, fruits: [] },
     sante: { blessures: [], sequelles: [] },
     lieu: "maison", ile: "fuchsia",
     pnj: PNJ_INITIAUX(),
@@ -227,7 +247,7 @@ export function migrer(s) {
   s.inventaire.fruits ??= []; s.fruit ??= null; s.navire ??= null; s.prime ??= 0; s.infamie ??= 0; s.prison ??= null;
   s.monde.fruitsTrouves ??= [];
   s.haki ??= { observation: 0, armement: 0, rois: 0, eveil: { observation: false, armement: false, rois: false }, progres: { observation: 0, armement: 0 }, roisInne: rand(s) < 0.03 };
-  s.inventaire.logpose ??= 0;
+  s.inventaire.logpose ??= 0; s.inventaire.logpose_nm ??= 0;
   s.pnj.tomas.stock.barque ??= 2; if (s.pnj.barro) s.pnj.barro.stock.caravelle ??= 1;
   s.version = VERSION;
   return s;
@@ -429,6 +449,8 @@ export function actionsDisponibles(s) {
     if (s.lieu === ILES[s.ile].port) a.push({ id: "quitter", label: "Renoncer à la piraterie" });
   }
   if (s.lieu === "chantier" && s.navire && s.navire.coque < 100) a.push({ id: "radoub", label: `Faire réparer le navire (${(100 - s.navire.coque) * 20} B)` });
+  if (s.lieu === "colisee" && ag >= 18) a.push({ id: "colisee", label: "Combattre au Colisée (3 000 B si victoire)" });
+  if (ici.includes("soen") && s.pnj.soen.relation >= 20) a.push({ id: "sabre", label: `Leçon de sabre avec Sōen (${PRIX_LECON_SABRE} B)` });
   if (s.lieu === "enrobage" && s.navire && !s.navire.enrobe) a.push({ id: "enrober", label: `Faire enrober le navire (${PRIX_ENROBAGE} B, 3 jours)` });
   if (s.lieu === ILES[s.ile].port && ag >= 14) {
     for (const [dest, j] of Object.entries(ROUTES[s.ile])) {
@@ -674,6 +696,8 @@ const ACTIONS = {
     if ((versGL || depuisGL) && !s.navire) return res(false, "Aucun navire de ligne ne va là-bas : il te faut ton propre navire.");
     if (versGL && !depuisGL && age(s) < 17) return res(false, "Reverse Mountain, à ton âge ? Attends au moins tes 17 ans.");
     if (depuisGL && versGL && s.inventaire.logpose < 1) return res(false, "Sans Log Pose, impossible de naviguer sur Grand Line : les boussoles y sont folles. Le gardien du phare en vend.");
+    if (dest === "hommes_poissons" && !s.navire.enrobe) return res(false, "Pour plonger à 10 000 mètres, le navire doit être enrobé (atelier de Hal, à Sabaody).");
+    if ((ILES[dest].nouveauMonde || ILES[s.ile].nouveauMonde) && s.inventaire.logpose_nm < 1) return res(false, "Dans le Nouveau Monde, un Log Pose ordinaire s'affole : il faut le Log Pose à trois aiguilles. Coral en vend, à l'île des Hommes-Poissons.");
     const jours = ROUTES[s.ile][dest];
     const prix = s.navire ? 0 : jours * PRIX_JOUR_MER;
     if (s.berrys < prix) return res(false, `La traversée coûte ${prix} Berrys ; tu en as ${s.berrys}.`);
@@ -688,6 +712,15 @@ const ACTIONS = {
       if (s.navire.type === "caravelle") risque -= 0.05;
       if (rand(s) < risque) return naufrage(s, calm ? "dans la Calm Belt, renversé par un roi des mers" : "contre les parois de Reverse Mountain", calm ? "loguetown" : "cap");
       textes.push(calm ? "Vous traversez la Calm Belt sans vent, en retenant votre souffle au-dessus des rois des mers endormis." : "Le courant vous aspire vers le sommet de Reverse Mountain, puis vous dévalez de l'autre côté jusqu'à Grand Line !");
+    }
+    // Descente sous-marine et entrée de Wano : deux passages redoutables.
+    if (dest === "hommes_poissons" && s.ile === "sabaody") {
+      if (rand(s) < (aRole(s, "navigateur") ? 0.08 : 0.15)) return naufrage(s, "dans les profondeurs, la bulle crevée par un courant descendant", "sabaody");
+      textes.push("La bulle plonge dans les abysses : lumières des poissons des profondeurs, ombres de rois des mers, puis la lueur d'un royaume sous-marin.");
+    }
+    if (dest === "wano") {
+      if (rand(s) < (aRole(s, "navigateur") ? 0.18 : 0.3)) return naufrage(s, "au pied des cascades qui défendent Wano", "dressrosa");
+      textes.push("Une carpe géante, un courant furieux, puis l'ascension d'une cascade vertigineuse : Wano s'ouvre devant vous.");
     }
     // Les jours de mer passent réellement : le monde continue, les blessures guérissent.
     for (let j = 0; j < jours; j++) {
@@ -728,6 +761,49 @@ const ACTIONS = {
     s.navire.coque = 100;
     return res(true, `Les charpentiers de Bolt remettent « ${s.navire.nom} » à neuf pour ${prix} Berrys. Coque : 100/100.`);
   },
+  colisee(s) {
+    if (s.lieu !== "colisee") return res(false, "Les combats ont lieu au Colisée de Dressrosa.");
+    const e = activite(s, { heures: 6, fatigue: 50, ageMin: 18 });
+    if (e) return res(false, e);
+    if (blessureActive(s)) return res(false, "Rocco : « Pas de blessés dans l'arène. Reviens guéri. »");
+    consommer(s, 6, 50);
+    const adversaire = 45 + rand(s) * 35;
+    if (puissance(s) + rand(s) * 25 >= adversaire) {
+      const prix = 3000;
+      transferer(s, "rocco", "joueur", prix);
+      s.competences.combat += GAINS.combat;
+      return res(true, `Sous les cris de la foule, tu remportes ton bloc ! Rocco te remet ${prix} Berrys. Combat +${GAINS.combat}.`);
+    }
+    blesser(s, 2);
+    if (rand(s) < 0.05) {
+      s.perso.vivant = false;
+      noter(s, `${s.perso.prenom} tombe dans l'arène du Colisée.`, "mort");
+      return res(true, "Ton adversaire était bien trop fort. Tu tombes dans l'arène, sous les yeux de la foule. Ta vie s'achève à Dressrosa.");
+    }
+    return res(true, `Tu es mis hors combat et emporté sur une civière.${eveilDanger(s)}`);
+  },
+  sabre(s) {
+    if (!pnjIci(s).includes("soen")) return res(false, "Seul Sōen, au dojo de Wano, enseigne cette voie.");
+    if (s.pnj.soen.relation < 20) return res(false, "Sōen : « Un étranger ? Montre d'abord que tu es digne. »");
+    if (s.berrys < PRIX_LECON_SABRE) return res(false, `Une leçon coûte ${PRIX_LECON_SABRE} Berrys.`);
+    const e = activite(s, { heures: 4, fatigue: 35, ageMin: 14 });
+    if (e) return res(false, e);
+    consommer(s, 4, 35);
+    transferer(s, "joueur", "soen", PRIX_LECON_SABRE);
+    s.competences.combat += 1;
+    // La voie du sabre de Wano mène au Haki de l'armement (progression fixe, D.2A).
+    let txt = `Des heures de katas sous le regard de Sōen. Combat +1.`;
+    if (s.haki.eveil.armement) { s.haki.armement += 1; txt += " Haki de l'armement +1."; }
+    else {
+      s.haki.progres.armement += 1;
+      if (s.haki.progres.armement >= SEUIL_EVEIL) {
+        s.haki.eveil.armement = true; s.haki.armement = Math.max(1, s.haki.armement);
+        noter(s, "Éveil du Haki de l'armement.", "mission");
+        txt += " Ta lame se couvre d'un voile noir : le Haki de l'armement s'éveille en toi !";
+      } else txt += ` Éveil de l'armement : ${s.haki.progres.armement}/${SEUIL_EVEIL}.`;
+    }
+    return res(true, txt);
+  },
   enrober(s) {
     if (s.lieu !== "enrobage") return res(false, "L'enrobage se fait à l'atelier de Hal, à Sabaody.");
     if (!s.navire) return res(false, "Tu n'as pas de navire.");
@@ -736,7 +812,7 @@ const ACTIONS = {
     transferer(s, "joueur", "hal", PRIX_ENROBAGE);
     avancer(s, 3, { sansInterruption: true });
     s.navire.enrobe = true;
-    return res(true, `Pendant trois jours, Hal enveloppe « ${s.navire.nom} » d'une immense bulle de résine. Ton navire pourrait désormais plonger sous la Red Line, vers l'île des Hommes-Poissons et le Nouveau Monde… Cette route n'est pas encore ouverte dans le jeu.`);
+    return res(true, `Pendant trois jours, Hal enveloppe « ${s.navire.nom} » d'une immense bulle de résine. Ton navire peut désormais plonger sous la Red Line, vers l'île des Hommes-Poissons et le Nouveau Monde.`);
   },
   pirate(s) {
     if (s.carriere?.type === "marine") return res(false, "Quitte d'abord la Marine.");
@@ -1162,6 +1238,10 @@ function repliquePnj(s, id, dernier) {
     oswin: ["« Sans Log Pose, Grand Line te dévorera. Les boussoles n'y servent à rien. »", "« Je garde ce phare depuis plus longtemps que je ne m'en souviens. »"],
     bolt: [s.navire ? `« Ta coque est à ${s.navire.coque} sur 100. ${s.navire.coque < 60 ? "Elle ne tiendra pas longtemps." : "Elle tient encore."} »` : "« Un navire, c'est une vie. Traite-le bien. »", "« Si tu sais tenir un rabot, il y a du travail au chantier. »"],
     tess: ["« Les canaux sont plus beaux au coucher du soleil. »", "« Tu viens d'East Blue ? Tu as dû traverser Reverse Mountain ! »"],
+    coral: ["« Bienvenue sous la mer, humain ! Ici, tout le monde n'aime pas les gens de la surface. »", `« Pour le Nouveau Monde, il te faut mon Log Pose à trois aiguilles : ${OBJETS.logpose_nm.prix} Berrys. »`],
+    maela: ["« Tu viens de la surface ? Raconte-moi le soleil ! »", "« Ici, la lumière vient d'un arbre géant, à la surface. »"],
+    rocco: ["« Le Colisée accueille les plus forts du Nouveau Monde. Pas de règles, ou presque. »", "« La victoire paie bien. La défaite, elle, se paie parfois cher. »"],
+    soen: [s.pnj.soen.relation < 20 ? "« Wano ne s'ouvre pas aux étrangers. Pourquoi es-tu ici ? »" : "« Un sabre n'est rien sans la volonté de celui qui le tient. »", "« Le ciel de Wano a vu bien des guerres. »"],
     hal: [`« Pour plonger sous la Red Line, il faut un enrobage. ${PRIX_ENROBAGE} Berrys. »`, "« Ici, le monde se divise : ceux qui continuent, et ceux qui renoncent. »"],
     garo: [s.pnj.garo.relation < 30 ? "« Hmph. Encore un gamin qui rêve de Grand Line ? »" : "« Il existe une force que chacun porte en soi. Les marins de Grand Line l'appellent le Haki. »",
       age(s) >= 15 && s.pnj.garo.relation >= 30 ? "« Si tu veux, je peux t'apprendre à l'éveiller. Ça ne sera pas gratuit, et ça fera mal. »" : "« J'ai navigué loin, autrefois. Très loin. »"],
@@ -1186,13 +1266,16 @@ export function interpreterTexte(s, texte) {
     port_shells: ["port"], base: ["base", "marine", "caserne"], taverne_shells: ["taverne", "mira"],
     phare: ["phare"], rivage_lg: ["rivage"], jungle: ["jungle"], quai_w7: ["quai"], chantier: ["chantier"], bar_w7: ["bar"],
     mangroves: ["mangrove", "port"], enrobage: ["enrobage"], bar_sabaody: ["bar"],
+    port_hp: ["port"], place_hp: ["place"], port_dr: ["port"], ville_dr: ["ville", "rue"], colisee: ["colisee", "arene"],
+    cote_wano: ["cote", "port"], village_wano: ["village"], dojo: ["dojo", "soen"],
     pont_baratie: ["pont"], salle_baratie: ["salle", "restaurant"], cuisine_baratie: ["cuisine"],
     quais_logue: ["quai", "port", "dock"], marche_logue: ["marche"], armurerie: ["armurerie", "arme"], echafaud: ["echafaud"], auberge_logue: ["auberge"] };
   const lieuMots = Object.fromEntries(Object.entries(lieuMotsTous).filter(([k]) => LIEUX[k].ile === s.ile));
   const ileMots = { fuchsia: ["fuchsia", "dawn"], shells: ["shells"], baratie: ["baratie"], loguetown: ["loguetown", "logue", "east blue", "calm belt"],
-    cap: ["cap", "reverse", "grand line"], little_garden: ["little garden"], water_seven: ["water seven", "water 7"], sabaody: ["sabaody"] };
+    cap: ["cap", "reverse", "grand line"], little_garden: ["little garden"], water_seven: ["water seven", "water 7"], sabaody: ["sabaody"],
+    hommes_poissons: ["hommes-poissons", "hommes poissons", "sous-marin", "sous la mer"], dressrosa: ["dressrosa"], wano: ["wano"] };
   const pnjMots = { makino: ["makino"], woop: ["maire", "woop"], tomas: ["tomas", "charpentier"], bern: ["bern", "pecheur"], ilda: ["ilda", "marchande"],
-    sacha: ["sacha"], rivo: ["rivo", "sergent", "recruteur"], mira: ["mira"], gallo: ["gallo", "chef"], nino: ["nino", "serveur"], barro: ["barro", "armurier"], lise: ["lise", "bijout"], garo: ["garo", "vieux marin"], oswin: ["oswin", "gardien"], bolt: ["bolt"], tess: ["tess"], hal: ["hal"] };
+    sacha: ["sacha"], rivo: ["rivo", "sergent", "recruteur"], mira: ["mira"], gallo: ["gallo", "chef"], nino: ["nino", "serveur"], barro: ["barro", "armurier"], lise: ["lise", "bijout"], garo: ["garo", "vieux marin"], oswin: ["oswin", "gardien"], bolt: ["bolt"], tess: ["tess"], hal: ["hal"], coral: ["coral"], maela: ["maela", "sirene"], rocco: ["rocco"], soen: ["soen", "maitre"] };
   const morceaux = t.split(/,| puis | et ensuite | ensuite |;| et /);
   for (const m of morceaux) {
     if (/(embarque|navigue|voyage|pars pour|part pour|bateau|navire)/.test(m)) {
@@ -1202,6 +1285,8 @@ export function interpreterTexte(s, texte) {
     if (/(engage|enrole)/.test(m)) { actions.push({ id: "engager" }); continue; }
     if (/(radoub|repare.*(navire|bateau|coque))/.test(m)) { actions.push({ id: "radoub" }); continue; }
     if (/enrob/.test(m)) { actions.push({ id: "enrober" }); continue; }
+    if (/(colisee|arene)/.test(m)) { actions.push({ id: "colisee" }); continue; }
+    if (/(lecon de sabre|katana|kata)/.test(m)) { actions.push({ id: "sabre" }); continue; }
     if (/(pavillon|devenir pirate|deviens pirate)/.test(m)) { actions.push({ id: "pirate" }); continue; }
     if (/recrut/.test(m)) { actions.push({ id: "recruter" }); continue; }
     if (/(abordage|attaque.*navire|pille)/.test(m)) { actions.push({ id: "attaquer" }); continue; }
@@ -1228,7 +1313,7 @@ export function interpreterTexte(s, texte) {
     if (/peche|pecher/.test(m)) { actions.push({ id: "pecher" }); continue; }
     if (/(repare|reparer)/.test(m)) { actions.push({ id: "reparer" }); continue; }
     if (/(achete|acheter)/.test(m)) {
-      const o = /planche/.test(m) ? "planche" : /clou/.test(m) ? "clou" : /canne/.test(m) ? "canne" : /sabre/.test(m) ? "sabre" : /bague/.test(m) ? "bague" : /barque/.test(m) ? "barque" : /caravelle/.test(m) ? "caravelle" : /log/.test(m) ? "logpose" : null;
+      const o = /planche/.test(m) ? "planche" : /clou/.test(m) ? "clou" : /canne/.test(m) ? "canne" : /sabre/.test(m) ? "sabre" : /bague/.test(m) ? "bague" : /barque/.test(m) ? "barque" : /caravelle/.test(m) ? "caravelle" : /log.*(nouveau|trois|3)/.test(m) ? "logpose_nm" : /log/.test(m) ? "logpose" : null;
       if (o) { const n = parseInt(m.match(/\d+/)?.[0] || "1", 10); for (let i = 0; i < Math.min(n, 20); i++) actions.push({ id: "acheter", cible: o }); continue; }
     }
     if (/(bat|combat|affronte|frappe)/.test(m)) { actions.push({ id: "combattre" }); continue; }

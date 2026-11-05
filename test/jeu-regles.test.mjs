@@ -494,3 +494,48 @@ test("Sabaody : l'enrobage coûte 3 jours et 3000 Berrys", () => {
   assert.equal(s.jour, jour + 3);
   assert.equal(s.berrys, 2000);
 });
+
+// ---------- Version 6 : Nouveau Monde ----------
+
+const aSabaody = (seed = 7) => { const s = aLoguetown(seed); s.ile = "sabaody"; s.lieu = "mangroves"; s.inventaire.logpose = 1; s.berrys = 20000; return s; };
+
+test("Nouveau Monde : la descente exige un navire enrobé", () => {
+  const s = aSabaody();
+  assert.equal(E.agir(s, { id: "voyager", cible: "hommes_poissons" }).ok, false);
+  let arrive = false;
+  for (let seed = 1; seed < 20 && !arrive; seed++) {
+    const t = aSabaody(seed); t.navire.enrobe = true;
+    E.agir(t, { id: "voyager", cible: "hommes_poissons" });
+    arrive = t.ile === "hommes_poissons";
+  }
+  assert.ok(arrive);
+});
+
+test("Nouveau Monde : le Log Pose à trois aiguilles est obligatoire", () => {
+  const s = aSabaody(); s.ile = "hommes_poissons"; s.lieu = "port_hp";
+  assert.equal(E.agir(s, { id: "voyager", cible: "dressrosa" }).ok, false);
+  assert.ok(E.agir(s, { id: "acheter", cible: "logpose_nm" }).ok);
+  assert.equal(s.inventaire.logpose_nm, 1);
+  const r = E.agir(s, { id: "voyager", cible: "dressrosa" });
+  assert.ok(r.ok);
+});
+
+test("Colisée : la victoire paie 3000 Berrys sans création d'argent", () => {
+  let gagne = false;
+  for (let seed = 1; seed < 40 && !gagne; seed++) {
+    const s = aSabaody(seed); s.ile = "dressrosa"; s.lieu = "colisee"; s.stats.force = 40; s.stats.agilite = 40;
+    const masse = E.masseMonetaire(s); const b = s.berrys;
+    E.agir(s, { id: "colisee" });
+    if (s.berrys === b + 3000) { gagne = true; assert.equal(E.masseMonetaire(s), masse); }
+  }
+  assert.ok(gagne);
+});
+
+test("Wano : les leçons de Sōen mènent au Haki de l'armement à pas fixes", () => {
+  const s = aSabaody(); s.ile = "wano"; s.lieu = "dojo";
+  assert.equal(E.agir(s, { id: "sabre" }).ok, false);
+  s.pnj.soen.relation = 20;
+  for (let i = 1; i <= E.SEUIL_EVEIL; i++) { s.heure = 8; s.fatigue = 0; assert.ok(E.agir(s, { id: "sabre" }).ok); }
+  assert.equal(s.haki.eveil.armement, true);
+  assert.equal(s.competences.combat, E.SEUIL_EVEIL);
+});
