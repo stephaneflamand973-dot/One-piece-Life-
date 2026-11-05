@@ -5,9 +5,10 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { initialiserChronologie, avancerChronologie, presentSelonCanon } from "./chronologie.js";
 import { initialiserEvenements, declencherEvenement, choixEvenement, choisir, accomplir, verifierAmbition } from "./evenements.js";
 
-export const VERSION = 4;
+export const VERSION = 5;
 export const JOUR_HEURES = 16; // heures d'éveil par jour
 export const FATIGUE_MAX_ACTIVITE = 80;
 
@@ -181,7 +182,7 @@ const pick = (s, arr) => arr[Math.floor(rand(s) * arr.length)];
 
 // ---------- Création ----------
 
-export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, aleatoire = true } = {}) {
+export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, aleatoire = true, ere = "avant_luffy" } = {}) {
   const s = {
     version: VERSION, id: `monde-${seed.toString(36)}`, rng: seed >>> 0, cree: seed,
     jour: 0, heure: 8, fatigue: 0,
@@ -207,6 +208,7 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
   if (aleatoire) for (const k of Object.keys(s.stats)) s.stats[k] += Math.floor(rand(s) * 2);
   initialiserMonde(s);
   initialiserEvenements(s);
+  initialiserChronologie(s, ere);
   noter(s, `Tu nais à Fuchsia, un petit village paisible de l'île de Dawn, sur East Blue. Tes parents, ${s.pnj.mere.nom} et ${s.pnj.pere.nom}, t'appellent ${s.perso.prenom}.`, "naissance");
   return s;
 }
@@ -230,7 +232,8 @@ export const blessureActive = s => s.sante.blessures.length > 0;
 const blessureGrave = s => s.sante.blessures.some(b => b.gravite >= 2);
 export function pnjIci(s) {
   if (s.prison) return [];
-  return Object.entries(s.pnj).filter(([, p]) => (p.lieu === s.lieu || p.lieu === "equipage") && p.presente !== false && !p.invisible && p.vivant !== false).map(([id]) => id);
+  return Object.entries(s.pnj).filter(([id, p]) => (p.lieu === s.lieu || p.lieu === "equipage") && p.presente !== false && !p.invisible && p.vivant !== false
+    && (p.naissance == null || p.naissance <= s.jour) && (!s.chrono || presentSelonCanon(s, id))).map(([id]) => id);
 }
 export const agePnj = (s, id) => s.pnj[id].naissance == null ? null : Math.floor((s.jour - s.pnj[id].naissance) / 365);
 const il = p => (p.genre === "f" ? "elle" : p.genre === "g" ? "il" : "iel");
@@ -257,6 +260,7 @@ export function migrer(s) {
   s.pnj.tomas.stock.barque ??= 2; if (s.pnj.barro) s.pnj.barro.stock.caravelle ??= 1;
   initialiserMonde(s, { parents: false });
   initialiserEvenements(s);
+  initialiserChronologie(s);
   s.version = VERSION;
   return s;
 }
@@ -349,6 +353,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
     importants.push({ type: "mission", texte: "Le maire Woop Slap te cherche : il a une proposition de travail." });
   }
   // Le reste du monde vit sa vie : habitants, équipages rivaux, officiers, nouvelles.
+  avancerChronologie(s);
   vieDuMonde(s);
   if (declencherEvenement(s)) importants.push({ type: "evenement", texte: "Un événement demande ta décision." });
   verifierAmbition(s);
@@ -1273,6 +1278,8 @@ function repliquePnj(s, id, dernier) {
     rocco: ["« Le Colisée accueille les plus forts du Nouveau Monde. Pas de règles, ou presque. »", "« La victoire paie bien. La défaite, elle, se paie parfois cher. »"],
     soen: [s.pnj.soen.relation < 20 ? "« Wano ne s'ouvre pas aux étrangers. Pourquoi es-tu ici ? »" : "« Un sabre n'est rien sans la volonté de celui qui le tient. »", "« Le ciel de Wano a vu bien des guerres. »"],
     hal: [`« Pour plonger sous la Red Line, il faut un enrobage. ${PRIX_ENROBAGE} Berrys. »`, "« Ici, le monde se divise : ceux qui continuent, et ceux qui renoncent. »"],
+    luffy: [ag < 10 ? "« On joue aux pirates ? C'est moi le capitaine ! »" : "« Un jour, je serai le Roi des pirates ! »", "« T'as pas de la viande ? »"],
+    shanks: ["« Ha ha ! Bois un coup avec nous ! »", "« La mer est vaste. Tu verras, un jour. »"],
     garo: [s.pnj.garo.relation < 30 ? "« Hmph. Encore un gamin qui rêve de Grand Line ? »" : "« Il existe une force que chacun porte en soi. Les marins de Grand Line l'appellent le Haki. »",
       age(s) >= 15 && s.pnj.garo.relation >= 30 ? "« Si tu veux, je peux t'apprendre à l'éveiller. Ça ne sera pas gratuit, et ça fera mal. »" : "« J'ai navigué loin, autrefois. Très loin. »"],
     lise: [`« Mes bagues sont à ${OBJETS.bague.prix} Berrys. Pour une demande en mariage, peut-être ? »`, "« Le marché est plus animé que jamais. »"],

@@ -196,6 +196,22 @@ export const EVENEMENTS = [
     choix: [["Leur rendre visite bientôt", s => { parentsVivants(s).forEach(id => relation(s, id, 8, "tu es venu les voir")); humeur(s, 5); return "Tu te promets de rentrer à Fuchsia."; }],
       ["Remettre à plus tard", s => { humeur(s, -3); return "Il sera toujours temps… n'est-ce pas ?"; }]] },
 
+  // Chronologie du canon : scène proposée seulement si le joueur est présent à la date.
+  { id: "roi_de_la_cote", planifie: true, texte: "Un cri sur le port : un petit garçon du village est tombé à l'eau, et l'ombre énorme du Seigneur de la Côte fond sur lui !",
+    choix: [["Plonger à son secours", s => {
+        if (s.fruit) { nouvelle(s, "fuchsia", "Shanks le Roux a sauvé un enfant du Seigneur de la Côte, au prix de son bras gauche.", "region"); return "Ton fruit t'interdit la mer. Impuissant, tu vois un pirate aux cheveux roux plonger à ta place… et perdre un bras."; }
+        if (puissance(s) + rand(s) * 15 >= 30) {
+          s.chrono.divergences.bras_shanks = s.jour; trait(s, "courage", 2);
+          relation(s, "luffy", 30, "tu lui as sauvé la vie face au Seigneur de la Côte"); relation(s, "shanks", 25, "tu as sauvé le petit Luffy avant lui");
+          nouvelle(s, "fuchsia", `${s.perso.prenom} a repoussé le Seigneur de la Côte et sauvé le petit Luffy. Shanks le Roux a gardé ses deux bras.`, "monde");
+          return "Tu frappes le monstre de toutes tes forces : il recule et disparaît sous les vagues. Le garçon, Luffy, s'accroche à ton cou en pleurant. Shanks arrive à la nage… et te regarde, stupéfait. L'histoire vient de changer.";
+        }
+        blesser(s, 2);
+        nouvelle(s, "fuchsia", "Shanks le Roux a sauvé un enfant du Seigneur de la Côte, au prix de son bras gauche.", "region");
+        return "Le monstre te balaie d'un coup de nageoire. Un pirate aux cheveux roux te dépasse, attrape l'enfant… et perd un bras dans la gueule du monstre.";
+      }],
+      ["Rester sur le quai", s => { nouvelle(s, "fuchsia", "Shanks le Roux a sauvé un enfant du Seigneur de la Côte, au prix de son bras gauche.", "region"); return "Un pirate aux cheveux roux plonge, sauve l'enfant… et revient sans son bras gauche."; }]] },
+
   // Vieillesse
   { id: "memoires", age: [60, 120], texte: "Les souvenirs remontent. Ta vie mériterait d'être racontée.",
     choix: [["Écrire tes mémoires", s => `Les pages se remplissent. ${stat(s, "intelligence")}`],

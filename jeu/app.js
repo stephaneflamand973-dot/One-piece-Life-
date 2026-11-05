@@ -5,9 +5,10 @@ import {
   HAKI, SEUIL_EVEIL,
 } from "./engine.js";
 import { regionDe, RANGS_OFFICIERS } from "./monde.js";
+import { ERES, CALENDRIER, anneeRelative, anneeTexte } from "./chronologie.js";
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "9 · événements";
+export const VERSION_APP = "10 · chronologie";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -72,6 +73,9 @@ function ecranAccueil() {
       </div>
       <label for="genre">Tu es</label>
       <select id="genre"><option value="g">un garçon</option><option value="f">une fille</option><option value="x">non précisé</option></select>
+      <label for="ere">Époque</label>
+      <select id="ere">${Object.entries(ERES).map(([k, e]) => `<option value="${k}" ${k === "avant_luffy" ? "selected" : ""}>${e.nom}</option>`).join("")}</select>
+      <p class="discret petit" id="ere-desc">${ERES.avant_luffy.desc}</p>
       <button id="naitre" class="principal">Naître à Fuchsia</button>
       <p class="discret">Ta vie commence à la naissance, dans le village de Fuchsia, sur l'île de Dawn (East Blue). Chaque vie est un monde indépendant.</p>
     </section>
@@ -79,10 +83,11 @@ function ecranAccueil() {
       <div class="ligne-vie"><button class="secondaire" data-ouvrir="${esc(m.id)}">${esc(m.prenom)} · ${m.vivant ? `${m.age} ans` : "vie terminée"}</button>
       <button class="icone" data-suppr="${esc(m.id)}" aria-label="Supprimer">✕</button></div>`).join("")}</section>` : ""}
     <section class="carte"><h2>Réglages</h2>${htmlReglages()}</section>`;
+  $("#ere").onchange = () => { $("#ere-desc").textContent = ERES[$("#ere").value].desc; };
   $("#hasard").onclick = () => { $("#prenom").value = prenomAuHasard($("#genre").value); };
   $("#naitre").onclick = () => {
     const prenom = $("#prenom").value.trim() || prenomAuHasard($("#genre").value);
-    s = nouvelleVie({ prenom, genre: $("#genre").value, seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0 });
+    s = nouvelleVie({ prenom, genre: $("#genre").value, ere: $("#ere").value, seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0 });
     sauver(); ecranJeu();
   };
   document.querySelectorAll("[data-ouvrir]").forEach(b => b.onclick = () => {
@@ -137,8 +142,8 @@ function rendreStatut() {
     <div class="tete">
       <div class="avatar" aria-hidden="true">${esc(s.perso.prenom[0] || "?")}</div>
       <div class="identite">
-        <div><strong>${esc(s.perso.prenom)}</strong> <span class="discret">· ${age(s)} an${age(s) > 1 ? "s" : ""}</span></div>
-        <div class="discret petit">Année ${annee(s)}, jour ${jourDansAnnee(s)} · ${Math.floor(s.heure)}h</div>
+        <div><strong>${esc(s.perso.prenom)}</strong> <span class="discret">· ${age(s) === 0 ? "nouveau-né" : `${age(s)} an${age(s) > 1 ? "s" : ""}`}</span></div>
+        <div class="discret petit">${anneeTexte(anneeRelative(s))} · jour ${jourDansAnnee(s)} · ${Math.floor(s.heure)}h</div>
       </div>
       <div class="bourse"><b>${s.berrys.toLocaleString("fr-FR")}</b> ฿</div>
     </div>
@@ -318,6 +323,10 @@ function rendreFiche() {
         .map(r => `<p>${esc(r.capitaine)} · <span class="discret">${esc(r.nom)}</span> · <b>${r.prime.toLocaleString("fr-FR")} ฿</b></p>`).join("") || "<p>Aucun.</p>"}
       <p class="discret">Dernières nouvelles :</p>
       ${s.journal.filter(e => e.type === "rumeur").slice(-5).reverse().map(e => `<p class="petit">${esc(e.texte)}</p>`).join("") || "<p>Rien de neuf.</p>"}</section>
+    <section class="carte"><h2>Chronologie</h2>
+      <p class="discret">Époque : ${ERES[s.chrono.ere].nom}. Dates approximatives.</p>
+      ${CALENDRIER.filter(ev => s.chrono.faits[ev.id]).map(ev => `<p class="petit"><b>${anneeTexte(ev.annee)}</b> · ${esc(typeof ev.texte === "function" ? ev.texte(s) : ev.texte)}</p>`).join("") || "<p>Aucun grand événement pour l'instant.</p>"}
+      ${s.chrono.divergences.bras_shanks ? `<p class="m-réussie">Divergence : grâce à toi, Shanks a gardé ses deux bras. Le futur n'est plus celui du canon.</p>` : ""}</section>
     <section class="carte"><h2>Missions</h2>
       ${missions.length ? missions.map(m => `<div class="mission"><b>${esc(m.titre)}</b> · <span class="m-${m.statut}">${m.statut}</span>
         <p class="discret">${esc(m.condition)} Récompense : ${m.recompense} Berrys${m.statut === "active" ? ` (mise de côté) · échéance fin du jour ${m.echeance + 1}` : ""}.</p></div>`).join("") : "<p>Aucune mission.</p>"}</section>`;

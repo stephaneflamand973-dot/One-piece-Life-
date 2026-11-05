@@ -643,3 +643,38 @@ test("simulateur : des vies jouées au hasard sans erreur ni création d'argent"
     assert.ok(v.masseOk, `vie ${seed} : argent créé`);
   }
 });
+
+// ---------- Étape 3 : chronologie du canon ----------
+import * as C from "../jeu/chronologie.js";
+
+test("chronologie : à l'âge d'or de Roger, Makino n'est pas encore née et la piraterie est rare", () => {
+  const s = E.nouvelleVie({ prenom: "R", seed: 41, ere: "roger" });
+  assert.equal(C.anneeRelative(s), -45);
+  assert.equal(s.monde.intensitePiraterie, 0.5);
+  s.lieu = "bar";
+  assert.ok(!E.pnjIci(s).includes("makino"));
+  E.avancer(s, 24 * 365, { sansInterruption: true });
+  assert.equal(s.chrono.faits.execution_roger, "advenu");
+  assert.equal(s.monde.intensitePiraterie, 3);
+});
+
+test("chronologie : Luffy est au village pendant son enfance, puis part à l'année 0", () => {
+  const s = E.nouvelleVie({ prenom: "L", seed: 42 });
+  s.jour = 6 * 365; s.lieu = "colline";
+  assert.ok(E.pnjIci(s).includes("luffy"));
+  E.avancer(s, 12 * 365, { sansInterruption: true });
+  assert.equal(s.chrono.faits.depart_luffy, "advenu");
+  s.lieu = "colline";
+  assert.ok(!E.pnjIci(s).includes("luffy"));
+});
+
+test("chronologie : sauver l'enfant du Seigneur de la Côte crée une divergence durable", () => {
+  const s = E.nouvelleVie({ prenom: "D", seed: 43, ere: "execution" });
+  s.stats.force = 30; s.stats.agilite = 30; s.lieu = "port";
+  while (!s.evenement || s.evenement.id !== "roi_de_la_cote") { E.avancer(s, 30); s.ile = "fuchsia"; s.lieu = "port"; if (s.evenement && s.evenement.id !== "roi_de_la_cote") E.agir(s, { id: "choisir", cible: 0 }); if (C.anneeRelative(s) > -9) break; }
+  assert.equal(s.evenement?.id, "roi_de_la_cote");
+  E.agir(s, { id: "choisir", cible: 0 });
+  assert.ok(s.chrono.divergences.bras_shanks);
+  E.avancer(s, 40, { sansInterruption: true });
+  assert.ok(s.monde.nouvelles.some(n => n.texte.includes("deux bras intacts")));
+});
