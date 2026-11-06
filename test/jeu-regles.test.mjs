@@ -276,10 +276,10 @@ test("piraterie : un abordage réussi donne un butin, partage l'argent sans en c
     const s = capitaine(seed); s.stats.force = 20; s.stats.agilite = 20;
     const masse = E.masseMonetaire(s); const b = s.berrys;
     E.agir(s, { id: "attaquer" });
-    if (s.infamie === 1 && !s.prison) {
+    if (s.infamie > 0 && !s.prison) {
       reussi = true;
       assert.ok(s.berrys > b);
-      assert.equal(s.prime, E.calculPrime(1));
+      assert.equal(s.prime, E.calculPrime(s.infamie));
       assert.equal(E.masseMonetaire(s), masse);
     }
   }
@@ -326,7 +326,7 @@ test("fruit : en manger un second est mortel", () => {
 
 test("fruit : chaque fruit n'existe qu'une fois par monde", () => {
   const s = ado(); s.lieu = "colline";
-  for (let i = 0; i < 3000; i++) { s.heure = 8; s.fatigue = 0; E.agir(s, { id: "explorer" }); }
+  for (let i = 0; i < 12000; i++) { s.heure = 8; s.fatigue = 0; E.agir(s, { id: "explorer" }); }
   assert.equal(new Set(s.monde.fruitsTrouves).size, s.monde.fruitsTrouves.length);
   assert.ok(s.monde.fruitsTrouves.length <= Object.keys(E.FRUITS).length);
   assert.ok(s.monde.fruitsTrouves.length > 0);
@@ -613,7 +613,8 @@ test("événements : chaque choix de chaque événement s'exécute sans erreur n
       s.pnj.ami = { nom: "Ami", role: "ami", genre: "g", lieu: s.lieu, relation: 30, fonds: 500, souvenirs: [], naissance: s.jour - 30 * 365, vivant: true, enfants: [], parents: [], couple: null, romance: true };
       s.monde.exterieur -= 500;
       const masse = E.masseMonetaire(s);
-      s.carriere = { type: "pirate", equipage: "Test", depuis: 0, raids: 0 };
+      s.carriere = { type: "pirate", equipage: "Test", depuis: 0, raids: 0, merite: 0 };
+      s.navire = { type: "barque", nom: "T", coque: 100 };
       s.evenement = { id: ev.id, jour: s.jour, data: { p: "ami" } };
       const r = E.agir(s, { id: "choisir", cible: i });
       assert.ok(r.ok, `${ev.id} choix ${i}`);
@@ -694,7 +695,7 @@ test("chasseur de primes : inscription, capture binaire payée sans création d'
     s.monde.rivaux = [{ id: "r1", nom: "Pirates Test", capitaine: "Test", region: "eb", ile: "loguetown", prime: 5000000, force: 20, actif: true }];
     const masse = E.masseMonetaire(s);
     E.agir(s, { id: "traquer" });
-    if (!s.monde.rivaux[0].actif) { capture = true; assert.equal(s.berrys, 5000); assert.equal(E.masseMonetaire(s), masse); }
+    if (!s.monde.rivaux[0].actif) { capture = true; assert.equal(s.berrys, 2500); assert.equal(E.masseMonetaire(s), masse); }
   }
   assert.ok(capture);
 });

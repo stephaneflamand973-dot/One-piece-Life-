@@ -45,13 +45,13 @@ Les 7 étapes ont reçu une première version jouable, testée et mise en ligne.
 | Étape | Fait | Critère | Reste à faire |
 |---|---|---|---|
 | 1. Monde vivant | Mort, couples, naissances, successions de métiers, arrivées et départs, rivaux, officiers, nouvelles à délai | ✅ Plus de 30 % des habitants changent en 50 ans (test) ; ✅ personnages canoniques protégés ; ✅ une semaine se calcule en moins d'une seconde | — |
-| 2. Événements | 48 événements (dont factions et canon), chaînes, rêves, missions de livraison, chasse et sauvetage | ❌ 100 événements visés ; ❌ les événements se répètent beaucoup d'une vie à l'autre | Écrire au moins 50 événements de plus, varier les textes |
+| 2. Événements | 101 événements (dont factions et canon), chaînes, rêves, missions de livraison, chasse et sauvetage ; un événement ordinaire revient au plus deux fois par vie | ✅ 100 événements atteints ; ❌ la répétition d'une vie à l'autre reste élevée (85 % mesurés, 20 % visés) | Viser 300 événements, varier les textes |
 | 3. Chronologie | 4 époques, 6 événements datés, présence canonique de Luffy, Shanks, Makino, du maire, 1 divergence jouable | ⚠️ Pas encore vérifié sur 20 parties par un humain | Plus d'événements canoniques, plus de divergences |
 | 4. Factions | Réputation × 5, chasseur de primes, révolutionnaire, Grand Corsaire, Empereur, alliances, trahisons, guerres | ⚠️ Carrières de 20 ans pas encore jouées en entier par un humain | Agent du Gouvernement, territoires, Amiraux |
 | 5. Vie profonde | Traits, humeur, école, navigation, musique, médecine, maladies de l'âge | ✅ Deux vies identiques divergent selon les choix (test) | Plus d'options liées aux traits |
 | 6. Rejouabilité | 5 îles de naissance, humain ou homme-poisson, 3 départs imposés, 24 succès, mémorial | ⚠️ Peuples mink et géant absents | Autres peuples, défis supplémentaires |
 | 7. Présentation | Illustrations dessinées en code, tutoriel, animations, sons synthétisés, taille du texte, contraste | ⚠️ Pas de vrais portraits ni de musique ; vibrations impossibles dans Safari sur iPhone | Images libres de droits ou fournies, musique |
-| Qualité | Simulateur de vies (`outils/simuler.mjs`), 239 tests ; il a déjà trouvé une perte d'argent et un plantage, corrigés | ❌ 1 000 vies non simulées : une vie complète prend environ 10 s, soit près de 3 h | Accélérer le simulateur |
+| Qualité | Simulateur avec objectifs (Marine, pirate, chasseur, vie paisible, hasard), 10 fois plus rapide ; 239 tests. Il a trouvé une perte d'argent, un plantage, des primes et des gains trop élevés : corrigés | ⚠️ Séries de 25 vies sans erreur ni argent créé ; 1 000 vies pas encore lancées (environ 2 h) | Simuler 1 000 vies, apprendre au simulateur à fonder une famille |
 
 ---
 

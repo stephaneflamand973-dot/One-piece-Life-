@@ -2,7 +2,7 @@
 // Réputation séparée auprès de chaque faction ; carrières de chasseur de primes, de révolutionnaire,
 // de Grand Corsaire et d'Empereur ; alliances et trahisons entre équipages ; guerres dans le Nouveau Monde.
 // Échelle : les primes sont en Berrys canoniques ; la Marine verse aux chasseurs une prime réglementaire
-// d'un millième, à l'échelle des prix du jeu. L'argent vient toujours de l'extérieur comptabilisé.
+// d'un deux-millième, à l'échelle des prix du jeu. L'argent vient toujours de l'extérieur comptabilisé.
 
 import { rand, noter, age, puissance, blesser, pnjIci, GAINS, ILES, res } from "./engine.js";
 import { nouvelle, regionDe, rivauxIci } from "./monde.js";
@@ -16,7 +16,7 @@ export function reputation(s, k, d) {
   s.reputation ??= {};
   s.reputation[k] = Math.max(-100, Math.min(100, (s.reputation[k] || 0) + d));
 }
-const recompenseChasseur = prime => Math.round(prime / 1000);
+const recompenseChasseur = prime => Math.round(prime / 2000);
 const corsaire = s => s.carriere?.type === "pirate" && s.carriere.corsaire;
 
 // La Marine épargne les Grands Corsaires (lettre de course du Gouvernement mondial).

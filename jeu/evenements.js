@@ -6,6 +6,7 @@
 import { rand, noter, age, agePnj, pnjIci, puissance, souvenir, transferer, gagnerStat, blesser, GAINS, ILES, LIEUX, ROUTES, lieuxDe } from "./engine.js";
 import { nouvelle, regionDe, vivants } from "./monde.js";
 import { EVENEMENTS_FACTIONS } from "./factions.js";
+import { EVENEMENTS_2 } from "./evenements2.js";
 
 const pick = (s, arr) => arr[Math.floor(rand(s) * arr.length)];
 const AN = 365;
@@ -25,6 +26,8 @@ const parentsVivants = s => ["mere", "pere"].filter(id => s.pnj[id] && s.pnj[id]
 const surPort = s => s.lieu === ILES[s.ile].port;
 const taverne = s => ["bar", "taverne_shells", "salle_baratie", "auberge_logue", "bar_w7", "bar_sabaody", "place_hp", "ville_dr", "village_wano"].includes(s.lieu);
 function combat(s, difficulte) { return puissance(s) + rand(s) * 15 >= difficulte; }
+
+export { trait, humeur, stat, relation, deExterieur, versExterieur, planifier, nom, presentsAdultes, parentsVivants, surPort, taverne, combat, pick };
 
 // ---------- Missions variées (toujours binaires, récompense mise de côté à l'acceptation) ----------
 
@@ -223,11 +226,13 @@ export const EVENEMENTS = [
       ["Refuser", () => "Tu as assez donné."]] },
 ];
 
-EVENEMENTS.push(...EVENEMENTS_FACTIONS);
+EVENEMENTS.push(...EVENEMENTS_FACTIONS, ...EVENEMENTS_2);
 
 // ---------- Déclenchement ----------
 
 const PAR_ID = Object.fromEntries(EVENEMENTS.map(e => [e.id, e]));
+const REPETABLES = new Set(["mission_livraison", "mission_chasse", "mission_sauvetage", "pari", "news_coo", "bourse", "agression", "chasseur_primes",
+  "controle_marine", "rendez_vous", "anniversaire_mariage", "dette_jeu", "voleur_poche", "brouillard", "equipage_dispute", "pirate_fete", "tempete_mer"]);
 
 function eligible(s, e) {
   if (e.planifie) return false;
@@ -235,8 +240,13 @@ function eligible(s, e) {
   if (e.age && (a < e.age[0] || a > e.age[1])) return false;
   if (e.iles && !e.iles.includes(s.ile)) return false;
   if (e.lieux && !e.lieux.includes(s.lieu)) return false;
+  // Un événement ordinaire revient au plus deux fois par vie, et pas avant deux ans ;
+  // les situations du quotidien (missions, paris, journaux…) peuvent revenir plus souvent.
   const h = s.histo.evenements[e.id];
-  if (h && (e.unique || s.jour - h < 150)) return false;
+  const n = s.histo.compte?.[e.id] || 0;
+  const rep = REPETABLES.has(e.id);
+  if (h != null && (e.unique || s.jour - h < (rep ? 120 : 730))) return false;
+  if (n >= (rep ? 40 : 2)) return false;
   if (s.prison) return false;
   return !e.cond || !!e.cond(s, {});
 }
@@ -294,6 +304,8 @@ export function choisir(s, i) {
   // La personne concernée a pu mourir ou être remplacée entre-temps : l'occasion est passée.
   if (ev.data?.p && (!s.pnj[ev.data.p] || s.pnj[ev.data.p].vivant === false)) return { ok: true, texte: "L'occasion est passée." };
   s.histo.evenements[e.id] = s.jour;
+  s.histo.compte ??= {};
+  s.histo.compte[e.id] = (s.histo.compte[e.id] || 0) + 1;
   const texte = e.choix[i][1](s, ev.data) || "";
   return { ok: true, texte };
 }

@@ -107,7 +107,7 @@ export const EMPLOIS = {
 
 export const RANGS_MARINE = ["Recrue", "Matelot", "Caporal", "Sergent", "Adjudant", "Enseigne", "Lieutenant"];
 export const MERITE_RANG = [0, 10, 25, 45, 70, 100, 140];
-export const SOLDE_MARINE = [40, 60, 90, 130, 180, 250, 350]; // par semaine
+export const SOLDE_MARINE = [20, 30, 45, 65, 90, 125, 175]; // par semaine
 
 export const STATS = {
   force: "Force", agilite: "Agilité", endurance: "Endurance", intelligence: "Intelligence", charisme: "Charisme",
@@ -243,10 +243,23 @@ function souvenir(s, id, texte) {
 export { souvenir, transferer, gagnerStat, blesser, res };
 export const blessureActive = s => s.sante.blessures.length > 0;
 const blessureGrave = s => s.sante.blessures.some(b => b.gravite >= 2);
+// Appelée très souvent : boucle simple, avec un petit cache tant que rien ne change (même jour, heure, lieu, nombre d'habitants).
+let cacheIci = { s: null, cle: "", res: [] };
 export function pnjIci(s) {
   if (s.prison) return [];
-  return Object.entries(s.pnj).filter(([id, p]) => (p.lieu === s.lieu || p.lieu === "equipage") && p.presente !== false && !p.invisible && p.vivant !== false
-    && (p.naissance == null || p.naissance <= s.jour) && (!s.chrono || presentSelonCanon(s, id))).map(([id]) => id);
+  const cle = `${s.jour}|${s.heure}|${s.lieu}|${Object.keys(s.pnj).length}|${s.famille?.partenaire}`;
+  if (cacheIci.s === s && cacheIci.cle === cle) return cacheIci.res.slice();
+  const res = [];
+  for (const id in s.pnj) {
+    const p = s.pnj[id];
+    if (p.lieu !== s.lieu && p.lieu !== "equipage") continue;
+    if (p.presente === false || p.invisible || p.vivant === false) continue;
+    if (p.naissance != null && p.naissance > s.jour) continue;
+    if (s.chrono && !presentSelonCanon(s, id)) continue;
+    res.push(id);
+  }
+  cacheIci = { s, cle, res };
+  return res.slice();
 }
 export const agePnj = (s, id) => s.pnj[id].naissance == null ? null : Math.floor((s.jour - s.pnj[id].naissance) / 365);
 const il = p => (p.genre === "f" ? "elle" : p.genre === "g" ? "il" : "iel");
@@ -936,10 +949,11 @@ const ACTIONS = {
     const part = membres.length ? Math.floor(butin * 0.4 / membres.length) : 0;
     for (const id of membres) { s.pnj[id].fonds += part; s.pnj[id].relation += 3; }
     s.berrys += butin - part * membres.length;
-    s.infamie += 1; s.prime = calculPrime(s.infamie);
+    // Un abordage ordinaire ne fait monter la notoriété que peu à peu, davantage sur les mers dangereuses.
+    s.infamie = +(s.infamie + 0.2 * (1 + danger)).toFixed(2); s.prime = calculPrime(s.infamie);
     let txt = `À l'abordage ! Le navire marchand se rend. Butin : ${butin} Berrys${membres.length ? `, dont ${part * membres.length} partagés avec l'équipage` : ""}. Ta prime passe à ${s.prime.toLocaleString("fr-FR")} Berrys.`;
     const reste = Object.keys(FRUITS).filter(f => !s.monde.fruitsTrouves.includes(f));
-    if (reste.length && rand(s) < 0.05) {
+    if (reste.length && rand(s) < 0.015) {
       const f = reste[Math.floor(rand(s) * reste.length)];
       s.monde.fruitsTrouves.push(f); s.inventaire.fruits.push(f);
       txt += ` Dans la cale, un coffre contient un fruit étrange aux motifs en spirale : le ${FRUITS[f].nom} !`;
@@ -959,7 +973,7 @@ const ACTIONS = {
       return res(true, "Un dinosaure surgit des fougères géantes ! Tu t'échappes de justesse, blessé. Au loin, deux géants s'affrontent dans un fracas de tonnerre.");
     }
     const x = rand(s);
-    if (reste.length && x < 0.004 * (1 + danger)) {
+    if (reste.length && x < 0.0007 * (1 + danger)) {
       const f = reste[Math.floor(rand(s) * reste.length)];
       s.monde.fruitsTrouves.push(f); s.inventaire.fruits.push(f);
       return res(true, `Sous des racines, tu découvres un fruit étrange couvert de spirales… C'est un Fruit du Démon : le ${FRUITS[f].nom} (${FRUITS[f].type}) !`);
@@ -1188,14 +1202,15 @@ export function puissance(s) {
 }
 export const equipage = s => Object.keys(s.pnj).filter(id => s.pnj[id].lieu === "equipage" && s.pnj[id].vivant !== false);
 const forceEquipage = s => equipage(s).reduce((t, id) => t + (s.pnj[id].force || 0), 0);
-export const calculPrime = infamie => infamie <= 0 ? 0 : Math.round(infamie * infamie * 400000 + infamie * 1600000);
+// Prime en Berrys canoniques : environ 25 millions pour 10 points de notoriété, un milliard vers 78.
+export const calculPrime = infamie => infamie <= 0 ? 0 : Math.round((infamie * infamie * 150000 + infamie * 1000000) / 100000) * 100000;
 
 // Affrontement avec la Marine : victoire (fuite) ou capture. Un utilisateur de fruit peut se noyer en mer.
 function combatMarine(s, ou) {
   const marine = 18 + s.infamie * 3 + (ILES[s.ile].danger || 0) * 10 + rand(s) * 20;
   const nous = puissance(s) + forceEquipage(s) * 0.5 + rand(s) * 20;
   if (nous >= marine) {
-    s.infamie += 1; s.prime = calculPrime(s.infamie);
+    s.infamie = +(s.infamie + 0.5).toFixed(2); s.prime = calculPrime(s.infamie);
     if (rand(s) < 0.4) blesser(s, 0);
     return res(true, `La Marine vous attaque ${ou} ! Vous la repoussez et prenez la fuite. Ta prime monte à ${s.prime.toLocaleString("fr-FR")} Berrys.`);
   }
