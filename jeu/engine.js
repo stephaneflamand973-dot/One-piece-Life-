@@ -5,7 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
-import { appliquerTalents, anniversaireTalents, aTalent, bonusEntrainement, bonusEtude, bonusHaki, bonusFruit, bonusSalaire, bonusRelation, facteurFatigue, decalageAge } from "./talents.js";
+import { appliquerTalents, anniversaireTalents, aTalent, bonusStat, bonusCompetence, bonusHaki, bonusFruit, bonusSalaire, bonusRelation, facteurFatigue, decalageAge } from "./talents.js";
 import { appliquerOrigine, texteNaissance, verifierSucces, ORIGINES } from "./origines.js";
 import { ACTIONS_VIE, actionsVie, initialiserVie, vieInterieure, seuilFatigue } from "./vie.js";
 import { ACTIONS_FACTIONS, actionsFactions, vieFactions, marineIgnore, reputation } from "./factions.js";
@@ -242,7 +242,7 @@ function souvenir(s, id, texte) {
   p.souvenirs.push({ jour: s.jour, texte });
   if (p.souvenirs.length > 20) p.souvenirs.shift();
 }
-export { souvenir, transferer, gagnerStat, blesser, res };
+export { souvenir, transferer, gagnerStat, gagnerCompetence, blesser, res };
 export const blessureActive = s => s.sante.blessures.length > 0;
 const blessureGrave = s => s.sante.blessures.some(b => b.gravite >= 2);
 // Appelée très souvent : boucle simple, avec un petit cache tant que rien ne change (même jour, heure, lieu, nombre d'habitants).
@@ -574,10 +574,18 @@ function activite(s, { heures, fatigue, ageMin = 0 }) {
   if (s.fatigue >= seuilFatigue(s)) return s.sante.maladies?.length ? "Ta santé ne te permet plus de forcer autant : repose-toi." : "Tu es trop fatigué : l'activité n'est pas possible. Repose-toi.";
   return null;
 }
+// Retourne le gain réellement obtenu (0 si la limite naturelle est atteinte).
+// Les talents choisis à la création majorent ce gain d'une quantité fixe (exception D.2A-B).
 function gagnerStat(s, k, gain) {
   // Plafond naturel du potentiel : au-delà, l'activité n'apporte rien, mais le gain n'est jamais réduit en dessous.
-  if (s.stats[k] >= s.potentiel[k]) return false;
-  s.stats[k] += gain; return true;
+  if (s.stats[k] >= s.potentiel[k]) return 0;
+  const total = gain + bonusStat(s, k);
+  s.stats[k] += total; return total;
+}
+function gagnerCompetence(s, k, gain = 1) {
+  const total = gain + bonusCompetence(s, k);
+  s.competences[k] = (s.competences[k] || 0) + total;
+  return total;
 }
 
 const ACTIONS = {
@@ -615,17 +623,17 @@ const ACTIONS = {
     if (e) return res(false, e);
     consommer(s, 2, 15);
     const k = pick(s, ["endurance", "agilite"]);
-    gagnerStat(s, k, GAINS.jeu_enfant);
-    return res(true, `Tu cours et grimpes partout avec les enfants du village. ${STATS[k]} +${GAINS.jeu_enfant}.`);
+    const g = gagnerStat(s, k, GAINS.jeu_enfant);
+    return res(true, `Tu cours et grimpes partout avec les enfants du village.${g ? ` ${STATS[k]} +${g}.` : ""}`);
   },
   ecouter(s) {
     const e = activite(s, { heures: 2, fatigue: 5 });
     if (e) return res(false, e);
     if (s.lieu !== "bar") return res(false, "Il faut être au bar Partys.");
     consommer(s, 2, 5);
-    gagnerStat(s, "intelligence", GAINS.etude);
+    const g = gagnerStat(s, "intelligence", GAINS.etude);
     s.pnj.makino.relation += GAINS.relation_conversation;
-    return res(true, `Assis au comptoir, tu écoutes les marins raconter la mer. Makino te sert un verre de lait. Intelligence +${GAINS.etude}.`);
+    return res(true, `Assis au comptoir, tu écoutes les marins raconter la mer. Makino te sert un verre de lait.${g ? ` Intelligence +${g}.` : ""}`);
   },
   entrainer(s, k) {
     if (!STATS[k]) return res(false, "Cet entraînement n'existe pas.");
@@ -634,17 +642,16 @@ const ACTIONS = {
     if (blessureActive(s) && k !== "intelligence") return res(false, "Tu es blessé : l'entraînement physique attendra ta guérison.");
     consommer(s, 2, 15);
     // Exception B : le talent « Prodige » rend ce gain fixe plus grand, jamais variable.
-    const g = GAINS.entrainement + (k === "intelligence" ? bonusEtude(s) : bonusEntrainement(s));
-    if (!gagnerStat(s, k, g)) return res(true, `Tu t'entraînes, mais tu as atteint ta limite naturelle en ${STATS[k].toLowerCase()}.`);
+    const g = gagnerStat(s, k, GAINS.entrainement);
+    if (!g) return res(true, `Tu t'entraînes, mais tu as atteint ta limite naturelle en ${STATS[k].toLowerCase()}.`);
     return res(true, `Tu t'entraînes dur. ${STATS[k]} +${g}.`);
   },
   etudier(s) {
     const e = activite(s, { heures: 2, fatigue: 8, ageMin: 6 });
     if (e) return res(false, e);
     consommer(s, 2, 8);
-    const g = GAINS.etude + bonusEtude(s);
-    gagnerStat(s, "intelligence", g);
-    return res(true, `Tu lis et apprends. Intelligence +${g}.`);
+    const g = gagnerStat(s, "intelligence", GAINS.etude);
+    return res(true, `Tu lis et apprends.${g ? ` Intelligence +${g}.` : ""}`);
   },
   travailler(s) {
     const e0 = EMPLOIS[s.lieu];
@@ -662,8 +669,8 @@ const ACTIONS = {
     if (prime > 0) transferer(s, e0.payeur, "joueur", prime);
     s.compteurs.salaires = (s.compteurs.salaires || 0) + 1;
     let gain = "";
-    if (e0.competence) { s.competences[e0.competence] += 1; gain = ` ${COMPETENCES[e0.competence]} +1.`; }
-    else if (gagnerStat(s, e0.stat, GAINS.entrainement)) gain = ` ${STATS[e0.stat]} +${GAINS.entrainement}.`;
+    if (e0.competence) gain = ` ${COMPETENCES[e0.competence]} +${gagnerCompetence(s, e0.competence)}.`;
+    else { const g = gagnerStat(s, e0.stat, GAINS.entrainement); if (g) gain = ` ${STATS[e0.stat]} +${g}.`; }
     if (!payeur.invisible) { payeur.relation += GAINS.relation_aide; souvenir(s, e0.payeur, "tu as bien travaillé pour lui"); }
     return res(true, `${e0.texte} Tu gagnes ${e0.salaire + prime} Berrys.${gain}`);
   },
@@ -673,20 +680,20 @@ const ACTIONS = {
     const e = activite(s, { heures: 3, fatigue: 10, ageMin: 8 });
     if (e) return res(false, e);
     consommer(s, 3, 10);
-    s.competences.peche += GAINS.peche;
+    const gp = gagnerCompetence(s, "peche", GAINS.peche);
     const pris = rand(s) < 0.3 + s.competences.peche * 0.02 ? 1 + Math.floor(rand(s) * 3) : 0;
     s.inventaire.poisson += pris;
-    return res(true, `Tu pêches au bout du quai. ${pris ? `Tu attrapes ${pris} poisson${pris > 1 ? "s" : ""}.` : "Rien ne mord aujourd'hui."} Pêche +${GAINS.peche}.`);
+    return res(true, `Tu pêches au bout du quai. ${pris ? `Tu attrapes ${pris} poisson${pris > 1 ? "s" : ""}.` : "Rien ne mord aujourd'hui."} Pêche +${gp}.`);
   },
   cuisiner(s) {
     if (s.lieu !== "bar") return res(false, "Il faut être au bar Partys.");
     const e = activite(s, { heures: 3, fatigue: 12, ageMin: 12 });
     if (e) return res(false, e);
     consommer(s, 3, 12);
-    s.competences.cuisine += 1;
+    const gc = gagnerCompetence(s, "cuisine");
     s.pnj.makino.relation += GAINS.relation_aide;
     souvenir(s, "makino", "tu l'as aidée en cuisine");
-    return res(true, "Tu aides Makino en cuisine pendant le service. Cuisine +1.");
+    return res(true, `Tu aides Makino en cuisine pendant le service. Cuisine +${gc}.`);
   },
   acheter(s, objet) {
     const o = OBJETS[objet];
@@ -716,9 +723,9 @@ const ACTIONS = {
     if (manque.length) return res(false, `Impossible : il te manque ${manque.join(" et ")}.`);
     s.inventaire.planche -= 3; s.inventaire.clou -= 6;
     s.monde.toitRemise = "réparé";
-    s.competences.charpenterie += GAINS.charpenterie;
+    const gch = gagnerCompetence(s, "charpenterie", GAINS.charpenterie);
     consommer(s, 0, 5);
-    return res(true, `Tu répares le toit de la remise avec 3 planches et 6 clous. Charpenterie +${GAINS.charpenterie}.`);
+    return res(true, `Tu répares le toit de la remise avec 3 planches et 6 clous. Charpenterie +${gch}.`);
   },
   combattre(s) {
     if (s.lieu !== "port" || !s.monde.voyouAuPort) return res(false, "Il n'y a personne à affronter ici.");
@@ -728,16 +735,16 @@ const ACTIONS = {
     const toi = puissance(s) + rand(s) * 10;
     const lui = 8 + rand(s) * 10;
     s.monde.voyouAuPort = false;
-    s.competences.combat += GAINS.combat; // l'expérience de l'affrontement, gain fixe
+    const gco = gagnerCompetence(s, "combat", GAINS.combat); // l'expérience de l'affrontement, gain fixe
     if (toi >= lui) {
       blesser(s, rand(s) < 0.5 ? 0 : 1);
       s.pnj.bern.relation += 5;
       souvenir(s, "bern", "tu as chassé un voyou du port");
       if (rand(s) < 0.3) s.planifies?.push({ jour: s.jour + 120 + Math.floor(rand(s) * 200), id: "voyou_vengeance", data: {} });
-      return res(true, `Tu fais face au voyou. Après un échange de coups, il détale. Combat +${GAINS.combat}.`);
+      return res(true, `Tu fais face au voyou. Après un échange de coups, il détale. Combat +${gco}.`);
     }
     blesser(s, rand(s) < 0.3 ? 2 : 1);
-    return res(true, `Le voyou est plus coriace que prévu. Il te laisse au sol et s'enfuit. Combat +${GAINS.combat}.${eveilDanger(s)}`);
+    return res(true, `Le voyou est plus coriace que prévu. Il te laisse au sol et s'enfuit. Combat +${gco}.${eveilDanger(s)}`);
   },
   accepter(s, mid) {
     const m = s.missions.find(m => m.id === mid && m.statut === "proposée");
@@ -863,8 +870,8 @@ const ACTIONS = {
       const prix = 3000;
       transferer(s, "rocco", "joueur", prix);
       s.compteurs.colisee = (s.compteurs.colisee || 0) + 1;
-      s.competences.combat += GAINS.combat;
-      return res(true, `Sous les cris de la foule, tu remportes ton bloc ! Rocco te remet ${prix} Berrys. Combat +${GAINS.combat}.`);
+      const gco = gagnerCompetence(s, "combat", GAINS.combat);
+      return res(true, `Sous les cris de la foule, tu remportes ton bloc ! Rocco te remet ${prix} Berrys. Combat +${gco}.`);
     }
     blesser(s, 2);
     if (rand(s) < 0.05) {
@@ -882,12 +889,13 @@ const ACTIONS = {
     if (e) return res(false, e);
     consommer(s, 4, 35);
     transferer(s, "joueur", "soen", PRIX_LECON_SABRE);
-    s.competences.combat += 1;
+    const gco = gagnerCompetence(s, "combat");
     // La voie du sabre de Wano mène au Haki de l'armement (progression fixe, D.2A).
-    let txt = `Des heures de katas sous le regard de Sōen. Combat +1.`;
-    if (s.haki.eveil.armement) { s.haki.armement += 1; txt += " Haki de l'armement +1."; }
+    let txt = `Des heures de katas sous le regard de Sōen. Combat +${gco}.`;
+    const gh = 1 + bonusHaki(s);
+    if (s.haki.eveil.armement) { s.haki.armement += gh; txt += ` Haki de l'armement +${gh}.`; }
     else {
-      s.haki.progres.armement += 1;
+      s.haki.progres.armement += gh;
       if (s.haki.progres.armement >= SEUIL_EVEIL) {
         s.haki.eveil.armement = true; s.haki.armement = Math.max(1, s.haki.armement);
         noter(s, "Éveil du Haki de l'armement.", "mission");
@@ -1087,9 +1095,9 @@ const ACTIONS = {
     if (e) return res(false, e);
     consommer(s, 6, 25);
     s.carriere.merite += GAINS.merite_service;
-    gagnerStat(s, "force", GAINS.entrainement);
-    s.competences.combat += 1;
-    return res(true, `Exercices, corvées et maniement des armes. Mérite +${GAINS.merite_service}, Force +${GAINS.entrainement}, Combat +1.${promotion(s)}`);
+    const gf = gagnerStat(s, "force", GAINS.entrainement);
+    const gco = gagnerCompetence(s, "combat");
+    return res(true, `Exercices, corvées et maniement des armes. Mérite +${GAINS.merite_service}${gf ? `, Force +${gf}` : ""}, Combat +${gco}.${promotion(s)}`);
   },
   patrouille(s) {
     if (s.carriere?.type !== "marine" || s.lieu !== "base") return res(false, "Les patrouilles partent de la base.");

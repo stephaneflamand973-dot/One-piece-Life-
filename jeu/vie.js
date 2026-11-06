@@ -3,7 +3,7 @@
 // éducation, talents (navigation, musique, médecine) et santé au fil de l'âge (maladies chroniques
 // qui limitent l'énergie disponible, sans toucher au montant des gains : D.2A).
 
-import { rand, noter, age, pnjIci, transferer, gagnerStat, GAINS, ILES, res } from "./engine.js";
+import { rand, noter, age, pnjIci, transferer, gagnerStat, gagnerCompetence, GAINS, ILES, res } from "./engine.js";
 import { aTalent } from "./talents.js";
 
 export const TRAITS = { courage: ["Prudent", "Courageux"], ruse: ["Franc", "Rusé"], bonte: ["Dur", "Bienveillant"], ambition: ["Modeste", "Ambitieux"] };
@@ -53,33 +53,34 @@ export const ACTIONS_VIE = {
     s.heure += 4; s.fatigue = Math.min(100, s.fatigue + 10);
     const bonus = aTalent(s, "genie") ? 1 : 0; // exception B : gain fixe majoré par le talent « Génie »
     s.education += 1 + bonus;
-    const g = gagnerStat(s, "intelligence", GAINS.etude + bonus) ? ` Intelligence +${GAINS.etude + bonus}.` : "";
+    const gi = gagnerStat(s, "intelligence", GAINS.etude);
+    const g = gi ? ` Intelligence +${gi}.` : "";
     return res(true, `Une journée de classe : lecture, calcul, cartes du monde. Éducation +${1 + bonus}.${g}${s.education === 40 ? " Tu termines ta scolarité, instruit." : ""}`);
   },
   cartes(s) {
     if (s.lieu !== ILES[s.ile].port) return res(false, "On étudie les cartes marines sur le port, auprès des marins.");
     if (s.heure + 3 > 24 || s.fatigue >= seuilFatigue(s)) return res(false, "Pas maintenant : tu es trop fatigué ou il est tard.");
     s.heure += 3; s.fatigue = Math.min(100, s.fatigue + 10);
-    s.competences.navigation += 1;
-    return res(true, `Courants, vents, étoiles : tu étudies les cartes marines. Navigation +1 (${s.competences.navigation}).`);
+    const g = gagnerCompetence(s, "navigation");
+    return res(true, `Courants, vents, étoiles : tu étudies les cartes marines. Navigation +${g} (${s.competences.navigation}).`);
   },
   musique(s) {
     if (!TAVERNES.includes(s.lieu)) return res(false, "On joue de la musique dans les bars et les tavernes.");
     if (s.heure + 3 > 24 || s.fatigue >= seuilFatigue(s)) return res(false, "Pas maintenant : tu es trop fatigué ou il est tard.");
     s.heure += 3; s.fatigue = Math.min(100, s.fatigue + 8);
-    s.competences.musique += 1;
+    const gm = gagnerCompetence(s, "musique");
     // Pourboires donnés par les présents qui en ont les moyens (argent transféré, jamais créé).
     let total = 0;
     for (const id of pnjIci(s)) { const don = Math.min(5 + Math.floor(s.competences.musique / 5), s.pnj[id].fonds); if (don > 0 && !s.pnj[id].famille) { transferer(s, id, "joueur", don); total += don; } }
     s.humeur = Math.min(100, s.humeur + 5);
-    return res(true, `Tu joues pour la salle. Musique +1.${total ? ` Pourboires : ${total} Berrys.` : " Personne n'a laissé de pourboire."}`);
+    return res(true, `Tu joues pour la salle. Musique +${gm}.${total ? ` Pourboires : ${total} Berrys.` : " Personne n'a laissé de pourboire."}`);
   },
   medecine(s) {
     if (s.education < 20 && s.stats.intelligence < 15) return res(false, "La médecine demande des bases solides (école ou intelligence 15).");
     if (s.heure + 3 > 24 || s.fatigue >= seuilFatigue(s)) return res(false, "Pas maintenant : tu es trop fatigué ou il est tard.");
     s.heure += 3; s.fatigue = Math.min(100, s.fatigue + 12);
-    s.competences.medecine += 1;
-    return res(true, `Tu étudies l'anatomie et les remèdes. Médecine +1 (${s.competences.medecine}).`);
+    const g = gagnerCompetence(s, "medecine");
+    return res(true, `Tu étudies l'anatomie et les remèdes. Médecine +${g} (${s.competences.medecine}).`);
   },
   consulter(s) {
     if (!s.sante.maladies.length) return res(false, "Tu n'as aucune maladie à soigner.");
@@ -118,7 +119,8 @@ export const ACTIONS_VIE = {
     if (!TAVERNES.includes(s.lieu) && s.lieu !== ILES[s.ile].port) return res(false, "Il te faut un public.");
     if (s.heure + 2 > 24 || s.fatigue >= seuilFatigue(s)) return res(false, "Pas maintenant.");
     s.heure += 2; s.fatigue = Math.min(100, s.fatigue + 8);
-    const g = gagnerStat(s, "charisme", GAINS.entrainement) ? ` Charisme +${GAINS.entrainement}.` : "";
+    const gc = gagnerStat(s, "charisme", GAINS.entrainement);
+    const g = gc ? ` Charisme +${gc}.` : "";
     return res(true, `Debout sur une caisse, tu parles de tes rêves à qui veut l'entendre. Quelques-uns t'acclament.${g}`);
   },
 };

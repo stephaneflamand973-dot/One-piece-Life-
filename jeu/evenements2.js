@@ -3,7 +3,7 @@
 
 import { rand, age, agePnj, pnjIci, blesser, transferer, GAINS, ILES } from "./engine.js";
 import { nouvelle, regionDe } from "./monde.js";
-import { trait, humeur, stat, relation, deExterieur, versExterieur, planifier, nom, presentsAdultes, parentsVivants, surPort, taverne, combat, pick } from "./evenements.js";
+import { trait, humeur, stat, comp, relation, deExterieur, versExterieur, planifier, nom, presentsAdultes, parentsVivants, surPort, taverne, combat, pick } from "./evenements.js";
 
 const carriere = (s, t) => s.carriere?.type === t;
 const marin = s => surPort(s) || s.lieu === "pont_baratie";
@@ -34,7 +34,7 @@ export const EVENEMENTS_2 = [
     choix: [["Lire des histoires au lit", s => `Tu dévores tous les livres de la maison. ${stat(s, "intelligence")}`],
       ["Dormir et rêver", s => { humeur(s, -3); return "Tu rêves de la mer. La fièvre finit par tomber."; }]] },
   { id: "pecheur_enfant", age: [6, 12], cond: marin, texte: "Un vieux pêcheur te laisse tenir sa ligne pendant qu'il rallume sa pipe.",
-    choix: [["Tirer de toutes tes forces", s => { if (rand(s) < 0.5) { s.competences.peche += 1; return "Un poisson énorme ! Le vieux en lâche sa pipe. Pêche +1."; } return "Le poisson casse la ligne. Le vieux rit de bon cœur."; }],
+    choix: [["Tirer de toutes tes forces", s => { if (rand(s) < 0.5) return `Un poisson énorme ! Le vieux en lâche sa pipe.${comp(s, "peche")}`; return "Le poisson casse la ligne. Le vieux rit de bon cœur."; }],
       ["Attendre patiemment", s => { trait(s, "ruse", 1); return "La patience, c'est la moitié de la pêche, dit-il."; }]] },
   { id: "dispute_jouet", age: [5, 10], texte: "Un autre enfant veut ton épée de bois préférée.",
     choix: [["La partager", s => { trait(s, "bonte", 1); humeur(s, 3); return "Vous inventez un jeu à deux épées… avec une seule épée."; }],
@@ -52,7 +52,7 @@ export const EVENEMENTS_2 = [
       ["Préférer t'entraîner", s => `Tu passes la journée à courir sur la plage. ${stat(s, "endurance")}`]] },
   { id: "journal_intime", age: [12, 18], texte: "Tu trouves un vieux carnet vierge.",
     choix: [["En faire un journal intime", s => { humeur(s, 5); s.drapeaux.journalIntime = s.jour; return "Tu y écris tes rêves, tes colères, tes espoirs."; }],
-      ["En faire un carnet de bord", s => { s.competences.navigation += 1; return "Vents, marées, navires du port : tu notes tout. Navigation +1."; }]] },
+      ["En faire un carnet de bord", s => `Vents, marées, navires du port : tu notes tout.${comp(s, "navigation")}`]] },
   { id: "rival_ado", age: [13, 18], texte: "Un garçon du coin te traite de « rêveur qui ne quittera jamais son île ».",
     choix: [["Le défier en duel", s => { if (combat(s, 8)) { trait(s, "courage", 1); return "Tu gagnes le duel. Il te respecte désormais."; } blesser(s, 0); return "Tu perds, mais tu t'es battu. Ça compte."; }],
       ["Le prouver par les actes", s => { trait(s, "ambition", 2); return "Un jour, il verra."; }],
@@ -87,7 +87,7 @@ export const EVENEMENTS_2 = [
     choix: [["L'aider à chercher", (s, d) => { relation(s, d.p, 6, "tu l'as aidé à retrouver un souvenir"); trait(s, "bonte", 1); return rand(s) < 0.6 ? "Vous le retrouvez sous un ponton. Ses yeux brillent." : "Vous cherchez jusqu'au soir, en vain. Il te remercie quand même."; }],
       ["Lui souhaiter bonne chance", () => "Tu as d'autres soucis."]] },
   { id: "concours_cuisine", age: [16, 80], lieux: ["salle_baratie", "cuisine_baratie", "bar", "taverne_shells"], texte: "Un concours de cuisine s'improvise. Le prix : 50 Berrys offerts par la maison.",
-    choix: [["Participer", s => { if (s.competences.cuisine + rand(s) * 10 >= 10) { const p = pnjIci(s).find(id => s.pnj[id].fonds >= 50); if (p) transferer(s, p, "joueur", 50); s.competences.cuisine += 1; return `Ton plat fait l'unanimité !${p ? " 50 Berrys pour toi." : ""} Cuisine +1.`; } return "Ton plat est… intéressant. Tu finis dernier."; }],
+    choix: [["Participer", s => { if (s.competences.cuisine + rand(s) * 10 >= 10) { const p = pnjIci(s).find(id => s.pnj[id].fonds >= 50); if (p) transferer(s, p, "joueur", 50); return `Ton plat fait l'unanimité !${p ? " 50 Berrys pour toi." : ""}${comp(s, "cuisine")}`; } return "Ton plat est… intéressant. Tu finis dernier."; }],
       ["Juger les plats", s => { humeur(s, 5); return "Tu manges comme quatre. Quelle soirée !"; }]] },
   { id: "dette_jeu", age: [18, 70], cond: s => taverne(s), texte: "Un inconnu te propose de doubler ta mise sur un pari « sûr » : la course des crabes.",
     choix: [["Miser 30 Berrys", s => { if (s.berrys < 30) return "Tu n'as pas de quoi miser."; if (rand(s) < 0.4) { deExterieur(s, 30); return "Ton crabe gagne d'une pince ! +30 Berrys."; } versExterieur(s, 30); return "Ton crabe part de travers. Perdu."; }],
@@ -125,7 +125,7 @@ export const EVENEMENTS_2 = [
       ["Doubler les rations pour tous (20 B)", s => { versExterieur(s, 20); trait(s, "bonte", 1); return "Un bon repas règle bien des querelles."; }]] },
   { id: "ile_deserte", age: [16, 99], cond: s => s.navire && marin(s) && rand(s) < 0.5, texte: "Ta vigie aperçoit une petite île qui n'est sur aucune carte.",
     choix: [["Débarquer et explorer", s => { trait(s, "courage", 1); if (rand(s) < 0.3) { deExterieur(s, 120); return "Une épave échouée contient un coffret : 120 Berrys !"; } if (rand(s) < 0.2) { blesser(s, 0); return "Des bêtes sauvages te chassent jusqu'au rivage."; } return "Une île minuscule, déserte et magnifique."; }],
-      ["Noter sa position", s => { s.competences.navigation += 1; return "Tu la dessines sur ta carte. Navigation +1."; }]] },
+      ["Noter sa position", s => `Tu la dessines sur ta carte.${comp(s, "navigation")}`]] },
 
   // ---------- Danger et justice ----------
   { id: "incendie", age: [12, 90], cond: s => !s.prison && !marin(s), texte: "De la fumée ! Une maison voisine a pris feu.",
@@ -135,14 +135,14 @@ export const EVENEMENTS_2 = [
     choix: [["Prouver ton innocence", s => { if (s.stats.intelligence + rand(s) * 10 >= 10) { trait(s, "ruse", 1); return "Tu retrouves le vrai voleur. On te présente des excuses."; } humeur(s, -10); return "Personne ne te croit. Ta réputation en prend un coup."; }],
       ["Fuir avant d'être arrêté", s => { trait(s, "courage", -1); s.reputation.marine = (s.reputation.marine || 0) - 3; return "Tu files. Ça ne t'aide pas à paraître innocent."; }]] },
   { id: "bandit_route", age: [16, 90], cond: s => ["little_garden", "wano", "dressrosa"].includes(s.ile), texte: "Une bande armée te barre le chemin.",
-    choix: [["Te battre", s => { if (combat(s, 25 + (ILES[s.ile].danger || 0) * 6)) { s.competences.combat += GAINS.combat; return `Tu les disperses. Combat +${GAINS.combat}.`; } blesser(s, 2); return "Ils étaient trop nombreux. Tu t'en sors à peine."; }],
+    choix: [["Te battre", s => { if (combat(s, 25 + (ILES[s.ile].danger || 0) * 6)) { return `Tu les disperses.${comp(s, "combat", GAINS.combat)}`; } blesser(s, 2); return "Ils étaient trop nombreux. Tu t'en sors à peine."; }],
       ["Payer le passage (50 B)", s => { versExterieur(s, 50); return "Ils empochent et s'écartent."; }]] },
   { id: "esclavagistes", age: [16, 99], cond: s => s.ile === "sabaody", texte: "Dans une ruelle de Sabaody, des hommes traînent une jeune sirène vers une cage.",
     choix: [["Intervenir", s => { if (combat(s, 40)) { trait(s, "bonte", 2); s.reputation.gouvernement = (s.reputation.gouvernement || 0) - 5; nouvelle(s, "sabaody", `Un inconnu a libéré une sirène promise à la vente aux enchères.`, "region"); return "Tu les mets en fuite et aides la sirène à regagner la mer."; } blesser(s, 2); return "Ils sont armés jusqu'aux dents. Tu es roué de coups."; }],
       ["Prévenir quelqu'un", s => { trait(s, "bonte", 1); return "Personne ne bouge. À Sabaody, ces choses-là arrivent."; }],
       ["Détourner les yeux", s => { humeur(s, -10); trait(s, "bonte", -1); return "Tu n'oublieras pas son regard."; }]] },
   { id: "duel_samourai", age: [16, 99], cond: s => s.ile === "wano", texte: "Un samouraï errant te défie en duel, pour l'honneur.",
-    choix: [["Accepter", s => { if (combat(s, 45)) { s.competences.combat += GAINS.combat; trait(s, "courage", 1); return `Il s'incline : « Tu es digne. » Combat +${GAINS.combat}.`; } blesser(s, 2); return "Sa lame est plus rapide que ton regard."; }],
+    choix: [["Accepter", s => { if (combat(s, 45)) { trait(s, "courage", 1); return `Il s'incline : « Tu es digne. »${comp(s, "combat", GAINS.combat)}`; } blesser(s, 2); return "Sa lame est plus rapide que ton regard."; }],
       ["Décliner avec respect", () => "Il hoche la tête et poursuit sa route."]] },
   { id: "juge_village", age: [40, 99], cond: s => s.pnj.woop && pnjIci(s).includes("woop"), texte: "Deux villageois se disputent un champ. Le maire te demande de trancher.",
     choix: [["Partager équitablement", s => { trait(s, "bonte", 1); relation(s, "woop", 5); return "Les deux repartent à moitié contents. C'est déjà ça."; }],

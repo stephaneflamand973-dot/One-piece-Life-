@@ -8,12 +8,13 @@ const AN = 365;
 
 export const TALENTS = {
   // Progression (exception B : gains fixes majorés)
-  prodige: { groupe: "Progression", nom: "Prodige", desc: "Chaque entraînement physique réussi rapporte toujours +2 au lieu de +1." },
-  genie: { groupe: "Progression", nom: "Génie", desc: "Chaque séance d'étude ou d'école rapporte toujours +2 en intelligence au lieu de +1, et +2 en éducation." },
+  prodige: { groupe: "Progression", nom: "Prodige", desc: "Chaque gain de force, d'agilité ou d'endurance est toujours de +2 au lieu de +1 (entraînement, jeux, travail, service, événements)." },
+  genie: { groupe: "Progression", nom: "Génie", desc: "Chaque gain d'intelligence est toujours de +2 au lieu de +1, et chaque journée d'école donne +2 en éducation." },
+  doue: { groupe: "Progression", nom: "Doué de ses mains", desc: "Chaque progrès dans une compétence (pêche, cuisine, charpenterie, combat, navigation, musique, médecine) est toujours de +2 au lieu de +1." },
   haki_inne: { groupe: "Progression", nom: "Don pour le Haki", desc: "Chaque leçon ou séance de Haki compte toujours double (+2)." },
   affinite_fruit: { groupe: "Progression", nom: "Affinité avec les fruits", desc: "Chaque séance de maîtrise d'un Fruit du Démon rapporte toujours +2." },
   affaires: { groupe: "Progression", nom: "Sens des affaires", desc: "Chaque salaire rapporte toujours 10 Berrys de plus, payés par l'employeur s'il le peut." },
-  charisme_naturel: { groupe: "Progression", nom: "Charisme naturel", desc: "Chaque conversation rapporte toujours +4 en relation au lieu de +2." },
+  charisme_naturel: { groupe: "Progression", nom: "Charisme naturel", desc: "Chaque conversation rapporte toujours +4 en relation au lieu de +2, et chaque gain de charisme est de +2." },
   infatigable: { groupe: "Progression", nom: "Infatigable", desc: "Toutes les activités te fatiguent deux fois moins." },
   // Corps et esprit
   costaud: { groupe: "Corps et esprit", nom: "Né costaud", desc: "+2 en force au départ." },
@@ -42,8 +43,11 @@ export const TALENTS = {
 export const aTalent = (s, id) => !!s.talents?.includes(id);
 
 // Bonus fixes de l'exception B, lus aux endroits où les gains sont appliqués.
-export const bonusEntrainement = s => (aTalent(s, "prodige") ? 1 : 0);
-export const bonusEtude = s => (aTalent(s, "genie") ? 1 : 0);
+const PHYSIQUE = ["force", "agilite", "endurance"];
+// Bonus fixe ajouté à chaque gain d'une caractéristique ou d'une compétence, quelle que soit l'activité.
+export const bonusStat = (s, k) => (PHYSIQUE.includes(k) && aTalent(s, "prodige")) || (k === "intelligence" && aTalent(s, "genie"))
+  || (k === "charisme" && aTalent(s, "charisme_naturel")) ? 1 : 0;
+export const bonusCompetence = (s, k) => (aTalent(s, "doue") ? 1 : 0);
 export const bonusHaki = s => (aTalent(s, "haki_inne") ? 1 : 0);
 export const bonusFruit = s => (aTalent(s, "affinite_fruit") ? 1 : 0);
 export const bonusSalaire = s => (aTalent(s, "affaires") ? 10 : 0);

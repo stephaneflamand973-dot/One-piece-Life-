@@ -3,7 +3,7 @@
 // d'autres des années plus tard (chaînes). Toutes les conséquences respectent les règles fixes :
 // gains fixes (D.2A), argent toujours pris à quelqu'un ou à l'extérieur, aucune réussite partielle.
 
-import { rand, noter, age, agePnj, pnjIci, puissance, souvenir, transferer, gagnerStat, blesser, GAINS, ILES, LIEUX, ROUTES, lieuxDe } from "./engine.js";
+import { rand, noter, age, agePnj, pnjIci, puissance, souvenir, transferer, gagnerStat, gagnerCompetence, blesser, GAINS, ILES, LIEUX, ROUTES, lieuxDe } from "./engine.js";
 import { nouvelle, regionDe, vivants } from "./monde.js";
 import { EVENEMENTS_FACTIONS } from "./factions.js";
 import { EVENEMENTS_2 } from "./evenements2.js";
@@ -15,7 +15,9 @@ const AN = 365;
 
 function trait(s, k, d) { s.traits[k] = Math.max(-10, Math.min(10, (s.traits[k] || 0) + d)); }
 function humeur(s, d) { s.humeur = Math.max(-100, Math.min(100, (s.humeur || 0) + d)); }
-function stat(s, k) { return gagnerStat(s, k, GAINS.entrainement) ? ` ${({ force: "Force", agilite: "Agilité", endurance: "Endurance", intelligence: "Intelligence", charisme: "Charisme" })[k]} +${GAINS.entrainement}.` : ""; }
+function stat(s, k) { const g = gagnerStat(s, k, GAINS.entrainement); return g ? ` ${({ force: "Force", agilite: "Agilité", endurance: "Endurance", intelligence: "Intelligence", charisme: "Charisme" })[k]} +${g}.` : ""; }
+// Progrès dans une compétence, majoré par le talent « Doué de ses mains » ; renvoie le texte « Nom +n. ».
+function comp(s, k, base = 1) { const g = gagnerCompetence(s, k, base); return ` ${({ peche: "Pêche", cuisine: "Cuisine", charpenterie: "Charpenterie", combat: "Combat", navigation: "Navigation", musique: "Musique", medecine: "Médecine" })[k]} +${g}.`; }
 function relation(s, id, d, souv) { if (!s.pnj[id]) return; s.pnj[id].relation += d; if (souv) souvenir(s, id, souv); }
 function deExterieur(s, n) { s.monde.exterieur -= n; s.berrys += n; }
 function versExterieur(s, n) { const m = Math.min(n, s.berrys); s.berrys -= m; s.monde.exterieur += m; return m; }
@@ -27,7 +29,7 @@ const surPort = s => s.lieu === ILES[s.ile].port;
 const taverne = s => ["bar", "taverne_shells", "salle_baratie", "auberge_logue", "bar_w7", "bar_sabaody", "place_hp", "ville_dr", "village_wano"].includes(s.lieu);
 function combat(s, difficulte) { return puissance(s) + rand(s) * 15 >= difficulte; }
 
-export { trait, humeur, stat, relation, deExterieur, versExterieur, planifier, nom, presentsAdultes, parentsVivants, surPort, taverne, combat, pick };
+export { trait, humeur, stat, comp, relation, deExterieur, versExterieur, planifier, nom, presentsAdultes, parentsVivants, surPort, taverne, combat, pick };
 
 // ---------- Missions variées (toujours binaires, récompense mise de côté à l'acceptation) ----------
 
@@ -89,7 +91,7 @@ export const EVENEMENTS = [
     choix: [["Garder le secret", s => { relation(s, "sacha", 8, "tu as gardé son secret"); return "Sacha te serre la main, solennel."; }],
       ["Le répéter aux autres", s => { trait(s, "ruse", 1); relation(s, "sacha", -12, "tu as trahi son secret"); return "Le secret fait le tour du village. Sacha ne te parle plus pendant des semaines."; }]] },
   { id: "voile_bern", age: [10, 15], lieux: ["port"], texte: "Bern se bat avec une voile déchirée par le vent.",
-    choix: [["L'aider", s => { s.competences.peche += 1; relation(s, "bern", 4, "tu l'as aidé à recoudre une voile"); return "Vous recousez la voile ensemble. Pêche +1."; }],
+    choix: [["L'aider", s => { const t = comp(s, "peche"); relation(s, "bern", 4, "tu l'as aidé à recoudre une voile"); return `Vous recousez la voile ensemble.${t}`; }],
       ["Continuer ta route", () => "Bern grommelle dans sa barbe."]] },
 
   // Adolescence
@@ -126,7 +128,7 @@ export const EVENEMENTS = [
     choix: [["L'acheter", s => { const m = versExterieur(s, 100); return m ? "Tu rentres déchiffrer ta carte… c'est un plan de la ville, griffonné. Arnaqué." : "Tu n'as pas assez. Tant mieux."; }],
       ["Démasquer l'escroc", s => { trait(s, "ruse", 1); return "Tu le confonds devant la foule. Il détale."; }]] },
   { id: "apprentissage", age: [14, 25], lieux: ["atelier"], unique: true, cond: s => s.pnj.tomas?.vivant !== false, texte: "Tomas t'observe : « Tu as de bonnes mains. Tu veux devenir mon apprenti ? »",
-    choix: [["Accepter", s => { s.drapeaux.apprenti = s.jour; s.competences.charpenterie += 1; relation(s, "tomas", 10, "tu es devenu son apprenti"); return "Tomas te tend un rabot. Charpenterie +1."; }],
+    choix: [["Accepter", s => { s.drapeaux.apprenti = s.jour; const t = comp(s, "charpenterie"); relation(s, "tomas", 10, "tu es devenu son apprenti"); return `Tomas te tend un rabot.${t}`; }],
       ["Refuser poliment", () => "« Comme tu voudras. La porte reste ouverte. »"]] },
   { id: "pret", age: [18, 90], cond: s => s.berrys >= 100 && presentsAdultes(s).some(id => s.pnj[id].relation >= 20), prep: s => ({ p: pick(s, presentsAdultes(s).filter(id => s.pnj[id].relation >= 20)) }),
     texte: (s, d) => `${nom(s, d.p)} est dans la gêne et te demande de lui prêter 100 Berrys.`,
@@ -167,14 +169,14 @@ export const EVENEMENTS = [
 
   // Danger
   { id: "agression", age: [16, 80], cond: s => !taverne(s) && s.ile !== "fuchsia", texte: "Dans une ruelle, deux brutes te barrent la route : « Ta bourse. »",
-    choix: [["Te battre", s => { if (combat(s, 14 + (ILES[s.ile].danger || 0) * 8)) { s.competences.combat += GAINS.combat; return `Tu les envoies au tapis. Combat +${GAINS.combat}.`; } blesser(s, 1); return "Ils sont plus forts. Tu repars blessé, mais ta bourse est sauve."; }],
+    choix: [["Te battre", s => { if (combat(s, 14 + (ILES[s.ile].danger || 0) * 8)) { return `Tu les envoies au tapis.${comp(s, "combat", GAINS.combat)}`; } blesser(s, 1); return "Ils sont plus forts. Tu repars blessé, mais ta bourse est sauve."; }],
       ["Donner 20 Berrys", s => { versExterieur(s, 20); trait(s, "courage", -1); return "Ils empochent l'argent et disparaissent."; }],
       ["T'enfuir", s => { if (s.stats.agilite + rand(s) * 10 > 10) return "Tu sèmes tes agresseurs dans les ruelles."; blesser(s, 0); return "Ils te rattrapent au coin de la rue."; }]] },
   { id: "voyou_vengeance", planifie: true, texte: "Le voyou que tu avais humilié est revenu, avec des amis.",
     choix: [["Faire face", s => { if (combat(s, 22)) { trait(s, "courage", 1); return "Tu les mets en déroute. On ne t'embêtera plus."; } blesser(s, 2); return "Le combat tourne mal. Tu t'effondres."; }],
       ["Négocier", s => { trait(s, "ruse", 1); versExterieur(s, 50); return "Quelques Berrys et des excuses : l'affaire est close."; }]] },
   { id: "chasseur_primes", age: [16, 99], poids: 2, cond: s => s.prime > 0, texte: "Un chasseur de primes t'a reconnu : « Ta tête vaut cher. »",
-    choix: [["Le combattre", s => { if (combat(s, 20 + (ILES[s.ile].danger || 0) * 8)) { s.competences.combat += GAINS.combat; return `Tu le désarmes et l'envoies à la mer. Combat +${GAINS.combat}.`; } blesser(s, 2); const perte = versExterieur(s, Math.floor(s.berrys * 0.2)); return `Il te roue de coups et te dépouille de ${perte} Berrys avant que tu ne t'échappes.`; }],
+    choix: [["Le combattre", s => { if (combat(s, 20 + (ILES[s.ile].danger || 0) * 8)) { return `Tu le désarmes et l'envoies à la mer.${comp(s, "combat", GAINS.combat)}`; } blesser(s, 2); const perte = versExterieur(s, Math.floor(s.berrys * 0.2)); return `Il te roue de coups et te dépouille de ${perte} Berrys avant que tu ne t'échappes.`; }],
       ["Fuir", s => { if (s.stats.agilite + rand(s) * 15 > 14) return "Tu te fonds dans la foule."; blesser(s, 1); return "Il te blesse avant que tu ne t'échappes."; }]] },
   { id: "controle_marine", age: [16, 99], cond: s => surPort(s) && s.prime === 0 && s.ile !== "wano", texte: "Une patrouille de la Marine contrôle les voyageurs du port.",
     choix: [["Coopérer", s => { s.reputation.marine = (s.reputation.marine || 0) + 2; return "Rien à signaler. On te salue."; }],
@@ -315,7 +317,7 @@ export function accomplir(s) {
   const m = s.missions.find(m => m.statut === "active" && m.lieu === s.lieu && !m.fait);
   if (!m) return { ok: false, texte: "Il n'y a rien à accomplir ici." };
   if (m.code === "chasse") {
-    if (combat(s, m.difficulte)) { m.fait = true; s.competences.combat += GAINS.combat; return { ok: true, texte: `Tu débusques le bandit et le maîtrises. Combat +${GAINS.combat}.` }; }
+    if (combat(s, m.difficulte)) { m.fait = true; return { ok: true, texte: `Tu débusques le bandit et le maîtrises.${comp(s, "combat", GAINS.combat)}` }; }
     blesser(s, 1);
     return { ok: true, texte: "Le bandit t'échappe après t'avoir blessé. Tu peux retenter avant l'échéance." };
   }

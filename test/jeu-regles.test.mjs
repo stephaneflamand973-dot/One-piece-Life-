@@ -850,3 +850,38 @@ test("talents : tout cocher crée une vie valide, sans création d'argent", () =
 });
 import * as TA from "../jeu/talents.js";
 function await_import_talents() { return TA; }
+
+test("talents : Prodige s'applique partout (jeux d'enfant, travail aux docks, service Marine, événements)", () => {
+  const s = E.nouvelleVie({ prenom: "T", seed: 76, talents: ["prodige"] }); s.jour = 3 * 365; s.lieu = "colline";
+  const avant = s.stats.endurance + s.stats.agilite;
+  E.agir(s, { id: "jouer" });
+  assert.equal(s.stats.endurance + s.stats.agilite, avant + 2);
+  s.jour = 20 * 365; s.ile = "loguetown"; s.lieu = "quais_logue"; s.heure = 8; s.fatigue = 0;
+  const f = s.stats.force;
+  E.agir(s, { id: "travailler" });
+  assert.equal(s.stats.force, f + 2);
+  s.ile = "shells"; s.lieu = "base"; s.heure = 8; s.fatigue = 0; s.carriere = { type: "marine", rang: 0, merite: 0, depuis: s.jour };
+  const f2 = s.stats.force;
+  E.agir(s, { id: "service" });
+  assert.equal(s.stats.force, f2 + 2);
+  s.evenement = { id: "course", jour: s.jour, data: {} };
+  const a = s.stats.agilite;
+  E.agir(s, { id: "choisir", cible: 0 });
+  assert.equal(s.stats.agilite, a + 2);
+});
+
+test("talents : Doué de ses mains donne +2 à chaque progrès de compétence", () => {
+  const s = E.nouvelleVie({ prenom: "T", seed: 77, talents: ["doue"] }); s.jour = 16 * 365; s.lieu = "port";
+  E.agir(s, { id: "travailler" });
+  assert.equal(s.competences.peche, 2);
+  s.heure = 8; s.fatigue = 0;
+  E.agir(s, { id: "cartes" });
+  assert.equal(s.competences.navigation, 2);
+});
+
+test("talents : Génie s'applique aussi aux histoires du bar ; sans talent, toujours +1", () => {
+  const g = E.nouvelleVie({ prenom: "T", seed: 78, talents: ["genie"] }); g.jour = 3 * 365; g.lieu = "bar";
+  const i = g.stats.intelligence; E.agir(g, { id: "ecouter" }); assert.equal(g.stats.intelligence, i + 2);
+  const n = E.nouvelleVie({ prenom: "T", seed: 78 }); n.jour = 3 * 365; n.lieu = "bar";
+  const j = n.stats.intelligence; E.agir(n, { id: "ecouter" }); assert.equal(n.stats.intelligence, j + 1);
+});

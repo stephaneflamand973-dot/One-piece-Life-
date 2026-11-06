@@ -4,7 +4,7 @@
 // Échelle : les primes sont en Berrys canoniques ; la Marine verse aux chasseurs une prime réglementaire
 // d'un deux-millième, à l'échelle des prix du jeu. L'argent vient toujours de l'extérieur comptabilisé.
 
-import { rand, noter, age, puissance, blesser, pnjIci, GAINS, ILES, res } from "./engine.js";
+import { rand, noter, age, puissance, blesser, pnjIci, gagnerCompetence, GAINS, ILES, res } from "./engine.js";
 import { nouvelle, regionDe, rivauxIci } from "./monde.js";
 
 export const FACTIONS = { marine: "Marine", gouvernement: "Gouvernement mondial", revolution: "Armée révolutionnaire", pirates: "Pirates", chasseurs: "Chasseurs de primes" };
@@ -44,10 +44,10 @@ export const ACTIONS_FACTIONS = {
       const gain = recompenseChasseur(r.prime);
       r.actif = false; r.fin = "capturé par un chasseur";
       s.monde.exterieur -= gain; s.berrys += gain;
-      s.carriere.captures += 1; s.competences.combat += GAINS.combat;
+      s.carriere.captures += 1; const gco = gagnerCompetence(s, "combat", GAINS.combat);
       reputation(s, "chasseurs", 5); reputation(s, "marine", 3); reputation(s, "pirates", -5);
       nouvelle(s, s.ile, `Le capitaine ${r.capitaine} (${r.nom}) a été capturé par ${s.perso.prenom}, chasseur de primes.`, "region");
-      return res(true, `Tu captures le capitaine ${r.capitaine} et le livres à la Marine. Prime réglementaire versée : ${gain} Berrys. Combat +${GAINS.combat}.`);
+      return res(true, `Tu captures le capitaine ${r.capitaine} et le livres à la Marine. Prime réglementaire versée : ${gain} Berrys. Combat +${gco}.`);
     }
     blesser(s, rand(s) < 0.3 ? 2 : 1);
     r.force += 1;
