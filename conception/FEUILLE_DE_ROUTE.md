@@ -38,7 +38,24 @@ Chaque étape doit les respecter. Un test automatique vérifie chacune d'elles.
 
 ---
 
-## Étape 1 · Un monde qui vit seul ⏳
+## Bilan du 6 novembre 2026 (versions 8 à 14)
+
+Les 7 étapes ont reçu une première version jouable, testée et mise en ligne. Plusieurs critères de réussite ne sont **pas encore atteints** ; ils sont listés ici pour la suite.
+
+| Étape | Fait | Critère | Reste à faire |
+|---|---|---|---|
+| 1. Monde vivant | Mort, couples, naissances, successions de métiers, arrivées et départs, rivaux, officiers, nouvelles à délai | ✅ Plus de 30 % des habitants changent en 50 ans (test) ; ✅ personnages canoniques protégés ; ✅ une semaine se calcule en moins d'une seconde | — |
+| 2. Événements | 48 événements (dont factions et canon), chaînes, rêves, missions de livraison, chasse et sauvetage | ❌ 100 événements visés ; ❌ les événements se répètent beaucoup d'une vie à l'autre | Écrire au moins 50 événements de plus, varier les textes |
+| 3. Chronologie | 4 époques, 6 événements datés, présence canonique de Luffy, Shanks, Makino, du maire, 1 divergence jouable | ⚠️ Pas encore vérifié sur 20 parties par un humain | Plus d'événements canoniques, plus de divergences |
+| 4. Factions | Réputation × 5, chasseur de primes, révolutionnaire, Grand Corsaire, Empereur, alliances, trahisons, guerres | ⚠️ Carrières de 20 ans pas encore jouées en entier par un humain | Agent du Gouvernement, territoires, Amiraux |
+| 5. Vie profonde | Traits, humeur, école, navigation, musique, médecine, maladies de l'âge | ✅ Deux vies identiques divergent selon les choix (test) | Plus d'options liées aux traits |
+| 6. Rejouabilité | 5 îles de naissance, humain ou homme-poisson, 3 départs imposés, 24 succès, mémorial | ⚠️ Peuples mink et géant absents | Autres peuples, défis supplémentaires |
+| 7. Présentation | Illustrations dessinées en code, tutoriel, animations, sons synthétisés, taille du texte, contraste | ⚠️ Pas de vrais portraits ni de musique ; vibrations impossibles dans Safari sur iPhone | Images libres de droits ou fournies, musique |
+| Qualité | Simulateur de vies (`outils/simuler.mjs`), 239 tests ; il a déjà trouvé une perte d'argent et un plantage, corrigés | ❌ 1 000 vies non simulées : une vie complète prend environ 10 s, soit près de 3 h | Accélérer le simulateur |
+
+---
+
+## Étape 1 · Un monde qui vit seul ✅ (première version)
 
 **But :** le monde change même quand tu ne fais rien. Après 50 ans de partie, le village doit être transformé sans que tu y sois pour rien.
 
@@ -59,7 +76,7 @@ Chaque étape doit les respecter. Un test automatique vérifie chacune d'elles.
 
 ---
 
-## Étape 2 · Des événements et des choix ⏳
+## Étape 2 · Des événements et des choix ✅ (première version)
 
 **But :** chaque partie est faite de moments marquants, de dilemmes et de conséquences qui durent.
 
@@ -79,7 +96,7 @@ Chaque étape doit les respecter. Un test automatique vérifie chacune d'elles.
 
 ---
 
-## Étape 3 · La chronologie du canon et l'époque au choix ⏳
+## Étape 3 · La chronologie du canon et l'époque au choix ✅ (première version)
 
 **But :** vivre à l'époque de son choix dans un monde fidèle au canon, qui peut ensuite diverger.
 
@@ -97,7 +114,7 @@ Chaque étape doit les respecter. Un test automatique vérifie chacune d'elles.
 
 ---
 
-## Étape 4 · Les factions et la politique ⏳
+## Étape 4 · Les factions et la politique ✅ (première version)
 
 **But :** chaque grande puissance du monde de One Piece est jouable et réagit à tes actes.
 
@@ -115,7 +132,7 @@ Chaque étape doit les respecter. Un test automatique vérifie chacune d'elles.
 
 ---
 
-## Étape 5 · Une vie profonde ⏳
+## Étape 5 · Une vie profonde ✅ (première version)
 
 **But :** le personnage a une vie intérieure, et deux vies qui partent du même point divergent vraiment.
 
@@ -131,7 +148,7 @@ Chaque étape doit les respecter. Un test automatique vérifie chacune d'elles.
 
 ---
 
-## Étape 6 · La rejouabilité ⏳
+## Étape 6 · La rejouabilité ✅ (première version)
 
 **But :** donner envie de recommencer encore et encore.
 
@@ -147,7 +164,7 @@ Chaque étape doit les respecter. Un test automatique vérifie chacune d'elles.
 
 ---
 
-## Étape 7 · La présentation ⏳
+## Étape 7 · La présentation ✅ (première version)
 
 **But :** un jeu agréable à regarder, à écouter et à prendre en main.
 

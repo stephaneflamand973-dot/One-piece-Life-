@@ -1,5 +1,7 @@
 # One Piece Life · nouvelle application (`jeu/`)
 
+Feuille de route et bilan : `conception/FEUILLE_DE_ROUTE.md`. Simulateur de vies : `node outils/simuler.mjs 100`.
+
 Simulation de vie dans le monde de One Piece, jouable sur iPhone : https://stephaneflamand973-dot.github.io/One-piece-Life-/
 
 - **Installation sur iPhone :** ouvrir le lien dans Safari → Partager → « Sur l'écran d'accueil ».
