@@ -275,7 +275,7 @@ export function declencherEvenement(s) {
     const e = PAR_ID[p.id];
     if (e && (!e.cond || e.cond(s, p.data))) return ouvrir(s, e, p.data);
   }
-  if (rand(s) >= 0.1) return false;
+  if (rand(s) >= (s.talents?.includes("lignee_d") ? 0.15 : 0.1)) return false;
   const choix = EVENEMENTS.filter(e => eligible(s, e));
   if (!choix.length) return false;
   const total = choix.reduce((t, e) => t + (e.poids || 1), 0);

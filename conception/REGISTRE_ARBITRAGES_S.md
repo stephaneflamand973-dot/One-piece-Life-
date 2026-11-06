@@ -82,3 +82,10 @@ Le user demande « une application hébergée sur une plateforme gratuite ». Il
 | Base | Nouvelle application `jeu/`, respectant les invariants D.2A, L.3A, L.4A, K.2A, I.5A, 01.6A |
 | IA | Le jeu fonctionne sans IA et hors ligne. IA en ligne **facultative** (Gemini, clé gratuite du joueur) : **P.2A n'est plus garanti quand elle est activée.** L'IA n'a aucune autorité sur les faits. |
 | Processus | La démarche par paliers et questions est suspendue : réalisation directe. |
+
+## Talents de création (décision du user, 6 novembre 2026)
+
+| Réf. | Décision |
+|---|---|
+| **D.2A-B** | Exception limitée à D.2A : seuls les **talents choisis à la création** peuvent modifier un gain, toujours d'une quantité **fixe et connue d'avance** (ex. « Prodige » : +2 au lieu de +1 à chaque entraînement). Jamais de hasard, jamais de rendement décroissant. Partout ailleurs, D.2A s'applique inchangée. |
+| Sélection | Le joueur coche **autant de talents qu'il veut** (25 talents, pas de points, pas de défauts). |

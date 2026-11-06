@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { appliquerTalents, anniversaireTalents, aTalent, bonusEntrainement, bonusEtude, bonusHaki, bonusFruit, bonusSalaire, bonusRelation, facteurFatigue, decalageAge } from "./talents.js";
 import { appliquerOrigine, texteNaissance, verifierSucces, ORIGINES } from "./origines.js";
 import { ACTIONS_VIE, actionsVie, initialiserVie, vieInterieure, seuilFatigue } from "./vie.js";
 import { ACTIONS_FACTIONS, actionsFactions, vieFactions, marineIgnore, reputation } from "./factions.js";
@@ -191,7 +192,7 @@ const pick = (s, arr) => arr[Math.floor(rand(s) * arr.length)];
 
 // ---------- Création ----------
 
-export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, aleatoire = true, ere = "avant_luffy", origine = "fuchsia", peuple = "humain", defi = "aucun" } = {}) {
+export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, aleatoire = true, ere = "avant_luffy", origine = "fuchsia", peuple = "humain", defi = "aucun", talents = [] } = {}) {
   if (peuple === "homme_poisson") origine = "hommes_poissons";
   if (!ORIGINES[origine] || (origine === "hommes_poissons" && peuple !== "homme_poisson")) origine = "fuchsia";
   const s = {
@@ -222,6 +223,7 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
   initialiserChronologie(s, ere);
   initialiserVie(s);
   appliquerOrigine(s, { origine, peuple, defi });
+  appliquerTalents(s, talents);
   noter(s, texteNaissance(s, `${s.pnj.mere.nom} et ${s.pnj.pere.nom}`), "naissance");
   return s;
 }
@@ -288,6 +290,7 @@ export function migrer(s) {
   initialiserEvenements(s);
   initialiserChronologie(s);
   initialiserVie(s);
+  s.talents ??= [];
   s.foyer ??= "maison"; s.origine ??= "fuchsia"; s.peuple ??= "humain"; s.defi ??= "aucun"; s.succes ??= {};
   s.version = VERSION;
   return s;
@@ -311,7 +314,7 @@ export function masseMonetaire(s) {
 
 function consommer(s, heures, fatigue) {
   s.heure += heures;
-  s.fatigue = Math.min(100, s.fatigue + fatigue);
+  s.fatigue = Math.min(100, s.fatigue + Math.round(fatigue * facteurFatigue(s)));
 }
 function tempsDisponible(s, heures) { return s.heure + heures <= 8 + JOUR_HEURES; }
 
@@ -389,8 +392,9 @@ function passerJour(s, { recuperation = 70 } = {}) {
   vieFactions(s);
   vieInterieure(s);
   verifierSucces(s);
+  anniversaireTalents(s);
   // Vieillissement et mortalité crédible (simplifiée) après 70 ans.
-  if (age(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - 65) * 0.02) {
+  if (age(s) - decalageAge(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - decalageAge(s) - 65) * 0.02) {
     s.perso.vivant = false;
     importants.push({ type: "mort", texte: "Ta vie s'achève paisiblement à Fuchsia." });
     noter(s, `${s.perso.prenom} s'éteint à ${age(s)} ans.`, "mort");
@@ -602,7 +606,7 @@ const ACTIONS = {
     if (!p || !pnjIci(s).includes(id)) return res(false, "Cette personne n'est pas ici.");
     if (!tempsDisponible(s, 1)) return res(false, "Il est trop tard pour une conversation.");
     consommer(s, 1, 3);
-    p.relation += GAINS.relation_conversation;
+    p.relation += GAINS.relation_conversation + bonusRelation(s);
     const dernier = p.souvenirs[p.souvenirs.length - 1]; // souvenirs vécus avec toi
     return res(true, repliquePnj(s, id, dernier), { pnj: id });
   },
@@ -629,15 +633,18 @@ const ACTIONS = {
     if (e) return res(false, e);
     if (blessureActive(s) && k !== "intelligence") return res(false, "Tu es blessé : l'entraînement physique attendra ta guérison.");
     consommer(s, 2, 15);
-    if (!gagnerStat(s, k, GAINS.entrainement)) return res(true, `Tu t'entraînes, mais tu as atteint ta limite naturelle en ${STATS[k].toLowerCase()}.`);
-    return res(true, `Tu t'entraînes dur. ${STATS[k]} +${GAINS.entrainement}.`);
+    // Exception B : le talent « Prodige » rend ce gain fixe plus grand, jamais variable.
+    const g = GAINS.entrainement + (k === "intelligence" ? bonusEtude(s) : bonusEntrainement(s));
+    if (!gagnerStat(s, k, g)) return res(true, `Tu t'entraînes, mais tu as atteint ta limite naturelle en ${STATS[k].toLowerCase()}.`);
+    return res(true, `Tu t'entraînes dur. ${STATS[k]} +${g}.`);
   },
   etudier(s) {
     const e = activite(s, { heures: 2, fatigue: 8, ageMin: 6 });
     if (e) return res(false, e);
     consommer(s, 2, 8);
-    gagnerStat(s, "intelligence", GAINS.etude);
-    return res(true, `Tu lis et apprends. Intelligence +${GAINS.etude}.`);
+    const g = GAINS.etude + bonusEtude(s);
+    gagnerStat(s, "intelligence", g);
+    return res(true, `Tu lis et apprends. Intelligence +${g}.`);
   },
   travailler(s) {
     const e0 = EMPLOIS[s.lieu];
@@ -650,12 +657,15 @@ const ACTIONS = {
     if (payeur.fonds < e0.salaire) return res(false, `${payeur.nom} n'a plus de quoi te payer en ce moment.`);
     consommer(s, e0.heures, e0.fatigue);
     transferer(s, e0.payeur, "joueur", e0.salaire);
+    // Talent « Sens des affaires » : 10 Berrys de plus, payés par l'employeur s'il le peut (rien n'est créé).
+    const prime = Math.min(bonusSalaire(s), payeur.fonds);
+    if (prime > 0) transferer(s, e0.payeur, "joueur", prime);
     s.compteurs.salaires = (s.compteurs.salaires || 0) + 1;
     let gain = "";
     if (e0.competence) { s.competences[e0.competence] += 1; gain = ` ${COMPETENCES[e0.competence]} +1.`; }
     else if (gagnerStat(s, e0.stat, GAINS.entrainement)) gain = ` ${STATS[e0.stat]} +${GAINS.entrainement}.`;
     if (!payeur.invisible) { payeur.relation += GAINS.relation_aide; souvenir(s, e0.payeur, "tu as bien travaillé pour lui"); }
-    return res(true, `${e0.texte} Tu gagnes ${e0.salaire} Berrys.${gain}`);
+    return res(true, `${e0.texte} Tu gagnes ${e0.salaire + prime} Berrys.${gain}`);
   },
   pecher(s) {
     if (s.lieu !== "port") return res(false, "On pêche au port.");
@@ -972,8 +982,12 @@ const ACTIONS = {
       blesser(s, rand(s) < 0.3 ? 2 : 1);
       return res(true, "Un dinosaure surgit des fougères géantes ! Tu t'échappes de justesse, blessé. Au loin, deux géants s'affrontent dans un fracas de tonnerre.");
     }
-    const x = rand(s);
-    if (reste.length && x < 0.0007 * (1 + danger)) {
+    // Talent « Fruit promis » : la première exploration après 12 ans trouve un fruit.
+    const promis = aTalent(s, "fruit_promis") && !s.drapeaux.fruitPromis && age(s) >= 12;
+    const chance = aTalent(s, "chanceux") ? 3 : 1;
+    const x = rand(s) / chance;
+    if (reste.length && (promis || x < 0.0007 * (1 + danger))) {
+      if (promis) s.drapeaux.fruitPromis = s.jour;
       const f = reste[Math.floor(rand(s) * reste.length)];
       s.monde.fruitsTrouves.push(f); s.inventaire.fruits.push(f);
       return res(true, `Sous des racines, tu découvres un fruit étrange couvert de spirales… C'est un Fruit du Démon : le ${FRUITS[f].nom} (${FRUITS[f].type}) !`);
@@ -1009,7 +1023,7 @@ const ACTIONS = {
     if (e) return res(false, e);
     consommer(s, 4, 35);
     transferer(s, "joueur", "garo", PRIX_LECON_HAKI);
-    s.haki.progres[t] += 1; // progression fixe vers l'éveil (D.2A)
+    s.haki.progres[t] += 1 + bonusHaki(s); // progression fixe vers l'éveil (D.2A, exception B pour le talent)
     if (s.haki.progres[t] >= SEUIL_EVEIL) {
       s.haki.eveil[t] = true; s.haki[t] = Math.max(1, s.haki[t]);
       souvenir(s, "garo", `il t'a aidé à éveiller le ${HAKI[t].nom}`);
@@ -1024,16 +1038,18 @@ const ACTIONS = {
     const e = activite(s, { heures: 3, fatigue: 25 });
     if (e) return res(false, e);
     consommer(s, 3, 25);
-    s.haki[t] += 1; // gain fixe (D.2A)
-    return res(true, `Tu t'exerces au ${HAKI[t].nom}. Niveau +1 (${s.haki[t]}).`);
+    const g = 1 + bonusHaki(s);
+    s.haki[t] += g; // gain fixe (D.2A, exception B pour le talent)
+    return res(true, `Tu t'exerces au ${HAKI[t].nom}. Niveau +${g} (${s.haki[t]}).`);
   },
   maitriser(s) {
     if (!s.fruit) return res(false, "Tu n'as pas de pouvoir à maîtriser.");
     const e = activite(s, { heures: 3, fatigue: 20 });
     if (e) return res(false, e);
     consommer(s, 3, 20);
-    s.fruit.maitrise += 1; // gain fixe (D.2A)
-    return res(true, `Tu t'exerces avec le pouvoir du ${FRUITS[s.fruit.id].nom}. Maîtrise +1 (${s.fruit.maitrise}).`);
+    const g = 1 + bonusFruit(s);
+    s.fruit.maitrise += g; // gain fixe (D.2A, exception B pour le talent)
+    return res(true, `Tu t'exerces avec le pouvoir du ${FRUITS[s.fruit.id].nom}. Maîtrise +${g} (${s.fruit.maitrise}).`);
   },
   attendre(s) {
     if (!s.prison) return res(false, "Tu n'es pas en prison.");
@@ -1287,7 +1303,7 @@ function blesser(s, gravite) {
     return;
   }
   const b = { ...types[gravite] };
-  if (b.sequelle && (rand(s) > 0.4 || (s.competences.medecine || 0) >= 10)) delete b.sequelle;
+  if (b.sequelle && (rand(s) > 0.4 || (s.competences.medecine || 0) >= 10 || aTalent(s, "constitution"))) delete b.sequelle;
   s.sante.blessures.push({ ...b, gravite, depuis: s.jour });
   noter(s, `Blessure : ${b.nom} (guérison en ${b.jours} jours).`, "sante");
 }

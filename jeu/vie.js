@@ -4,6 +4,7 @@
 // qui limitent l'énergie disponible, sans toucher au montant des gains : D.2A).
 
 import { rand, noter, age, pnjIci, transferer, gagnerStat, GAINS, ILES, res } from "./engine.js";
+import { aTalent } from "./talents.js";
 
 export const TRAITS = { courage: ["Prudent", "Courageux"], ruse: ["Franc", "Rusé"], bonte: ["Dur", "Bienveillant"], ambition: ["Modeste", "Ambitieux"] };
 export const MALADIES = ["rhumatismes", "toux chronique", "cœur fragile", "vue qui baisse"];
@@ -36,7 +37,8 @@ export function vieInterieure(s) {
   if (s.humeur > 0) s.humeur -= 1; else if (s.humeur < 0) s.humeur += 1;
   if (s.jour % 365 !== 0) return;
   const a = age(s);
-  if (a >= 50 && s.sante.maladies.length < MALADIES.length && rand(s) < 0.04 + (a - 50) * 0.004) {
+  const ae = a - (aTalent(s, "longevite") ? 10 : 0);
+  if (ae >= 50 && s.sante.maladies.length < MALADIES.length && rand(s) < 0.04 + (ae - 50) * 0.004) {
     const m = MALADIES.find(x => !s.sante.maladies.includes(x));
     s.sante.maladies.push(m);
     noter(s, `L'âge se fait sentir : on te diagnostique ${m}. Tu te fatigues plus vite.`, "sante");
@@ -49,9 +51,10 @@ export const ACTIONS_VIE = {
     if (age(s) < 6 || age(s) > 15) return res(false, "L'école accueille les enfants de 6 à 15 ans.");
     if (s.heure + 4 > 24 || s.fatigue >= seuilFatigue(s)) return res(false, "Pas aujourd'hui : il est trop tard, ou tu es trop fatigué.");
     s.heure += 4; s.fatigue = Math.min(100, s.fatigue + 10);
-    s.education += 1;
-    const g = gagnerStat(s, "intelligence", GAINS.etude) ? ` Intelligence +${GAINS.etude}.` : "";
-    return res(true, `Une journée de classe : lecture, calcul, cartes du monde. Éducation +1.${g}${s.education === 40 ? " Tu termines ta scolarité, instruit." : ""}`);
+    const bonus = aTalent(s, "genie") ? 1 : 0; // exception B : gain fixe majoré par le talent « Génie »
+    s.education += 1 + bonus;
+    const g = gagnerStat(s, "intelligence", GAINS.etude + bonus) ? ` Intelligence +${GAINS.etude + bonus}.` : "";
+    return res(true, `Une journée de classe : lecture, calcul, cartes du monde. Éducation +${1 + bonus}.${g}${s.education === 40 ? " Tu termines ta scolarité, instruit." : ""}`);
   },
   cartes(s) {
     if (s.lieu !== ILES[s.ile].port) return res(false, "On étudie les cartes marines sur le port, auprès des marins.");

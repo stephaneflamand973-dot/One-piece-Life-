@@ -9,6 +9,7 @@ import { ERES, CALENDRIER, anneeRelative, anneeTexte } from "./chronologie.js";
 import { FACTIONS } from "./factions.js";
 import { humeurTexte, portraitTraits, TRAITS } from "./vie.js";
 import { ORIGINES, PEUPLES, DEFIS, SUCCES } from "./origines.js";
+import { TALENTS } from "./talents.js";
 import { sceneSVG, sons, afficherTutoriel, animationTemps, lireAffichage, ecrireAffichage, appliquerAffichage, demarrerAmbiance } from "./presentation.js";
 
 // Mémorial : toutes les vies terminées, gardées sur l'iPhone d'une partie à l'autre.
@@ -25,7 +26,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "15 · 101 événements";
+export const VERSION_APP = "16 · talents";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -97,6 +98,13 @@ function ecranAccueil() {
       <label for="defi">Départ</label>
       <select id="defi">${Object.entries(DEFIS).map(([k, d]) => `<option value="${k}">${d.nom}</option>`).join("")}</select>
       <p class="discret petit" id="defi-desc">${DEFIS.aucun.desc}</p>
+      <label>Talents <span class="discret petit">(coche tous ceux que tu veux)</span></label>
+      <div class="talents">
+        ${[...new Set(Object.values(TALENTS).map(t => t.groupe))].map(g => `<fieldset><legend>${g}</legend>
+          ${Object.entries(TALENTS).filter(([, t]) => t.groupe === g).map(([k, t]) => `<label class="talent"><input type="checkbox" value="${k}"><span><b>${t.nom}</b><br><span class="discret petit">${t.desc}</span></span></label>`).join("")}
+        </fieldset>`).join("")}
+        <div class="ligne-champ"><button type="button" class="secondaire" id="talents-tous">Tout cocher</button><button type="button" class="secondaire" id="talents-aucun">Tout décocher</button></div>
+      </div>
       <label for="ere">Époque</label>
       <select id="ere">${Object.entries(ERES).map(([k, e]) => `<option value="${k}" ${k === "avant_luffy" ? "selected" : ""}>${e.nom}</option>`).join("")}</select>
       <p class="discret petit" id="ere-desc">${ERES.avant_luffy.desc}</p>
@@ -110,13 +118,15 @@ function ecranAccueil() {
       return `<section class="carte"><h2>Mémorial</h2><p class="discret">${m.length} vie${m.length > 1 ? "s" : ""} vécue${m.length > 1 ? "s" : ""} · ${tous.size}/${Object.keys(SUCCES).length} succès débloqués</p>
       ${m.slice(0, 8).map(v => `<p class="petit"><b>${esc(v.prenom)}</b> · ${v.age} ans${v.carriere ? ` · ${v.carriere}` : ""}${v.prime ? ` · prime ${v.prime.toLocaleString("fr-FR")} ฿` : ""}${v.fruit ? " · fruit" : ""}</p>`).join("")}</section>`; })()}
     <section class="carte"><h2>Réglages</h2>${htmlReglages()}</section>`;
+  $("#talents-tous").onclick = () => document.querySelectorAll(".talent input").forEach(c => (c.checked = true));
+  $("#talents-aucun").onclick = () => document.querySelectorAll(".talent input").forEach(c => (c.checked = false));
   $("#defi").onchange = () => { $("#defi-desc").textContent = DEFIS[$("#defi").value].desc; };
   $("#peuple").onchange = () => { const hp = $("#peuple").value === "homme_poisson"; $("#origine").disabled = hp; };
   $("#ere").onchange = () => { $("#ere-desc").textContent = ERES[$("#ere").value].desc; };
   $("#hasard").onclick = () => { $("#prenom").value = prenomAuHasard($("#genre").value); };
   $("#naitre").onclick = () => {
     const prenom = $("#prenom").value.trim() || prenomAuHasard($("#genre").value);
-    s = nouvelleVie({ prenom, genre: $("#genre").value, ere: $("#ere").value, origine: $("#origine").value, peuple: $("#peuple").value, defi: $("#defi").value, seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0 });
+    s = nouvelleVie({ prenom, genre: $("#genre").value, ere: $("#ere").value, origine: $("#origine").value, peuple: $("#peuple").value, defi: $("#defi").value, talents: [...document.querySelectorAll(".talent input:checked")].map(c => c.value), seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0 });
     sauver(); ecranJeu();
   };
   document.querySelectorAll("[data-ouvrir]").forEach(b => b.onclick = () => {
@@ -329,6 +339,7 @@ function rendreFiche() {
     <section class="carte"><h2>Caractéristiques</h2>
       ${Object.entries(STATS).map(([k, l]) => `<div class="stat"><span>${l}</span>${barre(s.stats[k])}<b>${s.stats[k]}</b></div>`).join("")}
       <p class="discret">Chaque entraînement réussi rapporte toujours le même gain fixe.</p></section>
+    ${s.talents?.length ? `<section class="carte"><h2>Talents</h2>${s.talents.map(t => `<p><b>${TALENTS[t].nom}</b> · <span class="discret petit">${TALENTS[t].desc}</span></p>`).join("")}</section>` : ""}
     <section class="carte"><h2>Personnalité</h2>
       <p>${portraitTraits(s).join(", ") || "Encore en train de se dessiner."}</p>
       ${Object.entries(TRAITS).map(([k, [neg, pos]]) => `<div class="stat"><span class="petit">${neg} · ${pos}</span><span class="barre"><i style="width:${((s.traits[k] || 0) + 10) * 5}%"></i></span><b>${s.traits[k] || 0}</b></div>`).join("")}

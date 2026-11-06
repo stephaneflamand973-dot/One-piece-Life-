@@ -808,3 +808,45 @@ test("succès : débloqués une seule fois, notés au journal", () => {
   E.agir(s, { id: "travailler" });
   assert.equal(s.journal.filter(e => e.type === "succes" && e.texte.includes("Premier salaire")).length, n);
 });
+
+// ---------- Talents (exception B à D.2A : gains fixes majorés, choisis à la création) ----------
+test("talents : Prodige donne toujours exactement +2 par entraînement physique", () => {
+  const s = E.nouvelleVie({ prenom: "T", seed: 71, talents: ["prodige"] }); s.jour = 16 * 365;
+  const f = s.stats.force;
+  for (let i = 1; i <= 4; i++) { s.heure = 8; s.fatigue = 0; E.agir(s, { id: "entrainer", cible: "force" }); assert.equal(s.stats.force, f + 2 * i); }
+});
+
+test("talents : sans talent, D.2A s'applique toujours (+1)", () => {
+  const s = E.nouvelleVie({ prenom: "T", seed: 72 }); s.jour = 16 * 365;
+  const f = s.stats.force;
+  E.agir(s, { id: "entrainer", cible: "force" });
+  assert.equal(s.stats.force, f + 1);
+});
+
+test("talents : Sens des affaires paie 10 Berrys de plus sans créer d'argent", () => {
+  const s = E.nouvelleVie({ prenom: "T", seed: 73, talents: ["affaires"] }); s.jour = 16 * 365; s.lieu = "port";
+  const masse = E.masseMonetaire(s);
+  E.agir(s, { id: "travailler" });
+  assert.equal(s.berrys, 40);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("talents : Infatigable divise la fatigue, Fruit promis trouve un fruit à la première exploration", () => {
+  const s = E.nouvelleVie({ prenom: "T", seed: 74, talents: ["infatigable", "fruit_promis"] }); s.jour = 16 * 365; s.lieu = "colline";
+  E.agir(s, { id: "explorer" });
+  assert.equal(s.inventaire.fruits.length, 1);
+  assert.ok(s.fatigue <= 8);
+});
+
+test("talents : tout cocher crée une vie valide, sans création d'argent", () => {
+  const tous = Object.keys((await_import_talents()).TALENTS);
+  const s = E.nouvelleVie({ prenom: "T", seed: 75, talents: tous });
+  const masse = E.masseMonetaire(s);
+  assert.ok(s.pnj.ami_enfance);
+  E.avancer(s, 17 * 365, { sansInterruption: true });
+  assert.ok(s.navire);
+  assert.ok(s.drapeaux.pecule);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+import * as TA from "../jeu/talents.js";
+function await_import_talents() { return TA; }

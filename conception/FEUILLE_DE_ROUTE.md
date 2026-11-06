@@ -12,7 +12,7 @@
 
 Chaque étape doit les respecter. Un test automatique vérifie chacune d'elles.
 
-1. **Gains fixes** : une activité réussie rapporte toujours exactement son gain prévu. La fatigue ou les conditions décident si elle a lieu, jamais du montant (D.2A).
+1. **Gains fixes** : une activité réussie rapporte toujours exactement son gain prévu. La fatigue ou les conditions décident si elle a lieu, jamais du montant (D.2A). Exception décidée le 6 novembre 2026 : un talent choisi à la création peut fixer un gain plus grand, toujours fixe (D.2A-B).
 2. **Missions binaires** : réussite ou échec, sans entre-deux ; récompense mise de côté avant l'engagement et versée automatiquement (L.3A, L.4A).
 3. **Guérison automatique** pendant le temps simulé ; des séquelles durables restent possibles (K.2A).
 4. **Fabrication et réparation instantanées** si les ressources sont réellement là ; échec immédiat sinon (I.5A).
