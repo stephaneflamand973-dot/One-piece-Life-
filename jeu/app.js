@@ -9,6 +9,7 @@ import { ERES, CALENDRIER, anneeRelative, anneeTexte } from "./chronologie.js";
 import { FACTIONS } from "./factions.js";
 import { humeurTexte, portraitTraits, TRAITS } from "./vie.js";
 import { ORIGINES, PEUPLES, DEFIS, SUCCES } from "./origines.js";
+import { sceneSVG, sons, afficherTutoriel, animationTemps, lireAffichage, ecrireAffichage, appliquerAffichage, demarrerAmbiance } from "./presentation.js";
 
 // Mémorial : toutes les vies terminées, gardées sur l'iPhone d'une partie à l'autre.
 const CLE_MEMORIAL = "opl-memorial";
@@ -24,7 +25,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "13 · rejouabilité";
+export const VERSION_APP = "14 · présentation";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -127,7 +128,8 @@ function ecranAccueil() {
   document.querySelectorAll("[data-suppr]").forEach(b => b.onclick = () => {
     if (!confirm("Supprimer définitivement cette vie ?")) return;
     try { localStorage.removeItem(cleMonde(b.dataset.suppr)); localStorage.removeItem(`${cleMonde(b.dataset.suppr)}-secours`); } catch {}
-    ecrireIndex(lireIndex().filter(m => m.id !== b.dataset.suppr)); ecranAccueil();
+    ecrireIndex(lireIndex().filter(m => m.id !== b.dataset.suppr)); appliquerAffichage();
+ecranAccueil();
   });
   brancherReglages();
 }
@@ -145,13 +147,15 @@ function ecranJeu() {
     </nav>`;
   document.querySelectorAll("[data-onglet]").forEach(b => b.onclick = () => { onglet = b.dataset.onglet; rendre(); });
   rendre();
+  afficherTutoriel();
 }
 
 // Après chaque mise à jour de l'écran, les boutons changent de place : un second appui trop rapide
 // tomberait sur un autre bouton. On ignore donc les appuis pendant un court instant.
 let verrouAppuis = 0;
 document.addEventListener("click", e => {
-  if (performance.now() < verrouAppuis && e.target.closest("button")) { e.preventDefault(); e.stopPropagation(); }
+  if (performance.now() < verrouAppuis && e.target.closest("button")) { e.preventDefault(); e.stopPropagation(); return; }
+  if (e.target.closest("button")) { sons.appui(); demarrerAmbiance(); }
 }, true);
 
 function rendre() {
@@ -216,11 +220,12 @@ function rendreVivre() {
   }).join("");
   $("#contenu").innerHTML = `
     <section class="scene">
+      ${sceneSVG(s.ile, s.lieu, regionDe(s.ile), s.heure)}
       <div class="scene-ile">${esc(ile.nom[0].toUpperCase() + ile.nom.slice(1))}</div>
       <div class="scene-lieu">${esc(lieu.nom[0].toUpperCase() + lieu.nom.slice(1))}</div>
       <div class="presents">${ici.length ? ici.map(id => `<button class="pnj" data-parler="${id}"><span>${esc(s.pnj[id].nom[0])}</span>${esc(s.pnj[id].nom)}</button>`).join("") : `<span class="discret petit">Personne ici.</span>`}</div>
     </section>
-    <section class="recit" id="recit">${recit}</section>
+    <section class="recit" id="recit" aria-live="polite">${recit}</section>
     ${s.perso.vivant ? `
     ${enfant ? "" : `<form class="saisie" id="saisie">
       <input id="texte" placeholder="Que fais-tu ?" autocomplete="off" enterkeyhint="send">
@@ -257,19 +262,25 @@ async function jouer(actions, { narrer: avecNarration = true } = {}) {
   if (occupe || !actions.length) return;
   occupe = true;
   const resultats = [];
+  let resultatsOk = true;
   for (const a of actions) {
     const r = agir(s, a);
     resultats.push(r.texte);
+    resultatsOk = r.ok;
     if (!r.ok || r.interruption) break; // une action impossible ou un événement important arrête la suite
   }
   sauver(); rendre();
+  if (s.evenement) sons.evenement(); else if (resultats.length) (resultatsOk ? sons.succes : sons.echec)();
   if (avecNarration && iaActive() && s.perso.vivant) await raconter(resultats.join(" "));
   occupe = false;
 }
 
 function temps(jours) {
   if (occupe) return;
+  animationTemps(jours >= 365 ? "Une année passe…" : jours >= 30 ? "Un mois passe…" : "Une semaine passe…");
+  sons.temps();
   avancer(s, jours); sauver(); rendre();
+  if (s.evenement) sons.evenement();
 }
 
 async function raconter(resultat) {
@@ -386,7 +397,20 @@ function rendreMenu() {
       <p class="discret">Sauvegarde automatique après chaque action. Le monde est figé quand tu quittes l'app. Version ${VERSION_APP}.</p>
       <button class="secondaire" id="exporter">Exporter la sauvegarde</button>
       <button class="secondaire" id="accueil">Changer de vie</button></section>
+    <section class="carte"><h2>Affichage et sons</h2>
+      <label for="taille">Taille du texte</label>
+      <select id="taille"><option value="normal">Normale</option><option value="grand">Grande</option><option value="tresgrand">Très grande</option></select>
+      <label class="case"><input type="checkbox" id="contraste"> Contraste renforcé</label>
+      <label class="case"><input type="checkbox" id="sons"> Sons</label>
+      <label class="case"><input type="checkbox" id="ambiance"> Ambiance de la mer</label>
+      <button class="secondaire" id="tuto">Revoir le tutoriel</button>
+      <p class="discret petit">Les vibrations ne sont pas possibles : Safari sur iPhone ne les autorise pas aux sites web.</p></section>
     <section class="carte"><h2>IA (facultative)</h2>${htmlReglages()}</section>`;
+  const r = lireAffichage();
+  $("#taille").value = r.texte; $("#contraste").checked = r.contraste; $("#sons").checked = r.sons; $("#ambiance").checked = r.ambiance;
+  const maj = () => { ecrireAffichage({ texte: $("#taille").value, contraste: $("#contraste").checked, sons: $("#sons").checked, ambiance: $("#ambiance").checked }); if ($("#ambiance").checked) demarrerAmbiance(); };
+  ["#taille", "#contraste", "#sons", "#ambiance"].forEach(sel => ($(sel).onchange = maj));
+  $("#tuto").onclick = () => afficherTutoriel(true);
   $("#accueil").onclick = ecranAccueil;
   $("#exporter").onclick = async () => {
     const data = serialiser(s);
@@ -444,4 +468,5 @@ if ("serviceWorker" in navigator) {
     recharge = true; sauver(); location.reload();
   });
 }
+appliquerAffichage();
 ecranAccueil();
