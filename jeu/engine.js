@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { ACTIONS_PIRATE, actionsPirate, vieEquipage, estCapitaine, estMembre, bonusCanons, aVoiles, aBlindage, moral, devenirCapitaine } from "./pirate.js";
 import { appliquerTalents, anniversaireTalents, aTalent, bonusStat, bonusCompetence, bonusHaki, bonusFruit, bonusSalaire, bonusRelation, facteurFatigue, decalageAge } from "./talents.js";
 import { appliquerOrigine, texteNaissance, verifierSucces, ORIGINES } from "./origines.js";
 import { ACTIONS_VIE, actionsVie, initialiserVie, vieInterieure, seuilFatigue } from "./vie.js";
@@ -393,6 +394,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
   vieInterieure(s);
   verifierSucces(s);
   anniversaireTalents(s);
+  vieEquipage(s);
   // Vieillissement et mortalité crédible (simplifiée) après 70 ans.
   if (age(s) - decalageAge(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - decalageAge(s) - 65) * 0.02) {
     s.perso.vivant = false;
@@ -503,7 +505,7 @@ export function actionsDisponibles(s) {
     for (const t of ["observation", "armement"]) if (!s.haki.eveil[t]) a.push({ id: "initier", cible: t, label: `Leçon de ${HAKI[t].nom} avec Garo (${PRIX_LECON_HAKI} B)` });
   }
   if (s.lieu === ILES[s.ile].port && s.navire && !s.carriere && ag >= 16) a.push({ id: "pirate", label: "Hisser le pavillon pirate" });
-  if (s.carriere?.type === "pirate") {
+  if (estCapitaine(s)) {
     if (s.lieu === ILES[s.ile].port) a.push({ id: "attaquer", label: "Attaquer un navire marchand" });
     if (TAVERNES.includes(s.lieu)) a.push({ id: "recruter", label: "Recruter un membre d'équipage" });
     if (s.lieu === ILES[s.ile].port) a.push({ id: "quitter", label: "Renoncer à la piraterie" });
@@ -511,6 +513,7 @@ export function actionsDisponibles(s) {
   if (s.lieu === "chantier" && s.navire && s.navire.coque < 100) a.push({ id: "radoub", label: `Faire réparer le navire (${(100 - s.navire.coque) * 20} B)` });
   a.push(...actionsFactions(s));
   a.push(...actionsVie(s));
+  a.push(...actionsPirate(s));
   if (s.lieu === "colisee" && ag >= 18) a.push({ id: "colisee", label: "Combattre au Colisée (3 000 B si victoire)" });
   if (ici.includes("soen") && s.pnj.soen.relation >= 20) a.push({ id: "sabre", label: `Leçon de sabre avec Sōen (${PRIX_LECON_SABRE} B)` });
   if (s.lieu === "enrobage" && s.navire && !s.navire.enrobe) a.push({ id: "enrober", label: `Faire enrober le navire (${PRIX_ENROBAGE} B, 3 jours)` });
@@ -591,6 +594,7 @@ function gagnerCompetence(s, k, gain = 1) {
 const ACTIONS = {
   ...ACTIONS_FACTIONS,
   ...ACTIONS_VIE,
+  ...ACTIONS_PIRATE,
   choisir: (s, i) => choisir(s, +i),
   accomplir: s => {
     const e = activite(s, { heures: 4, fatigue: 25, ageMin: 12 });
@@ -773,6 +777,7 @@ const ACTIONS = {
   repos(s) {
     if (s.prison) { const r = avancer(s, 1); return res(true, `Tu dors sur la paillasse de ta cellule. ${r.texte}`, { interruption: r.interruption }); }
     const lit = ILES[s.ile].auberge;
+    const lieuAvant = s.lieu;
     let recuperation = 70, txt;
     // Les hommes-poissons paient trois fois plus cher à Sabaody : les préjugés y sont tenaces.
     const prix = PRIX_AUBERGE * (s.peuple === "homme_poisson" && s.ile === "sabaody" ? 3 : 1);
@@ -781,8 +786,12 @@ const ACTIONS = {
       s.lieu = lit; transferer(s, "joueur", "dock", prix);
       txt = `Tu paies ${prix} Berrys pour une nuit ${LIEUX[lit].a}${prix > PRIX_AUBERGE ? " (le triple, parce que tu es un homme-poisson)" : ""}.`;
     } else { s.lieu = lit; recuperation = 35; txt = "Sans argent pour une chambre, tu dors dehors. Tu récupères mal."; }
+    // Au réveil, tu reprends là où tu étais la veille (sauf si la nuit a tout changé : prison, mort…).
+    const ileAvant = s.ile;
     const r = avancer(s, 1, { recuperation });
-    return res(true, `${txt} ${r.texte}`, { interruption: r.interruption });
+    if (s.perso.vivant && !s.prison && s.ile === ileAvant && LIEUX[lieuAvant]?.ile === s.ile) s.lieu = lieuAvant;
+    const retour = s.lieu === lieuAvant && lieuAvant !== (s.foyer || "maison") && lieuAvant !== lit ? ` Au matin, tu retournes ${LIEUX[lieuAvant].a}.` : "";
+    return res(true, `${txt} ${r.texte}${retour}`, { interruption: r.interruption });
   },
   voyager(s, dest) {
     if (!ILES[dest] || dest === s.ile || !(dest in ROUTES[s.ile])) return res(false, "Cette destination n'est pas accessible d'ici.");
@@ -807,6 +816,7 @@ const ACTIONS = {
       let risque = calm ? 0.35 : 0.25;
       if (navigue(s)) risque -= 0.12;
       if (s.navire.type === "caravelle") risque -= 0.05;
+      if (aVoiles(s)) risque -= 0.05;
       if (rand(s) < risque) return naufrage(s, calm ? "dans la Calm Belt, renversé par un roi des mers" : "contre les parois de Reverse Mountain", calm ? "loguetown" : "cap");
       textes.push(calm ? "Vous traversez la Calm Belt sans vent, en retenant votre souffle au-dessus des rois des mers endormis." : "Le courant vous aspire vers le sommet de Reverse Mountain, puis vous dévalez de l'autre côté jusqu'à Grand Line !");
     }
@@ -831,12 +841,13 @@ const ACTIONS = {
       if (s.navire && (versGL || depuisGL)) {
         // Sur Grand Line, la mer use la coque ; un charpentier de bord répare en route.
         let usure = 2 + Math.floor(rand(s) * 5);
-        if (rand(s) < (navigue(s) ? 0.04 : 0.1)) { usure += 20; textes.push("Une tempête soudaine malmène le navire."); }
+        if (rand(s) < (navigue(s) ? 0.04 : 0.1) * (aVoiles(s) ? 0.5 : 1)) { usure += 20; textes.push("Une tempête soudaine malmène le navire."); }
         if (aRole(s, "charpentier de bord")) usure = Math.max(0, usure - 4);
+        if (aBlindage(s)) usure = Math.floor(usure / 2);
         s.navire.coque = Math.max(0, s.navire.coque - usure);
         if (s.navire.coque <= 0) return naufrage(s, "en pleine mer, la coque disloquée", dest);
       }
-      if (s.prime > 0 && !marineIgnore(s) && rand(s) < Math.min(0.25, 0.03 * s.infamie)) {
+      if (s.prime > 0 && !marineIgnore(s) && !estMembre(s) && rand(s) < Math.min(0.25, 0.03 * s.infamie)) {
         const r = combatMarine(s, "en mer");
         if (s.prison || !s.perso.vivant) return r;
         noter(s, r.texte, "action");
@@ -920,22 +931,22 @@ const ACTIONS = {
   },
   pirate(s) {
     if (s.carriere?.type === "marine") return res(false, "Quitte d'abord la Marine.");
-    if (s.carriere?.type === "pirate") return res(false, "Tu es déjà pirate.");
+    if (s.carriere?.type === "pirate") return res(false, estMembre(s) ? "Tu fais déjà partie d'un équipage : fonde le tien depuis le port." : "Tu es déjà pirate.");
     if (age(s) < 16) return res(false, "Tu es trop jeune pour prendre la mer en pirate (16 ans).");
     if (!s.navire) return res(false, "Un pirate a besoin d'un navire. Tomas vend des barques à Fuchsia.");
     if (s.lieu !== ILES[s.ile].port) return res(false, "On hisse le pavillon depuis le port.");
-    s.carriere = { type: "pirate", equipage: `Pirates de ${s.perso.prenom}`, depuis: s.jour, raids: 0 };
+    devenirCapitaine(s, null);
     return res(true, `Tu hisses un pavillon noir sur « ${s.navire.nom} ». Les ${s.carriere.equipage} sont nés. La Marine ne te connaît pas encore.`);
   },
   recruter(s) {
-    if (s.carriere?.type !== "pirate") return res(false, "Seul un capitaine pirate recrute un équipage.");
+    if (!estCapitaine(s)) return res(false, "Seul un capitaine pirate recrute un équipage.");
     if (!TAVERNES.includes(s.lieu)) return res(false, "On trouve des recrues dans les tavernes et les bars.");
     if (equipage(s).length >= NAVIRES[s.navire?.type]?.capacite) return res(false, "Ton navire est plein. Une caravelle (Loguetown) accueille plus de monde.");
     const e = activite(s, { heures: 2, fatigue: 5 });
     if (e) return res(false, e);
     consommer(s, 2, 5);
     const noms = ["Dag", "Orso", "Pia", "Zeke", "Luna", "Kurt", "Moe", "Vera", "Toby", "Ines", "Rufo", "Alba"];
-    const roles = [["navigateur", 3], ["cuisinier", 4], ["combattant", 9], ["canonnier", 7], ["charpentier de bord", 5], ["médecin de bord", 3]];
+    const roles = [["navigateur", 3], ["cuisinier", 4], ["combattant", 9], ["canonnier", 7], ["charpentier de bord", 5], ["médecin de bord", 3], ["musicien de bord", 3]];
     const [role, fbase] = roles[Math.floor(rand(s) * roles.length)];
     const nom = noms[Math.floor(rand(s) * noms.length)];
     const chance = Math.min(0.95, 0.3 + s.stats.charisme * 0.02 + s.infamie * 0.04 + (s.haki?.eveil.rois ? 0.15 : 0));
@@ -946,17 +957,18 @@ const ACTIONS = {
     return res(true, `${nom}, ${role}, accepte de te suivre ! Ton équipage compte ${equipage(s).length} membre${equipage(s).length > 1 ? "s" : ""}.`);
   },
   attaquer(s) {
-    if (s.carriere?.type !== "pirate" || !s.navire) return res(false, "Il faut être pirate et avoir un navire.");
+    if (!estCapitaine(s) || !s.navire) return res(false, estMembre(s) ? "C'est ton capitaine qui décide des abordages : pars avec l'équipage." : "Il faut être pirate et avoir un navire.");
     if (s.lieu !== ILES[s.ile].port) return res(false, "On part à l'abordage depuis le port.");
     const e = activite(s, { heures: 8, fatigue: 40 });
     if (e) return res(false, e);
     if (blessureGrave(s)) return res(false, "Tu es trop gravement blessé pour un abordage.");
     consommer(s, 8, 40);
-    s.carriere.raids += 1;
+    s.carriere.raids += 1; s.carriere.dernierRaid = s.jour;
     const danger = ILES[s.ile].danger || 0;
     const cible = 15 + danger * 8 + rand(s) * 20;
-    const nous = puissance(s) + forceEquipage(s) + rand(s) * 15;
+    const nous = puissance(s) + forceEquipage(s) + bonusCanons(s) + rand(s) * 15;
     if (nous < cible) {
+      moral(s, -8);
       blesser(s, rand(s) < 0.3 ? 2 : 1);
       const membres = equipage(s);
       if (membres.length && rand(s) < 0.3) { const d = membres[Math.floor(rand(s) * membres.length)]; s.pnj[d].lieu = "disparu"; noter(s, `Déçu, ${s.pnj[d].nom} quitte ton équipage.`, "monde"); }
@@ -966,6 +978,7 @@ const ACTIONS = {
     const butin = Math.round((150 + rand(s) * 350) * (1 + equipage(s).length / 3) * (1 + danger));
     s.monde.exterieur -= butin;
     reputation(s, "pirates", 3); reputation(s, "marine", -3); reputation(s, "gouvernement", -2);
+    moral(s, 6);
     if (s.carriere.corsaire) { s.carriere.corsaire = false; noter(s, "En attaquant un navire marchand, tu perds ton titre de Grand Corsaire.", "mission"); }
     const membres = equipage(s);
     const part = membres.length ? Math.floor(butin * 0.4 / membres.length) : 0;
@@ -1120,6 +1133,7 @@ const ACTIONS = {
     return res(true, `Patrouille échouée : les contrebandiers vous échappent et tu es blessé.${eveilDanger(s)}`);
   },
   quitter(s) {
+    if (estMembre(s)) return ACTIONS.quitter_equipage(s);
     if (s.carriere?.type === "chasseur" || s.carriere?.type === "revolution") {
       const t = s.carriere.type; s.ancienneCarriere = { ...s.carriere, fin: s.jour }; s.carriere = null;
       return res(true, t === "chasseur" ? "Tu rends ta licence de chasseur de primes." : "Tu quittes discrètement l'Armée révolutionnaire.");
@@ -1236,7 +1250,7 @@ export const calculPrime = infamie => infamie <= 0 ? 0 : Math.round((infamie * i
 // Affrontement avec la Marine : victoire (fuite) ou capture. Un utilisateur de fruit peut se noyer en mer.
 function combatMarine(s, ou) {
   const marine = 18 + s.infamie * 3 + (ILES[s.ile].danger || 0) * 10 + rand(s) * 20;
-  const nous = puissance(s) + forceEquipage(s) * 0.5 + rand(s) * 20;
+  const nous = puissance(s) + forceEquipage(s) * 0.5 + bonusCanons(s) + rand(s) * 20;
   if (nous >= marine) {
     s.infamie = +(s.infamie + 0.5).toFixed(2); s.prime = calculPrime(s.infamie);
     if (rand(s) < 0.4) blesser(s, 0);
@@ -1315,7 +1329,7 @@ function blesser(s, gravite) {
     return;
   }
   const b = { ...types[gravite] };
-  if (b.sequelle && (rand(s) > 0.4 || (s.competences.medecine || 0) >= 10 || aTalent(s, "constitution"))) delete b.sequelle;
+  if (b.sequelle && (rand(s) > 0.4 || (s.competences.medecine || 0) >= 10 || aTalent(s, "constitution") || aRole(s, "médecin de bord"))) delete b.sequelle;
   s.sante.blessures.push({ ...b, gravite, depuis: s.jour });
   noter(s, `Blessure : ${b.nom} (guérison en ${b.jours} jours).`, "sante");
 }

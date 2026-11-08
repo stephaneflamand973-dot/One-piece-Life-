@@ -10,6 +10,7 @@ import { FACTIONS } from "./factions.js";
 import { humeurTexte, portraitTraits, TRAITS } from "./vie.js";
 import { ORIGINES, PEUPLES, DEFIS, SUCCES } from "./origines.js";
 import { TALENTS } from "./talents.js";
+import { GRADES_PIRATE, MERITE_PIRATE, AMELIORATIONS } from "./pirate.js";
 import { sceneSVG, sons, afficherTutoriel, animationTemps, lireAffichage, ecrireAffichage, appliquerAffichage, demarrerAmbiance } from "./presentation.js";
 
 // Mémorial : toutes les vies terminées, gardées sur l'iPhone d'une partie à l'autre.
@@ -26,7 +27,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "17 · plus fluide";
+export const VERSION_APP = "18 · carrière pirate";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -206,7 +207,7 @@ const GROUPES = [
   ["prison", "En cellule", ["attendre", "evader"]],
   ["progresser", "Progresser", ["entrainer", "etudier", "ecole", "cartes", "medecine", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
   ["activites", "Activités", ["travailler", "pecher", "cuisiner", "musique", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "consulter", "genereux", "tricher", "harangue", "manger"]],
-  ["aventure", "Aventure", ["voyager", "pirate", "recruter", "attaquer", "combattre", "engager", "service", "patrouille", "chasseur", "traquer", "revolution", "sabotage", "alliance", "trahir", "quitter"]],
+  ["aventure", "Aventure", ["voyager", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "chasseur", "traquer", "revolution", "sabotage", "alliance", "trahir", "quitter"]],
   ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant"]],
 ];
 
@@ -389,8 +390,16 @@ function rendreFiche() {
       ${s.carriere?.type === "marine" ? `<p>${RANGS_MARINE[s.carriere.rang]} de la Marine · mérite ${s.carriere.merite}${s.carriere.rang < RANGS_MARINE.length - 1 ? ` / ${MERITE_RANG[s.carriere.rang + 1]} pour ${RANGS_MARINE[s.carriere.rang + 1]}` : ""}</p>`
         : s.carriere?.type === "chasseur" ? `<p>Chasseur de primes · ${s.carriere.captures} capture${s.carriere.captures > 1 ? "s" : ""}</p>`
         : s.carriere?.type === "revolution" ? `<p>Membre de l'Armée révolutionnaire · ${s.carriere.missions} mission${s.carriere.missions > 1 ? "s" : ""}</p>`
+        : s.carriere?.type === "pirate" && s.carriere.membre ? `<p><b>${GRADES_PIRATE[s.carriere.grade]}</b> des ${esc(s.carriere.equipage)}, sous les ordres du capitaine ${esc(s.carriere.capitaine || "")}</p>
+          <p class="discret">Mérite ${s.carriere.merite}${s.carriere.grade < 3 ? ` / ${MERITE_PIRATE[s.carriere.grade + 1]} pour ${GRADES_PIRATE[s.carriere.grade + 1]}` : " · tu peux mener une mutinerie"} · ${s.carriere.raids} abordage${s.carriere.raids > 1 ? "s" : ""}</p>
+          <p class="discret">Tu suis l'équipage d'île en île. Avec ton propre navire, tu peux fonder ton équipage depuis un port.</p>`
         : s.carriere?.type === "pirate" ? `<p>Capitaine des <b>${esc(s.carriere.equipage)}</b> · ${s.carriere.raids} abordage${s.carriere.raids > 1 ? "s" : ""}${s.carriere.corsaire ? " · <b>Grand Corsaire</b>" : ""}${s.carriere.empereur ? " · <b>Empereur</b>" : ""}</p>
-          ${equipage(s).map(id => `<p>${esc(s.pnj[id].nom)} · <span class="discret">${esc(s.pnj[id].role)}, force ${s.pnj[id].force}</span></p>`).join("") || "<p class=\"discret\">Pas encore d'équipage : recrute dans les tavernes.</p>"}`
+          <div class="stat"><span>Moral de l'équipage</span><span class="barre"><i style="width:${s.carriere.moral ?? 60}%;background:${(s.carriere.moral ?? 60) < 25 ? "var(--ko)" : "var(--ok)"}"></i></span><b>${Math.round(s.carriere.moral ?? 60)}</b></div>
+          ${equipage(s).map(id => `<p>${esc(s.pnj[id].nom)} · <span class="discret">${esc(s.pnj[id].role)}, force ${s.pnj[id].force}</span></p>`).join("") || "<p class=\"discret\">Pas encore d'équipage : recrute dans les tavernes.</p>"}
+          <p class="discret petit">Rôles utiles : navigateur et voiles (moins de tempêtes), charpentier (répare en mer), canonnier (+4 à l'abordage), médecin (pas de séquelles), cuisinier et musicien (le moral baisse moins vite).</p>
+          ${s.navire ? `<p class="petit">Améliorations : ${Object.keys(s.navire.ameliorations || {}).map(k => AMELIORATIONS[k].nom).join(", ") || "aucune (chantier de Water Seven, armurerie de Loguetown)"}</p>` : ""}
+          ${s.carriere.territoires?.length ? `<p class="petit">Territoires : ${s.carriere.territoires.map(i => ILES[i].nom).join(", ")}</p>` : ""}
+          <button class="secondaire" id="renommer">Renommer l'équipage</button>`
         : `<p>Aucune carrière.${age(s) >= 16 ? " La Marine recrute à la base de Shells Town ; avec un navire, tu peux aussi hisser le pavillon pirate." : ""}</p>`}
       ${s.prime ? `<p class="m-échouée">Avis de recherche : ${s.prime.toLocaleString("fr-FR")} Berrys</p>` : ""}
       ${s.prison ? `<p>En prison jusqu'au jour ${s.prison.jusqua + 1} (encore ${s.prison.jusqua - s.jour} jours).</p>` : ""}</section>
@@ -417,6 +426,11 @@ function rendreFiche() {
     <section class="carte"><h2>Missions</h2>
       ${missions.length ? missions.map(m => `<div class="mission"><b>${esc(m.titre)}</b> · <span class="m-${m.statut}">${m.statut}</span>
         <p class="discret">${esc(m.condition)} Récompense : ${m.recompense} Berrys${m.statut === "active" ? ` (mise de côté) · échéance fin du jour ${m.echeance + 1}` : ""}.</p></div>`).join("") : "<p>Aucune mission.</p>"}</section>`;
+  if ($("#renommer")) $("#renommer").onclick = () => {
+    const n = prompt("Nouveau nom de ton équipage :", s.carriere?.equipage || "");
+    if (!n) return;
+    const r = agir(s, { id: "renommer", cible: n }); sauver(); alerte(r.texte); rendre();
+  };
 }
 
 function rendreJournal() {

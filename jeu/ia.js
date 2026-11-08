@@ -77,7 +77,10 @@ function actionConnue(s, a) {
     case "reparer": case "combattre": case "repos": case "engager": case "service": case "patrouille":
     case "quitter": case "famille": case "enfant": case "pirate": case "recruter": case "attaquer": case "explorer":
     case "maitriser": case "attendre": case "evader": case "radoub": case "enrober": case "colisee": case "sabre": case "accomplir": case "chasseur": case "traquer": case "revolution": case "sabotage": case "alliance": case "trahir":
-    case "ecole": case "cartes": case "musique": case "medecine": case "consulter": case "genereux": case "tricher": case "harangue": return true;
+    case "ecole": case "cartes": case "musique": case "medecine": case "consulter": case "genereux": case "tricher": case "harangue":
+    case "rejoindre": case "corvees": case "abordage": case "fonder": case "mutinerie": case "quitter_equipage": case "fete": case "prime_equipage":
+    case "attaquer_marine": case "rancon": case "defier": case "proteger": return true;
+    case "ameliorer": return ["canons", "voiles", "blindage"].includes(c);
     case "choisir": return Number.isInteger(+c);
     case "manger": return c in FRUITS;
     case "haki": return c in HAKI;

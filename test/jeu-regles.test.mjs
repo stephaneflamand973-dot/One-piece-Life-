@@ -777,7 +777,8 @@ test("origines : naître à Water Seven, rentrer dormir chez soi", () => {
   assert.match(s.journal[0].texte, /Water Seven/);
   s.jour = 20 * 365; s.lieu = "chantier";
   E.agir(s, { id: "repos" });
-  assert.equal(s.lieu, "maison_w7");
+  // On dort chez soi, puis on se réveille là où l'on était.
+  assert.equal(s.lieu, "chantier");
 });
 
 test("peuples : un homme-poisson naît sous la mer, plus fort, et nage jusqu'à Sabaody", () => {
@@ -896,4 +897,96 @@ test("limite naturelle : jouer dehors progresse dans ce qui n'est pas bloqué, p
   const r = E.agir(s, { id: "jouer" });
   assert.equal(r.ok, false);
   assert.match(r.texte, /limites naturelles/);
+});
+
+// ---------- Carrière de pirate complète et sommeil sur place ----------
+import * as P from "../jeu/pirate.js";
+
+const avecRival = (s, extra = {}) => { s.monde.rivaux = [{ id: "rx", nom: "Pirates du Test", capitaine: "Barbe-Test", region: "eb", ile: s.ile, prime: 8000000, force: 30, actif: true, ...extra }]; };
+
+test("dormir : on se réveille là où l'on était", () => {
+  const s = ado(); s.lieu = "port";
+  E.agir(s, { id: "repos" });
+  assert.equal(s.lieu, "port");
+  s.ile = "loguetown"; s.lieu = "marche_logue"; s.berrys = 50;
+  E.agir(s, { id: "repos" });
+  assert.equal(s.lieu, "marche_logue");
+});
+
+test("pirate : entrer comme mousse, corvées et promotion à mérite fixe", () => {
+  const s = ado(); s.lieu = "port"; s.stats.force = 10; avecRival(s);
+  assert.ok(E.agir(s, { id: "rejoindre" }).ok);
+  assert.ok(P.estMembre(s));
+  assert.equal(s.carriere.grade, 0);
+  for (let i = 0; i < 8; i++) { s.heure = 8; s.fatigue = 0; E.agir(s, { id: "corvees" }); }
+  assert.equal(s.carriere.merite, 8);
+  assert.equal(s.carriere.grade, 1);
+});
+
+test("pirate : le membre suit son équipage d'île en île", () => {
+  const s = ado(); s.lieu = "port"; s.stats.force = 10; avecRival(s);
+  E.agir(s, { id: "rejoindre" });
+  s.monde.rivaux[0].ile = "shells";
+  E.avancer(s, 1, { sansInterruption: true });
+  assert.equal(s.ile, "shells");
+});
+
+test("pirate : la mutinerie du Second donne un navire et un équipage", () => {
+  let reussie = false;
+  for (let seed = 1; seed < 30 && !reussie; seed++) {
+    const s = ado(); s.rng = seed; s.lieu = "port"; s.stats.force = 40; s.stats.charisme = 20; avecRival(s, { force: 20 });
+    E.agir(s, { id: "rejoindre" });
+    s.carriere.grade = 3;
+    E.agir(s, { id: "mutinerie" });
+    if (P.estCapitaine(s)) { reussie = true; assert.ok(s.navire); assert.equal(E.equipage(s).length, 4); assert.equal(s.monde.rivaux[0].actif, false); }
+  }
+  assert.ok(reussie);
+});
+
+test("capitaine : améliorations payées sans création d'argent, canons plus puissants", () => {
+  const s = capitaine(); s.berrys = 5000; s.ile = "water_seven"; s.lieu = "chantier";
+  const masse = E.masseMonetaire(s);
+  const avant = P.bonusCanons(s);
+  assert.ok(E.agir(s, { id: "ameliorer", cible: "canons" }).ok);
+  assert.ok(E.agir(s, { id: "ameliorer", cible: "blindage" }).ok);
+  assert.equal(P.bonusCanons(s), avant + 8);
+  assert.equal(E.masseMonetaire(s), masse);
+  assert.equal(E.agir(s, { id: "ameliorer", cible: "canons" }).ok, false);
+});
+
+test("capitaine : fête et prime font monter le moral, l'argent va à l'équipage", () => {
+  const s = capitaine(); s.berrys = 500; s.carriere.moral = 30;
+  P.creerMembre(s); P.creerMembre(s);
+  const masse = E.masseMonetaire(s);
+  E.agir(s, { id: "fete" });
+  assert.equal(s.carriere.moral, 45);
+  E.agir(s, { id: "prime_equipage" });
+  assert.equal(s.carriere.moral, 55);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("capitaine : un duel gagné disperse l'équipage rival et rapporte des recrues", () => {
+  let gagne = false;
+  for (let seed = 1; seed < 30 && !gagne; seed++) {
+    const s = capitaine(seed); s.stats.force = 40; s.stats.agilite = 40; avecRival(s, { force: 15 });
+    E.agir(s, { id: "defier" });
+    if (!s.monde.rivaux[0].actif) { gagne = true; assert.ok(E.equipage(s).length >= 1); assert.ok(s.prime > 0); }
+  }
+  assert.ok(gagne);
+});
+
+test("capitaine : un territoire verse un tribut chaque semaine, sans création d'argent", () => {
+  const s = capitaine(); s.infamie = 12; s.prime = E.calculPrime(12);
+  assert.ok(E.agir(s, { id: "proteger" }).ok);
+  const masse = E.masseMonetaire(s); const b = s.berrys;
+  E.avancer(s, 7, { sansInterruption: true });
+  assert.ok(s.berrys >= b + 60);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("capitaine : un moral au plus bas provoque des désertions", () => {
+  const s = capitaine(5); for (let i = 0; i < 3; i++) P.creerMembre(s);
+  s.carriere.moral = 5;
+  E.avancer(s, 60, { sansInterruption: true });
+  assert.ok(E.equipage(s).length < 3 || !s.carriere);
 });

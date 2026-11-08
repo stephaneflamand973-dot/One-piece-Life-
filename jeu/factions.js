@@ -79,7 +79,7 @@ export const ACTIONS_FACTIONS = {
     return res(true, "Une patrouille te surprend : tu t'enfuis de justesse, blessé. Mission échouée.");
   },
   alliance(s) {
-    if (s.carriere?.type !== "pirate") return res(false, "Seul un capitaine pirate conclut des alliances.");
+    if (s.carriere?.type !== "pirate" || s.carriere.membre) return res(false, "Seul un capitaine pirate conclut des alliances.");
     const r = rivauxIci(s).find(r => !r.allie && !r.ennemi);
     if (!r) return res(false, "Aucun équipage avec qui s'allier ici.");
     if (rand(s) < 0.3 + s.infamie * 0.05 + (s.stats.charisme || 0) * 0.01) {
@@ -115,7 +115,7 @@ export function actionsFactions(s) {
   if (s.carriere?.type === "chasseur" && rivauxIci(s).length) a.push({ id: "traquer", label: `Traquer un pirate recherché (${rivauxIci(s).length} signalé${rivauxIci(s).length > 1 ? "s" : ""})` });
   if (s.lieu === "echafaud" && !s.carriere && age(s) >= 18) a.push({ id: "revolution", label: "Chercher l'Armée révolutionnaire" });
   if (s.carriere?.type === "revolution" && s.lieu === ILES[s.ile].port) a.push({ id: "sabotage", label: "Saboter un entrepôt du Gouvernement" });
-  if (s.carriere?.type === "pirate") {
+  if (s.carriere?.type === "pirate" && !s.carriere.membre) {
     if (rivauxIci(s).some(r => !r.allie && !r.ennemi)) a.push({ id: "alliance", label: "Proposer une alliance à un équipage" });
     if (rivauxIci(s).some(r => r.allie)) a.push({ id: "trahir", label: "Trahir un équipage allié" });
   }
@@ -126,7 +126,7 @@ export function actionsFactions(s) {
 // Chaque jour : titres de Grand Corsaire et d'Empereur, tribut, guerres du Nouveau Monde.
 export function vieFactions(s) {
   const c = s.carriere;
-  if (c?.type === "pirate") {
+  if (c?.type === "pirate" && !c.membre) {
     if (!c.corsaire && !c.offreCorsaire && s.prime >= SEUIL_CORSAIRE && (s.reputation?.gouvernement || 0) > -40) {
       c.offreCorsaire = s.jour;
       s.planifies?.push({ jour: s.jour, id: "offre_corsaire", data: {} });

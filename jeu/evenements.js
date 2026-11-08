@@ -7,6 +7,7 @@ import { rand, noter, age, agePnj, pnjIci, puissance, souvenir, transferer, gagn
 import { nouvelle, regionDe, vivants } from "./monde.js";
 import { EVENEMENTS_FACTIONS } from "./factions.js";
 import { EVENEMENTS_2 } from "./evenements2.js";
+import { EVENEMENTS_PIRATE } from "./pirate.js";
 
 const pick = (s, arr) => arr[Math.floor(rand(s) * arr.length)];
 const AN = 365;
@@ -228,7 +229,7 @@ export const EVENEMENTS = [
       ["Refuser", () => "Tu as assez donné."]] },
 ];
 
-EVENEMENTS.push(...EVENEMENTS_FACTIONS, ...EVENEMENTS_2);
+EVENEMENTS.push(...EVENEMENTS_FACTIONS, ...EVENEMENTS_2, ...EVENEMENTS_PIRATE);
 
 // ---------- Déclenchement ----------
 
