@@ -621,10 +621,14 @@ const ACTIONS = {
   jouer(s) {
     const e = activite(s, { heures: 2, fatigue: 15 });
     if (e) return res(false, e);
+    // On progresse dans ce qui n'a pas encore atteint sa limite naturelle.
+    const possibles = ["endurance", "agilite"].filter(x => s.stats[x] < s.potentiel[x]);
+    if (!possibles.length) return res(false, `Tu as atteint tes limites naturelles en endurance (${s.stats.endurance}) et en agilité (${s.stats.agilite}) : jouer dehors ne te fait plus progresser. Essaie d'autres activités.`);
     consommer(s, 2, 15);
-    const k = pick(s, ["endurance", "agilite"]);
+    const k = pick(s, possibles);
     const g = gagnerStat(s, k, GAINS.jeu_enfant);
-    return res(true, `Tu cours et grimpes partout avec les enfants du village.${g ? ` ${STATS[k]} +${g}.` : ""}`);
+    const limite = s.stats[k] >= s.potentiel[k] ? ` Tu as atteint ta limite naturelle en ${STATS[k].toLowerCase()}.` : "";
+    return res(true, `Tu cours et grimpes partout avec les enfants du village. ${STATS[k]} +${g}.${limite}`);
   },
   ecouter(s) {
     const e = activite(s, { heures: 2, fatigue: 5 });
@@ -643,7 +647,7 @@ const ACTIONS = {
     consommer(s, 2, 15);
     // Exception B : le talent « Prodige » rend ce gain fixe plus grand, jamais variable.
     const g = gagnerStat(s, k, GAINS.entrainement);
-    if (!g) return res(true, `Tu t'entraînes, mais tu as atteint ta limite naturelle en ${STATS[k].toLowerCase()}.`);
+    if (!g) return res(false, `Tu as atteint ta limite naturelle en ${STATS[k].toLowerCase()} (${s.stats[k]}) : cet entraînement ne te fait plus progresser.`);
     return res(true, `Tu t'entraînes dur. ${STATS[k]} +${g}.`);
   },
   etudier(s) {

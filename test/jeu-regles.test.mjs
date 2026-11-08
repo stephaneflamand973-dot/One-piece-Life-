@@ -885,3 +885,15 @@ test("talents : Génie s'applique aussi aux histoires du bar ; sans talent, touj
   const n = E.nouvelleVie({ prenom: "T", seed: 78 }); n.jour = 3 * 365; n.lieu = "bar";
   const j = n.stats.intelligence; E.agir(n, { id: "ecouter" }); assert.equal(n.stats.intelligence, j + 1);
 });
+
+test("limite naturelle : jouer dehors progresse dans ce qui n'est pas bloqué, puis le dit clairement", () => {
+  const s = E.nouvelleVie({ prenom: "L", seed: 79 }); s.jour = 4 * 365; s.lieu = "colline";
+  s.stats.endurance = s.potentiel.endurance;
+  const a = s.stats.agilite;
+  E.agir(s, { id: "jouer" });
+  assert.equal(s.stats.agilite, a + 1);
+  s.stats.agilite = s.potentiel.agilite; s.heure = 8; s.fatigue = 0;
+  const r = E.agir(s, { id: "jouer" });
+  assert.equal(r.ok, false);
+  assert.match(r.texte, /limites naturelles/);
+});

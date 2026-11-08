@@ -1,5 +1,5 @@
 import {
-  nouvelleVie, agir, avancer, actionsDisponibles, interpreterTexte, serialiser, deserialiser,
+  nouvelleVie, agir, avancer, actionsDisponibles, noter, interpreterTexte, serialiser, deserialiser,
   age, annee, jourDansAnnee, LIEUX, ILES, STATS, COMPETENCES, OBJETS, pnjIci, faitsPourNarration,
   migrer, lieuxDe, heritiers, succeder, RANGS_MARINE, MERITE_RANG, agePnj, FRUITS, NAVIRES, equipage, puissance,
   HAKI, SEUIL_EVEIL,
@@ -26,7 +26,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "16.1 · talents corrigés";
+export const VERSION_APP = "17 · plus fluide";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -169,7 +169,7 @@ document.addEventListener("click", e => {
 }, true);
 
 function rendre() {
-  verrouAppuis = performance.now() + 350;
+  verrouAppuis = performance.now() + 220;
   memorialiser();
   document.querySelectorAll("[data-onglet]").forEach(b => b.classList.toggle("actif", b.dataset.onglet === onglet));
   rendreStatut();
@@ -241,11 +241,17 @@ function rendreVivre() {
       <input id="texte" placeholder="Que fais-tu ?" autocomplete="off" enterkeyhint="send">
       <button class="principal" type="submit" aria-label="Valider">➤</button>
     </form>`}
+    ${(() => {
+      // Refaire la dernière action en un geste, une fois, cinq fois ou jusqu'à l'épuisement.
+      const dispo = derniereAction && actions.find(a => a.id === derniereAction.id && a.cible === derniereAction.cible);
+      return dispo && !s.evenement ? `<section class="rapide"><span class="petit discret">Refaire « ${esc(dispo.label)} »</span>
+        <div class="ligne-champ"><button data-refaire="1">↻ 1 fois</button><button data-refaire="5">↻ 5 fois</button><button data-refaire="99">↻ Jusqu'à épuisement</button></div></section>` : "";
+    })()}
     ${groupes.map(([cle, titre, liste]) => `<section class="groupe g-${cle}"><h3>${titre}</h3><div class="grille">${liste.map(bouton).join("")}</div></section>`).join("")}
     ${s.prison ? "" : `<section class="groupe"><h3>Se déplacer ${ile.a}</h3>
       <div class="lieux">${lieuxDe(s.ile).filter(id => id !== s.lieu).map(id => `<button class="chip" data-aller="${id}">${LIEUX[id].court}</button>`).join("")}</div></section>`}
     <section class="temps">
-      <button data-temps="repos">🌙 Dormir</button>
+      <button data-temps="repos" class="${dernierRefusFatigue ? "conseil" : ""}">🌙 Dormir</button>
       <button data-temps="7">+1 sem.</button>
       <button data-temps="30">+1 mois</button>
       ${age(s) < 16 ? `<button data-temps="365">+1 an</button>` : ""}
@@ -256,7 +262,8 @@ function rendreVivre() {
   const r = $("#recit"); r.scrollTop = r.scrollHeight;
   // Nouveau lieu : on remonte en haut pour voir la scène et qui est présent.
   if (s.lieu !== dernierLieu) { window.scrollTo(0, 0); dernierLieu = s.lieu; }
-  document.querySelectorAll("[data-action]").forEach(b => b.onclick = () => jouer([actions[+b.dataset.action]]));
+  document.querySelectorAll("[data-action]").forEach(b => b.onclick = () => { derniereAction = actions[+b.dataset.action]; jouer([derniereAction]); });
+  document.querySelectorAll("[data-refaire]").forEach(b => b.onclick = () => repeter(+b.dataset.refaire));
   document.querySelectorAll("[data-parler]").forEach(b => b.onclick = () => jouer([{ id: "parler", cible: b.dataset.parler }]));
   document.querySelectorAll("[data-aller]").forEach(b => b.onclick = () => jouer([{ id: "aller", cible: b.dataset.aller }]));
   document.querySelectorAll("[data-temps]").forEach(b => b.onclick = () => {
@@ -268,6 +275,18 @@ function rendreVivre() {
   document.querySelectorAll("[data-heritier]").forEach(b => b.onclick = () => { succeder(s, +b.dataset.heritier); sauver(); rendre(); });
 }
 
+let derniereAction = null;
+let dernierRefusFatigue = false;
+const refusFatigue = t => /fatigu|trop tard|repose|santé ne te permet|tard aujourd'hui|nuit/i.test(t || "");
+
+// Répète la dernière action ; s'arrête au premier refus, à une décision à prendre ou à la mort.
+async function repeter(n) {
+  if (occupe || !derniereAction) return;
+  const actions = [];
+  for (let i = 0; i < n; i++) actions.push(derniereAction);
+  await jouer(actions, { narrer: n === 1 });
+}
+
 async function jouer(actions, { narrer: avecNarration = true } = {}) {
   if (occupe || !actions.length) return;
   occupe = true;
@@ -277,8 +296,10 @@ async function jouer(actions, { narrer: avecNarration = true } = {}) {
     const r = agir(s, a);
     resultats.push(r.texte);
     resultatsOk = r.ok;
-    if (!r.ok || r.interruption) break; // une action impossible ou un événement important arrête la suite
+    if (!r.ok || r.interruption || s.evenement || !s.perso.vivant) break; // un refus ou un événement important arrête la suite
   }
+  dernierRefusFatigue = !resultatsOk && refusFatigue(resultats.at(-1));
+  if (actions.length > 1 && resultats.length > 1) noter(s, `${resultats.length - (resultatsOk ? 0 : 1)} fois de suite.`, "ellipse");
   sauver(); rendre();
   if (s.evenement) sons.evenement(); else if (resultats.length) (resultatsOk ? sons.succes : sons.echec)();
   if (avecNarration && iaActive() && s.perso.vivant) await raconter(resultats.join(" "));
@@ -289,6 +310,7 @@ function temps(jours) {
   if (occupe) return;
   animationTemps(jours >= 365 ? "Une année passe…" : jours >= 30 ? "Un mois passe…" : "Une semaine passe…");
   sons.temps();
+  dernierRefusFatigue = false;
   avancer(s, jours); sauver(); rendre();
   if (s.evenement) sons.evenement();
 }
@@ -337,7 +359,8 @@ function rendreFiche() {
   const missions = s.missions.filter(m => m.statut !== "refusée").slice(-6).reverse();
   $("#contenu").innerHTML = `
     <section class="carte"><h2>Caractéristiques</h2>
-      ${Object.entries(STATS).map(([k, l]) => `<div class="stat"><span>${l}</span>${barre(s.stats[k])}<b>${s.stats[k]}</b></div>`).join("")}
+      ${Object.entries(STATS).map(([k, l]) => `<div class="stat"><span>${l}</span>${barre(s.stats[k], s.potentiel[k])}<b>${s.stats[k]}<span class="discret petit">/${s.potentiel[k]}</span></b></div>`).join("")}
+      <p class="discret">Le second nombre est ta limite naturelle : une fois atteinte, la caractéristique ne progresse plus.</p>
       <p class="discret">Chaque entraînement réussi rapporte toujours le même gain fixe.</p></section>
     ${s.talents?.length ? `<section class="carte"><h2>Talents</h2>${s.talents.map(t => `<p><b>${TALENTS[t].nom}</b> · <span class="discret petit">${TALENTS[t].desc}</span></p>`).join("")}</section>` : ""}
     <section class="carte"><h2>Personnalité</h2>

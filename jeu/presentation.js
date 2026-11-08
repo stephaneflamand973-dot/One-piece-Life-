@@ -148,6 +148,6 @@ export function animationTemps(texte) {
   const d = document.createElement("div");
   d.className = "voile-temps"; d.innerHTML = `<div class="sablier">⏳</div><div>${texte}</div>`;
   document.body.appendChild(d);
-  setTimeout(() => d.classList.add("fin"), 450);
-  setTimeout(() => d.remove(), 800);
+  setTimeout(() => d.classList.add("fin"), 250);
+  setTimeout(() => d.remove(), 500);
 }

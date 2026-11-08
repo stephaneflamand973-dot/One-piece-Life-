@@ -99,7 +99,12 @@
   .lieux { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
   .lieux::-webkit-scrollbar { display: none; }
   .chip { flex: none; background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 7px 14px; font-size: .88rem; }
-  .temps { display: flex; gap: 6px; margin: 14px 0 8px; }
+  .temps { display: flex; gap: 6px; margin: 14px 0 8px; position: sticky; bottom: calc(62px + env(safe-area-inset-bottom)); z-index: 2;
+    background: var(--fond); padding: 6px 0; }
+  .temps button.conseil { background: var(--or); border-color: var(--or); color: #1e2428; animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(1.04); } }
+  .rapide { margin: 10px 0; padding: 8px 10px; border: 1px dashed var(--accent); border-radius: 14px; }
+  .rapide .ligne-champ button { flex: 1; padding: 8px 4px; font-size: .85rem; margin: 6px 0 0; }
   .temps button { flex: 1; background: var(--texte); color: var(--fond); border-color: var(--texte); padding: 11px 4px; font-size: .88rem; }
   .saisie { display: flex; gap: 8px; margin: 4px 0 8px; }
   .saisie input { border-radius: 999px; }
