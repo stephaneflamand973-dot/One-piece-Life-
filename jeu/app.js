@@ -27,7 +27,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "18.1 · pavillon";
+export const VERSION_APP = "18.2 · voyages libres";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);

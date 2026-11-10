@@ -431,9 +431,12 @@ const aLoguetown = (seed = 7) => {
   return s;
 };
 
-test("Grand Line : Reverse Mountain exige un navire et 17 ans", () => {
+test("Grand Line : Reverse Mountain exige 17 ans ; sans navire, on embarque comme passager", () => {
   const s = aLoguetown(); s.navire = null;
-  assert.equal(E.agir(s, { id: "voyager", cible: "cap" }).ok, false);
+  const masse = E.masseMonetaire(s);
+  assert.ok(E.agir(s, { id: "voyager", cible: "cap" }).ok);
+  assert.equal(E.masseMonetaire(s), masse);
+  assert.ok(s.berrys < 5000);
   const t = aLoguetown(); t.jour = 16 * 365;
   assert.equal(E.agir(t, { id: "voyager", cible: "cap" }).ok, false);
 });
@@ -999,4 +1002,18 @@ test("pavillon : le bouton est visible sans navire et explique ce qu'il manque",
   const r = E.agir(s, { id: "pirate" });
   assert.equal(r.ok, false);
   assert.match(r.texte, /barques à 600 Berrys/);
+});
+
+
+test("cap des Jumeaux : plusieurs lieux, un travail, et on peut toujours en repartir sans navire", () => {
+  const s = aLoguetown(); s.navire = null; s.ile = "cap"; s.lieu = "phare"; s.berrys = 0;
+  assert.ok(E.lieuxDe("cap").length >= 3);
+  assert.ok(E.agir(s, { id: "aller", cible: "falaises" }).ok);
+  E.agir(s, { id: "aller", cible: "phare" });
+  assert.ok(E.agir(s, { id: "travailler" }).ok);
+  assert.equal(s.berrys, 30);
+  s.berrys = 1000;
+  const dest = E.actionsDisponibles(s).filter(a => a.id === "voyager");
+  assert.ok(dest.length >= 2);
+  assert.ok(E.agir(s, { id: "voyager", cible: "little_garden" }).ok || s.ile !== "cap");
 });

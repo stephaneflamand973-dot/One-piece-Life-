@@ -48,6 +48,13 @@ export const ROUTES = {
 };
 export const estGrandLine = ile => !!ILES[ile]?.grandLine;
 export const PRIX_JOUR_MER = 20;
+// Billet de passager : plus cher sur Grand Line, et plus encore pour les passages redoutables.
+export function prixPassage(depart, dest) {
+  const j = ROUTES[depart]?.[dest] || 0;
+  const gl = estGrandLine(depart) || estGrandLine(dest);
+  const dangereux = estGrandLine(depart) !== estGrandLine(dest) || [depart, dest].includes("hommes_poissons");
+  return j * (dangereux ? 80 : gl ? 50 : PRIX_JOUR_MER);
+}
 export const PRIX_AUBERGE = 10;
 
 export const LIEUX = {
@@ -76,6 +83,8 @@ export const LIEUX = {
   auberge_logue: { ile: "loguetown", nom: "l'auberge", court: "Auberge", a: "à l'auberge" },
   bureau_primes: { ile: "loguetown", nom: "le bureau des primes", court: "Bureau des primes", a: "au bureau des primes" },
   phare: { ile: "cap", nom: "le phare du cap", court: "Phare", a: "au phare du cap" },
+  falaises: { ile: "cap", nom: "les falaises du cap", court: "Falaises", a: "sur les falaises du cap" },
+  baie: { ile: "cap", nom: "la baie au pied de Reverse Mountain", court: "Baie", a: "dans la baie" },
   rivage_lg: { ile: "little_garden", nom: "le rivage de Little Garden", court: "Rivage", a: "sur le rivage" },
   jungle: { ile: "little_garden", nom: "la jungle préhistorique", court: "Jungle", a: "dans la jungle" },
   quai_w7: { ile: "water_seven", nom: "les quais de Water Seven", court: "Quais", a: "sur les quais de Water Seven" },
@@ -101,6 +110,8 @@ export const EMPLOIS = {
     texte: "Tu aides Bern à remonter les filets et trier la pêche." },
   cuisine_baratie: { payeur: "gallo", salaire: 45, heures: 5, fatigue: 25, ageMin: 14, competence: "cuisine", label: "Travailler en cuisine",
     texte: "Tu enchaînes les commandes sous les ordres du chef Gallo." },
+  phare: { payeur: "oswin", salaire: 30, heures: 4, fatigue: 20, ageMin: 14, competence: "navigation", label: "Entretenir le phare avec Oswin",
+    texte: "Tu nettoies la grande lentille et notes les navires qui descendent de Reverse Mountain." },
   chantier: { payeur: "bolt", salaire: 70, heures: 5, fatigue: 30, ageMin: 15, competence: "charpenterie", label: "Travailler au chantier naval",
     texte: "Tu scies, cloues et calfates des coques sous l'œil exigeant de Bolt." },
   quais_logue: { payeur: "dock", salaire: 35, heures: 4, fatigue: 30, ageMin: 14, competence: null, stat: "force", label: "Décharger les navires",
@@ -148,7 +159,7 @@ export const PRIX_LECON_HAKI = 50;
 
 export const NAVIRES = { barque: { nom: "barque de pêche aménagée", capacite: 3 }, caravelle: { nom: "caravelle", capacite: 8 } };
 export const TAVERNES = ["bar", "taverne_shells", "salle_baratie", "auberge_logue", "bar_w7", "bar_sabaody", "place_hp", "ville_dr", "village_wano"];
-export const EXPLORABLES = ["colline", "port", "port_shells", "quais_logue", "echafaud", "pont_baratie", "phare", "jungle", "quai_w7", "mangroves", "place_hp", "ville_dr", "cote_wano"];
+export const EXPLORABLES = ["colline", "port", "port_shells", "quais_logue", "echafaud", "pont_baratie", "phare", "jungle", "quai_w7", "mangroves", "falaises", "place_hp", "ville_dr", "cote_wano"];
 export const PRIX_LECON_SABRE = 200;
 export const PRIX_ENROBAGE = 3000;
 
@@ -521,9 +532,8 @@ export function actionsDisponibles(s) {
   if (s.lieu === ILES[s.ile].port && ag >= 14) {
     for (const [dest, j] of Object.entries(ROUTES[s.ile])) {
       const versGL = estGrandLine(dest), depuisGL = estGrandLine(s.ile);
-      if ((versGL || depuisGL) && !s.navire) continue;
       const passage = versGL && !depuisGL ? " par Reverse Mountain" : depuisGL && !versGL ? " par la Calm Belt" : "";
-      a.push({ id: "voyager", cible: dest, label: s.navire ? `Naviguer vers ${ILES[dest].nom}${passage} (${j} j)` : `Embarquer pour ${ILES[dest].nom} (${j} j, ${j * PRIX_JOUR_MER} B)` });
+      a.push({ id: "voyager", cible: dest, label: s.navire ? `Naviguer vers ${ILES[dest].nom}${passage} (${j} j)` : `Embarquer pour ${ILES[dest].nom}${passage} (${j} j, ${prixPassage(s.ile, dest)} B)` });
     }
   }
   if (s.lieu === "base") {
@@ -800,13 +810,14 @@ const ACTIONS = {
     if (age(s) < 14) return res(false, "Tu es trop jeune pour embarquer seul (à partir de 14 ans).");
     const versGL = estGrandLine(dest), depuisGL = estGrandLine(s.ile);
     const nage = s.peuple === "homme_poisson" && !s.fruit && [s.ile, dest].includes("hommes_poissons") && [s.ile, dest].includes("sabaody");
-    if ((versGL || depuisGL) && !s.navire && !nage) return res(false, "Aucun navire de ligne ne va là-bas : il te faut ton propre navire.");
+    // Sans navire, on voyage comme passager : le capitaine du navire de passage a ses cartes, son Log Pose et son enrobage.
+    const passager = !s.navire && !nage;
     if (versGL && !depuisGL && age(s) < 17) return res(false, "Reverse Mountain, à ton âge ? Attends au moins tes 17 ans.");
-    if (depuisGL && versGL && s.inventaire.logpose < 1 && !(nage && !s.navire)) return res(false, "Sans Log Pose, impossible de naviguer sur Grand Line : les boussoles y sont folles. Le gardien du phare en vend.");
-    if (dest === "hommes_poissons" && s.peuple !== "homme_poisson" && !s.navire.enrobe) return res(false, "Pour plonger à 10 000 mètres, le navire doit être enrobé (atelier de Hal, à Sabaody).");
-    if ((ILES[dest].nouveauMonde || ILES[s.ile].nouveauMonde) && s.inventaire.logpose_nm < 1) return res(false, "Dans le Nouveau Monde, un Log Pose ordinaire s'affole : il faut le Log Pose à trois aiguilles. Coral en vend, à l'île des Hommes-Poissons.");
+    if (depuisGL && versGL && !passager && s.inventaire.logpose < 1 && !(nage && !s.navire)) return res(false, "Sans Log Pose, impossible de naviguer sur Grand Line : les boussoles y sont folles. Le gardien du phare en vend.");
+    if (dest === "hommes_poissons" && s.peuple !== "homme_poisson" && !passager && !s.navire.enrobe) return res(false, "Pour plonger à 10 000 mètres, le navire doit être enrobé (atelier de Hal, à Sabaody).");
+    if ((ILES[dest].nouveauMonde || ILES[s.ile].nouveauMonde) && !passager && s.inventaire.logpose_nm < 1) return res(false, "Dans le Nouveau Monde, un Log Pose ordinaire s'affole : il faut le Log Pose à trois aiguilles. Coral en vend, à l'île des Hommes-Poissons.");
     const jours = ROUTES[s.ile][dest];
-    const prix = s.navire || nage ? 0 : jours * PRIX_JOUR_MER;
+    const prix = passager ? prixPassage(s.ile, dest) : 0;
     if (s.berrys < prix) return res(false, `La traversée coûte ${prix} Berrys ; tu en as ${s.berrys}.`);
     s.berrys -= prix; s.monde.exterieur += prix;
     const depart = ILES[s.ile].nom;
@@ -816,7 +827,7 @@ const ACTIONS = {
       const calm = depuisGL;
       let risque = calm ? 0.35 : 0.25;
       if (navigue(s)) risque -= 0.12;
-      if (s.navire.type === "caravelle") risque -= 0.05;
+      if (s.navire?.type === "caravelle") risque -= 0.05;
       if (aVoiles(s)) risque -= 0.05;
       if (rand(s) < risque) return naufrage(s, calm ? "dans la Calm Belt, renversé par un roi des mers" : "contre les parois de Reverse Mountain", calm ? "loguetown" : "cap");
       textes.push(calm ? "Vous traversez la Calm Belt sans vent, en retenant votre souffle au-dessus des rois des mers endormis." : "Le courant vous aspire vers le sommet de Reverse Mountain, puis vous dévalez de l'autre côté jusqu'à Grand Line !");
@@ -1286,18 +1297,18 @@ const aRole = (s, role) => equipage(s).some(id => s.pnj[id].role.startsWith(role
 
 // Naufrage : le navire est perdu, l'équipage se disperse, et un mangeur de fruit peut se noyer.
 function naufrage(s, ou, rivage) {
-  const nom = s.navire?.nom;
+  const nom = s.navire ? `« ${s.navire.nom} »` : "le navire de passage";
   s.navire = null;
   for (const id of equipage(s)) if (rand(s) < 0.6) s.pnj[id].lieu = "disparu";
   if (s.fruit && rand(s) < (equipage(s).length ? 0.2 : 0.6)) {
     s.perso.vivant = false;
     noter(s, `${s.perso.prenom} disparaît en mer lors du naufrage. Son fruit l'empêchait de nager.`, "mort");
-    return res(true, `Naufrage ${ou} ! « ${nom} » sombre. Ton fruit t'empêche de nager, et personne ne te repêche… Ta vie s'achève en mer.`);
+    return res(true, `Naufrage ${ou} ! ${nom} sombre. Ton fruit t'empêche de nager, et personne ne te repêche… Ta vie s'achève en mer.`);
   }
   blesser(s, s.peuple === "homme_poisson" && !s.fruit ? 0 : 2);
   s.ile = rivage; s.lieu = ILES[rivage].port;
-  noter(s, `Naufrage : « ${nom} » est perdu.`, "mission");
-  return res(true, `Naufrage ${ou} ! « ${nom} » sombre corps et biens. ${equipage(s).length ? "Ce qu'il reste de ton équipage te hisse" : "Accroché à une planche, tu dérives"} jusqu'${ILES[rivage].a}, blessé.`);
+  noter(s, `Naufrage : ${nom} est perdu.`, "mission");
+  return res(true, `Naufrage ${ou} ! ${nom} sombre corps et biens. ${equipage(s).length ? "Ce qu'il reste de ton équipage te hisse" : "Accroché à une planche, tu dérives"} jusqu'${ILES[rivage].a}, blessé.`);
 }
 
 function capturer(s, ou) {
