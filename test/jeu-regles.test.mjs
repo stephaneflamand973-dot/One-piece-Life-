@@ -990,3 +990,13 @@ test("capitaine : un moral au plus bas provoque des désertions", () => {
   E.avancer(s, 60, { sansInterruption: true });
   assert.ok(E.equipage(s).length < 3 || !s.carriere);
 });
+
+test("pavillon : le bouton est visible sans navire et explique ce qu'il manque", () => {
+  const s = ado(); s.lieu = "port";
+  const a = E.actionsDisponibles(s).find(x => x.id === "pirate");
+  assert.ok(a);
+  assert.match(a.label, /navire/);
+  const r = E.agir(s, { id: "pirate" });
+  assert.equal(r.ok, false);
+  assert.match(r.texte, /barques à 600 Berrys/);
+});

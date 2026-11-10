@@ -504,7 +504,8 @@ export function actionsDisponibles(s) {
   if (pnjIci(s).includes("garo") && ag >= 15 && s.pnj.garo.relation >= 30) {
     for (const t of ["observation", "armement"]) if (!s.haki.eveil[t]) a.push({ id: "initier", cible: t, label: `Leçon de ${HAKI[t].nom} avec Garo (${PRIX_LECON_HAKI} B)` });
   }
-  if (s.lieu === ILES[s.ile].port && s.navire && !s.carriere && ag >= 16) a.push({ id: "pirate", label: "Hisser le pavillon pirate" });
+  // Toujours visible sur un port sans carrière : s'il manque quelque chose, le bouton le dit.
+  if (s.lieu === ILES[s.ile].port && !s.carriere && ag >= 14) a.push({ id: "pirate", label: ag < 16 ? "Hisser le pavillon pirate (à partir de 16 ans)" : s.navire ? "Hisser le pavillon pirate" : "Hisser le pavillon pirate (il te faut un navire)" });
   if (estCapitaine(s)) {
     if (s.lieu === ILES[s.ile].port) a.push({ id: "attaquer", label: "Attaquer un navire marchand" });
     if (TAVERNES.includes(s.lieu)) a.push({ id: "recruter", label: "Recruter un membre d'équipage" });
@@ -933,7 +934,7 @@ const ACTIONS = {
     if (s.carriere?.type === "marine") return res(false, "Quitte d'abord la Marine.");
     if (s.carriere?.type === "pirate") return res(false, estMembre(s) ? "Tu fais déjà partie d'un équipage : fonde le tien depuis le port." : "Tu es déjà pirate.");
     if (age(s) < 16) return res(false, "Tu es trop jeune pour prendre la mer en pirate (16 ans).");
-    if (!s.navire) return res(false, "Un pirate a besoin d'un navire. Tomas vend des barques à Fuchsia.");
+    if (!s.navire) return res(false, `Un capitaine pirate a besoin de son propre navire. Tomas vend des barques à 600 Berrys à l'atelier de Fuchsia (tu en as ${s.berrys}) ; Barro vend une caravelle à 4 000 Berrys à l'armurerie de Loguetown. Tu peux aussi rejoindre un équipage existant comme mousse.`);
     if (s.lieu !== ILES[s.ile].port) return res(false, "On hisse le pavillon depuis le port.");
     devenirCapitaine(s, null);
     return res(true, `Tu hisses un pavillon noir sur « ${s.navire.nom} ». Les ${s.carriere.equipage} sont nés. La Marine ne te connaît pas encore.`);
