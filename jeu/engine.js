@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { ACTIONS_MARINE, actionsMarine, auPoste, lieuPoste, verrouPromotion, donnerNavire, reprendreNavire } from "./marine.js";
 import { ACTIONS_TERRE, actionsTerre, initialiserTerre, vieATerre, journeeDeMetier, possede, maisonIci } from "./terre.js";
 import { ACTIONS_PIRATE, actionsPirate, vieEquipage, estCapitaine, estMembre, bonusCanons, aVoiles, aBlindage, moral, devenirCapitaine } from "./pirate.js";
 import { appliquerTalents, anniversaireTalents, aTalent, bonusStat, bonusCompetence, bonusHaki, bonusFruit, bonusSalaire, bonusRelation, facteurFatigue, decalageAge } from "./talents.js";
@@ -82,6 +83,8 @@ export const LIEUX = {
   marche_logue: { ile: "loguetown", nom: "le grand marché", court: "Marché", a: "au grand marché" },
   armurerie: { ile: "loguetown", nom: "l'armurerie", court: "Armurerie", a: "à l'armurerie" },
   echafaud: { ile: "loguetown", nom: "la place de l'échafaud", court: "Échafaud", a: "sur la place de l'échafaud" },
+  caserne_logue: { ile: "loguetown", nom: "la caserne de la Marine", court: "Caserne", a: "à la caserne de la Marine" },
+  poste_sabaody: { ile: "sabaody", nom: "le poste de la Marine de l'archipel", court: "Poste Marine", a: "au poste de la Marine" },
   auberge_logue: { ile: "loguetown", nom: "l'auberge", court: "Auberge", a: "à l'auberge" },
   bureau_primes: { ile: "loguetown", nom: "le bureau des primes", court: "Bureau des primes", a: "au bureau des primes" },
   phare: { ile: "cap", nom: "le phare du cap", court: "Phare", a: "au phare du cap" },
@@ -122,9 +125,9 @@ export const EMPLOIS = {
     texte: "Tu portes des caisses entre les navires et les entrepôts." },
 };
 
-export const RANGS_MARINE = ["Recrue", "Matelot", "Caporal", "Sergent", "Adjudant", "Enseigne", "Lieutenant"];
-export const MERITE_RANG = [0, 10, 25, 45, 70, 100, 140];
-export const SOLDE_MARINE = [20, 30, 45, 65, 90, 125, 175]; // par semaine
+export const RANGS_MARINE = ["Recrue", "Matelot", "Caporal", "Sergent", "Adjudant", "Enseigne", "Lieutenant", "Capitaine", "Commodore", "Contre-amiral", "Vice-amiral", "Amiral"];
+export const MERITE_RANG = [0, 10, 25, 45, 70, 100, 140, 200, 280, 380, 500, 650];
+export const SOLDE_MARINE = [20, 30, 45, 65, 90, 125, 175, 240, 320, 420, 550, 700]; // par semaine
 
 export const STATS = {
   force: "Force", agilite: "Agilité", endurance: "Endurance", intelligence: "Intelligence", charisme: "Charisme",
@@ -349,6 +352,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
     const absence = s.jour - (s.carriere.dernierService ?? s.carriere.depuis);
     if (absence > 90) {
       s.ancienneCarriere = { ...s.carriere, fin: s.jour }; s.carriere = null;
+      reprendreNavire(s);
       reputation(s, "marine", -15);
       noter(s, "Absent de ton poste depuis trois mois, tu es rayé des cadres de la Marine pour désertion.", "mission");
     } else if ((s.jour - s.carriere.depuis) % 7 === 0 && absence <= 14 && !s.prison) {
@@ -545,6 +549,7 @@ export function actionsDisponibles(s) {
   a.push(...actionsVie(s));
   a.push(...actionsPirate(s));
   a.push(...actionsTerre(s));
+  a.push(...actionsMarine(s));
   if (s.lieu === "colisee" && ag >= 18) a.push({ id: "colisee", label: "Combattre au Colisée (3 000 B si victoire)" });
   if (ici.includes("soen") && s.pnj.soen.relation >= 20) a.push({ id: "sabre", label: `Leçon de sabre avec Sōen (${PRIX_LECON_SABRE} B)` });
   if (s.lieu === "enrobage" && s.navire && !s.navire.enrobe) a.push({ id: "enrober", label: `Faire enrober le navire (${PRIX_ENROBAGE} B, 3 jours)` });
@@ -555,13 +560,11 @@ export function actionsDisponibles(s) {
       a.push({ id: "voyager", cible: dest, label: s.navire ? `Naviguer vers ${ILES[dest].nom}${passage} (${j} j)` : `Embarquer pour ${ILES[dest].nom}${passage} (${j} j, ${prixPassage(s.ile, dest)} B)` });
     }
   }
-  if (s.lieu === "base") {
-    if (!s.carriere && ag >= 16) a.push({ id: "engager", label: "S'engager dans la Marine" });
-    if (s.carriere?.type === "marine") {
-      a.push({ id: "service", label: "Faire son service" });
-      a.push({ id: "patrouille", label: "Partir en patrouille (mission)" });
-      a.push({ id: "quitter", label: "Quitter la Marine" });
-    }
+  if (s.lieu === "base" && !s.carriere && ag >= 16) a.push({ id: "engager", label: "S'engager dans la Marine" });
+  if (auPoste(s)) {
+    a.push({ id: "service", label: "Faire son service" });
+    a.push({ id: "patrouille", label: "Partir en patrouille (mission)" });
+    a.push({ id: "quitter", label: "Quitter la Marine" });
   }
   // Amour et famille : seulement entre adultes, jamais imposé.
   for (const id of ici) {
@@ -594,6 +597,7 @@ export function agir(s, action) {
     return res(false, `Tu es en prison jusqu'au jour ${s.prison.jusqua + 1}. Tu peux attendre, t'entraîner ou tenter de t'évader.`);
   }
   const r = f(s, cible, ag);
+  if (r.promotion) r.texte += promotion(s);
   if (r.ok) s.compteurs.actions += 1;
   if (r.texte) noter(s, r.texte, r.ok ? "action" : "refus");
   verifierMissions(s, null);
@@ -627,6 +631,7 @@ const ACTIONS = {
   ...ACTIONS_VIE,
   ...ACTIONS_PIRATE,
   ...ACTIONS_TERRE,
+  ...ACTIONS_MARINE,
   choisir: (s, i) => choisir(s, +i),
   accomplir: s => {
     const e = activite(s, { heures: 4, fatigue: 25, ageMin: 12 });
@@ -1144,13 +1149,13 @@ const ACTIONS = {
     if (s.prime > 0) return res(false, "Sergent Rivo : « Un pirate recherché ? Dans la Marine ? Jamais ! »");
     if (age(s) < 16) return res(false, "La Marine n'engage qu'à partir de 16 ans.");
     if (s.stats.force + s.stats.endurance < 6) return res(false, "Sergent Rivo : « Reviens quand tu seras plus solide. » (force + endurance : 6 minimum)");
-    s.carriere = { type: "marine", rang: 0, merite: 0, depuis: s.jour };
+    s.carriere = { type: "marine", rang: 0, merite: 0, depuis: s.jour, poste: "shells", captures: 0 };
     reputation(s, "marine", 10); reputation(s, "gouvernement", 5);
     souvenir(s, "rivo", "tu t'es engagé dans la Marine");
     return res(true, `Tu signes ton engagement. Te voilà ${RANGS_MARINE[0]} de la Marine, avec une solde de ${SOLDE_MARINE[0]} Berrys par semaine.`);
   },
   service(s) {
-    if (s.carriere?.type !== "marine" || s.lieu !== "base") return res(false, "Le service se fait à la base, dans la Marine.");
+    if (!auPoste(s)) return res(false, s.carriere?.type === "marine" ? `Le service se fait à ton poste, ${LIEUX[lieuPoste(s)].a}.` : "Le service se fait dans la Marine.");
     const e = activite(s, { heures: 6, fatigue: 25 });
     if (e) return res(false, e);
     consommer(s, 6, 25);
@@ -1160,14 +1165,14 @@ const ACTIONS = {
     return res(true, `Exercices, corvées et maniement des armes. Mérite +${GAINS.merite_service}${gf ? `, Force +${gf}` : ""}, Combat +${gco}.${promotion(s)}`);
   },
   patrouille(s) {
-    if (s.carriere?.type !== "marine" || s.lieu !== "base") return res(false, "Les patrouilles partent de la base.");
+    if (!auPoste(s)) return res(false, s.carriere?.type === "marine" ? `Les patrouilles partent de ton poste, ${LIEUX[lieuPoste(s)].a}.` : "Il faut être dans la Marine.");
     const e = activite(s, { heures: 8, fatigue: 35 });
     if (e) return res(false, e);
     if (blessureActive(s)) return res(false, "Tu es blessé : on ne t'envoie pas en patrouille.");
     consommer(s, 8, 35);
     s.carriere.dernierService = s.jour;
     // Mission formelle : réussite ou échec, sans entre-deux (L.3A).
-    const difficulte = 10 + s.carriere.rang * 4;
+    const difficulte = 10 + s.carriere.rang * 4 + (ILES[s.ile].danger || 0) * 6;
     const score = puissance(s) + rand(s) * 12;
     if (score >= difficulte) {
       s.carriere.merite += GAINS.merite_patrouille;
@@ -1191,6 +1196,7 @@ const ACTIONS = {
     const rang = RANGS_MARINE[s.carriere.rang];
     s.ancienneCarriere = { ...s.carriere, fin: s.jour };
     s.carriere = null;
+    reprendreNavire(s);
     return res(true, `Tu rends ton uniforme de ${rang}. Tu es libre.`);
   },
   declarer(s, id) {
@@ -1249,10 +1255,12 @@ const ACTIONS = {
 // Promotion automatique dès que le mérite atteint le seuil du grade suivant.
 function promotion(s) {
   const c = s.carriere;
-  if (!c || c.rang >= RANGS_MARINE.length - 1 || c.merite < MERITE_RANG[c.rang + 1]) return "";
+  if (!c || c.type !== "marine" || c.rang >= RANGS_MARINE.length - 1 || c.merite < MERITE_RANG[c.rang + 1]) return "";
+  const verrou = verrouPromotion(s, c.rang + 1);
+  if (verrou) return c.verrouDit === c.rang ? "" : ((c.verrouDit = c.rang), ` ${verrou}`);
   c.rang += 1;
   noter(s, `Promotion : tu deviens ${RANGS_MARINE[c.rang]} de la Marine.`, "mission");
-  return ` Promotion : tu deviens ${RANGS_MARINE[c.rang]} ! Nouvelle solde : ${SOLDE_MARINE[c.rang]} Berrys par semaine.`;
+  return ` Promotion : tu deviens ${RANGS_MARINE[c.rang]} ! Nouvelle solde : ${SOLDE_MARINE[c.rang]} Berrys par semaine.${donnerNavire(s)}`;
 }
 
 // Succession (B.7D) : on continue avec un enfant. Patrimoine transmis, compétences jamais transmises.

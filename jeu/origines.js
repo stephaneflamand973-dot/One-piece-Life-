@@ -57,6 +57,7 @@ export const SUCCES = {
   prime_100m: ["Cent millions", s => s.prime >= 100000000],
   milliard: ["Un milliard", s => s.prime >= 1000000000],
   amiral: ["Lieutenant de la Marine", s => s.carriere?.type === "marine" && s.carriere.rang >= 6],
+  vrai_amiral: ["Amiral", s => s.carriere?.type === "marine" && s.carriere.rang >= 11],
   corsaire: ["Grand Corsaire", s => !!s.carriere?.corsaire],
   empereur: ["Empereur", s => !!s.carriere?.empereur],
   chasseur: ["Chasseur redouté", s => s.carriere?.type === "chasseur" && s.carriere.captures >= 5],

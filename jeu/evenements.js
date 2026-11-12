@@ -331,12 +331,12 @@ export function accomplir(s) {
 // Ambitions : un rêve accompli est célébré une fois.
 export function verifierAmbition(s) {
   if (!s.ambition || s.drapeaux.ambitionAtteinte) return;
-  const ok = { amiral: s.carriere?.type === "marine" && s.carriere.rang >= 6, one_piece: s.ile === "wano",
+  const ok = { amiral: s.carriere?.type === "marine" && s.carriere.rang >= 11, one_piece: s.ile === "wano",
     famille: s.famille.enfants.length >= 3, riche: s.berrys >= 100000 }[s.ambition];
   if (!ok) return;
   s.drapeaux.ambitionAtteinte = s.jour;
   humeur(s, 40);
-  const textes = { amiral: "Tu portes enfin le manteau d'officier supérieur dont tu rêvais enfant.", one_piece: "Tu as atteint Wano, aux portes de la dernière partie du Nouveau Monde. Le One Piece n'a jamais été si proche.",
+  const textes = { amiral: "Tu portes enfin le manteau d'Amiral dont tu rêvais enfant.", one_piece: "Tu as atteint Wano, aux portes de la dernière partie du Nouveau Monde. Le One Piece n'a jamais été si proche.",
     famille: "Ta maison résonne des rires de tes enfants. Ton rêve s'est réalisé.", riche: "Cent mille Berrys. Le petit rêveur de Fuchsia est devenu riche." };
   noter(s, `Rêve accompli ! ${textes[s.ambition]}`, "mission");
 }

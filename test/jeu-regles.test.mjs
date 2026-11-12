@@ -1168,3 +1168,58 @@ test("événements : au moins 200, tous avec un identifiant unique et 2 à 4 cho
   assert.equal(new Set(ids).size, ids.length);
   for (const e of EV.EVENEMENTS) assert.ok(e.choix.length >= 2 && e.choix.length <= 4, e.id);
 });
+
+// ---------- Marine complète ----------
+const marin = (rang = 0) => { const s = ado(); s.jour = 25 * 365; s.ile = "shells"; s.lieu = "base"; s.stats.force = 30; s.stats.agilite = 30; s.stats.endurance = 10;
+  E.agir(s, { id: "engager" }); s.carriere.rang = rang; s.carriere.merite = E.MERITE_RANG[rang]; return s; };
+
+test("Marine : mutation à Loguetown dès Caporal, service au nouveau poste seulement", () => {
+  const s = marin(1);
+  assert.equal(E.agir(s, { id: "mutation", cible: "loguetown" }).ok, false);
+  s.carriere.rang = 2;
+  const jour = s.jour;
+  assert.ok(E.agir(s, { id: "mutation", cible: "loguetown" }).ok);
+  assert.equal(s.lieu, "caserne_logue");
+  assert.equal(s.jour, jour + 5);
+  s.heure = 8; s.fatigue = 0;
+  assert.ok(E.agir(s, { id: "service" }).ok);
+  s.ile = "shells"; s.lieu = "base"; s.heure = 8; s.fatigue = 0;
+  assert.equal(E.agir(s, { id: "service" }).ok, false);
+});
+
+test("Marine : le Lieutenant reçoit un navire de guerre, repris s'il quitte la Marine", () => {
+  const s = marin(5); s.carriere.merite = 139;
+  E.agir(s, { id: "service" });
+  assert.equal(s.carriere.rang, 6);
+  assert.ok(s.navire?.marine);
+  E.agir(s, { id: "quitter" });
+  assert.equal(s.navire, null);
+});
+
+test("Marine : traquer un équipage rapporte du mérite fixe et compte une capture", () => {
+  let pris = false;
+  for (let seed = 1; seed < 20 && !pris; seed++) {
+    const s = marin(6); s.rng = seed; s.navire = { type: "caravelle", nom: "N", coque: 100, marine: true }; s.lieu = "port_shells";
+    s.monde.rivaux = [{ id: "rm", nom: "Pirates Test", capitaine: "T", region: "eb", ile: "shells", prime: 20000000, force: 20, actif: true }];
+    const m = s.carriere.merite;
+    E.agir(s, { id: "traquer_pirates" });
+    if (!s.monde.rivaux[0].actif) { pris = true; assert.equal(s.carriere.merite, m + 6); assert.equal(s.carriere.captures, 1); }
+  }
+  assert.ok(pris);
+});
+
+test("Marine : pas de Commodore sans Grand Line, pas de Vice-amiral sans Haki, pas d'Amiral sans dix captures", () => {
+  const s = marin(7); s.carriere.merite = 1000;
+  E.agir(s, { id: "service" });
+  assert.equal(s.carriere.rang, 7);
+  s.carriere.poste = "sabaody"; s.ile = "sabaody"; s.lieu = "poste_sabaody";
+  for (let i = 0; i < 6; i++) { s.heure = 8; s.fatigue = 0; E.agir(s, { id: "service" }); }
+  assert.equal(s.carriere.rang, 9);
+  s.haki.eveil.armement = true;
+  for (let i = 0; i < 4; i++) { s.heure = 8; s.fatigue = 0; E.agir(s, { id: "service" }); }
+  assert.equal(s.carriere.rang, 10);
+  s.carriere.captures = 10; s.heure = 8; s.fatigue = 0;
+  E.agir(s, { id: "service" });
+  assert.equal(s.carriere.rang, 11);
+  assert.equal(E.RANGS_MARINE[11], "Amiral");
+});

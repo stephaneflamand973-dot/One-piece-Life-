@@ -28,7 +28,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "21 · 200 événements";
+export const VERSION_APP = "22 · Marine";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -208,7 +208,7 @@ const GROUPES = [
   ["prison", "En cellule", ["attendre", "evader"]],
   ["progresser", "Progresser", ["entrainer", "etudier", "ecole", "cartes", "medecine", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
   ["activites", "Activités", ["travailler", "pecher", "cuisiner", "musique", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "consulter", "genereux", "tricher", "harangue", "manger"]],
-  ["aventure", "Aventure", ["voyager", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "chasseur", "traquer", "revolution", "sabotage", "alliance", "trahir", "quitter"]],
+  ["aventure", "Aventure", ["voyager", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "mutation", "traquer_pirates", "chasseur", "traquer", "revolution", "sabotage", "alliance", "trahir", "quitter"]],
   ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant", "jouer_enfant", "enseigner_enfant"]],
 ];
 
@@ -395,7 +395,7 @@ function rendreFiche() {
     <section class="carte"><h2>Relations</h2>
       ${Object.entries(s.pnj).filter(([, p]) => !p.invisible && p.lieu !== "disparu" && (p.relation !== 0 || p.souvenirs.length || LIEUX[p.lieu]?.ile === s.ile)).map(([id, p]) => `<div class="stat"><span>${esc(p.nom)} <i class="discret">${esc(p.role)}${agePnj(s, id) != null ? `, ${agePnj(s, id)} ans` : ""}</i></span>${barre(Math.max(0, p.relation))}<b>${p.relation}</b></div>`).join("")}</section>
     <section class="carte"><h2>Carrière</h2>
-      ${s.carriere?.type === "marine" ? `<p>${RANGS_MARINE[s.carriere.rang]} de la Marine · mérite ${s.carriere.merite}${s.carriere.rang < RANGS_MARINE.length - 1 ? ` / ${MERITE_RANG[s.carriere.rang + 1]} pour ${RANGS_MARINE[s.carriere.rang + 1]}` : ""}</p>`
+      ${s.carriere?.type === "marine" ? `<p class="discret petit">Poste : ${ILES[s.carriere.poste || "shells"].nom} · ${s.carriere.captures || 0} équipage${(s.carriere.captures || 0) > 1 ? "s" : ""} capturé${(s.carriere.captures || 0) > 1 ? "s" : ""}${s.carriere.rang >= 6 ? " · commande un navire de guerre" : " · navire de guerre à partir de Lieutenant"}</p><p>${RANGS_MARINE[s.carriere.rang]} de la Marine · mérite ${s.carriere.merite}${s.carriere.rang < RANGS_MARINE.length - 1 ? ` / ${MERITE_RANG[s.carriere.rang + 1]} pour ${RANGS_MARINE[s.carriere.rang + 1]}` : ""}</p>`
         : s.carriere?.type === "chasseur" ? `<p>Chasseur de primes · ${s.carriere.captures} capture${s.carriere.captures > 1 ? "s" : ""}</p>`
         : s.carriere?.type === "revolution" ? `<p>Membre de l'Armée révolutionnaire · ${s.carriere.missions} mission${s.carriere.missions > 1 ? "s" : ""}</p>`
         : s.carriere?.type === "pirate" && s.carriere.membre ? `<p><b>${GRADES_PIRATE[s.carriere.grade]}</b> des ${esc(s.carriere.equipage)}, sous les ordres du capitaine ${esc(s.carriere.capitaine || "")}</p>
