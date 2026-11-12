@@ -1103,3 +1103,12 @@ test("un bébé ne sort pas seul, un membre d'équipage ne voyage pas seul", () 
   E.agir(s, { id: "rejoindre" });
   assert.equal(E.agir(s, { id: "voyager", cible: "shells" }).ok, false);
 });
+
+test("prime : plafonnée par mer pour les coups ordinaires (East Blue ≈ 34 millions)", () => {
+  const s = capitaine(); s.stats.force = 60; s.stats.agilite = 60;
+  for (let i = 0; i < 400 && !s.prison && s.perso.vivant; i++) { s.heure = 8; s.fatigue = 0; s.sante.blessures = []; s.ile = "fuchsia"; s.lieu = "port"; s.navire ??= { type: "barque", nom: "X", coque: 100 }; E.agir(s, { id: "attaquer" }); }
+  assert.ok(s.infamie <= 12, `notoriété ${s.infamie}`);
+  assert.ok(s.prime <= 34000000);
+  s.ile = "water_seven";
+  assert.equal(E.plafondNotoriete(s), 45);
+});

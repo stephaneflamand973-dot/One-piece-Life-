@@ -4,7 +4,7 @@
 // Échelle : les primes sont en Berrys canoniques ; la Marine verse aux chasseurs une prime réglementaire
 // d'un deux-millième, à l'échelle des prix du jeu. L'argent vient toujours de l'extérieur comptabilisé.
 
-import { rand, noter, age, puissance, blesser, pnjIci, gagnerCompetence, GAINS, ILES, res } from "./engine.js";
+import { rand, noter, age, puissance, blesser, pnjIci, gagnerCompetence, notoriete, GAINS, ILES, res } from "./engine.js";
 import { nouvelle, regionDe, rivauxIci } from "./monde.js";
 
 export const FACTIONS = { marine: "Marine", gouvernement: "Gouvernement mondial", revolution: "Armée révolutionnaire", pirates: "Pirates", chasseurs: "Chasseurs de primes" };
@@ -71,7 +71,7 @@ export const ACTIONS_FACTIONS = {
     if (s.stats.intelligence + s.stats.agilite + (s.traits?.ruse || 0) + rand(s) * 20 >= 20 + danger * 6) {
       s.carriere.missions += 1;
       reputation(s, "revolution", 5); reputation(s, "gouvernement", -5);
-      s.infamie += 1; s.prime = Math.max(s.prime, s.infamie * 3000000);
+      notoriete(s, 1, { exploit: true });
       nouvelle(s, s.ile, `Des révolutionnaires ont saboté un entrepôt du Gouvernement mondial ${ILES[s.ile].a}.`, "monde");
       return res(true, `Le dépôt d'armes du Gouvernement part en fumée. Mission réussie. Le Gouvernement met ta tête à prix : ${s.prime.toLocaleString("fr-FR")} Berrys.`);
     }
@@ -150,11 +150,11 @@ export const EVENEMENTS_FACTIONS = [
     choix: [["Accepter le titre", s => { s.carriere.corsaire = s.jour; reputation(s, "gouvernement", 30); reputation(s, "pirates", -15); nouvelle(s, s.ile, `${s.perso.prenom} devient l'un des Grands Corsaires.`, "monde"); return "Ta prime est gelée et la Marine te laisse en paix. Les autres pirates te regardent de travers."; }],
       ["Refuser", s => { reputation(s, "pirates", 10); reputation(s, "gouvernement", -10); return "Tu déchires la lettre devant l'émissaire. Les pirates t'acclament."; }]] },
   { id: "vengeance_alliee", planifie: true, texte: "Une flotte surgit de la brume : tes anciens alliés viennent se venger.",
-    choix: [["Combattre", s => { if (puissance(s) + rand(s) * 20 >= 40) { s.infamie += 1; return "Tu les repousses définitivement."; } blesser(s, 2); return "Le combat est terrible. Tu survis à peine."; }],
+    choix: [["Combattre", s => { if (puissance(s) + rand(s) * 20 >= 40) { notoriete(s, 1); return "Tu les repousses définitivement."; } blesser(s, 2); return "Le combat est terrible. Tu survis à peine."; }],
       ["Fuir", s => { if (s.stats.agilite + rand(s) * 20 >= 18) return "Ton navire s'échappe dans la brume."; blesser(s, 1); return "Ils te rattrapent un moment avant que tu ne t'enfuies."; }]] },
   { id: "guerre", planifie: true, texte: "La guerre fait rage dans le Nouveau Monde. Les deux camps rassemblent leurs forces.",
     choix: [["Prendre part à la bataille", s => {
-        if (puissance(s) + rand(s) * 30 >= 70) { s.infamie += 3; if (s.carriere?.type === "marine") { s.carriere.merite += 30; } return "Tu te distingues au cœur de la bataille. On parlera longtemps de toi."; }
+        if (puissance(s) + rand(s) * 30 >= 70) { if (s.carriere?.type === "marine") { s.carriere.merite += 30; s.carriere.dernierService = s.jour; } else notoriete(s, 3, { exploit: true }); return "Tu te distingues au cœur de la bataille. On parlera longtemps de toi."; }
         blesser(s, 2); return "La bataille te dépasse : tu en ressors gravement blessé, chanceux d'être en vie."; }],
       ["Rester à l'écart", () => "Tu observes de loin les éclairs et les incendies."]] },
 ];

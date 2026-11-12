@@ -5,7 +5,7 @@
 // navires de la Marine, rançons, duels de capitaines) et des territoires sous sa protection.
 // Tout l'argent vient de quelqu'un ou de l'extérieur comptabilisé ; les gains d'expérience sont fixes.
 
-import { rand, noter, age, puissance, blesser, transferer, gagnerStat, gagnerCompetence, souvenir, equipage, calculPrime, capturer,
+import { rand, noter, age, puissance, blesser, transferer, gagnerStat, gagnerCompetence, souvenir, equipage, calculPrime, capturer, notoriete,
   GAINS, ILES, LIEUX, NAVIRES, res } from "./engine.js";
 import { nouvelle, regionDe, rivauxIci } from "./monde.js";
 import { reputation } from "./factions.js";
@@ -81,7 +81,7 @@ export const ACTIONS_PIRATE = {
       const part = Math.round((80 + rand(s) * 120) * (1 + danger) * (1 + s.carriere.grade * 0.5));
       s.monde.exterieur -= part; s.berrys += part;
       s.carriere.merite += 3;
-      s.infamie = +(s.infamie + 0.1 * (1 + danger)).toFixed(2); s.prime = calculPrime(s.infamie);
+      notoriete(s, 0.1 * (1 + danger));
       reputation(s, "pirates", 1);
       return res(true, `Les ${s.carriere.equipage} s'emparent d'un navire marchand. Ta part du butin : ${part} Berrys. Mérite +3.${s.prime ? ` Ta prime : ${s.prime.toLocaleString("fr-FR")} Berrys.` : ""}${promotionPirate(s)}`);
     }
@@ -108,7 +108,7 @@ export const ACTIONS_PIRATE = {
       s.navire = { type: "caravelle", nom: `Le ${["Revanche", "Fier Corbeau", "Nouvel Horizon"][Math.floor(rand(s) * 3)]}`, coque: 80, ameliorations: {} };
       devenirCapitaine(s, nom, { moralDepart: 45 });
       for (let i = 0; i < 4; i++) creerMembre(s);
-      s.infamie = +(s.infamie + 1).toFixed(2); s.prime = calculPrime(s.infamie);
+      notoriete(s, 1, { exploit: true });
       nouvelle(s, s.ile, `Mutinerie chez les ${nom} : ${s.perso.prenom} a renversé le capitaine ${r.capitaine}.`, "region");
       return res(true, `La mutinerie réussit ! Le capitaine ${r.capitaine} est débarqué. Te voilà capitaine des ${nom}, avec leur caravelle et une partie de l'équipage.`);
     }
@@ -167,7 +167,7 @@ export const ACTIONS_PIRATE = {
     if (nous >= 35 + danger * 12 + rand(s) * 25) {
       const butin = Math.round(300 * (1 + danger));
       s.monde.exterieur -= butin; s.berrys += butin;
-      s.infamie = +(s.infamie + 1.5).toFixed(2); s.prime = calculPrime(s.infamie);
+      notoriete(s, 1.5, { exploit: true });
       reputation(s, "marine", -10); reputation(s, "pirates", 6); moral(s, 12);
       nouvelle(s, s.ile, `Les ${s.carriere.equipage} ont coulé un navire de la Marine !`, "monde");
       return res(true, `Vous prenez d'assaut un navire de la Marine et pillez sa caisse : ${butin} Berrys. Ta prime grimpe à ${s.prime.toLocaleString("fr-FR")} Berrys.`);
@@ -189,7 +189,7 @@ export const ACTIONS_PIRATE = {
     const danger = ILES[s.ile].danger || 0;
     const somme = Math.round(200 * (1 + danger));
     s.monde.exterieur -= somme; s.berrys += somme;
-    s.infamie = +(s.infamie + 0.3).toFixed(2); s.prime = calculPrime(s.infamie);
+    notoriete(s, 0.3);
     reputation(s, "gouvernement", -3); moral(s, 5);
     s.traits.bonte = Math.max(-10, (s.traits.bonte || 0) - 1);
     s.drapeaux.rancons ??= {}; s.drapeaux.rancons[s.ile] = s.jour;
@@ -206,7 +206,7 @@ export const ACTIONS_PIRATE = {
       r.actif = false; r.fin = `vaincu en duel par ${s.perso.prenom}`;
       const recrues = Math.min(2, (NAVIRES[s.navire?.type]?.capacite || 3) - equipage(s).length);
       for (let i = 0; i < recrues; i++) creerMembre(s);
-      s.infamie = +(s.infamie + Math.min(3, Math.max(1, r.prime / 30000000))).toFixed(2); s.prime = calculPrime(s.infamie);
+      notoriete(s, Math.min(3, Math.max(1, r.prime / 30000000)), { exploit: true });
       const butin = Math.min(5000, Math.round(r.prime / 4000));
       s.monde.exterieur -= butin; s.berrys += butin;
       gagnerCompetence(s, "combat", GAINS.combat); moral(s, 15);
@@ -339,7 +339,7 @@ export const EVENEMENTS_PIRATE = [
     texte: (s, d) => `Un équipage rival menace ${ILES[d.ile].nom}, placée sous ta protection.`,
     choix: [["Défendre ton territoire", (s, d) => {
         if (!ILES[d.ile] || !s.carriere?.territoires) return "Fausse alerte : aucun navire ennemi en vue.";
-        if (puissance(s) + bonusCanons(s) + rand(s) * 25 >= 30 + (ILES[d.ile].danger || 0) * 10) { moral(s, 10); s.infamie = +(s.infamie + 0.5).toFixed(2); s.prime = calculPrime(s.infamie); return "Vous chassez les intrus. Ta parole tient, et ta réputation grandit."; }
+        if (puissance(s) + bonusCanons(s) + rand(s) * 25 >= 30 + (ILES[d.ile].danger || 0) * 10) { moral(s, 10); notoriete(s, 0.5); return "Vous chassez les intrus. Ta parole tient, et ta réputation grandit."; }
         blesser(s, 1); s.carriere.territoires = s.carriere.territoires.filter(i => i !== d.ile); moral(s, -10);
         return `Vous êtes repoussés : ${ILES[d.ile].nom} passe aux mains de tes rivaux.`;
       }],

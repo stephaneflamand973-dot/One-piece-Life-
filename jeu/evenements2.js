@@ -1,7 +1,7 @@
 // Bibliothèque d'événements, deuxième volume : plus de variété à chaque âge, sur chaque île et dans chaque carrière.
 // Mêmes règles que le premier volume : gains fixes, argent toujours pris à quelqu'un, aucune réussite partielle.
 
-import { rand, age, agePnj, pnjIci, blesser, transferer, GAINS, ILES } from "./engine.js";
+import { rand, age, agePnj, pnjIci, blesser, transferer, notoriete, GAINS, ILES } from "./engine.js";
 import { nouvelle, regionDe } from "./monde.js";
 import { trait, humeur, stat, comp, relation, deExterieur, versExterieur, planifier, nom, presentsAdultes, parentsVivants, surPort, taverne, combat, pick } from "./evenements.js";
 
@@ -159,7 +159,7 @@ export const EVENEMENTS_2 = [
     choix: [["Fête jusqu'à l'aube (50 B)", s => { versExterieur(s, 50); for (const p of Object.values(s.pnj).filter(p => p.lieu === "equipage")) p.relation += 5; humeur(s, 15); return "On chante, on danse sur le pont. L'équipage t'adore."; }],
       ["Rester sobres et vigilants", s => { trait(s, "ruse", 1); return "Quelques grognements, mais vous restez prêts au combat."; }]] },
   { id: "pirate_otage", age: [16, 99], cond: s => carriere(s, "pirate"), texte: "Ton équipage a capturé le fils d'un riche marchand. Certains parlent de rançon.",
-    choix: [["Demander une rançon", s => { deExterieur(s, 300); trait(s, "bonte", -2); s.infamie += 1; return "Le marchand paie 300 Berrys. Ta réputation de pirate cruel grandit."; }],
+    choix: [["Demander une rançon", s => { deExterieur(s, 300); trait(s, "bonte", -2); notoriete(s, 1); return "Le marchand paie 300 Berrys. Ta réputation de pirate cruel grandit."; }],
       ["Le relâcher", s => { trait(s, "bonte", 2); s.reputation.pirates = (s.reputation.pirates || 0) - 2; return "Tu le déposes au port suivant. Certains de tes hommes ne comprennent pas."; }]] },
   { id: "chasseur_dilemme", age: [16, 99], cond: s => carriere(s, "chasseur"), texte: "Le pirate que tu traques s'avère être un père de famille qui nourrit tout un village.",
     choix: [["Le livrer quand même", s => { trait(s, "bonte", -1); return "La loi, c'est la loi. Le village te maudit."; }],

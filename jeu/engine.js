@@ -1016,8 +1016,9 @@ const ACTIONS = {
     for (const id of membres) { s.pnj[id].fonds += part; s.pnj[id].relation += 3; }
     s.berrys += butin - part * membres.length;
     // Un abordage ordinaire ne fait monter la notoriété que peu à peu, davantage sur les mers dangereuses.
-    s.infamie = +(s.infamie + 0.2 * (1 + danger)).toFixed(2); s.prime = calculPrime(s.infamie);
-    let txt = `À l'abordage ! Le navire marchand se rend. Butin : ${butin} Berrys${membres.length ? `, dont ${part * membres.length} partagés avec l'équipage` : ""}. Ta prime passe à ${s.prime.toLocaleString("fr-FR")} Berrys.`;
+    const primeAvant = s.prime;
+    notoriete(s, 0.2 * (1 + danger));
+    let txt = `À l'abordage ! Le navire marchand se rend. Butin : ${butin} Berrys${membres.length ? `, dont ${part * membres.length} partagés avec l'équipage` : ""}. ${s.prime > primeAvant ? `Ta prime passe à ${s.prime.toLocaleString("fr-FR")} Berrys.` : `Ta prime reste à ${s.prime.toLocaleString("fr-FR")} Berrys : sur cette mer, ce genre de coup ne la fera plus monter.`}`;
     const reste = Object.keys(FRUITS).filter(f => !s.monde.fruitsTrouves.includes(f));
     if (reste.length && rand(s) < 0.015) {
       const f = reste[Math.floor(rand(s) * reste.length)];
@@ -1119,7 +1120,7 @@ const ACTIONS = {
     consommer(s, 4, 30);
     if (s.stats.agilite + (s.fruit ? 6 : 0) + rand(s) * 15 >= 22) {
       s.prison = null; s.lieu = "port_shells"; s.drapeaux.evade = s.jour; s.heure = 23; // on s'évade de nuit
-      s.infamie = +(s.infamie + 0.5).toFixed(2); s.prime = calculPrime(s.infamie);
+      notoriete(s, 0.5, { exploit: true });
       return res(true, `Tu t'évades de la base de Shells Town ! Te voilà sur le port, sans navire. Ta prime monte à ${s.prime.toLocaleString("fr-FR")} Berrys.`);
     }
     s.prison.jusqua += 20;
@@ -1293,6 +1294,15 @@ export function puissance(s) {
 export const equipage = s => Object.keys(s.pnj).filter(id => s.pnj[id].lieu === "equipage" && s.pnj[id].vivant !== false);
 const forceEquipage = s => equipage(s).reduce((t, id) => t + (s.pnj[id].force || 0), 0);
 // Prime en Berrys canoniques : environ 25 millions pour 10 points de notoriété, un milliard vers 78.
+// Notoriété : chaque mer a son plafond pour les coups ordinaires. Dans East Blue, une prime ne dépasse guère
+// 30 millions ; pour aller plus haut, il faut prendre des risques sur Grand Line, puis dans le Nouveau Monde.
+export const plafondNotoriete = s => (ILES[s.ile]?.nouveauMonde ? Infinity : ILES[s.ile]?.grandLine ? 45 : 12);
+export function notoriete(s, gain, { exploit = false } = {}) {
+  const plafond = plafondNotoriete(s) + (exploit ? 5 : 0);
+  if (s.infamie < plafond) s.infamie = +Math.min(plafond, s.infamie + gain).toFixed(2);
+  s.prime = calculPrime(s.infamie);
+  return s.prime;
+}
 export const calculPrime = infamie => infamie <= 0 ? 0 : Math.round((infamie * infamie * 150000 + infamie * 1000000) / 100000) * 100000;
 
 // Affrontement avec la Marine : victoire (fuite) ou capture. Un utilisateur de fruit peut se noyer en mer.
@@ -1300,14 +1310,14 @@ function combatMarine(s, ou) {
   const marine = 18 + s.infamie * 3 + (ILES[s.ile].danger || 0) * 10 + rand(s) * 20;
   const nous = puissance(s) + forceEquipage(s) * 0.5 + bonusCanons(s) + rand(s) * 20;
   if (nous >= marine) {
-    s.infamie = +(s.infamie + 0.5).toFixed(2); s.prime = calculPrime(s.infamie);
+    notoriete(s, 0.5);
     if (rand(s) < 0.4) blesser(s, 0);
-    return res(true, `La Marine vous attaque ${ou} ! Vous la repoussez et prenez la fuite. Ta prime monte à ${s.prime.toLocaleString("fr-FR")} Berrys.`);
+    return res(true, `La Marine vous attaque ${ou} ! Vous la repoussez et prenez la fuite. Ta prime est de ${s.prime.toLocaleString("fr-FR")} Berrys.`);
   }
   // Moment décisif : un Haki des Rois inné peut s'éveiller et renverser l'affrontement.
   if (s.haki?.roisInne && !s.haki.eveil.rois && age(s) >= 14 && rand(s) < 0.35) {
     s.haki.eveil.rois = true;
-    s.infamie += 2; s.prime = calculPrime(s.infamie);
+    notoriete(s, 2, { exploit: true });
     noter(s, "Éveil du Haki des Rois.", "mission");
     return res(true, `Acculé, tu sens une force immense jaillir de toi. Une onde invisible balaie le pont : les marines s'effondrent, inconscients. Tu viens d'éveiller le Haki des Rois ! Ta prime bondit à ${s.prime.toLocaleString("fr-FR")} Berrys.`);
   }
