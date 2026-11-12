@@ -103,6 +103,9 @@
     background: var(--fond); padding: 6px 0; }
   .temps button.conseil { background: var(--or); border-color: var(--or); color: #1e2428; animation: pulse 1.2s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scale(1.04); } }
+  .duel { border: 2px solid var(--ko); border-radius: 14px; padding: 10px 12px; margin: 8px 0; background: var(--carte); }
+  .g-combat .action { border-color: var(--ko); font-weight: 700; }
+  .temps[hidden] { display: none; }
   .rapide { margin: 10px 0; padding: 8px 10px; border: 1px dashed var(--accent); border-radius: 14px; }
   .rapide .ligne-champ button { flex: 1; padding: 8px 4px; font-size: .85rem; margin: 6px 0 0; }
   .temps button { flex: 1; background: var(--texte); color: var(--fond); border-color: var(--texte); padding: 11px 4px; font-size: .88rem; }

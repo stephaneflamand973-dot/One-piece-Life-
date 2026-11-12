@@ -9,6 +9,15 @@ import { EVENEMENTS_FACTIONS } from "./factions.js";
 import { EVENEMENTS_2 } from "./evenements2.js";
 import { EVENEMENTS_PIRATE } from "./pirate.js";
 import { EVENEMENTS_3 } from "./evenements3.js";
+import { engagerCombat, definirFin } from "./combat.js";
+
+definirFin("chasse", (s, issue, d) => {
+  const m = s.missions.find(x => x.id === d.m);
+  if (issue === "victoire") { if (m) m.fait = true; return `Tu maîtrises le bandit.${comp(s, "combat", GAINS.combat)}`; }
+  if (issue === "fuite") return "Le bandit court toujours. Tu peux retenter avant l'échéance.";
+  blesser(s, 1);
+  return "Le bandit t'échappe après t'avoir blessé. Tu peux retenter avant l'échéance.";
+});
 
 const pick = (s, arr) => arr[Math.floor(rand(s) * arr.length)];
 const AN = 365;
@@ -320,9 +329,7 @@ export function accomplir(s) {
   const m = s.missions.find(m => m.statut === "active" && m.lieu === s.lieu && !m.fait);
   if (!m) return { ok: false, texte: "Il n'y a rien à accomplir ici." };
   if (m.code === "chasse") {
-    if (combat(s, m.difficulte)) { m.fait = true; return { ok: true, texte: `Tu débusques le bandit et le maîtrises.${comp(s, "combat", GAINS.combat)}` }; }
-    blesser(s, 1);
-    return { ok: true, texte: "Le bandit t'échappe après t'avoir blessé. Tu peux retenter avant l'échéance." };
+    return engagerCombat(s, { type: "chasse", nom: "le bandit", force: m.difficulte, intro: "Tu débusques le bandit dans sa cachette.", data: { m: m.id } });
   }
   if (s.stats.intelligence + s.stats.agilite + rand(s) * 10 >= m.difficulte) { m.fait = true; return { ok: true, texte: "Tu retrouves l'enfant, transi mais sain et sauf." }; }
   return { ok: true, texte: "Tu cherches pendant des heures, sans succès. Il faudra recommencer." };

@@ -3,6 +3,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import * as E from "../jeu/engine.js";
 
+// Mène un combat en cours jusqu'à son terme en attaquant à chaque manche.
+const finir = s => { let n = 0; while (s.combat && n++ < 40) E.agir(s, { id: "c_frapper" }); return s; };
 const ado = () => { const s = E.nouvelleVie({ prenom: "Test", seed: 42 }); s.jour = 16 * 365; s.perso.naissance = 0; return s; };
 
 test("naissance : vie qui commence à 0 an à Fuchsia", () => {
@@ -372,7 +374,7 @@ test("Haki de l'observation : certains coups sont esquivés", () => {
   for (let i = 0; i < 200; i++) {
     s.sante.blessures = [];
     s.ile = "fuchsia"; s.lieu = "port"; s.monde.voyouAuPort = true; s.heure = 8; s.fatigue = 0;
-    E.agir(s, { id: "combattre" });
+    E.agir(s, { id: "combattre" }); finir(s);
     if (!s.sante.blessures.length) esquives++;
   }
   assert.ok(esquives > 40);
@@ -528,7 +530,7 @@ test("Colisée : la victoire paie 3000 Berrys sans création d'argent", () => {
   for (let seed = 1; seed < 40 && !gagne; seed++) {
     const s = aSabaody(seed); s.ile = "dressrosa"; s.lieu = "colisee"; s.stats.force = 40; s.stats.agilite = 40;
     const masse = E.masseMonetaire(s); const b = s.berrys;
-    E.agir(s, { id: "colisee" });
+    E.agir(s, { id: "colisee" }); finir(s);
     if (s.berrys === b + 3000) { gagne = true; assert.equal(E.masseMonetaire(s), masse); }
   }
   assert.ok(gagne);
@@ -699,7 +701,7 @@ test("chasseur de primes : inscription, capture binaire payée sans création d'
     s.lieu = "quais_logue";
     s.monde.rivaux = [{ id: "r1", nom: "Pirates Test", capitaine: "Test", region: "eb", ile: "loguetown", prime: 5000000, force: 20, actif: true }];
     const masse = E.masseMonetaire(s);
-    E.agir(s, { id: "traquer" });
+    E.agir(s, { id: "traquer" }); finir(s);
     if (!s.monde.rivaux[0].actif) { capture = true; assert.equal(s.berrys, 2500); assert.equal(E.masseMonetaire(s), masse); }
   }
   assert.ok(capture);
@@ -974,7 +976,7 @@ test("capitaine : un duel gagné disperse l'équipage rival et rapporte des recr
   let gagne = false;
   for (let seed = 1; seed < 30 && !gagne; seed++) {
     const s = capitaine(seed); s.stats.force = 40; s.stats.agilite = 40; avecRival(s, { force: 15 });
-    E.agir(s, { id: "defier" });
+    E.agir(s, { id: "defier" }); finir(s);
     if (!s.monde.rivaux[0].actif) { gagne = true; assert.ok(E.equipage(s).length >= 1); assert.ok(s.prime > 0); }
   }
   assert.ok(gagne);
@@ -1222,4 +1224,44 @@ test("Marine : pas de Commodore sans Grand Line, pas de Vice-amiral sans Haki, p
   E.agir(s, { id: "service" });
   assert.equal(s.carriere.rang, 11);
   assert.equal(E.RANGS_MARINE[11], "Amiral");
+});
+
+// ---------- Combats jouables ----------
+test("combat : manche par manche, le temps ne passe pas et les autres actions sont bloquées", () => {
+  const s = ado(); s.lieu = "port"; s.monde.voyouAuPort = true; s.stats.force = 10; s.stats.agilite = 10;
+  const r = E.agir(s, { id: "combattre" });
+  assert.ok(r.combat && s.combat);
+  assert.equal(E.agir(s, { id: "aller", cible: "bar" }).ok, false);
+  assert.equal(E.avancer(s, 7).ok, false);
+  assert.deepEqual(E.actionsDisponibles(s).map(a => a.id).slice(0, 2), ["c_frapper", "c_garde"]);
+  const jour = s.jour, heure = s.heure;
+  finir(s);
+  assert.equal(s.combat, null);
+  assert.equal(s.jour, jour); assert.equal(s.heure, heure);
+  assert.equal(s.competences.combat, 1);
+});
+
+test("combat : la garde encaisse moins, le pouvoir du fruit est limité et frappe plus fort", () => {
+  const s = ado(); s.lieu = "port"; s.monde.voyouAuPort = true; s.stats.endurance = 60;
+  s.fruit = { id: "braise", maitrise: 0 };
+  E.agir(s, { id: "combattre" }); s.combat.pvE = 999; s.combat.pvEmax = 999; s.combat.force = 40;
+  const pv0 = s.combat.pvT; E.agir(s, { id: "c_garde" }); const garde = pv0 - s.combat.pvT;
+  const pv1 = s.combat.pvT; E.agir(s, { id: "c_frapper" }); const front = pv1 - s.combat.pvT;
+  assert.ok(garde < front);
+  const pv2 = s.combat.pvT;
+  assert.ok(E.agir(s, { id: "c_pouvoir" }).ok); assert.equal(s.combat.pvT, pv2); // Logia : intangible
+  assert.ok(E.agir(s, { id: "c_pouvoir" }).ok);
+  assert.equal(E.agir(s, { id: "c_pouvoir" }).ok, false);
+});
+
+test("combat : une mission de chasse n'est réussie que si le bandit est vaincu", () => {
+  const s = ado(); s.stats.force = 40; s.stats.agilite = 40;
+  s.missions.push({ id: "mc", code: "chasse", donneur: "woop", titre: "Chasser le bandit", condition: "c", lieu: "colline", difficulte: 14, duree: 5, recompense: 200, statut: "active", sequestre: 200, echeance: s.jour + 5 });
+  s.pnj.woop.fonds -= 200; s.lieu = "colline";
+  E.agir(s, { id: "accomplir" });
+  assert.ok(s.combat);
+  assert.equal(s.missions[0].statut, "active");
+  finir(s);
+  assert.equal(s.missions[0].statut, "réussie");
+  assert.equal(s.berrys, 200);
 });

@@ -40,6 +40,13 @@ function agent(s, plan, hasard) {
     return aller("quais_logue") || essayer({ id: "repos" });
   };
 
+  // En combat : attaquer, parfois se défendre, utiliser son pouvoir quand il en reste.
+  if (s.combat) {
+    const c = dispo();
+    const x = hasard();
+    const choix = c.find(a => a.id === "c_pouvoir") && x < 0.4 ? "c_pouvoir" : c.find(a => a.id === "c_esquive") && x < 0.5 ? "c_esquive" : x < 0.15 ? "c_garde" : "c_frapper";
+    return essayer({ id: choix });
+  }
   // Les décisions d'abord (choix au hasard, comme un joueur hésitant).
   const decisions = dispo().filter(a => a.id === "choisir");
   if (decisions.length) return essayer(decisions[Math.floor(hasard() * decisions.length)]);
@@ -106,12 +113,12 @@ export function jouerVie(seed, { maxJours = 120 * 365, plan } = {}) {
     const jour = s.jour;
     // Après deux refus de suite, un joueur raisonnable va dormir.
     const infAvant = s.infamie;
-    const r = (suite >= 2 ? E.agir(s, { id: "repos" }) : agent(s, plan, hasard)) || E.agir(s, { id: "repos" });
+    const r = (suite >= 2 && !s.combat ? E.agir(s, { id: "repos" }) : agent(s, plan, hasard)) || E.agir(s, { id: "repos" });
     if (process.env.TRACE_PRIME && s.infamie - infAvant >= 0.4) console.log("âge", E.age(s), "notoriété", infAvant, "->", s.infamie, "|", (r.texte || "").slice(0, 200));
     actions++;
     if (!r.ok) { echecs++; suite++; } else suite = 0;
     // Impasse : beaucoup d'actions sans que le temps avance.
-    if (s.jour === jour) { if (++impasse > 400) { E.agir(s, { id: "repos" }); impasse = 0; } } else impasse = 0;
+    if (s.jour === jour) { if (++impasse > 400) { if (s.combat) E.agir(s, { id: "c_fuir" }); else E.agir(s, { id: "repos" }); impasse = 0; } } else impasse = 0;
   }
   return {
     seed, plan, age: E.age(s), vivant: s.perso.vivant, actions, echecs, evenements: [...vus], masseOk: E.masseMonetaire(s) === masse0,

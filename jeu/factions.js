@@ -6,6 +6,26 @@
 
 import { rand, noter, age, puissance, blesser, pnjIci, gagnerCompetence, notoriete, GAINS, ILES, res } from "./engine.js";
 import { nouvelle, regionDe, rivauxIci } from "./monde.js";
+import { engagerCombat, definirFin } from "./combat.js";
+
+definirFin("traque", (s, issue, d) => {
+  const r = s.monde.rivaux.find(x => x.id === d.r);
+  if (!r) return "";
+  if (issue === "victoire") {
+    const gain = Math.min(5000, recompenseChasseur(r.prime));
+    r.actif = false; r.fin = "capturé par un chasseur";
+    s.monde.exterieur -= gain; s.berrys += gain;
+    if (s.carriere?.type === "chasseur") s.carriere.captures += 1;
+    const gco = gagnerCompetence(s, "combat", GAINS.combat);
+    reputation(s, "chasseurs", 5); reputation(s, "marine", 3); reputation(s, "pirates", -5);
+    nouvelle(s, s.ile, `Le capitaine ${r.capitaine} (${r.nom}) a été capturé par ${s.perso.prenom}, chasseur de primes.`, "region");
+    return `Tu captures le capitaine ${r.capitaine} et le livres à la Marine. Prime réglementaire versée : ${gain} Berrys. Combat +${gco}.`;
+  }
+  r.force += 1;
+  if (issue === "fuite") return `Les ${r.nom} savent désormais qu'on les traque.`;
+  blesser(s, rand(s) < 0.3 ? 2 : 1);
+  return `La traque échoue et tu t'en sors blessé.`;
+});
 
 export const FACTIONS = { marine: "Marine", gouvernement: "Gouvernement mondial", revolution: "Armée révolutionnaire", pirates: "Pirates", chasseurs: "Chasseurs de primes" };
 export const SEUIL_CORSAIRE = 80000000;
@@ -39,19 +59,7 @@ export const ACTIONS_FACTIONS = {
     if (s.fatigue >= 80) return res(false, "Tu es trop fatigué pour une traque.");
     s.heure += 6; s.fatigue = Math.min(100, s.fatigue + 40);
     const r = cibles.sort((a, b) => a.force - b.force)[0];
-    // Capture binaire : réussie ou ratée.
-    if (puissance(s) + rand(s) * 20 >= r.force + 10) {
-      const gain = Math.min(5000, recompenseChasseur(r.prime));
-      r.actif = false; r.fin = "capturé par un chasseur";
-      s.monde.exterieur -= gain; s.berrys += gain;
-      s.carriere.captures += 1; const gco = gagnerCompetence(s, "combat", GAINS.combat);
-      reputation(s, "chasseurs", 5); reputation(s, "marine", 3); reputation(s, "pirates", -5);
-      nouvelle(s, s.ile, `Le capitaine ${r.capitaine} (${r.nom}) a été capturé par ${s.perso.prenom}, chasseur de primes.`, "region");
-      return res(true, `Tu captures le capitaine ${r.capitaine} et le livres à la Marine. Prime réglementaire versée : ${gain} Berrys. Combat +${gco}.`);
-    }
-    blesser(s, rand(s) < 0.3 ? 2 : 1);
-    r.force += 1;
-    return res(true, `Les ${r.nom} t'ont repéré : la traque échoue et tu t'en sors blessé.`);
+    return engagerCombat(s, { type: "traque", nom: `le capitaine ${r.capitaine}`, force: r.force + 8, intro: `Tu débusques les ${r.nom} dans leur repaire.`, data: { r: r.id } });
   },
   revolution(s) {
     if (s.lieu !== "echafaud") return res(false, "On dit que l'Armée révolutionnaire recrute discrètement près de l'échafaud de Loguetown.");

@@ -9,6 +9,26 @@ import { rand, noter, age, puissance, blesser, transferer, gagnerStat, gagnerCom
   GAINS, ILES, LIEUX, NAVIRES, res } from "./engine.js";
 import { nouvelle, regionDe, rivauxIci } from "./monde.js";
 import { reputation } from "./factions.js";
+import { engagerCombat, definirFin } from "./combat.js";
+
+definirFin("duel", (s, issue, d) => {
+  const r = s.monde.rivaux.find(x => x.id === d.r);
+  if (!r) return "";
+  if (issue === "victoire") {
+    r.actif = false; r.fin = `vaincu en duel par ${s.perso.prenom}`;
+    const recrues = Math.max(0, Math.min(2, (NAVIRES[s.navire?.type]?.capacite || 3) - equipage(s).length));
+    for (let i = 0; i < recrues; i++) creerMembre(s);
+    notoriete(s, Math.min(3, Math.max(1, r.prime / 30000000)), { exploit: true });
+    const butin = Math.min(5000, Math.round(r.prime / 4000));
+    s.monde.exterieur -= butin; s.berrys += butin;
+    gagnerCompetence(s, "combat", GAINS.combat); moral(s, 15);
+    nouvelle(s, s.ile, `Le capitaine ${r.capitaine} (${r.nom}) a été vaincu en duel par ${s.perso.prenom}.`, "region");
+    return `Tu fais plier ${r.capitaine}. Son équipage se disperse${recrues > 0 ? ` et ${recrues} de ses hommes te rejoignent` : ""}. Butin : ${butin} Berrys. Ta prime : ${s.prime.toLocaleString("fr-FR")} Berrys.`;
+  }
+  if (issue === "fuite") { moral(s, -8); return "Tu romps le duel. Ton équipage détourne les yeux."; }
+  blesser(s, 2); moral(s, -12);
+  return `${r.capitaine} est plus fort que prévu. Tu t'effondres sur le pont devant ton équipage.`;
+});
 
 export const GRADES_PIRATE = ["Mousse", "Matelot", "Officier", "Second"];
 export const MERITE_PIRATE = [0, 8, 20, 40];
@@ -202,19 +222,7 @@ export const ACTIONS_PIRATE = {
     if (!r) return res(false, "Aucun capitaine rival à défier ici.");
     if (tropTard(s, 4)) return res(false, "Il est trop tard, ou tu es trop fatigué.");
     occupe(s, 4, 40);
-    if (puissance(s) + rand(s) * 25 >= r.force + 10) {
-      r.actif = false; r.fin = `vaincu en duel par ${s.perso.prenom}`;
-      const recrues = Math.min(2, (NAVIRES[s.navire?.type]?.capacite || 3) - equipage(s).length);
-      for (let i = 0; i < recrues; i++) creerMembre(s);
-      notoriete(s, Math.min(3, Math.max(1, r.prime / 30000000)), { exploit: true });
-      const butin = Math.min(5000, Math.round(r.prime / 4000));
-      s.monde.exterieur -= butin; s.berrys += butin;
-      gagnerCompetence(s, "combat", GAINS.combat); moral(s, 15);
-      nouvelle(s, s.ile, `Le capitaine ${r.capitaine} (${r.nom}) a été vaincu en duel par ${s.perso.prenom}.`, "region");
-      return res(true, `Duel de capitaines ! Tu fais plier ${r.capitaine}. Son équipage se disperse${recrues > 0 ? ` et ${recrues} de ses hommes te rejoignent` : ""}. Butin : ${butin} Berrys. Ta prime : ${s.prime.toLocaleString("fr-FR")} Berrys.`);
-    }
-    blesser(s, 2); moral(s, -12);
-    return res(true, `${r.capitaine} est plus fort que prévu. Tu t'effondres sur le pont devant ton équipage.`);
+    return engagerCombat(s, { type: "duel", nom: `le capitaine ${r.capitaine}`, force: r.force + 10, intro: "Duel de capitaines, sur le pont, devant les deux équipages !", data: { r: r.id } });
   },
   proteger(s) {
     if (!estCapitaine(s)) return res(false, "Seul un capitaine place une île sous sa protection.");

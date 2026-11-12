@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { ACTIONS_COMBAT, actionsCombat, engagerCombat, definirFin } from "./combat.js";
 import { ACTIONS_MARINE, actionsMarine, auPoste, lieuPoste, verrouPromotion, donnerNavire, reprendreNavire } from "./marine.js";
 import { ACTIONS_TERRE, actionsTerre, initialiserTerre, vieATerre, journeeDeMetier, possede, maisonIci } from "./terre.js";
 import { ACTIONS_PIRATE, actionsPirate, vieEquipage, estCapitaine, estMembre, bonusCanons, aVoiles, aBlindage, moral, devenirCapitaine } from "./pirate.js";
@@ -468,6 +469,7 @@ function verifierMissions(s, importants) {
 // Ellipse : avance de n jours, interrompue par un événement important (01.3C).
 export function avancer(s, jours, { recuperation, sansInterruption = false } = {}) {
   if (!s.perso.vivant) return res(false, "Cette vie est terminée.");
+  if (s.combat) return res(false, "Tu es en plein combat : le temps n'avance pas.");
   const debut = s.jour;
   let interruption = null;
   for (let i = 0; i < jours; i++) {
@@ -500,6 +502,7 @@ function actionsHaki(s) {
 
 export function actionsDisponibles(s) {
   if (!s.perso.vivant) return [];
+  if (s.combat) return actionsCombat(s);
   const a = [...choixEvenement(s)];
   for (const m of s.missions.filter(m => m.statut === "active" && m.lieu === s.lieu && !m.fait)) a.push({ id: "accomplir", label: `Mission : ${m.titre}` });
   const ag = age(s);
@@ -593,6 +596,7 @@ export function agir(s, action) {
   const ag = age(s);
   const f = ACTIONS[id];
   if (!f) return res(false, "Cette action n'existe pas dans le jeu.");
+  if (s.combat && !id.startsWith("c_")) return res(false, `Tu es en plein combat contre ${s.combat.nom} ! Attaque, défends-toi ou fuis.`);
   if (s.prison && !["attendre", "evader", "entrainer", "etudier", "maitriser", "repos", "haki", "choisir"].includes(id)) {
     return res(false, `Tu es en prison jusqu'au jour ${s.prison.jusqua + 1}. Tu peux attendre, t'entraîner ou tenter de t'évader.`);
   }
@@ -632,6 +636,7 @@ const ACTIONS = {
   ...ACTIONS_PIRATE,
   ...ACTIONS_TERRE,
   ...ACTIONS_MARINE,
+  ...ACTIONS_COMBAT,
   choisir: (s, i) => choisir(s, +i),
   accomplir: s => {
     const e = activite(s, { heures: 4, fatigue: 25, ageMin: 12 });
@@ -784,19 +789,8 @@ const ACTIONS = {
     const e = activite(s, { heures: 1, fatigue: 20, ageMin: 12 });
     if (e) return res(false, e);
     consommer(s, 1, 20);
-    const toi = puissance(s) + rand(s) * 10;
-    const lui = 8 + rand(s) * 10;
     s.monde.voyouAuPort = false;
-    const gco = gagnerCompetence(s, "combat", GAINS.combat); // l'expérience de l'affrontement, gain fixe
-    if (toi >= lui) {
-      blesser(s, rand(s) < 0.5 ? 0 : 1);
-      s.pnj.bern.relation += 5;
-      souvenir(s, "bern", "tu as chassé un voyou du port");
-      if (rand(s) < 0.3) s.planifies?.push({ jour: s.jour + 120 + Math.floor(rand(s) * 200), id: "voyou_vengeance", data: {} });
-      return res(true, `Tu fais face au voyou. Après un échange de coups, il détale. Combat +${gco}.`);
-    }
-    blesser(s, rand(s) < 0.3 ? 2 : 1);
-    return res(true, `Le voyou est plus coriace que prévu. Il te laisse au sol et s'enfuit. Combat +${gco}.${eveilDanger(s)}`);
+    return engagerCombat(s, { type: "voyou", nom: "le voyou", force: 6 + rand(s) * 9, intro: "Tu fais face au voyou qui terrorise le port." });
   },
   accepter(s, mid) {
     const m = s.missions.find(m => m.id === mid && m.statut === "proposée");
@@ -926,22 +920,9 @@ const ACTIONS = {
     const e = activite(s, { heures: 6, fatigue: 50, ageMin: 18 });
     if (e) return res(false, e);
     if (blessureActive(s)) return res(false, "Rocco : « Pas de blessés dans l'arène. Reviens guéri. »");
+    if (!s.pnj.rocco || s.pnj.rocco.vivant === false || s.pnj.rocco.fonds < 3000) return res(false, "Le Colisée n'a plus de quoi payer ses champions : pas de combat aujourd'hui.");
     consommer(s, 6, 50);
-    const adversaire = 45 + rand(s) * 35;
-    if (puissance(s) + rand(s) * 25 >= adversaire) {
-      const prix = 3000;
-      transferer(s, "rocco", "joueur", prix);
-      s.compteurs.colisee = (s.compteurs.colisee || 0) + 1;
-      const gco = gagnerCompetence(s, "combat", GAINS.combat);
-      return res(true, `Sous les cris de la foule, tu remportes ton bloc ! Rocco te remet ${prix} Berrys. Combat +${gco}.`);
-    }
-    blesser(s, 2);
-    if (rand(s) < 0.05) {
-      s.perso.vivant = false;
-      noter(s, `${s.perso.prenom} tombe dans l'arène du Colisée.`, "mort");
-      return res(true, "Ton adversaire était bien trop fort. Tu tombes dans l'arène, sous les yeux de la foule. Ta vie s'achève à Dressrosa.");
-    }
-    return res(true, `Tu es mis hors combat et emporté sur une civière.${eveilDanger(s)}`);
+    return engagerCombat(s, { type: "colisee", nom: "le champion du bloc", force: 45 + rand(s) * 35, intro: "Sous les cris de la foule, tu entres dans l'arène." });
   },
   sabre(s) {
     if (!pnjIci(s).includes("soen")) return res(false, "Seul Sōen, au dojo de Wano, enseigne cette voie.");
@@ -1252,6 +1233,34 @@ const ACTIONS = {
   },
 };
 
+// Conclusions des combats lancés par le moteur.
+definirFin("voyou", (s, issue) => {
+  const gco = gagnerCompetence(s, "combat", GAINS.combat); // l'expérience de l'affrontement, gain fixe
+  if (issue === "victoire") {
+    if (s.pnj.bern && s.pnj.bern.vivant !== false) { s.pnj.bern.relation += 5; souvenir(s, "bern", "tu as chassé un voyou du port"); }
+    if (rand(s) < 0.3) s.planifies?.push({ jour: s.jour + 120 + Math.floor(rand(s) * 200), id: "voyou_vengeance", data: {} });
+    return `Le voyou détale sans demander son reste. Combat +${gco}.`;
+  }
+  if (issue === "fuite") return `Le voyou ricane et s'en va. Combat +${gco}.`;
+  blesser(s, rand(s) < 0.3 ? 2 : 1);
+  return `Le voyou te laisse au sol et s'enfuit. Combat +${gco}.${eveilDanger(s)}`;
+});
+definirFin("colisee", (s, issue) => {
+  if (issue === "victoire") {
+    transferer(s, "rocco", "joueur", 3000);
+    s.compteurs.colisee = (s.compteurs.colisee || 0) + 1;
+    return `Tu remportes ton bloc ! Rocco te remet 3000 Berrys. Combat +${gagnerCompetence(s, "combat", GAINS.combat)}.`;
+  }
+  if (issue === "fuite") return "Tu quittes l'arène sous les huées.";
+  blesser(s, 2);
+  if (rand(s) < 0.05) {
+    s.perso.vivant = false;
+    noter(s, `${s.perso.prenom} tombe dans l'arène du Colisée.`, "mort");
+    return "Ton adversaire était bien trop fort. Tu tombes dans l'arène, sous les yeux de la foule. Ta vie s'achève à Dressrosa.";
+  }
+  return `Tu es mis hors combat et emporté sur une civière.${eveilDanger(s)}`;
+});
+
 // Promotion automatique dès que le mérite atteint le seuil du grade suivant.
 function promotion(s) {
   const c = s.carriere;
@@ -1288,7 +1297,7 @@ export function succeder(s, index) {
   if (s.fruit) s.monde.fruitsTrouves = s.monde.fruitsTrouves.filter(f => f !== s.fruit.id);
   s.fruit = null; s.prime = 0; s.infamie = 0; s.prison = null;
   s.traits = { courage: 0, ruse: 0, bonte: 0, ambition: 0 }; s.humeur = 0; s.education = 0;
-  s.reputation = {}; s.ambition = null; s.evenement = null; s.planifies = [];
+  s.reputation = {}; s.ambition = null; s.evenement = null; s.combat = null; s.planifies = [];
   s.histo = { evenements: {}, compte: {} }; s.drapeaux = {}; s.succes = {}; s.compteurs = { actions: 0 };
   for (const m of s.missions.filter(m => m.sequestre > 0)) { const d = s.pnj[m.donneur]; if (d && d.vivant !== false) d.fonds += m.sequestre; else s.monde.exterieur += m.sequestre; m.sequestre = 0; }
   s.missions = []; s.inventaire.colis = 0; s.metiers = {};
@@ -1396,7 +1405,7 @@ export function capturer(s, ou) {
   for (const r of s.monde.rivaux || []) r.allie = false;
   // Le sabre est confisqué ; la décision en attente et les rendez-vous planifiés tombent à l'eau.
   if (s.inventaire.sabre > 0) s.inventaire.sabre = 0;
-  s.evenement = null;
+  s.evenement = null; s.combat = null;
   s.humeur = Math.max(-100, (s.humeur || 0) - 30);
   s.ile = "shells"; s.lieu = "cellule";
   blesser(s, 1);

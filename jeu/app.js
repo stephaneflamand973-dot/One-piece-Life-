@@ -28,7 +28,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "22 · Marine";
+export const VERSION_APP = "23 · combats";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -204,6 +204,7 @@ function rendreStatut() {
 
 // Regroupement des actions par thème pour l'écran principal.
 const GROUPES = [
+  ["combat", "Combat", ["c_frapper", "c_garde", "c_pouvoir", "c_esquive", "c_fuir"]],
   ["propositions", "Décision", ["choisir", "accepter", "refuser", "accomplir"]],
   ["prison", "En cellule", ["attendre", "evader"]],
   ["progresser", "Progresser", ["entrainer", "etudier", "ecole", "cartes", "medecine", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
@@ -241,8 +242,12 @@ function rendreVivre() {
       <div class="presents">${ici.length ? ici.map(id => `<button class="pnj" data-parler="${id}"><span>${esc(s.pnj[id].nom[0])}</span>${esc(s.pnj[id].nom)}</button>`).join("") : `<span class="discret petit">Personne ici.</span>`}</div>
     </section>
     <section class="recit" id="recit" aria-live="polite">${recit}</section>
+    ${s.combat ? `<section class="duel">
+      <div class="stat"><span>Toi</span><span class="barre"><i style="width:${(s.combat.pvT / s.combat.pvTmax) * 100}%;background:var(--ok)"></i></span><b>${s.combat.pvT}</b></div>
+      <div class="stat"><span>${esc(s.combat.nom[0].toUpperCase() + s.combat.nom.slice(1))}</span><span class="barre"><i style="width:${(s.combat.pvE / s.combat.pvEmax) * 100}%;background:var(--ko)"></i></span><b>${s.combat.pvE}</b></div>
+      <p class="discret petit">Manche ${s.combat.manche}. Attaquer frappe fort ; la garde encaisse peu ; le pouvoir et l'esquive sont limités.</p></section>` : ""}
     ${s.perso.vivant ? `
-    ${enfant ? "" : `<form class="saisie" id="saisie">
+    ${enfant || s.combat ? "" : `<form class="saisie" id="saisie">
       <input id="texte" placeholder="Que fais-tu ?" autocomplete="off" enterkeyhint="send">
       <button class="principal" type="submit" aria-label="Valider">➤</button>
     </form>`}
@@ -253,9 +258,9 @@ function rendreVivre() {
         <div class="ligne-champ"><button data-refaire="1">↻ 1 fois</button><button data-refaire="5">↻ 5 fois</button><button data-refaire="99">↻ Jusqu'à épuisement</button></div></section>` : "";
     })()}
     ${groupes.map(([cle, titre, liste]) => `<section class="groupe g-${cle}"><h3>${titre}</h3><div class="grille">${liste.map(bouton).join("")}</div></section>`).join("")}
-    ${s.prison || age(s) < 3 ? "" : `<section class="groupe"><h3>Se déplacer ${ile.a}</h3>
+    ${s.prison || s.combat || age(s) < 3 ? "" : `<section class="groupe"><h3>Se déplacer ${ile.a}</h3>
       <div class="lieux">${lieuxAccessibles(s).filter(id => id !== s.lieu).map(id => `<button class="chip" data-aller="${id}">${LIEUX[id].court}</button>`).join("")}</div></section>`}
-    <section class="temps">
+    <section class="temps" ${s.combat ? "hidden" : ""}>
       <button data-temps="repos" class="${dernierRefusFatigue ? "conseil" : ""}">🌙 Dormir</button>
       <button data-temps="7">+1 sem.</button>
       <button data-temps="30">+1 mois</button>
