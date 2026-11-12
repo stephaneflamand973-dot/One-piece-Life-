@@ -41,7 +41,7 @@ export const ACTIONS_FACTIONS = {
     const r = cibles.sort((a, b) => a.force - b.force)[0];
     // Capture binaire : réussie ou ratée.
     if (puissance(s) + rand(s) * 20 >= r.force + 10) {
-      const gain = recompenseChasseur(r.prime);
+      const gain = Math.min(5000, recompenseChasseur(r.prime));
       r.actif = false; r.fin = "capturé par un chasseur";
       s.monde.exterieur -= gain; s.berrys += gain;
       s.carriere.captures += 1; const gco = gagnerCompetence(s, "combat", GAINS.combat);
@@ -97,7 +97,7 @@ export const ACTIONS_FACTIONS = {
     r.allie = false; r.ennemi = true;
     reputation(s, "pirates", -25);
     if (puissance(s) + rand(s) * 20 >= r.force) {
-      const butin = Math.round(recompenseChasseur(r.prime) * 2);
+      const butin = Math.min(5000, Math.round(recompenseChasseur(r.prime) * 2));
       s.monde.exterieur -= butin; s.berrys += butin;
       r.force = Math.max(5, r.force - 10);
       s.planifies?.push({ jour: s.jour + 200 + Math.floor(rand(s) * 200), id: "vengeance_alliee", data: { r: r.id } });
@@ -127,7 +127,7 @@ export function actionsFactions(s) {
 export function vieFactions(s) {
   const c = s.carriere;
   if (c?.type === "pirate" && !c.membre) {
-    if (!c.corsaire && !c.offreCorsaire && s.prime >= SEUIL_CORSAIRE && (s.reputation?.gouvernement || 0) > -40) {
+    if (!c.corsaire && !c.offreCorsaire && !s.prison && s.prime >= SEUIL_CORSAIRE && (s.reputation?.gouvernement || 0) > -40) {
       c.offreCorsaire = s.jour;
       s.planifies?.push({ jour: s.jour, id: "offre_corsaire", data: {} });
     }
@@ -136,7 +136,7 @@ export function vieFactions(s) {
       nouvelle(s, s.ile, `On compte désormais ${s.perso.prenom} parmi les Empereurs qui règnent sur le Nouveau Monde !`, "monde");
       noter(s, "Tu es désormais l'un des Empereurs du Nouveau Monde.", "mission");
     }
-    if (c.empereur && s.jour % 7 === 0) { s.monde.exterieur -= TRIBUT_EMPEREUR; s.berrys += TRIBUT_EMPEREUR; }
+    if (c.empereur && s.jour % 7 === 0 && !s.prison) { s.monde.exterieur -= TRIBUT_EMPEREUR; s.berrys += TRIBUT_EMPEREUR; }
   }
   if (s.jour % 365 === 180 && rand(s) < 0.15) {
     nouvelle(s, "dressrosa", "Une guerre éclate entre la Marine et une flotte pirate du Nouveau Monde.", "monde");

@@ -175,7 +175,10 @@ function vieRivaux(s) {
     }
     if (rand(s) < 0.25) {
       const hausse = Math.round((1 + rand(s) * 4) * (r.region === "nm" ? 20 : r.region === "gl" ? 4 : 1)) * 1000000;
-      r.prime += hausse; r.force += 1;
+      // Plafonds par mer : on ne trouve pas de prime à un milliard dans East Blue.
+      const plafond = { eb: 30000000, gl: 400000000, nm: 3000000000 }[r.region];
+      r.prime = Math.min(plafond, r.prime + hausse);
+      r.force = Math.min({ eb: 45, gl: 90, nm: 160 }[r.region], r.force + 1);
       if (rand(s) < 0.3) nouvelle(s, r.ile, `Les ${r.nom} ont pillé un navire près de ${ILES[r.ile].nom}. Prime du capitaine ${r.capitaine} : ${r.prime.toLocaleString("fr-FR")} Berrys.`, "region");
     }
     if (rand(s) < 0.003 * (1 + (ILES[r.ile].danger || 0))) {

@@ -73,14 +73,14 @@ export const EVENEMENTS = [
       ["Le chasser", s => { trait(s, "bonte", -1); return "Le chien s'éloigne. Tu n'y repenses pas… presque pas."; }]] },
   { id: "bagarre_ecole", age: [7, 13], texte: "Des plus grands s'en prennent à un enfant plus petit derrière la remise.",
     choix: [["T'interposer", s => { trait(s, "courage", 1); if (rand(s) < 0.5) blesser(s, 0); relation(s, "sacha", 5, "tu as défendu un enfant plus petit"); return "Tu reçois quelques coups, mais les grands finissent par reculer."; }],
-      ["Courir chercher un adulte", s => { trait(s, "bonte", 1); relation(s, "makino", 3); return "Makino arrive en courant et disperse tout le monde."; }],
+      ["Courir chercher un adulte", s => { trait(s, "bonte", 1); const m = s.pnj.makino && s.pnj.makino.vivant !== false && s.pnj.makino.naissance <= s.jour - 14 * 365; if (m) relation(s, "makino", 3); return `${m ? "Makino" : "Une voisine"} arrive en courant et disperse tout le monde.`; }],
       ["Passer ton chemin", s => { trait(s, "courage", -1); humeur(s, -5); return "Tu détournes les yeux. Ça te reste en travers de la gorge."; }]] },
   { id: "histoires_pirates", age: [6, 12], lieux: ["bar"], texte: "Un vieux marin raconte Grand Line : des îles volantes, des géants, des monstres marins.",
     choix: [["Écouter jusqu'au bout", s => { trait(s, "ambition", 1); return `Tu rêves de mer toute la nuit. ${stat(s, "intelligence")}`; }],
       ["Lui demander si c'est vrai", s => { trait(s, "ruse", 1); return "« Vrai ? Petit, la mer est encore plus folle que ça. »"; }]] },
   { id: "piece_plage", age: [6, 14], texte: "Sur la plage, une pièce brille entre deux coquillages : 10 Berrys.",
     choix: [["La garder", s => { deExterieur(s, 10); trait(s, "ruse", 1); return "Dix Berrys rien qu'à toi."; }],
-      ["La porter au maire", s => { trait(s, "bonte", 1); relation(s, "woop", 5, "tu as rapporté une pièce trouvée"); return "Woop Slap te félicite bruyamment devant tout le village."; }]] },
+      ["La porter au maire", s => { trait(s, "bonte", 1); const w = s.pnj.woop?.vivant !== false && s.ile === "fuchsia"; if (w) relation(s, "woop", 5, "tu as rapporté une pièce trouvée"); return `${w ? "Woop Slap" : "Le maire"} te félicite bruyamment devant tout le monde.`; }]] },
   { id: "tempete_enfance", age: [5, 13], texte: "Une tempête frappe la nuit. Les volets claquent.",
     choix: [["Aider à barricader la maison", s => { trait(s, "courage", 1); return `Tu tiens les planches pendant qu'on cloue. ${stat(s, "endurance")}`; }],
       ["Te cacher sous la couverture", s => { humeur(s, -3); return "Tu ne fermes pas l'œil de la nuit."; }]] },
@@ -272,7 +272,8 @@ export function declencherEvenement(s) {
     return false;
   }
   if (!s.perso.vivant) return false;
-  const i = s.planifies.findIndex(p => p.jour <= s.jour);
+  // En prison, les rendez-vous planifiés attendent ta sortie.
+  const i = s.prison ? -1 : s.planifies.findIndex(p => p.jour <= s.jour);
   if (i >= 0) {
     const p = s.planifies.splice(i, 1)[0];
     const e = PAR_ID[p.id];

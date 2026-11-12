@@ -105,7 +105,9 @@ export function jouerVie(seed, { maxJours = 120 * 365, plan } = {}) {
     if (s.evenement) vus.add(s.evenement.id);
     const jour = s.jour;
     // Après deux refus de suite, un joueur raisonnable va dormir.
+    const infAvant = s.infamie;
     const r = (suite >= 2 ? E.agir(s, { id: "repos" }) : agent(s, plan, hasard)) || E.agir(s, { id: "repos" });
+    if (process.env.TRACE_PRIME && s.infamie - infAvant >= 2) console.log("âge", E.age(s), "notoriété", infAvant, "->", s.infamie, "|", (r.texte || "").slice(0, 200));
     actions++;
     if (!r.ok) { echecs++; suite++; } else suite = 0;
     // Impasse : beaucoup d'actions sans que le temps avance.

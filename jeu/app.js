@@ -1,7 +1,7 @@
 import {
   nouvelleVie, agir, avancer, actionsDisponibles, noter, interpreterTexte, serialiser, deserialiser,
   age, annee, jourDansAnnee, LIEUX, ILES, STATS, COMPETENCES, OBJETS, pnjIci, faitsPourNarration,
-  migrer, lieuxDe, heritiers, succeder, RANGS_MARINE, MERITE_RANG, agePnj, FRUITS, NAVIRES, equipage, puissance,
+  migrer, lieuxDe, lieuxAccessibles, heritiers, succeder, RANGS_MARINE, MERITE_RANG, agePnj, FRUITS, NAVIRES, equipage, puissance,
   HAKI, SEUIL_EVEIL,
 } from "./engine.js";
 import { regionDe, RANGS_OFFICIERS } from "./monde.js";
@@ -27,7 +27,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "18.2 · voyages libres";
+export const VERSION_APP = "19 · cohérence";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -249,8 +249,8 @@ function rendreVivre() {
         <div class="ligne-champ"><button data-refaire="1">↻ 1 fois</button><button data-refaire="5">↻ 5 fois</button><button data-refaire="99">↻ Jusqu'à épuisement</button></div></section>` : "";
     })()}
     ${groupes.map(([cle, titre, liste]) => `<section class="groupe g-${cle}"><h3>${titre}</h3><div class="grille">${liste.map(bouton).join("")}</div></section>`).join("")}
-    ${s.prison ? "" : `<section class="groupe"><h3>Se déplacer ${ile.a}</h3>
-      <div class="lieux">${lieuxDe(s.ile).filter(id => id !== s.lieu).map(id => `<button class="chip" data-aller="${id}">${LIEUX[id].court}</button>`).join("")}</div></section>`}
+    ${s.prison || age(s) < 3 ? "" : `<section class="groupe"><h3>Se déplacer ${ile.a}</h3>
+      <div class="lieux">${lieuxAccessibles(s).filter(id => id !== s.lieu).map(id => `<button class="chip" data-aller="${id}">${LIEUX[id].court}</button>`).join("")}</div></section>`}
     <section class="temps">
       <button data-temps="repos" class="${dernierRefusFatigue ? "conseil" : ""}">🌙 Dormir</button>
       <button data-temps="7">+1 sem.</button>

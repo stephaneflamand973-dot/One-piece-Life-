@@ -79,6 +79,8 @@ function decor(lieu, ile) {
   if (ile === "hommes_poissons") return `<circle cx="300" cy="40" r="130" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
     ${[40, 90, 150, 220, 270].map((x, i) => `<path d="M${x} 150 q -6 -${20 + i * 6} 4 -${40 + i * 8} q 8 ${20} -2 ${40 + i * 8}z" fill="#ff8fa3" opacity=".7"/>`).join("")}
     ${[60, 130, 200, 250].map((x, i) => `<circle cx="${x}" cy="${40 + i * 12}" r="${3 + i}" fill="rgba(255,255,255,.5)"/>`).join("")}`;
+  if (L === "cellule") return `<rect width="320" height="150" fill="#3a3f47"/><rect x="110" y="20" width="100" height="70" fill="#8fb8de"/>
+    ${[125, 145, 165, 185].map(x => `<rect x="${x}" y="20" width="6" height="70" fill="#1f2329"/>`).join("")}<rect x="30" y="118" width="120" height="14" fill="#5c4a3a"/>`;
   if (L === "jungle") return `${[20, 70, 130, 190, 250, 300].map((x, i) => `<path d="M${x} 150 v-${50 + (i % 3) * 15}" stroke="#2d5016" stroke-width="5"/><ellipse cx="${x}" cy="${95 - (i % 3) * 15}" rx="26" ry="14" fill="#3f7d20"/>`).join("")}
     <path d="M220 150 q 10 -40 40 -45 q 15 0 20 10 l -10 4 q -20 -4 -28 30z" fill="#5a4630"/>`;
   if (L === "colisee") return `<path d="M40 150 v-55 q 120 -40 240 0 v55z" fill="#c9a66b"/>${[60, 100, 140, 180, 220, 260].map(x => `<path d="M${x} 150 v-30 q 12 -14 24 0 v30z" fill="#7a5c33"/>`).join("")}`;

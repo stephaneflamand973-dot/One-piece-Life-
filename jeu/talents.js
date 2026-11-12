@@ -83,9 +83,9 @@ export function anniversaireTalents(s) {
   if ((s.jour - s.perso.naissance) % AN !== 0) return;
   const a = age(s);
   if (a === 14 && aTalent(s, "pecule") && !s.drapeaux.pecule) { s.drapeaux.pecule = s.jour; s.monde.exterieur -= 200; s.berrys += 200; noter(s, "Tes 14 ans : on te remet le petit pécule mis de côté pour toi, 200 Berrys.", "famille"); }
-  if (a === 16 && aTalent(s, "navire_herite") && !s.navire && !s.drapeaux.navireHerite) {
+  if (a >= 16 && !s.prison && aTalent(s, "navire_herite") && !s.navire && !s.drapeaux.navireHerite) {
     s.drapeaux.navireHerite = s.jour;
     s.navire = { type: "barque", nom: "L'Héritage", coque: 100 };
-    noter(s, "Tes 16 ans : on te confie la barque familiale, « L'Héritage ». Tu peux prendre la mer.", "famille");
+    noter(s, "Tu as l'âge : on te confie la barque familiale, « L'Héritage ». Tu peux prendre la mer.", "famille");
   }
 }

@@ -5,7 +5,7 @@
 // navires de la Marine, rançons, duels de capitaines) et des territoires sous sa protection.
 // Tout l'argent vient de quelqu'un ou de l'extérieur comptabilisé ; les gains d'expérience sont fixes.
 
-import { rand, noter, age, puissance, blesser, transferer, gagnerStat, gagnerCompetence, souvenir, equipage, calculPrime,
+import { rand, noter, age, puissance, blesser, transferer, gagnerStat, gagnerCompetence, souvenir, equipage, calculPrime, capturer,
   GAINS, ILES, LIEUX, NAVIRES, res } from "./engine.js";
 import { nouvelle, regionDe, rivauxIci } from "./monde.js";
 import { reputation } from "./factions.js";
@@ -177,7 +177,7 @@ export const ACTIONS_PIRATE = {
       blesser(s, 2);
       return res(true, "La Marine riposte avec violence. Vous battez en retraite, tu es gravement blessé.");
     }
-    return capturerVia(s);
+    return capturer(s, "lors de l'assaut d'un navire de la Marine");
   },
   rancon(s) {
     if (!estCapitaine(s)) return res(false, "Seul un capitaine peut rançonner une île.");
@@ -206,8 +206,8 @@ export const ACTIONS_PIRATE = {
       r.actif = false; r.fin = `vaincu en duel par ${s.perso.prenom}`;
       const recrues = Math.min(2, (NAVIRES[s.navire?.type]?.capacite || 3) - equipage(s).length);
       for (let i = 0; i < recrues; i++) creerMembre(s);
-      s.infamie = +(s.infamie + Math.max(1, r.prime / 30000000)).toFixed(2); s.prime = calculPrime(s.infamie);
-      const butin = Math.round(r.prime / 4000);
+      s.infamie = +(s.infamie + Math.min(3, Math.max(1, r.prime / 30000000))).toFixed(2); s.prime = calculPrime(s.infamie);
+      const butin = Math.min(5000, Math.round(r.prime / 4000));
       s.monde.exterieur -= butin; s.berrys += butin;
       gagnerCompetence(s, "combat", GAINS.combat); moral(s, 15);
       nouvelle(s, s.ile, `Le capitaine ${r.capitaine} (${r.nom}) a été vaincu en duel par ${s.perso.prenom}.`, "region");
@@ -234,17 +234,6 @@ export const ACTIONS_PIRATE = {
     return res(true, `Ton équipage s'appelle désormais les « ${n} ».`);
   },
 };
-
-function capturerVia(s) {
-  // Réutilise la capture standard : on simule une défaite totale contre la Marine.
-  s.prison = { jusqua: s.jour + 30 + Math.round(s.infamie * 20), depuis: s.jour };
-  for (const id of equipage(s)) { s.pnj[id].lieu = "disparu"; }
-  const nav = s.navire?.nom; s.navire = null;
-  s.ile = "shells"; s.lieu = "base";
-  blesser(s, 1);
-  noter(s, `Capturé lors de l'assaut d'un navire de la Marine.`, "mission");
-  return res(true, `L'assaut tourne au désastre : la Marine vous submerge. « ${nav} » est saisi, ton équipage dispersé, et tu finis en prison à Shells Town.`);
-}
 
 const NOMS = ["Dag", "Orso", "Pia", "Zeke", "Luna", "Kurt", "Moe", "Vera", "Toby", "Ines", "Rufo", "Alba", "Brick", "Sola", "Jin", "Mako"];
 const ROLES = [["navigateur", 3], ["cuisinier", 4], ["combattant", 9], ["canonnier", 7], ["charpentier de bord", 5], ["médecin de bord", 3], ["musicien de bord", 3]];
@@ -304,6 +293,7 @@ export function vieEquipage(s) {
     return;
   }
   c.moral ??= 60; c.territoires ??= [];
+  if (s.prison) return; // en prison : ni tribut, ni vie d'équipage
   // Sans butin depuis longtemps, l'équipage s'ennuie ; un cuisinier et un musicien adoucissent l'attente.
   if (s.jour - (c.dernierRaid ?? s.jour) > 14 && s.jour % 3 === 0) moral(s, -1 + (role(s, "cuisinier") ? 0.5 : 0) + (role(s, "musicien") ? 0.5 : 0));
   if (s.jour % 7 === 0) {

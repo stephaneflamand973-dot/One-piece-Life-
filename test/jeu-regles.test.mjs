@@ -1017,3 +1017,89 @@ test("cap des Jumeaux : plusieurs lieux, un travail, et on peut toujours en repa
   assert.ok(dest.length >= 2);
   assert.ok(E.agir(s, { id: "voyager", cible: "little_garden" }).ok || s.ile !== "cap");
 });
+
+// ---------- Cohérence : capture, prison, succession, couples, solde ----------
+test("capture : cellule, territoires et titres perdus, sabre confisqué, tribut arrêté", () => {
+  const s = capitaine(); s.infamie = 12; s.prime = E.calculPrime(12); s.inventaire.sabre = 1;
+  s.carriere.territoires = ["fuchsia"]; s.carriere.corsaire = 1;
+  s.evenement = { id: "pari", jour: s.jour, data: {} };
+  E.capturer(s, "en mer");
+  assert.equal(s.lieu, "cellule");
+  assert.deepEqual(s.carriere.territoires, []);
+  assert.equal(s.carriere.corsaire, false);
+  assert.equal(s.inventaire.sabre, 0);
+  assert.equal(s.evenement, null);
+  const b = s.berrys;
+  E.avancer(s, 14, { sansInterruption: true });
+  assert.equal(s.berrys, b);
+  assert.equal(E.agir(s, { id: "aller", cible: "port_shells" }).ok, false);
+});
+
+test("prison : les rendez-vous planifiés attendent, et la peine purgée annule la prime", () => {
+  const s = capitaine(); s.infamie = 1; s.prime = E.calculPrime(1);
+  E.capturer(s, "en mer");
+  s.planifies.push({ jour: s.jour, id: "lettre", data: { p: "makino" } });
+  E.avancer(s, 10, { sansInterruption: true });
+  assert.equal(s.evenement, null);
+  assert.equal(s.planifies.length, 1);
+  E.avancer(s, 60, { sansInterruption: true });
+  assert.equal(s.prison, null);
+  assert.equal(s.prime, 0);
+  assert.equal(s.infamie, 0);
+});
+
+test("on ne peut pas entrer dans la cellule ni dans la maison d'un autre", () => {
+  const s = ado(); s.ile = "shells"; s.lieu = "port_shells";
+  assert.equal(E.agir(s, { id: "aller", cible: "cellule" }).ok, false);
+  assert.equal(E.agir(s, { id: "aller", cible: "maison_shells" }).ok, false);
+  assert.ok(!E.lieuxAccessibles(s).includes("maison_shells"));
+});
+
+test("succession : ni fruit, ni prime, ni prison, ni réputation ne passent à l'enfant", () => {
+  const s = ado(); s.jour = 40 * 365;
+  s.fruit = { id: "echo", maitrise: 5 }; s.monde.fruitsTrouves = ["echo"];
+  s.prime = 5000000; s.infamie = 4; s.prison = { jusqua: s.jour + 99, depuis: s.jour }; s.lieu = "cellule"; s.ile = "shells";
+  s.reputation = { marine: -50 }; s.traits.courage = 8; s.drapeaux.memorialise = 1; s.succes = { fruit: 1 };
+  s.famille.enfants.push({ prenom: "Z", naissance: s.jour - 20 * 365, genre: "f" });
+  s.perso.vivant = false;
+  const masse = E.masseMonetaire(s);
+  assert.ok(E.succeder(s, 0).ok);
+  assert.equal(s.fruit, null);
+  assert.ok(!s.monde.fruitsTrouves.includes("echo"));
+  assert.equal(s.prime, 0);
+  assert.equal(s.prison, null);
+  assert.deepEqual(s.reputation, {});
+  assert.equal(s.traits.courage, 0);
+  assert.equal(s.drapeaux.memorialise, undefined);
+  assert.equal(s.pnj.mere.role, "ta grand-mère");
+  assert.equal(E.masseMonetaire(s), masse);
+  assert.notEqual(s.lieu, "cellule");
+});
+
+test("amour : impossible avec quelqu'un déjà en couple, pas d'enfant après 50 ans", () => {
+  const s = ado(); s.jour = 25 * 365; s.lieu = "colline"; s.pnj.sacha.relation = 90;
+  s.pnj.sacha.couple = "bern";
+  assert.equal(E.agir(s, { id: "declarer", cible: "sacha" }).ok, false);
+  s.pnj.sacha.couple = null; s.famille.partenaire = "sacha"; s.famille.statut = "marié"; s.pnj.sacha.lieu = "colline";
+  s.pnj.sacha.naissance = s.jour - 55 * 365;
+  assert.equal(E.agir(s, { id: "enfant" }).ok, false);
+});
+
+test("Marine : sans service, plus de solde, puis radiation pour désertion", () => {
+  const s = ado(); s.ile = "shells"; s.lieu = "base"; s.stats.force = 5; s.stats.endurance = 5;
+  E.agir(s, { id: "engager" });
+  E.avancer(s, 28, { sansInterruption: true });
+  const b = s.berrys;
+  E.avancer(s, 28, { sansInterruption: true });
+  assert.equal(s.berrys, b);
+  E.avancer(s, 60, { sansInterruption: true });
+  assert.equal(s.carriere, null);
+});
+
+test("un bébé ne sort pas seul, un membre d'équipage ne voyage pas seul", () => {
+  const b = E.nouvelleVie({ prenom: "B", seed: 91 });
+  assert.equal(E.agir(b, { id: "aller", cible: "port" }).ok, false);
+  const s = ado(); s.lieu = "port"; s.berrys = 500; s.stats.force = 10; avecRival(s);
+  E.agir(s, { id: "rejoindre" });
+  assert.equal(E.agir(s, { id: "voyager", cible: "shells" }).ok, false);
+});
