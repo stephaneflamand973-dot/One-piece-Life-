@@ -53,7 +53,8 @@ export const bonusFruit = s => (aTalent(s, "affinite_fruit") ? 1 : 0);
 export const bonusSalaire = s => (aTalent(s, "affaires") ? 10 : 0);
 export const bonusRelation = s => (aTalent(s, "charisme_naturel") ? 2 : 0);
 export const facteurFatigue = s => (aTalent(s, "infatigable") ? 0.5 : 1);
-export const decalageAge = s => (aTalent(s, "longevite") ? 10 : 0);
+// Les géants vivent environ trois fois plus longtemps que les humains.
+export const decalageAge = s => (aTalent(s, "longevite") ? 10 : 0) + (s.peuple === "geant" ? 140 : 0);
 
 export function appliquerTalents(s, talents = []) {
   s.talents = talents.filter(t => TALENTS[t]);

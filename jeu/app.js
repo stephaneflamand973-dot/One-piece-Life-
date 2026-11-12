@@ -28,7 +28,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "23 · combats";
+export const VERSION_APP = "24 · dernière île";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -95,8 +95,9 @@ function ecranAccueil() {
       <select id="genre"><option value="g">un garçon</option><option value="f">une fille</option><option value="x">non précisé</option></select>
       <label for="peuple">Peuple</label>
       <select id="peuple">${Object.entries(PEUPLES).map(([k, p]) => `<option value="${k}">${p.nom}</option>`).join("")}</select>
+      <p class="discret petit" id="peuple-desc">${PEUPLES.humain.desc}</p>
       <label for="origine">Île de naissance</label>
-      <select id="origine">${Object.entries(ORIGINES).filter(([k]) => k !== "hommes_poissons").map(([k, o]) => `<option value="${k}">${o.nom}</option>`).join("")}</select>
+      <select id="origine">${Object.entries(ORIGINES).filter(([, o]) => !o.peuple).map(([k, o]) => `<option value="${k}">${o.nom}</option>`).join("")}</select>
       <label for="defi">Départ</label>
       <select id="defi">${Object.entries(DEFIS).map(([k, d]) => `<option value="${k}">${d.nom}</option>`).join("")}</select>
       <p class="discret petit" id="defi-desc">${DEFIS.aucun.desc}</p>
@@ -123,7 +124,7 @@ function ecranAccueil() {
   $("#talents-tous").onclick = () => document.querySelectorAll(".talent input").forEach(c => (c.checked = true));
   $("#talents-aucun").onclick = () => document.querySelectorAll(".talent input").forEach(c => (c.checked = false));
   $("#defi").onchange = () => { $("#defi-desc").textContent = DEFIS[$("#defi").value].desc; };
-  $("#peuple").onchange = () => { const hp = $("#peuple").value === "homme_poisson"; $("#origine").disabled = hp; };
+  $("#peuple").onchange = () => { const hp = $("#peuple").value !== "humain"; $("#origine").disabled = hp; $("#peuple-desc").textContent = PEUPLES[$("#peuple").value].desc; };
   $("#ere").onchange = () => { $("#ere-desc").textContent = ERES[$("#ere").value].desc; };
   $("#hasard").onclick = () => { $("#prenom").value = prenomAuHasard($("#genre").value); };
   $("#naitre").onclick = () => {
@@ -209,7 +210,7 @@ const GROUPES = [
   ["prison", "En cellule", ["attendre", "evader"]],
   ["progresser", "Progresser", ["entrainer", "etudier", "ecole", "cartes", "medecine", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
   ["activites", "Activités", ["travailler", "pecher", "cuisiner", "musique", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "consulter", "genereux", "tricher", "harangue", "manger"]],
-  ["aventure", "Aventure", ["voyager", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "mutation", "traquer_pirates", "chasseur", "traquer", "revolution", "sabotage", "alliance", "trahir", "quitter"]],
+  ["aventure", "Aventure", ["voyager", "empreinte", "decouvrir", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "mutation", "traquer_pirates", "chasseur", "traquer", "revolution", "sabotage", "alliance", "trahir", "quitter"]],
   ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant", "jouer_enfant", "enseigner_enfant"]],
 ];
 
@@ -429,6 +430,8 @@ function rendreFiche() {
       ${s.journal.filter(e => e.type === "rumeur").slice(-5).reverse().map(e => `<p class="petit">${esc(e.texte)}</p>`).join("") || "<p>Rien de neuf.</p>"}</section>
     <section class="carte"><h2>Réputation</h2>
       ${Object.entries(FACTIONS).map(([k, n]) => { const v = s.reputation?.[k] || 0; return `<div class="stat"><span>${n}</span><span class="barre"><i style="width:${(v + 100) / 2}%;background:${v < 0 ? "var(--ko)" : "var(--ok)"}"></i></span><b>${v > 0 ? "+" : ""}${v}</b></div>`; }).join("")}</section>
+    ${Object.keys(s.poneglyphes || {}).length ? `<section class="carte"><h2>Ponéglyphes de route</h2><p>${Object.keys(s.poneglyphes).length}/4 empreintes : ${Object.keys(s.poneglyphes).map(i => ILES[i].nom).join(", ")}</p>
+      <p class="discret">${Object.keys(s.poneglyphes).length >= 4 ? "La route de la dernière île est ouverte, depuis Elbaf, avec ton propre navire." : "Il en faut quatre pour trouver la dernière île."}</p></section>` : ""}
     <section class="carte"><h2>Chronologie</h2>
       <p class="discret">Époque : ${ERES[s.chrono.ere].nom}. Dates approximatives.</p>
       ${CALENDRIER.filter(ev => s.chrono.faits[ev.id]).map(ev => `<p class="petit"><b>${anneeTexte(ev.annee)}</b> · ${esc(typeof ev.texte === "function" ? ev.texte(s) : ev.texte)}</p>`).join("") || "<p>Aucun grand événement pour l'instant.</p>"}

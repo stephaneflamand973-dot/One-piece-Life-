@@ -5,12 +5,13 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { ACTIONS_FINALE, actionsFinale, routeOuverte } from "./finale.js";
 import { ACTIONS_COMBAT, actionsCombat, engagerCombat, definirFin } from "./combat.js";
 import { ACTIONS_MARINE, actionsMarine, auPoste, lieuPoste, verrouPromotion, donnerNavire, reprendreNavire } from "./marine.js";
 import { ACTIONS_TERRE, actionsTerre, initialiserTerre, vieATerre, journeeDeMetier, possede, maisonIci } from "./terre.js";
 import { ACTIONS_PIRATE, actionsPirate, vieEquipage, estCapitaine, estMembre, bonusCanons, aVoiles, aBlindage, moral, devenirCapitaine } from "./pirate.js";
 import { appliquerTalents, anniversaireTalents, aTalent, bonusStat, bonusCompetence, bonusHaki, bonusFruit, bonusSalaire, bonusRelation, facteurFatigue, decalageAge } from "./talents.js";
-import { appliquerOrigine, texteNaissance, verifierSucces, ORIGINES } from "./origines.js";
+import { appliquerOrigine, texteNaissance, verifierSucces, ORIGINES, PEUPLES } from "./origines.js";
 import { ACTIONS_VIE, actionsVie, initialiserVie, vieInterieure, seuilFatigue } from "./vie.js";
 import { ACTIONS_FACTIONS, actionsFactions, vieFactions, marineIgnore, reputation } from "./factions.js";
 import { initialiserChronologie, avancerChronologie, presentSelonCanon } from "./chronologie.js";
@@ -33,6 +34,11 @@ export const ILES = {
   hommes_poissons: { nom: "l'île des Hommes-Poissons", a: "à l'île des Hommes-Poissons", desc: "royaume sous-marin enveloppé d'une bulle géante, à 10 000 mètres sous la surface", port: "port_hp", auberge: "port_hp", grandLine: true, danger: 3 },
   dressrosa: { nom: "Dressrosa", a: "à Dressrosa", desc: "royaume de l'amour et de la passion, dans le Nouveau Monde", port: "port_dr", auberge: "ville_dr", grandLine: true, nouveauMonde: true, danger: 5 },
   wano: { nom: "Wano", a: "à Wano", desc: "pays fermé du Nouveau Monde, terre des samouraïs", port: "cote_wano", auberge: "village_wano", grandLine: true, nouveauMonde: true, danger: 6 },
+  zou: { nom: "Zou", a: "à Zou", desc: "île vivante portée par un éléphant millénaire, pays des Minks", port: "patte_zou", auberge: "cite_zou", grandLine: true, nouveauMonde: true, danger: 5 },
+  whole_cake: { nom: "Whole Cake Island", a: "à Whole Cake Island", desc: "île de gâteaux et de sucreries, au cœur du Nouveau Monde", port: "cote_wc", auberge: "ville_wc", grandLine: true, nouveauMonde: true, danger: 7 },
+  egghead: { nom: "Egghead", a: "à Egghead", desc: "île aux machines étranges, en avance de plusieurs siècles", port: "quai_egg", auberge: "quai_egg", grandLine: true, nouveauMonde: true, danger: 6 },
+  elbaf: { nom: "Elbaf", a: "à Elbaf", desc: "royaume guerrier des géants", port: "fjord_elbaf", auberge: "halle_elbaf", grandLine: true, nouveauMonde: true, danger: 6 },
+  laugh_tale: { nom: "Laugh Tale", a: "à Laugh Tale", desc: "la dernière île de Grand Line", port: "rivage_lt", auberge: "rivage_lt", grandLine: true, nouveauMonde: true, danger: 8 },
 };
 // Durée des traversées en jours (prix : 20 Berrys par jour de mer).
 export const ROUTES = {
@@ -46,8 +52,13 @@ export const ROUTES = {
   water_seven: { little_garden: 6, sabaody: 5, loguetown: 7 },
   sabaody: { water_seven: 5, loguetown: 7, hommes_poissons: 3 },
   hommes_poissons: { sabaody: 3, dressrosa: 6 },
-  dressrosa: { hommes_poissons: 6, wano: 7 },
-  wano: { dressrosa: 7 },
+  dressrosa: { hommes_poissons: 6, wano: 7, zou: 5 },
+  wano: { dressrosa: 7, zou: 6, egghead: 6 },
+  zou: { dressrosa: 5, whole_cake: 5, wano: 6 },
+  whole_cake: { zou: 5 },
+  egghead: { wano: 6, elbaf: 6 },
+  elbaf: { egghead: 6, laugh_tale: 8 },
+  laugh_tale: { elbaf: 8 },
 };
 export const estGrandLine = ile => !!ILES[ile]?.grandLine;
 export const PRIX_JOUR_MER = 20;
@@ -107,6 +118,21 @@ export const LIEUX = {
   cote_wano: { ile: "wano", nom: "la côte escarpée", court: "Côte", a: "sur la côte escarpée" },
   village_wano: { ile: "wano", nom: "un village de rizières", court: "Village", a: "au village" },
   dojo: { ile: "wano", nom: "le dojo", court: "Dojo", a: "au dojo" },
+  patte_zou: { ile: "zou", nom: "la patte de l'éléphant", court: "Patte", a: "au pied de l'éléphant" },
+  cite_zou: { ile: "zou", nom: "la cité des Minks", court: "Cité", a: "dans la cité des Minks" },
+  baleine_zou: { ile: "zou", nom: "l'arbre-baleine", court: "Arbre-baleine", a: "à l'arbre-baleine" },
+  maison_zou: { ile: "zou", nom: "ta maison", court: "Maison", a: "chez toi" },
+  cote_wc: { ile: "whole_cake", nom: "la côte de biscuit", court: "Côte", a: "sur la côte de biscuit" },
+  ville_wc: { ile: "whole_cake", nom: "la ville sucrée", court: "Ville", a: "dans la ville sucrée" },
+  chateau_wc: { ile: "whole_cake", nom: "le château-gâteau", court: "Château", a: "au château-gâteau" },
+  quai_egg: { ile: "egghead", nom: "le quai d'Egghead", court: "Quai", a: "sur le quai d'Egghead" },
+  labo_egg: { ile: "egghead", nom: "les laboratoires", court: "Laboratoires", a: "aux laboratoires" },
+  epave_egg: { ile: "egghead", nom: "l'épave au large", court: "Épave", a: "à l'épave" },
+  fjord_elbaf: { ile: "elbaf", nom: "le fjord d'Elbaf", court: "Fjord", a: "au fjord d'Elbaf" },
+  halle_elbaf: { ile: "elbaf", nom: "la grande halle des guerriers", court: "Halle", a: "dans la grande halle" },
+  maison_elbaf: { ile: "elbaf", nom: "ta maison", court: "Maison", a: "chez toi" },
+  rivage_lt: { ile: "laugh_tale", nom: "le rivage de la dernière île", court: "Rivage", a: "sur le rivage" },
+  coeur_lt: { ile: "laugh_tale", nom: "le cœur de l'île", court: "Cœur de l'île", a: "au cœur de l'île" },
 };
 export const lieuxDe = ile => Object.keys(LIEUX).filter(k => LIEUX[k].ile === ile && !LIEUX[k].cache);
 // Lieux où le joueur peut se rendre : pas la cellule, et seulement sa propre maison.
@@ -122,6 +148,10 @@ export const EMPLOIS = {
     texte: "Tu nettoies la grande lentille et notes les navires qui descendent de Reverse Mountain." },
   chantier: { payeur: "bolt", salaire: 70, heures: 5, fatigue: 30, ageMin: 15, competence: "charpenterie", label: "Travailler au chantier naval",
     texte: "Tu scies, cloues et calfates des coques sous l'œil exigeant de Bolt." },
+  ville_wc: { payeur: "madeleine", salaire: 90, heures: 5, fatigue: 25, ageMin: 15, competence: "cuisine", label: "Travailler à la pâtisserie",
+    texte: "Crèmes, glaçages, pièces montées : tu travailles pour la pâtisserie de Madeleine." },
+  halle_elbaf: { payeur: "hjorn", salaire: 80, heures: 5, fatigue: 35, ageMin: 15, competence: null, stat: "force", label: "Forger avec Hjorn",
+    texte: "Tu bats le fer aux côtés du forgeron géant, sur une enclume grande comme une maison." },
   quais_logue: { payeur: "dock", salaire: 35, heures: 4, fatigue: 30, ageMin: 14, competence: null, stat: "force", label: "Décharger les navires",
     texte: "Tu portes des caisses entre les navires et les entrepôts." },
 };
@@ -156,6 +186,10 @@ export const FRUITS = {
   plume: { nom: "Fruit de la Plume", type: "Zoan", pouvoir: "te transformer en grand oiseau de mer", bonus: 5 },
   braise: { nom: "Fruit de la Braise", type: "Logia", pouvoir: "devenir braise et projeter des flammes", bonus: 8, intangible: true },
   verre: { nom: "Fruit du Verre", type: "Paramecia", pouvoir: "créer et façonner du verre à volonté", bonus: 5 },
+  lierre: { nom: "Fruit du Lierre", type: "Paramecia", pouvoir: "faire jaillir des lianes qui enserrent tes adversaires", bonus: 6 },
+  lynx: { nom: "Fruit du Lynx", type: "Zoan", pouvoir: "te transformer en lynx géant, vif et silencieux", bonus: 7 },
+  brume: { nom: "Fruit de la Brume", type: "Logia", pouvoir: "devenir brume et te dissiper à volonté", bonus: 7, intangible: true },
+  encre: { nom: "Fruit de l'Encre", type: "Paramecia", pouvoir: "donner vie à ce que tu dessines, le temps d'un combat", bonus: 5 },
 };
 export const HAKI = {
   observation: { nom: "Haki de l'observation", effet: "pressentir les coups et les intentions" },
@@ -166,8 +200,8 @@ export const SEUIL_EVEIL = 8;
 export const PRIX_LECON_HAKI = 50;
 
 export const NAVIRES = { barque: { nom: "barque de pêche aménagée", capacite: 3 }, caravelle: { nom: "caravelle", capacite: 8 } };
-export const TAVERNES = ["bar", "taverne_shells", "salle_baratie", "auberge_logue", "bar_w7", "bar_sabaody", "place_hp", "ville_dr", "village_wano"];
-export const EXPLORABLES = ["colline", "port", "port_shells", "quais_logue", "echafaud", "pont_baratie", "phare", "jungle", "quai_w7", "mangroves", "falaises", "place_hp", "ville_dr", "cote_wano"];
+export const TAVERNES = ["bar", "taverne_shells", "salle_baratie", "auberge_logue", "bar_w7", "bar_sabaody", "place_hp", "ville_dr", "village_wano", "cite_zou", "ville_wc", "halle_elbaf"];
+export const EXPLORABLES = ["colline", "port", "port_shells", "quais_logue", "echafaud", "pont_baratie", "phare", "jungle", "quai_w7", "mangroves", "falaises", "patte_zou", "cote_wc", "quai_egg", "fjord_elbaf", "rivage_lt", "place_hp", "ville_dr", "cote_wano"];
 export const PRIX_LECON_SABRE = 200;
 export const PRIX_ENROBAGE = 3000;
 
@@ -196,6 +230,10 @@ const PNJ_INITIAUX = () => ({
   rocco: { nom: "Rocco", role: "organisateur des combats du Colisée", genre: "g", lieu: "colisee", relation: 0, fonds: 80000, souvenirs: [] },
   soen: { nom: "Sōen", role: "vieux maître samouraï", genre: "g", lieu: "dojo", relation: 0, fonds: 1000, souvenirs: [], naissance: -55 * 365 },
   hal: { nom: "Hal", role: "enrobeur de navires", genre: "g", lieu: "enrobage", relation: 0, fonds: 5000, souvenirs: [] },
+  nara: { nom: "Nara", role: "Mink, gardienne de l'arbre-baleine", genre: "f", lieu: "cite_zou", relation: 0, fonds: 800, souvenirs: [], naissance: -1500, romance: true },
+  madeleine: { nom: "Madeleine", role: "pâtissière de la ville sucrée", genre: "f", lieu: "ville_wc", relation: 0, fonds: 20000, souvenirs: [] },
+  pell: { nom: "Pell", role: "chercheuse des laboratoires", genre: "f", lieu: "labo_egg", relation: 0, fonds: 5000, souvenirs: [] },
+  hjorn: { nom: "Hjorn", role: "géant, forgeron d'Elbaf", genre: "g", lieu: "halle_elbaf", relation: 0, fonds: 20000, souvenirs: [] },
   garo: { nom: "Garo", role: "vieux marin retraité aux yeux perçants", genre: "g", lieu: "auberge_logue", relation: 0, fonds: 300, souvenirs: [], naissance: -60 * 365 },
   lise: { nom: "Lise", role: "bijoutière du grand marché", genre: "f", lieu: "marche_logue", relation: 0, fonds: 1500, souvenirs: [], naissance: -1095, romance: true, stock: { bague: 5 } },
 });
@@ -213,8 +251,9 @@ const pick = (s, arr) => arr[Math.floor(rand(s) * arr.length)];
 // ---------- Création ----------
 
 export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, aleatoire = true, ere = "avant_luffy", origine = "fuchsia", peuple = "humain", defi = "aucun", talents = [] } = {}) {
-  if (peuple === "homme_poisson") origine = "hommes_poissons";
-  if (!ORIGINES[origine] || (origine === "hommes_poissons" && peuple !== "homme_poisson")) origine = "fuchsia";
+  if (!PEUPLES[peuple]) peuple = "humain";
+  if (PEUPLES[peuple].origine) origine = PEUPLES[peuple].origine;
+  if (!ORIGINES[origine] || (ORIGINES[origine].peuple && ORIGINES[origine].peuple !== peuple)) origine = "fuchsia";
   const s = {
     version: VERSION, id: `monde-${seed.toString(36)}`, rng: seed >>> 0, cree: seed,
     jour: 0, heure: 8, fatigue: 0,
@@ -553,12 +592,14 @@ export function actionsDisponibles(s) {
   a.push(...actionsPirate(s));
   a.push(...actionsTerre(s));
   a.push(...actionsMarine(s));
+  a.push(...actionsFinale(s));
   if (s.lieu === "colisee" && ag >= 18) a.push({ id: "colisee", label: "Combattre au Colisée (3 000 B si victoire)" });
   if (ici.includes("soen") && s.pnj.soen.relation >= 20) a.push({ id: "sabre", label: `Leçon de sabre avec Sōen (${PRIX_LECON_SABRE} B)` });
   if (s.lieu === "enrobage" && s.navire && !s.navire.enrobe) a.push({ id: "enrober", label: `Faire enrober le navire (${PRIX_ENROBAGE} B, 3 jours)` });
   if (s.lieu === ILES[s.ile].port && ag >= 14 && !estMembre(s)) {
     for (const [dest, j] of Object.entries(ROUTES[s.ile])) {
       const versGL = estGrandLine(dest), depuisGL = estGrandLine(s.ile);
+      if (dest === "laugh_tale" && (!routeOuverte(s) || !s.navire)) continue;
       const passage = versGL && !depuisGL ? " par Reverse Mountain" : depuisGL && !versGL ? " par la Calm Belt" : "";
       a.push({ id: "voyager", cible: dest, label: s.navire ? `Naviguer vers ${ILES[dest].nom}${passage} (${j} j)` : `Embarquer pour ${ILES[dest].nom}${passage} (${j} j, ${prixPassage(s.ile, dest)} B)` });
     }
@@ -637,6 +678,7 @@ const ACTIONS = {
   ...ACTIONS_TERRE,
   ...ACTIONS_MARINE,
   ...ACTIONS_COMBAT,
+  ...ACTIONS_FINALE,
   choisir: (s, i) => choisir(s, +i),
   accomplir: s => {
     const e = activite(s, { heures: 4, fatigue: 25, ageMin: 12 });
@@ -759,6 +801,7 @@ const ACTIONS = {
     if (!pnjIci(s).includes(o.vendeur)) return res(false, `${v.nom} n'est pas ici.`);
     if ((v.stock?.[objet] ?? 0) < 1) return res(false, `${v.nom} n'en a plus en stock.`);
     if (s.berrys < o.prix) return res(false, `Il te faut ${o.prix} Berrys ; tu en as ${s.berrys}.`);
+    if (objet === "barque" && s.peuple === "geant") return res(false, "Une barque ? Elle coulerait sous ton poids. Il te faut au moins une caravelle.");
     if (o.navire && s.navire && NAVIRES[s.navire.type].capacite >= NAVIRES[objet].capacite) return res(false, "Tu as déjà un navire au moins aussi grand.");
     transferer(s, "joueur", o.vendeur, o.prix);
     v.stock[objet] -= 1;
@@ -818,7 +861,7 @@ const ACTIONS = {
     const lieuAvant = s.lieu;
     let recuperation = 70, txt;
     // Les hommes-poissons paient trois fois plus cher à Sabaody : les préjugés y sont tenaces.
-    const prix = PRIX_AUBERGE * (s.peuple === "homme_poisson" && s.ile === "sabaody" ? 3 : 1);
+    const prix = PRIX_AUBERGE * (s.peuple === "homme_poisson" && s.ile === "sabaody" ? 3 : s.peuple === "geant" && s.ile !== "elbaf" ? 2 : 1);
     const chezSoi = LIEUX[s.foyer || "maison"].ile === s.ile ? (s.foyer || "maison") : (maisonIci(s) && possede(s, maisonIci(s)) ? maisonIci(s) : null);
     if (chezSoi) { s.lieu = chezSoi; txt = "Tu rentres dormir chez toi."; }
     else if (s.berrys >= prix) {
@@ -841,6 +884,10 @@ const ACTIONS = {
     const nage = s.peuple === "homme_poisson" && !s.fruit && [s.ile, dest].includes("hommes_poissons") && [s.ile, dest].includes("sabaody");
     // Sans navire, on voyage comme passager : le capitaine du navire de passage a ses cartes, son Log Pose et son enrobage.
     const passager = !s.navire && !nage;
+    if (dest === "laugh_tale") {
+      if (!routeOuverte(s)) return res(false, "Personne ne connaît cette route. Il faudrait l'empreinte des quatre Ponéglyphes de route.");
+      if (passager) return res(false, "Aucun navire de passage ne va là-bas : il te faut ton propre navire.");
+    }
     if (versGL && !depuisGL && age(s) < 17) return res(false, "Reverse Mountain, à ton âge ? Attends au moins tes 17 ans.");
     if (depuisGL && versGL && !passager && s.inventaire.logpose < 1 && !(nage && !s.navire)) return res(false, "Sans Log Pose, impossible de naviguer sur Grand Line : les boussoles y sont folles. Le gardien du phare en vend.");
     if (dest === "hommes_poissons" && s.peuple !== "homme_poisson" && !passager && !s.navire.enrobe) return res(false, "Pour plonger à 10 000 mètres, le navire doit être enrobé (atelier de Hal, à Sabaody).");
@@ -1318,7 +1365,8 @@ export function puissance(s) {
   const fruit = s.fruit ? FRUITS[s.fruit.id].bonus + Math.floor(s.fruit.maitrise / 2) : 0;
   const h = s.haki || {};
   const haki = (h.armement || 0) + Math.floor((h.observation || 0) / 2) + (h.eveil?.rois ? 8 + Math.floor((h.rois || 0) / 2) : 0);
-  return s.stats.force + s.stats.agilite + s.competences.combat * 2 + (s.inventaire.sabre > 0 ? 4 : 0) + fruit + haki;
+  const electro = s.peuple === "mink" ? 4 : 0; // l'Électro, que tout Mink possède de naissance
+  return s.stats.force + s.stats.agilite + s.competences.combat * 2 + (s.inventaire.sabre > 0 ? 4 : 0) + fruit + haki + electro;
 }
 export const equipage = s => Object.keys(s.pnj).filter(id => s.pnj[id].lieu === "equipage" && s.pnj[id].vivant !== false);
 const forceEquipage = s => equipage(s).reduce((t, id) => t + (s.pnj[id].force || 0), 0);

@@ -1265,3 +1265,54 @@ test("combat : une mission de chasse n'est réussie que si le bandit est vaincu"
   assert.equal(s.missions[0].statut, "réussie");
   assert.equal(s.berrys, 200);
 });
+
+// ---------- Fin du Nouveau Monde, peuples, fruits ----------
+import * as FI from "../jeu/finale.js";
+
+test("Laugh Tale : inaccessible sans les quatre empreintes, puis ouverte depuis Elbaf", () => {
+  const s = aLoguetown(); s.ile = "elbaf"; s.lieu = "fjord_elbaf"; s.inventaire.logpose = 1; s.inventaire.logpose_nm = 1; s.competences.navigation = 30;
+  assert.equal(E.agir(s, { id: "voyager", cible: "laugh_tale" }).ok, false);
+  assert.ok(!E.actionsDisponibles(s).some(a => a.cible === "laugh_tale"));
+  s.poneglyphes = { zou: 1, whole_cake: 1, wano: 1, egghead: 1 };
+  assert.ok(E.actionsDisponibles(s).some(a => a.cible === "laugh_tale"));
+  let la = false;
+  for (let i = 0; i < 30 && !la; i++) { s.ile = "elbaf"; s.lieu = "fjord_elbaf"; s.navire ??= { type: "caravelle", nom: "T", coque: 100 }; s.navire.coque = 100; s.sante.blessures = []; E.agir(s, { id: "voyager", cible: "laugh_tale" }); la = s.ile === "laugh_tale"; }
+  assert.ok(la);
+  E.agir(s, { id: "aller", cible: "coeur_lt" });
+  assert.ok(E.agir(s, { id: "decouvrir" }).ok);
+  assert.ok(s.drapeaux.onePiece);
+  assert.ok(s.succes.laugh_tale);
+});
+
+test("Ponéglyphes : Zou exige la confiance de Nara, l'épave exige de savoir naviguer", () => {
+  const s = aLoguetown(); s.ile = "zou"; s.lieu = "baleine_zou";
+  E.agir(s, { id: "empreinte" });
+  assert.equal(FI.empreintes(s), 0);
+  s.pnj.nara.relation = 30; s.heure = 8; s.fatigue = 0;
+  E.agir(s, { id: "empreinte" });
+  assert.equal(FI.empreintes(s), 1);
+  assert.equal(E.agir(s, { id: "empreinte" }).ok, false);
+  s.ile = "egghead"; s.lieu = "epave_egg"; s.heure = 8; s.fatigue = 0;
+  E.agir(s, { id: "empreinte" });
+  assert.equal(FI.empreintes(s), 1);
+  s.competences.navigation = 15; s.heure = 8; s.fatigue = 0;
+  E.agir(s, { id: "empreinte" });
+  assert.equal(FI.empreintes(s), 2);
+});
+
+test("peuples : un Mink naît à Zou avec l'Électro, un géant naît à Elbaf, fort et sans barque", () => {
+  const m = E.nouvelleVie({ prenom: "M", seed: 81, peuple: "mink" });
+  assert.equal(m.ile, "zou");
+  const h = E.nouvelleVie({ prenom: "H", seed: 81 });
+  assert.ok(E.puissance(m) >= E.puissance(h) + 4);
+  const g = E.nouvelleVie({ prenom: "G", seed: 82, peuple: "geant" });
+  assert.equal(g.ile, "elbaf");
+  assert.ok(g.stats.force >= 9);
+  g.jour = 20 * 365; g.ile = "fuchsia"; g.lieu = "atelier"; g.berrys = 1000;
+  assert.equal(E.agir(g, { id: "acheter", cible: "barque" }).ok, false);
+});
+
+test("fruits : huit fruits inventés, tous avec un pouvoir", () => {
+  assert.equal(Object.keys(E.FRUITS).length, 8);
+  for (const f of Object.values(E.FRUITS)) assert.ok(f.nom && f.pouvoir && f.bonus > 0);
+});

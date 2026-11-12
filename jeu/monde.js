@@ -29,7 +29,7 @@ export const RANGS_OFFICIERS = ["Lieutenant", "Capitaine", "Commodore", "Contre-
 
 export const regionDe = ile => ILES[ile]?.nouveauMonde ? "nm" : ILES[ile]?.grandLine ? "gl" : "eb";
 const ileDuLieu = lieu => LIEUX[lieu]?.ile;
-const ilesRegion = r => Object.keys(ILES).filter(i => regionDe(i) === r && i !== "hommes_poissons");
+const ilesRegion = r => Object.keys(ILES).filter(i => regionDe(i) === r && i !== "hommes_poissons" && i !== "laugh_tale");
 
 export const vivants = s => Object.keys(s.pnj).filter(id => s.pnj[id].vivant !== false && !s.pnj[id].invisible && s.pnj[id].lieu !== "disparu");
 const ileDe = (s, id) => s.pnj[id].lieu === "equipage" ? s.ile : ileDuLieu(s.pnj[id].lieu);
@@ -166,7 +166,7 @@ function nouvelEquipage(s, region) {
 function vieRivaux(s) {
   for (const r of s.monde.rivaux.filter(r => r.actif)) {
     if (rand(s) < 0.15) {
-      const voisins = Object.keys(ROUTES[r.ile] || {}).filter(i => regionDe(i) === r.region || (r.region === "eb" && i === "cap" && rand(s) < 0.1));
+      const voisins = Object.keys(ROUTES[r.ile] || {}).filter(i => i !== "laugh_tale" && regionDe(i) === r.region || (r.region === "eb" && i === "cap" && rand(s) < 0.1));
       if (voisins.length) {
         const dest = pick(s, voisins);
         if (dest === "cap") { r.region = "gl"; nouvelle(s, r.ile, `Les ${r.nom} du capitaine ${r.capitaine} ont franchi Reverse Mountain.`, "monde"); }
@@ -246,6 +246,7 @@ function annuel(s) {
   }
   // Arrivées : chaque île garde un minimum d'habitants ; un poste fermé peut être repris.
   for (const ile of Object.keys(ILES)) {
+    if (ile === "laugh_tale") continue; // personne ne s'installe sur la dernière île
     const pop = vivants(s).filter(id => ileDe(s, id) === ile).length;
     if (pop < 4 && rand(s) < 0.6) {
       const id = nouvelId(s, "a");

@@ -8,11 +8,15 @@ export const ORIGINES = {
   loguetown: { nom: "Loguetown (East Blue)", foyer: "maison_logue", texte: "Tu nais à Loguetown, la ville du commencement et de la fin." },
   water_seven: { nom: "Water Seven (Grand Line)", foyer: "maison_w7", texte: "Tu nais à Water Seven, au son des marteaux des charpentiers et du clapotis des canaux." },
   hommes_poissons: { nom: "Île des Hommes-Poissons", foyer: "maison_hp", texte: "Tu nais à 10 000 mètres sous la mer, dans le royaume de l'île des Hommes-Poissons.", peuple: "homme_poisson" },
+  zou: { nom: "Zou", foyer: "maison_zou", texte: "Tu nais à Zou, sur le dos d'un éléphant millénaire qui marche sur la mer, parmi les Minks.", peuple: "mink" },
+  elbaf: { nom: "Elbaf", foyer: "maison_elbaf", texte: "Tu nais à Elbaf, le royaume des géants, au son des cornes de guerre.", peuple: "geant" },
 };
 
 export const PEUPLES = {
   humain: { nom: "Humain", desc: "Le peuple le plus répandu des mers." },
   homme_poisson: { nom: "Homme-poisson", desc: "Dix fois plus fort qu'un humain sous l'eau, il nage comme il respire. Mais à la surface, beaucoup le méprisent.", origine: "hommes_poissons" },
+  mink: { nom: "Mink", desc: "Peuple à fourrure de Zou, vif et combatif, qui maîtrise l'Électro de naissance : agilité et puissance de combat accrues.", origine: "zou" },
+  geant: { nom: "Géant", desc: "Guerrier d'Elbaf : immensément fort et endurant, il vit trois fois plus longtemps. Mais une barque ne le porte pas, et tout lui coûte double hors d'Elbaf.", origine: "elbaf" },
 };
 
 export const DEFIS = {
@@ -26,6 +30,8 @@ export const DEFIS = {
 export function appliquerOrigine(s, { origine, peuple, defi }) {
   s.origine = origine; s.peuple = peuple; s.defi = defi;
   if (peuple === "homme_poisson") { s.stats.force += 3; s.stats.endurance += 2; }
+  if (peuple === "mink") { s.stats.agilite += 3; s.potentiel.agilite += 20; }
+  if (peuple === "geant") { s.stats.force += 8; s.stats.endurance += 6; s.potentiel.force += 60; s.potentiel.endurance += 60; }
   if (defi === "orphelin") {
     for (const id of ["mere", "pere"]) if (s.pnj[id]) { s.monde.exterieur += s.pnj[id].fonds; s.pnj[id].fonds = 0; s.pnj[id].vivant = false; s.pnj[id].mort = 0; s.pnj[id].cause = "en mer"; }
     s.traits.courage += 2;
@@ -38,7 +44,7 @@ export function appliquerOrigine(s, { origine, peuple, defi }) {
 export const texteNaissance = (s, prenoms) => {
   const o = ORIGINES[s.origine] || ORIGINES.fuchsia;
   const parents = s.defi === "orphelin" ? "Tes parents disparaissent en mer quelques semaines plus tard ; c'est le village qui t'élève." : `Tes parents, ${prenoms}, t'appellent ${s.perso.prenom}.`;
-  return `${o.texte} ${parents}${s.peuple === "homme_poisson" ? " Tu es un homme-poisson." : ""}`;
+  return `${o.texte} ${parents}${s.peuple === "homme_poisson" ? " Tu es un homme-poisson." : s.peuple === "mink" ? " Tu es un Mink." : s.peuple === "geant" ? " Tu es un géant." : ""}`;
 };
 
 // ---------- Succès (débloqués une fois par vie, cumulés dans le mémorial) ----------
@@ -49,7 +55,10 @@ export const SUCCES = {
   centenaire: ["Centenaire", s => s.jour - s.perso.naissance >= 100 * 365],
   mer: ["Prendre le large", s => s.ile !== (s.origine || "fuchsia")],
   grand_line: ["Bienvenue sur Grand Line", s => ["cap", "little_garden", "water_seven", "sabaody"].includes(s.ile) && s.origine !== "water_seven"],
-  nouveau_monde: ["Le Nouveau Monde", s => ["dressrosa", "wano"].includes(s.ile)],
+  nouveau_monde: ["Le Nouveau Monde", s => ["dressrosa", "wano", "zou", "whole_cake", "egghead", "elbaf"].includes(s.ile) && !["zou", "elbaf"].includes(s.origine)],
+  poneglyphe: ["Première empreinte", s => Object.keys(s.poneglyphes || {}).length >= 1],
+  laugh_tale: ["La dernière île", s => !!s.drapeaux?.onePiece],
+  roi_pirates: ["Roi des pirates", s => !!s.drapeaux?.onePiece && s.carriere?.type === "pirate" && !s.carriere.membre],
   fruit: ["Mangeur de fruit", s => !!s.fruit],
   haki: ["Volonté éveillée", s => Object.values(s.haki?.eveil || {}).some(Boolean)],
   rois: ["Haki des Rois", s => !!s.haki?.eveil?.rois],

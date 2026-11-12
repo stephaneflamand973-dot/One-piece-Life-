@@ -4,7 +4,7 @@
 // qui limitent l'énergie disponible, sans toucher au montant des gains : D.2A).
 
 import { rand, noter, age, pnjIci, transferer, gagnerStat, gagnerCompetence, GAINS, ILES, res } from "./engine.js";
-import { aTalent } from "./talents.js";
+import { aTalent, decalageAge } from "./talents.js";
 
 export const TRAITS = { courage: ["Prudent", "Courageux"], ruse: ["Franc", "Rusé"], bonte: ["Dur", "Bienveillant"], ambition: ["Modeste", "Ambitieux"] };
 export const MALADIES = ["rhumatismes", "toux chronique", "cœur fragile", "vue qui baisse"];
@@ -37,7 +37,7 @@ export function vieInterieure(s) {
   if (s.humeur > 0) s.humeur -= 1; else if (s.humeur < 0) s.humeur += 1;
   if (s.jour % 365 !== 0) return;
   const a = age(s);
-  const ae = a - (aTalent(s, "longevite") ? 10 : 0);
+  const ae = a - decalageAge(s);
   if (ae >= 50 && s.sante.maladies.length < MALADIES.length && rand(s) < 0.04 + (ae - 50) * 0.004) {
     const m = MALADIES.find(x => !s.sante.maladies.includes(x));
     s.sante.maladies.push(m);

@@ -212,3 +212,18 @@ Les 7 étapes ont reçu une première version jouable, testée et mise en ligne.
 6. **Étape 7 · La présentation**, sur un contenu devenu stable.
 
 Chaque étape se fait en plusieurs mises à jour. Chacune est testée, puis mise en ligne seulement si tous les tests passent.
+
+---
+
+## Bilan du 12 novembre 2026 (versions 20 à 24)
+
+| Chantier | Fait | Reste |
+|---|---|---|
+| Vie à terre | Titres de métier, maisons, commerces, consultations, leçons aux enfants | Plus de métiers, artisanat |
+| Événements | 208 événements | Viser 300, mesurer la répétition |
+| Marine | 12 grades jusqu'à Amiral, 3 affectations, navire de guerre, traque | Postes du Nouveau Monde, missions variées |
+| Combats | Manche par manche pour 5 situations (voyou, Colisée, duel, traque, chasse) | Abordages et combats de la Marine encore instantanés |
+| Fin du Nouveau Monde | Zou, Whole Cake Island, Egghead, Elbaf, 4 Ponéglyphes, Laugh Tale | Empereurs canoniques jouables, plus de contenu par île |
+| Peuples et fruits | Mink, géant, 8 fruits inventés | Autres peuples |
+
+Le quatrième Ponéglyphe de route est placé dans une épave près d'Egghead : c'est une invention du jeu, son emplacement canonique étant inconnu. Le contenu de Laugh Tale n'est pas décrit.
