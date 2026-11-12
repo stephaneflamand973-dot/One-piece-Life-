@@ -49,7 +49,7 @@ export const ACTIONS_FACTIONS = {
     if (s.carriere) return res(false, "Tu as déjà une carrière.");
     if (age(s) < 16) return res(false, "Trop jeune pour chasser les pirates.");
     if (s.prime > 0) return res(false, "« Un pirate recherché qui veut chasser les pirates ? Dehors ! »");
-    s.carriere = { type: "chasseur", captures: 0, depuis: s.jour };
+    s.carriere = { type: "chasseur", captures: 0, depuis: s.jour, renommee: 0, rang: 0, contrat: null, piege: false, petites: 0 };
     reputation(s, "chasseurs", 10); reputation(s, "pirates", -5);
     return res(true, "Tu signes le registre des chasseurs de primes. Les avis de recherche sont désormais ton gagne-pain.");
   },
@@ -122,7 +122,6 @@ export const ACTIONS_FACTIONS = {
 export function actionsFactions(s) {
   const a = [];
   if (s.lieu === "bureau_primes" && !s.carriere && age(s) >= 16) a.push({ id: "chasseur", label: "S'inscrire comme chasseur de primes" });
-  if (s.carriere?.type === "chasseur" && rivauxIci(s).length) a.push({ id: "traquer", label: `Traquer un pirate recherché (${rivauxIci(s).length} signalé${rivauxIci(s).length > 1 ? "s" : ""})` });
   if (s.lieu === "echafaud" && !s.carriere && age(s) >= 18 && armeeExiste(s)) a.push({ id: "revolution", label: "Chercher l'Armée révolutionnaire" });
   if (s.carriere?.type === "pirate" && !s.carriere.membre) {
     if (rivauxIci(s).some(r => !r.allie && !r.ennemi)) a.push({ id: "alliance", label: "Proposer une alliance à un équipage" });

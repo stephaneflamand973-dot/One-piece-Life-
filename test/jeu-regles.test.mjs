@@ -1384,3 +1384,59 @@ test("révolution : libérer des captifs passe par un combat", () => {
   assert.equal(s.carriere.influence, 5);
   assert.ok(s.carriere.soutien.sabaody >= 15);
 });
+
+// ---------- Carrière de chasseur de primes ----------
+import * as CH from "../jeu/chasseur.js";
+const chasseurDe = (seed = 3) => { const s = aLogue(); s.rng = seed; s.stats.force = 30; s.stats.agilite = 30; s.stats.endurance = 20; s.berrys = 200; s.monde.exterieur -= 200;
+  assert.ok(E.agir(s, { id: "chasseur" }).ok);
+  s.monde.rivaux = [{ id: "c1", nom: "Pirates du Test", capitaine: "Krag", region: "eb", ile: "loguetown", prime: 20000000, force: 18, actif: true },
+    { id: "c2", nom: "Pirates Lointains", capitaine: "Vasco", region: "eb", ile: "shells", prime: 8000000, force: 12, actif: true }];
+  return s; };
+
+test("chasseur : avis de recherche, contrat, et capture sous contrat mieux récompensée en renommée", () => {
+  const s = chasseurDe();
+  const r = E.agir(s, { id: "avis" });
+  assert.match(r.texte, /Krag/); assert.match(r.texte, /Vasco/);
+  assert.ok(E.agir(s, { id: "contrat", cible: "c1" }).ok);
+  s.lieu = "quais_logue"; const masse = E.masseMonetaire(s); const b = s.berrys;
+  frais(s); E.agir(s, { id: "traquer" }); finir(s);
+  assert.equal(s.monde.rivaux[0].actif, false);
+  assert.equal(s.berrys, b + CH.primeVersee(20000000));
+  assert.equal(s.carriere.renommee, CH.renommeeCapture(20000000) + 3);
+  assert.equal(s.carriere.contrat, null);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("chasseur : le piège affaiblit la cible d'un quart et ne sert qu'une fois", () => {
+  const s = chasseurDe(); s.lieu = "quais_logue";
+  frais(s); assert.ok(E.agir(s, { id: "piege" }).ok);
+  assert.equal(s.berrys, 170);
+  frais(s); E.agir(s, { id: "traquer" });
+  assert.equal(s.combat.force, Math.round((18 + 8) * 0.75));
+  assert.equal(s.carriere.piege, false);
+});
+
+test("chasseur : petites primes à renommée fixe, rang Traqueur à 10, associé payé 30 %", () => {
+  const s = chasseurDe(); s.monde.rivaux = []; s.lieu = "quais_logue";
+  let n = 0;
+  while (s.carriere.petites < 10 && n++ < 80) { frais(s); s.sante.blessures = []; E.agir(s, { id: "petite_prime" }); finir(s); }
+  assert.equal(s.carriere.renommee, 10);
+  assert.equal(s.carriere.rang, 1);
+  s.lieu = "auberge_logue"; s.stats.charisme = 40;
+  for (let i = 0; i < 10 && !E.equipage(s).length; i++) { frais(s); E.agir(s, { id: "associe" }); }
+  const a = E.equipage(s)[0]; assert.ok(s.pnj[a].associe);
+  const masse = E.masseMonetaire(s); const fa = s.pnj[a].fonds; const p = s.carriere.petites;
+  n = 0; while (s.carriere.petites === p && n++ < 40) { frais(s); s.sante.blessures = []; E.agir(s, { id: "petite_prime" }); finir(s); }
+  assert.equal(s.pnj[a].fonds, fa + 18);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("chasseur : une prime sur sa tête révoque la licence ; un contrat tombe si la cible disparaît", () => {
+  const s = chasseurDe(); E.agir(s, { id: "contrat", cible: "c2" });
+  s.monde.rivaux[1].actif = false;
+  E.avancer(s, 1, { sansInterruption: true });
+  assert.equal(s.carriere.contrat, null);
+  s.infamie = 2; s.prime = E.calculPrime(2);
+  E.avancer(s, 1, { sansInterruption: true });
+  assert.equal(s.carriere, null);
+});

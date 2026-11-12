@@ -70,6 +70,7 @@ export const SUCCES = {
   corsaire: ["Grand Corsaire", s => !!s.carriere?.corsaire],
   empereur: ["Empereur", s => !!s.carriere?.empereur],
   chasseur: ["Chasseur redouté", s => s.carriere?.type === "chasseur" && s.carriere.captures >= 5],
+  legende_chasseur: ["Légende des chasseurs", s => s.carriere?.type === "chasseur" && (s.carriere.rang || 0) >= 4],
   revolution: ["Révolutionnaire", s => s.carriere?.type === "revolution" && s.carriere.missions >= 5],
   ile_libre: ["Une île libre", s => s.carriere?.type === "revolution" && (s.carriere.liberees?.length || 0) >= 1],
   commandant: ["Commandant révolutionnaire", s => s.carriere?.type === "revolution" && (s.carriere.grade || 0) >= 3],

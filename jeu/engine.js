@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { ACTIONS_CHASSEUR, actionsChasseur, vieChasseur } from "./chasseur.js";
 import { ACTIONS_REVOLUTION, actionsRevolution, vieRevolution, refuge } from "./revolution.js";
 import { ACTIONS_FINALE, actionsFinale, routeOuverte } from "./finale.js";
 import { ACTIONS_COMBAT, actionsCombat, engagerCombat, definirFin } from "./combat.js";
@@ -470,6 +471,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
   vieEquipage(s);
   vieATerre(s);
   vieRevolution(s);
+  vieChasseur(s);
   // Vieillissement et mortalité crédible (simplifiée) après 70 ans.
   if (age(s) - decalageAge(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - decalageAge(s) - 65) * 0.02) {
     s.perso.vivant = false;
@@ -596,6 +598,7 @@ export function actionsDisponibles(s) {
   a.push(...actionsMarine(s));
   a.push(...actionsFinale(s));
   a.push(...actionsRevolution(s));
+  a.push(...actionsChasseur(s));
   if (s.lieu === "colisee" && ag >= 18) a.push({ id: "colisee", label: "Combattre au Colisée (3 000 B si victoire)" });
   if (ici.includes("soen") && s.pnj.soen.relation >= 20) a.push({ id: "sabre", label: `Leçon de sabre avec Sōen (${PRIX_LECON_SABRE} B)` });
   if (s.lieu === "enrobage" && s.navire && !s.navire.enrobe) a.push({ id: "enrober", label: `Faire enrober le navire (${PRIX_ENROBAGE} B, 3 jours)` });
@@ -683,6 +686,7 @@ const ACTIONS = {
   ...ACTIONS_COMBAT,
   ...ACTIONS_FINALE,
   ...ACTIONS_REVOLUTION,
+  ...ACTIONS_CHASSEUR,
   choisir: (s, i) => choisir(s, +i),
   accomplir: s => {
     const e = activite(s, { heures: 4, fatigue: 25, ageMin: 12 });

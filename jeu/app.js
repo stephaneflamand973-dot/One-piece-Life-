@@ -13,6 +13,7 @@ import { TALENTS } from "./talents.js";
 import { titreMetier, COMMERCES } from "./terre.js";
 import { GRADES_PIRATE, MERITE_PIRATE, AMELIORATIONS } from "./pirate.js";
 import { GRADES_REVO, INFLUENCE_GRADE } from "./revolution.js";
+import { RANGS_CHASSEUR, RENOMMEE_RANG } from "./chasseur.js";
 import { sceneSVG, sons, afficherTutoriel, animationTemps, lireAffichage, ecrireAffichage, appliquerAffichage, demarrerAmbiance } from "./presentation.js";
 
 // Mémorial : toutes les vies terminées, gardées sur l'iPhone d'une partie à l'autre.
@@ -29,7 +30,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "25 · révolution";
+export const VERSION_APP = "26 · chasseur de primes";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -211,7 +212,7 @@ const GROUPES = [
   ["prison", "En cellule", ["attendre", "evader"]],
   ["progresser", "Progresser", ["entrainer", "etudier", "ecole", "cartes", "medecine", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
   ["activites", "Activités", ["travailler", "pecher", "cuisiner", "musique", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "consulter", "genereux", "tricher", "harangue", "manger"]],
-  ["aventure", "Aventure", ["voyager", "empreinte", "decouvrir", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "mutation", "traquer_pirates", "chasseur", "traquer", "revolution", "tracts", "entraide", "cellule", "sabotage", "liberer", "soulevement", "planque", "alliance", "trahir", "quitter"]],
+  ["aventure", "Aventure", ["voyager", "empreinte", "decouvrir", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "mutation", "traquer_pirates", "chasseur", "avis", "contrat", "piege", "traquer", "petite_prime", "associe", "renvoyer_associe", "revolution", "tracts", "entraide", "cellule", "sabotage", "liberer", "soulevement", "planque", "alliance", "trahir", "quitter"]],
   ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant", "jouer_enfant", "enseigner_enfant"]],
 ];
 
@@ -403,7 +404,10 @@ function rendreFiche() {
       ${Object.entries(s.pnj).filter(([, p]) => !p.invisible && p.lieu !== "disparu" && (p.relation !== 0 || p.souvenirs.length || LIEUX[p.lieu]?.ile === s.ile)).map(([id, p]) => `<div class="stat"><span>${esc(p.nom)} <i class="discret">${esc(p.role)}${agePnj(s, id) != null ? `, ${agePnj(s, id)} ans` : ""}</i></span>${barre(Math.max(0, p.relation))}<b>${p.relation}</b></div>`).join("")}</section>
     <section class="carte"><h2>Carrière</h2>
       ${s.carriere?.type === "marine" ? `<p class="discret petit">Poste : ${ILES[s.carriere.poste || "shells"].nom} · ${s.carriere.captures || 0} équipage${(s.carriere.captures || 0) > 1 ? "s" : ""} capturé${(s.carriere.captures || 0) > 1 ? "s" : ""}${s.carriere.rang >= 6 ? " · commande un navire de guerre" : " · navire de guerre à partir de Lieutenant"}</p><p>${RANGS_MARINE[s.carriere.rang]} de la Marine · mérite ${s.carriere.merite}${s.carriere.rang < RANGS_MARINE.length - 1 ? ` / ${MERITE_RANG[s.carriere.rang + 1]} pour ${RANGS_MARINE[s.carriere.rang + 1]}` : ""}</p>`
-        : s.carriere?.type === "chasseur" ? `<p>Chasseur de primes · ${s.carriere.captures} capture${s.carriere.captures > 1 ? "s" : ""}</p>`
+        : s.carriere?.type === "chasseur" ? `<p><b>${RANGS_CHASSEUR[s.carriere.rang || 0]}</b> · chasseur de primes · ${s.carriere.captures} capitaine${s.carriere.captures > 1 ? "s" : ""} capturé${s.carriere.captures > 1 ? "s" : ""}, ${s.carriere.petites || 0} petite${(s.carriere.petites || 0) > 1 ? "s" : ""} prime${(s.carriere.petites || 0) > 1 ? "s" : ""}</p>
+          <p class="discret">Renommée ${s.carriere.renommee || 0}${(s.carriere.rang || 0) < 4 ? ` / ${RENOMMEE_RANG[(s.carriere.rang || 0) + 1]} pour ${RANGS_CHASSEUR[(s.carriere.rang || 0) + 1]}` : ""}${s.carriere.piege ? " · piège prêt" : ""}</p>
+          ${(() => { const r = s.carriere.contrat && s.monde.rivaux.find(x => x.id === s.carriere.contrat); return r ? `<p>Contrat : <b>${esc(r.capitaine)}</b> (${esc(r.nom)}), ${r.prime.toLocaleString("fr-FR")} ฿, vu ${ILES[r.ile].a}</p>` : `<p class="discret">Aucun contrat en cours.</p>`; })()}
+          ${equipage(s).filter(id => s.pnj[id].associe).map(id => `<p>Associé : ${esc(s.pnj[id].nom)} <span class="discret">(force ${s.pnj[id].force}, 30 % des primes)</span></p>`).join("")}`
         : s.carriere?.type === "revolution" ? `<p><b>${GRADES_REVO[s.carriere.grade || 0]}</b> de l'Armée révolutionnaire · ${s.carriere.missions || 0} action${(s.carriere.missions || 0) > 1 ? "s" : ""}</p>
           <p class="discret">Influence ${s.carriere.influence || 0}${(s.carriere.grade || 0) < 3 ? ` / ${INFLUENCE_GRADE[(s.carriere.grade || 0) + 1]} pour ${GRADES_REVO[(s.carriere.grade || 0) + 1]}` : ""}</p>
           <div class="stat"><span>Couverture</span><span class="barre"><i style="width:${s.carriere.couverture ?? 80}%;background:${(s.carriere.couverture ?? 80) < 30 ? "var(--ko)" : "var(--ok)"}"></i></span><b>${s.carriere.couverture ?? 80}</b></div>

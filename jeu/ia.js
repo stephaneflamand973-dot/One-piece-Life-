@@ -82,6 +82,7 @@ function actionConnue(s, a) {
     case "attaquer_marine": case "rancon": case "defier": case "proteger": return true;
     case "ameliorer": return ["canons", "voiles", "blindage"].includes(c);
     case "choisir": return Number.isInteger(+c);
+    case "contrat": return s.monde.rivaux.some(r => r.id === c && r.actif);
     case "manger": return c in FRUITS;
     case "haki": return c in HAKI;
     case "initier": return c === "observation" || c === "armement";
