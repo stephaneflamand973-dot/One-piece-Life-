@@ -1316,3 +1316,71 @@ test("fruits : huit fruits inventés, tous avec un pouvoir", () => {
   assert.equal(Object.keys(E.FRUITS).length, 8);
   for (const f of Object.values(E.FRUITS)) assert.ok(f.nom && f.pouvoir && f.bonus > 0);
 });
+
+// ---------- Carrière de révolutionnaire ----------
+import * as RV from "../jeu/revolution.js";
+const revolu = () => { const s = ado(); s.jour = 22 * 365; s.ile = "loguetown"; s.lieu = "echafaud"; s.traits.bonte = 3; s.berrys = 1000; s.monde.exterieur -= 1000;
+  assert.ok(E.agir(s, { id: "revolution" }).ok); return s; };
+const frais = s => { s.heure = 8; s.fatigue = 0; };
+
+test("révolution : l'armée n'existe pas encore à l'âge d'or de Roger", () => {
+  const s = E.nouvelleVie({ prenom: "R", seed: 95, ere: "roger" }); s.jour = 20 * 365; s.ile = "loguetown"; s.lieu = "echafaud"; s.traits.bonte = 5;
+  assert.equal(E.agir(s, { id: "revolution" }).ok, false);
+});
+
+test("révolution : tracts et entraide font monter le soutien et l'influence à pas fixes", () => {
+  const s = revolu(); const masse = E.masseMonetaire(s);
+  frais(s); E.agir(s, { id: "tracts" });
+  assert.equal(s.carriere.soutien.loguetown, 5);
+  assert.equal(s.carriere.influence, 1);
+  frais(s); E.agir(s, { id: "entraide" });
+  assert.equal(s.carriere.soutien.loguetown, 15);
+  assert.equal(s.berrys, 950);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("révolution : promotion à l'influence, cellule à 30 de soutien, dons hebdomadaires", () => {
+  const s = revolu();
+  assert.equal(E.agir(s, { id: "cellule" }).ok, false);
+  for (let i = 0; i < 10; i++) { frais(s); E.agir(s, { id: "tracts" }); }
+  assert.equal(s.carriere.grade, 1);
+  frais(s);
+  assert.ok(E.agir(s, { id: "cellule" }).ok);
+  assert.deepEqual(s.carriere.cellules, ["loguetown"]);
+  const masse = E.masseMonetaire(s); const b = s.berrys;
+  s.carriere.couverture = 100;
+  E.avancer(s, 7, { sansInterruption: true });
+  assert.equal(s.berrys, b + 15);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("révolution : un soulèvement réussi libère l'île et ouvre le grade de Commandant", () => {
+  let libre = false;
+  for (let seed = 1; seed < 30 && !libre; seed++) {
+    const s = revolu(); s.rng = seed; s.stats.force = 40; s.stats.agilite = 40; s.stats.charisme = 20;
+    s.carriere.grade = 2; s.carriere.influence = 69; s.carriere.cellules = ["loguetown"]; s.carriere.soutien.loguetown = 100;
+    frais(s); E.agir(s, { id: "soulevement" });
+    if (s.carriere.liberees.includes("loguetown")) { libre = true; assert.equal(s.carriere.grade, 3); assert.ok(s.prime > 0); assert.ok(RV.refuge(s)); }
+  }
+  assert.ok(libre);
+});
+
+test("révolution : une couverture trop basse attire une rafle ; se cacher la fait remonter", () => {
+  const s = revolu(); s.carriere.couverture = 0;
+  let rafle = false;
+  for (let i = 0; i < 40 && !rafle; i++) { E.avancer(s, 7); rafle = s.evenement?.id === "rafle"; if (s.evenement && !rafle) E.agir(s, { id: "choisir", cible: 0 }); s.carriere && (s.carriere.couverture = 0); if (!s.carriere || s.prison) break; }
+  assert.ok(rafle);
+  const t = revolu(); t.carriere.couverture = 40; const jour = t.jour;
+  E.agir(t, { id: "planque" });
+  assert.equal(t.jour, jour + 7);
+  assert.ok(t.carriere.couverture >= 60);
+});
+
+test("révolution : libérer des captifs passe par un combat", () => {
+  const s = revolu(); s.ile = "sabaody"; s.lieu = "mangroves"; s.stats.force = 60; s.stats.agilite = 60; s.stats.endurance = 60;
+  frais(s); E.agir(s, { id: "liberer" });
+  assert.ok(s.combat);
+  finir(s);
+  assert.equal(s.carriere.influence, 5);
+  assert.ok(s.carriere.soutien.sabaody >= 15);
+});

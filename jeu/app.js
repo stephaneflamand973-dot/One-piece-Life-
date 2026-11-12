@@ -12,6 +12,7 @@ import { ORIGINES, PEUPLES, DEFIS, SUCCES } from "./origines.js";
 import { TALENTS } from "./talents.js";
 import { titreMetier, COMMERCES } from "./terre.js";
 import { GRADES_PIRATE, MERITE_PIRATE, AMELIORATIONS } from "./pirate.js";
+import { GRADES_REVO, INFLUENCE_GRADE } from "./revolution.js";
 import { sceneSVG, sons, afficherTutoriel, animationTemps, lireAffichage, ecrireAffichage, appliquerAffichage, demarrerAmbiance } from "./presentation.js";
 
 // Mémorial : toutes les vies terminées, gardées sur l'iPhone d'une partie à l'autre.
@@ -28,7 +29,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "24 · dernière île";
+export const VERSION_APP = "25 · révolution";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -210,7 +211,7 @@ const GROUPES = [
   ["prison", "En cellule", ["attendre", "evader"]],
   ["progresser", "Progresser", ["entrainer", "etudier", "ecole", "cartes", "medecine", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
   ["activites", "Activités", ["travailler", "pecher", "cuisiner", "musique", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "consulter", "genereux", "tricher", "harangue", "manger"]],
-  ["aventure", "Aventure", ["voyager", "empreinte", "decouvrir", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "mutation", "traquer_pirates", "chasseur", "traquer", "revolution", "sabotage", "alliance", "trahir", "quitter"]],
+  ["aventure", "Aventure", ["voyager", "empreinte", "decouvrir", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "mutation", "traquer_pirates", "chasseur", "traquer", "revolution", "tracts", "entraide", "cellule", "sabotage", "liberer", "soulevement", "planque", "alliance", "trahir", "quitter"]],
   ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant", "jouer_enfant", "enseigner_enfant"]],
 ];
 
@@ -403,7 +404,11 @@ function rendreFiche() {
     <section class="carte"><h2>Carrière</h2>
       ${s.carriere?.type === "marine" ? `<p class="discret petit">Poste : ${ILES[s.carriere.poste || "shells"].nom} · ${s.carriere.captures || 0} équipage${(s.carriere.captures || 0) > 1 ? "s" : ""} capturé${(s.carriere.captures || 0) > 1 ? "s" : ""}${s.carriere.rang >= 6 ? " · commande un navire de guerre" : " · navire de guerre à partir de Lieutenant"}</p><p>${RANGS_MARINE[s.carriere.rang]} de la Marine · mérite ${s.carriere.merite}${s.carriere.rang < RANGS_MARINE.length - 1 ? ` / ${MERITE_RANG[s.carriere.rang + 1]} pour ${RANGS_MARINE[s.carriere.rang + 1]}` : ""}</p>`
         : s.carriere?.type === "chasseur" ? `<p>Chasseur de primes · ${s.carriere.captures} capture${s.carriere.captures > 1 ? "s" : ""}</p>`
-        : s.carriere?.type === "revolution" ? `<p>Membre de l'Armée révolutionnaire · ${s.carriere.missions} mission${s.carriere.missions > 1 ? "s" : ""}</p>`
+        : s.carriere?.type === "revolution" ? `<p><b>${GRADES_REVO[s.carriere.grade || 0]}</b> de l'Armée révolutionnaire · ${s.carriere.missions || 0} action${(s.carriere.missions || 0) > 1 ? "s" : ""}</p>
+          <p class="discret">Influence ${s.carriere.influence || 0}${(s.carriere.grade || 0) < 3 ? ` / ${INFLUENCE_GRADE[(s.carriere.grade || 0) + 1]} pour ${GRADES_REVO[(s.carriere.grade || 0) + 1]}` : ""}</p>
+          <div class="stat"><span>Couverture</span><span class="barre"><i style="width:${s.carriere.couverture ?? 80}%;background:${(s.carriere.couverture ?? 80) < 30 ? "var(--ko)" : "var(--ok)"}"></i></span><b>${s.carriere.couverture ?? 80}</b></div>
+          ${Object.entries(s.carriere.soutien || {}).map(([i, n]) => `<div class="stat"><span>${ILES[i].nom}${s.carriere.liberees?.includes(i) ? " · <b>libre</b>" : s.carriere.cellules?.includes(i) ? " · cellule" : ""}</span><span class="barre"><i style="width:${n}%"></i></span><b>${n}</b></div>`).join("")}
+          <p class="discret petit">Soutien 30 : fonder une cellule (Agent). Soutien 100 et une cellule : soulever l'île (Chef de cellule). Couverture sous 30 : les agents du Gouvernement te retrouvent.</p>`
         : s.carriere?.type === "pirate" && s.carriere.membre ? `<p><b>${GRADES_PIRATE[s.carriere.grade]}</b> des ${esc(s.carriere.equipage)}, sous les ordres du capitaine ${esc(s.carriere.capitaine || "")}</p>
           <p class="discret">Mérite ${s.carriere.merite}${s.carriere.grade < 3 ? ` / ${MERITE_PIRATE[s.carriere.grade + 1]} pour ${GRADES_PIRATE[s.carriere.grade + 1]}` : " · tu peux mener une mutinerie"} · ${s.carriere.raids} abordage${s.carriere.raids > 1 ? "s" : ""}</p>
           <p class="discret">Tu suis l'équipage d'île en île. Avec ton propre navire, tu peux fonder ton équipage depuis un port.</p>`

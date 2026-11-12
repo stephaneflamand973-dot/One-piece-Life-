@@ -7,6 +7,7 @@
 import { rand, noter, age, puissance, blesser, pnjIci, gagnerCompetence, notoriete, GAINS, ILES, res } from "./engine.js";
 import { nouvelle, regionDe, rivauxIci } from "./monde.js";
 import { engagerCombat, definirFin } from "./combat.js";
+import { armeeExiste } from "./revolution.js";
 
 definirFin("traque", (s, issue, d) => {
   const r = s.monde.rivaux.find(x => x.id === d.r);
@@ -64,9 +65,10 @@ export const ACTIONS_FACTIONS = {
   revolution(s) {
     if (s.lieu !== "echafaud") return res(false, "On dit que l'Armée révolutionnaire recrute discrètement près de l'échafaud de Loguetown.");
     if (s.carriere) return res(false, "Tu as déjà une carrière.");
+    if (!armeeExiste(s)) return res(false, "Tu attends des heures, en vain. À cette époque, aucune armée ne s'est encore levée contre le Gouvernement mondial.");
     if (age(s) < 18) return res(false, "Personne ne t'aborde. Tu es trop jeune.");
     if ((s.reputation?.gouvernement || 0) > -10 && (s.traits?.bonte || 0) < 3) return res(false, "Personne ne t'aborde. Il faudra prouver que tu combats l'injustice.");
-    s.carriere = { type: "revolution", missions: 0, depuis: s.jour };
+    s.carriere = { type: "revolution", missions: 0, depuis: s.jour, grade: 0, influence: 0, couverture: 80, soutien: {}, cellules: [], liberees: [] };
     reputation(s, "revolution", 15); reputation(s, "gouvernement", -10);
     return res(true, "Une silhouette encapuchonnée te glisse un message : « Rejoins-nous. » Tu fais désormais partie de l'Armée révolutionnaire.");
   },
@@ -121,8 +123,7 @@ export function actionsFactions(s) {
   const a = [];
   if (s.lieu === "bureau_primes" && !s.carriere && age(s) >= 16) a.push({ id: "chasseur", label: "S'inscrire comme chasseur de primes" });
   if (s.carriere?.type === "chasseur" && rivauxIci(s).length) a.push({ id: "traquer", label: `Traquer un pirate recherché (${rivauxIci(s).length} signalé${rivauxIci(s).length > 1 ? "s" : ""})` });
-  if (s.lieu === "echafaud" && !s.carriere && age(s) >= 18) a.push({ id: "revolution", label: "Chercher l'Armée révolutionnaire" });
-  if (s.carriere?.type === "revolution" && s.lieu === ILES[s.ile].port) a.push({ id: "sabotage", label: "Saboter un entrepôt du Gouvernement" });
+  if (s.lieu === "echafaud" && !s.carriere && age(s) >= 18 && armeeExiste(s)) a.push({ id: "revolution", label: "Chercher l'Armée révolutionnaire" });
   if (s.carriere?.type === "pirate" && !s.carriere.membre) {
     if (rivauxIci(s).some(r => !r.allie && !r.ennemi)) a.push({ id: "alliance", label: "Proposer une alliance à un équipage" });
     if (rivauxIci(s).some(r => r.allie)) a.push({ id: "trahir", label: "Trahir un équipage allié" });

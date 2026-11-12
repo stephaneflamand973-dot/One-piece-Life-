@@ -71,6 +71,8 @@ export const SUCCES = {
   empereur: ["Empereur", s => !!s.carriere?.empereur],
   chasseur: ["Chasseur redouté", s => s.carriere?.type === "chasseur" && s.carriere.captures >= 5],
   revolution: ["Révolutionnaire", s => s.carriere?.type === "revolution" && s.carriere.missions >= 5],
+  ile_libre: ["Une île libre", s => s.carriere?.type === "revolution" && (s.carriere.liberees?.length || 0) >= 1],
+  commandant: ["Commandant révolutionnaire", s => s.carriere?.type === "revolution" && (s.carriere.grade || 0) >= 3],
   mariage: ["Marié", s => s.famille.statut === "marié"],
   famille: ["Grande famille", s => s.famille.enfants.length >= 3],
   riche: ["Fortune", s => s.berrys >= 100000],

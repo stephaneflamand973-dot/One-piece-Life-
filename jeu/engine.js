@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { ACTIONS_REVOLUTION, actionsRevolution, vieRevolution, refuge } from "./revolution.js";
 import { ACTIONS_FINALE, actionsFinale, routeOuverte } from "./finale.js";
 import { ACTIONS_COMBAT, actionsCombat, engagerCombat, definirFin } from "./combat.js";
 import { ACTIONS_MARINE, actionsMarine, auPoste, lieuPoste, verrouPromotion, donnerNavire, reprendreNavire } from "./marine.js";
@@ -468,6 +469,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
   anniversaireTalents(s);
   vieEquipage(s);
   vieATerre(s);
+  vieRevolution(s);
   // Vieillissement et mortalité crédible (simplifiée) après 70 ans.
   if (age(s) - decalageAge(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - decalageAge(s) - 65) * 0.02) {
     s.perso.vivant = false;
@@ -593,6 +595,7 @@ export function actionsDisponibles(s) {
   a.push(...actionsTerre(s));
   a.push(...actionsMarine(s));
   a.push(...actionsFinale(s));
+  a.push(...actionsRevolution(s));
   if (s.lieu === "colisee" && ag >= 18) a.push({ id: "colisee", label: "Combattre au Colisée (3 000 B si victoire)" });
   if (ici.includes("soen") && s.pnj.soen.relation >= 20) a.push({ id: "sabre", label: `Leçon de sabre avec Sōen (${PRIX_LECON_SABRE} B)` });
   if (s.lieu === "enrobage" && s.navire && !s.navire.enrobe) a.push({ id: "enrober", label: `Faire enrober le navire (${PRIX_ENROBAGE} B, 3 jours)` });
@@ -679,6 +682,7 @@ const ACTIONS = {
   ...ACTIONS_MARINE,
   ...ACTIONS_COMBAT,
   ...ACTIONS_FINALE,
+  ...ACTIONS_REVOLUTION,
   choisir: (s, i) => choisir(s, +i),
   accomplir: s => {
     const e = activite(s, { heures: 4, fatigue: 25, ageMin: 12 });
@@ -945,7 +949,7 @@ const ACTIONS = {
     noter(s, `Tu débarques ${ILES[dest].a}, ${ILES[dest].desc}.`, "voyage");
     let txt = `Tu quittes ${depart}${s.navire ? ` à bord du « ${s.navire.nom} »` : ""}. ${textes.join(" ")} Après ${jours} jours de mer, tu arrives ${ILES[dest].a}.${s.navire && (versGL || depuisGL) ? ` Coque : ${s.navire.coque}/100.` : ""}`;
     // Shells Town abrite une base de la Marine : un pirate recherché y est vite repéré.
-    if (dest === "shells" && s.prime > 0 && !marineIgnore(s) && rand(s) < 0.6) {
+    if (dest === "shells" && s.prime > 0 && !marineIgnore(s) && !refuge(s) && rand(s) < 0.6) {
       const r = combatMarine(s, "sur le port de Shells Town");
       txt += ` ${r.texte}`;
     }
