@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { ACTIONS_TERRE, actionsTerre, initialiserTerre, vieATerre, journeeDeMetier, possede, maisonIci } from "./terre.js";
 import { ACTIONS_PIRATE, actionsPirate, vieEquipage, estCapitaine, estMembre, bonusCanons, aVoiles, aBlindage, moral, devenirCapitaine } from "./pirate.js";
 import { appliquerTalents, anniversaireTalents, aTalent, bonusStat, bonusCompetence, bonusHaki, bonusFruit, bonusSalaire, bonusRelation, facteurFatigue, decalageAge } from "./talents.js";
 import { appliquerOrigine, texteNaissance, verifierSucces, ORIGINES } from "./origines.js";
@@ -105,7 +106,7 @@ export const LIEUX = {
 };
 export const lieuxDe = ile => Object.keys(LIEUX).filter(k => LIEUX[k].ile === ile && !LIEUX[k].cache);
 // Lieux où le joueur peut se rendre : pas la cellule, et seulement sa propre maison.
-export const lieuxAccessibles = s => lieuxDe(s.ile).filter(k => !k.startsWith("maison") || k === (s.foyer || "maison"));
+export const lieuxAccessibles = s => lieuxDe(s.ile).filter(k => !k.startsWith("maison") || possede(s, k));
 
 // Emplois : celui qui paie, le salaire fixe, la compétence travaillée (gain fixe, D.2A).
 export const EMPLOIS = {
@@ -237,6 +238,7 @@ export function nouvelleVie({ prenom, genre = "x", seed = Date.now() >>> 0, alea
   initialiserEvenements(s);
   initialiserChronologie(s, ere);
   initialiserVie(s);
+  initialiserTerre(s);
   appliquerOrigine(s, { origine, peuple, defi });
   appliquerTalents(s, talents);
   noter(s, texteNaissance(s, `${s.pnj.mere.nom} et ${s.pnj.pere.nom}`), "naissance");
@@ -306,6 +308,7 @@ export function migrer(s) {
   initialiserChronologie(s);
   initialiserVie(s);
   s.talents ??= [];
+  initialiserTerre(s);
   if (s.prison && s.lieu === "base") s.lieu = "cellule";
   s.foyer ??= "maison"; s.origine ??= "fuchsia"; s.peuple ??= "humain"; s.defi ??= "aucun"; s.succes ??= {};
   s.version = VERSION;
@@ -420,6 +423,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
   verifierSucces(s);
   anniversaireTalents(s);
   vieEquipage(s);
+  vieATerre(s);
   // Vieillissement et mortalité crédible (simplifiée) après 70 ans.
   if (age(s) - decalageAge(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - decalageAge(s) - 65) * 0.02) {
     s.perso.vivant = false;
@@ -540,6 +544,7 @@ export function actionsDisponibles(s) {
   a.push(...actionsFactions(s));
   a.push(...actionsVie(s));
   a.push(...actionsPirate(s));
+  a.push(...actionsTerre(s));
   if (s.lieu === "colisee" && ag >= 18) a.push({ id: "colisee", label: "Combattre au Colisée (3 000 B si victoire)" });
   if (ici.includes("soen") && s.pnj.soen.relation >= 20) a.push({ id: "sabre", label: `Leçon de sabre avec Sōen (${PRIX_LECON_SABRE} B)` });
   if (s.lieu === "enrobage" && s.navire && !s.navire.enrobe) a.push({ id: "enrober", label: `Faire enrober le navire (${PRIX_ENROBAGE} B, 3 jours)` });
@@ -578,6 +583,7 @@ export function actionsDisponibles(s) {
 
 // ---------- Exécution d'une action ----------
 
+export const actionExiste = id => Object.prototype.hasOwnProperty.call(ACTIONS, id);
 export function agir(s, action) {
   if (!s.perso.vivant) return res(false, "Cette vie est terminée.");
   const { id, cible } = action;
@@ -620,6 +626,7 @@ const ACTIONS = {
   ...ACTIONS_FACTIONS,
   ...ACTIONS_VIE,
   ...ACTIONS_PIRATE,
+  ...ACTIONS_TERRE,
   choisir: (s, i) => choisir(s, +i),
   accomplir: s => {
     const e = activite(s, { heures: 4, fatigue: 25, ageMin: 12 });
@@ -629,7 +636,7 @@ const ACTIONS = {
   },
   aller(s, lieu) {
     if (!LIEUX[lieu]) return res(false, "Ce lieu n'existe pas.");
-    if (LIEUX[lieu].cache || (lieu.startsWith("maison") && lieu !== (s.foyer || "maison"))) return res(false, "Tu ne peux pas entrer là.");
+    if (LIEUX[lieu].cache || (lieu.startsWith("maison") && !possede(s, lieu))) return res(false, "Tu ne peux pas entrer là.");
     if (age(s) < 3) return res(false, "Tu es bien trop petit pour sortir seul. Dans quelques années !");
     if (LIEUX[lieu].ile !== s.ile) return res(false, `Ce lieu se trouve ${ILES[LIEUX[lieu].ile].a} : il faut d'abord embarquer depuis le port.`);
     if (s.lieu === lieu) return res(false, `Tu es déjà ${LIEUX[lieu].a}.`);
@@ -701,14 +708,17 @@ const ACTIONS = {
     consommer(s, e0.heures, e0.fatigue);
     transferer(s, e0.payeur, "joueur", e0.salaire);
     // Talent « Sens des affaires » : 10 Berrys de plus, payés par l'employeur s'il le peut (rien n'est créé).
-    const prime = Math.min(bonusSalaire(s), payeur.fonds);
+    let prime = Math.min(bonusSalaire(s), payeur.fonds);
     if (prime > 0) transferer(s, e0.payeur, "joueur", prime);
+    // Titre de métier : prime fixe du titre, payée par l'employeur s'il le peut.
+    const metier = journeeDeMetier(s, s.lieu, payeur);
+    if (metier.prime > 0) { transferer(s, e0.payeur, "joueur", metier.prime); prime += metier.prime; }
     s.compteurs.salaires = (s.compteurs.salaires || 0) + 1;
     let gain = "";
     if (e0.competence) gain = ` ${COMPETENCES[e0.competence]} +${gagnerCompetence(s, e0.competence)}.`;
     else { const g = gagnerStat(s, e0.stat, GAINS.entrainement); if (g) gain = ` ${STATS[e0.stat]} +${g}.`; }
     if (!payeur.invisible) { payeur.relation += GAINS.relation_aide; souvenir(s, e0.payeur, "tu as bien travaillé pour lui"); }
-    return res(true, `${e0.texte} Tu gagnes ${e0.salaire + prime} Berrys.${gain}`);
+    return res(true, `${e0.texte} Tu gagnes ${e0.salaire + prime} Berrys.${gain}${metier.texte}`);
   },
   pecher(s) {
     if (s.lieu !== "port") return res(false, "On pêche au port.");
@@ -810,7 +820,8 @@ const ACTIONS = {
     let recuperation = 70, txt;
     // Les hommes-poissons paient trois fois plus cher à Sabaody : les préjugés y sont tenaces.
     const prix = PRIX_AUBERGE * (s.peuple === "homme_poisson" && s.ile === "sabaody" ? 3 : 1);
-    if (LIEUX[s.foyer || "maison"].ile === s.ile) { s.lieu = s.foyer || "maison"; txt = "Tu rentres dormir chez toi."; }
+    const chezSoi = LIEUX[s.foyer || "maison"].ile === s.ile ? (s.foyer || "maison") : (maisonIci(s) && possede(s, maisonIci(s)) ? maisonIci(s) : null);
+    if (chezSoi) { s.lieu = chezSoi; txt = "Tu rentres dormir chez toi."; }
     else if (s.berrys >= prix) {
       s.lieu = lit; transferer(s, "joueur", "dock", prix);
       txt = `Tu paies ${prix} Berrys pour une nuit ${LIEUX[lit].a}${prix > PRIX_AUBERGE ? " (le triple, parce que tu es un homme-poisson)" : ""}.`;
@@ -1256,7 +1267,8 @@ export function succeder(s, index) {
   s.perso = { prenom: e.prenom, genre: e.genre, naissance: e.naissance, vivant: true };
   s.generation += 1;
   // L'enfant a grandi par lui-même : base liée à son âge, sans rien recevoir du parent.
-  const base = 1 + Math.min(10, Math.floor((s.jour - e.naissance) / 365 / 3));
+  // Les leçons reçues de son parent (transmission volontaire, jamais automatique) ajoutent jusqu'à +5.
+  const base = 1 + Math.min(10, Math.floor((s.jour - e.naissance) / 365 / 3)) + Math.min(5, Math.floor((e.lecons || 0) / 10));
   s.stats = { force: base, agilite: base, endurance: base, intelligence: base, charisme: base };
   s.competences = { charpenterie: 0, peche: 0, combat: 0, cuisine: 0, navigation: 0, musique: 0, medecine: 0 };
   for (const k of Object.keys(s.stats)) s.potentiel[k] = 40 + Math.floor(rand(s) * 61);
@@ -1271,7 +1283,7 @@ export function succeder(s, index) {
   s.reputation = {}; s.ambition = null; s.evenement = null; s.planifies = [];
   s.histo = { evenements: {}, compte: {} }; s.drapeaux = {}; s.succes = {}; s.compteurs = { actions: 0 };
   for (const m of s.missions.filter(m => m.sequestre > 0)) { const d = s.pnj[m.donneur]; if (d && d.vivant !== false) d.fonds += m.sequestre; else s.monde.exterieur += m.sequestre; m.sequestre = 0; }
-  s.missions = []; s.inventaire.colis = 0;
+  s.missions = []; s.inventaire.colis = 0; s.metiers = {};
   for (const r of s.monde.rivaux || []) { r.allie = false; r.ennemi = false; }
   for (const [id, role] of [["mere", "ta grand-mère"], ["pere", "ton grand-père"]]) if (s.pnj[id]) { s.pnj[id].role = role; s.pnj[id].famille = false; }
   for (const id of equipage(s)) s.pnj[id].lieu = "disparu";

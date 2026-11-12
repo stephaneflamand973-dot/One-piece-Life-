@@ -1112,3 +1112,49 @@ test("prime : plafonnée par mer pour les coups ordinaires (East Blue ≈ 34 mil
   s.ile = "water_seven";
   assert.equal(E.plafondNotoriete(s), 45);
 });
+
+// ---------- Vie adulte à terre ----------
+test("métier : Compagnon après 30 journées, prime fixe payée par l'employeur", () => {
+  const s = ado(); s.lieu = "port"; s.pnj.bern.fonds = 100000; s.monde.exterieur -= 100000 - 600;
+  const masse = E.masseMonetaire(s);
+  for (let i = 0; i < 30; i++) { s.heure = 8; s.fatigue = 0; E.agir(s, { id: "travailler" }); }
+  const b = s.berrys; s.heure = 8; s.fatigue = 0;
+  E.agir(s, { id: "travailler" });
+  assert.equal(s.berrys, b + 40);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("logement : acheter une maison sur une autre île, y dormir gratuitement, en faire son foyer", () => {
+  const s = ado(); s.jour = 20 * 365; s.ile = "loguetown"; s.lieu = "quais_logue"; s.berrys = 3500; s.monde.exterieur -= 3500;
+  const masse = E.masseMonetaire(s);
+  assert.ok(E.agir(s, { id: "acheter_maison" }).ok);
+  assert.equal(s.berrys, 500);
+  E.agir(s, { id: "repos" });
+  assert.equal(s.berrys, 500);
+  assert.ok(E.agir(s, { id: "aller", cible: "maison_logue" }).ok);
+  assert.ok(E.agir(s, { id: "demenager" }).ok);
+  assert.equal(s.foyer, "maison_logue");
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("commerce : revenu hebdomadaire s'il est visité, rien s'il est négligé", () => {
+  const s = ado(); s.jour = 20 * 365 + 1; s.lieu = "place"; s.berrys = 1500; s.monde.exterieur -= 1500;
+  const masse = E.masseMonetaire(s);
+  assert.ok(E.agir(s, { id: "ouvrir_commerce", cible: "echoppe" }).ok);
+  E.avancer(s, 14, { sansInterruption: true });
+  assert.equal(s.berrys, 80);
+  E.avancer(s, 60, { sansInterruption: true });
+  const b = s.berrys;
+  E.avancer(s, 14, { sansInterruption: true });
+  assert.equal(s.berrys, b);
+  assert.equal(E.masseMonetaire(s), masse);
+});
+
+test("famille : les leçons données à son enfant comptent à la succession", () => {
+  const s = ado(); s.jour = 40 * 365;
+  s.famille.enfants.push({ prenom: "Z", naissance: s.jour - 10 * 365, genre: "f" });
+  for (let i = 0; i < 20; i++) { s.heure = 8; s.fatigue = 0; assert.ok(E.agir(s, { id: "enseigner_enfant" }).ok); }
+  s.perso.vivant = false;
+  E.succeder(s, 0);
+  assert.equal(s.stats.force, 1 + 3 + 2);
+});

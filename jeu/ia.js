@@ -1,7 +1,7 @@
 // IA en ligne facultative (Google Gemini, palier gratuit, clé fournie par le joueur).
 // L'IA n'a aucune autorité : elle propose des actions que le moteur valide, et raconte des faits établis.
 
-import { LIEUX, ILES, STATS, OBJETS, FRUITS, HAKI, actionsDisponibles, lieuxDe, lieuxAccessibles } from "./engine.js";
+import { LIEUX, ILES, STATS, OBJETS, FRUITS, HAKI, actionsDisponibles, lieuxDe, lieuxAccessibles, actionExiste } from "./engine.js";
 
 const CLE_CONFIG = "opl-jeu-ia";
 export const MODELE_DEFAUT = "gemini-2.5-flash";
@@ -85,7 +85,7 @@ function actionConnue(s, a) {
     case "manger": return c in FRUITS;
     case "haki": return c in HAKI;
     case "initier": return c === "observation" || c === "armement";
-    default: return false;
+    default: return actionExiste(a.id);
   }
 }
 

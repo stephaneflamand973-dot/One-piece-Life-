@@ -10,6 +10,7 @@ import { FACTIONS } from "./factions.js";
 import { humeurTexte, portraitTraits, TRAITS } from "./vie.js";
 import { ORIGINES, PEUPLES, DEFIS, SUCCES } from "./origines.js";
 import { TALENTS } from "./talents.js";
+import { titreMetier, COMMERCES } from "./terre.js";
 import { GRADES_PIRATE, MERITE_PIRATE, AMELIORATIONS } from "./pirate.js";
 import { sceneSVG, sons, afficherTutoriel, animationTemps, lireAffichage, ecrireAffichage, appliquerAffichage, demarrerAmbiance } from "./presentation.js";
 
@@ -27,7 +28,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "19 · cohérence";
+export const VERSION_APP = "20 · vie à terre";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -208,7 +209,7 @@ const GROUPES = [
   ["progresser", "Progresser", ["entrainer", "etudier", "ecole", "cartes", "medecine", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
   ["activites", "Activités", ["travailler", "pecher", "cuisiner", "musique", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "consulter", "genereux", "tricher", "harangue", "manger"]],
   ["aventure", "Aventure", ["voyager", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "chasseur", "traquer", "revolution", "sabotage", "alliance", "trahir", "quitter"]],
-  ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant"]],
+  ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant", "jouer_enfant", "enseigner_enfant"]],
 ];
 
 const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole", "voyage", "famille", "rumeur", "evenement", "succes"]);
@@ -221,7 +222,10 @@ function rendreVivre() {
   const ile = ILES[s.ile];
   const lieu = LIEUX[s.lieu];
   const index = new Map(actions.map((a, i) => [a, i]));
-  const groupes = GROUPES.map(([cle, titre, ids]) => [cle, titre, actions.filter(a => ids.includes(a.id))]).filter(g => g[2].length);
+  // Toute action qui n'est rangée dans aucun groupe apparaît sous « Vie quotidienne ».
+  const ranges = new Set(GROUPES.flatMap(g => g[2]));
+  const groupes = [...GROUPES, ["quotidien", "Vie quotidienne", [...new Set(actions.map(a => a.id).filter(id => !ranges.has(id)))]]]
+    .map(([cle, titre, ids]) => [cle, titre, actions.filter(a => ids.includes(a.id))]).filter(g => g[2].length);
   const bouton = a => `<button class="action${a.id === "manger" && s.fruit ? " danger" : ""}" data-action="${index.get(a)}">${esc(a.label)}</button>`;
   let jourPrec = null;
   const recit = recents.map((e, i) => {
@@ -378,6 +382,10 @@ function rendreFiche() {
       <p>${Object.entries(s.inventaire).filter(([k, n]) => k !== "fruits" && n > 0).map(([k, n]) => `${n} ${n > 1 ? OBJETS[k].pluriel : OBJETS[k].nom}`).join(", ") || "Rien d'autre."}</p>
       ${s.inventaire.fruits.length ? `<p>Fruits du Démon non mangés : ${s.inventaire.fruits.map(f => FRUITS[f].nom).join(", ")}</p>` : ""}
       ${s.navire ? `<p>Navire : « ${esc(s.navire.nom)} », ${NAVIRES[s.navire.type].nom} (${NAVIRES[s.navire.type].capacite} places d'équipage) · coque ${s.navire.coque}/100${s.navire.enrobe ? " · enrobé" : ""}</p>` : ""}</section>
+    ${Object.keys(s.metiers || {}).length || s.commerce || s.proprietes?.length ? `<section class="carte"><h2>Vie à terre</h2>
+      ${Object.entries(s.metiers || {}).map(([l, n]) => `<p>${titreMetier(s, l)[1]} · ${esc(LIEUX[l].nom)} <span class="discret petit">(${n} journées)</span></p>`).join("")}
+      ${s.commerce ? `<p>Commerce : ${COMMERCES[s.commerce.type].nom} ${ILES[s.commerce.ile].a}, ${COMMERCES[s.commerce.type].revenu} Berrys par semaine${s.commerce.neglige ? " <b class=\"m-échouée\">(à l'abandon)</b>" : ""}</p>` : ""}
+      ${s.proprietes?.length ? `<p>Autres maisons : ${s.proprietes.map(l => ILES[LIEUX[l].ile].nom).join(", ")}</p>` : ""}</section>` : ""}
     <section class="carte"><h2>Pouvoir et combat</h2>
       <p>Puissance de combat : <b>${puissance(s)}</b></p>
       ${Object.keys(HAKI).filter(t => s.haki.eveil[t] || (t !== "rois" && s.haki.progres[t] > 0)).map(t => s.haki.eveil[t]
