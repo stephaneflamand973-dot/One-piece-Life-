@@ -618,6 +618,8 @@ test("événements : chaque choix de chaque événement s'exécute sans erreur n
       const masse = E.masseMonetaire(s);
       s.carriere = { type: "pirate", equipage: "Test", depuis: 0, raids: 0, merite: 0 };
       s.navire = { type: "barque", nom: "T", coque: 100 };
+      s.famille.partenaire = "ami"; s.famille.statut = "marié"; s.metiers = { port: 120 };
+      s.commerce = { type: "echoppe", ile: s.ile, lieu: "place", depuis: 0, derniereVisite: s.jour };
       s.evenement = { id: ev.id, jour: s.jour, data: { p: "ami" } };
       const r = E.agir(s, { id: "choisir", cible: i });
       assert.ok(r.ok, `${ev.id} choix ${i}`);
@@ -1157,4 +1159,12 @@ test("famille : les leçons données à son enfant comptent à la succession", (
   s.perso.vivant = false;
   E.succeder(s, 0);
   assert.equal(s.stats.force, 1 + 3 + 2);
+});
+
+
+test("événements : au moins 200, tous avec un identifiant unique et 2 à 4 choix", () => {
+  const ids = EV.EVENEMENTS.map(e => e.id);
+  assert.ok(ids.length >= 200, `${ids.length} événements`);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const e of EV.EVENEMENTS) assert.ok(e.choix.length >= 2 && e.choix.length <= 4, e.id);
 });
