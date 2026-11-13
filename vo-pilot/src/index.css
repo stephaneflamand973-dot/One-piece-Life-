@@ -1,0 +1,40 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #f3f5f9; --card: #ffffff; --ink: #0b1b3a; --muted: #5a6a85; --line: #e1e6ef; --soft: #eef2f8;
+  --accent: #2456e6; --accent-ink: #ffffff; --accent-soft: #e6edff; --teal: #0e9aa7; --navy: #0b1b3a;
+  --warn: #c2570c; --warn-soft: #fff1e3; --bad: #c81e1e; --bad-soft: #fde8e8; --ok: #12813f; --ok-soft: #e3f6ea;
+}
+.dark {
+  --bg: #060d1f; --card: #0e1930; --ink: #e9eefa; --muted: #93a2bf; --line: #1d2b4a; --soft: #14223f;
+  --accent: #4f7dff; --accent-ink: #ffffff; --accent-soft: #16284f; --teal: #2dd4bf; --navy: #050b1a;
+  --warn: #fb923c; --warn-soft: #3a2410; --bad: #f87171; --bad-soft: #3b1518; --ok: #4ade80; --ok-soft: #10301d;
+}
+@theme {
+  --color-bg: var(--bg); --color-card: var(--card); --color-ink: var(--ink); --color-muted: var(--muted); --color-line: var(--line);
+  --color-soft: var(--soft); --color-accent: var(--accent); --color-accent-ink: var(--accent-ink); --color-accent-soft: var(--accent-soft);
+  --color-teal: var(--teal); --color-navy: var(--navy); --color-warn: var(--warn); --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad); --color-bad-soft: var(--bad-soft); --color-ok: var(--ok); --color-ok-soft: var(--ok-soft);
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+html, body, #root { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+input, select, textarea { font-size: 16px; } /* évite le zoom automatique d'iOS */
+.inp { width: 100%; min-height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 9px 12px; outline: none; }
+.inp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+textarea.inp { min-height: 76px; }
+button { cursor: pointer; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.safe-b { padding-bottom: env(safe-area-inset-bottom); }
+.safe-t { padding-top: env(safe-area-inset-top); }
+.cap { display: inline-block; } .cap::first-letter { text-transform: uppercase; }
+.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { scrollbar-width: none; }
+@keyframes sheet-in { from { transform: translateY(24px); opacity: 0 } to { transform: none; opacity: 1 } }
+.sheet-in { animation: sheet-in .18s ease-out; }
+@media (prefers-reduced-motion: reduce) { .sheet-in { animation: none; } }
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; color: #000; }
+  .print-page { box-shadow: none !important; border: none !important; }
+}
