@@ -5,6 +5,7 @@
 // monde figé hors session (01.6A : rien ne bouge sans action du joueur).
 
 import { initialiserMonde, vieDuMonde } from "./monde.js";
+import { ACTIONS_GOUVERNEMENT, actionsGouvernement, vieGouvernement, bonusRokushiki } from "./gouvernement.js";
 import { ACTIONS_CHASSEUR, actionsChasseur, vieChasseur } from "./chasseur.js";
 import { ACTIONS_REVOLUTION, actionsRevolution, vieRevolution, refuge } from "./revolution.js";
 import { ACTIONS_FINALE, actionsFinale, routeOuverte } from "./finale.js";
@@ -100,6 +101,7 @@ export const LIEUX = {
   caserne_logue: { ile: "loguetown", nom: "la caserne de la Marine", court: "Caserne", a: "à la caserne de la Marine" },
   poste_sabaody: { ile: "sabaody", nom: "le poste de la Marine de l'archipel", court: "Poste Marine", a: "au poste de la Marine" },
   auberge_logue: { ile: "loguetown", nom: "l'auberge", court: "Auberge", a: "à l'auberge" },
+  bureau_gm: { ile: "loguetown", nom: "le bureau du Gouvernement mondial", court: "Bureau du Gouvernement", a: "au bureau du Gouvernement mondial" },
   bureau_primes: { ile: "loguetown", nom: "le bureau des primes", court: "Bureau des primes", a: "au bureau des primes" },
   phare: { ile: "cap", nom: "le phare du cap", court: "Phare", a: "au phare du cap" },
   falaises: { ile: "cap", nom: "les falaises du cap", court: "Falaises", a: "sur les falaises du cap" },
@@ -472,6 +474,7 @@ function passerJour(s, { recuperation = 70 } = {}) {
   vieATerre(s);
   vieRevolution(s);
   vieChasseur(s);
+  vieGouvernement(s);
   // Vieillissement et mortalité crédible (simplifiée) après 70 ans.
   if (age(s) - decalageAge(s) >= 70 && jourDansAnnee(s) === 1 && rand(s) < (age(s) - decalageAge(s) - 65) * 0.02) {
     s.perso.vivant = false;
@@ -599,6 +602,7 @@ export function actionsDisponibles(s) {
   a.push(...actionsFinale(s));
   a.push(...actionsRevolution(s));
   a.push(...actionsChasseur(s));
+  a.push(...actionsGouvernement(s));
   if (s.lieu === "colisee" && ag >= 18) a.push({ id: "colisee", label: "Combattre au Colisée (3 000 B si victoire)" });
   if (ici.includes("soen") && s.pnj.soen.relation >= 20) a.push({ id: "sabre", label: `Leçon de sabre avec Sōen (${PRIX_LECON_SABRE} B)` });
   if (s.lieu === "enrobage" && s.navire && !s.navire.enrobe) a.push({ id: "enrober", label: `Faire enrober le navire (${PRIX_ENROBAGE} B, 3 jours)` });
@@ -687,6 +691,7 @@ const ACTIONS = {
   ...ACTIONS_FINALE,
   ...ACTIONS_REVOLUTION,
   ...ACTIONS_CHASSEUR,
+  ...ACTIONS_GOUVERNEMENT,
   choisir: (s, i) => choisir(s, +i),
   accomplir: s => {
     const e = activite(s, { heures: 4, fatigue: 25, ageMin: 12 });
@@ -901,7 +906,8 @@ const ACTIONS = {
     if (dest === "hommes_poissons" && s.peuple !== "homme_poisson" && !passager && !s.navire.enrobe) return res(false, "Pour plonger à 10 000 mètres, le navire doit être enrobé (atelier de Hal, à Sabaody).");
     if ((ILES[dest].nouveauMonde || ILES[s.ile].nouveauMonde) && !passager && s.inventaire.logpose_nm < 1) return res(false, "Dans le Nouveau Monde, un Log Pose ordinaire s'affole : il faut le Log Pose à trois aiguilles. Coral en vend, à l'île des Hommes-Poissons.");
     const jours = ROUTES[s.ile][dest];
-    const prix = passager ? prixPassage(s.ile, dest) : 0;
+    // Un agent du Gouvernement voyage sur ordre de mission : passage gratuit.
+    const prix = passager && s.carriere?.type !== "gouvernement" ? prixPassage(s.ile, dest) : 0;
     if (s.berrys < prix) return res(false, `La traversée coûte ${prix} Berrys ; tu en as ${s.berrys}.`);
     s.berrys -= prix; s.monde.exterieur += prix;
     const depart = ILES[s.ile].nom;
@@ -1350,7 +1356,7 @@ export function succeder(s, index) {
   // Rien de ce qui était attaché à la personne du défunt ne passe à l'enfant : pouvoir du fruit (qui renaît
   // ailleurs dans le monde), prime, prison, caractère, réputation, rêves, souvenirs d'événements, succès.
   if (s.fruit) s.monde.fruitsTrouves = s.monde.fruitsTrouves.filter(f => f !== s.fruit.id);
-  s.fruit = null; s.prime = 0; s.infamie = 0; s.prison = null;
+  s.fruit = null; s.prime = 0; s.infamie = 0; s.prison = null; s.rokushiki = []; s.rokushikiProgres = 0;
   s.traits = { courage: 0, ruse: 0, bonte: 0, ambition: 0 }; s.humeur = 0; s.education = 0;
   s.reputation = {}; s.ambition = null; s.evenement = null; s.combat = null; s.planifies = [];
   s.histo = { evenements: {}, compte: {} }; s.drapeaux = {}; s.succes = {}; s.compteurs = { actions: 0 };
@@ -1374,7 +1380,7 @@ export function puissance(s) {
   const h = s.haki || {};
   const haki = (h.armement || 0) + Math.floor((h.observation || 0) / 2) + (h.eveil?.rois ? 8 + Math.floor((h.rois || 0) / 2) : 0);
   const electro = s.peuple === "mink" ? 4 : 0; // l'Électro, que tout Mink possède de naissance
-  return s.stats.force + s.stats.agilite + s.competences.combat * 2 + (s.inventaire.sabre > 0 ? 4 : 0) + fruit + haki + electro;
+  return s.stats.force + s.stats.agilite + s.competences.combat * 2 + (s.inventaire.sabre > 0 ? 4 : 0) + fruit + haki + electro + bonusRokushiki(s);
 }
 export const equipage = s => Object.keys(s.pnj).filter(id => s.pnj[id].lieu === "equipage" && s.pnj[id].vivant !== false);
 const forceEquipage = s => equipage(s).reduce((t, id) => t + (s.pnj[id].force || 0), 0);

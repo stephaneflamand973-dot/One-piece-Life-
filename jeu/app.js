@@ -14,6 +14,7 @@ import { titreMetier, COMMERCES } from "./terre.js";
 import { GRADES_PIRATE, MERITE_PIRATE, AMELIORATIONS } from "./pirate.js";
 import { GRADES_REVO, INFLUENCE_GRADE } from "./revolution.js";
 import { RANGS_CHASSEUR, RENOMMEE_RANG } from "./chasseur.js";
+import { GRADES_CP, SERVICE_GRADE, SOLDE_CP, ROKUSHIKI } from "./gouvernement.js";
 import { sceneSVG, sons, afficherTutoriel, animationTemps, lireAffichage, ecrireAffichage, appliquerAffichage, demarrerAmbiance } from "./presentation.js";
 
 // Mémorial : toutes les vies terminées, gardées sur l'iPhone d'une partie à l'autre.
@@ -30,7 +31,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "26 · chasseur de primes";
+export const VERSION_APP = "27 · Cipher Pol";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -210,9 +211,9 @@ const GROUPES = [
   ["combat", "Combat", ["c_frapper", "c_garde", "c_pouvoir", "c_esquive", "c_fuir"]],
   ["propositions", "Décision", ["choisir", "accepter", "refuser", "accomplir"]],
   ["prison", "En cellule", ["attendre", "evader"]],
-  ["progresser", "Progresser", ["entrainer", "etudier", "ecole", "cartes", "medecine", "haki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
+  ["progresser", "Progresser", ["entrainer", "etudier", "ecole", "cartes", "medecine", "haki", "rokushiki", "maitriser", "jouer", "ecouter", "sabre", "initier"]],
   ["activites", "Activités", ["travailler", "pecher", "cuisiner", "musique", "acheter", "reparer", "radoub", "enrober", "explorer", "colisee", "consulter", "genereux", "tricher", "harangue", "manger"]],
-  ["aventure", "Aventure", ["voyager", "empreinte", "decouvrir", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "mutation", "traquer_pirates", "chasseur", "avis", "contrat", "piege", "traquer", "petite_prime", "associe", "renvoyer_associe", "revolution", "tracts", "entraide", "cellule", "sabotage", "liberer", "soulevement", "planque", "alliance", "trahir", "quitter"]],
+  ["aventure", "Aventure", ["voyager", "empreinte", "decouvrir", "pirate", "rejoindre", "corvees", "abordage", "fonder", "mutinerie", "quitter_equipage", "recruter", "attaquer", "attaquer_marine", "rancon", "defier", "proteger", "fete", "prime_equipage", "ameliorer", "combattre", "engager", "service", "patrouille", "mutation", "traquer_pirates", "cipher", "surveillance", "infiltration", "arrestation", "escorte", "elimination", "demissionner", "deserter", "chasseur", "avis", "contrat", "piege", "traquer", "petite_prime", "associe", "renvoyer_associe", "revolution", "tracts", "entraide", "cellule", "sabotage", "liberer", "soulevement", "planque", "alliance", "trahir", "quitter"]],
   ["coeur", "Cœur et famille", ["declarer", "mariage", "famille", "enfant", "jouer_enfant", "enseigner_enfant"]],
 ];
 
@@ -399,11 +400,15 @@ function rendreFiche() {
       ${Object.keys(HAKI).filter(t => s.haki.eveil[t] || (t !== "rois" && s.haki.progres[t] > 0)).map(t => s.haki.eveil[t]
         ? `<p><b>${HAKI[t].nom}</b> · niveau ${s.haki[t]} <span class="discret">(${HAKI[t].effet})</span></p>`
         : `<p>${HAKI[t].nom} · éveil ${s.haki.progres[t]}/${SEUIL_EVEIL}</p>`).join("") || `<p class="discret">Aucun Haki éveillé.${age(s) >= 15 ? " On parle d'un vieux marin, à Loguetown, qui en saurait long." : ""}</p>`}
+      ${s.rokushiki?.length ? `<p><b>Rokushiki</b> (${s.rokushiki.length}/6) : ${s.rokushiki.map(id => ROKUSHIKI.find(r => r[0] === id)[1]).join(", ")} <span class="discret">· +${s.rokushiki.length * 3} en puissance</span></p>` : ""}
       ${s.fruit ? `<p><b>${FRUITS[s.fruit.id].nom}</b> (${FRUITS[s.fruit.id].type}) : tu peux ${FRUITS[s.fruit.id].pouvoir}. Maîtrise ${s.fruit.maitrise}.</p><p class="discret">Tu ne sais plus nager.</p>` : "<p>Pas de Fruit du Démon.</p>"}</section>
     <section class="carte"><h2>Relations</h2>
       ${Object.entries(s.pnj).filter(([, p]) => !p.invisible && p.lieu !== "disparu" && (p.relation !== 0 || p.souvenirs.length || LIEUX[p.lieu]?.ile === s.ile)).map(([id, p]) => `<div class="stat"><span>${esc(p.nom)} <i class="discret">${esc(p.role)}${agePnj(s, id) != null ? `, ${agePnj(s, id)} ans` : ""}</i></span>${barre(Math.max(0, p.relation))}<b>${p.relation}</b></div>`).join("")}</section>
     <section class="carte"><h2>Carrière</h2>
       ${s.carriere?.type === "marine" ? `<p class="discret petit">Poste : ${ILES[s.carriere.poste || "shells"].nom} · ${s.carriere.captures || 0} équipage${(s.carriere.captures || 0) > 1 ? "s" : ""} capturé${(s.carriere.captures || 0) > 1 ? "s" : ""}${s.carriere.rang >= 6 ? " · commande un navire de guerre" : " · navire de guerre à partir de Lieutenant"}</p><p>${RANGS_MARINE[s.carriere.rang]} de la Marine · mérite ${s.carriere.merite}${s.carriere.rang < RANGS_MARINE.length - 1 ? ` / ${MERITE_RANG[s.carriere.rang + 1]} pour ${RANGS_MARINE[s.carriere.rang + 1]}` : ""}</p>`
+        : s.carriere?.type === "gouvernement" ? `<p><b>${GRADES_CP[s.carriere.grade || 0]}</b> · Gouvernement mondial · ${s.carriere.missions || 0} mission${(s.carriere.missions || 0) > 1 ? "s" : ""}</p>
+          <p class="discret">États de service ${s.carriere.service || 0}${(s.carriere.grade || 0) < 4 ? ` / ${SERVICE_GRADE[(s.carriere.grade || 0) + 1]} pour ${GRADES_CP[(s.carriere.grade || 0) + 1]}` : ""} · solde ${SOLDE_CP[s.carriere.grade || 0]} ฿ par semaine</p>
+          <p class="discret petit">CP9 : trois techniques du Rokushiki. CP0 : les six, en service sur Grand Line. Sans mission pendant trois mois, tu es déclaré déserteur.${s.drapeaux?.agentDouble ? " Tu renseignes en secret l'Armée révolutionnaire." : ""}</p>`
         : s.carriere?.type === "chasseur" ? `<p><b>${RANGS_CHASSEUR[s.carriere.rang || 0]}</b> · chasseur de primes · ${s.carriere.captures} capitaine${s.carriere.captures > 1 ? "s" : ""} capturé${s.carriere.captures > 1 ? "s" : ""}, ${s.carriere.petites || 0} petite${(s.carriere.petites || 0) > 1 ? "s" : ""} prime${(s.carriere.petites || 0) > 1 ? "s" : ""}</p>
           <p class="discret">Renommée ${s.carriere.renommee || 0}${(s.carriere.rang || 0) < 4 ? ` / ${RENOMMEE_RANG[(s.carriere.rang || 0) + 1]} pour ${RANGS_CHASSEUR[(s.carriere.rang || 0) + 1]}` : ""}${s.carriere.piege ? " · piège prêt" : ""}</p>
           ${(() => { const r = s.carriere.contrat && s.monde.rivaux.find(x => x.id === s.carriere.contrat); return r ? `<p>Contrat : <b>${esc(r.capitaine)}</b> (${esc(r.nom)}), ${r.prime.toLocaleString("fr-FR")} ฿, vu ${ILES[r.ile].a}</p>` : `<p class="discret">Aucun contrat en cours.</p>`; })()}

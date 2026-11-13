@@ -1,6 +1,6 @@
 // Fonctionnement hors ligne : fichiers du jeu en cache, mis à jour à chaque nouvelle version.
-const CACHE = "opl-jeu-v31";
-const FICHIERS = ["./", "./index.html", "./app.js", "./engine.js", "./ia.js", "./monde.js", "./evenements.js", "./evenements2.js", "./evenements3.js", "./chronologie.js", "./factions.js", "./vie.js", "./origines.js", "./presentation.js", "./talents.js", "./pirate.js", "./terre.js", "./marine.js", "./combat.js", "./finale.js", "./revolution.js", "./chasseur.js", "./manifest.webmanifest", "./icone.svg", "./icone-180.png", "./icone-512.png"];
+const CACHE = "opl-jeu-v32";
+const FICHIERS = ["./", "./index.html", "./app.js", "./engine.js", "./ia.js", "./monde.js", "./evenements.js", "./evenements2.js", "./evenements3.js", "./chronologie.js", "./factions.js", "./vie.js", "./origines.js", "./presentation.js", "./talents.js", "./pirate.js", "./terre.js", "./marine.js", "./combat.js", "./finale.js", "./revolution.js", "./chasseur.js", "./gouvernement.js", "./manifest.webmanifest", "./icone.svg", "./icone-180.png", "./icone-512.png"];
 self.addEventListener("install", e => e.waitUntil(
   caches.open(CACHE).then(c => c.addAll(FICHIERS.map(f => new Request(f, { cache: "reload" })))).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil((async () => {

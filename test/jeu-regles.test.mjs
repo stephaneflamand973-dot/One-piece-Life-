@@ -1440,3 +1440,64 @@ test("chasseur : une prime sur sa tête révoque la licence ; un contrat tombe s
   E.avancer(s, 1, { sansInterruption: true });
   assert.equal(s.carriere, null);
 });
+
+// ---------- Carrière d'agent du Gouvernement mondial ----------
+import * as GO from "../jeu/gouvernement.js";
+const agentCP = (grade = 0) => { const s = ado(); s.jour = 22 * 365; s.ile = "loguetown"; s.lieu = "bureau_gm"; s.stats.intelligence = 20; s.stats.force = 30; s.stats.agilite = 30; s.stats.endurance = 25; s.stats.charisme = 20;
+  assert.ok(E.agir(s, { id: "cipher" }).ok); s.carriere.grade = grade; s.carriere.service = GO.SERVICE_GRADE[grade]; return s; };
+
+test("Cipher Pol : refusé à un recherché ou à un sympathisant révolutionnaire", () => {
+  const s = ado(); s.jour = 22 * 365; s.ile = "loguetown"; s.lieu = "bureau_gm"; s.stats.intelligence = 20; s.stats.force = 30;
+  s.reputation = { revolution: 20 };
+  assert.equal(E.agir(s, { id: "cipher" }).ok, false);
+  s.reputation = {}; s.infamie = 1; s.prime = E.calculPrime(1);
+  assert.equal(E.agir(s, { id: "cipher" }).ok, false);
+});
+
+test("Cipher Pol : solde seulement en service, désertion après trois mois, prime sur la tête", () => {
+  const s = agentCP(); const masse = E.masseMonetaire(s);
+  E.avancer(s, 7, { sansInterruption: true });
+  assert.equal(s.berrys, GO.SOLDE_CP[0]);
+  assert.equal(E.masseMonetaire(s), masse);
+  E.avancer(s, 100, { sansInterruption: true });
+  assert.equal(s.carriere, null);
+  assert.ok(s.prime > 0);
+});
+
+test("Rokushiki : six séances par technique, +3 de puissance chacune, conservé après le service", () => {
+  const s = agentCP(1); const p0 = E.puissance(s);
+  for (let i = 1; i <= 6; i++) { frais(s); E.agir(s, { id: "rokushiki" }); assert.equal(s.rokushiki.length, i === 6 ? 1 : 0); }
+  assert.equal(E.puissance(s), p0 + 3);
+  s.lieu = "quais_logue"; E.agir(s, { id: "deserter" });
+  assert.equal(s.carriere, null);
+  assert.equal(E.puissance(s), p0 + 3);
+});
+
+test("Cipher Pol : promotions aux états de service, CP9 verrouillé sans trois techniques", () => {
+  const s = agentCP(2); s.carriere.service = 69; s.lieu = "auberge_logue";
+  let n = 0; while (s.carriere.service < 70 && n++ < 40) { frais(s); E.agir(s, { id: "surveillance" }); }
+  assert.equal(s.carriere.grade, 2);
+  s.rokushiki = ["soru", "geppo", "tekkai"];
+  n = 0; const sv = s.carriere.service; while (s.carriere.service === sv && n++ < 40) { frais(s); E.agir(s, { id: "surveillance" }); }
+  assert.equal(s.carriere.grade, 3);
+});
+
+test("Cipher Pol : une arrestation est un combat ; un agent voyage gratuitement", () => {
+  const s = agentCP(1);
+  frais(s); E.agir(s, { id: "arrestation" });
+  assert.ok(s.combat); finir(s);
+  assert.equal(s.carriere.service, 10 + 4);
+  s.lieu = "quais_logue"; s.sante.blessures = []; const b = s.berrys;
+  E.agir(s, { id: "voyager", cible: "shells" });
+  assert.equal(s.ile, "shells");
+  assert.ok(s.berrys >= b);
+});
+
+test("Cipher Pol : refuser le Buster Call, c'est déserter", () => {
+  const s = agentCP(3);
+  s.evenement = { id: "cp_buster_call", jour: s.jour, data: {} };
+  E.agir(s, { id: "choisir", cible: 1 });
+  assert.equal(s.carriere, null);
+  assert.ok(s.prime > 0);
+  assert.ok(s.traits.bonte >= 3);
+});

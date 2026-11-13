@@ -11,6 +11,7 @@ import { EVENEMENTS_PIRATE } from "./pirate.js";
 import { EVENEMENTS_3 } from "./evenements3.js";
 import { EVENEMENTS_REVOLUTION } from "./revolution.js";
 import { EVENEMENTS_CHASSEUR } from "./chasseur.js";
+import { EVENEMENTS_GOUVERNEMENT } from "./gouvernement.js";
 import { engagerCombat, definirFin } from "./combat.js";
 
 definirFin("chasse", (s, issue, d) => {
@@ -241,7 +242,7 @@ export const EVENEMENTS = [
       ["Refuser", () => "Tu as assez donné."]] },
 ];
 
-EVENEMENTS.push(...EVENEMENTS_FACTIONS, ...EVENEMENTS_2, ...EVENEMENTS_PIRATE, ...EVENEMENTS_3, ...EVENEMENTS_REVOLUTION, ...EVENEMENTS_CHASSEUR);
+EVENEMENTS.push(...EVENEMENTS_FACTIONS, ...EVENEMENTS_2, ...EVENEMENTS_PIRATE, ...EVENEMENTS_3, ...EVENEMENTS_REVOLUTION, ...EVENEMENTS_CHASSEUR, ...EVENEMENTS_GOUVERNEMENT);
 
 // ---------- Déclenchement ----------
 
