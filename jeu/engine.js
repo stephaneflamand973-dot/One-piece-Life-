@@ -681,6 +681,38 @@ function gagnerCompetence(s, k, gain = 1) {
   return total;
 }
 
+// Décrit un voyage depuis l'île actuelle : durée, prix, façon de voyager, passage dangereux, et l'obstacle
+// éventuel (hors « il faut être au port », que l'interface règle en t'y conduisant).
+export function infoVoyage(s, dest) {
+  const base = { dest, jours: 0, prix: 0, obstacle: null, passage: null, mode: "navire" };
+  if (!ILES[dest] || dest === s.ile) return { ...base, obstacle: "Tu y es déjà." };
+  if (!(dest in (ROUTES[s.ile] || {}))) return { ...base, obstacle: `Aucune route directe ne mène ${ILES[dest].a} depuis ${ILES[s.ile].nom}.`, horsRoute: true };
+  const versGL = estGrandLine(dest), depuisGL = estGrandLine(s.ile);
+  const nage = s.peuple === "homme_poisson" && !s.fruit && [s.ile, dest].includes("hommes_poissons") && [s.ile, dest].includes("sabaody");
+  // Sans navire, on voyage comme passager : le capitaine du navire de passage a ses cartes, son Log Pose et son enrobage.
+  const passager = !s.navire && !nage;
+  const jours = ROUTES[s.ile][dest];
+  // Un agent du Gouvernement voyage sur ordre de mission : passage gratuit.
+  const prix = passager && s.carriere?.type !== "gouvernement" ? prixPassage(s.ile, dest) : 0;
+  const passage = versGL && !depuisGL ? "la montée de Reverse Mountain" : depuisGL && !versGL ? "la Calm Belt et ses rois des mers"
+    : dest === "hommes_poissons" && s.ile === "sabaody" && !(nage && !s.navire) ? "la descente à 10 000 mètres sous la mer" : dest === "wano" ? "les cascades qui défendent Wano" : null;
+  const info = { ...base, jours, prix, passage, versGL, depuisGL, nage, passager, mode: nage && !s.navire ? "nage" : passager ? "passager" : "navire" };
+  const non = t => ({ ...info, obstacle: t });
+  if (s.prison) return non("Tu es en prison.");
+  if (age(s) < 14) return non("Tu es trop jeune pour embarquer seul (à partir de 14 ans).");
+  if (estMembre(s)) return non(`Tu fais partie des ${s.carriere.equipage} : tu navigues avec eux. Pour partir seul, quitte d'abord l'équipage.`);
+  if (dest === "laugh_tale") {
+    if (!routeOuverte(s)) return non("Personne ne connaît cette route. Il faudrait l'empreinte des quatre Ponéglyphes de route.");
+    if (passager) return non("Aucun navire de passage ne va là-bas : il te faut ton propre navire.");
+  }
+  if (versGL && !depuisGL && age(s) < 17) return non("Reverse Mountain, à ton âge ? Attends au moins tes 17 ans.");
+  if (depuisGL && versGL && !passager && s.inventaire.logpose < 1 && !(nage && !s.navire)) return non("Sans Log Pose, impossible de naviguer sur Grand Line : les boussoles y sont folles. Le gardien du phare en vend.");
+  if (dest === "hommes_poissons" && s.peuple !== "homme_poisson" && !passager && !s.navire.enrobe) return non("Pour plonger à 10 000 mètres, le navire doit être enrobé (atelier de Hal, à Sabaody).");
+  if ((ILES[dest].nouveauMonde || ILES[s.ile].nouveauMonde) && !passager && s.inventaire.logpose_nm < 1) return non("Dans le Nouveau Monde, un Log Pose ordinaire s'affole : il faut le Log Pose à trois aiguilles. Coral en vend, à l'île des Hommes-Poissons.");
+  if (s.berrys < prix) return non(`La traversée coûte ${prix} Berrys ; tu en as ${s.berrys}.`);
+  return info;
+}
+
 const ACTIONS = {
   ...ACTIONS_FACTIONS,
   ...ACTIONS_VIE,
@@ -891,24 +923,11 @@ const ACTIONS = {
   voyager(s, dest) {
     if (!ILES[dest] || dest === s.ile || !(dest in ROUTES[s.ile])) return res(false, "Cette destination n'est pas accessible d'ici.");
     if (s.lieu !== ILES[s.ile].port) return res(false, "Les navires partent du port.");
-    if (age(s) < 14) return res(false, "Tu es trop jeune pour embarquer seul (à partir de 14 ans).");
-    if (estMembre(s)) return res(false, `Tu fais partie des ${s.carriere.equipage} : tu navigues avec eux. Pour partir seul, quitte d'abord l'équipage.`);
-    const versGL = estGrandLine(dest), depuisGL = estGrandLine(s.ile);
-    const nage = s.peuple === "homme_poisson" && !s.fruit && [s.ile, dest].includes("hommes_poissons") && [s.ile, dest].includes("sabaody");
-    // Sans navire, on voyage comme passager : le capitaine du navire de passage a ses cartes, son Log Pose et son enrobage.
-    const passager = !s.navire && !nage;
-    if (dest === "laugh_tale") {
-      if (!routeOuverte(s)) return res(false, "Personne ne connaît cette route. Il faudrait l'empreinte des quatre Ponéglyphes de route.");
-      if (passager) return res(false, "Aucun navire de passage ne va là-bas : il te faut ton propre navire.");
-    }
-    if (versGL && !depuisGL && age(s) < 17) return res(false, "Reverse Mountain, à ton âge ? Attends au moins tes 17 ans.");
-    if (depuisGL && versGL && !passager && s.inventaire.logpose < 1 && !(nage && !s.navire)) return res(false, "Sans Log Pose, impossible de naviguer sur Grand Line : les boussoles y sont folles. Le gardien du phare en vend.");
-    if (dest === "hommes_poissons" && s.peuple !== "homme_poisson" && !passager && !s.navire.enrobe) return res(false, "Pour plonger à 10 000 mètres, le navire doit être enrobé (atelier de Hal, à Sabaody).");
-    if ((ILES[dest].nouveauMonde || ILES[s.ile].nouveauMonde) && !passager && s.inventaire.logpose_nm < 1) return res(false, "Dans le Nouveau Monde, un Log Pose ordinaire s'affole : il faut le Log Pose à trois aiguilles. Coral en vend, à l'île des Hommes-Poissons.");
-    const jours = ROUTES[s.ile][dest];
-    // Un agent du Gouvernement voyage sur ordre de mission : passage gratuit.
-    const prix = passager && s.carriere?.type !== "gouvernement" ? prixPassage(s.ile, dest) : 0;
-    if (s.berrys < prix) return res(false, `La traversée coûte ${prix} Berrys ; tu en as ${s.berrys}.`);
+    // Toutes les conditions du voyage (âge, équipage, Log Pose, enrobage, prix…) sont dans infoVoyage,
+    // que la carte utilise aussi pour dire à l'avance ce qui manque.
+    const info = infoVoyage(s, dest);
+    if (info.obstacle) return res(false, info.obstacle);
+    const { versGL, depuisGL, nage, passager, jours, prix } = info;
     s.berrys -= prix; s.monde.exterieur += prix;
     const depart = ILES[s.ile].nom;
     const textes = [];

@@ -14,6 +14,7 @@ import { titreMetier, COMMERCES } from "./terre.js";
 import { GRADES_PIRATE, MERITE_PIRATE, AMELIORATIONS } from "./pirate.js";
 import { GRADES_REVO, INFLUENCE_GRADE } from "./revolution.js";
 import { RANGS_CHASSEUR, RENOMMEE_RANG } from "./chasseur.js";
+import { carteHTML } from "./carte.js";
 import { GRADES_CP, SERVICE_GRADE, SOLDE_CP, ROKUSHIKI } from "./gouvernement.js";
 import { sceneSVG, sons, afficherTutoriel, animationTemps, lireAffichage, ecrireAffichage, appliquerAffichage, demarrerAmbiance } from "./presentation.js";
 
@@ -31,7 +32,7 @@ function memorialiser() {
 }
 import { lireConfig, ecrireConfig, iaActive, interpreter, narrer, testerCle, MODELE_DEFAUT } from "./ia.js";
 
-export const VERSION_APP = "27 · Cipher Pol";
+export const VERSION_APP = "28 · carte";
 const CLE_INDEX = "opl-jeu-mondes";
 const cleMonde = id => `opl-jeu-monde-${id}`;
 const $ = sel => document.querySelector(sel);
@@ -41,6 +42,7 @@ let s = null;
 let occupe = false;
 let onglet = "jeu";
 let dernierLieu = null;
+let ileChoisie = null;
 
 // ---------- Sauvegardes (automatiques, vérifiées, avec copie de secours) ----------
 
@@ -157,6 +159,7 @@ function ecranJeu() {
     <main id="contenu"></main>
     <nav class="onglets">
       <button data-onglet="jeu" class="actif">Vivre</button>
+      <button data-onglet="carte">Carte</button>
       <button data-onglet="fiche">Fiche</button>
       <button data-onglet="journal">Journal</button>
       <button data-onglet="menu">Menu</button>
@@ -179,7 +182,7 @@ function rendre() {
   memorialiser();
   document.querySelectorAll("[data-onglet]").forEach(b => b.classList.toggle("actif", b.dataset.onglet === onglet));
   rendreStatut();
-  ({ jeu: rendreVivre, fiche: rendreFiche, journal: rendreJournal, menu: rendreMenu })[onglet]();
+  ({ jeu: rendreVivre, carte: rendreCarte, fiche: rendreFiche, journal: rendreJournal, menu: rendreMenu })[onglet]();
 }
 
 function rendreStatut() {
@@ -219,9 +222,30 @@ const GROUPES = [
 
 const TYPES_VISIBLES = new Set(["naissance", "recit", "action", "refus", "ellipse", "monde", "sante", "mission", "age", "mort", "narration", "parole", "voyage", "famille", "rumeur", "evenement", "succes"]);
 
+// Onglet Carte : toucher une île montre le trajet ; le bouton conduit au port puis embarque.
+function rendreCarte() {
+  if (!ILES[ileChoisie]) ileChoisie = s.ile;
+  $("#contenu").innerHTML = carteHTML(s, ileChoisie);
+  const choisir = ile => { ileChoisie = ile; rendreCarte(); document.querySelector(".detail")?.scrollIntoView({ block: "nearest", behavior: "smooth" }); };
+  document.querySelectorAll("[data-ile]").forEach(g => {
+    g.onclick = () => choisir(g.dataset.ile);
+    g.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); choisir(g.dataset.ile); } };
+  });
+  document.querySelectorAll("[data-carte-choisir]").forEach(b => b.onclick = () => choisir(b.dataset.carteChoisir));
+  document.querySelectorAll("[data-carte-aller]").forEach(b => b.onclick = () => { onglet = "jeu"; jouer([{ id: "aller", cible: b.dataset.carteAller }]); });
+  document.querySelectorAll("[data-carte-partir]").forEach(b => b.onclick = () => {
+    const dest = b.dataset.cartePartir;
+    const etapes = s.lieu === ILES[s.ile].port ? [] : [{ id: "aller", cible: ILES[s.ile].port }];
+    onglet = "jeu"; ileChoisie = null; dernierLieu = null;
+    animationTemps("En mer…"); sons.temps();
+    jouer([...etapes, { id: "voyager", cible: dest }]);
+  });
+}
+
 function rendreVivre() {
   const recents = s.journal.filter(e => TYPES_VISIBLES.has(e.type)).slice(-14);
-  const actions = actionsDisponibles(s);
+  // Les voyages entre les îles se font depuis l'onglet Carte, pas depuis la liste des activités.
+  const actions = actionsDisponibles(s).filter(a => a.id !== "voyager");
   const ici = pnjIci(s);
   const enfant = age(s) < 6;
   const ile = ILES[s.ile];
@@ -263,7 +287,7 @@ function rendreVivre() {
     })()}
     ${groupes.map(([cle, titre, liste]) => `<section class="groupe g-${cle}"><h3>${titre}</h3><div class="grille">${liste.map(bouton).join("")}</div></section>`).join("")}
     ${s.prison || s.combat || age(s) < 3 ? "" : `<section class="groupe"><h3>Se déplacer ${ile.a}</h3>
-      <div class="lieux">${lieuxAccessibles(s).filter(id => id !== s.lieu).map(id => `<button class="chip" data-aller="${id}">${LIEUX[id].court}</button>`).join("")}</div></section>`}
+      <div class="lieux">${lieuxAccessibles(s).filter(id => id !== s.lieu).map(id => `<button class="chip" data-aller="${id}">${LIEUX[id].court}</button>`).join("")}<button class="chip carte-lien" data-vers-carte>🗺 Autres îles</button></div></section>`}
     <section class="temps" ${s.combat ? "hidden" : ""}>
       <button data-temps="repos" class="${dernierRefusFatigue ? "conseil" : ""}">🌙 Dormir</button>
       <button data-temps="7">+1 sem.</button>
@@ -280,6 +304,7 @@ function rendreVivre() {
   document.querySelectorAll("[data-refaire]").forEach(b => b.onclick = () => repeter(+b.dataset.refaire));
   document.querySelectorAll("[data-parler]").forEach(b => b.onclick = () => jouer([{ id: "parler", cible: b.dataset.parler }]));
   document.querySelectorAll("[data-aller]").forEach(b => b.onclick = () => jouer([{ id: "aller", cible: b.dataset.aller }]));
+  document.querySelectorAll("[data-vers-carte]").forEach(b => b.onclick = () => { onglet = "carte"; ileChoisie = s.ile; rendre(); window.scrollTo(0, 0); });
   document.querySelectorAll("[data-temps]").forEach(b => b.onclick = () => {
     if (b.dataset.temps === "repos") return jouer([{ id: "repos" }]);
     temps(+b.dataset.temps);
@@ -313,7 +338,7 @@ async function jouer(actions, { narrer: avecNarration = true } = {}) {
     if (!r.ok || r.interruption || s.evenement || !s.perso.vivant) break; // un refus ou un événement important arrête la suite
   }
   dernierRefusFatigue = !resultatsOk && refusFatigue(resultats.at(-1));
-  if (actions.length > 1 && resultats.length > 1) noter(s, `${resultats.length - (resultatsOk ? 0 : 1)} fois de suite.`, "ellipse");
+  if (actions.length > 1 && resultats.length > 1 && actions.every(x => x.id === actions[0].id && x.cible === actions[0].cible)) noter(s, `${resultats.length - (resultatsOk ? 0 : 1)} fois de suite.`, "ellipse");
   sauver(); rendre();
   if (s.evenement) sons.evenement(); else if (resultats.length) (resultatsOk ? sons.succes : sons.echec)();
   if (avecNarration && iaActive() && s.perso.vivant) await raconter(resultats.join(" "));

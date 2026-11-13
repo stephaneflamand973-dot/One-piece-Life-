@@ -103,6 +103,32 @@
     background: var(--fond); padding: 6px 0; }
   .temps button.conseil { background: var(--or); border-color: var(--or); color: #1e2428; animation: pulse 1.2s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scale(1.04); } }
+  .carte-monde svg { width: 100%; height: auto; display: block; border-radius: 16px; border: 1px solid var(--ligne); background: var(--carte); touch-action: manipulation; }
+  .mer.eb { fill: #7ec8e3; opacity: .28; } .mer.gl { fill: #9b8fd9; opacity: .26; } .mer.nm { fill: #e07a5f; opacity: .22; }
+  .redline { fill: #b3361e; opacity: .5; }
+  .carte-monde text { font: 600 11px -apple-system, "Segoe UI", sans-serif; fill: var(--texte); paint-order: stroke; stroke: var(--carte); stroke-width: 3px; stroke-linejoin: round; }
+  .carte-monde text.region { font-size: 9px; letter-spacing: .12em; fill: var(--discret); stroke: none; }
+  .carte-monde text.region.rl { fill: #fff; }
+  .carte-monde text.repere { font-size: 8.5px; font-weight: 500; fill: var(--discret); }
+  .route { stroke: var(--discret); stroke-width: 1.2; stroke-dasharray: 3 4; opacity: .45; }
+  .route.directe { stroke: var(--accent); stroke-width: 2.2; stroke-dasharray: none; opacity: .9; }
+  .ile { cursor: pointer; } .ile .zone { fill: transparent; }
+  .ile .point { fill: var(--discret); stroke: var(--carte); stroke-width: 2; }
+  .ile.ouverte .point { fill: var(--accent); } .ile.bloquee .point { fill: var(--or); } .ile.ici .point { fill: var(--ok); }
+  .ile.loin text { fill: var(--discret); font-weight: 500; }
+  .ile .halo { fill: none; stroke: var(--ok); stroke-width: 2; animation: halo 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes halo { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.3); opacity: 0; } }
+  .ile.choisie .zone { fill: color-mix(in srgb, var(--accent) 18%, transparent); stroke: var(--accent); stroke-width: 1.5; }
+  .ile .pirates { fill: var(--ko); stroke: var(--carte); stroke-width: 1.5; } .ile .marque { fill: var(--or); stroke: var(--carte); stroke-width: 1.5; }
+  .legende { font-size: .74rem; color: var(--discret); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; margin: 6px 2px; }
+  .legende span { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: -6px; }
+  .l-ici { background: var(--ok); } .l-ouverte { background: var(--accent); } .l-bloquee { background: var(--or); } .l-pirates { background: var(--ko); } .l-marque { background: var(--or); outline: 1px solid var(--texte); }
+  .detail { background: var(--carte); border: 1px solid var(--ligne); border-radius: 16px; padding: 14px; margin: 8px 0 16px; }
+  .detail h2 { margin-bottom: 2px; } .detail .principal { margin-top: 10px; }
+  .obstacle { color: var(--ko); font-weight: 600; border-left: 3px solid var(--ko); padding-left: 8px; }
+  .danger-txt { color: var(--warn, var(--or)); } .pirates-txt { color: var(--ko); }
+  .chip.carte-lien { border-style: dashed; }
+  .onglets button { font-size: .88rem; padding: 10px 4px; }
   .duel { border: 2px solid var(--ko); border-radius: 14px; padding: 10px 12px; margin: 8px 0; background: var(--carte); }
   .g-combat .action { border-color: var(--ko); font-weight: 700; }
   .temps[hidden] { display: none; }

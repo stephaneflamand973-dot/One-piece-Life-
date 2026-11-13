@@ -1501,3 +1501,34 @@ test("Cipher Pol : refuser le Buster Call, c'est déserter", () => {
   assert.ok(s.prime > 0);
   assert.ok(s.traits.bonte >= 3);
 });
+
+// ---------- Carte et voyages ----------
+import * as CA from "../jeu/carte.js";
+
+test("carte : infoVoyage annonce durée, prix, mode, passage dangereux et ce qui manque", () => {
+  const s = ado(); s.jour = 20 * 365; s.berrys = 300;
+  let v = E.infoVoyage(s, "shells");
+  assert.equal(v.obstacle, null); assert.equal(v.jours, 2); assert.equal(v.prix, 40); assert.equal(v.mode, "passager");
+  v = E.infoVoyage(s, "wano");
+  assert.ok(v.horsRoute);
+  s.berrys = 10;
+  assert.match(E.infoVoyage(s, "shells").obstacle, /coûte 40 Berrys/);
+  s.ile = "loguetown"; s.navire = { type: "caravelle", nom: "N", coque: 100 };
+  v = E.infoVoyage(s, "cap");
+  assert.equal(v.prix, 0); assert.equal(v.mode, "navire"); assert.match(v.passage, /Reverse Mountain/);
+  s.ile = "cap";
+  assert.match(E.infoVoyage(s, "little_garden").obstacle, /Log Pose/);
+  assert.equal(E.infoVoyage(s, "cap").obstacle, "Tu y es déjà.");
+});
+
+test("carte : toutes les îles ont une position, l'itinéraire passe par les bonnes étapes, Laugh Tale reste cachée", () => {
+  for (const i of Object.keys(E.ILES)) assert.ok(CA.POSITIONS[i], i);
+  assert.deepEqual(CA.chemin("fuchsia", "little_garden"), ["fuchsia", "loguetown", "cap", "little_garden"]);
+  const s = ado();
+  const html = CA.carteHTML(s, "loguetown");
+  assert.ok(html.includes('data-ile="wano"'));
+  assert.ok(!html.includes('data-ile="laugh_tale"'));
+  assert.ok(html.includes('data-carte-partir="loguetown"') || html.includes("obstacle"));
+  s.poneglyphes = { zou: 1, whole_cake: 1, wano: 1, egghead: 1 };
+  assert.ok(CA.carteHTML(s, null).includes('data-ile="laugh_tale"'));
+});
