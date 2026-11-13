@@ -172,3 +172,12 @@ describe('Sauvegarde, restauration, démonstration', () => {
     expect(await db.tasks.count()).toBe(0)
   })
 })
+
+describe('Régression', () => {
+  it('modifie un seul champ d’une fiche existante sans exiger de ressaisir le nom', async () => {
+    const c = await saveClient({ nom: 'Partiel', tel: '0696999999' })
+    await saveClient({ id: c.id, usage: 'Trajets quotidiens' })
+    expect((await db.clients.get(c.id))!.usage).toBe('Trajets quotidiens')
+    await expect(saveClient({ id: c.id, nom: '', tel: '' })).rejects.toThrow()
+  })
+})

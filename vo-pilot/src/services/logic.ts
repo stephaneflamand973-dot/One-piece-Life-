@@ -311,7 +311,7 @@ export function computePriorities(ctx: Ctx): Priority[] {
     const st = prepState(sale, interventions, s)
     const c = byId.get(sale.clientId)
     if (st.etat === 'bloque') {
-      const quoi = [...st.bloquees.map((b) => b.label), ...st.interventionsBloquees.map((i) => `intervention ${i.type}`)].join(', ')
+      const quoi = [...st.bloquees.map((b) => b.label), ...st.interventionsBloquees.filter((i) => !st.bloquees.some((b) => b.id === i.stepId)).map((i) => `intervention ${i.type}`)].join(', ')
       out.push({
         key: `blocage:${sale.id}`, kind: 'blocage', saleId: sale.id, clientId: sale.clientId, echeance: sale.livraisonPrevue,
         score: 100 + (st.joursAvantLivraison !== null ? Math.max(0, 10 - st.joursAvantLivraison) : 0), niveau: 'critique',

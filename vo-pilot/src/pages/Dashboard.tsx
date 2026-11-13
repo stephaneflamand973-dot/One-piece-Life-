@@ -95,7 +95,7 @@ export default function Dashboard() {
   const items: Item[] = [
     ...fixes.map((t): Item => ({ min: minutesOf(toLocalInput(t.due).slice(11)), kind: 'fixe', label: `${TASK_LABEL[t.type]} — ${t.titre}`, sub: t.clientId ? d.byClient.get(t.clientId)?.nom : undefined, link: t.saleId ? `/ventes/${t.saleId}` : t.clientId ? `/clients/${t.clientId}` : undefined, type: t.type })),
     ...libres.map((l): Item => ({ min: l.debut, kind: 'libre', label: `Créneau libre jusqu’à ${hhmm(l.fin)}`, sub: 'Clients spontanés, appels entrants, imprévus' })),
-    { min: minutesOf(s.profil.pauseDebut), kind: 'pause', label: `Pause jusqu’à ${s.profil.pauseFin}` },
+    { min: minutesOf(s.profil.pauseDebut), kind: 'pause' as const, label: `Pause jusqu’à ${s.profil.pauseFin}` },
   ].sort((a, b) => a.min - b.min)
 
   const vide = !clients.length && !d.vehicles.length && !sales.length
@@ -104,7 +104,7 @@ export default function Dashboard() {
   return (
     <div>
       <div className="mb-4">
-        <p className="text-sm font-medium capitalize text-muted">{fmtDayLong(jour)}</p>
+        <p className="text-sm font-medium cap text-muted">{fmtDayLong(jour)}</p>
         <h1 className="text-2xl font-extrabold tracking-tight">{s.profil.nom ? `Bonjour ${s.profil.nom.split(' ')[0]}` : 'Bonjour'}</h1>
       </div>
 

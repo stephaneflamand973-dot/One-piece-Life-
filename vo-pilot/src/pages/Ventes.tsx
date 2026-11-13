@@ -30,7 +30,7 @@ export default function Ventes() {
       <Card className="mb-4 p-4">
         <div className="flex items-center justify-between gap-2">
           <button type="button" aria-label="Mois précédent" className="h-9 w-9 rounded-full hover:bg-soft" onClick={() => setMois(addMonths(mois, -1))}>‹</button>
-          <div className="text-center"><p className="text-sm font-semibold capitalize">{fmtMonth(mois)}</p><p className="text-2xl font-extrabold tabular-nums">{nMois}<span className="text-base font-semibold text-muted"> / {s.profil.objectifMensuel} ventes</span></p></div>
+          <div className="text-center"><p className="text-sm font-semibold cap">{fmtMonth(mois)}</p><p className="text-2xl font-extrabold tabular-nums">{nMois}<span className="text-base font-semibold text-muted"> / {s.profil.objectifMensuel} ventes</span></p></div>
           <button type="button" aria-label="Mois suivant" className="h-9 w-9 rounded-full hover:bg-soft" onClick={() => setMois(addMonths(mois, 1))}>›</button>
         </div>
         <div className="mt-2"><Progress value={nMois} max={s.profil.objectifMensuel} tone={nMois >= s.profil.objectifMensuel ? 'ok' : 'accent'} /></div>

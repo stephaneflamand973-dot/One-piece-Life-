@@ -38,7 +38,15 @@ export function Chip({ active, children, onClick, count, tone }: { active?: bool
   )
 }
 
-export function Field({ label, hint, children, className }: { label: string; hint?: string; children: ReactNode; className?: string }) {
+/** `group` : pour un ensemble de boutons/pastilles (un <label> activerait le premier bouton au clic sur le libellé). */
+export function Field({ label, hint, children, className, group }: { label: string; hint?: string; children: ReactNode; className?: string; group?: boolean }) {
+  if (group) return (
+    <div role="group" aria-label={label} className={cx('block', className)}>
+      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted">{label}</span>
+      {children}
+      {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
+    </div>
+  )
   return (
     <label className={cx('block', className)}>
       <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted">{label}</span>

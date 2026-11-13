@@ -237,9 +237,9 @@ function InteractionForm({ onClose, clientId, type, taskId }: { onClose: () => v
   return (
     <Sheet open onClose={onClose} title="Enregistrer un échange" footer={<><Button variant="ghost" onClick={onClose}>Annuler</Button><Button onClick={save}>Enregistrer</Button></>}>
       <div className="space-y-4">
-        <Field label="Client"><ClientPicker value={cid} onChange={setCid} /></Field>
+        <Field group label="Client"><ClientPicker value={cid} onChange={setCid} /></Field>
         <div className="no-scrollbar -mx-1 flex gap-1.5 overflow-x-auto px-1">{I_TYPES.map((x) => <Chip key={x.id} active={t === x.id} onClick={() => { setT(x.id); setRes(undefined) }}>{x.label}</Chip>)}</div>
-        {RESULTATS[t] && <Field label="Résultat"><div className="flex flex-wrap gap-1.5">{RESULTATS[t]!.map((r) => <Chip key={r} active={res === r} onClick={() => setRes(r)}>{r}</Chip>)}</div></Field>}
+        {RESULTATS[t] && <Field group label="Résultat"><div className="flex flex-wrap gap-1.5">{RESULTATS[t]!.map((r) => <Chip key={r} active={res === r} onClick={() => setRes(r)}>{r}</Chip>)}</div></Field>}
         {t === 'essai' && <Field label="Hésitations exprimées" hint="Notez les vraies réserves, pas seulement les points positifs."><input className="inp" value={hesit} onChange={(e) => setHesit(e.target.value)} placeholder="ex. coffre, mensualité, avis du conjoint…" /></Field>}
         <Field label="Commentaire (facultatif)"><textarea className="inp" value={com} onChange={(e) => setCom(e.target.value)} /></Field>
         {prop ? (
@@ -281,12 +281,12 @@ function TaskForm({ onClose, clientId, saleId, taskId, type }: { onClose: () => 
       <div className="space-y-4">
         <div className="no-scrollbar -mx-1 flex gap-1.5 overflow-x-auto px-1">{T_TYPES.map((x) => <Chip key={x.id} active={t.type === x.id} onClick={() => set({ type: x.id })}>{x.label}</Chip>)}</div>
         <Field label="Intitulé"><input className="inp" placeholder={defTitre[t.type ?? 'tache'] || 'À faire…'} value={t.titre ?? ''} onChange={(e) => set({ titre: e.target.value })} /></Field>
-        {!saleId && <Field label={t.type === 'tache' ? 'Client (facultatif)' : 'Client'}><ClientPicker value={t.clientId} onChange={(id) => set({ clientId: id })} /></Field>}
-        <Field label="Échéance">
+        {!saleId && <Field group label={t.type === 'tache' ? 'Client (facultatif)' : 'Client'}><ClientPicker value={t.clientId} onChange={(id) => set({ clientId: id })} /></Field>}
+        <Field group label="Échéance">
           <input className="inp" type="datetime-local" value={toLocalInput(t.due)} onChange={(e) => set({ due: fromLocalInput(e.target.value) })} />
           <div className="mt-1.5 flex flex-wrap gap-1.5">{quick.map((q) => <Chip key={q.l} onClick={() => set({ due: atTime(addDays(today(), q.j), (toLocalInput(t.due).slice(11) || '10:00')) })}>{q.l}</Chip>)}</div>
         </Field>
-        <Field label="Priorité"><div className="flex gap-1.5">{[1, 2, 3].map((p) => <Chip key={p} active={t.priorite === p} onClick={() => set({ priorite: p as 1 | 2 | 3 })}>{['Basse', 'Normale', 'Haute'][p - 1]}</Chip>)}</div></Field>
+        <Field group label="Priorité"><div className="flex gap-1.5">{[1, 2, 3].map((p) => <Chip key={p} active={t.priorite === p} onClick={() => set({ priorite: p as 1 | 2 | 3 })}>{['Basse', 'Normale', 'Haute'][p - 1]}</Chip>)}</div></Field>
       </div>
     </Sheet>
   )
@@ -320,8 +320,8 @@ function SaleForm({ onClose, clientId, vehicleId, quoteId }: { onClose: () => vo
   return (
     <Sheet open onClose={onClose} title="Nouvelle vente" footer={<><Button variant="ghost" onClick={onClose}>Annuler</Button><Button onClick={save}>Créer le dossier</Button></>}>
       <div className="space-y-4">
-        <Field label="Client"><ClientPicker value={f.clientId} onChange={(id) => set({ clientId: id })} /></Field>
-        <Field label="Véhicule du catalogue"><VehiclePicker value={f.vehicleId} onChange={(v) => set(v ? { vehicleId: v.id, vehiculeLabel: `${vehicleLabel(v)}${v.annee ? ` (${v.annee})` : ''}`, prixVente: v.prix ?? f.prixVente } : { vehicleId: undefined })} /></Field>
+        <Field group label="Client"><ClientPicker value={f.clientId} onChange={(id) => set({ clientId: id })} /></Field>
+        <Field group label="Véhicule du catalogue"><VehiclePicker value={f.vehicleId} onChange={(v) => set(v ? { vehicleId: v.id, vehiculeLabel: `${vehicleLabel(v)}${v.annee ? ` (${v.annee})` : ''}`, prixVente: v.prix ?? f.prixVente } : { vehicleId: undefined })} /></Field>
         {!f.vehicleId && <Field label="Ou désignation libre" hint="Si le véhicule n’est pas dans votre catalogue."><input className="inp" value={f.vehiculeLabel} onChange={(e) => set({ vehiculeLabel: e.target.value })} placeholder="ex. Renault Clio V 2022" /></Field>}
         <div className="grid grid-cols-3 gap-3">
           <Field label="Prix de vente (€)"><N value={f.prixVente} onChange={(v) => set({ prixVente: v })} /></Field>
@@ -403,7 +403,7 @@ function NoteForm({ onClose, noteId, linkType, linkId }: { onClose: () => void }
     <Sheet open onClose={onClose} title={ex ? 'Modifier la note' : 'Nouvelle note'} footer={<><Button variant="ghost" onClick={onClose}>Annuler</Button><Button onClick={save}>Enregistrer</Button></>}>
       <div className="space-y-3">
         <textarea className="inp min-h-32" autoFocus value={texte} onChange={(e) => setTexte(e.target.value)} placeholder="Votre note…" aria-label="Texte de la note" />
-        <Field label="Catégorie"><div className="flex flex-wrap gap-1.5">{['Client', 'Véhicule', 'Vente', 'Livraison', 'Atelier', 'Personnel'].map((c) => <Chip key={c} active={cat === c} onClick={() => setCat(cat === c ? '' : c)}>{c}</Chip>)}</div></Field>
+        <Field group label="Catégorie"><div className="flex flex-wrap gap-1.5">{['Client', 'Véhicule', 'Vente', 'Livraison', 'Atelier', 'Personnel'].map((c) => <Chip key={c} active={cat === c} onClick={() => setCat(cat === c ? '' : c)}>{c}</Chip>)}</div></Field>
         <p className="text-xs text-muted">N’enregistrez pas de copie de pièce d’identité ni de donnée bancaire : un statut « reçu / vérifié » suffit.</p>
       </div>
     </Sheet>

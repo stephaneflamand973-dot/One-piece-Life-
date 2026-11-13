@@ -18,6 +18,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Construire VO PILOT (servi sous /vo-pilot/)
+        run: |
+          cd vo-pilot
+          npm ci
+          npm test
+          npm run build
+          cd ..
+          mv vo-pilot/dist _vo-pilot
+          rm -rf vo-pilot
+          mv _vo-pilot vo-pilot
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

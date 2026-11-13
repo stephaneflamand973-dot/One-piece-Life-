@@ -24,7 +24,7 @@ export default function Livraisons() {
     <div>
       <PageHead title="Préparations & livraisons" sub={`${rows.length} dossier${rows.length > 1 ? 's' : ''} en cours`} />
       <div className="mb-4 grid grid-cols-5 gap-2">
-        {ORDER.map((e) => { const n = rows.filter((r) => r.st.etat === e).length; return <div key={e} className="rounded-xl border border-line bg-card p-2 text-center"><p className="text-xl font-extrabold tabular-nums">{n}</p><Badge tone={n ? PREP_TONE[e] : 'neutral'} className="!px-1.5 !text-[10px]">{PREP_LABEL[e]}</Badge></div> })}
+        {ORDER.map((e) => { const n = rows.filter((r) => r.st.etat === e).length; return <div key={e} className="rounded-xl border border-line bg-card p-2 text-center"><p className="text-xl font-extrabold tabular-nums">{n}</p><Badge tone={n ? PREP_TONE[e] : 'neutral'} className="!px-1.5 !text-[10px]">{e === 'pret' ? 'Prêts' : e === 'bloque' ? 'Bloqués' : PREP_LABEL[e]}</Badge></div> })}
       </div>
       <div className="no-scrollbar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4">
         <Chip active={tab === 'tableau'} onClick={() => setTab('tableau')}>Tableau</Chip>
@@ -48,7 +48,7 @@ export default function Livraisons() {
 
       {tab === 'calendrier' && <>
         {days.map((day) => (
-          <Section key={day} title={<span className="capitalize">{fmtDayLong(day)}</span>}>
+          <Section key={day} title={<span className="cap">{fmtDayLong(day)}</span>}>
             <Card className="divide-y divide-line">
               {cal.filter((r) => dayKey(r.sale.livraisonPrevue!) === day).map(({ sale, st }) => (
                 <Link key={sale.id} to={`/ventes/${sale.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-soft">

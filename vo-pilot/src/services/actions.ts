@@ -26,12 +26,13 @@ export async function findDuplicateClient(tel?: string, email?: string, exceptId
 }
 
 export async function saveClient(data: Partial<Client>, opts: { lead?: boolean; demo?: boolean } = {}): Promise<Client> {
-  if (!data.nom?.trim() && !data.prenom?.trim() && !data.tel?.trim()) throw new Error('Indiquez au moins un nom ou un moyen de contact.')
   const now = nowIso()
+  const check = (c: Partial<Client>) => { if (!c.nom?.trim() && !c.prenom?.trim() && !c.tel?.trim() && !c.email?.trim()) throw new Error('Indiquez au moins un nom ou un moyen de contact.') }
   if (data.id) {
     const prev = await db.clients.get(data.id)
     if (!prev) throw new Error('Fiche introuvable.')
     const next = strip({ ...prev, ...data, updatedAt: now }) as Client
+    check(next)
     next.recherche = strip({ ...(data.recherche ?? prev.recherche) })
     await db.clients.put(next)
     if (prev.statut !== next.statut) await logStatus(next.id, prev.statut, next.statut)
@@ -39,6 +40,7 @@ export async function saveClient(data: Partial<Client>, opts: { lead?: boolean; 
     emitChange()
     return next
   }
+  check(data)
   const c = strip({
     ...emptyClient(), ...data, id: uid(), ref: await nextRef('C'), nom: (data.nom ?? '').trim(),
     premierContact: data.premierContact ?? today(), createdAt: now, updatedAt: now,
