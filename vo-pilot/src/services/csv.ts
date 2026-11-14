@@ -1,4 +1,4 @@
-import type { Vehicle, VehicleStatus } from '../lib/types'
+import type { Client, Vehicle, VehicleStatus } from '../lib/types'
 import { norm, num } from './logic'
 
 /** Analyse CSV tolérante : séparateur ; , ou tabulation, guillemets, BOM. */
@@ -79,3 +79,30 @@ export function vehiclesFromRows(rows: string[][]): CsvImport {
 export const VEHICLE_HEADERS = ['ref', 'marque', 'modele', 'version', 'categorie', 'annee', 'km', 'carburant', 'boite', 'puissance', 'cv fiscaux', 'couleur', 'prix', 'garantie', 'site', 'equipements', 'statut', 'dernier ct', 'infos']
 export const vehiclesToCsv = (vs: Vehicle[]) =>
   toCsv(VEHICLE_HEADERS, vs.map((v) => [v.ref, v.marque, v.modele, v.version, v.categorie, v.annee, v.km, v.carburant, v.boite, v.puissance, v.cvFiscaux, v.couleur, v.prix, v.garantie, v.site, v.equipements, v.statut, v.dernierCT, v.infos]))
+
+// ---------- Prospects ----------
+const CCOLS: Record<string, string> = {
+  nom: 'nom', 'nom de famille': 'nom', prenom: 'prenom', telephone: 'tel', tel: 'tel', mobile: 'tel', portable: 'tel', 'numero': 'tel', email: 'email', mail: 'email', 'e-mail': 'email', courriel: 'email',
+  source: 'source', origine: 'source', canal: 'source', vehicule: 'texte', 'vehicule recherche': 'texte', recherche: 'texte', demande: 'texte', modele: 'modele', marque: 'marque', budget: 'budget', 'budget max': 'budget',
+  commentaire: 'commentaires', commentaires: 'commentaires', note: 'commentaires', message: 'commentaires', site: 'site',
+}
+export interface ClientImport { clients: Partial<Client>[]; erreurs: string[]; colonnesIgnorees: string[] }
+export function clientsFromRows(rows: string[][]): ClientImport {
+  if (rows.length < 2) return { clients: [], erreurs: ['Fichier vide ou sans ligne de données.'], colonnesIgnorees: [] }
+  const header = rows[0].map((h) => norm(h).replace(/[_.]/g, ' '))
+  const map = header.map((h) => CCOLS[h])
+  const colonnesIgnorees = rows[0].filter((_, i) => !map[i] && header[i])
+  if (!map.includes('nom') && !map.includes('tel')) return { clients: [], erreurs: ['Colonnes « nom » ou « telephone » introuvables dans l’en-tête.'], colonnesIgnorees }
+  const clients: Partial<Client>[] = []
+  const erreurs: string[] = []
+  rows.slice(1).forEach((r, idx) => {
+    const v: Record<string, string> = {}
+    map.forEach((k, i) => { const raw = (r[i] ?? '').trim(); if (k && raw) v[k] = raw })
+    if (!v.nom && !v.prenom && !v.tel && !v.email) { erreurs.push(`Ligne ${idx + 2} ignorée : ni nom ni moyen de contact.`); return }
+    const budget = num((v.budget ?? '').replace(/[^\d,.-]/g, ''))
+    clients.push({ nom: v.nom ?? '', prenom: v.prenom, tel: v.tel, email: v.email, source: v.source, site: v.site, commentaires: v.commentaires,
+      recherche: { ...(v.texte ? { texte: v.texte } : {}), ...(v.modele ? { modele: v.modele } : {}), ...(v.marque ? { marque: v.marque } : {}), ...(budget > 0 ? { budgetMax: budget } : {}) } })
+  })
+  return { clients, erreurs, colonnesIgnorees }
+}
+export const CLIENT_HEADERS = ['nom', 'prenom', 'telephone', 'email', 'source', 'vehicule recherche', 'budget', 'commentaire']

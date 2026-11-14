@@ -119,7 +119,7 @@ await step('Parcours 5 — ajout d’un véhicule → prospect compatible suggé
 
 await step('Message WhatsApp préparé, lien wa.me correct, envoi NON marqué sans confirmation', async () => {
   await page.getByRole('button', { name: 'Préparer un message' }).click()
-  await expectText('Messages WhatsApp')
+  await page.getByRole('heading', { name: 'Messages' }).waitFor()
   const txt = await page.getByLabel('Texte du message').inputValue()
   if (!txt.includes('Camille') || !txt.includes('Clio')) throw new Error('variables non remplacées : ' + txt)
   const href = await page.getByRole('link', { name: 'Ouvrir WhatsApp' }).getAttribute('href')
@@ -345,6 +345,41 @@ await step('Code d’accès : demandé au rechargement, refusé si faux, puis re
   await page.getByRole('dialog').getByRole('button', { name: 'Retirer le code' }).click()
   await expectText('Code d’accès retiré')
   await page.reload(); await page.getByRole('heading', { name: 'Paramètres' }).waitFor()
+})
+
+await step('Import de prospects (CSV) : doublon ignoré, leads créés', async () => {
+  await go('#/clients?vue=tous')
+  const csv = 'nom;prenom;telephone;email;vehicule recherche;budget\nMartin;Zoé;0696 77 88 99;zoe@example.org;Captur;18000\nDurand;Camille;0696123456;;;\n'
+  await page.locator('input[type=file]').setInputFiles({ name: 'leads.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) })
+  await expectText('Import de prospects — vérification')
+  await expectText('dont 1 déjà présente')
+  await page.getByRole('switch', { name: 'Leads à traiter' }).click()
+  await page.getByRole('button', { name: /Importer 1 prospect/ }).click()
+  await expectText('1 prospect(s) importé(s), 1 doublon(s) ignoré(s)')
+  await go('#/clients?vue=leads'); await expectText('Zoé Martin')
+})
+
+await step('Fiche de rendez-vous imprimable et e-mail préparé', async () => {
+  await page.getByText('Zoé Martin').first().click()
+  await page.getByRole('button', { name: 'Planifier' }).first().click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Rendez-vous', exact: true }).click()
+  await save()
+  await page.getByRole('button', { name: /Préparer le rendez-vous/ }).click()
+  await expectText('Fiche de rendez-vous')
+  await expectText('À demander pendant le rendez-vous')
+  await expectText('Renault Captur')
+  await shot('22-fiche-rdv')
+  await page.getByRole('button', { name: 'Retour' }).click()
+  await page.getByRole('button', { name: 'WhatsApp' }).click()
+  const href = await page.getByRole('link', { name: /messagerie/ }).getAttribute('href')
+  if (!href.startsWith('mailto:zoe@example.org?subject=')) throw new Error('lien e-mail inattendu ' + href)
+})
+
+await step('Accueil : rythme nécessaire et bilan du jour', async () => {
+  await go('#/')
+  await expectText('Rythme nécessaire')
+  await expectText('nouveaux prospects')
+  await shot('23-accueil-rythme')
 })
 
 await step('Démonstration fictive identifiée et supprimable', async () => {

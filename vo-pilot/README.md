@@ -44,7 +44,7 @@ src/services   logique métier sans interface :
 src/ui         composants réutilisables, fournisseur de données, dialogues de saisie rapide
 src/pages      un fichier par écran
 tests          Vitest (logique + parcours sur IndexedDB en mémoire)
-e2e            Playwright (28 parcours, format iPhone)
+e2e            Playwright (31 parcours, format iPhone)
 ```
 
 ## Ce qui n’existe pas (volontairement ou pas encore)

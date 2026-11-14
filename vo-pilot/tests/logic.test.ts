@@ -232,3 +232,34 @@ describe('code d’accès', () => {
     await expect(makeLock('abcd')).rejects.toThrow()
   })
 })
+
+import { clientsFromRows } from '../src/services/csv'
+import { dayRecap, expiredClients, pace } from '../src/services/logic'
+
+describe('import de prospects', () => {
+  it('reconnaît les colonnes usuelles et ignore les lignes sans contact', () => {
+    const r = clientsFromRows(parseCsv('Nom;Prénom;Téléphone;E-mail;Origine;Véhicule recherché;Budget max;Inconnue\nDurand;Léa;0696 11 22 33;;UpYourLeads;Clio automatique;15 000 €;x\n;;;;;Captur;;\n'))
+    expect(r.clients).toEqual([{ nom: 'Durand', prenom: 'Léa', tel: '0696 11 22 33', email: undefined, source: 'UpYourLeads', site: undefined, commentaires: undefined, recherche: { texte: 'Clio automatique', budgetMax: 15000 } }])
+    expect(r.erreurs).toHaveLength(1)
+    expect(r.colonnesIgnorees).toEqual(['Inconnue'])
+    expect(clientsFromRows([['a', 'b'], ['1', '2']]).erreurs[0]).toContain('introuvables')
+  })
+})
+
+describe('rythme, bilan du jour, conservation', () => {
+  it('calcule le rythme nécessaire jusqu’à la fin du mois', () => {
+    expect(pace(4, 10, '2026-11-21')).toEqual({ restantes: 6, joursRestants: 10, tousLesJours: 1.7 })
+    expect(pace(10, 10, '2026-11-21').tousLesJours).toBeNull()
+    expect(pace(0, 10, '2028-02-29').joursRestants).toBe(1)
+  })
+  const vieux = new Date(Date.now() - 40 * 30 * 86400e3).toISOString()
+  const ctx = { tasks: [], quotes: [], interventions: [], vehicles: [], settings: s, interactions: [{ id: 'i', clientId: 'a', type: 'appel_sortant' as const, date: new Date().toISOString() }, { id: 'j', clientId: 'a', type: 'statut' as const, date: new Date().toISOString() }],
+    clients: [client({ id: 'a' }), client({ id: 'b', statut: 'perdu', updatedAt: vieux, createdAt: vieux }), client({ id: 'c', statut: 'perdu', updatedAt: vieux, createdAt: vieux }), client({ id: 'd', statut: 'contact', updatedAt: vieux, createdAt: vieux })],
+    sales: [sale({ clientId: 'c' })] }
+  it('compte les échanges et prospects du jour, hors changements de statut', () => {
+    expect(dayRecap(ctx)).toEqual({ echanges: 1, faites: 0, prospects: 1 })
+  })
+  it('ne propose à la suppression que les fiches closes, anciennes et sans vente', () => {
+    expect(expiredClients(ctx).map((c) => c.id)).toEqual(['b'])
+  })
+})

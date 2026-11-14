@@ -49,6 +49,7 @@ export const defaultSettings = (): Settings => ({
     alerteLivraisonJours: 3,
     ctMaxMois: 6,
     relanceDefautJours: 3,
+    conservationMois: 36,
   },
   tarifs: { fraisDossier: 200, cgFixe: 13.76, cgParCv: 53, remiseMax: 500 },
   commission: {

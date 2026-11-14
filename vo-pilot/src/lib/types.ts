@@ -348,6 +348,7 @@ export interface Settings {
     alerteLivraisonJours: number
     ctMaxMois: number
     relanceDefautJours: number
+    conservationMois: number
   }
   tarifs: {
     fraisDossier: number
