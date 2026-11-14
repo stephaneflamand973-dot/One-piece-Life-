@@ -26,6 +26,7 @@ export default function Clients() {
   const [q, setQ] = useState('')
   const [sel, setSel] = useState<Set<string>>(new Set())
   const [multi, setMulti] = useState(false)
+  const [mode, setMode] = useState<'liste' | 'pipeline'>('liste')
   const ctx = useMemo(() => ({ ...d, now }), [d, now])
   const counts = useMemo(() => Object.fromEntries(VIEWS.map((v) => [v.id, clientView(v.id, ctx).length])), [ctx])
   const list = useMemo(() => {
@@ -49,7 +50,7 @@ export default function Clients() {
 
   return (
     <div>
-      <PageHead title="Clients & prospects" sub={`${d.clients.length} fiche${d.clients.length > 1 ? 's' : ''}`} right={<><Button variant="outline" size="sm" onClick={() => { setMulti(!multi); setSel(new Set()) }}>{multi ? 'Terminer' : 'Sélection'}</Button><Button onClick={() => open('prospect')}><Plus size={18} /><span className="hidden sm:inline">Prospect</span></Button></>} />
+      <PageHead title="Clients & prospects" sub={`${d.clients.length} fiche${d.clients.length > 1 ? 's' : ''}`} right={<><Button variant="outline" size="sm" onClick={() => setMode(mode === 'liste' ? 'pipeline' : 'liste')}>{mode === 'liste' ? 'Pipeline' : 'Liste'}</Button>{mode === 'liste' && <Button variant="outline" size="sm" onClick={() => { setMulti(!multi); setSel(new Set()) }}>{multi ? 'Terminer' : 'Sélection'}</Button>}<Button onClick={() => open('prospect')}><Plus size={18} /><span className="hidden sm:inline">Prospect</span></Button></>} />
       <input className="inp mb-3" placeholder="Filtrer par nom, téléphone, véhicule recherché…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Filtrer les clients" />
       <div className="no-scrollbar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4">
         {VIEWS.map((v) => <Chip key={v.id} active={view === v.id} count={counts[v.id]} tone={v.tone} onClick={() => setSp({ vue: v.id }, { replace: true })}>{v.label}</Chip>)}
@@ -60,7 +61,31 @@ export default function Clients() {
           <Button size="sm" className="ml-auto" onClick={bulkRelance}>Relance demain 10 h</Button>
         </div>
       )}
-      <div className="space-y-2">
+      {mode === 'pipeline' && (
+        <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-3 md:mx-0 md:px-0">
+          {d.settings.pipeline.map((st) => {
+            const col = list.filter((x) => x.c.statut === st.id)
+            if (!col.length) return null
+            return (
+              <div key={st.id} className="w-64 shrink-0 rounded-2xl bg-soft p-2">
+                <p className="flex items-center justify-between px-2 py-1.5 text-xs font-bold uppercase tracking-wide text-muted"><span className="truncate">{st.label}</span><span className="rounded-full bg-card px-2 py-0.5">{col.length}</span></p>
+                <div className="space-y-2">
+                  {col.map(({ c, next }) => (
+                    <Link key={c.id} to={`/clients/${c.id}`} className="block rounded-xl border border-line bg-card p-2.5 hover:border-accent">
+                      <p className="truncate text-sm font-bold">{clientName(c)}</p>
+                      <p className="truncate text-xs text-muted">{c.recherche?.modele ?? c.recherche?.texte ?? c.recherche?.categorie ?? 'Besoin à qualifier'}{c.recherche?.budgetMax ? ` · ≤ ${c.recherche.budgetMax} €` : ''}</p>
+                      <p className={cx('mt-1 truncate text-xs', next ? (isOverdue(next, now) ? 'font-semibold text-warn' : 'text-muted') : st.kind === 'actif' ? 'font-semibold text-warn' : 'text-muted')}>{next ? `${next.titre} · ${next.due ? fmtDateTime(next.due) : 'sans date'}` : st.kind === 'actif' ? 'Aucune prochaine action' : '—'}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+      {mode === 'pipeline' && list.length > 0 && <p className="px-1 text-xs text-muted">Seules les étapes contenant au moins un dossier sont affichées. Le filtre choisi ci-dessus s’applique.</p>}
+      {mode === 'pipeline' && !list.length && <p className="px-1 text-sm text-muted">Aucun dossier dans cette vue.</p>}
+      <div className={cx('space-y-2', mode === 'pipeline' && 'hidden')}>
         {list.map(({ c, next }) => {
           const u = leadUrgency(c, d.settings, now)
           const late = next && isOverdue(next, now)

@@ -195,3 +195,40 @@ describe('WhatsApp', () => {
   })
 })
 void today
+
+import { strToU8, zipSync } from 'fflate'
+import { vehiclesFromRows } from '../src/services/csv'
+import { xlsxToRows } from '../src/services/xlsx'
+import { checkLock, makeLock } from '../src/services/lock'
+
+describe('import Excel (.xlsx)', () => {
+  const sheet = '<worksheet><sheetData>'
+    + '<row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c><c r="C1" t="s"><v>2</v></c><c r="D1" t="inlineStr"><is><t>Prix</t></is></c><c r="E1" t="s"><v>5</v></c></row>'
+    + '<row r="2"><c r="A2" t="s"><v>3</v></c><c r="B2" t="s"><v>4</v></c><c r="D2"><v>14490</v></c><c r="E2" t="s"><v>6</v></c></row>'
+    + '<row r="3"/></sheetData></worksheet>'
+  const shared = '<sst><si><t>Marque</t></si><si><t>Modèle</t></si><si><t>Version</t></si><si><t>Renault</t></si><si><r><t>Cl</t></r><r><t>io</t></r></si><si><t>Options</t></si><si><t>GPS &amp; caméra</t></si></sst>'
+  const file = zipSync({ 'xl/worksheets/sheet1.xml': strToU8(sheet), 'xl/sharedStrings.xml': strToU8(shared) })
+  it('lit chaînes partagées, texte enrichi, cellules vides et nombres', () => {
+    const rows = xlsxToRows(file)
+    expect(rows).toEqual([['Marque', 'Modèle', 'Version', 'Prix', 'Options'], ['Renault', 'Clio', '', '14490', 'GPS & caméra']])
+    expect(vehiclesFromRows(rows).vehicles[0]).toMatchObject({ marque: 'Renault', modele: 'Clio', prix: 14490, equipements: 'GPS & caméra' })
+  })
+  it('refuse un fichier qui n’est pas un classeur', () => {
+    expect(() => xlsxToRows(strToU8('pas un zip'))).toThrow(/illisible/)
+    expect(() => xlsxToRows(zipSync({ 'autre.txt': strToU8('x') }))).toThrow(/Aucune feuille/)
+  })
+})
+
+describe('code d’accès', () => {
+  it('ne conserve qu’une empreinte et vérifie le bon code', async () => {
+    const v = await makeLock('4821')
+    expect(JSON.stringify(v)).not.toContain('4821')
+    expect(await checkLock('4821', v)).toBe(true)
+    expect(await checkLock('4822', v)).toBe(false)
+    expect((await makeLock('4821')).hash).not.toBe(v.hash) // sel différent à chaque fois
+  })
+  it('refuse un code trop court ou non numérique', async () => {
+    await expect(makeLock('12')).rejects.toThrow()
+    await expect(makeLock('abcd')).rejects.toThrow()
+  })
+})

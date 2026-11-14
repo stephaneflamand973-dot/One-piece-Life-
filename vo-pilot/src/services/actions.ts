@@ -403,3 +403,19 @@ export async function toggleFavori(table: 'clients' | 'vehicles' | 'sales' | 'ta
   const row = await db.table(table).get(id)
   if (row) await db.table(table).update(id, { favori: !row.favori })
 }
+
+/** Recalcule l'estimation de commission des ventes indiquées avec le barème actuel (montants confirmés et versés conservés). */
+export async function recalcCommissions(ids: string[]): Promise<number> {
+  const s = await getSettings()
+  let n = 0
+  for (const id of ids) {
+    const sale = await db.sales.get(id)
+    if (!sale) continue
+    const est = estimateCommission(sale, s)
+    if (est.estime === sale.commission.estime) continue
+    await db.sales.update(id, { commission: { ...sale.commission, estime: est.estime, detail: est.detail }, updatedAt: nowIso() })
+    n++
+  }
+  emitChange()
+  return n
+}

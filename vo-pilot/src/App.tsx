@@ -6,6 +6,7 @@ import { runAutomations } from './services/automations'
 import { search } from './services/search'
 import { DataProvider, useData } from './ui/data'
 import { DialogProvider, useDialog } from './ui/forms'
+import { LockGate } from './ui/LockGate'
 import { Badge, Button, cx, Sheet, UIProvider } from './ui/kit'
 import Dashboard from './pages/Dashboard'
 import Clients from './pages/Clients'
@@ -29,6 +30,7 @@ const Notes = lazy(() => import('./pages/Notes'))
 const AideVente = lazy(() => import('./pages/AideVente'))
 const Fidelisation = lazy(() => import('./pages/Fidelisation'))
 const Parametres = lazy(() => import('./pages/Parametres'))
+const Comparer = lazy(() => import('./pages/Comparer'))
 
 class Boundary extends Component<{ children: ReactNode }, { err?: Error }> {
   state: { err?: Error } = {}
@@ -151,7 +153,7 @@ function Shell() {
     return () => { off(); clearInterval(i); clearTimeout(t) }
   }, [])
 
-  const isPrint = loc.pathname.startsWith('/devis/') && loc.search.includes('imprimer')
+  const isPrint = (loc.pathname.startsWith('/devis/') || loc.pathname === '/comparer') && loc.search.includes('imprimer')
   const tools = (
     <div className="flex items-center gap-1">
       {!online && <Badge tone="warn"><WifiOff size={12} /> Hors ligne</Badge>}
@@ -214,6 +216,7 @@ function Shell() {
               <Route path="/aide-vente" element={<AideVente />} />
               <Route path="/fidelisation" element={<Fidelisation />} />
               <Route path="/parametres" element={<Parametres />} />
+              <Route path="/comparer" element={<Comparer />} />
               <Route path="*" element={<p className="py-10 text-center text-muted">Page introuvable. <Link className="text-accent" to="/">Retour à l’accueil</Link></p>} />
             </Routes>
           </Suspense>
@@ -243,9 +246,11 @@ export default function App() {
     <Boundary>
       <UIProvider>
         <DataProvider fallback={<div className="grid h-full place-items-center text-sm text-muted">Ouverture de VO PILOT…</div>}>
-          <DialogProvider>
-            <Shell />
-          </DialogProvider>
+          <LockGate>
+            <DialogProvider>
+              <Shell />
+            </DialogProvider>
+          </LockGate>
         </DataProvider>
       </UIProvider>
     </Boundary>

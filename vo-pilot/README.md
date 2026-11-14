@@ -44,10 +44,10 @@ src/services   logique métier sans interface :
 src/ui         composants réutilisables, fournisseur de données, dialogues de saisie rapide
 src/pages      un fichier par écran
 tests          Vitest (logique + parcours sur IndexedDB en mémoire)
-e2e            Playwright (24 parcours, format iPhone)
+e2e            Playwright (28 parcours, format iPhone)
 ```
 
 ## Ce qui n’existe pas (volontairement ou pas encore)
 
 Aucune connexion à UpYourLeads, au stock Renault, à WhatsApp Business ou à Outlook ; pas de cloud ; pas d’IA externe ;
-pas de notification en arrière-plan ; pas de lecture directe des fichiers Excel (passer par CSV). Détail et suite prévue : `SUIVI.md`.
+pas de notification en arrière-plan ; pas de chiffrement de la base locale. Détail et suite prévue : `SUIVI.md`.
