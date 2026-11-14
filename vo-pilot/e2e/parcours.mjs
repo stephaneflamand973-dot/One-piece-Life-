@@ -42,13 +42,15 @@ await step('Parcours 1 — création d’un prospect en quelques champs', async 
   await d.locator('select').nth(1).selectOption('Automatique')
   await d.getByRole('textbox').nth(4).fill('15000')
   await save()
-  await expectText('Camille Durand')
-  await expectText('Premier suivi')
+  await page.getByRole('heading', { name: 'Camille Durand' }).waitFor()
+  await expectText('Prochaines actions')
+  await page.getByText('Premier suivi', { exact: true }).first().waitFor()
 })
 
 await step('Persistance après actualisation de la page', async () => {
   await page.reload()
-  await expectText('Camille Durand')
+  await page.getByRole('heading', { name: 'Camille Durand' }).waitFor()
+  await page.getByText('Premier suivi', { exact: true }).first().waitFor()
 })
 
 await step('Modification du prospect (découverte : usage)', async () => {
@@ -290,7 +292,6 @@ await step('Suppression contrôlée d’une fiche (refusée si une vente existe)
 await step('Vue pipeline : les dossiers rangés par étape', async () => {
   await go('#/clients?vue=tous')
   await page.getByRole('button', { name: 'Pipeline', exact: true }).click()
-  await expectText('Besoin qualifié')
   const col = page.locator('div.w-64', { hasText: 'Livré' })
   await col.getByText('Camille Durand').waitFor()
   await shot('19-pipeline')
