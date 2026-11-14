@@ -1,13 +1,15 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Flame, Plus, Star, Users } from 'lucide-react'
+import { Flame, Plus, Star, Upload, Users } from 'lucide-react'
 import { fmtDateTime, relative } from '../lib/dates'
-import { saveTask, snoozeTask } from '../services/actions'
+import { findDuplicateClient, saveClient, saveTask, snoozeTask } from '../services/actions'
+import { download } from '../services/backup'
+import { CLIENT_HEADERS, clientsFromRows, parseCsv, toCsv, type ClientImport } from '../services/csv'
 import { clientName, clientView, isOverdue, leadDeadline, leadUrgency, nextTask, norm, type ViewId } from '../services/logic'
 import { atTime, addDays, today } from '../lib/dates'
 import { useData, useNow } from '../ui/data'
 import { useDialog } from '../ui/forms'
-import { Badge, Button, Chip, cx, Empty, useRun } from '../ui/kit'
+import { Badge, Button, Chip, cx, Empty, Sheet, Toggle, useRun, useUI } from '../ui/kit'
 import { PageHead, StageBadge } from '../ui/shared'
 
 const VIEWS: { id: ViewId; label: string; tone?: 'bad' | 'warn' }[] = [
@@ -27,6 +29,31 @@ export default function Clients() {
   const [sel, setSel] = useState<Set<string>>(new Set())
   const [multi, setMulti] = useState(false)
   const [mode, setMode] = useState<'liste' | 'pipeline'>('liste')
+  const { toast } = useUI()
+  const file = useRef<HTMLInputElement>(null)
+  const [imp, setImp] = useState<(ClientImport & { doublons: number }) | null>(null)
+  const [impLead, setImpLead] = useState(false)
+  const onFile = async (f?: File) => {
+    if (!f) return
+    try {
+      if (/\.xls$/i.test(f.name)) throw new Error('L’ancien format .xls n’est pas pris en charge : enregistrez en .xlsx ou en CSV.')
+      const rows = /\.xlsx$/i.test(f.name) ? (await import('../services/xlsx')).xlsxToRows(new Uint8Array(await f.arrayBuffer())) : parseCsv(await f.text())
+      const r = clientsFromRows(rows)
+      let doublons = 0
+      for (const c of r.clients) if (await findDuplicateClient(c.tel, c.email)) doublons++
+      setImp({ ...r, doublons })
+    } catch (e) { toast((e as Error).message || 'Fichier illisible.', 'bad') }
+    if (file.current) file.current.value = ''
+  }
+  const doImport = () => run(async () => {
+    let n = 0, ignores = 0
+    for (const c of imp!.clients) {
+      if (await findDuplicateClient(c.tel, c.email)) { ignores++; continue }
+      await saveClient(c, { lead: impLead }); n++
+    }
+    setImp(null)
+    toast(`${n} prospect(s) importé(s)${ignores ? `, ${ignores} doublon(s) ignoré(s)` : ''}`)
+  })
   const ctx = useMemo(() => ({ ...d, now }), [d, now])
   const counts = useMemo(() => Object.fromEntries(VIEWS.map((v) => [v.id, clientView(v.id, ctx).length])), [ctx])
   const list = useMemo(() => {
@@ -50,7 +77,19 @@ export default function Clients() {
 
   return (
     <div>
-      <PageHead title="Clients & prospects" sub={`${d.clients.length} fiche${d.clients.length > 1 ? 's' : ''}`} right={<><Button variant="outline" size="sm" onClick={() => setMode(mode === 'liste' ? 'pipeline' : 'liste')}>{mode === 'liste' ? 'Pipeline' : 'Liste'}</Button>{mode === 'liste' && <Button variant="outline" size="sm" onClick={() => { setMulti(!multi); setSel(new Set()) }}>{multi ? 'Terminer' : 'Sélection'}</Button>}<Button onClick={() => open('prospect')}><Plus size={18} /><span className="hidden sm:inline">Prospect</span></Button></>} />
+      <PageHead title="Clients & prospects" sub={`${d.clients.length} fiche${d.clients.length > 1 ? 's' : ''}`} right={<><Button variant="outline" size="sm" aria-label="Importer des prospects" onClick={() => file.current?.click()}><Upload size={16} /></Button><Button variant="outline" size="sm" onClick={() => setMode(mode === 'liste' ? 'pipeline' : 'liste')}>{mode === 'liste' ? 'Pipeline' : 'Liste'}</Button>{mode === 'liste' && <Button variant="outline" size="sm" onClick={() => { setMulti(!multi); setSel(new Set()) }}>{multi ? 'Terminer' : 'Sélection'}</Button>}<Button onClick={() => open('prospect')}><Plus size={18} /><span className="hidden sm:inline">Prospect</span></Button></>} />
+      <input ref={file} type="file" accept=".csv,text/csv,.txt,.xlsx,.xls" hidden onChange={(e) => onFile(e.target.files?.[0])} />
+      <Sheet open={!!imp} onClose={() => setImp(null)} title="Import de prospects — vérification" footer={<><Button variant="ghost" onClick={() => setImp(null)}>Annuler</Button><Button disabled={!imp || imp.clients.length - imp.doublons < 1} onClick={doImport}>Importer {imp ? imp.clients.length - imp.doublons : 0} prospect(s)</Button></>}>
+        {imp && <div className="space-y-3 text-sm">
+          <p><b>{imp.clients.length}</b> ligne(s) valides, dont <b>{imp.doublons}</b> déjà présente(s) (même téléphone ou e-mail) qui seront ignorée(s).</p>
+          {imp.erreurs.map((e) => <p key={e} className="rounded-xl bg-bad-soft px-3 py-2 text-bad">{e}</p>)}
+          {imp.colonnesIgnorees.length > 0 && <p className="text-muted">Colonnes ignorées : {imp.colonnesIgnorees.join(', ')}</p>}
+          <div className="max-h-48 overflow-y-auto rounded-xl border border-line">{imp.clients.slice(0, 50).map((c, i) => <p key={i} className="border-b border-line px-3 py-1.5 last:border-0">{[c.prenom, c.nom].filter(Boolean).join(' ') || '(sans nom)'} {c.tel ? `· ${c.tel}` : ''} {c.recherche?.texte ? `· ${c.recherche.texte}` : ''}</p>)}</div>
+          <div className="flex items-center justify-between gap-3 rounded-2xl bg-soft p-3"><div><p className="font-semibold">Ce sont des leads à traiter</p><p className="text-xs text-muted">Démarre le délai de prise en charge de {d.settings.delais.leadMinutes} min pour chacun, à partir de maintenant.</p></div><Toggle label="Leads à traiter" checked={impLead} onChange={setImpLead} /></div>
+          <Button size="sm" variant="ghost" onClick={() => download('modele-import-prospects.csv', toCsv(CLIENT_HEADERS, [['Exemple', 'Léa', '0696000000', '', 'UpYourLeads', 'Clio automatique', 15000, '']]), 'text/csv')}>Télécharger un modèle de fichier</Button>
+          <p className="text-xs text-muted">N’importez que des données que vous êtes autorisé à utiliser. Aucune connexion à UpYourLeads n’est effectuée : c’est un fichier que vous fournissez.</p>
+        </div>}
+      </Sheet>
       <input className="inp mb-3" placeholder="Filtrer par nom, téléphone, véhicule recherché…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Filtrer les clients" />
       <div className="no-scrollbar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4">
         {VIEWS.map((v) => <Chip key={v.id} active={view === v.id} count={counts[v.id]} tone={v.tone} onClick={() => setSp({ vue: v.id }, { replace: true })}>{v.label}</Chip>)}

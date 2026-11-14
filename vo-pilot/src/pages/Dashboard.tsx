@@ -5,7 +5,7 @@ import { dayKey, diffDays, fmtDateTime, fmtDayLong, fmtTime, hhmm, minutesOf, mo
 import { completeTask, markLeadHandled, snoozePriority } from '../services/actions'
 import { download, exportBackup, wipeDemo } from '../services/backup'
 import { loadDemo } from '../services/demo'
-import { clientView, computePriorities, freeSlots, hasBareme, isActiveStage, isOverdue, isToday, monthMoney, openTasks, salesOfMonth, type Priority } from '../services/logic'
+import { clientView, computePriorities, freeSlots, hasBareme, isActiveStage, isOverdue, isToday, monthMoney, openTasks, pace, dayRecap, salesOfMonth, type Priority } from '../services/logic'
 import { euro } from '../services/whatsapp'
 import { useData, useNow } from '../ui/data'
 import { QUICK, useDialog } from '../ui/forms'
@@ -151,7 +151,9 @@ export default function Dashboard() {
             <p className="text-right text-sm font-medium">{ventes >= obj ? <span className="text-ok">Objectif atteint</span> : <>{obj - ventes} vente{obj - ventes > 1 ? 's' : ''} restante{obj - ventes > 1 ? 's' : ''}</>}<br /><span className="text-xs text-muted">Progression visée : {s.profil.objectifProgression}</span></p>
           </div>
           <div className="mt-3"><Progress value={ventes} max={obj} tone={ventes >= obj ? 'ok' : 'accent'} /></div>
+          {(() => { const p = pace(ventes, obj, jour); return p.tousLesJours !== null ? <p className="mt-2 text-xs text-muted">Rythme nécessaire : {p.restantes} vente{p.restantes > 1 ? 's' : ''} en {p.joursRestants} jour{p.joursRestants > 1 ? 's' : ''} calendaire{p.joursRestants > 1 ? 's' : ''}, soit environ une tous les {String(p.tousLesJours).replace('.', ',')} jours.</p> : null })()}
         </Card>
+        {(() => { const r = dayRecap(ctx, jour); return <p className="mb-3 px-1 text-sm">Aujourd’hui : <b>{r.echanges}</b> échange{r.echanges > 1 ? 's' : ''} enregistré{r.echanges > 1 ? 's' : ''} · <b>{r.faites}</b> action{r.faites > 1 ? 's' : ''} faite{r.faites > 1 ? 's' : ''} · <b>{r.prospects}</b> nouveau{r.prospects > 1 ? 'x' : ''} prospect{r.prospects > 1 ? 's' : ''}</p> })()}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <Stat label="Relances en retard" value={enRetard.length} tone={enRetard.length ? 'warn' : undefined} onClick={() => nav('/clients?vue=retard')} />
           <Stat label="Rendez-vous prévus" value={rdvAVenir} onClick={() => nav('/agenda')} />

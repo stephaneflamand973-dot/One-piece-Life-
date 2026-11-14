@@ -31,6 +31,7 @@ const AideVente = lazy(() => import('./pages/AideVente'))
 const Fidelisation = lazy(() => import('./pages/Fidelisation'))
 const Parametres = lazy(() => import('./pages/Parametres'))
 const Comparer = lazy(() => import('./pages/Comparer'))
+const FicheRdv = lazy(() => import('./pages/FicheRdv'))
 
 class Boundary extends Component<{ children: ReactNode }, { err?: Error }> {
   state: { err?: Error } = {}
@@ -153,7 +154,7 @@ function Shell() {
     return () => { off(); clearInterval(i); clearTimeout(t) }
   }, [])
 
-  const isPrint = (loc.pathname.startsWith('/devis/') || loc.pathname === '/comparer') && loc.search.includes('imprimer')
+  const isPrint = (loc.pathname.startsWith('/devis/') || loc.pathname === '/comparer' || loc.pathname.startsWith('/fiche-rdv/')) && loc.search.includes('imprimer')
   const tools = (
     <div className="flex items-center gap-1">
       {!online && <Badge tone="warn"><WifiOff size={12} /> Hors ligne</Badge>}
@@ -217,6 +218,7 @@ function Shell() {
               <Route path="/fidelisation" element={<Fidelisation />} />
               <Route path="/parametres" element={<Parametres />} />
               <Route path="/comparer" element={<Comparer />} />
+              <Route path="/fiche-rdv/:id" element={<FicheRdv />} />
               <Route path="*" element={<p className="py-10 text-center text-muted">Page introuvable. <Link className="text-accent" to="/">Retour à l’accueil</Link></p>} />
             </Routes>
           </Suspense>

@@ -8,7 +8,8 @@ import { download, exportBackup, restoreBackup, validateBackup, wipeAll, wipeDem
 import { toCsv } from '../services/csv'
 import { loadDemo } from '../services/demo'
 import { checkLock, setLock, validCode } from '../services/lock'
-import { clientName, SALE_STATUS, stageLabel } from '../services/logic'
+import { clientName, expiredClients, SALE_STATUS, stageLabel } from '../services/logic'
+import { deleteClient } from '../services/actions'
 import { useData } from '../ui/data'
 import { N, QUICK, Sel } from '../ui/forms'
 import { Button, Card, Chip, Field, Section, Sheet, Toggle, useRun, useUI } from '../ui/kit'
@@ -214,7 +215,11 @@ export default function Parametres() {
             <p>• <b className="text-ink">Autorisation :</b> conserver des données clients sur un outil personnel n’est pas automatiquement autorisé par votre employeur. Vérifiez-le avant d’y saisir des données réelles.</p>
             <p>• <b className="text-ink">Minimisation :</b> pas de copie de pièces d’identité ni de données bancaires ; seuls des statuts « reçu / vérifié » sont enregistrés.</p>
             <p>• <b className="text-ink">Droits des personnes :</b> chaque fiche peut être exportée (CSV), corrigée ou supprimée avec tout son historique ; le refus d’être contacté est respecté dans toute l’application.</p>
-            <p>• <b className="text-ink">Conservation :</b> {d.clients.filter((c) => ['perdu'].includes(c.statut) && diffDays(today(), dayKey(c.updatedAt)) > 365).length} fiche(s) « perdu » sans activité depuis plus d’un an — pensez à les supprimer.</p>
+            <p>• <b className="text-ink">Conservation :</b> les fiches closes sans vente et sans activité au-delà de la durée ci-dessous peuvent être supprimées en un geste. Rien n’est supprimé automatiquement.</p>
+            <div className="flex flex-wrap items-end gap-3 border-t border-line pt-3">
+              <Field label="Durée de conservation (mois)" className="w-48"><N value={s.delais.conservationMois} onChange={(v) => D('conservationMois', Math.max(1, v ?? 36))} /></Field>
+              {(() => { const vieux = expiredClients(d); return <Button size="sm" variant={vieux.length ? 'danger' : 'ghost'} disabled={!vieux.length} onClick={async () => { if (await confirm({ title: `Supprimer ${vieux.length} fiche(s) ?`, message: `Fiches « perdu » ou « à réactiver », sans vente et sans activité depuis plus de ${s.delais.conservationMois} mois : ${vieux.slice(0, 6).map((c) => clientName(c)).join(', ')}${vieux.length > 6 ? '…' : ''}. Leur historique sera supprimé définitivement.`, confirmLabel: 'Supprimer', danger: true })) run(async () => { for (const c of vieux) await deleteClient(c.id) }, 'Fiches supprimées') }}>{vieux.length ? `Supprimer ${vieux.length} fiche(s) au-delà de la durée` : 'Aucune fiche au-delà de la durée'}</Button> })()}
+            </div>
             <Button size="sm" variant="outline" onClick={() => setShowAudit(true)}>Journal des modifications</Button>
           </Card>
         </Section>

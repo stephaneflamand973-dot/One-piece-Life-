@@ -486,3 +486,31 @@ export function freeSlots(busy: Slot[], s: Settings['profil'], minLen = 30): Slo
   return out
 }
 export { addDays }
+
+// ---------- Rythme et bilan ----------
+/** Rythme nécessaire pour atteindre l'objectif d'ici la fin du mois (jours calendaires, aujourd'hui compris). */
+export function pace(ventes: number, objectif: number, day = today()): { restantes: number; joursRestants: number; tousLesJours: number | null } {
+  const [y, m, d] = day.split('-').map(Number)
+  const joursRestants = new Date(Date.UTC(y, m, 0)).getUTCDate() - d + 1
+  const restantes = Math.max(0, objectif - ventes)
+  return { restantes, joursRestants, tousLesJours: restantes > 0 ? Math.round((joursRestants / restantes) * 10) / 10 : null }
+}
+export function dayRecap(ctx: Ctx, day = today()) {
+  return {
+    echanges: ctx.interactions.filter((i) => !['statut', 'lead'].includes(i.type) && dayKey(i.date) === day).length,
+    faites: ctx.tasks.filter((t) => t.statut === 'faite' && t.doneAt && dayKey(t.doneAt) === day).length,
+    prospects: ctx.clients.filter((c) => dayKey(c.createdAt) === day).length,
+  }
+}
+/** Fiches sans vente dont le dossier est clos (perdu) ou dormant et sans activité depuis la durée de conservation. */
+export function expiredClients(ctx: Ctx, day = today()): Client[] {
+  const limite = `${addMonths(day.slice(0, 7), -ctx.settings.delais.conservationMois)}-${day.slice(8)}`
+  return ctx.clients.filter((c) => {
+    const kind = ctx.settings.pipeline.find((p) => p.id === c.statut)?.kind
+    if (kind !== 'perdu' && kind !== 'dormant') return false
+    if (ctx.sales.some((x) => x.clientId === c.id)) return false
+    const li = lastInteraction(c.id, ctx.interactions)
+    const derniere = [dayKey(c.updatedAt), li ? dayKey(li.date) : ''].sort().pop()!
+    return derniere < limite
+  })
+}

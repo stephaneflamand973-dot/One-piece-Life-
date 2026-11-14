@@ -5,15 +5,18 @@ import { addDays, addMonths, dayKey, fmtDay, fmtDayLong, fmtMonth, fmtTime, hhmm
 import { download } from '../services/backup'
 import { tasksToIcs } from '../services/ics'
 import { freeSlots, isOverdue } from '../services/logic'
+import { snoozeTask } from '../services/actions'
 import { useData, useNow } from '../ui/data'
 import { useDialog } from '../ui/forms'
-import { Button, Card, Chip, cx, Section } from '../ui/kit'
+import { Button, Card, Chip, cx, Section, useRun, useUI } from '../ui/kit'
 import { PageHead, TaskRow } from '../ui/shared'
 
 export default function Agenda() {
   const { tasks, clients, settings: s } = useData()
   const open = useDialog()
   const now = useNow()
+  const run = useRun()
+  const { confirm } = useUI()
   const [mode, setMode] = useState<'jour' | 'semaine' | 'mois'>('jour')
   const [day, setDay] = useState(today())
   const byDay = useMemo(() => {
@@ -47,7 +50,7 @@ export default function Agenda() {
       </div>
 
       {mode === 'jour' && <>
-        {day === today() && retard.length > 0 && <Section title={`En retard (${retard.length})`}><div className="space-y-2">{retard.slice(0, 6).map((t) => <TaskRow key={t.id} t={t} now={now} />)}</div></Section>}
+        {day === today() && retard.length > 0 && <Section title={`En retard (${retard.length})`} right={<Button size="sm" variant="ghost" onClick={async () => { const souples = retard.filter((t) => !['rdv', 'essai', 'livraison'].includes(t.type)); if (!souples.length) return; if (await confirm({ title: 'Reporter les actions en retard ?', message: `${souples.length} relance(s)/tâche(s) seront reportées à demain. Les rendez-vous, essais et livraisons ne sont jamais déplacés automatiquement.`, confirmLabel: 'Reporter à demain' })) run(async () => { for (const t of souples) await snoozeTask(t.id, 1) }, 'Actions reportées à demain') }}>Tout reporter</Button>}><div className="space-y-2">{retard.slice(0, 6).map((t) => <TaskRow key={t.id} t={t} now={now} />)}</div></Section>}
         <Section title="Planning">
           <div className="space-y-2">{list.map((t) => <TaskRow key={t.id} t={t} now={now} />)}</div>
           {!list.length && <p className="rounded-2xl border border-dashed border-line px-4 py-6 text-center text-sm text-muted">Rien de programmé ce jour-là.</p>}

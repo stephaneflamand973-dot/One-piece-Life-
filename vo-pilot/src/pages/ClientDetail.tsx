@@ -101,6 +101,7 @@ export default function ClientDetail() {
             {!ouvertes.length && <p className={cx('rounded-2xl border border-dashed px-4 py-3 text-sm', actif ? 'border-warn/50 text-warn' : 'border-line text-muted')}>{actif ? 'Aucune prochaine action programmée.' : 'Aucune action programmée.'}</p>}
           </div>
         </Section>
+        {ouvertes.some((t) => ['rdv', 'essai'].includes(t.type)) && <Button variant="outline" className="mb-5 w-full" onClick={() => nav(`/fiche-rdv/${c.id}`)}><FileText size={16} />Préparer le rendez-vous (fiche imprimable)</Button>}
         <Section title="Statut du dossier">
           <Card className="p-4">
             <Sel value={c.statut} onChange={(v) => (v === 'perdu' ? setPerdu(true) : run(() => setClientStatus(c.id, v), 'Statut mis à jour'))} options={s.pipeline.map((p) => ({ value: p.id, label: p.label }))} empty={null} />

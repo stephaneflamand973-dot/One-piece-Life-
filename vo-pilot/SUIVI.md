@@ -29,12 +29,15 @@ Dernière mise à jour : 2026-11-14.
 | Code d’accès (4 à 8 chiffres, empreinte seule, reverrouillage après 5 min en arrière-plan) | fait |
 | Import Excel .xlsx direct du catalogue, comparaison imprimable de 2 ou 3 véhicules | fait |
 | Vue pipeline des dossiers par étape, rappel de sauvegarde sur l’accueil, recalcul des commissions après changement de barème | fait |
+| Import de prospects CSV / Excel avec doublons ignorés et option « leads à traiter » | fait |
+| Fiche de rendez-vous imprimable, e-mail prérempli (messagerie de l’appareil), rythme de ventes et bilan du jour sur l’accueil | fait |
+| Report groupé des actions en retard, suppression des fiches closes au-delà de la durée de conservation | fait |
 | Paramètres (6 rubriques), sauvegarde JSON, restauration validée, exports CSV, effacement à double confirmation, démonstration fictive supprimable | fait |
 
 ## Tests exécutés
 
-- `npm test` : 43 tests réussis (calculs de devis et carte grise, fuseau, correspondances, commissions, priorités, CSV, sauvegarde, parcours 1 à 5 sur IndexedDB).
-- `npm run e2e` : 28 parcours réussis (trois exécutions de suite) dans Chromium au format iPhone 14, dont persistance après actualisation, import corrompu refusé, restauration, utilisation hors connexion. Aucune erreur console.
+- `npm test` : 47 tests réussis (calculs de devis et carte grise, fuseau, correspondances, commissions, priorités, CSV, sauvegarde, parcours 1 à 5 sur IndexedDB).
+- `npm run e2e` : 31 parcours réussis dans Chromium au format iPhone 14, dont persistance après actualisation, import corrompu refusé, restauration, utilisation hors connexion. Aucune erreur console.
 - `npm run build` : vérification de types et construction réussies.
 
 ## Non testé
@@ -52,10 +55,10 @@ Dernière mise à jour : 2026-11-14.
 - Connexions UpYourLeads, stock Renault, API WhatsApp Business, Outlook/Microsoft 365.
 - IA externe (l’assistant est entièrement à base de règles).
 - Notifications en arrière-plan (exigent un serveur d’envoi).
-- Ancien format Excel .xls, import ICS, pièces jointes aux notes, fiche de rendez-vous imprimable.
+- Ancien format Excel .xls, import ICS, pièces jointes aux notes.
 - Opportunités multiples par client (une fiche = une opportunité en cours ; un client livré repasse « À réactiver »).
 - Chiffrement de la base locale (le code d’accès bloque l’ouverture de l’application, il ne chiffre pas les données).
-- Durées de conservation automatiques (seul un rappel des fiches perdues anciennes existe).
+- Suppression automatique à l’échéance de conservation (la suppression reste un geste volontaire dans Paramètres).
 
 ## Problèmes connus
 
@@ -65,8 +68,11 @@ Dernière mise à jour : 2026-11-14.
 - L’import Excel lit la première feuille et les valeurs brutes ; une date Excel apparaît comme un nombre.
 - Le numéro WhatsApp suppose l’indicatif +596 pour un numéro local à 10 chiffres commençant par 0.
 
+- Le rythme de ventes est calculé en jours calendaires (les jours travaillés ne sont pas connus).
+- L’e-mail s’ouvre dans la messagerie de l’appareil via un lien `mailto:` ; un texte très long peut y être tronqué.
+
 ## Prochaine étape proposée
 
 1. Essai sur l’iPhone réel avec la démonstration, puis saisie du vrai barème de commissions.
 2. Confirmer avec l’employeur l’autorisation de conserver des données clients avant toute saisie réelle.
-3. Selon l’usage : synchronisation cloud avec authentification (Supabase), chiffrement local, fiche de rendez-vous imprimable.
+3. Selon l’usage : synchronisation cloud avec authentification (Supabase), chiffrement local, opportunités multiples par client.
