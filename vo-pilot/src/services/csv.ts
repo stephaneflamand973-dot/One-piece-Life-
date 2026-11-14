@@ -48,8 +48,8 @@ const STATUTS: Record<string, VehicleStatus> = { disponible: 'disponible', reser
 const NUMS: (keyof Vehicle)[] = ['annee', 'km', 'puissance', 'cvFiscaux', 'prix']
 
 export interface CsvImport { vehicles: Partial<Vehicle>[]; erreurs: string[]; colonnesIgnorees: string[] }
-export function vehiclesFromCsv(text: string): CsvImport {
-  const rows = parseCsv(text)
+export const vehiclesFromCsv = (text: string): CsvImport => vehiclesFromRows(parseCsv(text))
+export function vehiclesFromRows(rows: string[][]): CsvImport {
   if (rows.length < 2) return { vehicles: [], erreurs: ['Fichier vide ou sans ligne de données.'], colonnesIgnorees: [] }
   const header = rows[0].map((h) => norm(h).replace(/[_.]/g, ' '))
   const map = header.map((h) => COLS[h])

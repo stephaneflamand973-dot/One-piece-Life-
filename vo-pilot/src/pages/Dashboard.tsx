@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AlertTriangle, CalendarClock, Check, ChevronRight, Coffee, Play, Sparkles, Target } from 'lucide-react'
-import { dayKey, fmtDateTime, fmtDayLong, fmtTime, hhmm, minutesOf, monthKey, relative, today, toLocalInput } from '../lib/dates'
+import { dayKey, diffDays, fmtDateTime, fmtDayLong, fmtTime, hhmm, minutesOf, monthKey, relative, today, toLocalInput } from '../lib/dates'
 import { completeTask, markLeadHandled, snoozePriority } from '../services/actions'
-import { wipeDemo } from '../services/backup'
+import { download, exportBackup, wipeDemo } from '../services/backup'
 import { loadDemo } from '../services/demo'
 import { clientView, computePriorities, freeSlots, hasBareme, isActiveStage, isOverdue, isToday, monthMoney, openTasks, salesOfMonth, type Priority } from '../services/logic'
 import { euro } from '../services/whatsapp'
@@ -112,6 +112,12 @@ export default function Dashboard() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-warn/40 bg-warn-soft px-4 py-3 text-sm text-warn">
           <span><b>Données de démonstration fictives.</b> Elles ne reflètent aucun résultat réel.</span>
           <Button size="sm" variant="outline" onClick={async () => { if (await confirm({ title: 'Supprimer la démonstration ?', message: 'Toutes les données fictives seront effacées. Vos propres saisies sont conservées.', confirmLabel: 'Supprimer', danger: true })) run(wipeDemo, 'Données de démonstration supprimées') }}>Supprimer la démo</Button>
+        </div>
+      )}
+      {!vide && !s.demoChargee && (!s.derniereSauvegarde || diffDays(jour, dayKey(s.derniereSauvegarde)) >= 7) && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-line bg-card px-4 py-3 text-sm">
+          <span>{s.derniereSauvegarde ? `Dernière sauvegarde il y a ${diffDays(jour, dayKey(s.derniereSauvegarde))} jours.` : 'Aucune sauvegarde exportée pour l’instant.'} <span className="text-muted">Vos données ne sont que sur cet appareil.</span></span>
+          <Button size="sm" variant="soft" onClick={() => run(async () => { const b = await exportBackup(); download(`vo-pilot-sauvegarde-${jour}.json`, JSON.stringify(b)) }, 'Sauvegarde exportée')}>Sauvegarder maintenant</Button>
         </div>
       )}
       {vide && !s.demoChargee && (

@@ -7,6 +7,7 @@ import { dayKey, diffDays, fmtDateTime, today } from '../lib/dates'
 import { download, exportBackup, restoreBackup, validateBackup, wipeAll, wipeDemo, type Backup } from '../services/backup'
 import { toCsv } from '../services/csv'
 import { loadDemo } from '../services/demo'
+import { checkLock, setLock, validCode } from '../services/lock'
 import { clientName, SALE_STATUS, stageLabel } from '../services/logic'
 import { useData } from '../ui/data'
 import { N, QUICK, Sel } from '../ui/forms'
@@ -36,6 +37,8 @@ export default function Parametres() {
   const [quota, setQuota] = useState<{ usage?: number; quota?: number; persisted?: boolean }>({})
   const [showAudit, setShowAudit] = useState(false)
   const file = useRef<HTMLInputElement>(null)
+  const [lockOpen, setLockOpen] = useState(false)
+  const [lk, setLk] = useState({ ancien: '', code: '', confirm: '' })
   const auditLog = useLiveQuery(() => (showAudit ? db.audit.orderBy('date').reverse().limit(80).toArray() : []), [showAudit]) ?? []
   const up = (fn: (st: Settings) => void, msg?: string) => run(() => saveSettings(fn), msg)
   useEffect(() => { (async () => { try { const e = await navigator.storage?.estimate?.(); const p = await navigator.storage?.persisted?.(); setQuota({ usage: e?.usage, quota: e?.quota, persisted: p }) } catch { /* indisponible */ } })() }, [])
@@ -49,6 +52,15 @@ export default function Parametres() {
     try { setRestore(validateBackup(JSON.parse(await f.text()))) } catch (e) { toast(e instanceof SyntaxError ? 'Fichier illisible : ce n’est pas un fichier JSON valide.' : (e as Error).message, 'bad') }
     if (file.current) file.current.value = ''
   }
+  const saveLock = (retirer: boolean) => run(async () => {
+    if (s.verrou && !(await checkLock(lk.ancien, s.verrou))) throw new Error('Le code actuel est incorrect.')
+    if (!retirer) {
+      if (!validCode(lk.code)) throw new Error('Le code doit comporter 4 à 8 chiffres.')
+      if (lk.code !== lk.confirm) throw new Error('Les deux saisies du nouveau code ne correspondent pas.')
+    }
+    await setLock(retirer ? null : lk.code)
+    setLockOpen(false); setLk({ ancien: '', code: '', confirm: '' })
+  }, retirer ? 'Code d’accès retiré' : 'Code d’accès enregistré')
   const csvClients = () => download('vo-pilot-clients.csv', toCsv(['ref', 'nom', 'prenom', 'telephone', 'email', 'source', 'statut', 'recherche', 'budget', 'premier contact'], d.clients.map((c) => [c.ref, c.nom, c.prenom, c.tel, c.email, c.source, stageLabel(s.pipeline, c.statut), c.recherche?.modele ?? c.recherche?.texte, c.recherche?.budgetMax, c.premierContact])), 'text/csv')
   const csvVentes = () => download('vo-pilot-ventes.csv', toCsv(['ref', 'client', 'vehicule', 'prix', 'remise', 'reprise', 'financement', 'statut', 'bon de commande', 'confirmation', 'livraison effective', 'commission estimee', 'commission versee'], d.sales.map((x) => [x.ref, clientName(d.byClient.get(x.clientId)), x.vehiculeLabel, x.prixVente, x.remise, x.reprise, x.financementType, SALE_STATUS[x.statut], x.dateBC, x.dateConfirmation, x.livraisonEffective, x.commission.estime, x.commission.verse])), 'text/csv')
 
@@ -190,6 +202,13 @@ export default function Parametres() {
             <p className="text-xs text-muted">Le fichier contient des données personnelles de clients : conservez-le dans un espace protégé. Sur iPhone, Safari peut effacer les données d’un site non utilisé pendant plusieurs semaines : installez l’application sur l’écran d’accueil et exportez régulièrement.</p>
           </Card>
         </Section>
+        <Section title="Code d’accès">
+          <Card className="space-y-2 p-4 text-sm">
+            <p>État : <b className={s.verrou ? 'text-ok' : 'text-warn'}>{s.verrou ? 'activé' : 'désactivé'}</b></p>
+            <p className="text-muted">Demandé à l’ouverture et après 5 minutes en arrière-plan. Il empêche un tiers d’ouvrir l’application sur votre téléphone, mais ne chiffre pas les données stockées. En cas d’oubli, il faut tout effacer puis restaurer une sauvegarde : exportez-en une avant d’activer le code.</p>
+            <Button variant="outline" onClick={() => setLockOpen(true)}>{s.verrou ? 'Modifier ou retirer le code' : 'Définir un code'}</Button>
+          </Card>
+        </Section>
         <Section title="Confidentialité (RGPD)">
           <Card className="space-y-2 p-4 text-sm text-muted">
             <p>• <b className="text-ink">Autorisation :</b> conserver des données clients sur un outil personnel n’est pas automatiquement autorisé par votre employeur. Vérifiez-le avant d’y saisir des données réelles.</p>
@@ -210,6 +229,7 @@ export default function Parametres() {
             <p>• UpYourLeads, stock Renault : <b className="text-ink">aucune connexion</b> (saisie manuelle ou import CSV autorisé).</p>
             <p>• WhatsApp Business : ouverture d’une conversation préremplie, envoi manuel.</p>
             <p>• Outlook / Calendrier : export .ics depuis l’Agenda, pas de synchronisation.</p>
+            <p>• Fichiers Excel (.xlsx) : lus directement à l’import du catalogue.</p>
             <p>• Synchronisation cloud et IA externe : non développées.</p>
           </Card>
         </Section>
@@ -217,6 +237,13 @@ export default function Parametres() {
 
       <Sheet open={!!restore} onClose={() => setRestore(null)} title="Restaurer cette sauvegarde ?" footer={<><Button variant="ghost" onClick={() => setRestore(null)}>Annuler</Button><Button variant="danger" onClick={() => { const b = restore!.backup; setRestore(null); run(() => restoreBackup(b), 'Sauvegarde restaurée') }}>Remplacer mes données</Button></>}>
         {restore && <div className="space-y-2 text-sm"><p>Sauvegarde du <b>{fmtDateTime(restore.backup.exportedAt)}</b> :</p><p className="text-muted">{[['clients', 'client(s)'], ['vehicles', 'véhicule(s)'], ['sales', 'vente(s)'], ['tasks', 'tâche(s)'], ['quotes', 'devis'], ['notes', 'note(s)']].map(([k, l]) => `${restore.resume[k] ?? 0} ${l}`).join(' · ')}</p><p className="rounded-xl bg-bad-soft px-3 py-2 font-semibold text-bad">Toutes les données actuelles de cet appareil seront remplacées.</p></div>}
+      </Sheet>
+      <Sheet open={lockOpen} onClose={() => setLockOpen(false)} title="Code d’accès" footer={<>{s.verrou && <Button variant="danger" className="mr-auto" onClick={() => saveLock(true)}>Retirer le code</Button>}<Button variant="ghost" onClick={() => setLockOpen(false)}>Annuler</Button><Button onClick={() => saveLock(false)}>Enregistrer</Button></>}>
+        <div className="space-y-3">
+          {s.verrou && <Field label="Code actuel"><input className="inp" type="password" inputMode="numeric" autoComplete="off" value={lk.ancien} onChange={(e) => setLk({ ...lk, ancien: e.target.value.replace(/\D/g, '') })} /></Field>}
+          <Field label="Nouveau code (4 à 8 chiffres)"><input className="inp" type="password" inputMode="numeric" autoComplete="off" maxLength={8} value={lk.code} onChange={(e) => setLk({ ...lk, code: e.target.value.replace(/\D/g, '') })} /></Field>
+          <Field label="Confirmer le nouveau code"><input className="inp" type="password" inputMode="numeric" autoComplete="off" maxLength={8} value={lk.confirm} onChange={(e) => setLk({ ...lk, confirm: e.target.value.replace(/\D/g, '') })} /></Field>
+        </div>
       </Sheet>
       <Sheet open={showAudit} onClose={() => setShowAudit(false)} title="Journal des modifications" wide>
         <div className="divide-y divide-line text-sm">{auditLog.map((a) => <div key={a.id} className="py-2"><p><b>{a.entite}</b> · {a.action} <span className="text-xs text-muted">({a.origine})</span></p><p className="text-xs text-muted">{fmtDateTime(a.date)}{a.avant ? ` · avant : ${a.avant}` : ''}{a.apres ? ` · après : ${a.apres}` : ''}</p></div>)}{!auditLog.length && <p className="py-4 text-muted">Aucune modification journalisée.</p>}</div>

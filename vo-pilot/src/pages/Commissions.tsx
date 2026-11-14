@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, Trash2 } from 'lucide-react'
 import { db, saveSettings, uid } from '../lib/db'
+import { recalcCommissions } from '../services/actions'
 import type { CommissionRule, Settings } from '../lib/types'
 import { FINANCEMENTS } from '../lib/defaults'
 import { addMonths, fmtMonth, monthKey } from '../lib/dates'
@@ -9,13 +10,14 @@ import { clientName, commissionParVenteBase, hasBareme, monthMoney, palierBonus,
 import { euro } from '../services/whatsapp'
 import { useData } from '../ui/data'
 import { N, Sel } from '../ui/forms'
-import { Button, Card, Field, Section, Stat, Toggle, useRun } from '../ui/kit'
+import { Button, Card, Field, Section, Stat, Toggle, useRun, useUI } from '../ui/kit'
 import { PageHead } from '../ui/shared'
 
 export default function Commissions() {
   const d = useData()
   const { settings: s, sales, revenus } = d
   const run = useRun()
+  const { toast } = useUI()
   const [mois, setMois] = useState(monthKey())
   const [prixMoyen, setPrixMoyen] = useState(15000)
   const up = (fn: (c: Settings['commission']) => void) => run(() => saveSettings((st) => { fn(st.commission) }))
@@ -59,6 +61,7 @@ export default function Commissions() {
           ))}
           {!list.length && <p className="px-4 py-4 text-sm text-muted">Aucune vente comptabilisée ce mois-là.</p>}
         </Card>
+        {list.length > 0 && bareme && <Button size="sm" variant="ghost" className="mt-2" onClick={async () => { const n = await run(() => recalcCommissions(list.map((x) => x.id))); if (n !== undefined) toast(n ? `${n} estimation(s) recalculée(s) avec le barème actuel` : 'Estimations déjà à jour') }}>Recalculer les estimations de ce mois avec le barème actuel</Button>}
       </Section>
 
       <Section title="Revenu réellement perçu (saisie)">
@@ -112,7 +115,7 @@ export default function Commissions() {
             ))}
             {!s.commission.paliers.length && <p className="text-sm text-muted">Aucun palier. Le palier atteint le plus élevé s’applique une fois sur le mois.</p>}
           </Card>
-          <p className="px-1 text-xs text-muted">Modifier le barème ne recalcule pas les ventes déjà enregistrées ; leur estimation est recalculée quand leurs montants sont modifiés.</p>
+          <p className="px-1 text-xs text-muted">Modifier le barème ne change pas d’office les ventes déjà enregistrées : utilisez « Recalculer les estimations de ce mois » sous la liste des ventes. Les montants confirmés et versés ne sont jamais modifiés.</p>
         </div>
       </Section>
     </div>

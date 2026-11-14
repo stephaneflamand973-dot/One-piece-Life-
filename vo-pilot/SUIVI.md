@@ -1,6 +1,6 @@
 # Suivi du développement — VO PILOT
 
-Dernière mise à jour : 2026-11-13.
+Dernière mise à jour : 2026-11-14.
 
 ## Terminé et testé
 
@@ -26,18 +26,21 @@ Dernière mise à jour : 2026-11-13.
 | Assistant : questions en langage courant, 7 modules de règles, hors ligne | fait |
 | Automatisations : 8 règles activables, sans doublon, journal, dernière erreur | fait |
 | Notes liées, recherche globale, favoris, journal d’audit | fait |
+| Code d’accès (4 à 8 chiffres, empreinte seule, reverrouillage après 5 min en arrière-plan) | fait |
+| Import Excel .xlsx direct du catalogue, comparaison imprimable de 2 ou 3 véhicules | fait |
+| Vue pipeline des dossiers par étape, rappel de sauvegarde sur l’accueil, recalcul des commissions après changement de barème | fait |
 | Paramètres (6 rubriques), sauvegarde JSON, restauration validée, exports CSV, effacement à double confirmation, démonstration fictive supprimable | fait |
 
 ## Tests exécutés
 
-- `npm test` : 38 tests réussis (calculs de devis et carte grise, fuseau, correspondances, commissions, priorités, CSV, sauvegarde, parcours 1 à 5 sur IndexedDB).
-- `npm run e2e` : 24 parcours réussis dans Chromium au format iPhone 14, dont persistance après actualisation, import corrompu refusé, restauration, utilisation hors connexion. Aucune erreur console.
+- `npm test` : 43 tests réussis (calculs de devis et carte grise, fuseau, correspondances, commissions, priorités, CSV, sauvegarde, parcours 1 à 5 sur IndexedDB).
+- `npm run e2e` : 28 parcours réussis (trois exécutions de suite) dans Chromium au format iPhone 14, dont persistance après actualisation, import corrompu refusé, restauration, utilisation hors connexion. Aucune erreur console.
 - `npm run build` : vérification de types et construction réussies.
 
 ## Non testé
 
 - iPhone réel et Safari/WebKit (tests faits dans Chromium émulant un iPhone) : installation sur l’écran d’accueil, partage de la fiche image, notifications.
-- Publication GitHub Pages (ne s’exécute qu’après fusion dans `main`).
+- Publication GitHub Pages : construction et mise en ligne réussies le 2026-11-13 ; l’adresse publique n’a pas été ouverte depuis l’environnement de développement.
 - Gros volumes (plusieurs centaines de fiches, nombreuses photos) : non mesuré.
 - Stockage indisponible (navigation privée stricte) : un écran d’erreur est prévu, non vérifié sur appareil.
 - Accessibilité au lecteur d’écran : libellés posés, pas d’audit.
@@ -49,19 +52,21 @@ Dernière mise à jour : 2026-11-13.
 - Connexions UpYourLeads, stock Renault, API WhatsApp Business, Outlook/Microsoft 365.
 - IA externe (l’assistant est entièrement à base de règles).
 - Notifications en arrière-plan (exigent un serveur d’envoi).
-- Import Excel direct, import ICS, pièces jointes aux notes, document de comparaison de véhicules, fiche de rendez-vous imprimable.
+- Ancien format Excel .xls, import ICS, pièces jointes aux notes, fiche de rendez-vous imprimable.
 - Opportunités multiples par client (une fiche = une opportunité en cours ; un client livré repasse « À réactiver »).
-- Verrouillage de l’application par code.
+- Chiffrement de la base locale (le code d’accès bloque l’ouverture de l’application, il ne chiffre pas les données).
 - Durées de conservation automatiques (seul un rappel des fiches perdues anciennes existe).
 
 ## Problèmes connus
 
 - Le paquet JavaScript principal pèse environ 175 Ko compressé ; découpage possible.
-- Modifier le barème ne recalcule pas les ventes déjà enregistrées.
+- Modifier le barème ne recalcule pas d’office les ventes déjà enregistrées : bouton de recalcul par mois dans Commissions.
+- Code d’accès oublié : aucune récupération, il faut tout effacer puis restaurer une sauvegarde.
+- L’import Excel lit la première feuille et les valeurs brutes ; une date Excel apparaît comme un nombre.
 - Le numéro WhatsApp suppose l’indicatif +596 pour un numéro local à 10 chiffres commençant par 0.
 
 ## Prochaine étape proposée
 
 1. Essai sur l’iPhone réel avec la démonstration, puis saisie du vrai barème de commissions.
 2. Confirmer avec l’employeur l’autorisation de conserver des données clients avant toute saisie réelle.
-3. Selon l’usage : synchronisation cloud avec authentification (Supabase), verrouillage par code, import Excel.
+3. Selon l’usage : synchronisation cloud avec authentification (Supabase), chiffrement local, fiche de rendez-vous imprimable.

@@ -374,5 +374,6 @@ export interface Settings {
   raccourcis: string[]
   compteurs: Record<string, number>
   demoChargee?: boolean
+  verrou?: { sel: string; hash: string } // code d'accès (empreinte uniquement, jamais le code)
   derniereSauvegarde?: string
 }

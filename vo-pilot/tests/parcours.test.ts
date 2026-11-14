@@ -181,3 +181,17 @@ describe('Régression', () => {
     await expect(saveClient({ id: c.id, nom: '', tel: '' })).rejects.toThrow()
   })
 })
+
+describe('Commissions : recalcul après changement de barème', () => {
+  it('met à jour l’estimation sans toucher au montant versé', async () => {
+    const { recalcCommissions } = await import('../src/services/actions')
+    const c = await saveClient({ nom: 'Recalcul', tel: '0696121212' })
+    const sale = await createSale({ clientId: c.id, vehiculeLabel: 'Renault Clio', prixVente: 15000, remise: 0, reprise: 0, financementType: 'Comptant', dateBC: today(), dateConfirmation: today(), statut: 'confirmee' })
+    expect(sale.commission.estime).toBeUndefined()
+    await updateSale(sale.id, { commission: { verse: 80 } })
+    await saveSettings((s) => { s.commission.regles = [{ id: 'r', label: 'Base', type: 'par_vente', montant: 200, actif: true }] })
+    expect(await recalcCommissions([sale.id])).toBe(1)
+    expect((await db.sales.get(sale.id))!.commission).toMatchObject({ estime: 200, verse: 80 })
+    expect(await recalcCommissions([sale.id])).toBe(0)
+  })
+})

@@ -1,11 +1,11 @@
 import { useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Car, Download, Plus, Star, Upload } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Car, Columns3, Download, Plus, Star, Upload } from 'lucide-react'
 import type { Vehicle } from '../lib/types'
 import { BOITES } from '../lib/defaults'
 import { saveVehicle } from '../services/actions'
 import { download } from '../services/backup'
-import { toCsv, VEHICLE_HEADERS, vehiclesFromCsv, vehiclesToCsv, type CsvImport } from '../services/csv'
+import { toCsv, VEHICLE_HEADERS, vehiclesFromCsv, vehiclesFromRows, vehiclesToCsv, type CsvImport } from '../services/csv'
 import { norm, vehicleLabel } from '../services/logic'
 import { euro, kmFmt } from '../services/whatsapp'
 import { useData } from '../ui/data'
@@ -25,6 +25,9 @@ export default function Vehicles() {
   const [budget, setBudget] = useState('')
   const [tri, setTri] = useState<'recent' | 'prix' | 'prix_desc' | 'km'>('recent')
   const [imp, setImp] = useState<CsvImport | null>(null)
+  const [cmp, setCmp] = useState<string[] | null>(null)
+  const nav = useNavigate()
+  const pick = (id: string) => setCmp((c) => (!c ? c : c.includes(id) ? c.filter((x) => x !== id) : c.length >= 3 ? (toast('Trois véhicules au maximum.', 'bad'), c) : [...c, id]))
 
   const list = useMemo(() => {
     const mots = norm(q).split(/\s+/).filter(Boolean)
@@ -42,8 +45,11 @@ export default function Vehicles() {
 
   const onFile = async (f?: File) => {
     if (!f) return
-    if (/\.xlsx?$/i.test(f.name)) return toast('Les fichiers Excel ne sont pas lus directement : enregistrez la feuille au format CSV, puis importez-la.', 'bad')
-    try { setImp(vehiclesFromCsv(await f.text())) } catch { toast('Fichier illisible.', 'bad') }
+    try {
+      if (/\.xls$/i.test(f.name)) throw new Error('L’ancien format .xls n’est pas pris en charge : enregistrez le classeur en .xlsx ou en CSV.')
+      if (/\.xlsx$/i.test(f.name)) { const { xlsxToRows } = await import('../services/xlsx'); setImp(vehiclesFromRows(xlsxToRows(new Uint8Array(await f.arrayBuffer())))) }
+      else setImp(vehiclesFromCsv(await f.text()))
+    } catch (e) { toast((e as Error).message || 'Fichier illisible.', 'bad') }
     if (file.current) file.current.value = ''
   }
   const doImport = () => run(async () => {
@@ -57,7 +63,7 @@ export default function Vehicles() {
   return (
     <div>
       <PageHead title="Catalogue véhicules" sub={`${vehicles.length} véhicule${vehicles.length > 1 ? 's' : ''} — catalogue personnel, non relié au stock Renault`} back="/plus"
-        right={<><Button variant="outline" size="sm" aria-label="Importer un CSV" onClick={() => file.current?.click()}><Upload size={16} /><span className="hidden sm:inline">Importer</span></Button><Button variant="outline" size="sm" aria-label="Exporter en CSV" disabled={!vehicles.length} onClick={() => download('vo-pilot-vehicules.csv', vehiclesToCsv(vehicles), 'text/csv')}><Download size={16} /></Button><Button onClick={() => open('vehicule')}><Plus size={18} /></Button></>} />
+        right={<><Button variant={cmp ? 'soft' : 'outline'} size="sm" aria-label="Comparer des véhicules" onClick={() => setCmp(cmp ? null : [])}><Columns3 size={16} /><span className="hidden sm:inline">{cmp ? 'Terminer' : 'Comparer'}</span></Button><Button variant="outline" size="sm" aria-label="Importer un fichier CSV ou Excel" onClick={() => file.current?.click()}><Upload size={16} /><span className="hidden sm:inline">Importer</span></Button><Button variant="outline" size="sm" aria-label="Exporter en CSV" disabled={!vehicles.length} onClick={() => download('vo-pilot-vehicules.csv', vehiclesToCsv(vehicles), 'text/csv')}><Download size={16} /></Button><Button onClick={() => open('vehicule')}><Plus size={18} /></Button></>} />
       <input ref={file} type="file" accept=".csv,text/csv,.txt,.xlsx,.xls" hidden onChange={(e) => onFile(e.target.files?.[0])} />
       <div className="mb-3 grid grid-cols-2 gap-2 md:grid-cols-4">
         <input className="inp col-span-2" placeholder="Marque, modèle, référence, équipement…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Rechercher un véhicule" />
@@ -70,18 +76,24 @@ export default function Vehicles() {
         {(['reserve', 'preparation', 'vendu', 'a_verifier'] as const).map((k) => <Chip key={k} active={statut === k} onClick={() => setStatut(k)}>{VEHICLE_STATUS[k].label}</Chip>)}
         <Chip active={statut === 'tous'} onClick={() => setStatut('tous')}>Tous</Chip>
       </div>
+      {cmp && (
+        <div className="sticky top-16 z-10 mb-3 flex flex-wrap items-center gap-2 rounded-2xl bg-navy px-4 py-2.5 text-sm text-white">
+          <span className="font-semibold">{cmp.length ? `${cmp.length} véhicule${cmp.length > 1 ? 's' : ''} sélectionné${cmp.length > 1 ? 's' : ''}` : 'Touchez 2 ou 3 véhicules à comparer'}</span>
+          <Button size="sm" className="ml-auto" disabled={cmp.length < 2} onClick={() => nav(`/comparer?ids=${cmp.join(',')}`)}>Comparer</Button>
+        </div>
+      )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {list.map((v) => (
-          <Link key={v.id} to={`/vehicules/${v.id}`} className="rounded-2xl border border-line bg-card p-3.5 transition hover:border-accent">
+          <Link key={v.id} to={`/vehicules/${v.id}`} onClick={(e) => { if (cmp) { e.preventDefault(); pick(v.id) } }} aria-pressed={cmp ? cmp.includes(v.id) : undefined} className={`rounded-2xl border bg-card p-3.5 transition hover:border-accent ${cmp?.includes(v.id) ? 'border-accent ring-2 ring-accent/30' : 'border-line'}`}>
             <div className="flex items-start justify-between gap-2"><p className="min-w-0 truncate font-bold">{v.favori && <Star size={14} className="mr-1 inline fill-current text-warn" />}{vehicleLabel(v)}</p><Badge tone={VEHICLE_STATUS[v.statut].tone}>{VEHICLE_STATUS[v.statut].label}</Badge></div>
             <p className="mt-0.5 truncate text-sm text-muted">{[v.annee, v.km !== undefined ? kmFmt(v.km) : '', v.carburant, v.boite].filter(Boolean).join(' · ') || 'Caractéristiques à compléter'}</p>
             <div className="mt-2 flex items-end justify-between"><span className="text-lg font-extrabold">{euro(v.prix)}</span><span className="text-xs text-muted">{v.ref}{v.site ? ` · ${v.site}` : ''}</span></div>
           </Link>
         ))}
       </div>
-      {!list.length && <Empty icon={<Car size={28} />} title={vehicles.length ? 'Aucun véhicule ne correspond' : 'Catalogue vide'} action={<div className="flex flex-wrap justify-center gap-2"><Button onClick={() => open('vehicule')}>Ajouter un véhicule</Button><Button variant="outline" onClick={() => download('modele-import-vehicules.csv', toCsv(VEHICLE_HEADERS, [['EX-001', 'Renault', 'Clio', 'V TCe 90', 'Citadine', 2022, 30000, 'Essence', 'Automatique', 90, 5, 'Gris', 14490, '12 mois', 'Lareinty', 'GPS, Caméra', 'disponible', '2026-06-01', '']]), 'text/csv')}>Modèle de fichier CSV</Button></div>}>Ajoutez vos véhicules à la main ou importez un fichier CSV que vous êtes autorisé à utiliser.</Empty>}
+      {!list.length && <Empty icon={<Car size={28} />} title={vehicles.length ? 'Aucun véhicule ne correspond' : 'Catalogue vide'} action={<div className="flex flex-wrap justify-center gap-2"><Button onClick={() => open('vehicule')}>Ajouter un véhicule</Button><Button variant="outline" onClick={() => download('modele-import-vehicules.csv', toCsv(VEHICLE_HEADERS, [['EX-001', 'Renault', 'Clio', 'V TCe 90', 'Citadine', 2022, 30000, 'Essence', 'Automatique', 90, 5, 'Gris', 14490, '12 mois', 'Lareinty', 'GPS, Caméra', 'disponible', '2026-06-01', '']]), 'text/csv')}>Modèle de fichier CSV</Button></div>}>Ajoutez vos véhicules à la main ou importez un fichier CSV ou Excel (.xlsx) que vous êtes autorisé à utiliser.</Empty>}
 
-      <Sheet open={!!imp} onClose={() => setImp(null)} title="Import CSV — vérification" footer={<><Button variant="ghost" onClick={() => setImp(null)}>Annuler</Button><Button disabled={!imp?.vehicles.length} onClick={doImport}>Importer {imp?.vehicles.length ?? 0} véhicule(s)</Button></>}>
+      <Sheet open={!!imp} onClose={() => setImp(null)} title="Import — vérification" footer={<><Button variant="ghost" onClick={() => setImp(null)}>Annuler</Button><Button disabled={!imp?.vehicles.length} onClick={doImport}>Importer {imp?.vehicles.length ?? 0} véhicule(s)</Button></>}>
         {imp && <div className="space-y-3 text-sm">
           <p><b>{imp.vehicles.length}</b> ligne(s) valides : {imp.vehicles.filter((v) => v.ref && existants.has(v.ref)).length} mise(s) à jour par référence, {imp.vehicles.filter((v) => !v.ref || !existants.has(v.ref)).length} création(s).</p>
           {imp.erreurs.map((e) => <p key={e} className="rounded-xl bg-bad-soft px-3 py-2 text-bad">{e}</p>)}
